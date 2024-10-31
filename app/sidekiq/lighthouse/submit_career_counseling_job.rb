@@ -21,20 +21,7 @@ module Lighthouse
       pcpg_monitor = PCPG::Monitor.new
       pcpg_monitor.track_submission_exhaustion(msg, claim)
 
-      if Flipper.enabled?(:pcpg_trigger_action_needed_email)
-        email = claim.parsed_form.dig('claimantInformation', 'emailAddress')
-        if claim.present? && email.present?
-          VANotify::EmailJob.perform_async(
-            email,
-            Settings.vanotify.services.va_gov.template_id.form27_8832_action_needed_email,
-            {
-              'first_name' => claim.parsed_form.dig('claimantInformation', 'fullName', 'first')&.upcase.presence,
-              'date' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => claim.confirmation_number
-            }
-          )
-        end
-      end
+      Lighthouse::SubmitCareerCounselingJob.trigger_failure_events(claim)
     end
 
     def perform(claim_id, user_uuid = nil)
@@ -69,6 +56,21 @@ module Lighthouse
           'date' => Time.zone.today.strftime('%B %d, %Y')
         }
       )
+    end
+
+    def self.trigger_failure_events(claim)
+      email = claim.parsed_form.dig('claimantInformation', 'emailAddress')
+      if claim.present? && email.present?
+        VANotify::EmailJob.perform_async(
+          email,
+          Settings.vanotify.services.va_gov.template_id.form27_8832_action_needed_email,
+          {
+            'first_name' => claim.parsed_form.dig('claimantInformation', 'fullName', 'first')&.upcase.presence,
+            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => claim.confirmation_number
+          }
+        )
+      end
     end
   end
 end
