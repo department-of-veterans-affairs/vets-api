@@ -73,8 +73,8 @@ RSpec.shared_examples 'shared reporting behavior' do
       second_group = va_gov_groups[2]
       second_transaction_id = claim_two[:transaction_id]
 
-      expect(second_group[0]).to include(transaction_id: "#{second_transaction_id}")
-      expect(first_group[0]).to include(transaction_id: "#{first_transaction_id}")
+      expect(second_group[0]).to include(transaction_id: second_transaction_id.to_s)
+      expect(first_group[0]).to include(transaction_id: first_transaction_id.to_s)
     end
   end
 end
