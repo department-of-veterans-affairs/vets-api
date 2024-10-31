@@ -6,7 +6,7 @@ require 'sidekiq/testing'
 
 RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :worker do
   describe '#perform' do
-    let(:form_submission) { build(:debts_api_form5655_submission) }
+    let(:form_submission) { create(:debts_api_form5655_submission) }
 
     before do
       allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission)
@@ -25,7 +25,7 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
       let(:msg) do
         {
           'class' => 'YourJobClassName',
-          'args' => %w[123],
+          'args' => [form_submission.id],
           'jid' => '12345abcde',
           'retry_count' => 5
         }
@@ -43,6 +43,15 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
         ["#{statsd_key}.failure", "#{statsd_key}.retries_exhausted", 'api.fsr_submission.failure'].each do |key|
           expect(StatsD).to receive(:increment).with(key)
         end
+
+        expect(Rails.logger).to receive(:error).with(
+          "Form5655Submission id: #{form_submission.id} failed", "SharePoint Submission Failed: ."
+        )
+        expect(Rails.logger).to receive(:error).with(
+          a_string_matching(
+            /V0::Form5655::VHA::SharepointSubmissionJob retries exhausted:\nsubmission_id: #{form_submission.id}\nException:.*\nBacktrace:.*/
+          )
+        )
 
         config.sidekiq_retries_exhausted_block.call(msg, standard_exception)
       end
