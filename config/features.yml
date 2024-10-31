@@ -1803,3 +1803,6 @@ features:
   va_notify_notification_creation:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
+  post_911_gi_bill_status_flag:
+    actor_type: user
+    description: Used to hide DOB and VA File number in SOB post 911 status
