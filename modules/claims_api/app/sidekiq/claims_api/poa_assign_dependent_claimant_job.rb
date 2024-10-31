@@ -15,13 +15,19 @@ module ClaimsApi
       begin
         service.assign_poa_to_dependent!
       rescue => e
-        log_job_progress(
-          poa.id,
-          "Dependent Assignment did not return 'true'"
-        )
-
         handle_error(poa, e)
       end
+
+      poa.status = ClaimsApi::PowerOfAttorney::UPDATED
+      # Clear out the error message if there were previous failures
+      poa.vbms_error_message = nil if poa.vbms_error_message.present?
+
+      poa.save
+
+      log_job_progress(
+        poa.id,
+        'POA assigned for dependent'
+      )
 
       ClaimsApi::PoaVBMSUpdater.perform_async(poa.id) if enable_vbms_access?(poa_form: poa)
     end
