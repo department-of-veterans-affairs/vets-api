@@ -7,7 +7,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:disability_compensation_lighthouse_document_service_provider)
+    Flipper.disable(:disability_compensation_use_api_provider_for_0781_uploads)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -166,6 +166,118 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
             expect(EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail)
               .not_to receive(:perform_async)
           end
+        end
+      end
+    end
+  end
+
+  context 'When an ApiProvider is used for uploads' do
+    before do
+      Flipper.enable(:disability_compensation_use_api_provider_for_0781_uploads)
+      # StatsD metrics are incremented in several callbacks we're not testing here so we need to allow them
+      allow(StatsD).to receive(:increment)
+      # There is an ensure block in the upload_to_vbms method that deletes the generated PDF, this skips over
+      # that step to not delete the sample fixture files
+      allow(File).to receive(:delete).and_return(nil)
+    end
+
+    let(:path_to_0781_fixture) { 'spec/fixtures/pdf_fill/21-0781/simple.pdf' }
+    let(:parsed_0781_form) { JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781'] }
+    let(:form0781_only) do
+      original = JSON.parse(form0781)
+      original['form0781'].delete('form0781a')
+      original.to_json
+    end
+
+    let(:submission) do
+      Form526Submission.create(user_uuid: user.uuid,
+                               auth_headers_json: auth_headers.to_json,
+                               saved_claim_id: saved_claim.id,
+                               form_json: form0781_only,
+                               submitted_claim_id: evss_claim_id)
+    end
+
+    let(:perform_upload) do
+      subject.perform_async(submission.id)
+      described_class.drain
+    end
+
+    context 'when the disability_compensation_upload_0781_to_lighthouse flipper is enabled' do
+      let(:faraday_response) { instance_double(Faraday::Response) }
+      let(:lighthouse_request_id) { Faker::Number.number(digits: 8) }
+      let(:lighthouse_0781_document) do
+        LighthouseDocument.new(
+          claim_id: submission.submitted_claim_id,
+          participant_id: submission.auth_headers['va_eauth_pid'],
+          document_type: 'L228'
+        )
+      end
+
+      before do
+        Flipper.enable(:disability_compensation_upload_0781_to_lighthouse)
+
+        allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+          .and_return(faraday_response)
+
+        allow(faraday_response).to receive(:body).and_return(
+          {
+            'data' => {
+              'success' => true,
+              'requestId' => lighthouse_request_id
+            }
+          }
+        )
+      end
+
+      context 'when a submission has a 0781 form' do
+        it 'successfully uploads the 0781 document to Lighthouse' do
+          submission.update!(form_json: form0781_only)
+
+          allow_any_instance_of(described_class)
+            .to receive(:generate_stamp_pdf)
+            .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
+            .and_return(path_to_0781_fixture)
+
+          allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+            .to receive(:generate_upload_document)
+            .and_return(lighthouse_0781_document)
+
+          expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService)
+            .to receive(:call)
+            .with(File.read(path_to_0781_fixture), lighthouse_0781_document)
+
+          perform_upload
+        end
+      end
+    end
+
+    context 'when the disability_compensation_upload_0781_to_lighthouse flipper is disabled' do
+      let(:evss_claim_0781_document) do
+        EVSSClaimDocument.new(
+          evss_claim_id: submission.submitted_claim_id,
+          document_type: 'L228'
+        )
+      end
+      let(:client_stub) { instance_double(EVSS::DocumentsService) }
+
+      before do
+        Flipper.disable(:disability_compensation_upload_0781_to_lighthouse)
+        allow(EVSS::DocumentsService).to receive(:new) { client_stub }
+        allow(client_stub).to receive(:upload)
+        allow_any_instance_of(described_class)
+          .to receive(:generate_stamp_pdf).with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
+                                          .and_return(path_to_0781_fixture)
+        allow_any_instance_of(EVSSSupplementalDocumentUploadProvider)
+          .to receive(:generate_upload_document)
+          .with('simple.pdf')
+          .and_return(evss_claim_0781_document)
+      end
+
+      context 'when a submission has a 0781 form' do
+        it 'uploads the 0781 document to EVSS' do
+          expect(client_stub).to receive(:upload).with(File.read(path_to_0781_fixture), evss_claim_0781_document)
+
+          perform_upload
         end
       end
     end
