@@ -10,9 +10,6 @@ module V1
     include SentryLogging
     service_tag 'gibill-statement'
 
-    # TO-DO: Remove this action after transition of LTS to 24/7 availability
-    before_action :service_available?, only: :show
-
     STATSD_GI_BILL_TOTAL_KEY = 'api.lighthouse.gi_bill_status.total'
     STATSD_GI_BILL_FAIL_KEY = 'api.lighthouse.gi_bill_status.fail'
 
@@ -36,16 +33,6 @@ module V1
       render json: { errors: e.errors }, status: status || :internal_server_error
     end
 
-    # TO-DO: Remove this method after transition of LTS to 24/7 availability
-    def service_available?
-      unless Flipper.enabled?(:sob_updated_design) || BenefitsEducation::Service.within_scheduled_uptime?
-        StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ['error:scheduled_downtime'])
-        headers['Retry-After'] = BenefitsEducation::Service.retry_after_time
-        # 503 response
-        raise BenefitsEducation::OutsideWorkingHours
-      end
-    end
-
     def log_vet_not_found(user, timestamp)
       PersonalInformationLog.create(
         data: { timestamp:, user: user_json(user) },
@@ -67,11 +54,6 @@ module V1
         ssn: user.ssn,
         birth_date: Formatters::DateFormatter.format_date(user.birth_date, :datetime_iso8601)
       }.to_json
-    end
-
-    # TO-DO: Remove this method after transition of LTS to 24/7 availability
-    def skip_sentry_exception_types
-      super + [BenefitsEducation::OutsideWorkingHours]
     end
 
     def service
