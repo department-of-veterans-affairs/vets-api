@@ -1298,6 +1298,7 @@ vanotify:
         contact_info_change: fake_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
+        form1900_action_needed_email: form1900_action_needed_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1990meb_approved_confirmation_email: form1990meb_approved_confirmation_email_template_id
