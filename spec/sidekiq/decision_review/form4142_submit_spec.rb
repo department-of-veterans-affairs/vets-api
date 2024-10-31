@@ -49,6 +49,20 @@ RSpec.describe DecisionReview::Form4142Submit, type: :job do
           end
         end
       end
+
+      it 'increments statsd when job fails permanently' do
+        msg = {
+          'jid' => 'job_id',
+          'args' => [appeal_submission.id, 'encrypted_payload', submitted_appeal_uuid],
+          'error_message' => 'An error occurred for sidekiq job'
+        }
+
+        tags = ['service:supplemental-claims-4142', 'function: 21-4142 PDF submission to Lighthouse']
+
+        expect { described_class.new.sidekiq_retries_exhausted_block.call(msg) }
+          .to trigger_statsd_increment('worker.decision_review.form4142_submit.permanent_error')
+          .and trigger_statsd_increment('silent_failure', tags:)
+      end
     end
   end
 end
