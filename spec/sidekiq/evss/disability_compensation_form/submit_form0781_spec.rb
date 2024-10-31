@@ -230,6 +230,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
       context 'when a submission has a 0781 form' do
         it 'successfully uploads the 0781 document to Lighthouse' do
+          submission.update!(form_json: form0781_only)
+
           allow_any_instance_of(described_class)
             .to receive(:generate_stamp_pdf)
             .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
