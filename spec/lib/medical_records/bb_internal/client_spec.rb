@@ -87,4 +87,53 @@ describe BBInternal::Client do
       end
     end
   end
+
+  describe '#get_generate_ccd' do
+    it 'requests a CCD be generated and returns the correct structure' do
+      VCR.use_cassette 'mr_client/bb_internal/generate_ccd' do
+        ccd_list = client.get_generate_ccd(client.session.icn, 'DOE')
+
+        expect(ccd_list).to be_an(Array)
+        expect(ccd_list).not_to be_empty
+
+        first_ccd = ccd_list.first
+        expect(first_ccd).to be_a(Hash)
+        expect(first_ccd).to have_key('dateGenerated')
+        expect(first_ccd['dateGenerated']).to be_a(String)
+
+        expect(first_ccd).to have_key('status')
+        expect(first_ccd['status']).to be_a(String)
+      end
+    end
+  end
+
+  describe '#get_download_ccd' do
+    it 'retrieves a previously generated CCD as XML' do
+      VCR.use_cassette 'mr_client/bb_internal/download_ccd' do
+        ccd = client.get_download_ccd('2024-10-23T12:42:48.000-0400')
+
+        expect(ccd).to be_a(String)
+        expect(ccd).to include('<ClinicalDocument')
+      end
+    end
+  end
+
+  describe '#get_study_status' do
+    it 'retrieves the status of all study jobs' do
+      VCR.use_cassette 'mr_client/bb_internal/study_status' do
+        study_job_list = client.get_study_status
+
+        expect(study_job_list).to be_an(Array)
+        expect(study_job_list).not_to be_empty
+
+        first_study_job = study_job_list.first
+        expect(first_study_job).to be_a(Hash)
+
+        expect(first_study_job).to have_key('status')
+        expect(first_study_job['status']).to be_a(String)
+        expect(first_study_job).to have_key('studyIdUrn')
+        expect(first_study_job['studyIdUrn']).to be_a(String)
+      end
+    end
+  end
 end

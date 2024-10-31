@@ -31,8 +31,13 @@ module SimpleFormsApi
         @directory
       end
 
-      def get_s3_link(file_path)
-        s3_obj(file_path).presigned_url(:get, expires_in: 30.minutes.to_i)
+      def get_s3_link(file_path, filename = nil)
+        filename ||= File.basename(file_path)
+        s3_obj(file_path).presigned_url(
+          :get,
+          expires_in: 30.minutes.to_i,
+          response_content_disposition: "attachment; filename=\"#{filename}\""
+        )
       end
 
       def get_s3_file(from_path, to_path)

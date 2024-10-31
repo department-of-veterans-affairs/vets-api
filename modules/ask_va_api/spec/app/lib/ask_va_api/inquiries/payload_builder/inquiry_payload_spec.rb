@@ -11,13 +11,17 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
 
   let(:cache_data_service) { instance_double(Crm::CacheData) }
   let(:authorized_user) { build(:user, :accountable_with_sec_id, icn: '234', edipi: '123') }
+  let(:cached_data) do
+    data = File.read('modules/ask_va_api/config/locales/get_optionset_mock_data.json')
+    JSON.parse(data, symbolize_names: true)
+  end
 
   before do
     allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
     allow(cache_data_service).to receive(:call).with(
       endpoint: 'optionset',
       cache_key: 'optionset'
-    ).and_return(optionset_cached_data)
+    ).and_return(cached_data)
   end
 
   describe '#call' do

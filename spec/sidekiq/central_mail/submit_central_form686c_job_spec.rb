@@ -101,7 +101,8 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
         saved_claim: claim,
         user_account: nil
       ).and_return(FormSubmission.new)
-      expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission))
+      expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission),
+                                                             benefits_intake_uuid: 'uuid')
     end
 
     context 'with an response error' do

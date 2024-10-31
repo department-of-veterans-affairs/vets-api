@@ -22,6 +22,14 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::PersonalDataCalculator, type: :se
         expect(expected_personal_data).to eq(transformer_data)
       end
 
+      it 'returns empty string for spouseFullName/last' do
+        pre_transform_fsr_form_data['personal_data']['spouse_full_name']['last'] = nil
+        calculator = described_class.new(pre_transform_fsr_form_data)
+        calculator_data = calculator.get_personal_data
+
+        expect(calculator_data['spouseFullName']['last']).to eq('')
+      end
+
       it 'returns empty string for addressLine2 and addressLine3' do
         pre_transform_fsr_form_data['personal_data']['veteran_contact_information']['address']['address_line2'] = nil
         calculator = described_class.new(pre_transform_fsr_form_data)

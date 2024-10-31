@@ -37,6 +37,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   end
 
   describe 'failures' do
+    let(:timestamp) { Time.now.utc }
+
     context 'when all retries are exhausted' do
       let!(:form526_submission) { create(:form526_submission) }
       let!(:form526_job_status) { create(:form526_job_status, :retryable_error, form526_submission:, job_id: 1) }
@@ -58,10 +60,12 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
         end
 
         it 'remediates the submission via an email notification' do
-          args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
-          subject.within_sidekiq_retries_exhausted_block(args) do
-            expect(Form526SubmissionFailureEmailJob)
-              .to receive(:perform_async).with(form526_submission_id: form526_submission.id)
+          Timecop.freeze(timestamp) do
+            args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
+            subject.within_sidekiq_retries_exhausted_block(args) do
+              expect(Form526SubmissionFailureEmailJob)
+                .to receive(:perform_async).with(form526_submission.id, timestamp)
+            end
           end
         end
       end
@@ -72,11 +76,13 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
         end
 
         it 'does not remediates the submission via an email notification' do
-          args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
-          subject.within_sidekiq_retries_exhausted_block(args) do
-            expect(Form526SubmissionFailureEmailJob)
-              .not_to receive(:perform_async)
-              .with(form526_submission_id: form526_submission.id)
+          Timecop.freeze(timestamp) do
+            args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
+            subject.within_sidekiq_retries_exhausted_block(args) do
+              expect(Form526SubmissionFailureEmailJob)
+                .not_to receive(:perform_async)
+                .with(form526_submission.id, timestamp)
+            end
           end
         end
       end
