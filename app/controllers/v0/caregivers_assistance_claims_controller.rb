@@ -31,6 +31,12 @@ module V0
         auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.messages)
         raise(Common::Exceptions::ValidationErrors, @claim)
       end
+    rescue => e
+      unless e.is_a?(Common::Exceptions::ValidationErrors) || e.is_a?(::Form1010cg::Service::InvalidVeteranStatus)
+        Rails.logger.debug('CaregiverAssistanceClaim: error submitting claim',
+                           { saved_claim_guid: @claim.guid, error: e })
+      end
+      raise e
     end
 
     # If we were unable to submit the user's claim digitally, we allow them to the download
@@ -43,15 +49,11 @@ module V0
       client_file_name = file_name_for_pdf(@claim.veteran_data)
       file_contents    = File.read(source_file_path)
 
-      File.delete(source_file_path) if !Flipper.enabled?(:caregiver1010) && File.exist?(source_file_path)
-
       auditor.record(:pdf_download)
 
       send_data file_contents, filename: client_file_name, type: 'application/pdf', disposition: 'attachment'
     ensure
-      if Flipper.enabled?(:caregiver1010) && (source_file_path && File.exist?(source_file_path))
-        File.delete(source_file_path)
-      end
+      File.delete(source_file_path) if source_file_path && File.exist?(source_file_path)
     end
 
     def facilities
