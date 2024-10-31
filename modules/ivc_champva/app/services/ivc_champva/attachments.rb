@@ -4,6 +4,7 @@ module IvcChampva
   module Attachments
     attr_accessor :form_id, :uuid, :data
 
+    # rubocop:disable Metrics/MethodLength
     def handle_attachments(file_path)
       if Flipper.enabled?(:champva_unique_temp_file_names, @user)
         file_paths = [file_path]
@@ -45,6 +46,7 @@ module IvcChampva
 
       file_paths
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 

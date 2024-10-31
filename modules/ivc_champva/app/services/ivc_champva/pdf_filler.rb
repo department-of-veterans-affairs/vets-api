@@ -30,6 +30,7 @@ module IvcChampva
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def generate(current_loa = nil)
       if Flipper.enabled?(:champva_unique_temp_file_names, @user)
         generated_form_path = Rails.root.join("tmp/#{@uuid}_#{name}-tmp.pdf").to_s
@@ -58,6 +59,7 @@ module IvcChampva
         raise "stamped template file does not exist: #{stamped_template_path}"
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     if Flipper.enabled?(:champva_unique_temp_file_names, @user)
       def create_tempfile
