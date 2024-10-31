@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: be610f6623ef1fac432e5616372d4a5eadb93773
+  revision: 71c4501d45b75000818c88707c9c0ecd3dc86dc7
   branch: master
   specs:
-    vets_json_schema (24.4.0)
+    vets_json_schema (24.5.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -93,6 +93,7 @@ PATH
       sidekiq
     ask_va_api (0.1.0)
     avs (0.1.0)
+    banners (0.1.0)
     burials (0.1.0)
     check_in (0.1.0)
     claims_api (0.0.1)
@@ -348,9 +349,9 @@ GEM
       octokit (>= 4.0)
       pstore (~> 0.1)
       terminal-table (>= 1, < 4)
-    database_cleaner (2.0.2)
+    database_cleaner (2.1.0)
       database_cleaner-active_record (>= 2, < 3)
-    database_cleaner-active_record (2.1.0)
+    database_cleaner-active_record (2.2.0)
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
@@ -525,15 +526,10 @@ GEM
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
-    google-protobuf (4.28.2)
+    google-protobuf (4.28.3)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.28.2-java)
-      bigdecimal
-      ffi (~> 1)
-      ffi-compiler (~> 1)
-      rake (>= 13)
-    googleauth (1.11.1)
+    googleauth (1.11.2)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
       jwt (>= 1.4, < 3.0)
@@ -565,7 +561,7 @@ GEM
     hashdiff (1.1.1)
     hashery (2.1.2)
     hashie (5.0.0)
-    hexapdf (0.47.0)
+    hexapdf (1.0.0)
       cmdparse (~> 3.0, >= 3.0.3)
       geom2d (~> 0.4, >= 0.4.1)
       openssl (>= 2.2.1)
@@ -599,9 +595,9 @@ GEM
     iso_country_codes (0.7.8)
     jar-dependencies (0.4.1)
     jmespath (1.6.2)
-    jruby-openssl (0.15.0-java)
-    json (2.7.2)
-    json (2.7.2-java)
+    jruby-openssl (0.15.1-java)
+    json (2.7.5)
+    json (2.7.5-java)
     json-schema (5.0.1)
       addressable (~> 2.8)
     json_schema (0.21.0)
@@ -641,7 +637,7 @@ GEM
     llhttp-ffi (0.5.0)
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
-    lockbox (1.4.1)
+    lockbox (2.0.0)
     logger (1.6.1)
     loofah (2.22.0)
       crass (~> 1.0.2)
@@ -753,7 +749,7 @@ GEM
       hashery (~> 2.0)
       ruby-rc4
       ttfunk
-    pg (1.5.8)
+    pg (1.5.9)
     pg_query (5.1.0)
       google-protobuf (>= 3.22.3)
     pg_search (2.3.7)
@@ -879,7 +875,7 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.3.8)
+    rexml (3.3.9)
     rgeo (3.0.1)
     rgeo-activerecord (7.0.1)
       activerecord (>= 5.0)
@@ -945,19 +941,19 @@ GEM
       rubocop-ast (>= 1.32.2, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 3.0)
-    rubocop-ast (1.32.3)
+    rubocop-ast (1.33.0)
       parser (>= 3.3.1.0)
     rubocop-capybara (2.21.0)
       rubocop (~> 1.41)
     rubocop-factory_bot (2.26.1)
       rubocop (~> 1.61)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.26.2)
+    rubocop-rails (2.27.0)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.52.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (3.1.0)
+    rubocop-rspec (3.2.0)
       rubocop (~> 1.61)
     rubocop-rspec_rails (2.30.0)
       rubocop (~> 1.61)
@@ -1035,7 +1031,7 @@ GEM
       ffi
     ssrf_filter (1.1.2)
     staccato (0.5.3)
-    statsd-instrument (3.9.3)
+    statsd-instrument (3.9.4)
     stringio (3.1.1)
     strong_migrations (2.0.1)
       activerecord (>= 6.1)
@@ -1137,6 +1133,7 @@ DEPENDENCIES
   aws-sdk-kms
   aws-sdk-s3 (~> 1)
   aws-sdk-sns (~> 1)
+  banners!
   betamocks!
   bgs_ext!
   blueprinter

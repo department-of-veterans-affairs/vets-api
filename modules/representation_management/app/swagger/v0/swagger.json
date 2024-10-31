@@ -244,17 +244,6 @@
                       "SICKLE_CELL"
                     ]
                   },
-                  "conditions_of_appointment": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "example": [
-                      "a123",
-                      "b456",
-                      "c789"
-                    ]
-                  },
                   "claimant": {
                     "type": "object",
                     "properties": {
@@ -267,7 +256,7 @@
                           },
                           "middle": {
                             "type": "string",
-                            "example": "A"
+                            "example": "Middle"
                           },
                           "last": {
                             "type": "string",
@@ -304,14 +293,14 @@
                           },
                           "zip_code_suffix": {
                             "type": "string",
-                            "example": "1234"
+                            "example": "6789"
                           }
                         }
                       },
                       "date_of_birth": {
                         "type": "string",
                         "format": "date",
-                        "example": "12/31/2000"
+                        "example": "1980-12-31"
                       },
                       "relationship": {
                         "type": "string",
@@ -338,10 +327,7 @@
                         "type": "string",
                         "example": "6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943"
                       }
-                    },
-                    "required": [
-                      "id"
-                    ]
+                    }
                   },
                   "veteran": {
                     "type": "object",
@@ -365,7 +351,7 @@
                           },
                           "middle": {
                             "type": "string",
-                            "example": "A"
+                            "example": "Middle"
                           },
                           "last": {
                             "type": "string",
@@ -402,7 +388,7 @@
                           },
                           "zip_code_suffix": {
                             "type": "string",
-                            "example": "1234"
+                            "example": "6789"
                           }
                         }
                       },
@@ -417,7 +403,7 @@
                       "date_of_birth": {
                         "type": "string",
                         "format": "date",
-                        "example": "12/31/2000"
+                        "example": "1980-12-31"
                       },
                       "service_number": {
                         "type": "string",

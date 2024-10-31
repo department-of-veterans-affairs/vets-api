@@ -77,6 +77,7 @@ class Form526Submission < ApplicationRecord
   # MAX_PENDING_TIME aligns with the farthest out expectation given in the LH BI docs,
   # plus 1 week to accomodate for edge cases and our sidekiq jobs
   MAX_PENDING_TIME = 3.weeks
+  ZSF_DD_TAG_SERVICE = 'disability-application'
 
   # used to track in APMs between systems such as Lighthouse
   # example: can be used as a search parameter in Datadog

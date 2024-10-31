@@ -9,7 +9,7 @@ module Form1010cg
     include Sidekiq::MonitoredWorker
     include SentryLogging
 
-    sidekiq_options(retry: 22)
+    sidekiq_options retry: 14
 
     sidekiq_retries_exhausted do |msg, _e|
       StatsD.increment("#{STATSD_KEY_PREFIX}failed_no_retries_left", tags: ["claim_id:#{msg['args'][0]}"])
