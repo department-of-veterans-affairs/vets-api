@@ -48,5 +48,36 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         expect(form526_job_status.status).to eq(Form526JobStatus::STATUS[:exhausted])
       end
     end
+
+    context 'various ICN retrieval scenarios' do
+      let!(:form526_submission) { create(:form526_submission) }
+      it 'submissions user account has an ICN, as expected' do
+        submission.user_account = UserAccount.new(icn: '123498767V222222')
+        account = subject.new.send(:submission_account, submission)
+        expect(account.icn).to eq('123498767V222222')
+      end
+
+      it 'submissions user account has no ICN, default to Account lookup' do
+        submission.user_account = UserAccount.new(icn: nil)
+        account = subject.new.send(:submission_account, submission)
+        expect(account.icn).to eq('123498767V234859')
+      end
+
+      it 'submission has NO user account, default to Account lookup' do
+        account = subject.new.send(:submission_account, submission)
+        expect(account.icn).to eq('123498767V234859')
+      end
+
+      # TODO: make this work :(
+      it 'submissions user account has no ICN, default to Account lookup' do
+        user_account_with_icn = UserAccount.new(id: "26cf12c3-f447-468d-942c-5d90c7648376", icn: '123498767V111111')
+        past_submission = Form526Submission.new(user_uuid: submission.user_uuid, user_account: user_account_with_icn)
+        submission.user_account = UserAccount.new(icn: nil)
+        allow_any_instance_of(subject).to receive(:get_past_submissions).and_return([past_submission])
+        allow_any_instance_of(UserAccount).to receive(:find).and_return(user_account_with_icn)
+        account = subject.new.send(:submission_account, submission)
+        expect(account.icn).to eq('123498767V111111')
+      end
+    end
   end
 end
