@@ -37,10 +37,12 @@ describe IvcChampva::PdfFiller do
       end
     end
   end
+
   context 'Feature champva_unique_temp_file_names=false' do
     before do
       Flipper.disable(:champva_unique_temp_file_names)
     end
+
     describe '#initialize' do
       context 'when the filler is instantiated without a form_number' do
         it 'throws an error' do
@@ -146,7 +148,6 @@ describe IvcChampva::PdfFiller do
         end
       end
     end
-
   end
 
   describe 'form mappings' do
