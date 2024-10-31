@@ -52,22 +52,21 @@ RSpec.describe ClaimsApi::EwsUpdater, type: :job do
     end
   end
 
-  context 'when the claims_api_ews_updater_enables_local_bgs feature flag is enabled' do
-    local_bgs = ClaimsApi::BenefitClaimWebService.new(external_uid: '',
-                                                      external_key: '')
+  context 'when the claims_api_ews_updater_enables_local_bgs feature flag is enabled',
+          vcr: { record: :new_episodes } do
     it 'calls local_bgs instead of bgs-ext' do
-      allow(Flipper).to receive(:enabled?).with(:claims_claim_uploader_use_bd).and_return true
-      # expect_any_instance_of(local_bgs).to receive(:update_bnft_claim).with(claim: ews).and_return TypeOf(ClaimsApi::BenefitClaimWebService)
-
+      allow(Flipper).to receive(:enabled?).with(:claims_api_ews_updater_enables_local_bgs).and_return true
       res = subject.new.perform(ews.id)
-      expect(res).to eq(ews)
+      expect(res).to include(:bnft_claim_dto)
     end
   end
 
-  context 'when the claims_api_ews_updater_enables_local_bgs feature flag is disabled' do
+  context 'when the claims_api_ews_updater_enables_local_bgs feature flag is disabled',
+          vcr: { record: :new_episodes } do
     it 'calls bgs-ext instead of local_bgs' do
-      expect_any_instance_of(ClaimsApi::EwsUpdater).to receive(:upload)
-      subject.new.perform(ews.id)
+      allow(Flipper).to receive(:enabled?).with(:claims_api_ews_updater_enables_local_bgs).and_return false
+      res = subject.new.perform(ews.id)
+      expect(res).to include(:bnft_claim_dto)
     end
   end
 end
