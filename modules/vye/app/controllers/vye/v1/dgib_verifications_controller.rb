@@ -4,7 +4,9 @@ require 'dgib/claimant_lookup/service'
 
 module Vye
   module Vye::V1
-    class Vye::V1::DgibVerificationsController < Vye::V1::ApplicationController
+    class Vye::V1::DgibVerificationsController < ApplicationController
+      before_action :skip_authorization
+
       def get_verification_record
         response = verification_service.get_verification_record(params[:claimant_id])
         serializer = Vye::ClaimantVerificationSerializer
