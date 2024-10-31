@@ -127,10 +127,16 @@ module VaNotify
     end
 
     def find_caller_locations
+      va_notify_classes = [
+        'modules/va_notify/lib/va_notify/service.rb',
+        'va_notify/app/sidekiq/va_notify/email_job.rb',
+        'va_notify/app/sidekiq/va_notify/user_account_job.rb'
+      ]
+
       caller_locations.each do |location|
-        if location.path.exclude?("modules/va_notify/lib/va_notify/service.rb")
-          return "#{location.path}:#{location.lineno} in #{location.label}"
-        end
+        next if va_notify_classes.any? { |path| location.path.include?(path)}
+
+        return "#{location.path}:#{location.lineno} in #{location.label}"
       end
     end
   end
