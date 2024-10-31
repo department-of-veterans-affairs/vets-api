@@ -41,7 +41,7 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
 
       it 'logs error information' do
         expect(Rails.logger).to receive(:error).with(
-          "Form5655Submission id: #{form_submission.id} failed", "SharePoint Submission Failed: ."
+          "Form5655Submission id: #{form_submission.id} failed", 'SharePoint Submission Failed: .'
         )
         expect(Rails.logger).to receive(:error).with(
           a_string_matching(
