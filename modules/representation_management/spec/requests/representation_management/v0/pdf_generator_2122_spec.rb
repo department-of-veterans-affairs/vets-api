@@ -5,8 +5,8 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/pdf_generator2122' }
-    let(:organization) { create(:organization) }
-    let(:representative) { create(:representative) }
+    let(:organization) { create(:organization) } # This is the legacy organization
+    let(:representative) { create(:representative) } # This is the legacy representative
     let(:params) do
       {
         pdf_generator2122: {
@@ -20,7 +20,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             email: 'claimant@example.com',
             name: {
               first: 'John',
-              middle: 'M',
+              middle: 'Middle', # This is a middle name as submitted by the frontend
               last: 'Claimant'
             },
             address: {
@@ -44,7 +44,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             insurance_numbers: [],
             name: {
               first: 'John',
-              middle: 'M',
+              middle: 'Middle', # This is a middle name as submitted by the frontend
               last: 'Veteran'
             },
             address: {
@@ -82,6 +82,39 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
     context 'When submitting a valid request without a claimant' do
       before do
         params[:pdf_generator2122].delete(:claimant)
+        post(base_path, params:)
+      end
+
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'responds with a PDF' do
+        expect(response.content_type).to eq('application/pdf')
+      end
+    end
+
+    context 'When submitting a valid request without a representative id' do
+      before do
+        params[:pdf_generator2122][:representative].delete(:id)
+        post(base_path, params:)
+      end
+
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'responds with a PDF' do
+        expect(response.content_type).to eq('application/pdf')
+      end
+    end
+
+    context 'When submitting a valid request with the accredited organization and individual ids' do
+      before do
+        accredited_organization = create(:accredited_organization)
+        accredited_individual = create(:accredited_individual)
+        params[:pdf_generator2122][:representative][:organization_id] = accredited_organization.id
+        params[:pdf_generator2122][:representative][:id] = accredited_individual.id
         post(base_path, params:)
       end
 
