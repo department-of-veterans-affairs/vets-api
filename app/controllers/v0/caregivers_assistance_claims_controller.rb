@@ -31,6 +31,12 @@ module V0
         auditor.record(:submission_failure_client_data, claim_guid: @claim.guid, errors: @claim.errors.messages)
         raise(Common::Exceptions::ValidationErrors, @claim)
       end
+    rescue => e
+      unless e.is_a?(Common::Exceptions::ValidationErrors) || e.is_a?(::Form1010cg::Service::InvalidVeteranStatus)
+        Rails.logger.debug('CaregiverAssistanceClaim: error submitting claim',
+                           { saved_claim_guid: @claim.guid, error: e })
+      end
+      raise e
     end
 
     # If we were unable to submit the user's claim digitally, we allow them to the download
