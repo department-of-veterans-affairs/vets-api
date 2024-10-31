@@ -7,9 +7,9 @@ Vye::Engine.routes.draw do
     resource :address_changes, only: [:create], path: '/address'
     resource :direct_deposit_changes, only: [:create], path: '/bank_info'
 
-    get 'verifications/get_verification_record', to: 'verifications#get_verification_record'
-    get 'verifications/verify_claimant', to: 'verifications#verify_claimant'
-    get 'verifications/get_claimant_status', to: 'verifications#get_claimant_status'
-    get 'verifications/claimant_lookup', to: 'verifications#claimant_lookup'
+    get 'dgib_verifications/get_verification_record', to: 'dgib_verifications#get_verification_record'
+    get 'dgib_verifications/verify_claimant', to: 'dgib_verifications#verify_claimant'
+    get 'dgib_verifications/get_claimant_status', to: 'dgib_verifications#get_claimant_status'
+    get 'dgib_verifications/claimant_lookup', to: 'dgib_verifications#claimant_lookup'
   end
 end
