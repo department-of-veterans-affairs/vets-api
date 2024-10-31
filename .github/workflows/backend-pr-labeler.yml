@@ -19,6 +19,8 @@ jobs:
           if [ ! ${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), 'backend') }} ]; then
             echo "exempt=true" >> $GITHUB_OUTPUT
             echo "PR is exempt from backend approval."
+          else
+            echo "PR requires backend approval."
           fi
 
       - name: Check Draft state
@@ -27,18 +29,25 @@ jobs:
           if ${{ github.event.pull_request.draft }}; then
             echo "draft=true" >> $GITHUB_OUTPUT
             echo "Draft PR detected, skipping label checks."
+          else
+            echo "PR is ready for review."
           fi
 
       - name: Check for failure labels
         id: audit_pr_labels
-        if: |
-          !contains(github.event.pull_request.labels.*.name, 'code-health-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'codeowners-addition-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'codeowners-delete-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'lint-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'test-failure')
         run: |
-          echo "no_failures=true" >> $GITHUB_OUTPUT
+          if (
+            !contains(github.event.pull_request.labels.*.name, 'code-health-failure') &&
+            !contains(github.event.pull_request.labels.*.name, 'codeowners-addition-failure') &&
+            !contains(github.event.pull_request.labels.*.name, 'codeowners-delete-failure') &&
+            !contains(github.event.pull_request.labels.*.name, 'lint-failure') &&
+            !contains(github.event.pull_request.labels.*.name, 'test-failure')
+          ); then
+            echo "no_failures=true" >> $GITHUB_OUTPUT
+            echo "No failure labels detected."
+          else
+            echo "Failure labels detected."
+          fi
 
       # # If test-passing label is present, ready_for_review=true
       # - name: Audit Test Passing Label
@@ -51,11 +60,16 @@ jobs:
   check-approvals:
     runs-on: ubuntu-latest
     needs: check-pr-status
+    if: ${{ !needs.check-pr-status.outputs.exempt && !needs.check-pr-status.outputs.draft }}
     outputs:
       approval_status: ${{ steps.verify_approval.outputs.approval_status }}
-    if: ${{ !needs.check-pr-status.outputs.exempt && !needs.check-pr-status.outputs.draft }}
     steps:
       # - uses: actions/checkout@v4
+      - name: Print vars
+        run: |
+          echo "exempt=${{ needs.check-pr-status.outputs.exempt }}"
+          echo "draft=${{ needs.check-pr-status.outputs.draft }}"
+          echo "no_failures=${{ needs.check-pr-status.outputs.no_failures }}"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
@@ -115,6 +129,7 @@ jobs:
   apply-labels:
     runs-on: ubuntu-latest
     needs: [check-pr-status, check-approvals]
+    if: ${{ always() }}
     steps:
       - name: Set vars from outputs
         id: set-vars
