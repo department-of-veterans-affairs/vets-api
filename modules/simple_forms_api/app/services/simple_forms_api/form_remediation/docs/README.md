@@ -1,17 +1,15 @@
 # Form Remediation
 
-This solution enables the remediation of failed form submissions over two weeks old within the Ruby on Rails `SimpleFormsApi` module. It consists of service objects that handle form archiving, metadata generation, and S3 interactions.
+This solution is designed to remediate form submissions older than two weeks, which have failed processing. It includes Ruby on Rails service objects, a Rake task, and a Sidekiq job, utilizing S3 for secure storage.
 
-**Primary Use Case**: This remediation solution processes a form submission, generating an archive payload that includes:
+**Primary Use Case**: This remediation solution processes form submissions to generate an archive payload that includes:
 
 1. Original form submission data, with remediation-specific files:
    - Hydrated submission data and attachments.
    - JSON metadata file with submission details.
    - CSV manifest for tracking submissions.
-2. Zips the archive and uploads it to an S3 bucket.
-3. Optionally returns a presigned URL for accessing the uploaded archive.
-
-A backup option supports uploading individual form submissions as PDFs, with optional presigned URLs.
+2. Zips and uploads the archive to an S3 bucket, with optional presigned URL access.
+3. Supports single PDF uploads of original submissions.
 
 ---
 
@@ -21,8 +19,8 @@ A backup option supports uploading individual form submissions as PDFs, with opt
   - [Settings](#settings)
   - [Configuration](#configuration)
 - [Usage](#usage)
-  - [Bulk Processing](#bulk-processing)
-  - [Processing Individually](#processing-individually)
+  - [Batch Processing](#batch-processing)
+  - [Individual Processing](#individual-processing)
 - [Extending Functionality](#extending-functionality)
 - [AWS S3 Bucket Setup](#aws-s3-bucket-setup)
 
@@ -82,7 +80,25 @@ This solution uses the `:benefits_intake_uuid` identifier by default for queryin
 
 ## Usage
 
-### Bulk Processing
+### Batch Processing
+
+#### Rake Task Example
+
+A Rake task for batch processing is available for reference, using `ArchiveBatchProcessingJob` to archive multiple form submissions and retrieve presigned URLs:
+
+```sh
+# Default type:
+bundle exec rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456]
+
+# Custom type:
+bundle exec rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456,submission]
+```
+
+In `archive_forms_by_uuid`, `benefits_intake_uuids` specifies a collection of submission identifiers, and `type` defines the upload type (default is `remediation`). This task initializes a configuration object (`VffConfig`) and triggers the batch job, printing presigned URLs upon completion.
+
+Note: THIS RAKE TASK IS FOR REFERENCE ONLY!! This rake task is specifically configured to interact with the Veteran Facing Forms team's S3 bucket.
+
+#### Batch Processing Job
 
 The `ArchiveBatchProcessingJob` handles batch processing of form submissions. Initiate batch processing as shown:
 
@@ -100,7 +116,7 @@ job = YourTeamsUniqueJob.perform(ids: your_teams_ids, config:)
 presigned_urls = job.upload(type: :remediation)
 ```
 
-### Processing Individually
+### Individual Processing
 
 To process a single ID, instantiate the `S3Client` directly:
 
@@ -122,7 +138,7 @@ client.upload
 
 ## Extending Functionality
 
-Each step in this solution is extendable. Follow these steps:
+Each component of this solution can be extended or customized to meet team requirements.
 
 1. Review extensible components in the [Base Configuration](../../../../../../../lib/simple_forms_api/form_remediation/configuration/base.rb).
 2. Create subclasses for required functionality.
@@ -168,8 +184,8 @@ presigned_urls = job.perform(ids: benefits_intake_uuids, config:, type: :remedia
 - `s3_client`: Customize S3 interactions.
 - `remediation_data_class`: Customize data processing for submissions.
 - `uploader_class`: Customize file upload and S3 handling.
-- `submission_type`: Override `FormSubmission` model.
-- `attachment_type`: Override attachment model.
+- `submission_type`: Define `FormSubmission` model queries.
+- `attachment_type`: Define attachment model queries.
 
 ---
 
