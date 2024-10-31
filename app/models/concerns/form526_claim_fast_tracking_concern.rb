@@ -179,10 +179,21 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('classifier response for 526Submission', payload: response_body)
   end
 
+  def empty_disabilities?
+    if disabilities.blank?
+      Rails.logger.info("No disabilities found for classification on claim #{id}")
+      is_not_empty = false
+    else
+      is_not_empty = true
+    end
+    is_not_empty
+  end
+
   # Submits contention information to the VRO contention classification service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
-    return false if disabilities.blank?
+    empty_disabilities = empty_disabilities?
+    return empty_disabilities unless empty_disabilities
 
     contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
     params = { claim_id: saved_claim_id, form526_submission_id: id, contentions: contentions_array }

@@ -327,6 +327,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       end
 
       context 'when the disabilities array is empty' do
+        before do
+          allow(Rails.logger).to receive(:info)
+        end
+
         let(:submission) do
           create(:form526_submission,
                  :with_empty_disabilities,
@@ -335,9 +339,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                  saved_claim_id: saved_claim.id)
         end
 
-        it 'returns false to allow other jobs to run' do
+        it 'returns false to skip classification and continue other jobs' do
           subject.perform_async(submission.id)
           expect(submission.update_contention_classification_all!).to eq false
+          expect(Rails.logger).to have_received(:info).with(
+            "No disabilities found for classification on claim #{submission.id}"
+          )
         end
 
         it 'does not call va-gov-claim-classifier' do
