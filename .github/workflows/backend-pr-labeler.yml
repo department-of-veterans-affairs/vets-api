@@ -36,13 +36,13 @@ jobs:
       - name: Check for failure labels
         id: audit_pr_labels
         run: |
-          if (
-            !contains(github.event.pull_request.labels.*.name, 'code-health-failure') &&
-            !contains(github.event.pull_request.labels.*.name, 'codeowners-addition-failure') &&
-            !contains(github.event.pull_request.labels.*.name, 'codeowners-delete-failure') &&
-            !contains(github.event.pull_request.labels.*.name, 'lint-failure') &&
-            !contains(github.event.pull_request.labels.*.name, 'test-failure')
-          ); then
+          if [[ \
+            ! ${{ contains(github.event.pull_request.labels.*.name, 'code-health-failure') }} && \
+            ! ${{ contains(github.event.pull_request.labels.*.name, 'codeowners-addition-failure') }} && \
+            ! ${{ contains(github.event.pull_request.labels.*.name, 'codeowners-delete-failure') }} && \
+            ! ${{ contains(github.event.pull_request.labels.*.name, 'lint-failure') }} && \
+            ! ${{ contains(github.event.pull_request.labels.*.name, 'test-failure') }} \
+          ]]; then
             echo "no_failures=true" >> $GITHUB_OUTPUT
             echo "No failure labels detected."
           else
