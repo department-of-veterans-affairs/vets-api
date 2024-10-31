@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'formatters/date_formatter'
-require 'lighthouse/benefits_education/outside_working_hours'
 require 'lighthouse/benefits_education/service'
 
 module V1
