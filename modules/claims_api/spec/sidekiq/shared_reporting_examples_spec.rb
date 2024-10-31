@@ -60,22 +60,20 @@ RSpec.shared_examples 'shared reporting behavior' do
 
   it 'includes 526EZ claims from VaGov' do
     with_settings(Settings.claims_api, report_enabled: true) do
-      claim_one = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                              transaction_id: '467384632186')
-      claim_two = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+      claim_one = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 2.seconds.ago,
                                                                               transaction_id: '467384632187')
-      FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                  transaction_id: '467384632187')
+      claim_two = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                              transaction_id: '467384632186')
 
       job = described_class.new
       job.perform
       va_gov_groups = job.unsuccessful_va_gov_claims_submissions
       first_group = va_gov_groups[1]
       first_transaction_id = claim_one[:transaction_id]
-      expect(first_group[0][:transaction_id]).to eq(first_transaction_id)
-
       second_group = va_gov_groups[2]
       second_transaction_id = claim_two[:transaction_id]
+
+      expect(first_group[0][:transaction_id]).to eq(first_transaction_id)
       expect(second_group[0][:transaction_id]).to eq(second_transaction_id)
     end
   end
