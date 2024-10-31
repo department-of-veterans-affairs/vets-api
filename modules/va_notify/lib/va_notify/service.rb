@@ -134,7 +134,7 @@ module VaNotify
       ]
 
       caller_locations.each do |location|
-        next if va_notify_classes.any? { |path| location.path.include?(path)}
+        next if va_notify_classes.any? { |path| location.path.include?(path) }
 
         return "#{location.path}:#{location.lineno} in #{location.label}"
       end

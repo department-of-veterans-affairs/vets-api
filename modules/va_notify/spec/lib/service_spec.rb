@@ -131,7 +131,7 @@ describe VaNotify::Service do
 
         it 'with callback data' do
           VCR.use_cassette('va_notify/success_email') do
-            subject = described_class.new(test_api_key, {callback: 'TestCallback', metadata: 'optional_metadata'})
+            subject = described_class.new(test_api_key, { callback: 'TestCallback', metadata: 'optional_metadata' })
             allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
 
             subject.send_email(send_email_parameters)

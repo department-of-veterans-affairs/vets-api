@@ -9,9 +9,7 @@ module VANotify
 
       return if no_callback_info?
 
-      # notification.callback is set by other teams, not user input
       klass = constantized_class(notification.callback)
-
       if klass.respond_to?(:call)
         begin
           klass.call(notification)
@@ -32,6 +30,7 @@ module VANotify
     private
 
     def constantized_class(class_name)
+      # notification.callback is set by other teams, not user input
       class_name.constantize
     end
 

@@ -58,7 +58,7 @@ describe VANotify::StatusUpdate do
         notification = create(:notification, notification_id:)
 
         provider_callback = {
-          id: notification_id,
+          id: notification_id
         }
 
         expected_error_message = "VANotify - no callback provided for notification: #{notification.id}"
