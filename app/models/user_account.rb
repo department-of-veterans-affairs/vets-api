@@ -7,6 +7,17 @@ class UserAccount < ApplicationRecord
   has_one :user_acceptable_verified_credential, dependent: :destroy
   has_one :veteran_onboarding, primary_key: :uuid, foreign_key: :user_account_uuid, inverse_of: :user_account,
                                dependent: :destroy
+  # Delegations where this account is the verified account
+  has_many :account_delegations_as_verified, class_name: 'UserAccountDelegation',
+                                             foreign_key: 'verified_user_account_icn', primary_key: 'icn',
+                                             dependent: :destroy, inverse_of: :verified_account
+  has_many :delegated_accounts, through: :account_delegations_as_verified, source: :delegated_account
+
+  # Delegations where this account is the delegated account
+  has_many :account_delegations_as_delegated, class_name: 'UserAccountDelegation',
+                                              foreign_key: 'delegated_user_account_icn', primary_key: 'icn',
+                                              dependent: :destroy, inverse_of: :delegated_account
+  has_many :verified_accounts, through: :account_delegations_as_delegated, source: :verified_account
 
   validates :icn, uniqueness: true, allow_nil: true
 
