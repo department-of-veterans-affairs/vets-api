@@ -142,7 +142,7 @@ jobs:
           echo "approval_status=${{ needs.check-approvals.outputs.approval_status }}" >> $GITHUB_ENV
 
       - name: print vars
-        id: set-vars
+        id: print-vars
         run: |
           echo ${{ env.exempt }}
           echo ${{ env.draft }}
