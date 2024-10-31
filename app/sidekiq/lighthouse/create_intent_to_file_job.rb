@@ -26,12 +26,15 @@ module Lighthouse
     # exhausted attempts will be logged in intent_to_file_queue_exhaustions table
     sidekiq_options retry: 14, queue: 'low'
     sidekiq_retries_exhausted do |msg, error|
+      ::Rails.logger.info("Create Intent to File Job exhausted all retries for in_progress_form_id: #{msg['args'][0]}")
+
       in_progress_form_id, veteran_icn = msg['args']
       in_progress_form = InProgressForm.find(in_progress_form_id)
-      itf_log_monitor = BenefitsClaims::IntentToFile::Monitor.new
+
       form_type = in_progress_form&.form_id
       itf_type = ITF_FORMS[form_type]
 
+      itf_log_monitor = BenefitsClaims::IntentToFile::Monitor.new
       itf_log_monitor.track_create_itf_exhaustion(itf_type, in_progress_form, error)
 
       # create ITF queue exhaustion entry
