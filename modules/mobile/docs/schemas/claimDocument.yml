@@ -15,3 +15,6 @@ properties:
   upload_date:
     type: string
     example: '2023-03-01'
+  document_id:
+    type: string
+    example: '{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}'

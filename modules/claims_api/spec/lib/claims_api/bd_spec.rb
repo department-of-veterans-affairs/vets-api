@@ -7,9 +7,9 @@ describe ClaimsApi::BD do
   subject { described_class.new }
 
   let(:ews) do
-    create(:claims_api_evidence_waiver_submission, :with_full_headers, claim_id: '60897890',
-                                                                       id: '43fc03ab-86df-4386-977b-4e5b87f0817f',
-                                                                       tracked_items: [234, 235])
+    create(:evidence_waiver_submission, :with_full_headers, claim_id: '60897890',
+                                                            id: '43fc03ab-86df-4386-977b-4e5b87f0817f',
+                                                            tracked_items: [234, 235])
   end.freeze
   let(:claim) { create(:auto_established_claim, evss_id: 600_400_688, id: '581128c6-ad08-4b1e-8b82-c3640e829fb3') }
   let(:body) { 'test body' }

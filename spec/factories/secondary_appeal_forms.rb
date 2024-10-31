@@ -20,7 +20,27 @@ FactoryBot.define do
           isRequestingOwnMedicalRecords: true
 
         },
-        providerFacility: [{}],
+        providerFacility: [{
+          providerFacilityName: 'provider 1',
+          treatmentDateRange: [
+            {
+              from: '1980-1-1',
+              to: '1985-1-1'
+            },
+            {
+              from: '1986-1-1',
+              to: '1987-1-1'
+            }
+          ],
+          providerFacilityAddress: {
+            street: '123 Main Street',
+            street2: '1B',
+            city: 'Baltimore',
+            state: 'MD',
+            country: 'USA',
+            postalCode: '21200-1111'
+          }
+        }],
         preparerIdentification: {
           relationshipToVeteran: 'self'
         },
@@ -29,6 +49,7 @@ FactoryBot.define do
         privacyAgreementAccepted: true
       }.to_json
     end
+    delete_date { nil }
     appeal_submission
   end
 end

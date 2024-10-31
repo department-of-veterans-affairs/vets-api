@@ -77,12 +77,14 @@ module Sidekiq
       # @param job_title [String] Description of the job being run
       # @param saved_claim_id [Integer] The {SavedClaim} id
       # @param submission_id [Integer] The {Form526Submission} id
+      # @param service_provider [String] Either 'lighthouse' or 'evss'
       #
-      def with_tracking(job_title, saved_claim_id, submission_id, is_bdd = nil)
+      def with_tracking(job_title, saved_claim_id, submission_id, is_bdd = nil, service_provider = nil)
         @status_job_title = job_title
         @status_saved_claim_id = saved_claim_id
         @status_submission_id = submission_id
         @is_bdd = is_bdd
+        @service_provider = service_provider
 
         job_try
         begin
@@ -111,7 +113,7 @@ module Sidekiq
       def job_success
         upsert_job_status(Form526JobStatus::STATUS[:success])
         log_info('success')
-        metrics.increment_success(@is_bdd)
+        metrics.increment_success(@is_bdd, @service_provider)
       rescue => e
         ::Rails.logger.error('error tracking job success', error: e, class: klass, trace: e.backtrace)
       end
@@ -122,7 +124,7 @@ module Sidekiq
       def retryable_error_handler(error)
         upsert_job_status(Form526JobStatus::STATUS[:retryable_error], error)
         log_error('retryable_error', error)
-        metrics.increment_retryable(error, @is_bdd)
+        metrics.increment_retryable(error, @is_bdd, @service_provider)
       end
 
       # Metrics and logging for any non-retryable errors that occurred.
@@ -137,7 +139,7 @@ module Sidekiq
                                                      error_class:, error_message:)
         log_exception_to_sentry(error, status: :non_retryable_error, jid:)
         log_error('non_retryable_error', error)
-        metrics.increment_non_retryable(error, @is_bdd)
+        metrics.increment_non_retryable(error, @is_bdd, @service_provider)
       end
 
       private
@@ -196,6 +198,7 @@ module Sidekiq
         ::Rails.logger.info(@status_job_title,
                             'saved_claim_id' => @status_saved_claim_id,
                             'submission_id' => @status_submission_id,
+                            'service_provider' => @service_provider,
                             'job_id' => jid,
                             'status' => status)
       end
@@ -204,6 +207,7 @@ module Sidekiq
         ::Rails.logger.error(@status_job_title,
                              'saved_claim_id' => @status_saved_claim_id,
                              'submission_id' => @status_submission_id,
+                             'service_provider' => @service_provider,
                              'job_id' => jid,
                              'status' => status,
                              'error_message' => error)

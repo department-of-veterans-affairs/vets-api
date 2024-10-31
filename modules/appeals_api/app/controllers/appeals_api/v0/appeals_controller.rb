@@ -7,6 +7,8 @@ require 'common/exceptions'
 module AppealsApi
   module V0
     class AppealsController < ApplicationController
+      include AppealsApi::GatewayOriginCheck
+
       skip_before_action(:authenticate)
 
       def index

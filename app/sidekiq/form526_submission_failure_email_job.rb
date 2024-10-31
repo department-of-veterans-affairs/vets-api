@@ -5,7 +5,7 @@ require 'va_notify/service'
 class Form526SubmissionFailureEmailJob
   include Sidekiq::Job
 
-  attr_reader :submission_id
+  attr_accessor :submission
 
   STATSD_PREFIX = 'api.form_526.veteran_notifications.form526_submission_failure_email'
   # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/274bea7fb835e51626259ac16b32c33ab0b2088a/platform/practices/zero-silent-failures/logging-silent-failures.md#capture-silent-failures-state
@@ -58,29 +58,23 @@ class Form526SubmissionFailureEmailJob
     raise e
   end
 
-  def perform(submission_id)
-    submission = Form526Submission.find(submission_id)
-    send_email(submission)
-    track_remedial_action(submission)
-    log_success(submission)
+  def perform(submission_id, date_of_failure = Time.now.utc)
+    @submission = Form526Submission.find(submission_id)
+    @date_of_failure = date_of_failure
+    send_email
+    track_remedial_action
+    log_success
   rescue => e
-    log_failure(e, submission)
+    log_failure(e)
     raise
   end
 
   private
 
-  def send_email(submission)
+  def send_email
     email_client = VaNotify::Service.new(Settings.vanotify.services.benefits_disability.api_key)
     template_id = Settings.vanotify.services.benefits_disability.template_id
                           .form526_submission_failure_notification_template_id
-
-    personalisation = {
-      first_name: submission.get_first_name,
-      date_submitted: submission.format_creation_time_for_mailers,
-      forms_submitted: forms_submitted(submission.form),
-      files_submitted: files_submitted(submission.form['form526_uploads'])
-    }
 
     email_client.send_email(
       email_address: submission.veteran_email_address,
@@ -89,7 +83,7 @@ class Form526SubmissionFailureEmailJob
     )
   end
 
-  def forms_submitted(form)
+  def list_forms_submitted
     [].tap do |forms|
       forms << FORM_DESCRIPTIONS['form4142'] if form['form4142'].present?
       forms << FORM_DESCRIPTIONS['form0781'] if form['form0781'].present?
@@ -98,15 +92,29 @@ class Form526SubmissionFailureEmailJob
     end
   end
 
-  def files_submitted(uploads)
-    return [] if uploads.nil?
+  def list_files_submitted
+    return [] if form['form526_uploads'].blank?
 
-    guids = uploads.map { |data| data&.dig('confirmationCode') }.compact
+    guids = form['form526_uploads'].map { |data| data&.dig('confirmationCode') }.compact
     files = SupportingEvidenceAttachment.where(guid: guids)
     files.map(&:obscured_filename)
   end
 
-  def track_remedial_action(submission)
+  def personalisation
+    {
+      first_name: submission.get_first_name,
+      date_submitted: submission.format_creation_time_for_mailers,
+      forms_submitted: list_forms_submitted.presence || 'None',
+      files_submitted: list_files_submitted.presence || 'None',
+      date_of_failure:
+    }
+  end
+
+  def date_of_failure
+    @date_of_failure.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+  end
+
+  def track_remedial_action
     Form526SubmissionRemediation.create!(
       form526_submission: submission,
       remediation_type: Form526SubmissionRemediation.remediation_types['email_notified'],
@@ -114,9 +122,9 @@ class Form526SubmissionFailureEmailJob
     )
   end
 
-  def log_success(submission)
+  def log_success
     Rails.logger.info(
-      'Form526SubmissionFailureEmail notification dispatched',
+      'Form526SubmissionFailureEmailJob notification dispatched',
       {
         form526_submission_id: submission.id,
         timestamp: Time.now.utc
@@ -127,16 +135,20 @@ class Form526SubmissionFailureEmailJob
     StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   end
 
-  def log_failure(error, submission)
+  def log_failure(error)
     Rails.logger.error(
-      'Form526SubmissionFailureEmail notification failed',
+      'Form526SubmissionFailureEmailJob notification failed',
       {
-        form526_submission_id: submission.id,
+        form526_submission_id: submission&.id,
         error_message: error.try(:message),
         timestamp: Time.now.utc
       }
     )
 
     StatsD.increment("#{STATSD_PREFIX}.error")
+  end
+
+  def form
+    @form ||= submission.form
   end
 end

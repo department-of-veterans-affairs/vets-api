@@ -5,6 +5,19 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/pdf_generator2122a' }
+    let(:representative) do
+      create(:accredited_individual,
+             first_name: 'John',
+             middle_initial: 'M',
+             last_name: 'Representative',
+             address_line1: '123 Fake Representative St',
+             city: 'Portland',
+             state_code: 'OR',
+             zip_code: '12345',
+             phone: '5555555555',
+             email: 'representative@example.com',
+             individual_type: 'attorney')
+    end
     let(:params) do
       {
         pdf_generator2122a: {
@@ -13,20 +26,20 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
           consent_limits: [],
           conditions_of_appointment: [],
           claimant: {
-            date_of_birth: '1980-01-01',
+            date_of_birth: '1980-12-31',
             relationship: 'Spouse',
             phone: '5555555555',
             email: 'claimant@example.com',
             name: {
-              first: 'First',
+              first: 'John',
               middle: 'M',
-              last: 'Last'
+              last: 'Claimant'
             },
             address: {
-              address_line1: '123 Claimant St',
+              address_line1: '123 Fake Claimant St',
               address_line2: '',
-              city: 'ClaimantCity',
-              state_code: 'CC',
+              city: 'Portland',
+              state_code: 'OR',
               country: 'US',
               zip_code: '12345',
               zip_code_suffix: '6789'
@@ -34,45 +47,29 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
           },
           veteran: {
             ssn: '123456789',
-            va_file_number: '987654321',
-            date_of_birth: '1970-01-01',
-            service_number: '123123456',
+            va_file_number: '123456789',
+            date_of_birth: '1980-12-31',
+            service_number: '123456789',
             phone: '5555555555',
             email: 'veteran@example.com',
             insurance_numbers: [],
             name: {
-              first: 'First',
+              first: 'John',
               middle: 'M',
-              last: 'Last'
+              last: 'Veteran'
             },
             address: {
-              address_line1: '456 Veteran Rd',
+              address_line1: '123 Fake Veteran St',
               address_line2: '',
-              city: 'VeteranCity',
-              state_code: 'VC',
+              city: 'Portland',
+              state_code: 'OR',
               country: 'US',
-              zip_code: '98765',
-              zip_code_suffix: '4321'
+              zip_code: '12345',
+              zip_code_suffix: '6789'
             }
           },
           representative: {
-            type: 'ATTORNEY',
-            phone: '5555555555',
-            email: 'rep@rep.com',
-            name: {
-              first: 'First',
-              middle: 'M',
-              last: 'Last'
-            },
-            address: {
-              address_line1: '789 Rep St',
-              address_line2: '',
-              city: 'RepCity',
-              state_code: 'RC',
-              country: 'US',
-              zip_code: '54321',
-              zip_code_suffix: '9876'
-            }
+            id: representative.id
           }
         }
       }
@@ -95,7 +92,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
     context 'when triggering validation errors' do
       context 'when submitting without the representative first name for a single validation error' do
         before do
-          params[:pdf_generator2122a][:representative][:name][:first] = nil
+          params[:pdf_generator2122a][:veteran][:name][:first] = nil
           post(base_path, params:)
         end
 
@@ -104,7 +101,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
         end
 
         it 'responds with the expected body' do
-          expect(response.body).to eq({ errors: ["Representative first name can't be blank"] }.to_json)
+          expect(response.body).to eq({ errors: ["Veteran first name can't be blank"] }.to_json)
         end
       end
 

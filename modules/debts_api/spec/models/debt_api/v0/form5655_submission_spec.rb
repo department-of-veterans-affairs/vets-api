@@ -40,7 +40,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
   end
 
   describe '.upsert_in_progress_form' do
-    let(:user) { create(:form5655_submission) }
+    let(:user) { create(:form5655_submission, '') }
     let(:form5655_submission) { create(:debts_api_form5655_submission, user_uuid: 'b2fab2b56af045e1a9e2394347af91ef') }
     let(:in_progress_form) { create(:in_progress_5655_form, user_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
@@ -142,16 +142,19 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
     end
 
     context 'failure' do
+      let(:id) { SecureRandom.uuid }
       let(:status) do
         OpenStruct.new(
           failures: 1,
-          failure_info: [SecureRandom.uuid]
+          failure_info: [id]
         )
       end
 
       it 'sets the submission as failed' do
+        allow(Rails.logger).to receive(:error)
         described_class.new.set_vha_completed_state(status, { 'submission_id' => form5655_submission.id })
         expect(form5655_submission.failed?).to eq(true)
+        expect(Rails.logger).to have_received(:error).with('Batch FSR Processing Failed', [id])
       end
     end
   end

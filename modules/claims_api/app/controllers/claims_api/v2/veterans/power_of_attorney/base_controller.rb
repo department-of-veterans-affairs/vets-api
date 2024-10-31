@@ -68,15 +68,13 @@ module ClaimsApi
           Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
         end
 
-        def assign_poa_to_dependent_claimant!(poa_code:)
-          return nil unless feature_enabled_and_claimant_present?
-
+        def dependent_claimant_poa_assignment_service(poa_code:)
           # Assign the veteranʼs file number
           file_number_check
 
           claimant = user_profile.profile
 
-          service = ClaimsApi::DependentClaimantPoaAssignmentService.new(
+          ClaimsApi::DependentClaimantPoaAssignmentService.new(
             poa_code:,
             veteran_participant_id: target_veteran.participant_id,
             dependent_participant_id: claimant.participant_id,
@@ -85,8 +83,6 @@ module ClaimsApi
             allow_poa_cadd: form_attributes[:consentAddressChange].present? ? 'Y' : nil,
             claimant_ssn: claimant.ssn
           )
-
-          service.assign_poa_to_dependent!
         end
 
         def validate_registration_number!(base, poa_code)
@@ -103,20 +99,29 @@ module ClaimsApi
           rep.id
         end
 
-        def submit_power_of_attorney(poa_code, form_number)
-          attributes = {
+        def attributes
+          {
             status: ClaimsApi::PowerOfAttorney::PENDING,
             auth_headers: auth_headers.merge!({ VA_NOTIFY_KEY => icn_for_vanotify }),
             form_data: form_attributes,
             current_poa: current_poa_code,
             header_md5:
           }
+        end
+
+        def submit_power_of_attorney(poa_code, form_number)
           attributes.merge!({ source_data: }) unless token.client_credentials_token?
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
           unless Settings.claims_api&.poa_v2&.disable_jobs
-            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id, action: 'post')
+            if feature_enabled_and_claimant_present?
+              ClaimsApi::PoaAssignDependentClaimantJob.perform_async(
+                dependent_claimant_poa_assignment_service(poa_code:)
+              )
+            else
+              ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id, 'post')
+            end
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(

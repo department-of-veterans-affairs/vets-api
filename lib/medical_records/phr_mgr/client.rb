@@ -42,5 +42,16 @@ module PHRMgr
       response = perform(:get, "status/#{@icn}", nil, self.class.configuration.x_auth_key_headers)
       response.body
     end
+
+    ##
+    ## Get military service record
+    # @param edipi
+    # @return - military service record in text format
+    #
+    def get_military_service(edipi)
+      headers = self.class.configuration.x_auth_key_headers.merge({ 'Accept' => 'text/plain' })
+      response = perform(:get, "dod/vaprofile/#{edipi}", nil, headers)
+      response.body
+    end
   end
 end

@@ -36,12 +36,6 @@ describe TravelPay::ClaimsClient do
   end
 
   context '/claims' do
-    before do
-      allow_any_instance_of(TravelPay::TokenService)
-        .to receive(:get_tokens)
-        .and_return('veis_token', 'btsss_token')
-    end
-
     # GET
     it 'returns response from claims endpoint' do
       @stubs.get('/api/v1/claims') do
@@ -89,6 +83,47 @@ describe TravelPay::ClaimsClient do
       actual_claim_ids = claims_response.body['data'].pluck('id')
 
       expect(actual_claim_ids).to eq(expected_ids)
+    end
+
+    it 'returns response from claims/search endpoint' do
+      @stubs.get('/api/v1.1/claims/search-by-appointment-date') do
+        [
+          200,
+          {},
+          {
+            'data' => [
+              {
+                'id' => 'uuid1',
+                'claimNumber' => 'TC0000000000001',
+                'claimStatus' => 'InProgress',
+                'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+                'facilityName' => 'Cheyenne VA Medical Center',
+                'createdOn' => '2024-03-22T21:22:34.465Z',
+                'modifiedOn' => '2024-01-01T16:44:34.465Z'
+              },
+              {
+                'id' => 'uuid3',
+                'claimNumber' => 'TC0000000000002',
+                'claimStatus' => 'Incomplete',
+                'appointmentDateTime' => '2024-02-01T16:45:34.465Z',
+                'facilityName' => 'Cheyenne VA Medical Center',
+                'createdOn' => '2024-01-22T21:22:34.465Z',
+                'modifiedOn' => '2024-02-01T00:00:00.0Z'
+              }
+            ]
+          }
+        ]
+      end
+
+      expected = %w[uuid1 uuid3]
+
+      client = TravelPay::ClaimsClient.new
+      claims_response = client.get_claims_by_date('veis_token', 'btsss_token',
+                                                  { 'start_date' => '2024-01-01T16:45:34.465Z',
+                                                    'end_date' => '2024-02-01T16:45:34.465Z' })
+      actual_ids = claims_response.body['data'].pluck('id')
+
+      expect(actual_ids).to eq(expected)
     end
 
     # POST create_claim
