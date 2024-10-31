@@ -1,23 +1,17 @@
 # Form Remediation
 
-This solution is designed to remediate form submissions which have failed submission and are over two weeks old. It is composed of several Ruby on Rails service objects which interact with each other.
+This solution enables the remediation of failed form submissions over two weeks old within the Ruby on Rails `SimpleFormsApi` module. It consists of service objects that handle form archiving, metadata generation, and S3 interactions.
 
-The primary use-case for this solution is for form remediation. This process consists of the following:
+**Primary Use Case**: This remediation solution processes a form submission, generating an archive payload that includes:
 
-1. Accept a form submission identifier.
-1. Generate an archive payload consisting of the original form submission data as well as remediation specific documentation:
-    1. Hydrate the original form submission
-    1. Hydrate any original attachments that were a part of this submission
-    1. Generate a JSON file with the original metadata from the submission
-    1. Generate a manifest file to be used in the remediation process
-1. Upload the generated archive as a .zip file onto the configured S3 bucket
-1. Optionally return a presigned URL for accessing this file
+1. Original form submission data, with remediation-specific files:
+   - Hydrated submission data and attachments.
+   - JSON metadata file with submission details.
+   - CSV manifest for tracking submissions.
+2. Zips the archive and uploads it to an S3 bucket.
+3. Optionally returns a presigned URL for accessing the uploaded archive.
 
-This solution also provides a means for storing and retrieving a single .pdf copy of the originally submitted form.
-
-The following image depicts how this solution is architected:
-
-![Error Remediation Architecture](./error_remediation_architecture.png)
+A backup option supports uploading individual form submissions as PDFs, with optional presigned URLs.
 
 ---
 
@@ -27,6 +21,8 @@ The following image depicts how this solution is architected:
   - [Settings](#settings)
   - [Configuration](#configuration)
 - [Usage](#usage)
+  - [Bulk Processing](#bulk-processing)
+  - [Processing Individually](#processing-individually)
 - [Extending Functionality](#extending-functionality)
 - [AWS S3 Bucket Setup](#aws-s3-bucket-setup)
 
@@ -34,20 +30,20 @@ The following image depicts how this solution is architected:
 
 ## Getting Started
 
-This service has been built in such a way that almost all aspects of the workflow can be configured or extended, depending upon your team's needs.
+This solution is flexible, allowing extensive customization to suit various teams.
 
 ### Settings
 
-The AWS S3 `region` and `bucket` are the only AWS credentials which need to be present. The S3 upload process uses a relatively new approach of using `vets-api`'s account role to access AWS. DevOps logic exists which defaults the AWS account key and secret to that role's credentials.
+Only the `region` and `bucket` settings for AWS S3 are required. The `vets-api` role accesses AWS credentials by default.
 
-In order to use the provided [Veteran Facing Forms uploader](../../../../../../../app/uploaders/simple_forms_api/form_remediation/uploader.rb), the AWS credentials will need to be included in the following format:
+To use the provided uploader, ensure credentials are configured in `Settings` as follows:
 
 ```yml
-  bucket: <YOUR_TEAM_BUCKET>
-  region: <YOUR_TEAM_REGION>
+bucket: <YOUR_TEAM_BUCKET>
+region: <YOUR_TEAM_REGION>
 ```
 
-If your team's credentials are in a different format, the s3_settings method can be overridden to account for this:
+If your settings differ, override the `s3_settings` method in your configuration class:
 
 ```ruby
 # frozen_string_literal: true
@@ -62,13 +58,11 @@ class NewConfig < SimpleFormsApi::FormRemediation::Configuration::Base
 end
 ```
 
-To create a `Settings` entry, follow the [documentation provided by Platform](https://depo-platform-documentation.scrollhelp.site/developer-docs/settings).
+For adding a `Settings` entry, refer to [Platform Documentation](https://depo-platform-documentation.scrollhelp.site/developer-docs/settings).
 
 ### Configuration
 
-Your team can configure the service as it currently exists with minimal code additions.
-
-1. Create a new configuration file, inheriting from the base configuration class. Ensure that at the very least, the `s3_settings` method has been implemented.
+Set up a custom configuration by creating a subclass of `Base`, ensuring the `s3_settings` method is implemented:
 
 ```ruby
 # frozen_string_literal: true
@@ -82,19 +76,15 @@ class NewConfig < SimpleFormsApi::FormRemediation::Configuration::Base
 end
 ```
 
-It's also worth noting that this solution by default queries FormSubmission's by the `:benefits_intake_uuid` identifier by default, but that can be overridden within the configuration by setting the `id_type` attribute.
+This solution uses the `:benefits_intake_uuid` identifier by default for querying `FormSubmission`, but this can be customized by setting `id_type` in your configuration.
 
 ---
 
 ## Usage
 
-The Veteran Facing Forms team currently calls the bulk processing job utilizing [a rake task](../../../../../../simple_forms_api/lib/tasks/archive_forms_by_uuid.rake). Your team may choose to call it a different way but this is how we handle it.
-
 ### Bulk Processing
 
-For convenience, we've created a job which processes multiple form submissions at once by iterating through a collection of UUIDs. This batch processing can be handled in multiple ways.
-
-The service can be called with our existing job:
+The `ArchiveBatchProcessingJob` handles batch processing of form submissions. Initiate batch processing as shown:
 
 ```ruby
 config = YourTeamsConfig.new
@@ -102,7 +92,7 @@ job = SimpleFormsApi::FormRemediation::ArchiveBatchProcessingJob.perform(ids: yo
 presigned_urls = job.upload(type: :remediation)
 ```
 
-Or your own custom job:
+Alternatively, create a custom job:
 
 ```ruby
 config = YourTeamsConfig.new
@@ -112,7 +102,7 @@ presigned_urls = job.upload(type: :remediation)
 
 ### Processing Individually
 
-If your team isn't concerned with bulk processing, the S3 client itself handles processing an individual id for remediation out of the box:
+To process a single ID, instantiate the `S3Client` directly:
 
 ```ruby
 config = YourTeamsConfig.new
@@ -120,7 +110,7 @@ client = SimpleFormsApi::FormRemediation::S3Client.new(config:, id: your_teams_i
 client.upload
 ```
 
-The client also supports backing up individual form submissions in their original PDF format. This can be accomplished by changing the `type` to `:submission` during client initialization. This option will hydrate the form submission PDF and upload it to the configured S3 bucket and optionally return a presigned URL which links to the PDF itself. The subsequent remediation documentation is not created given this option.
+For PDF backups, specify `type: :submission` during initialization. This uploads the original form PDF and optionally returns a presigned URL:
 
 ```ruby
 config = YourTeamsConfig.new
@@ -132,18 +122,11 @@ client.upload
 
 ## Extending Functionality
 
-In addition to configuration of existing logic, if your team requires something other than what this service provides, each step of the process can be substituted or skipped with basic inheritance.
+Each step in this solution is extendable. Follow these steps:
 
-1. Take note of what can be extended and how it's used in the [base configuration](../../../../../../../lib/simple_forms_api/form_remediation/configuration/base.rb).
-1. Create a new class, optionally extending the existing one.
-1. Update your team's configuration to include the newly created class. These classes include:
-    1. `submission_archive_class` - Override to inject your team's own submission archive
-    1. `s3_client` - Override to inject your team's own s3 client
-    1. `remediation_data_class` - Override to inject your team's own submission data builder service
-    1. `uploader_class` - Override to inject your team's own file uploader
-    1. `submission_type` - The FormSubmission model to query against
-    1. `attachment_type` - The attachment model to query for form submission attachments
-1. Pass the new configiration in when calling the service.
+1. Review extensible components in the [Base Configuration](../../../../../../../lib/simple_forms_api/form_remediation/configuration/base.rb).
+2. Create subclasses for required functionality.
+3. Register the subclass in your configuration:
 
 ```ruby
 # frozen_string_literal: true
@@ -179,59 +162,63 @@ job = SimpleFormsApi::FormRemediation::ArchiveBatchProcessingJob.new
 presigned_urls = job.perform(ids: benefits_intake_uuids, config:, type: :remediation)
 ```
 
+### Overrideable Classes
+
+- `submission_archive_class`: Customize archive generation.
+- `s3_client`: Customize S3 interactions.
+- `remediation_data_class`: Customize data processing for submissions.
+- `uploader_class`: Customize file upload and S3 handling.
+- `submission_type`: Override `FormSubmission` model.
+- `attachment_type`: Override attachment model.
+
 ---
 
 ## AWS S3 Bucket Setup
 
-If your team does not have their own dedicated AWS S3 bucket, the following steps will need to be taken.
+If your team does not have an S3 bucket, follow these steps.
 
-### S3 Bucket Request Process
+### Requesting an S3 Bucket
 
-#### **Submit PR**
+#### Submit a PR
 
-- **Preferred Approach by Platform DevOps**: Create a new configuration PR to add the necessary S3 bucket(s) using these PRs as guidance (these changes can be done in a single PR): [Sample PR #1](https://github.com/department-of-veterans-affairs/devops/pull/14735), [Sample PR #2](https://github.com/department-of-veterans-affairs/devops/pull/14742)
-  - Include the appropriate configuration for both staging and production environments.
-  - Ensure you follow your team's naming convention when creating the bucket(s).
+- **Recommended Approach**: Submit a configuration PR for new S3 bucket(s). Refer to [Sample PR #1](https://github.com/department-of-veterans-affairs/devops/pull/14735) and [Sample PR #2](https://github.com/department-of-veterans-affairs/devops/pull/14742) (these changes can be done in a single PR).
+- Include staging and production configurations.
+- Adhere to team naming conventions for the bucket(s).
 
-#### **Review Process**
+#### Review Process
 
 - Once the PR is submitted, request a review from the DevOps/Platform team.
-  - A teammate should review the PR first before requesting a review from DevOps.
-- Ask for a **sanity check** to ensure the bucket is provisioned correctly, securely, and consistently with existing infrastructure.
+- A team member should review the PR before DevOps approval.
+- Request a **sanity check** for provisioning, security, and consistency.
 
-#### **Apply Changes**
+#### Applying Changes
 
-- After the PR is merged, the DevOps team will apply the Terraform changes to provision the bucket(s) in the appropriate environment (staging/production).
-  - At the time of writing this document, this process is manual for DevOps and will need to be asked for explicitly once the PR has been merged.
-- Once the bucket(s) are successfully created, the DevOps or platform team will provide confirmation.
+- After merging, DevOps will manually apply the changes in staging and production environments.
+- Upon successful provisioning, DevOps will confirm bucket creation.
 
-#### **Access and Credentials**
+#### Access and Credentials
 
-**Production/Staging Environments**:
+**Production/Staging**:
 
-- The `vets-api` service will automatically have access to the S3 bucket in production and staging environments through the **vets-api pod's service account**.
-- No explicit AWS Access Key or Secret Key is needed in these environments, as the credentials will be [fetched automatically](https://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/S3/Client.html#initialize-instance_method) by the pod service account.
+- `vets-api` automatically accesses S3 in production and staging environments through the **vets-api pod service account**.
 
-**Local Development/Non-Production Environments**:
+**Local Development**:
 
-- For local testing or other non-production environments, you **will need to pass your own AWS credentials** (e.g., via environment variables or AWS CLI) when working with S3.
+- Use your own AWS credentials locally, either via environment variables or the AWS CLI.
 
 **Testing Credentials**:
 
-- Ensure that the `vets-api` role can write to the S3 bucket in both staging and production. You should test your S3 client with the `vets-api` role and report any errors.
-- If you're using an AWS client (e.g., via the AWS SDK), it should automatically use the `vets-api` role in the target environment.
+- Ensure the `vets-api` role can write to the S3 bucket in both environments. Test using the `vets-api` role and report any errors.
 
 **Documentation**:
 
-- Internal documentation on using the `vets-api` role with AWS clients should be consulted for further guidance. For local development, ensure AWS credentials are properly set up.
+- Consult internal documentation on using `vets-api` role with AWS clients. For local development, ensure proper AWS credential setup.
 
 ### S3 Bucket Naming Convention
 
-- **For Staging**: `dsva-vagov-staging-[team-project-name]`
-- **For Production**: `dsva-vagov-prod-[team-project-name]`
+- **Staging**: `dsva-vagov-staging-[team-project-name]`
+- **Production**: `dsva-vagov-prod-[team-project-name]`
 
-### Guidelines for Future Infrastructure Requests
+### Future Infrastructure Requests
 
-- Teams should continue to request infrastructure changes via PRs to the DevOps repository.
-- If you're unfamiliar with Terraform or any other infrastructure specific technologies, request assistance from the Platform or DevOps team to ensure the infrastructure is provisioned correctly.
-- Ensure proper testing in both staging and production environments, verifying that the `vets-api` role has the appropriate permissions to interact with the S3 bucket.
+For future infrastructure needs, continue using PR requests in the DevOps repository. Seek Platform/DevOps assistance if unfamiliar with Terraform or infrastructure technologies, and verify permissions in staging and production environments.
