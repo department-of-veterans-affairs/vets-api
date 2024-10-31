@@ -176,8 +176,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       Flipper.enable(:disability_compensation_use_api_provider_for_0781_uploads)
       # StatsD metrics are incremented in several callbacks we're not testing here so we need to allow them
       allow(StatsD).to receive(:increment)
-      # There is an ensure block in the upload_to_vbms method that deletes the generated PDF, this skips over
-      # that step to not delete the sample fixture files
+      # There is an ensure block in the upload_to_vbms method that deletes the generated PDF
       allow(File).to receive(:delete).and_return(nil)
     end
 
@@ -231,8 +230,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
 
       context 'when a submission has a 0781 form' do
         it 'successfully uploads the 0781 document to Lighthouse' do
-          submission.update!(form_json: form0781_only)
-
           allow_any_instance_of(described_class)
             .to receive(:generate_stamp_pdf)
             .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
