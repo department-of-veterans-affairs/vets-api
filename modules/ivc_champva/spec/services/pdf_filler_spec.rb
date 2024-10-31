@@ -8,10 +8,11 @@ require IvcChampva::Engine.root.join('app', 'services', 'ivc_champva', 'pdf_stam
 describe IvcChampva::PdfFiller do
   forms = %w[vha_10_10d vha_10_7959f_1 vha_10_7959f_2 vha_10_7959c]
 
-  context "Feature champva_unique_temp_file_names=true" do
+  context 'Feature champva_unique_temp_file_names=true' do
     before do
       Flipper.enable(:champva_unique_temp_file_names)
     end
+
     describe '#initialize' do
       context 'when the filler is instantiated without a form_number' do
         it 'throws an error' do
@@ -36,7 +37,7 @@ describe IvcChampva::PdfFiller do
       end
     end
   end
-  context "Feature champva_unique_temp_file_names=false" do
+  context 'Feature champva_unique_temp_file_names=false' do
     before do
       Flipper.disable(:champva_unique_temp_file_names)
     end
@@ -63,7 +64,7 @@ describe IvcChampva::PdfFiller do
     end
   end
 
-  context "Feature champva_unique_temp_file_names=true" do
+  context 'ture champva_unique_temp_file_names=true' do
     before do
       Flipper.enable(:champva_unique_temp_file_names)
     end

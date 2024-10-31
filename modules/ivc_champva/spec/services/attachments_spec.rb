@@ -14,10 +14,11 @@ class TestClass
 end
 
 RSpec.describe IvcChampva::Attachments do
-  context "Feature champva_unique_temp_file_names=true" do
+  context 'Feature champva_unique_temp_file_names=true' do
     before do
       Flipper.enable(:champva_unique_temp_file_names)
     end
+
     # Mocking a class to include the Attachments module
     let(:form_id) { 'vha_10_7959c' }
     let(:uuid) { 'f4ae6102-7f05-485a-948c-c0d9ef028983' }
@@ -33,7 +34,8 @@ RSpec.describe IvcChampva::Attachments do
           expect(File).to receive(:rename).with('attachment2.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
 
           result = test_instance.handle_attachments(file_path)
-          expect(result).to contain_exactly("tmp/#{uuid}_#{form_id}-tmp.pdf", "./#{uuid}_#{form_id}_supporting_doc-0.pdf",
+          expect(result).to contain_exactly("tmp/#{uuid}_#{form_id}-tmp.pdf",
+                                            "./#{uuid}_#{form_id}_supporting_doc-0.pdf",
                                             "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
         end
       end
@@ -66,10 +68,12 @@ RSpec.describe IvcChampva::Attachments do
       end
     end
   end
-  context "Feature champva_unique_temp_file_names=false" do
+
+  context 'Feature champva_unique_temp_file_names=false' do
     before do
       Flipper.disable(:champva_unique_temp_file_names)
     end
+
     # Mocking a class to include the Attachments module
     let(:form_id) { '123' }
     let(:uuid) { 'abc123' }
@@ -86,7 +90,8 @@ RSpec.describe IvcChampva::Attachments do
           expect(File).to receive(:rename).with('attachment2.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
 
           result = test_instance.handle_attachments(file_path)
-          expect(result).to contain_exactly("tmp/#{uuid}_#{form_id}-tmp.pdf", "./#{uuid}_#{form_id}_supporting_doc-0.pdf",
+          expect(result).to contain_exactly("tmp/#{uuid}_#{form_id}-tmp.pdf",
+                                            "./#{uuid}_#{form_id}_supporting_doc-0.pdf",
                                             "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
         end
       end
