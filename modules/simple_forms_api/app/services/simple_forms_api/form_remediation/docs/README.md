@@ -11,6 +11,10 @@ This solution is designed to remediate form submissions older than two weeks, wh
 2. Zips and uploads the archive to an S3 bucket, with optional presigned URL access.
 3. Supports single PDF uploads of original submissions.
 
+The following image depicts how this solution is architected:
+
+![Error Remediation Architecture](./error_remediation_architecture.png)
+
 ---
 
 ## Table of Contents
