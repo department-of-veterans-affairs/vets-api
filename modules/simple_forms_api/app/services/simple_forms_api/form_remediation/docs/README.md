@@ -96,7 +96,7 @@ bundle exec rails simple_forms_api:archive_forms_by_uuid[abc-123 def-456,submiss
 
 In `archive_forms_by_uuid`, `benefits_intake_uuids` specifies a collection of submission identifiers, and `type` defines the upload type (default is `remediation`). This task initializes a configuration object (`VffConfig`) and triggers the batch job, printing presigned URLs upon completion.
 
-Note: THIS RAKE TASK IS FOR REFERENCE ONLY!! This rake task is specifically configured to interact with the Veteran Facing Forms team's S3 bucket.
+Note: **THIS RAKE TASK IS FOR REFERENCE ONLY!!** This rake task is specifically configured to interact with the Veteran Facing Forms team's S3 bucket, so please don't use it for your team.
 
 #### Batch Processing Job
 
