@@ -18,23 +18,12 @@ module VAProfile
         episodes += get_military_service_episodes(body)
         episodes += get_academy_attendance_episodes(body) if include_academy_attendance?(current_user)
 
-        if Flipper.enabled?(:profile_show_proof_of_veteran_status_eligible)
-          eligibility = get_eligibility(episodes)
-
-          return new(
-            raw_response&.status,
-            episodes: episodes ? sort_by_begin_date(episodes) : episodes,
-            uniformed_service_initial_entry_date: get_uniformed_service_initial_entry_date(body),
-            release_from_active_duty_date: get_release_from_active_duty_date(body),
-            vet_status_eligibility: eligibility
-          )
-        end
-
         new(
           raw_response&.status,
           episodes: episodes ? sort_by_begin_date(episodes) : episodes,
           uniformed_service_initial_entry_date: get_uniformed_service_initial_entry_date(body),
-          release_from_active_duty_date: get_release_from_active_duty_date(body)
+          release_from_active_duty_date: get_release_from_active_duty_date(body),
+          vet_status_eligibility: get_eligibility(episodes)
         )
       end
 

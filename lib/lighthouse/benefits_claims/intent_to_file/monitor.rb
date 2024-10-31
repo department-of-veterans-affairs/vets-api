@@ -1,9 +1,15 @@
 # frozen_string_literal: true
 
+require 'zero_silent_failures/monitor'
+
 module BenefitsClaims
   module IntentToFile
-    class Monitor
+    class Monitor < ::ZeroSilentFailures::Monitor
       STATSD_KEY_PREFIX = 'worker.lighthouse.create_itf_async'
+
+      def initialize
+        super('pension-itf')
+      end
 
       def track_create_itf_begun(itf_type, form_start_date, user_account_uuid)
         StatsD.increment("#{STATSD_KEY_PREFIX}.#{itf_type}.begun")
@@ -37,13 +43,15 @@ module BenefitsClaims
       end
 
       def track_create_itf_exhaustion(itf_type, form, error)
-        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
         context = {
           error:,
           itf_type:,
           form_start_date: form&.created_at&.to_s,
           user_account_uuid: form&.user_account_id
         }
+        log_silent_failure(context, form&.user_account_id, call_location: caller_locations.first)
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
         Rails.logger.error("Lighthouse::CreateIntentToFileJob create #{itf_type} ITF exhausted", context)
       end
 

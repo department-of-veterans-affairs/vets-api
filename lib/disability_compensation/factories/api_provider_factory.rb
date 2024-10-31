@@ -190,7 +190,8 @@ class ApiProviderFactory
     provider_options = [
       @options[:form526_submission],
       @options[:document_type],
-      @options[:statsd_metric_prefix]
+      @options[:statsd_metric_prefix],
+      @options[:supporting_evidence_attachment]
     ]
 
     case api_provider
