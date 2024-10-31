@@ -11,6 +11,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
     HealthCareApplication::LOCKBOX.encrypt(form.to_json)
   end
   let(:ezr_service) { double }
+  let(:tags) { described_class::DD_ZSF_TAGS }
 
   describe 'when retries are exhausted' do
     before do
@@ -71,6 +72,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
             )
             expect(VANotify::EmailJob).to receive(:perform_async).with(*template_params)
             expect(StatsD).to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
+            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
           end
 
           pii_log = PersonalInformationLog.last
@@ -87,6 +89,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           described_class.within_sidekiq_retries_exhausted_block(msg) do
             expect(VANotify::EmailJob).not_to receive(:perform_async)
             expect(StatsD).not_to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
+            expect(StatsD).not_to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
           end
         end
       end
