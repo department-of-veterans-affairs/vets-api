@@ -22,7 +22,6 @@ RSpec.describe 'V1::Post911GIBillStatus', type: :request do
     end
   end
 
-
   context 'with deprecated GibsNotFoundUser class' do
     it 'loads the class for coverage', skip: 'No expectation in this example' do
       GibsNotFoundUser
