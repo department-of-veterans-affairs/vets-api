@@ -1,5 +1,41 @@
 ---
 schema-version: v2.2
+dd-service: representation-management
+team: benefits
+application: Accredited Representation Management
+tier: '1'
+lifecycle: production
+contacts:
+  - name: benefits-representation-management
+    type: slack
+    contact: https://dsva.slack.com/archives/C05L6HSJLHM
+description: 'For details, visit: https://github.com/department-of-veterans-affairs/va.gov-team/tree/master/products/accredited-representation-management'
+links:
+  - name: ARM in vets-api
+    type: repo
+    provider: github
+    url: https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/representation_management
+  - name: Appoint a Representative Frontend
+    type: repo
+    provider: github
+    url: https://github.com/department-of-veterans-affairs/vets-website/tree/main/src/applications/representative-appoint
+  - name: Find a Representative Frontend
+    type: repo
+    provider: github
+    url: https://github.com/department-of-veterans-affairs/vets-website/tree/main/src/applications/representative-search
+  - name: Representative Status Widget
+    type: repo
+    provider: github
+    url: https://github.com/department-of-veterans-affairs/vets-website/tree/main/src/applications/static-pages/representative-status
+tags:
+  - representation-management
+type: web
+languages:
+  - ruby
+  - javascript
+integrations: {}
+---
+schema-version: v2.2
 dd-service: accredited-representative-portal
 team: benefits
 application: Accredited Representative Portal
@@ -179,7 +215,7 @@ tier: '1'
 description: Supplemental Claims application
 lifecycle: production
 contacts:
-  - name: "#benefits-decision-reviews"
+  - name: '#benefits-decision-reviews'
     type: slack
     contact: https://dsva.slack.com/archives/C5AGLBNRK
 links:
@@ -210,7 +246,7 @@ dd-service: avs
 team: After Visit Summary
 description: Displays after visit summaries to veterans.
 contacts:
-  - name: "#after-visit-summary"
+  - name: '#after-visit-summary'
     type: slack
     contact: https://dsva.slack.com/archives/C04UBETRY8N
 integrations: {}
@@ -223,7 +259,7 @@ tier: '1'
 description: disability benefits application
 lifecycle: production
 contacts:
-  - name: "#benefits-disability"
+  - name: '#benefits-disability'
     type: slack
     contact: https://dsva.slack.com/archives/C04KW0B46N5
 links:
@@ -257,7 +293,7 @@ team: vfs-websites
 tier: '1'
 description: VA.gov homepage.
 contacts:
-  - name: "#sitewide-public-websites"
+  - name: '#sitewide-public-websites'
     type: slack
     contact: https://dsva.slack.com/archives/C52CL1PKQ
 tags:
@@ -398,7 +434,7 @@ tier: '1'
 description: Veteran medical appointment scheduling service.
 lifecycle: production
 contacts:
-  - name: "#appointments-team"
+  - name: '#appointments-team'
     type: slack
     contact: https://dsva.slack.com/archives/CMNQT72LX
 type: web
