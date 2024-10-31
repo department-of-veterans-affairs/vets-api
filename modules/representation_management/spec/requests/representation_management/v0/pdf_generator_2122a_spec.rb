@@ -24,7 +24,6 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
           record_consent: '',
           consent_address_change: '',
           consent_limits: [],
-          conditions_of_appointment: [],
           claimant: {
             date_of_birth: '1980-12-31',
             relationship: 'Spouse',
@@ -77,6 +76,22 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
 
     context 'When submitting all fields with valid data' do
       before do
+        post(base_path, params:)
+      end
+
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'responds with a PDF' do
+        expect(response.content_type).to eq('application/pdf')
+      end
+    end
+
+    context 'When submitting a legacy representative' do
+      before do
+        legacy_representative = create(:representative)
+        params[:pdf_generator2122a][:representative][:id] = legacy_representative.representative_id
         post(base_path, params:)
       end
 
