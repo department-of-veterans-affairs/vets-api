@@ -46,7 +46,8 @@ module KmsKeyRotation
 
       model
         .where.not(encrypted_kms_key: nil) # Only records with non-NULL encrypted_kms_key
-        .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%") # Exclude records with current KMS version
+        .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
+        # Exclude records with current KMS version
         .where(
           encrypted_columns.map { |col| model.arel_table[col].not_eq(nil) }
                            .reduce(:or) # At least one encrypted field is not NULL
