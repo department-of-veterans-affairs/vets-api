@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_23_222045) do
+ActiveRecord::Schema[7.1].define(version: 2024_10_29_143650) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1107,6 +1107,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_23_222045) do
     t.datetime "delete_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "failure_notification_sent_at"
     t.index ["appeal_submission_id"], name: "index_secondary_appeal_forms_on_appeal_submission_id"
   end
 

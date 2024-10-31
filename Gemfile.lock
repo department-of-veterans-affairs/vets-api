@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: be610f6623ef1fac432e5616372d4a5eadb93773
+  revision: 71c4501d45b75000818c88707c9c0ecd3dc86dc7
   branch: master
   specs:
-    vets_json_schema (24.4.0)
+    vets_json_schema (24.5.2)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -93,6 +93,7 @@ PATH
       sidekiq
     ask_va_api (0.1.0)
     avs (0.1.0)
+    banners (0.1.0)
     burials (0.1.0)
     check_in (0.1.0)
     claims_api (0.0.1)
@@ -636,7 +637,7 @@ GEM
     llhttp-ffi (0.5.0)
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
-    lockbox (1.4.1)
+    lockbox (2.0.0)
     logger (1.6.1)
     loofah (2.22.0)
       crass (~> 1.0.2)
@@ -874,7 +875,7 @@ GEM
       hashie (>= 1.2.0, < 6.0)
       jwt (>= 1.5.6)
     retriable (3.1.2)
-    rexml (3.3.8)
+    rexml (3.3.9)
     rgeo (3.0.1)
     rgeo-activerecord (7.0.1)
       activerecord (>= 5.0)
@@ -952,7 +953,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.52.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (3.1.0)
+    rubocop-rspec (3.2.0)
       rubocop (~> 1.61)
     rubocop-rspec_rails (2.30.0)
       rubocop (~> 1.61)
@@ -1030,7 +1031,7 @@ GEM
       ffi
     ssrf_filter (1.1.2)
     staccato (0.5.3)
-    statsd-instrument (3.9.3)
+    statsd-instrument (3.9.4)
     stringio (3.1.1)
     strong_migrations (2.0.1)
       activerecord (>= 6.1)
@@ -1132,6 +1133,7 @@ DEPENDENCIES
   aws-sdk-kms
   aws-sdk-s3 (~> 1)
   aws-sdk-sns (~> 1)
+  banners!
   betamocks!
   bgs_ext!
   blueprinter
