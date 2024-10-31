@@ -70,7 +70,7 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
                                                                                  transaction_id: 'transaction_3',
                                                                                  id: '4')
         expected_array = [claim_three.id,
-                          claim_four.id] || [claim_four.id, claim_three.id]
+                          claim_four.id] || [claim_four.id, claim_three.id].count
         # rubocop:disable RSpec/SubjectStub
         expect(subject).to receive(:notify).with(
           [],
