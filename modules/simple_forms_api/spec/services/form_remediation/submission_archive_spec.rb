@@ -4,256 +4,183 @@ require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 
-RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
-  include SimpleFormsApi::FormRemediation::FileUtilities
+# rubocop:disable Metrics/ModuleLength
+module SimpleFormsApi
+  module FormRemediation
+    RSpec.describe SubmissionArchive do
+      include FileUtilities
 
-  let(:form_type) { '20-10207' }
-  let(:fixtures_path) { 'modules/simple_forms_api/spec/fixtures' }
-  let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_20_10207_with_supporting_documents.json').read }
-  let(:file_path) { Rails.root.join(fixtures_path, 'pdfs', 'vba_20_10207-completed.pdf') }
-  let(:attachments) { Array.new(5) { fixture_file_upload('doctors-note.pdf', 'application/pdf').path } }
-  let(:submission) { create(:form_submission, :pending, form_type:, form_data:) }
-  let(:type) { :remediation }
-  let(:benefits_intake_uuid) { submission&.benefits_intake_uuid }
-  let(:metadata) do
-    {
-      veteranFirstName: 'John',
-      veteranLastName: 'Veteran',
-      fileNumber: '321540987',
-      zipCode: '12345',
-      source: 'VA Platform Digital Forms',
-      docType: '20-10207',
-      businessLine: 'CMP'
-    }
-  end
-  let(:submission_file_path) do
-    [Time.zone.today.strftime('%-m.%d.%y'), 'form', form_type, 'vagov', benefits_intake_uuid].join('_')
-  end
-  let(:new_submission_instance) { instance_double(SimpleFormsApi::FormRemediation::SubmissionRemediationData) }
-  let(:hydrated_submission_instance) do
-    instance_double(
-      SimpleFormsApi::FormRemediation::SubmissionRemediationData, submission:, file_path:, attachments:, metadata:
-    )
-  end
-  let(:config) { SimpleFormsApi::FormRemediation::Configuration::VffConfig.new }
-  let(:id_archive_instance) { described_class.new(id: benefits_intake_uuid, config:, type:) }
-  let(:data_archive_instance) do
-    described_class.new(id: benefits_intake_uuid, config:, submission:, file_path:, attachments:, metadata:, type:)
-  end
-  let(:temp_file_path) { Rails.root.join('tmp', 'random-letters-n-numbers-archive').to_s }
+      let(:form_type) { '20-10207' }
+      let(:fixtures_path) { 'modules/simple_forms_api/spec/fixtures' }
+      let(:form_data) do
+        Rails.root.join(fixtures_path, 'form_json', 'vba_20_10207_with_supporting_documents.json').read
+      end
+      let(:file_path) { Rails.root.join(fixtures_path, 'pdfs', 'vba_20_10207-completed.pdf') }
+      let(:attachments) { Array.new(5) { fixture_file_upload('doctors-note.pdf', 'application/pdf').path } }
+      let(:submission) { create(:form_submission, :pending, form_type:, form_data:) }
+      let(:benefits_intake_uuid) { submission&.benefits_intake_uuid }
+      let(:metadata) do
+        {
+          veteranFirstName: 'John',
+          veteranLastName: 'Veteran',
+          fileNumber: '321540987',
+          zipCode: '12345',
+          source: 'VA Platform Digital Forms',
+          docType: '20-10207',
+          businessLine: 'CMP'
+        }
+      end
+      let(:submission_file_path) { unique_file_name(form_type, benefits_intake_uuid) }
+      let(:new_submission_instance) { instance_double(SubmissionRemediationData) }
+      let(:hydrated_submission_instance) do
+        instance_double(SubmissionRemediationData, submission:, file_path:, attachments:, metadata:)
+      end
+      let(:config) { Configuration::VffConfig.new }
+      let(:temp_file_path) { Rails.root.join('tmp', 'random-letters-n-numbers-archive').to_s }
+      let(:default_args) { { id: benefits_intake_uuid, config:, type: } }
+      let(:hydrated_submission_args) { default_args.merge(submission:, file_path:, attachments:, metadata:) }
 
-  before do
-    allow(FormSubmission).to receive(:find_by).and_return(submission)
-    allow(SecureRandom).to receive(:hex).and_return('random-letters-n-numbers')
-    allow(SimpleFormsApi::FormRemediation::SubmissionRemediationData).to(
-      receive(:new).and_return(new_submission_instance)
-    )
-    allow(new_submission_instance).to receive_messages(hydrate!: hydrated_submission_instance)
-    allow(File).to receive_messages(write: true, directory?: true)
-    allow(CSV).to receive(:open).and_return(true)
-    allow(FileUtils).to receive(:mkdir_p).and_return(true)
-    allow(id_archive_instance).to receive(:zip_directory!) do |parent_dir, temp_dir, filename|
-      s3_dir = build_path(:dir, parent_dir, 'remediation')
-      s3_file_path = build_path(:file, s3_dir, filename, ext: '.zip')
-      build_local_path_from_s3(s3_dir, s3_file_path, temp_dir)
-    end
-    allow(data_archive_instance).to receive(:zip_directory!) do |parent_dir, temp_dir, filename|
-      s3_dir = build_path(:dir, parent_dir, 'remediation')
-      s3_file_path = build_path(:file, s3_dir, filename, ext: '.zip')
-      build_local_path_from_s3(s3_dir, s3_file_path, temp_dir)
-    end
-  end
-
-  describe '#initialize' do
-    context 'when initialized with a valid id' do
-      subject(:new) { id_archive_instance }
-
-      it 'successfully completes initialization' do
-        expect { new }.not_to raise_exception
+      before do
+        allow(FormSubmission).to receive(:find_by).and_return(submission)
+        allow(SecureRandom).to receive(:hex).and_return('random-letters-n-numbers')
+        allow(SubmissionRemediationData).to receive(:new).and_return(new_submission_instance)
+        allow(new_submission_instance).to receive_messages(hydrate!: hydrated_submission_instance)
+        allow(File).to receive_messages(write: true, directory?: true)
+        allow(CSV).to receive(:open).and_return(true)
+        allow(FileUtils).to receive(:mkdir_p).and_return(true)
       end
 
-      context 'when no id is passed' do
-        it 'raises an exception' do
-          expect { described_class.new(id: nil, config:, type:) }.to(
-            raise_exception(RuntimeError, 'No benefits_intake_uuid was provided')
-          )
-        end
-      end
+      %i[submission remediation].each do |archive_type|
+        describe "when archiving a #{archive_type}" do
+          let(:type) { archive_type }
 
-      context 'when no config is passed' do
-        it 'raises an exception' do
-          expect { described_class.new(id: benefits_intake_uuid, config: nil, type:) }.to(
-            raise_exception(SimpleFormsApi::FormRemediation::NoConfigurationError, 'No configuration was provided')
-          )
-        end
-      end
-    end
+          describe '#initialize' do
+            subject(:archive_instance) { described_class.new(**args) }
 
-    context 'when initialized with valid hydrated submission data' do
-      subject(:new) { data_archive_instance }
+            context 'when initialized with a valid id' do
+              let(:args) { default_args }
 
-      it 'successfully completes initialization' do
-        expect { new }.not_to raise_exception
-      end
+              it 'successfully completes initialization' do
+                expect { archive_instance }.not_to raise_exception
+              end
 
-      context 'when no submission is passed' do
-        let(:submission) { nil }
-        let(:benefits_intake_uuid) { 'random-letters-n-numbers' }
+              context 'when no id is passed' do
+                let(:benefits_intake_uuid) { nil }
 
-        it 'successfully completes initialization' do
-          expect { new }.not_to raise_exception
-        end
+                it 'raises an exception' do
+                  expect { archive_instance }.to raise_exception(RuntimeError, 'No benefits_intake_uuid was provided')
+                end
+              end
 
-        context 'when no id is passed' do
-          it 'raises an exception' do
-            expect do
-              described_class.new(id: nil, config:, submission:, file_path:, attachments:, metadata:, type:)
-            end.to raise_exception(RuntimeError, 'No benefits_intake_uuid was provided')
-          end
-        end
-      end
-    end
-  end
+              context 'when no config is passed' do
+                let(:config) { nil }
 
-  describe '#build!' do
-    let(:zip_file_path) { "#{temp_file_path}/#{submission_file_path}.zip" }
+                it 'raises an exception' do
+                  expect { archive_instance }.to raise_exception(NoConfigurationError, 'No configuration was provided')
+                end
+              end
+            end
 
-    before { build_archive }
+            context 'when initialized with valid hydrated submission data' do
+              let(:args) { hydrated_submission_args }
 
-    context 'when archiving a remediation package' do
-      context 'when initialized with a valid id' do
-        subject(:build_archive) { id_archive_instance.build! }
+              it 'successfully completes initialization' do
+                expect { archive_instance }.not_to raise_exception
+              end
 
-        it 'builds the zip path correctly' do
-          expect(build_archive[0]).to include(zip_file_path)
-        end
+              context 'when no submission is passed' do
+                let(:submission) { nil }
+                let(:benefits_intake_uuid) { 'random-letters-n-numbers' }
 
-        it 'builds the manifest entry correctly' do
-          expect(build_archive[1]).to eq(
-            [
-              submission.created_at,
-              form_type,
-              benefits_intake_uuid,
-              metadata['fileNumber'],
-              metadata['veteranFirstName'],
-              metadata['veteranLastName']
-            ]
-          )
-        end
+                it 'successfully completes initialization' do
+                  expect { archive_instance }.not_to raise_exception
+                end
 
-        it 'writes the submission pdf file' do
-          expect(File).to have_received(:write).with(
-            "#{temp_file_path}/#{submission_file_path}.pdf", a_string_starting_with('%PDF')
-          )
-        end
+                context 'when no id is passed' do
+                  let(:benefits_intake_uuid) { nil }
 
-        it 'writes the attachment files' do
-          attachments.each_with_index do |_, i|
-            expect(File).to have_received(:write).with(
-              "#{temp_file_path}/attachment_#{i + 1}__#{submission_file_path}.pdf", a_string_starting_with('%PDF')
-            )
-          end
-        end
-
-        it 'zips the directory' do
-          expect(id_archive_instance).to have_received(:zip_directory!).with(
-            config.parent_dir,
-            a_string_including('/tmp/random-letters-n-numbers-archive/'),
-            a_string_including(submission_file_path)
-          )
-        end
-      end
-
-      context 'when initialized with valid submission data' do
-        subject(:build_archive) { data_archive_instance.build! }
-
-        it 'builds the zip path correctly' do
-          expect(build_archive[0]).to include(zip_file_path)
-        end
-
-        it 'builds the manifest entry correctly' do
-          expect(build_archive[1]).to eq(
-            [
-              submission.created_at,
-              form_type,
-              benefits_intake_uuid,
-              metadata['fileNumber'],
-              metadata['veteranFirstName'],
-              metadata['veteranLastName']
-            ]
-          )
-        end
-
-        it 'writes the submission pdf file' do
-          expect(File).to have_received(:write).with(
-            "#{temp_file_path}/#{submission_file_path}.pdf", a_string_starting_with('%PDF')
-          )
-        end
-
-        it 'writes the attachment files' do
-          attachments.each_with_index do |_, i|
-            expect(File).to have_received(:write).with(
-              "#{temp_file_path}/attachment_#{i + 1}__#{submission_file_path}.pdf", a_string_starting_with('%PDF')
-            )
-          end
-        end
-
-        it 'zips the directory' do
-          expect(data_archive_instance).to have_received(:zip_directory!).with(
-            config.parent_dir,
-            a_string_including('/tmp/random-letters-n-numbers-archive/'),
-            a_string_including(submission_file_path)
-          )
-        end
-      end
-
-      context 'when archiving a submission' do
-        let(:type) { :submission }
-
-        context 'when initialized with a valid id' do
-          subject(:build_archive) { id_archive_instance.build! }
-
-          it 'builds the pdf path correctly' do
-            expect(build_archive[0]).to include(submission_file_path)
+                  it 'raises an exception' do
+                    expect { archive_instance }.to raise_exception(RuntimeError, 'No benefits_intake_uuid was provided')
+                  end
+                end
+              end
+            end
           end
 
-          it 'builds the manifest entry' do
-            expect(build_archive[1]).not_to eq(nil)
-          end
+          describe '#build!' do
+            let(:file_name) { "#{temp_file_path}/#{submission_file_path}.#{type == :remediation ? 'zip' : 'pdf'}" }
 
-          it 'writes the submission pdf file' do
-            expect(File).to have_received(:write).with(
-              "#{temp_file_path}/#{submission_file_path}.pdf", a_string_starting_with('%PDF')
-            )
-          end
+            before do
+              allow(archive_instance).to receive(:zip_directory!) do |parent_dir, temp_dir, filename|
+                s3_dir = build_path(:dir, parent_dir, 'remediation')
+                s3_file_path = build_path(:file, s3_dir, filename, ext: '.zip')
+                build_local_path_from_s3(s3_dir, s3_file_path, temp_dir)
+              end
+              build_archive
+            end
 
-          it 'does not zip the directory' do
-            expect(id_archive_instance).not_to have_received(:zip_directory!)
-          end
-        end
+            shared_examples 'successfully built submission archive' do
+              it 'builds the file path correctly' do
+                expect(build_archive.first).to include(file_name)
+              end
 
-        context 'when initialized with valid submission data' do
-          subject(:build_archive) { data_archive_instance.build! }
+              it 'builds the manifest entry correctly' do
+                expect(build_archive.second).to eq(
+                  [
+                    submission.created_at,
+                    form_type,
+                    benefits_intake_uuid,
+                    metadata['fileNumber'],
+                    metadata['veteranFirstName'],
+                    metadata['veteranLastName']
+                  ]
+                )
+              end
 
-          it 'builds the pdf path correctly' do
-            expect(build_archive[0]).to include(submission_file_path)
-          end
+              it 'writes the submission pdf file' do
+                expect(File).to have_received(:write).with(
+                  "#{temp_file_path}/#{submission_file_path}.pdf", a_string_starting_with('%PDF')
+                )
+              end
 
-          it 'builds the manifest entry' do
-            expect(build_archive[1]).not_to eq(nil)
-          end
+              it 'writes the attachment files' do
+                attachments.each_with_index do |_, i|
+                  expect(File).to have_received(:write).with(
+                    "#{temp_file_path}/attachment_#{i + 1}__#{submission_file_path}.pdf", a_string_starting_with('%PDF')
+                  )
+                end
+              end
 
-          it 'writes the submission pdf file' do
-            expect(File).to have_received(:write).with(
-              "#{temp_file_path}/#{submission_file_path}.pdf", a_string_starting_with('%PDF')
-            )
-          end
+              it 'zips the directory when necessary' do
+                if type == :submission
+                  expect(archive_instance).not_to have_received(:zip_directory!)
+                else
+                  expect(archive_instance).to have_received(:zip_directory!).with(
+                    config.parent_dir, "#{temp_file_path}/", submission_file_path
+                  )
+                end
+              end
+            end
 
-          it 'does not zip the directory' do
-            expect(data_archive_instance).not_to have_received(:zip_directory!)
+            context 'when initialized with a valid id' do
+              let(:archive_instance) { described_class.new(**default_args) }
+
+              subject(:build_archive) { archive_instance.build! }
+
+              include_examples 'successfully built submission archive'
+            end
+
+            context 'when initialized with valid submission data' do
+              let(:archive_instance) { described_class.new(**hydrated_submission_args) }
+
+              subject(:build_archive) { archive_instance.build! }
+
+              include_examples 'successfully built submission archive'
+            end
           end
         end
       end
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
