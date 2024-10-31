@@ -45,14 +45,15 @@ module KmsKeyRotation
       model = MODELS_FOR_QUERY[model.name] if MODELS_FOR_QUERY.key?(model.name)
 
       model
-      .where.not(encrypted_kms_key: nil)  # Include only records with a non-NULL key
-      .where(
-        encrypted_columns.map { |col| model.arel_table[col].not_eq(nil) }
-                        .reduce(:or)       # At least one encrypted field is not NULL
-      )
-      .limit(max_records_per_batch)
-      .pluck(model.primary_key)
-      .map { |id| URI::GID.build(app: GlobalID.app, model_name: model.name, model_id: id).to_s }
+        .where.not(encrypted_kms_key: nil)  # Only records with non-NULL encrypted_kms_key
+        .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")  # Exclude records with current KMS version
+        .where(
+          encrypted_columns.map { |col| model.arel_table[col].not_eq(nil) }
+                           .reduce(:or)       # At least one encrypted field is not NULL
+        )
+        .limit(max_records_per_batch)
+        .pluck(model.primary_key)
+        .map { |id| URI::GID.build(app: GlobalID.app, model_name: model.name, model_id: id).to_s }
     end
   end
 end
