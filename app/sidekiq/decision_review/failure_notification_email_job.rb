@@ -77,7 +77,7 @@ module DecisionReview
     end
 
     def send_email_with_vanotify(submission, filename, created_at, template_id, reference)
-      email_address = submission.current_email
+      email_address = submission.current_email_address
       personalisation = {
         first_name: submission.get_mpi_profile.given_names[0],
         filename:,
