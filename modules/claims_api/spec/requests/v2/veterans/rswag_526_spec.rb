@@ -322,7 +322,8 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
                                                'disability_compensation', 'form_526_json_api.json').read)
       parsed_json['data']['attributes']['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
         2.days.from_now.strftime('%Y-%m-%d')
-
+      parsed_json['data']['attributes']['serviceInformation']['servicePeriods'][-1]['activeDutyEndDate'] =
+        2.days.from_now.strftime('%Y-%m-%d')
       merged_values[:data] = parsed_json['data']
 
       request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
