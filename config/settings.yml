@@ -500,6 +500,8 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
+  lce:
+    use_mocks: false
 
 mvi_hca:
   url: http://example.com
@@ -1296,6 +1298,7 @@ vanotify:
         contact_info_change: fake_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
+        form1900_action_needed_email: form1900_action_needed_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1990meb_approved_confirmation_email: form1990meb_approved_confirmation_email_template_id
@@ -1405,6 +1408,8 @@ vanotify:
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
     password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
+  status_callback:
+    bearer_token: fake_bearer_token
 
 # Settings to connect to the drupal forms graphql api
 va_forms:
