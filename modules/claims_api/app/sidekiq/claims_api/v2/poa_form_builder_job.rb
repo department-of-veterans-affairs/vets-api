@@ -16,7 +16,7 @@ module ClaimsApi
       # it queues a job to update the POA code in BGS, as well.
       #
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
-      def perform(power_of_attorney_id, form_number, rep_id, action:)
+      def perform(power_of_attorney_id, form_number, rep_id, action)
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
         rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
 

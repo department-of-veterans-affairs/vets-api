@@ -4,8 +4,6 @@ module AskVAApi
   module Inquiries
     module PayloadBuilder
       class InquiryDetails
-        include SharedHelpers
-
         attr_reader :inquiry_params
 
         def initialize(inquiry_params)

@@ -6,38 +6,41 @@ module AskVAApi
 
     class Creator
       ENDPOINT = 'inquiries/new'
-      attr_reader :icn, :service
+      attr_reader :user, :service
 
-      def initialize(icn:, service: nil)
-        @icn = icn
+      def initialize(user:, service: nil)
+        @user = user
         @service = service || default_service
       end
 
       def call(inquiry_params:)
-        post_data(inquiry_params)
+        payload = build_payload(inquiry_params)
+        post_data(payload)
       rescue => e
-        ErrorHandler.handle_service_error(e)
+        handle_error(e)
       end
 
       private
 
       def default_service
-        Crm::Service.new(icn:)
+        Crm::Service.new(icn: user&.icn)
+      end
+
+      def build_payload(inquiry_params)
+        PayloadBuilder::InquiryPayload.new(inquiry_params:, user: user).call
       end
 
       def post_data(payload)
         response = service.call(endpoint: ENDPOINT, method: :put, payload:)
-        handle_response_data(response)
+        handle_response(response)
       end
 
-      def handle_response_data(response)
-        return response[:Data] if response.is_a?(Hash)
-
-        raise InquiriesCreatorError, response.body
+      def handle_response(response)
+        response.is_a?(Hash) ? response[:Data] : raise(InquiriesCreatorError, response.body)
       end
 
-      def params_translator(inquiry_params)
-        Translator.new(inquiry_params:)
+      def handle_error(error)
+        ErrorHandler.handle_service_error(error)
       end
     end
   end

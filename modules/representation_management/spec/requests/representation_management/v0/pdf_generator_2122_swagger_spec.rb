@@ -10,6 +10,8 @@ RSpec.describe 'PDF Generator 21-22', openapi_spec: 'modules/representation_mana
     create(:accredited_organization,
            id: SwaggerSharedComponents::V0.representative[:organization_id],
            name: 'Veterans Organization')
+    create(:accredited_individual,
+           id: SwaggerSharedComponents::V0.representative[:id])
   end
 
   path '/representation_management/v0/pdf_generator2122' do

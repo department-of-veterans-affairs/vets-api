@@ -12,7 +12,7 @@ RSpec.describe ClaimsApi::EwsUpdater, type: :job do
   end
 
   let(:veteran_id) { '1012667145V762142' }
-  let(:ews) { create(:claims_api_evidence_waiver_submission, :with_full_headers_tamara) }
+  let(:ews) { create(:evidence_waiver_submission, :with_full_headers_tamara) }
 
   context 'when waiver consent is present and allowed' do
     it 'updates evidence waiver record for a qualifying ews submittal' do

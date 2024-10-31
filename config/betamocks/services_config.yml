@@ -936,3 +936,26 @@
     - :method: :post
       :path: "/profile-service/profile/v3/*/*"
       :file_path: "vet360/profile-service/default"
+
+# GIDS
+- :name: "GIDS"
+  :base_uri: <%= "#{URI(Settings.gids.url).host}:#{URI(Settings.gids.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/gids/v1/lce"
+      :file_path: "gids/lce"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: type
+    - :method: :get
+      :path: "/gids/v1/lce/certifications/*"
+      :file_path: "gids/lce/certifications/default"
+    - :method: :get
+      :path: "/gids/v1/lce/exams/*"
+      :file_path: "gids/lce/exams/default"
+    - :method: :get
+      :path: "/gids/v1/lce/licenses/*"
+      :file_path: "gids/lce/licenses/default"
+    - :method: :get
+      :path: "/gids/v1/lce/preps/*"
+      :file_path: "gids/lce/preps/default"

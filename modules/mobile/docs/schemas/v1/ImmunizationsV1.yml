@@ -26,14 +26,14 @@ properties:
           - totalEntries
         properties:
           currentPage:
-            type: number
+            type: integer
             example: 1
           perPage:
-            type: number
+            type: integer
             example: 10
           totalPages:
-            type: number
+            type: integer
             example: 2
           totalEntries:
-            type: number
+            type: integer
             example: 15

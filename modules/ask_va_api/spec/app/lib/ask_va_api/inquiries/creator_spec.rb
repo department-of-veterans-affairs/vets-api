@@ -9,18 +9,26 @@ RSpec.describe AskVAApi::Inquiries::Creator do
 
   let(:icn) { '123456' }
   let(:service) { instance_double(Crm::Service) }
-  let(:creator) { described_class.new(icn:, service:) }
+  let(:user) { build(:user, :accountable_with_sec_id, icn: '234', edipi: '123') }
+  let(:creator) { described_class.new(service:, user:) }
   let(:file_path) { 'modules/ask_va_api/config/locales/get_inquiries_mock_data.json' }
   let(:base64_encoded_file) { Base64.strict_encode64(File.read(file_path)) }
   let(:file) { "data:image/png;base64,#{base64_encoded_file}" }
   let(:endpoint) { AskVAApi::Inquiries::Creator::ENDPOINT }
   let(:translator) { instance_double(AskVAApi::Translator) }
+  let(:cache_data_service) { instance_double(Crm::CacheData) }
+  let(:cached_data) do
+    data = File.read('modules/ask_va_api/config/locales/get_optionset_mock_data.json')
+    JSON.parse(data, symbolize_names: true)
+  end
 
   before do
+    allow(Crm::CacheData).to receive(:new).and_return(cache_data_service)
+    allow(cache_data_service).to receive(:call).with(
+      endpoint: 'optionset',
+      cache_key: 'optionset'
+    ).and_return(cached_data)
     allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('token')
-    allow(AskVAApi::Translator).to receive(:new).and_return(translator)
-    # translated_payload is in include_context 'shared data'
-    allow(translator).to receive(:call).and_return(translated_payload)
   end
 
   describe '#call' do
@@ -38,9 +46,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
       end
 
       it 'assigns VeteranICN and posts data to the service' do
-        # inquiry_params is in include_context 'shared data'
-        response = creator.call(inquiry_params:)
-
+        response = creator.call(inquiry_params: inquiry_params[:inquiry])
         expect(response).to eq({ InquiryNumber: '530d56a8-affd-ee11-a1fe-001dd8094ff1' })
       end
     end
@@ -58,7 +64,7 @@ RSpec.describe AskVAApi::Inquiries::Creator do
       end
 
       it 'raise InquiriesCreatorError' do
-        expect { creator.call(inquiry_params:) }.to raise_error(ErrorHandler::ServiceError)
+        expect { creator.call(inquiry_params: inquiry_params[:inquiry]) }.to raise_error(ErrorHandler::ServiceError)
       end
     end
   end
