@@ -100,21 +100,28 @@ Note: THIS RAKE TASK IS FOR REFERENCE ONLY!! This rake task is specifically conf
 
 #### Batch Processing Job
 
-The `ArchiveBatchProcessingJob` handles batch processing of form submissions. Initiate batch processing as shown:
+The `ArchiveBatchProcessingJob` handles batch processing of form submissions, iterating through each submission identifier to archive and upload it to S3. This job will initiate the archiving and uploading process directly through the `perform` method.
+
+To initiate batch processing, use the following example:
 
 ```ruby
 config = YourTeamsConfig.new
 job = SimpleFormsApi::FormRemediation::ArchiveBatchProcessingJob.perform(ids: your_teams_ids, config:)
-presigned_urls = job.upload(type: :remediation)
 ```
 
-Alternatively, create a custom job:
+In this example:
+
+- `perform` initiates the batch job, which processes each ID in `your_teams_ids` and uploads it based on the configuration provided.
+- Presigned URLs for accessing uploaded files will be logged or otherwise handled as configured within the job. Ensure your configuration handles any post-upload actions required for your team.
+
+Alternatively, you can create a custom job for specific team requirements:
 
 ```ruby
 config = YourTeamsConfig.new
 job = YourTeamsUniqueJob.perform(ids: your_teams_ids, config:)
-presigned_urls = job.upload(type: :remediation)
 ```
+
+In both cases, presigned URLs are not directly returned from `perform`. If your team needs to access presigned URLs programmatically after job completion, consider modifying the job’s output or handling the URLs as part of the logging or post-upload configuration.
 
 ### Individual Processing
 
