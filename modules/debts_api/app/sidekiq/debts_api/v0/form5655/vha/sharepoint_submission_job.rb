@@ -8,7 +8,8 @@ module DebtsApi
     include SentryLogging
     STATS_KEY = 'api.vha_sharepoint_submission'
 
-    sidekiq_options retry: 4
+    sidekiq_options retry: 10
+    sidekiq_retry_in { 1.hour.to_i }
 
     sidekiq_retries_exhausted do |job, _ex|
       StatsD.increment("#{STATS_KEY}.failure") # Deprecate this in favor of exhausted naming convention below
