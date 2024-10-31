@@ -22,6 +22,7 @@ This solution is designed to remediate form submissions older than two weeks, wh
   - [Batch Processing](#batch-processing)
   - [Individual Processing](#individual-processing)
 - [Extending Functionality](#extending-functionality)
+- [Directory and File Structure](#directory-and-file-structure)
 - [AWS S3 Bucket Setup](#aws-s3-bucket-setup)
 
 ---
@@ -193,6 +194,53 @@ presigned_urls = job.perform(ids: benefits_intake_uuids, config:, type: :remedia
 - `uploader_class`: Customize file upload and S3 handling.
 - `submission_type`: Define `FormSubmission` model queries.
 - `attachment_type`: Define attachment model queries.
+
+---
+
+### Directory and File Structure
+
+The S3 upload structure is organized to group archived files for each form submission. Files are stored based on a directory path that includes details like submission type and form-specific information, ensuring organized and traceable storage.
+
+#### Structure Overview
+
+1. **Base Directory (`parent_dir`)**: This is defined by your configuration and determines the top-level folder in the S3 bucket for all archived submissions.
+2. **Upload Type Directory**: Submissions are stored in subdirectories based on the upload type (`:remediation` or `:submission`).
+3. **Dated Directory**: Each submission includes a subdirectory named with a date-stamped identifier and the form number, such as `<MM.DD.YY>-Form<FormNumber>`, which is generated in the `dated_directory_name` method. This structure keeps submissions organized by date and form type.
+4. **Files in Each Directory**:
+   - **Archive File**: If the upload type is `:remediation`, the submission data and attachments are zipped into a single `.zip` file. This zip file contains:
+     - **PDF of Submission**: The PDF representation of the original form submission.
+     - **JSON Metadata**: A file with the original metadata from the submission.
+     - **Attachments**: Any additional documents submitted with the form.
+   - **PDF File**: For `:submission` type, only the original form submission is uploaded as a standalone `.pdf` file.
+
+The following example illustrates the folder structure:
+
+```bash
+<parent_dir>/
+├── remediation/
+│   ├── 10.28.24-Form21-10210/
+│   │   ├── 10.28.24_form_21-10210_vagov_abc123.zip  # Archive of PDF, metadata, and attachments
+│   │   ├── 10.28.24_form_21-10210_vagov_bcd234.zip
+│   │   └── manifest_10.28.24-Form21-10210.csv  # Manifest file for tracking
+│   ├── 10.28.24-Form20-10207/
+│   │   ├── 10.28.24_form_20-10207_vagov_ghi123.zip
+│   │   ├── 10.28.24_form_20-10207_vagov_jkl456.zip
+│   │   └── manifest_10.28.24-Form20-10207.csv
+└── submission/
+    ├── 10.28.24-Form21-4142/
+    │   └── 10.28.24_form_21-4142_vagov_abc123.pdf  # Original form PDF only
+    ├── 10.28.24-Form40-10007/
+    │   └── 10.28.24_form_40-10007_vagov_abc123.pdf
+```
+
+### Naming Conventions
+
+- **Dated Directory**: Follows `<MM.DD.YY>-Form<FormNumber>` format.
+- **Zip Files**: Named `<MM.DD.YY>_form_<FormNumber>_vagov_<ID>.zip`.
+- **PDF Files**: Named `<MM.DD.YY>_form_<FormNumber>_vagov_<ID>.pdf`.
+- **Manifest Files**: Named `manifest_<MM.DD.YY>-Form<FormNumber>.csv`, which logs submission details and helps track archives uploaded to S3.
+
+This structure and naming convention provides clear organization, helping locate specific submission archives by type, date, and form number.
 
 ---
 
