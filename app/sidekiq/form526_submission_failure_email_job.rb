@@ -60,7 +60,7 @@ class Form526SubmissionFailureEmailJob
 
   def perform(submission_id, date_of_failure = Time.now.utc.to_s)
     @submission = Form526Submission.find(submission_id)
-    @date_of_failure = Time.new(date_of_failure)
+    @date_of_failure = Time.zone.parse(date_of_failure)
     send_email
     track_remedial_action
     log_success
