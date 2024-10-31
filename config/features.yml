@@ -562,10 +562,6 @@ features:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
     enable_in_development: true
-  find_forms_show_pdf_modal:
-    actor_type: user
-    description: Shows the PDF modal for the Find VA Forms detail page
-    enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
     description: Enables shorter workflow enhancement for file upload component
