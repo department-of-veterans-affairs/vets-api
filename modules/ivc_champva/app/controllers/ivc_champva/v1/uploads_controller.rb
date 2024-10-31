@@ -81,7 +81,11 @@ module IvcChampva
 
       def get_file_paths_and_metadata(parsed_form_data)
         attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
-        filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+        if Flipper.enabled?(:champva_unique_temp_file_names, @user)
+          filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+        else
+          filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:)
+        end
         file_path = if @current_user
                       filler.generate(@current_user.loa[:current])
                     else

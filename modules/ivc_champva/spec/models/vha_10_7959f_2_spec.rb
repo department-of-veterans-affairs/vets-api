@@ -28,7 +28,6 @@ RSpec.describe IvcChampva::VHA107959f2 do
     }
   end
   let(:vha107959f2) { described_class.new(data) }
-  let(:file_path) { "#{uuid}_vha_10_7959f_2-tmp.pdf" }
   let(:uuid) { SecureRandom.uuid }
   let(:instance) { IvcChampva::VHA107959f2.new(data) }
 
@@ -63,10 +62,27 @@ RSpec.describe IvcChampva::VHA107959f2 do
   end
 
   describe '#handle_attachments' do
-    it 'renames the file and returns the new file path' do
-      allow(File).to receive(:rename)
-      result = instance.handle_attachments(file_path)
-      expect(result).to eq(["#{uuid}_vha_10_7959f_2-tmp.pdf"])
+    context "Feature champva_unique_temp_file_names=true" do
+      before do
+        Flipper.enable(:champva_unique_temp_file_names)
+      end
+      let(:file_path) { "#{uuid}_vha_10_7959f_2-tmp.pdf" }
+      it 'renames the file and returns the new file path' do
+        allow(File).to receive(:rename)
+        result = instance.handle_attachments(file_path)
+        expect(result).to eq(["#{uuid}_vha_10_7959f_2-tmp.pdf"])
+      end
+    end
+    context "Feature champva_unique_temp_file_names=false" do
+      before do
+        Flipper.disable(:champva_unique_temp_file_names)
+      end
+      let(:file_path) { 'vha_10_7959f_2-tmp.pdf' }
+      it 'renames the file and returns the new file path' do
+        allow(File).to receive(:rename)
+        result = instance.handle_attachments(file_path)
+        expect(result).to eq(["#{uuid}_vha_10_7959f_2-tmp.pdf"])
+      end
     end
   end
 

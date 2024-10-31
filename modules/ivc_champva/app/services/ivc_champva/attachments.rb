@@ -5,19 +5,42 @@ module IvcChampva
     attr_accessor :form_id, :uuid, :data
 
     def handle_attachments(file_path)
-      file_paths = [file_path]
-      attachments = get_attachments
+      if Flipper.enabled?(:champva_unique_temp_file_names, @user)
+        file_paths = [file_path]
+        attachments = get_attachments
 
-      attachments.each_with_index do |attachment, index|
-        new_file_name = if attachment.include?('_additional_')
-                          "#{uuid}_#{File.basename(attachment,
-                                                   '.*')}.pdf"
-                        else
-                          "#{uuid}_#{form_id}_supporting_doc-#{index}.pdf"
-                        end
-        new_file_path = File.join(File.dirname(attachment), new_file_name)
-        File.rename(attachment, new_file_path)
-        file_paths << new_file_path
+        attachments.each_with_index do |attachment, index|
+          new_file_name = if attachment.include?('_additional_')
+                            "#{uuid}_#{File.basename(attachment,
+                                                     '.*')}.pdf"
+                          else
+                            "#{uuid}_#{form_id}_supporting_doc-#{index}.pdf"
+                          end
+          new_file_path = File.join(File.dirname(attachment), new_file_name)
+          File.rename(attachment, new_file_path)
+          file_paths << new_file_path
+        end
+      else
+        file_path_uuid = file_path.gsub("#{form_id}-tmp", "#{uuid}_#{form_id}-tmp")
+        File.rename(file_path, file_path_uuid)
+        attachments = get_attachments
+        file_paths = [file_path_uuid]
+
+        if attachments.count.positive?
+          supporting_doc_index = 0
+          attachments.each do |attachment|
+            new_file_name =
+              if attachment.include?('_additional_')
+                "#{uuid}_#{File.basename(attachment, '.*')}.pdf"
+              else
+                "#{uuid}_#{form_id}_supporting_doc-#{supporting_doc_index}.pdf".tap { supporting_doc_index += 1 }
+              end
+
+            new_file_path = File.join(File.dirname(attachment), new_file_name)
+            File.rename(attachment, new_file_path)
+            file_paths << new_file_path
+          end
+        end
       end
 
       file_paths
