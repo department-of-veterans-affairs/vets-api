@@ -25,7 +25,7 @@ module AskVAApi
             AttachmentPresent: attachment_present?,
             BranchOfService: nil,
             CaregiverZipCode: nil,
-            ContactMethod: @translator.call(inquiry_params[:contact_preference]),
+            ContactMethod: @translator.call(:response_type, inquiry_params[:contact_preference]),
             DependantDOB: family_member_field(:date_of_birth),
             DependantFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
@@ -103,7 +103,7 @@ module AskVAApi
         end
 
         def translate_field(key)
-          @translator.call(inquiry_details[key])
+          @translator.call(key, inquiry_details[key])
         end
 
         def counselor_info

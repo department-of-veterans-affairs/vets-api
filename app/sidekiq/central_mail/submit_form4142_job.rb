@@ -115,7 +115,7 @@ module CentralMail
       with_tracking('Form4142 Submission', submission.saved_claim_id, submission.id) do
         @pdf_path = processor.pdf_path
         response = upload_to_api
-        handle_service_exception(response) if response.present? && response.status.between?(201, 600)
+        handle_service_exception(response) if response_can_be_logged(response)
       end
     rescue => e
       # Cannot move job straight to dead queue dynamically within an executing job
@@ -128,6 +128,13 @@ module CentralMail
     end
 
     private
+
+    def response_can_be_logged(response)
+      response.present? &&
+        response.respond_to?(:status) &&
+        response.status.respond_to?(:between?) &&
+        response.status.between?(201, 600)
+    end
 
     def processor
       @processor ||= EVSS::DisabilityCompensationForm::Form4142Processor.new(submission, jid)
@@ -233,15 +240,16 @@ module CentralMail
     end
 
     def create_form_submission_attempt(form526_submission)
-      FormSubmissionAttempt.transaction do
+      form_submission = form526_submission.saved_claim.form_submissions.find_by(form_type: FORM4142_FORMSUBMISSION_TYPE)
+      if form_submission.blank?
         form_submission = FormSubmission.create(
           form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
           form_data: '{}', # we have this already in the Form526Submission.form['form4142']
           user_account: form526_submission.user_account,
           saved_claim: form526_submission.saved_claim
         )
-        FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: lighthouse_service.uuid)
       end
+      FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: lighthouse_service.uuid)
     end
   end
 end
