@@ -189,8 +189,10 @@ module SimpleFormsApi
       end
 
       def create_form_submission_attempt(uuid)
-        form_submission = create_form_submission(uuid)
-        FormSubmissionAttempt.create(form_submission:)
+        FormSubmissionAttempt.transaction do
+          form_submission = create_form_submission(uuid)
+          FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
+        end
       end
 
       def create_form_submission(uuid)
@@ -242,9 +244,9 @@ module SimpleFormsApi
         FORM_NUMBER_MAP[form_number]
       end
 
-      def get_json(confirmation_number, form_id, presigned_s3_url)
+      def get_json(confirmation_number, form_id, pdf_url)
         { confirmation_number: }.tap do |json|
-          json[:presigned_s3_url] = presigned_s3_url if presigned_s3_url.present?
+          json[:pdf_url] = pdf_url if pdf_url.present?
           json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
         end
       end
