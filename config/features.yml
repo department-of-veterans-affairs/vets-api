@@ -73,9 +73,6 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
-  caregiver1010:
-    actor_type: user
-    description: Enables new features while investigating 1010CG errors
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -1446,6 +1443,9 @@ features:
     actor_type: user
     description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
     enable_in_development: false
+  vre_trigger_action_needed_email:
+    actor_type: user
+    description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
