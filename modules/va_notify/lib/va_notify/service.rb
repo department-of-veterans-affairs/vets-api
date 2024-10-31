@@ -115,15 +115,19 @@ module VaNotify
       if notification.save
         notification
       else
-        Rails.logger.error(
-          'VANotify notification record failed to save',
-          {
-            error_messages: notification.errors
-          }
-        )
+        log_notification_failed_to_save(notification)
       end
     rescue => e
       Rails.logger.error(e)
+    end
+
+    def log_notification_failed_to_save(notification)
+      Rails.logger.error(
+        'VANotify notification record failed to save',
+        {
+          error_messages: notification.errors
+        }
+      )
     end
 
     def find_caller_locations
