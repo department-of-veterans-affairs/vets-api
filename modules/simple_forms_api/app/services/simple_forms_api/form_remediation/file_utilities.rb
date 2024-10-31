@@ -70,7 +70,7 @@ module SimpleFormsApi
       def build_path(path_type, base_dir, *path_segments, ext: '.pdf')
         file_ext = path_type == :file ? ext : ''
         path = Pathname.new(base_dir.to_s).join(*path_segments)
-        path = path.to_s + file_ext unless file_ext.empty?
+        path = path.to_s + file_ext if file_ext.present?
         path.to_s
       end
 

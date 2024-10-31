@@ -27,11 +27,11 @@ module AskVAApi
         private
 
         def submitter_info
-          inquiry_params[:about_yourself]
+          @submitter_info ||= inquiry_params[:about_yourself] || {}
         end
 
         def submitter_address
-          inquiry_params[:address]
+          @submitter_address ||= inquiry_params[:address] || {}
         end
 
         def base_profile
@@ -40,7 +40,7 @@ module AskVAApi
             MiddleName: submitter_info[:middle],
             LastName: submitter_info[:last],
             PreferredName: inquiry_params[:preferred_name],
-            Suffix: @translator.call(submitter_info[:suffix]),
+            Suffix: @translator.call(:suffix, submitter_info[:suffix]),
             Gender: nil,
             Pronouns: formatted_pronouns(inquiry_params[:pronouns]),
             Country: country_data,
@@ -55,10 +55,10 @@ module AskVAApi
 
         def contact_info
           @contact_info ||= {
-            BusinessPhone: contact_field(:phone_number, 'Business'),
-            PersonalPhone: contact_field(:phone_number, 'Personal'),
-            BusinessEmail: contact_field(:email_address, 'Business'),
-            PersonalEmail: contact_field(:email_address, 'Personal')
+            BusinessPhone: retrieve_contact_field(:phone_number, 'Business'),
+            PersonalPhone: retrieve_contact_field(:phone_number, 'Personal'),
+            BusinessEmail: retrieve_contact_field(:email_address, 'Business'),
+            PersonalEmail: retrieve_contact_field(:email_address, 'Personal')
           }
         end
 
@@ -97,8 +97,8 @@ module AskVAApi
           }
         end
 
-        def contact_field(field, type)
-          inquiry_details[:level_of_authentication] == type ? inquiry_params[field] : nil
+        def retrieve_contact_field(field, required_authentication_level)
+          inquiry_details[:level_of_authentication] == required_authentication_level ? inquiry_params[field] : nil
         end
       end
     end
