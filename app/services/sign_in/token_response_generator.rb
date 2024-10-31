@@ -55,8 +55,12 @@ module SignIn
     end
 
     def generate_token_exchange_response
-      exchanged_container = TokenExchanger.new(subject_token:, subject_token_type:, actor_token:,
-                                               actor_token_type:, client_id:).perform
+      token_exchange_payload = { subject_token:, subject_token_type:, actor_token:, actor_token_type:, client_id: }
+      exchanged_container = if actor_token_type == Constants::Urn::DEVICE_SECRET
+                              TokenExchanger.new(**token_exchange_payload).perform
+                            else
+                              ImpersonationTokenExchanger.new(**token_exchange_payload).perform
+                            end
 
       sign_in_logger.info('token exchanged', exchanged_container.access_token.to_s)
 

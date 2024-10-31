@@ -540,6 +540,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
     t.string "service_levels", default: ["ial1", "ial2", "loa1", "loa3", "min"], array: true
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
     t.boolean "json_api_compatibility", default: true, null: false
+    t.boolean "impersonated_sessions", default: false
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
@@ -1369,6 +1370,16 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
     t.index ["acceptable_verified_credential_at"], name: "index_user_avc_on_acceptable_verified_credential_at"
     t.index ["idme_verified_credential_at"], name: "index_user_avc_on_idme_verified_credential_at"
     t.index ["user_account_id"], name: "index_user_acceptable_verified_credentials_on_user_account_id", unique: true
+  end
+
+  create_table "user_account_delegations", force: :cascade do |t|
+    t.string "verified_user_account_icn", null: false
+    t.string "delegated_user_account_icn", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["delegated_user_account_icn"], name: "index_user_account_delegations_on_delegated_user_account_icn"
+    t.index ["verified_user_account_icn", "delegated_user_account_icn"], name: "idx_on_verified_user_account_icn_delegated_user_acc_0d0ab88ad4", unique: true
+    t.index ["verified_user_account_icn"], name: "index_user_account_delegations_on_verified_user_account_icn"
   end
 
   create_table "user_accounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
