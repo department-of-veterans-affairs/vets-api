@@ -50,7 +50,7 @@ module ClaimsApi
     end
 
     def get_response(ews, bgs_claim)
-      if Flipper.enabled? :benefit_claim_web_service_update
+      if Flipper.enabled? :claims_api_ews_updater_enables_local_bgs
         benefit_claim_web_service(ews).update_bnft_claim(claim: bgs_claim)
       else
         bgs_service(ews).benefit_claims.update_bnft_claim(claim: bgs_claim)

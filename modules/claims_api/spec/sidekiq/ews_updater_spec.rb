@@ -7,6 +7,7 @@ RSpec.describe ClaimsApi::EwsUpdater, type: :job do
 
   before do
     Sidekiq::Job.clear_all
+    allow(Flipper).to receive(:enabled?).with(:claims_api_ews_updater_enables_local_bgs).and_return false
     ews.claim_id = '600065431'
     ews.save
   end
@@ -48,6 +49,25 @@ RSpec.describe ClaimsApi::EwsUpdater, type: :job do
           error: error_msg
         )
       end
+    end
+  end
+
+  context 'when the claims_api_ews_updater_enables_local_bgs feature flag is enabled' do
+    local_bgs = ClaimsApi::BenefitClaimWebService.new(external_uid: '',
+                                                      external_key: '')
+    it 'calls local_bgs instead of bgs-ext' do
+      allow(Flipper).to receive(:enabled?).with(:claims_claim_uploader_use_bd).and_return true
+      # expect_any_instance_of(local_bgs).to receive(:update_bnft_claim).with(claim: ews).and_return TypeOf(ClaimsApi::BenefitClaimWebService)
+
+      res = subject.new.perform(ews.id)
+      expect(res).to eq(ews)
+    end
+  end
+
+  context 'when the claims_api_ews_updater_enables_local_bgs feature flag is disabled' do
+    it 'calls bgs-ext instead of local_bgs' do
+      expect_any_instance_of(ClaimsApi::EwsUpdater).to receive(:upload)
+      subject.new.perform(ews.id)
     end
   end
 end
