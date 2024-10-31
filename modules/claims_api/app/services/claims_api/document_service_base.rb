@@ -23,7 +23,7 @@ module ClaimsApi
     end
     # rubocop:enable Metrics/ParameterLists
 
-    def compact_veteran_name(first_name, last_name)
+    def compact_name_for_file(first_name, last_name)
       [first_name, last_name].compact_blank.join('_')
     end
 

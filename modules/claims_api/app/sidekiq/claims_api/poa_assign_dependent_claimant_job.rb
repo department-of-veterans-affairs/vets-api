@@ -12,18 +12,18 @@ module ClaimsApi
         poa.auth_headers
       )
 
-      res = service.assign_poa_to_dependent!
-
-      if res
-        ClaimsApi::PoaVBMSUpdater.perform_async(poa.id) if enable_vbms_access?(poa_form: poa)
-      else
+      begin
+        service.assign_poa_to_dependent!
+      rescue => e
         log_job_progress(
           poa.id,
           "Dependent Assignment did not return 'true'"
         )
+
+        handle_error(poa, e)
       end
-    rescue => e
-      handle_error(poa, e)
+
+      ClaimsApi::PoaVBMSUpdater.perform_async(poa.id) if enable_vbms_access?(poa_form: poa)
     end
 
     private

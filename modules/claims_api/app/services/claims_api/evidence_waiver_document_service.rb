@@ -24,8 +24,8 @@ module ClaimsApi
     # @return {parameters, file}
     def generate_body(claim:, doc_type:, pdf_path:, ptcpnt_vet_id:)
       auth_headers = claim.auth_headers
-      veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'],
-                                          auth_headers['va_eauth_lastName'])
+      veteran_name = compact_name_for_file(auth_headers['va_eauth_firstName'],
+                                           auth_headers['va_eauth_lastName'])
       tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
 
       generate_upload_body(claim_id: claim.claim_id, system_name: 'VA.gov', doc_type:, pdf_path:,

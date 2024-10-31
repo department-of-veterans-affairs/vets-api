@@ -19,9 +19,9 @@ module ClaimsApi
     end
 
     def assign_poa_to_dependent!
-      return true if assign_poa_to_dependent_via_manage_ptcpnt_rlnshp?
+      return nil if assign_poa_to_dependent_via_manage_ptcpnt_rlnshp?
 
-      return true if assign_poa_to_dependent_via_update_benefit_claim?
+      return nil if assign_poa_to_dependent_via_update_benefit_claim?
 
       log(level: :error, detail: 'Failed to assign POA to dependent')
 

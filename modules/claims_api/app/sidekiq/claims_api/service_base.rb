@@ -84,7 +84,7 @@ module ClaimsApi
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::PENDING)
     end
 
-    def set_errorede_state_on_poa(poa)
+    def set_errored_state_on_poa(poa)
       poa.status = poa_errored_state
       poa.save!
     end

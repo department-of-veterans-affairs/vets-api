@@ -35,13 +35,14 @@ module ClaimsApi
     end
 
     def build_name_for_file(poa)
-      if dependent_filing?(poa)
-        compact_veteran_name(poa.auth_headers['dependent']['first_name'],
-                             poa.auth_headers['dependent']['last_name'])
-      else
-        compact_veteran_name(poa.auth_headers['va_eauth_firstName'],
-                             poa.auth_headers['va_eauth_lastName'])
-      end
+      first_name, last_name = if dependent_filing?(poa)
+                                [poa.auth_headers['dependent']['first_name'],
+                                 poa.auth_headers['dependent']['last_name']]
+                              else
+                                [poa.auth_headers['va_eauth_firstName'], poa.auth_headers['va_eauth_lastName']]
+                              end
+
+      compact_name_for_file(first_name, last_name)
     end
 
     def get_form_suffix(action:, doc_type:)
