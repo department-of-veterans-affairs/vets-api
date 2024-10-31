@@ -18,7 +18,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
   before do
     allow_any_instance_of(Form1010cg::Auditor).to receive(:record)
     allow_any_instance_of(Form1010cg::Auditor).to receive(:record_caregivers)
-    allow(Rails.logger).to receive(:debug)
+    allow(Rails.logger).to receive(:error)
   end
 
   describe 'POST /v0/caregivers_assistance_claims' do
@@ -65,7 +65,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
           end
 
           it 'logs the error and re-raises it' do
-            expect(Rails.logger).to receive(:debug).with(
+            expect(Rails.logger).to receive(:error).with(
               'CaregiverAssistanceClaim: error submitting claim',
               { saved_claim_guid: claim.guid, error: kind_of(StandardError) }
             )
@@ -84,7 +84,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         end
 
         it 'returns backend service exception' do
-          expect(Rails.logger).not_to receive(:debug).with(
+          expect(Rails.logger).not_to receive(:error).with(
             'CaregiverAssistanceClaim: error submitting claim',
             { saved_claim_guid: claim.guid, error: instance_of(Form1010cg::Service::InvalidVeteranStatus) }
           )
@@ -114,7 +114,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
                                                                                claim_guid: claim.guid,
                                                                                errors: hash_including('#/': be_present)
                                                                              ))
-        expect(Rails.logger).not_to receive(:debug).with(
+        expect(Rails.logger).not_to receive(:error).with(
           'CaregiverAssistanceClaim: error submitting claim',
           { saved_claim_guid: claim.guid,
             error: instance_of(Common::Exceptions::ValidationErrors) }
@@ -161,7 +161,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
       end
 
       it 'logs the error and re-raises it' do
-        expect(Rails.logger).to receive(:debug).with(
+        expect(Rails.logger).to receive(:error).with(
           'CaregiverAssistanceClaim: error submitting claim',
           { saved_claim_guid: claim.guid, error: kind_of(StandardError) }
         )
