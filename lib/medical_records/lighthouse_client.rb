@@ -21,9 +21,9 @@ module MedicalRecords
       @icn = icn
     end
 
-    # override the authenticate method
     def authenticate
-      Rails.logger.info("Authenticating with ICN: #{@icn}")
+      # This is called by the MHV Controller Concern, but is not needed for this client
+      # because it is handled in Lighthouse::VeteransHealth::Client::retrieve_bearer_token
     end
 
     def list_allergies
