@@ -21,6 +21,10 @@ RSpec.describe CovidVaccine::ExpandedRegistrationEmailJob, type: :worker do
   end
 
   describe '#perform' do
+    before do
+      allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(false)
+    end
+
     it 'logs message to sentry and raises if no submission exists' do
       with_settings(Settings.sentry, dsn: 'T') do
         expect(VaNotify::Service).not_to receive(:new)

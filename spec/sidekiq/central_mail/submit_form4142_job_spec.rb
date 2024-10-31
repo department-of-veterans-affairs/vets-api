@@ -254,6 +254,24 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
           expect(fs_attempt_record.pending?).to be(true)
         end
 
+        it 'Returns successfully after creating polling record' do
+          Flipper.enable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
+          Sidekiq::Testing.inline! do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+              VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+                allow_any_instance_of(SemanticLogger::Logger).to receive(:info).and_return(true)
+                jid = subject.perform_async(submission.id)
+                subject.drain
+                job_status_record = submission.form526_job_statuses.find_by(job_id: jid)
+                Rails.logger.level
+                expect(job_status_record).not_to be_nil
+                expect(job_status_record.job_class).to eq('SubmitForm4142Job')
+                expect(job_status_record.status).to eq('success')
+              end
+            end
+          end
+        end
+
         it 'Does not create a form 4142 submission polling record, when disabled' do
           Flipper.disable(CentralMail::SubmitForm4142Job::POLLING_FLIPPER_KEY)
           expect do
