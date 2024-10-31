@@ -15,15 +15,29 @@ This solution is designed to remediate form submissions older than two weeks, wh
 
 ## Table of Contents
 
-- [Getting Started](#getting-started)
-  - [Settings](#settings)
-  - [Configuration](#configuration)
-- [Usage](#usage)
-  - [Batch Processing](#batch-processing)
-  - [Individual Processing](#individual-processing)
-- [Extending Functionality](#extending-functionality)
-- [Directory and File Structure](#directory-and-file-structure)
-- [AWS S3 Bucket Setup](#aws-s3-bucket-setup)
+- [Form Remediation](#form-remediation)
+  - [Table of Contents](#table-of-contents)
+  - [Getting Started](#getting-started)
+    - [Settings](#settings)
+    - [Configuration](#configuration)
+  - [Usage](#usage)
+    - [Batch Processing](#batch-processing)
+      - [Rake Task Example](#rake-task-example)
+      - [Batch Processing Job](#batch-processing-job)
+    - [Individual Processing](#individual-processing)
+  - [Extending Functionality](#extending-functionality)
+    - [Overrideable Classes](#overrideable-classes)
+    - [Directory and File Structure](#directory-and-file-structure)
+      - [Structure Overview](#structure-overview)
+    - [Naming Conventions](#naming-conventions)
+  - [AWS S3 Bucket Setup](#aws-s3-bucket-setup)
+    - [Requesting an S3 Bucket](#requesting-an-s3-bucket)
+      - [Submit a PR](#submit-a-pr)
+      - [Review Process](#review-process)
+      - [Applying Changes](#applying-changes)
+      - [Access and Credentials](#access-and-credentials)
+    - [S3 Bucket Naming Convention](#s3-bucket-naming-convention)
+    - [Future Infrastructure Requests](#future-infrastructure-requests)
 
 ---
 
