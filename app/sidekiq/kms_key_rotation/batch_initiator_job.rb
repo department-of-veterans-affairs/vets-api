@@ -43,14 +43,15 @@ module KmsKeyRotation
     def gids_for_model(model, max_records_per_batch)
       encrypted_columns = model.lockbox_attributes.keys.map { |col| "#{col}_ciphertext" }
       model = MODELS_FOR_QUERY[model.name] if MODELS_FOR_QUERY.key?(model.name)
+      non_nil_encrypted_fields = encrypted_columns.map { |col| model.arel_table[col].not_eq(nil) }.reduce(:and)
 
       model
-        .where.not(encrypted_kms_key: nil) # Only records with non-NULL encrypted_kms_key
+        # Exclude records with the current KMS version
         .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
-        # Exclude records with current KMS version
-        .where(
-          encrypted_columns.map { |col| model.arel_table[col].not_eq(nil) }
-                           .reduce(:or) # At least one encrypted field is not NULL
+        .or(
+          model
+          .where(encrypted_kms_key: nil) # Include records where `encrypted_kms_key` is nil
+          .where(non_nil_encrypted_fields) # Ensure at least one encrypted field is not nil
         )
         .limit(max_records_per_batch)
         .pluck(model.primary_key)
