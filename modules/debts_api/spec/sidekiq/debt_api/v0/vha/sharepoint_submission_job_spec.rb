@@ -49,7 +49,12 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
         )
         expect(Rails.logger).to receive(:error).with(
           a_string_matching(
-            /V0::Form5655::VHA::SharepointSubmissionJob retries exhausted:\nsubmission_id: #{form_submission.id}\nException:.*\nBacktrace:.*/
+            /
+              V0::Form5655::VHA::SharepointSubmissionJob\ retries\ exhausted:\n
+              submission_id:\ #{form_submission.id}\n
+              Exception:\ .*\n
+              Backtrace:.*
+            /x
           )
         )
 
