@@ -34,10 +34,17 @@ module ClaimsApi
     end
 
     def bgs_service(user)
-      BGS::Services.new(
-        external_uid: user['ssn'],
-        external_key: user['ssn']
-      )
+      if Flipper.enabled? :claims_api_flash_updater_uses_local_bgs
+        ClaimsApi::ClaimantWebService.new(
+          external_uid: user['ssn'],
+          external_key: user['ssn']
+        )
+      else
+        BGS::Services.new(
+          external_uid: user['ssn'],
+          external_key: user['ssn']
+        )
+      end
     end
   end
 end
