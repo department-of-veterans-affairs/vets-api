@@ -16,7 +16,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
   end
   let(:evss_claim_id) { 123_456_789 }
   let(:saved_claim) { FactoryBot.create(:va526ez) }
-  let(:form0781) { File.read 'spec/support/disability_compensation_form/submissions/with_0781.json' }
+  let(:form0781) { File.read 'spec/support/disability_compensation_form/submissions/with_0781.json' } # contains 0781 and 0781a
 
   VCR.configure do |c|
     c.default_cassette_options = {
@@ -188,11 +188,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       original.to_json
     end
 
+    let(:path_to_0781a_fixture) { 'spec/fixtures/pdf_fill/21-0781a/kitchen_sink.pdf' }
+    let(:parsed_0781a_form) { JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781a'] }
+    let(:form0781a_only) do
+      original = JSON.parse(form0781)
+      original['form0781'].delete('form0781')
+      original.to_json
+    end
+
     let(:submission) do
       Form526Submission.create(user_uuid: user.uuid,
                                auth_headers_json: auth_headers.to_json,
                                saved_claim_id: saved_claim.id,
-                               form_json: form0781_only,
+                               form_json: form0781, # contains 0781 and 0781a
                                submitted_claim_id: evss_claim_id)
     end
 
@@ -209,6 +217,13 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
           claim_id: submission.submitted_claim_id,
           participant_id: submission.auth_headers['va_eauth_pid'],
           document_type: 'L228'
+        )
+      end
+      let(:lighthouse_0781a_document) do
+        LighthouseDocument.new(
+          claim_id: submission.submitted_claim_id,
+          participant_id: submission.auth_headers['va_eauth_pid'],
+          document_type: 'L229'
         )
       end
 
@@ -228,8 +243,43 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         )
       end
 
-      context 'when a submission has a 0781 form' do
-        it 'successfully uploads the 0781 document to Lighthouse' do
+      context 'when a submission has both 0781 and 0781a' do
+        it 'successfully uploads to Lighthouse' do
+          # 0781
+          allow_any_instance_of(described_class)
+            .to receive(:generate_stamp_pdf)
+            .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
+            .and_return(path_to_0781_fixture)
+
+          allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+            .to receive(:generate_upload_document)
+            .and_return(lighthouse_0781_document)
+
+          expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService)
+            .to receive(:call)
+            .with(File.read(path_to_0781_fixture), lighthouse_0781a_document)
+
+          # 0781a
+          allow_any_instance_of(described_class)
+            .to receive(:generate_stamp_pdf)
+            .with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a')
+            .and_return(path_to_0781a_fixture)
+
+          allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+            .to receive(:generate_upload_document)
+            .and_return(lighthouse_0781a_document)
+
+          expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService)
+            .to receive(:call)
+            .with(File.read(path_to_0781a_fixture), lighthouse_0781a_document)
+
+          perform_upload
+        end
+      end
+
+      context 'when a submission has 0781 only' do
+        it 'successfully uploads to Lighthouse' do
+          submission.update(form_json: form0781_only)
           allow_any_instance_of(described_class)
             .to receive(:generate_stamp_pdf)
             .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
@@ -242,6 +292,26 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
           expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService)
             .to receive(:call)
             .with(File.read(path_to_0781_fixture), lighthouse_0781_document)
+
+          perform_upload
+        end
+      end
+
+      context 'when a submission has 0781a only' do
+        it 'successfully uploads to Lighthouse' do
+          submission.update(form_json: form0781a_only)
+          allow_any_instance_of(described_class)
+            .to receive(:generate_stamp_pdf)
+            .with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a')
+            .and_return(path_to_0781a_fixture)
+
+          allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+            .to receive(:generate_upload_document)
+            .and_return(lighthouse_0781a_document)
+
+          expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService)
+            .to receive(:call)
+            .with(File.read(path_to_0781a_fixture), lighthouse_0781a_document)
 
           perform_upload
         end
@@ -270,9 +340,20 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
           .and_return(evss_claim_0781_document)
       end
 
-      context 'when a submission has a 0781 form' do
+      context 'when a submission has both 0781 and 0781a forms' do
+      end
+
+      context 'when a submission has only a 0781 form' do
         it 'uploads the 0781 document to EVSS' do
           expect(client_stub).to receive(:upload).with(File.read(path_to_0781_fixture), evss_claim_0781_document)
+
+          perform_upload
+        end
+      end
+
+      context 'when a submission has only a 0781a form' do
+        it 'uploads the 0781a document to EVSS' do
+          expect(client_stub).to receive(:upload).with(File.read(path_to_0781a_fixture), evss_claim_0781a_document)
 
           perform_upload
         end
