@@ -38,24 +38,6 @@ module Lighthouse
       if %w[21P-530V2 21P-530].include?(claim&.form_id)
         burial_monitor = Burials::Monitor.new
         burial_monitor.track_submission_exhaustion(msg, claim)
-      elsif %w[28-8832].include?(claim&.form_id)
-        pcpg_monitor = PCPG::Monitor.new
-        pcpg_monitor.track_benefits_intake_submission_exhaustion(msg, claim)
-
-        if Flipper.enabled?(:pcpg_trigger_action_needed_email)
-          email = claim.parsed_form.dig('claimantInformation', 'emailAddress')
-          if claim.present? && email.present?
-            VANotify::EmailJob.perform_async(
-              email,
-              Settings.vanotify.services.va_gov.template_id.form27_8832_action_needed_email,
-              {
-                'first_name' => claim.parsed_form.dig('claimantInformation', 'fullName', 'first')&.upcase.presence,
-                'date' => Time.zone.today.strftime('%B %d, %Y'),
-                'confirmation_number' => claim.confirmation_number
-              }
-            )
-          end
-        end
       end
     end
 
