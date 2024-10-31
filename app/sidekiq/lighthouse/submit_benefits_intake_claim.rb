@@ -20,7 +20,7 @@ module Lighthouse
 
     # Sidekiq has built in exponential back-off functionality for retries
     # A max retry attempt of 14 will result in a run time of ~25 hours
-    RETRY = 1
+    RETRY = 14
 
     sidekiq_options retry: RETRY
 
