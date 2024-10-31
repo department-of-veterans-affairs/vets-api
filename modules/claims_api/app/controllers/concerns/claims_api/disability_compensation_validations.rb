@@ -46,6 +46,7 @@ module ClaimsApi
       # ensure the 'treatment.endDate' is after the 'treatment.startDate'
       # ensure any provided 'treatment.treatedDisabilityNames' match a provided 'disabilities.name'
       validate_form_526_treatments!
+      validate_form_526_direct_depost!
     end
 
     def validate_form_526_current_mailing_address!
@@ -528,6 +529,19 @@ module ClaimsApi
         treatment['center']['name'] = name
 
         treatment
+      end
+    end
+
+    def validate_form_526_direct_depost!
+      direct_deposit = form_attributes['directDeposit']
+      return if direct_deposit.blank?
+
+      bank_name = direct_deposit['bankName']
+      if bank_name.blank?
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'directDeposit.bankName',
+          direct_deposit['bankName']
+        )
       end
     end
   end
