@@ -232,6 +232,19 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       let(:expected_statsd_metrics_prefix) do
         'worker.evss.submit_form0781.lighthouse_supplemental_document_upload_provider'
       end
+      let(:error_response_body) do
+        # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
+        {
+          'errors' => [
+            {
+              'detail' => 'Something broke',
+              'status' => 400,
+              'title' => 'Bad Request',
+              'instance' => Faker::Internet.uuid
+            }
+          ]
+        }
+      end
 
       before do
         Flipper.enable(:disability_compensation_upload_0781_to_lighthouse)
@@ -298,7 +311,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
             perform_upload
           end
 
-          it 'creates a pending Lighthouse526DocumentUpload record for the submission so we can poll Lighthouse later' do
+          it 'creates a pending Lighthouse526DocumentUpload record so we can poll Lighthouse later' do
             upload_attributes = {
               aasm_state: 'pending',
               form526_submission_id: submission.id,
@@ -316,28 +329,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         end
 
         context 'when Lighthouse returns an error response' do
-          let(:error_response_body) do
-            # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
-            {
-              'errors' => [
-                {
-                  'detail' => 'Something broke',
-                  'status' => 400,
-                  'title' => 'Bad Request',
-                  'instance' => Faker::Internet.uuid
-                }
-              ]
-            }
-          end
-
           before do
-            allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-              .and_return(faraday_response)
-
             allow(faraday_response).to receive(:body).and_return(error_response_body)
           end
 
           it 'logs the Lighthouse error response' do
+            # 0781
             expect(Rails.logger).to receive(:error).with(
               'LighthouseSupplementalDocumentUploadProvider upload failed',
               {
@@ -349,6 +346,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                 lighthouse_error_response: error_response_body
               }
             )
+            # 0781a
             expect(Rails.logger).to receive(:error).with(
               'LighthouseSupplementalDocumentUploadProvider upload failed',
               {
@@ -375,42 +373,112 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       context 'when a submission has 0781 only' do
-        it 'uploads to Lighthouse' do
+        before do
           submission.update(form_json: form0781_only)
-          allow_any_instance_of(described_class)
-            .to receive(:generate_stamp_pdf)
-            .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
-            .and_return(path_to_0781_fixture)
+        end
 
-          allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
-            .to receive(:generate_upload_document)
-            .and_return(lighthouse_0781_document)
+        context 'when the request is successful' do
+          it 'uploads to Lighthouse' do
+            allow_any_instance_of(described_class)
+              .to receive(:generate_stamp_pdf)
+              .with(parsed_0781_form, submission.submitted_claim_id, '21-0781')
+              .and_return(path_to_0781_fixture)
 
-          expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService)
-            .to receive(:call)
-            .with(File.read(path_to_0781_fixture), lighthouse_0781_document)
+            allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+              .to receive(:generate_upload_document)
+              .and_return(lighthouse_0781_document)
 
-          perform_upload
+            expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService)
+              .to receive(:call)
+              .with(File.read(path_to_0781_fixture), lighthouse_0781_document)
+
+            perform_upload
+          end
+        end
+
+        context 'when Lighthouse returns an error response' do
+          before do
+            allow(faraday_response).to receive(:body).and_return(error_response_body)
+          end
+
+          it 'logs the Lighthouse error response' do
+            expect(Rails.logger).to receive(:error).with(
+              'LighthouseSupplementalDocumentUploadProvider upload failed',
+              {
+                class: 'LighthouseSupplementalDocumentUploadProvider',
+                submission_id: submission.submitted_claim_id,
+                user_uuid: submission.user_uuid,
+                va_document_type_code: 'L228',
+                primary_form: 'Form526',
+                lighthouse_error_response: error_response_body
+              }
+            )
+
+            perform_upload
+          end
+
+          it 'increments the correct status failure metric' do
+            expect(StatsD).to receive(:increment).with(
+              "#{expected_statsd_metrics_prefix}.upload_failure"
+            )
+
+            perform_upload
+          end
         end
       end
 
       context 'when a submission has 0781a only' do
-        it 'uploads to Lighthouse' do
+        before do
           submission.update(form_json: form0781a_only)
-          allow_any_instance_of(described_class)
-            .to receive(:generate_stamp_pdf)
-            .with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a')
-            .and_return(path_to_0781a_fixture)
+        end
 
-          allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
-            .to receive(:generate_upload_document)
-            .and_return(lighthouse_0781a_document)
+        context 'when a request is successful' do
+          it 'uploads to Lighthouse' do
+            allow_any_instance_of(described_class)
+              .to receive(:generate_stamp_pdf)
+              .with(parsed_0781a_form, submission.submitted_claim_id, '21-0781a')
+              .and_return(path_to_0781a_fixture)
 
-          expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService)
-            .to receive(:call)
-            .with(File.read(path_to_0781a_fixture), lighthouse_0781a_document)
+            allow_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+              .to receive(:generate_upload_document)
+              .and_return(lighthouse_0781a_document)
 
-          perform_upload
+            expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService)
+              .to receive(:call)
+              .with(File.read(path_to_0781a_fixture), lighthouse_0781a_document)
+
+            perform_upload
+          end
+        end
+
+        context 'when Lighthouse returns an error response' do
+          before do
+            allow(faraday_response).to receive(:body).and_return(error_response_body)
+          end
+
+          it 'logs the Lighthouse error response' do
+            expect(Rails.logger).to receive(:error).with(
+              'LighthouseSupplementalDocumentUploadProvider upload failed',
+              {
+                class: 'LighthouseSupplementalDocumentUploadProvider',
+                submission_id: submission.submitted_claim_id,
+                user_uuid: submission.user_uuid,
+                va_document_type_code: 'L229',
+                primary_form: 'Form526',
+                lighthouse_error_response: error_response_body
+              }
+            )
+
+            perform_upload
+          end
+
+          it 'increments the correct status failure metric' do
+            expect(StatsD).to receive(:increment).with(
+              "#{expected_statsd_metrics_prefix}.upload_failure"
+            )
+
+            perform_upload
+          end
         end
       end
     end
@@ -486,7 +554,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         end
 
         context 'when an upload raises an EVSS response error' do
-          it 'logs an upload error' do
+          it 'logs an upload error and re-raises the error' do
             allow(client_stub).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
             expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_upload_failure)
 
@@ -499,20 +567,52 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
 
       context 'when a submission has only a 0781 form' do
-        it 'uploads to EVSS' do
+        before do
           submission.update(form_json: form0781_only)
-          expect(client_stub).to receive(:upload).with(File.read(path_to_0781_fixture), evss_claim_0781_document)
+        end
 
-          perform_upload
+        context 'when the request is successful' do
+          it 'uploads to EVSS' do
+            submission.update(form_json: form0781_only)
+            expect(client_stub).to receive(:upload).with(File.read(path_to_0781_fixture), evss_claim_0781_document)
+
+            perform_upload
+          end
+        end
+
+        context 'when an upload raises an EVSS response error' do
+          it 'logs an upload error and re-raises the error' do
+            allow(client_stub).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
+            expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_upload_failure)
+
+            expect do
+              subject.perform_async(submission.id)
+              described_class.drain
+            end.to raise_error(EVSS::ErrorMiddleware::EVSSError)
+          end
         end
       end
 
       context 'when a submission has only a 0781a form' do
-        it 'uploads the 0781a document to EVSS' do
-          submission.update(form_json: form0781a_only)
-          expect(client_stub).to receive(:upload).with(File.read(path_to_0781a_fixture), evss_claim_0781a_document)
+        context 'when the request is successful' do
+          it 'uploads the 0781a document to EVSS' do
+            submission.update(form_json: form0781a_only)
+            expect(client_stub).to receive(:upload).with(File.read(path_to_0781a_fixture), evss_claim_0781a_document)
 
-          perform_upload
+            perform_upload
+          end
+        end
+
+        context 'when an upload raises an EVSS response error' do
+          it 'logs an upload error and re-raises the error' do
+            allow(client_stub).to receive(:upload).and_raise(EVSS::ErrorMiddleware::EVSSError)
+            expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_upload_failure)
+
+            expect do
+              subject.perform_async(submission.id)
+              described_class.drain
+            end.to raise_error(EVSS::ErrorMiddleware::EVSSError)
+          end
         end
       end
     end
