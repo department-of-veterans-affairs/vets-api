@@ -84,7 +84,7 @@ module V1
     def authenticate_user_with_token
       authenticate_with_http_token do |token|
         is_authenticated = token == bearer_token_secret
-        Rails.logger.info('NodCallbacksController callback received', is_authenticated:)
+        Rails.logger.info('DecisionReviewNotificationCallbacksController callback received', is_authenticated:)
 
         is_authenticated
       end
