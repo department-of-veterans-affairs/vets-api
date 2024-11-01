@@ -128,7 +128,7 @@ module AppealsApi::HigherLevelReviews::V0
     end
 
     def token_validation_api_key
-      Settings.dig(:modules_appeals_api, :token_validation, :higher_level_reviews, :api_key)
+      Settings.modules_appeals_api.token_validation.higher_level_reviews.api_key
     end
   end
 end
