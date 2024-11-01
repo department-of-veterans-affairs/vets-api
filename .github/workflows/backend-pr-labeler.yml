@@ -8,7 +8,7 @@ jobs:
     outputs:
       exempt: ${{ steps.check_exemption.outputs.exempt }}
       draft: ${{ steps.check_draft.outputs.draft }}
-      no_failures: ${{ steps.audit_pr_labels.outputs.no_failures }}
+      failures_detected: ${{ steps.audit_pr_labels.outputs.failures_detected }}
     steps:
       # - name: Checkout code
       #   uses: actions/checkout@v4
@@ -63,7 +63,7 @@ jobs:
   check-approvals:
     runs-on: ubuntu-latest
     needs: check-pr-status
-    if: ${{ !needs.check-pr-status.outputs.exempt && !needs.check-pr-status.outputs.draft }}
+    if: ${{ needs.check-pr-status.outputs.exempt == 'false' && needs.check-pr-status.outputs.draft == 'false' }}
     outputs:
       approval_status: ${{ steps.verify_approval.outputs.approval_status }}
     steps:
@@ -72,7 +72,7 @@ jobs:
         run: |
           echo "exempt=${{ needs.check-pr-status.outputs.exempt }}"
           echo "draft=${{ needs.check-pr-status.outputs.draft }}"
-          echo "no_failures=${{ needs.check-pr-status.outputs.no_failures }}"
+          echo "failures_detected=${{ needs.check-pr-status.outputs.failures_detected }}"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
@@ -141,7 +141,7 @@ jobs:
         run: |
           echo "exempt=${{ needs.check-pr-status.outputs.exempt }}" >> $GITHUB_ENV
           echo "draft=${{ needs.check-pr-status.outputs.draft }}" >> $GITHUB_ENV
-          echo "no_failures=${{ needs.check-pr-status.outputs.no_failures }}" >> $GITHUB_ENV
+          echo "failures_detected=${{ needs.check-pr-status.outputs.failures_detected }}" >> $GITHUB_ENV
           echo "approval_status=${{ needs.check-approvals.outputs.approval_status }}" >> $GITHUB_ENV
 
       - name: print vars
@@ -149,12 +149,12 @@ jobs:
         run: |
           echo ${{ env.exempt }}
           echo ${{ env.draft }}
-          echo ${{ env.no_failures }}
+          echo ${{ env.failures_detected }}
           echo ${{ env.approval_status }}
 
       # Remove require-backend-approval label
       - name: Remove require-backend-approval label
-        if: ${{ (env.draft || env.exempt) && contains(github.event.pull_request.labels.*.name, 'require-backend-approval')}}
+        if: ${{ (env.draft == 'true' || env.exempt == 'true') && contains(github.event.pull_request.labels.*.name, 'require-backend-approval')}}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -163,7 +163,7 @@ jobs:
 
       # Add require-backend-approval label
       - name: Add require-backend-approval label
-        if: ${{ ! env.draft && ! env.exempt }}
+        if: ${{ env.draft == 'false' && env.exempt == 'false'}}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -174,7 +174,7 @@ jobs:
       - name: Add Review label
         uses: actions-ecosystem/action-add-labels@v1
         if: |
-          env.no_failures == 'true' &&
+          env.failures_detected == 'false' &&
           env.approval_status == 'required'
         with:
           number: ${{ github.event.pull_request.number }}
@@ -189,7 +189,7 @@ jobs:
           (
             contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review') &&
             ( 
-              env.no_failures != 'true' ||
+              env.failures_detected == 'true' ||
               env.approval_status == 'confirmed'
             )
           )
