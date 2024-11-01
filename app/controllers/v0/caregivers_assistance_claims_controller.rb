@@ -42,9 +42,6 @@ module V0
     # If we were unable to submit the user's claim digitally, we allow them to the download
     # the 10-10CG PDF, pre-filled with their data, for them to mail in.
     def download_pdf
-      # Brakeman will raise a warning if we use a claim's method or attribute in the source file name.
-      # Use an arbitrary uuid for the source file name and don't use the return value of claim#to_pdf
-      # as the source_file_path (to prevent changes in the the filename creating a vunerability in the future).
       source_file_path = if Flipper.enabled?(:caregiver1010)
                            @claim.to_pdf(SecureRandom.uuid,
                                          sign: false)
