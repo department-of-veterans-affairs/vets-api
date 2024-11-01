@@ -1255,6 +1255,7 @@ spec/factories/va_profile @department-of-veterans-affairs/vfs-authenticated-expe
 spec/factories/veteran_readiness_employment_claim.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/factories/veteran_onboardings.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-iir
 spec/factories/persistent_attachments.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/factories/saved_claim.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/ask @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/ask/minimal.json @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/fixtures/bgs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1507,7 +1508,7 @@ spec/lib/vbs @department-of-veterans-affairs/vsa-debt-resolution @department-of-
 spec/lib/vetext @department-of-veterans-affairs/mobile-api-team
 spec/lib/vets @department-of-veterans-affairs/backend-review-group
 spec/lib/virtual_regional_office @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/lib/vre/ch31_form_spec.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/lib/vre @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/res/ch31_form_spec.rb @department-of-veterans-affairs/benefits-non-disability @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/source_app_middleware_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/webhooks/utilities_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
