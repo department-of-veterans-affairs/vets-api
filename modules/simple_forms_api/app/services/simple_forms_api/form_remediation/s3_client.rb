@@ -64,7 +64,27 @@ module SimpleFormsApi
 
         File.open(local_path) do |file_obj|
           sanitized_file = CarrierWave::SanitizedFile.new(file_obj)
-          s3_uploader.store!(sanitized_file)
+          exponential_backoff { s3_uploader.store!(sanitized_file) }
+        end
+      end
+
+      def exponential_backoff
+        retries = 0
+        max_retries = 3
+        base_delay = 5  # Start with a 5-second delay
+        max_delay = 60  # Cap the delay at 60 seconds
+
+        begin
+          yield
+        rescue Aws::S3::Errors::ServiceError => e
+          if retries < max_retries
+            retries += 1
+            delay = [base_delay * (2**retries), max_delay].min
+            sleep delay * (0.5 + rand)
+            retry
+          else
+            config.handle_error("Failed to upload #{upload_type}: #{id} to S3 after #{retries} retries", e)
+          end
         end
       end
 

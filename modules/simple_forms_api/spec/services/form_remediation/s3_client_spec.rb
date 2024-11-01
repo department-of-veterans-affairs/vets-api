@@ -179,12 +179,37 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
           end
         end
 
+        shared_examples 's3 client handles outages gracefully' do
+          before { allow(archive_instance).to receive(:sleep) }
+
+          context 'when S3 service is temporarily unavailable' do
+            before do
+              call_count = 0
+              allow(uploader).to receive(:store!) do
+                call_count += 1
+                raise Aws::S3::Errors::ServiceError.new(nil, 'S3 Service Outage') if call_count < 3
+
+                true
+              end
+            end
+
+            it 'retries the upload until it succeeds' do
+              expect(uploader).to receive(:store!).exactly(3).times
+              upload
+              expect(Rails.logger).to have_received(:info).with(
+                a_hash_including(message: "Failed to upload #{type}: #{benefits_intake_uuid} to S3 after 3 retries")
+              ).at_least(:once)
+            end
+          end
+        end
+
         context 'when initialized with a valid id' do
           subject(:upload) { archive_instance.upload }
 
           let(:archive_instance) { described_class.new(**default_args) }
 
           include_examples 's3 client acts as expected'
+          include_examples 's3 client handles outages gracefully'
         end
 
         context 'when initialized with valid submission data' do
@@ -193,6 +218,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
           let(:archive_instance) { described_class.new(**hydrated_submission_args) }
 
           include_examples 's3 client acts as expected'
+          include_examples 's3 client handles outages gracefully'
         end
       end
     end
