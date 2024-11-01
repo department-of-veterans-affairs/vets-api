@@ -84,7 +84,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
                                                                          'totalPages' => 1,
                                                                          'totalEntries' => 1 },
                                                        'upcomingAppointmentsCount' => 0,
-                                                       'upcomingDaysLimit' => 7
+                                                       'upcomingDaysLimit' => 30
                                                      })
         end
       end
