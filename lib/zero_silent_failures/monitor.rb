@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
+require 'logging/monitor'
+
 # ZeroSilentFailures namespace
 module ZeroSilentFailures
   # global monitoring functions for ZSF - statsd and logging
-  class Monitor
+  class Monitor < Logging::Monitor
     # Proxy class to allow a custom `caller_location` to be used
     class CallLocation
       attr_accessor :base_label, :path, :lineno
@@ -16,11 +18,6 @@ module ZeroSilentFailures
         @path = file
         @lineno = line
       end
-    end
-
-    # create ZSF monitor instance
-    def initialize(service)
-      @service = service
     end
 
     def log_silent_failure(additional_context, user_account_uuid = nil, call_location: nil)
