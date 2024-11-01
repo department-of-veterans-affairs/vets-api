@@ -83,9 +83,6 @@ module Sidekiq
         determine_zip
       end
 
-      # def submission_account(submission)
-      #   UserAccount.find_by(id: submission.user_account_id) || Account.lookup_by_user_uuid(submission.user_uuid)
-      # end
 
       def process!
         # Generates or makes calls to get, all PDFs, adds all to self.docs obj
