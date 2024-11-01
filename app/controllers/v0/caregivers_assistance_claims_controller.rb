@@ -33,7 +33,7 @@ module V0
       end
     rescue => e
       unless e.is_a?(Common::Exceptions::ValidationErrors) || e.is_a?(::Form1010cg::Service::InvalidVeteranStatus)
-        Rails.logger.debug('CaregiverAssistanceClaim: error submitting claim',
+        Rails.logger.error('CaregiverAssistanceClaim: error submitting claim',
                            { saved_claim_guid: @claim.guid, error: e })
       end
       raise e
