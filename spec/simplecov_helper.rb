@@ -6,18 +6,18 @@ require 'simplecov'
 
 class SimpleCovHelper
   def self.report_coverage(base_dir: './coverage_results')
-    # SimpleCov.start 'rails' do
-    #   skip_check_coverage = ENV.fetch('SKIP_COVERAGE_CHECK', 'false')
+    SimpleCov.start 'rails' do
+      skip_check_coverage = ENV.fetch('SKIP_COVERAGE_CHECK', 'false')
 
-    #   track_files '**/{app,lib}/**/*.rb'
+      track_files '**/{app,lib}/**/*.rb'
 
-    #   add_filters
-    #   add_modules
+      add_filters
+      add_modules
 
-    #   minimum_coverage(90) unless skip_check_coverage
-    #   refuse_coverage_drop unless skip_check_coverage
-    #   merge_timeout(3600)
-    # end
+      minimum_coverage(90) unless skip_check_coverage
+      refuse_coverage_drop unless skip_check_coverage
+      merge_timeout(3600)
+    end
     new(base_dir:).merge_results
   end
 
