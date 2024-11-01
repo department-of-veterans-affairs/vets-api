@@ -6,7 +6,9 @@ require 'sidekiq/testing'
 describe VANotify::InProgressFormReminder, type: :worker do
   let(:user) { create(:user) }
   let(:in_progress_form) { create(:in_progress_686c_form, user_uuid: user.uuid) }
-  let(:in_progress_form_with_user_account_id) { create(:in_progress_686c_form, user_account_id: create(:user_account).id) }
+  let(:in_progress_form_with_user_account_id) do
+    create(:in_progress_686c_form, user_account_id: create(:user_account).id)
+  end
 
   describe '#perform' do
     it 'skips sending reminder email if ICN is not present' do
@@ -61,7 +63,8 @@ describe VANotify::InProgressFormReminder, type: :worker do
     describe 'multiple relevant in_progress_forms' do
       let!(:in_progress_form_1) do
         Timecop.freeze(7.days.ago)
-        in_progress_form = create(:in_progress_686c_form, user_uuid: user.uuid, user_account_id: create(:user_account).id)
+        in_progress_form = create(:in_progress_686c_form, user_uuid: user.uuid,
+                                                          user_account_id: create(:user_account).id)
         Timecop.return
         in_progress_form
       end
