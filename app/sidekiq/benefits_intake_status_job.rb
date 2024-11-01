@@ -139,7 +139,7 @@ class BenefitsIntakeStatusJob
     end
   end
 
-  # TODO refactor - avoid require of module code, near duplication of process
+  # TODO: refactor - avoid require of module code, near duplication of process
   # rubocop:disable Metrics/MethodLength
   def monitor_failure(form_id, saved_claim_id, bi_uuid)
     context = {
