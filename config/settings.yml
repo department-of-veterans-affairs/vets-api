@@ -188,7 +188,6 @@ form_10_10cg:
       aws_access_key_id: my-aws-key-id
       aws_secret_access_key: my-aws-access-key
       bucket: my-bucket
-      enabled: true
       region: us-gov-west-1
 
 vbs:
@@ -1650,7 +1649,6 @@ sidekiq:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 flipper:
   mute_logs: false
@@ -1658,7 +1656,6 @@ flipper:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 lgy:
   base_url: http://www.example.com
@@ -1724,7 +1721,6 @@ coverband:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 dogstatsd:
   enabled: false
