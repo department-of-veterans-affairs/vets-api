@@ -51,7 +51,7 @@ ClaimsApi::Engine.routes.draw do
         post '/:veteranId/2122a', to: 'individual#submit'
         get '/:veteranId/power-of-attorney/:id', to: 'base#status'
         # Power of Attorney Requests
-        post '/:veteranId/power-of-attorney-requests', to: 'request#create'
+        post '/:veteranId/power-of-attorney-request', to: 'request#create'
         post '/power-of-attorney-requests', to: 'request#index'
         post '/power-of-attorney-requests/decide', to: 'request#decide'
       end
