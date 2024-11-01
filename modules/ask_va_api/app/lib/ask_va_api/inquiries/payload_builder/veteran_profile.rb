@@ -24,7 +24,7 @@ module AskVAApi
         private
 
         def veteran_info
-          inquiry_params[:about_the_veteran]
+          @veteran_info ||= inquiry_params[:about_the_veteran] || {}
         end
 
         def base_profile
