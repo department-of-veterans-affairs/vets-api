@@ -29,6 +29,7 @@ module VaNotify
           notify_client.send_email(args)
         end
         create_notification(response)
+        response
       else
         with_monitoring do
           notify_client.send_email(args)
@@ -44,6 +45,7 @@ module VaNotify
           notify_client.send_sms(args)
         end
         create_notification(response)
+        response
       else
         with_monitoring do
           notify_client.send_sms(args)
@@ -104,7 +106,7 @@ module VaNotify
       end
 
       notification = VANotify::Notification.new(
-        notification_id: response['id'],
+        notification_id: response.id,
         source_location: find_caller_locations
       )
 
