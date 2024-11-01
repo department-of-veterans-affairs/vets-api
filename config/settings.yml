@@ -1273,11 +1273,9 @@ vanotify:
       api_key: fake_secret
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
-        burial_claim_confirmation_email_template_id: burial_claim_confirmation_email_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
-        form527ez_confirmation_email: form527ez_confirmation_email_template_id
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         contact_info_change: fake_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
@@ -1388,6 +1386,27 @@ vanotify:
       template_id:
         form1010_ez_failure_email: fake_template_id
         form1010_ezr_failure_email: fake_template_id
+    # https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/
+    21p_527ez: &vanotify_services_pension
+      api_key: fake_secret
+      email:
+        confirmation:
+          template_id: form527ez_confirmation_email_template_id
+          flipper_id: false
+        error: null
+        received: null
+    pensions: *vanotify_services_pension
+    21p_530ez: &vanotify_services_burial
+      api_key: fake_secret
+      email:
+        confirmation:
+          template_id: burial_claim_confirmation_email_template_id
+          flipper_id: false
+        error: null
+        received: null
+    burials: *vanotify_services_burial
+    21p_530: *vanotify_services_burial
+    21p_530v2: *vanotify_services_burial
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
