@@ -120,7 +120,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
               form526_submission_id: form526_submission.id
             },
             nil,
-            call_location: instance_of(ZeroSilentFailures::Monitor::CallLocation)
+            call_location: instance_of(Logging::CallLocation)
           )
 
           args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }

@@ -1,20 +1,7 @@
 # frozen_string_literal: true
 
 module Logging
-  # Proxy class to allow a custom `caller_location` to be used
-  class CallLocation
-    attr_accessor :base_label, :path, :lineno
-
-    # create proxy caller_location
-    # @see Thread::Backtrace::Location
-    # @see ZeroSilentFailures::Monitor#parse_caller
-    def initialize(function = nil, file = nil, line = nil)
-      @base_label = function
-      @path = file
-      @lineno = line
-    end
-  end
-
+  # generic monitoring class
   class Monitor
     # create a monitor
     def initialize(service)
@@ -27,18 +14,22 @@ module Logging
     # @param error_level [String]
     # @param message [String]
     # @param metric [String]
-    # @param additional_context [Hash]
-    #
-    def track_request(error_level, message, metric, additional_context, call_location: nil)
+    # @param context [Hash]
+    # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged as failure point
+    def track_request(error_level, message, metric, context = {}, call_location: nil, **kwargs)
       function, file, line = parse_caller(call_location)
 
-      StatsD.increment(metric, tags: additional_context[:tags])
+      tags = kwargs[:tags] || context[:tags]
+      user_account_uuid = kwargs[:user_account_uuid] || context[:user_account_uuid]
+      additional_context = kwargs.merge(context)
+
+      StatsD.increment(metric, tags:)
 
       if %w[debug info warn error fatal unknown].include?(error_level)
         payload = {
           statsd: metric,
           service:,
-          user_account_uuid: additional_context[:user_account_uuid],
+          user_account_uuid:,
           function:,
           file:,
           line:,
