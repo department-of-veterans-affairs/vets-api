@@ -87,11 +87,11 @@ unless ENV['NOCOVERAGE']
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     # End Modules
 
-  #   if ENV['CI']
-  #     SimpleCov.minimum_coverage 90
-  #     SimpleCov.refuse_coverage_drop
-  #   end
-  # end
+    if ENV['CI']
+      SimpleCov.minimum_coverage 90
+      SimpleCov.refuse_coverage_drop
+    end
+  end
   if ENV['TEST_ENV_NUMBER'] # parallel specs
     SimpleCov.at_exit do
       result = SimpleCov.result
