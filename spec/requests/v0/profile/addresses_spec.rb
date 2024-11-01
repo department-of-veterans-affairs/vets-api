@@ -336,7 +336,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
   #   after do
   #     Flipper.disable(:va_v3_contact_information_service)
   #   end
-  #   let(:address) { build(:va_profile_address_v2, vet360_id: user.vet360_id) }
+  #   let(:address) { build(:va_profile_v3_address, vet360_id: user.vet360_id) }
 
   #   it 'calls update_address' do
   #     expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:update_address).and_call_original
@@ -357,7 +357,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       Flipper.disable(:va_v3_contact_information_service)
     end
 
-    let(:address) { build(:va_profile_address_v2, vet360_id: user.vet360_id) }
+    let(:address) { build(:va_profile_v3_address, vet360_id: user.vet360_id) }
 
     context 'with a 200 response' do
       it 'matches the address schema', :aggregate_failures do
@@ -474,7 +474,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
         log_data = log.data
         expect(log_data['address_line1']).to eq(address.address_line1)
         expect(log_data['address_pou']).to eq(address.address_pou)
-        expect(log.error_class).to eq('VAProfile::Models::V2::Address ValidationError')
+        expect(log.error_class).to eq('VAProfile::Models::V3::Address ValidationError')
       end
 
       it 'matches the errors schema', :aggregate_failures do
@@ -504,7 +504,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       Flipper.disable(:va_v3_contact_information_service)
     end
 
-    let(:address) { build(:va_profile_address_v2, vet360_id: user.vet360_id) }
+    let(:address) { build(:va_profile_v3_address, vet360_id: user.vet360_id) }
 
     context 'with a 200 response' do
       it 'matches the email address schema', :aggregate_failures do
@@ -534,7 +534,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
       end
 
       context 'with a validation key' do
-        let(:address) { build(:va_profile_address_v2, :override) }
+        let(:address) { build(:va_profile_v3_address, :override) }
         let(:frozen_time) { Time.zone.parse('2024-09-16T16:09:37.000Z') }
 
         before do
@@ -579,7 +579,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
     context 'when effective_end_date is included' do
       let(:address) do
-        build(:va_profile_address_v2, effective_end_date: Time.now.utc.iso8601)
+        build(:va_profile_v3_address, effective_end_date: Time.now.utc.iso8601)
       end
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do

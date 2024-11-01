@@ -2,15 +2,19 @@
 
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
   let(:form_type) { '20-10207' }
   let(:fixtures_path) { 'modules/simple_forms_api/spec/fixtures' }
   let(:form_data) { Rails.root.join(fixtures_path, 'form_json', 'vba_20_10207_with_supporting_documents.json').read }
   let(:file_path) { Rails.root.join(fixtures_path, 'pdfs', 'vba_20_10207-completed.pdf').to_s }
-  let(:submission) { create(:form_submission, :pending, form_type:, form_data:) }
+  let(:created_at) { 3.years.ago }
+  let(:submission) { create(:form_submission, :pending, form_type:, form_data:, created_at:) }
+  let(:submission_attempt) { submission.form_submission_attempts.first }
   let(:benefits_intake_uuid) { submission.benefits_intake_uuid }
-  let(:submission_instance) { described_class.new(id: benefits_intake_uuid) }
+  let(:config) { SimpleFormsApi::FormRemediation::Configuration::VffConfig.new }
+  let(:submission_instance) { described_class.new(id: benefits_intake_uuid, config:) }
   let(:filler) { instance_double(SimpleFormsApi::PdfFiller) }
   let(:attachments) { Array.new(5) { fixture_file_upload('doctors-note.pdf', 'application/pdf').path } }
   let(:metadata) do
@@ -25,14 +29,17 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
     }
   end
   let(:vba_20_10207_instance) { instance_double(SimpleFormsApi::VBA2010207, metadata:) }
+  let(:signature_date) { submission.created_at.in_time_zone('America/Chicago') }
 
   before do
-    allow(FormSubmission).to receive(:find_by).with(benefits_intake_uuid:).and_return(submission)
+    allow(FormSubmissionAttempt).to receive(:find_by).with(benefits_intake_uuid:).and_return(submission_attempt)
     allow(SecureRandom).to receive(:hex).and_return('random-letters-n-numbers')
     allow(SimpleFormsApi::PdfFiller).to receive(:new).and_return(filler)
     allow(filler).to receive(:generate).with(timestamp: submission.created_at).and_return(file_path)
     allow(SimpleFormsApi::VBA2010207).to receive(:new).and_return(vba_20_10207_instance)
-    allow(vba_20_10207_instance).to receive_messages(get_attachments: attachments, zip_code_is_us_based: true)
+    allow(vba_20_10207_instance).to(
+      receive_messages(get_attachments: attachments, zip_code_is_us_based: true, 'signature_date=' => true)
+    )
   end
 
   describe '#initialize' do
@@ -42,7 +49,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
       before { new }
 
       it 'fetches the form submission data' do
-        expect(FormSubmission).to have_received(:find_by).with(benefits_intake_uuid:)
+        expect(FormSubmissionAttempt).to have_received(:find_by).with(benefits_intake_uuid:)
       end
 
       it 'sets the form submission data' do
@@ -63,15 +70,23 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
     end
 
     context 'when benefits_intake_uuid is missing' do
-      let(:submission_instance) { described_class.new(stuff: 'thangs') }
+      let(:submission_instance) { described_class.new(stuff: 'thangs', config:) }
 
       it 'throws an error' do
         expect { new }.to raise_exception(ArgumentError, 'missing keyword: :id')
       end
     end
 
+    context 'when config is missing' do
+      let(:submission_instance) { described_class.new(stuff: 'thangs', id: benefits_intake_uuid) }
+
+      it 'throws an error' do
+        expect { new }.to raise_exception(ArgumentError, 'missing keyword: :config')
+      end
+    end
+
     context 'when the form submission is not found' do
-      before { allow(FormSubmission).to receive(:find_by).and_return(nil) }
+      before { allow(FormSubmissionAttempt).to receive(:find_by).and_return(nil) }
 
       it 'throws an error' do
         expect { new }.to raise_exception('Submission was not found or invalid')
@@ -81,7 +96,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
     context 'when benefits_intake_uuid is invalid' do
       let(:benefits_intake_uuid) { 'complete-nonsense' }
 
-      before { allow(FormSubmission).to receive(:find_by).and_call_original }
+      before { allow(FormSubmissionAttempt).to receive(:find_by).and_call_original }
 
       it 'raises an error' do
         expect { new }.to raise_exception('Submission was not found or invalid')
@@ -117,6 +132,11 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
 
       it 'generates valid metadata' do
         expect(hydrated.metadata).to eq(metadata)
+      end
+
+      it 'sets the signature date properly' do
+        hydrated
+        expect(vba_20_10207_instance).to have_received(:signature_date=).with(signature_date)
       end
 
       context 'when the form is 20-10207' do

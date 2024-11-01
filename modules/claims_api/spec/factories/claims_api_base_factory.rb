@@ -52,6 +52,11 @@ FactoryBot.define do
     status { 'submitted' }
   end
 
+  trait :established do
+    status { 'established' }
+    evss_id { 600_118_851 }
+  end
+
   trait :vbms_error_message do
     vbms_error_message { 'A VBMS error has occurred' }
   end

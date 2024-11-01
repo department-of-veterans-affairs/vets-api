@@ -8,7 +8,7 @@ describe ClaimsApi::VANotifyJob, type: :job do
 
   let(:va_notify_org) do
     create(:organization, address_line1: '345 Sixth St.', address_line2: 'Suite 3',
-                          zip_code: '12345', zip_suffix: '9876', city: 'Pensacola', state: 'FL')
+                          zip_code: '12345', zip_suffix: '9876', city: 'Pensacola', state: 'FL', phone: '')
   end
 
   let(:va_notify_rep) do
@@ -27,8 +27,6 @@ describe ClaimsApi::VANotifyJob, type: :job do
     create(:power_of_attorney, form_data: va_notify_org_poa_form_data, auth_headers: va_notify_auth_headers)
   end
 
-  let(:vanotify_client) { instance_double(VaNotify::Service) }
-
   let(:va_notify_rep_poa_form_data) do
     data = JSON.parse(
       Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
@@ -44,7 +42,6 @@ describe ClaimsApi::VANotifyJob, type: :job do
       Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
                       'veterans', 'power_of_attorney', '2122a', 'valid_with_claimant.json').read
     )
-
     form_data = data['data']['attributes']
     form_data
   end
@@ -157,6 +154,20 @@ describe ClaimsApi::VANotifyJob, type: :job do
 
           expect(res).to eq(org_expected_params)
         end
+      end
+    end
+  end
+
+  describe 'Va Notify Failure' do
+    context 'when an error occurs' do
+      it 'calls handle_failure' do
+        instance = described_class.new
+        error = StandardError.new('Some error')
+        allow(instance).to receive(:skip_notification_email?).and_return(false)
+        allow(instance).to receive(:organization_filing?).with(rep_poa.form_data).and_raise(error)
+
+        expect(instance).to receive(:handle_failure).with(rep_poa.id, error)
+        instance.perform(rep_poa.id, va_notify_rep)
       end
     end
   end

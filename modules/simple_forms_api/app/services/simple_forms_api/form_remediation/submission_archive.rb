@@ -1,104 +1,103 @@
 # frozen_string_literal: true
 
-require 'csv'
-require 'fileutils'
-require 'simple_forms_api/form_remediation/configuration/base'
+require_relative 'file_utilities'
 
 # Built in accordance with the following documentation:
 # https://github.com/department-of-veterans-affairs/va.gov-team-sensitive/blob/master/platform/practices/zero-silent-failures/remediation.md
 module SimpleFormsApi
   module FormRemediation
+    class NoConfigurationError < StandardError; end
+
     class SubmissionArchive
       include FileUtilities
 
-      def initialize(config: Configuration::Base.new, **options)
+      def initialize(config:, **options)
+        raise NoConfigurationError, 'No configuration was provided' unless config
+
         @config = config
         @temp_directory_path = config.temp_directory_path
-        @include_manifest = config.include_manifest
-        @include_metadata = config.include_metadata
+        @pdf_already_exists = options[:file_path] && File.exist?(options[:file_path])
 
-        assign_defaults(options)
-        hydrate_submission_data unless submission_already_hydrated?
-
-        @form_number = JSON.parse(submission&.form_data)['form_number']
+        initialize_data(options)
+        hydrate_submission_data unless data_hydrated?
+      rescue NoConfigurationError => e
+        Rails.logger.error(e)
+        raise e
       rescue => e
         config.handle_error("#{self.class.name} initialization failed", e)
       end
 
       def build!
-        create_temp_directory!(temp_directory_path)
-        process_submission_files
+        create_directory!(temp_directory_path)
+        process_files
 
-        return "#{submission_file_path}.pdf" if archive_type == :submission
-
-        zip_directory!(config.parent_dir, temp_directory_path)
+        final_path = determine_final_path
+        [final_path, manifest_entry]
       rescue => e
         config.handle_error("Failed building submission: #{id}", e)
       end
 
       private
 
-      attr_reader :archive_type, :attachments, :config, :file_path, :form_number, :id, :include_manifest,
-                  :include_metadata, :metadata, :submission, :temp_directory_path
+      attr_reader :archive_type, :attachments, :config, :file_path, :id, :metadata, :pdf_already_exists, :submission,
+                  :temp_directory_path
 
-      def assign_defaults(options)
-        # The file paths of any hydrated attachments which were originally included in the submission
-        @attachments = options[:attachments]
-        # The local path where the submission PDF is stored
-        @file_path = options[:file_path]
-        # The FormSubmission object representing the original data payload submitted
-        @submission = options[:submission]
-        # The UUID returned from the Benefits Intake API upon original submission
-        @id = @submission&.send(config.id_type) || options[:id]
-        # Data appended to the original submission headers
-        @metadata = options[:metadata]
-        # The type of archive to be created (:submission or :remediation)
-        @archive_type = options[:type] || :remediation
+      def initialize_data(options)
+        @archive_type ||= options.fetch(:type, :remediation)
+        @attachments ||= options[:attachments]
+        @file_path ||= options[:file_path]
+        @id ||= fetch_id(options)
+        @metadata ||= options[:metadata]
+        @submission ||= options[:submission]
       end
 
-      def submission_already_hydrated?
+      def fetch_id(options)
+        options[:submission]&.send(config.id_type) || options[:id]
+      end
+
+      def data_hydrated?
         submission && file_path && attachments && metadata
       end
 
       def hydrate_submission_data
         raise "No #{config.id_type} was provided" unless id
 
-        built_submission = config.remediation_data_class.new(id:).hydrate!
-        # The local path where the submission PDF is stored
-        @file_path = built_submission.file_path
-        # The FormSubmission object representing the original data payload submitted
-        @submission = built_submission.submission
-        # The UUID returned from the Benefits Intake API upon original submission
-        @id = submission&.send(config.id_type)
-        # The file paths of any hydrated attachments which were originally included in the submission
-        @attachments = built_submission.attachments || []
-        # Data appended to the original submission headers
-        @metadata = built_submission.metadata
+        built_submission = config.remediation_data_class.new(id:, config:).hydrate!
+
+        initialize_data(
+          attachments: built_submission.attachments,
+          file_path: built_submission.file_path,
+          id: built_submission.submission&.send(config.id_type),
+          metadata: built_submission.metadata,
+          submission: built_submission.submission,
+          type: archive_type
+        )
       end
 
-      def process_submission_files
+      def process_files
+        processing_tasks.each { |task| safely_execute(task) }
+      end
+
+      def processing_tasks
         [
           -> { write_pdf },
           -> { write_attachments if attachments&.any? },
-          -> { write_manifest if include_manifest },
-          -> { write_metadata if include_metadata }
-        ].each do |task|
-          safely_execute_task(task)
-        end
+          -> { write_metadata if config.include_metadata }
+        ]
       end
 
-      def safely_execute_task(task)
+      def safely_execute(task)
         task.call
       rescue => e
         config.handle_error("Error during processing task: #{task.source_location}", e)
       end
 
       def write_pdf
-        create_file("#{submission_file_path}.pdf", File.read(file_path), 'submission pdf')
+        create_file("#{submission_file_name}.pdf", File.read(file_path), 'submission pdf')
       end
 
       def write_metadata
-        create_file("metadata_#{submission_file_path}.json", metadata.to_json, 'metadata')
+        create_file("metadata_#{submission_file_name}.json", metadata.to_json, 'metadata')
       end
 
       def write_attachments
@@ -108,36 +107,48 @@ module SimpleFormsApi
 
       def process_attachment(attachment_number, file_path)
         config.log_info("Processing attachment ##{attachment_number}: #{file_path}")
-        create_file("attachment_#{attachment_number}__#{submission_file_path}.pdf", File.read(file_path), 'attachment')
+        create_file("attachment_#{attachment_number}__#{submission_file_name}.pdf", File.read(file_path), 'attachment')
       end
 
-      def write_manifest
-        file_name = "manifest_#{submission_file_path}.csv"
-        manifest_path = File.join(temp_directory_path, file_name)
-
-        CSV.open(manifest_path, 'wb') do |csv|
-          csv << %w[SubmissionDateTime FormType VAGovID VeteranID FirstName LastName]
-          csv << [
-            submission.created_at,
-            form_number,
-            id,
-            metadata['fileNumber'],
-            metadata['veteranFirstName'],
-            metadata['veteranLastName']
-          ]
-        end
-      rescue => e
-        config.handle_error("Failed writing manifest for submission: #{id}", e)
+      def data_exists_for_manifest?
+        submission&.created_at && form_number && id && metadata
       end
 
-      def create_file(file_name, payload, file_description, dir_path = config.temp_directory_path)
-        write_file(dir_path, file_name, payload)
+      def manifest_entry
+        return unless data_exists_for_manifest?
+
+        [
+          submission.created_at,
+          form_number,
+          id,
+          metadata['fileNumber'],
+          metadata['veteranFirstName'],
+          metadata['veteranLastName']
+        ]
+      end
+
+      def create_file(file_name, payload, file_description)
+        write_file(temp_directory_path, file_name, payload)
       rescue => e
         config.handle_error("Failed writing #{file_description} file #{file_name} for submission: #{id}", e)
       end
 
-      def submission_file_path
-        @submission_file_path ||= unique_file_path(form_number, id)
+      def determine_final_path
+        return "#{temp_directory_path}#{submission_file_name}.pdf" if archive_type == :submission
+
+        zip_directory!(config.parent_dir, temp_directory_path, submission_file_name)
+      end
+
+      def submission_file_name
+        @submission_file_name ||= unique_file_name(form_number, id)
+      end
+
+      def form_number
+        @form_number ||= metadata&.dig('docType') || submission_form_number
+      end
+
+      def submission_form_number
+        submission ? JSON.parse(submission.form_data)['form_number'] : nil
       end
     end
   end

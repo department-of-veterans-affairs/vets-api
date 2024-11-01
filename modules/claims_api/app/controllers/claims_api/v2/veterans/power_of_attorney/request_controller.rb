@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'bgs_service/manage_representative_service'
+require 'claims_api/common/exceptions/lighthouse/bad_gateway'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
 
@@ -8,6 +10,54 @@ module ClaimsApi
     module Veterans
       class PowerOfAttorney::RequestController < ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController
         FORM_NUMBER = 'POA_REQUEST'
+
+        def index
+          poa_codes = form_attributes['poaCodes']
+
+          unless poa_codes.is_a?(Array) && poa_codes.size.positive?
+            raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
+                                                             detail: 'poaCodes is required and cannot be empty')
+          end
+
+          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
+                                                    external_key: 'power_of_attorney_request_key')
+
+          res = service.read_poa_request(poa_codes:)
+
+          poa_list = res['poaRequestRespondReturnVOList']
+
+          raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
+
+          render json: poa_list, status: :ok
+        end
+
+        def decide
+          proc_id = form_attributes['procId']
+
+          unless proc_id
+            raise ::Common::Exceptions::ParameterMissing.new('procId',
+                                                             detail: 'procId is required')
+          end
+
+          decision = form_attributes['decision']
+
+          unless decision && %w[accepted declined].include?(normalize(decision))
+            raise ::Common::Exceptions::ParameterMissing.new(
+              'decision',
+              detail: 'decision is required and must be either "accepted" or "declined"'
+            )
+          end
+
+          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
+                                                    external_key: 'power_of_attorney_request_key')
+
+          res = service.update_poa_request(proc_id:, secondary_status: decision,
+                                           declined_reason: form_attributes['declinedReason'])
+
+          raise ::Common::Exceptions::Lighthouse::BadGateway unless res
+
+          render json: res, status: :ok
+        end
 
         def request_representative
           # validate target veteran exists
@@ -70,6 +120,10 @@ module ClaimsApi
           bgs_form_attributes.deep_merge!(organization_data) if @organization
 
           bgs_form_attributes
+        end
+
+        def normalize(item)
+          item.to_s.strip.downcase
         end
 
         def veteran_data

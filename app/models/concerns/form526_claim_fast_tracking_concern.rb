@@ -106,23 +106,13 @@ module Form526ClaimFastTrackingConcern
     disabilities.select { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
   end
 
-  def increase_only?
-    disabilities.all? { |disability| disability['disabilityActionType']&.upcase == 'INCREASE' }
-  end
-
-  def increase_or_new?
-    disabilities.all? do |disability|
-      disability['disabilityActionType']&.upcase == 'INCREASE' || disability['disabilityActionType']&.upcase == 'NEW'
-    end
-  end
-
   def diagnostic_codes
     disabilities.pluck('diagnosticCode')
   end
 
   def prepare_for_evss!
     begin
-      is_claim_fully_classified = update_classification!
+      is_claim_fully_classified = update_contention_classification_all!
     rescue => e
       Rails.logger.error "Contention Classification failed #{e.message}."
       Rails.logger.error e.backtrace.join('\n')
@@ -142,7 +132,7 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
     return unless pending_eps.count == 1
 
-    feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
+    feature_enabled = ep_merge_feature_enabled?
     open_claim_review = open_claim_review?
     Rails.logger.info(
       'EP Merge open EP eligibility',
@@ -155,26 +145,6 @@ module Form526ClaimFastTrackingConcern
     end
   rescue => e
     Rails.logger.error("EP400 Merge eligibility failed #{e.message}.", backtrace: e.backtrace)
-  end
-
-  def get_claim_type
-    claim_type = disabilities.pick('disabilityActionType').upcase
-    if claim_type == 'INCREASE'
-      'claim_for_increase'
-    else
-      'new'
-    end
-  end
-
-  # Contact the VRO classifier service to classify the contentions on this form
-  # update the form with the classification codes
-  # returns true if all of form's contentions were classified
-  def update_classification!
-    if Flipper.enabled?(:disability_526_classifier_multi_contention)
-      update_contention_classification_all!
-    else
-      update_contention_classification_single_contention!
-    end
   end
 
   def update_form_with_classification_codes(classified_contentions)
@@ -209,9 +179,16 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('classifier response for 526Submission', payload: response_body)
   end
 
+  def log_and_halt_if_no_disabilities
+    Rails.logger.info("No disabilities found for classification on claim #{id}")
+    false
+  end
+
   # Submits contention information to the VRO contention classification service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
+    return log_and_halt_if_no_disabilities if disabilities.blank?
+
     contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
     params = { claim_id: saved_claim_id, form526_submission_id: id, contentions: contentions_array }
     classifier_response = classify_vagov_contentions(params)
@@ -234,67 +211,22 @@ module Form526ClaimFastTrackingConcern
     classifier_response['is_fully_classified']
   end
 
-  # Submits contention information to the VRO contention classification
-  # service for single-contention claims.
-  #
-  # note: this method is only used for single-contention claims and is
-  # deprecated in favor of update_contention_classification_all, which handles
-  # both single and multi-contention claims
-  def update_contention_classification_single_contention!
-    return unless increase_or_new?
-    return unless disabilities.count == 1
-
-    claim_type = get_claim_type
-    return unless claim_type == 'claim_for_increase' || Flipper.enabled?(:disability_526_classifier_new_claims)
-
-    diagnostic_code = diagnostic_codes.first
-    params = {
-      diagnostic_code:,
-      claim_id: saved_claim_id,
-      form526_submission_id: id,
-      claim_type:,
-      contention_text: disabilities.pick('name')
-    }
-
-    classification = classify_single_contention(params)
-    Rails.logger.info('Classified 526Submission', id:, saved_claim_id:, classification:, claim_type:)
-    return if classification.blank?
-
-    update_form_with_classification_code(classification['classification_code'])
-    classification['classification_code'].present?
-  end
-
-  def classify_single_contention(params)
-    vro_client = VirtualRegionalOffice::Client.new
-    response = vro_client.classify_single_contention(params)
-    response.body
-  end
-
-  def update_form_with_classification_code(classification_code)
-    form[Form526Submission::FORM_526]['form526']['disabilities'].each do |disability|
-      disability['classificationCode'] = classification_code
-    end
-
-    update!(form_json: form.to_json)
-    invalidate_form_hash
-  end
-
   def log_max_cfi_metrics_on_submit
-    user = User.find(user_uuid)
-    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
-    ClaimFastTracking::DiagnosticCodesForMetrics::DC.each do |diagnostic_code|
-      next unless max_rated_diagnostic_codes_from_ipf.include?(diagnostic_code)
-
+    max_rated_diagnostic_codes_from_ipf.each do |diagnostic_code|
       disability_claimed = diagnostic_codes.include?(diagnostic_code)
-
-      if disability_claimed
-        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
-      end
-      Rails.logger.info('Max CFI form526 submission',
-                        id:, max_cfi_enabled:, disability_claimed:, diagnostic_code:,
-                        cfi_checkbox_was_selected: cfi_checkbox_was_selected?,
-                        total_increase_conditions: increase_disabilities.count)
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.submit",
+                       tags: ["diagnostic_code:#{diagnostic_code}", "claimed:#{disability_claimed}"])
     end
+    claimed_max_rated_dcs = max_rated_diagnostic_codes_from_ipf & diagnostic_codes
+    Rails.logger.info('Max CFI form526 submission',
+                      id:,
+                      num_max_rated: max_rated_diagnostic_codes_from_ipf.count,
+                      num_max_rated_cfi: claimed_max_rated_dcs.count,
+                      total_cfi: increase_disabilities.count,
+                      cfi_checkbox_was_selected: cfi_checkbox_was_selected?)
+    StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.on_submit",
+                     tags: ["claimed:#{claimed_max_rated_dcs.any?}",
+                            "has_max_rated:#{max_rated_diagnostic_codes_from_ipf.any?}"])
   rescue => e
     # Log the exception but but do not fail, otherwise form will not be submitted
     log_exception_to_sentry(e)
@@ -328,6 +260,15 @@ module Form526ClaimFastTrackingConcern
       disability['specialIssues'].append(EP_MERGE_SPECIAL_ISSUE).uniq!
     end
     update!(form_json: JSON.dump(form))
+  end
+
+  def ep_merge_feature_enabled?
+    actor = OpenStruct.new({ flipper_id: user_uuid })
+    if Flipper.enabled?(:disability_compensation_production_tester, actor)
+      Rails.logger.info("EP merge skipped for submission #{id}, user_uuid #{user_uuid}")
+      return false
+    end
+    Flipper.enabled?(:disability_526_ep_merge_api, actor)
   end
 
   private

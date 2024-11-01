@@ -9,6 +9,10 @@ RSpec.describe Form1010cg::SubmissionJob do
     create(:caregivers_assistance_claim)
   end
 
+  it 'has a retry count of 14' do
+    expect(described_class.get_sidekiq_options['retry']).to eq(14)
+  end
+
   it 'defines #notify' do
     expect(described_class.new.respond_to?(:notify)).to eq(true)
   end
@@ -22,18 +26,6 @@ RSpec.describe Form1010cg::SubmissionJob do
     expect(described_class.new.respond_to?(:retry_limits_for_notification)).to eq(true)
   end
 
-  context 'retry_limits_for_notification' do
-    it 'returns 0 and 10 when caregiver1010 is enabled' do
-      allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(true)
-      expect(described_class.new.retry_limits_for_notification).to eq([1, 10])
-    end
-
-    it 'returns 10 when caregiver1010 is disabled' do
-      allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(false)
-      expect(described_class.new.retry_limits_for_notification).to eq([10])
-    end
-  end
-
   it 'returns an array of integers from retry_limits_for_notification' do
     expect(described_class.new.retry_limits_for_notification).to eq([1, 10])
   end
@@ -41,57 +33,35 @@ RSpec.describe Form1010cg::SubmissionJob do
   describe '#notify' do
     subject(:notify) { described_class.new.notify(params) }
 
-    context 'caregiver1010 feature toggle on' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(true)
-      end
+    context 'retry_count is 0' do
+      let(:params) { { 'retry_count' => 0 } }
 
-      context 'retry_count is 0' do
-        let(:params) { { 'retry_count' => 0 } }
-
-        it 'increments applications_retried statsd' do
-          expect { notify }.to trigger_statsd_increment('api.form1010cg.async.applications_retried')
-        end
-      end
-
-      context 'retry_count is not 0 or 9' do
-        let(:params) { { 'retry_count' => 5 } }
-
-        it 'does not increment applications_retried statsd' do
-          expect { notify }.not_to trigger_statsd_increment('api.form1010cg.async.applications_retried')
-        end
-
-        it 'does not increment failed_ten_retries statsd' do
-          expect do
-            notify
-          end.not_to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
-        end
-      end
-
-      context 'retry_count is 9' do
-        let(:params) { { 'retry_count' => 9 } }
-
-        it 'increments failed_ten_retries statsd' do
-          expect do
-            notify
-          end.to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
-        end
+      it 'increments applications_retried statsd' do
+        expect { notify }.to trigger_statsd_increment('api.form1010cg.async.applications_retried')
       end
     end
 
-    context 'caregiver1010 feature toggle off' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(false)
+    context 'retry_count is not 0 or 9' do
+      let(:params) { { 'retry_count' => 5 } }
+
+      it 'does not increment applications_retried statsd' do
+        expect { notify }.not_to trigger_statsd_increment('api.form1010cg.async.applications_retried')
       end
 
-      context 'no params' do
-        let(:params) { {} }
+      it 'does not increment failed_ten_retries statsd' do
+        expect do
+          notify
+        end.not_to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
+      end
+    end
 
-        it 'increments failed_ten_retries statsd' do
-          expect do
-            notify
-          end.to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
-        end
+    context 'retry_count is 9' do
+      let(:params) { { 'retry_count' => 9 } }
+
+      it 'increments failed_ten_retries statsd' do
+        expect do
+          notify
+        end.to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
       end
     end
   end
@@ -114,53 +84,22 @@ RSpec.describe Form1010cg::SubmissionJob do
     let(:job) { described_class.new }
 
     context 'when there is a standarderror' do
-      context 'caregiver1010 flipper enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(true)
-        end
+      it 'increments statsd except applications_retried' do
+        allow_any_instance_of(Form1010cg::Service).to receive(
+          :process_claim_v2!
+        ).and_raise(StandardError)
 
-        it 'increments statsd except applications_retried' do
-          allow_any_instance_of(Form1010cg::Service).to receive(
-            :process_claim_v2!
-          ).and_raise(StandardError)
+        expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
+        expect(StatsD).not_to receive(:increment).with('api.form1010cg.async.applications_retried')
+        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
 
-          expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
-          expect(StatsD).not_to receive(:increment).with('api.form1010cg.async.applications_retried')
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
+        # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging
+        expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
 
-          # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging
-          expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
-
-          2.times do
-            expect do
-              job.perform(claim.id)
-            end.to raise_error(StandardError)
-          end
-        end
-      end
-
-      context 'caregiver1010 flipper not enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(false)
-        end
-
-        it 'increments statsd' do
-          allow_any_instance_of(Form1010cg::Service).to receive(
-            :process_claim_v2!
-          ).and_raise(StandardError)
-
-          expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
-          expect(StatsD).to receive(:increment).with('api.form1010cg.async.applications_retried')
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
-
-          # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging
-          expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
-
-          2.times do
-            expect do
-              job.perform(claim.id)
-            end.to raise_error(StandardError)
-          end
+        2.times do
+          expect do
+            job.perform(claim.id)
+          end.to raise_error(StandardError)
         end
       end
     end

@@ -8,6 +8,7 @@ module V0
     service_tag 'burial-application'
 
     def show
+      # TODO: update FE to no longer poll for submission, @see Pensions::ClaimsController
       claim = claim_class.find_by!(guid: params[:id])
       form_submission = claim&.form_submissions&.last
       submission_attempt = form_submission&.form_submission_attempts&.last
@@ -41,8 +42,7 @@ module V0
         raise Common::Exceptions::ValidationErrors, claim.errors
       end
 
-      # this method also calls claim.process_attachments!
-      claim.submit_to_structured_data_services!
+      process_and_upload_to_lighthouse(in_progress_form, claim)
 
       monitor.track_create_success(in_progress_form, claim, current_user)
 
@@ -62,18 +62,29 @@ module V0
       end
     end
 
+    private
+
+    # an identifier that matches the parameter that the form will be set as in the JSON submission.
     def short_name
       'burial_claim'
     end
 
+    # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
     def claim_class
       SavedClaim::Burial
     end
 
-    private
-
     def central_mail_submission
       CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
+    end
+
+    def process_and_upload_to_lighthouse(in_progress_form, claim)
+      claim.process_attachments!
+
+      Lighthouse::SubmitBenefitsIntakeClaim.perform_async(claim.id)
+    rescue => e
+      monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+      raise e
     end
 
     ##

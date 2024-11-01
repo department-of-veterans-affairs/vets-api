@@ -7,24 +7,6 @@ module SimpleFormsApi
     class Uploader < CarrierWave::Uploader::Base
       include UploaderVirusScan
 
-      class << self
-        def s3_settings
-          config = Configuration::Base.new
-          config.s3_settings
-        end
-
-        def new_s3_resource
-          client = Aws::S3::Client.new(region: s3_settings.region)
-          Aws::S3::Resource.new(client:)
-        end
-
-        def get_s3_link(file_path)
-          new_s3_resource.bucket(s3_settings.bucket)
-                         .object(file_path)
-                         .presigned_url(:get, expires_in: 30.minutes.to_i)
-        end
-      end
-
       def size_range
         (1.byte)...(150.megabytes)
       end
@@ -34,7 +16,7 @@ module SimpleFormsApi
         %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
       end
 
-      def initialize(directory:, config: Configuration::Base.new)
+      def initialize(directory:, config:)
         raise 'The S3 directory is missing.' if directory.blank?
         raise 'The configuration is missing.' unless config
 
@@ -49,10 +31,35 @@ module SimpleFormsApi
         @directory
       end
 
+      def get_s3_link(file_path, filename = nil)
+        filename ||= File.basename(file_path)
+        s3_obj(file_path).presigned_url(
+          :get,
+          expires_in: 30.minutes.to_i,
+          response_content_disposition: "attachment; filename=\"#{filename}\""
+        )
+      end
+
+      def get_s3_file(from_path, to_path)
+        s3_obj(from_path).get(response_target: to_path)
+      rescue Aws::S3::Errors::NoSuchKey
+        nil
+      rescue => e
+        config.handle_error('An error occured while downloading the file.', e)
+      end
+
       private
 
+      attr_reader :config
+
+      def s3_obj(file_path)
+        client = Aws::S3::Client.new(region: config.s3_settings.region)
+        resource = Aws::S3::Resource.new(client:)
+        resource.bucket(config.s3_settings.bucket).object(file_path)
+      end
+
       def set_storage_options!
-        settings = @config.s3_settings
+        settings = config.s3_settings
 
         self.aws_credentials = { region: settings.region }
         self.aws_acl = 'private'

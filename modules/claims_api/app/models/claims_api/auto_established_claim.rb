@@ -430,13 +430,17 @@ module ClaimsApi
       end
 
       form_data['serviceInformation']['servicePeriods'] = transformed_service_periods
-      transformed_reserves_national_guard_service
+
+      unit_phone = form_data&.dig('serviceInformation', 'reservesNationalGuardService', 'unitPhone')
+      transformed_reserves_national_guard_service(unit_phone) if unit_phone.present?
+
       form_data['serviceInformation']
     end
 
-    def transformed_reserves_national_guard_service
-      unit_phone = form_data&.dig('serviceInformation', 'reservesNationalGuardService', 'unitPhone')
-      unit_phone['phoneNumber'].delete!('-') if unit_phone.present? && unit_phone['phoneNumber'].include?('-')
+    def transformed_reserves_national_guard_service(unit_phone)
+      # both of the below are required in the schema for unitPhone
+      unit_phone['phoneNumber'].gsub!(/[-\s]/, '')
+      unit_phone['areaCode'].gsub!(/\s/, '')
     end
 
     # Legacy claimsApi code previously allowed servicePay-related service branch

@@ -15,7 +15,11 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
     let(:location) { 'test_location' }
 
     before do
+      job.instance_variable_set(:@claim, claim)
+      allow(SavedClaim).to receive(:find).and_return(claim)
+
       Flipper.enable(:va_burial_v2)
+
       allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
       allow(service).to receive(:uuid)
       allow(service).to receive_messages(location:, upload_doc: response)
@@ -24,12 +28,16 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
     it 'submits the saved claim successfully' do
       allow(service).to receive(:valid_document?).and_return(pdf_path)
       allow(response).to receive(:success?).and_return(true)
+
       expect(job).to receive(:create_form_submission_attempt)
       expect(job).to receive(:generate_metadata).once
       expect(service).to receive(:upload_doc)
-      expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:21P-530V2'] })
+      expect(claim).to receive(:send_confirmation_email)
+
       expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.success')
+
       job.perform(claim.id)
+
       expect(response.success?).to eq(true)
       expect(claim.form_submissions).not_to eq(nil)
       expect(claim.business_line).not_to eq(nil)
@@ -42,7 +50,6 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       expect(job).to receive(:generate_metadata).once
       expect(service).to receive(:upload_doc)
       expect(Rails.logger).to receive(:warn)
-      expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:21P-530V2'] })
       expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
       expect { job.perform(claim.id) }.to raise_error(Lighthouse::SubmitBenefitsIntakeClaim::BenefitsIntakeClaimError)
       expect(response.success?).to eq(false)
@@ -51,7 +58,6 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
     it 'handles an invalid document' do
       allow(service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError)
       expect(Rails.logger).to receive(:warn)
-      expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:21P-530V2'] })
       expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.document_upload_error')
       expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
       expect { job.perform(claim.id) }.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)

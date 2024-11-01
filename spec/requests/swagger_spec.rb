@@ -655,7 +655,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       context 'efolder index' do
-        stub_efolder_documents(:index)
+        stub_efolder_index_documents
 
         it 'validates the route' do
           expect(subject).to validate(
@@ -668,7 +668,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       context 'efolder show' do
-        stub_efolder_documents(:show)
+        stub_efolder_show_document
 
         it 'validates the route' do
           expect(subject).to validate(
@@ -2944,7 +2944,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports va_profile create or update address api' do
         expect(subject).to validate(:post, '/v0/profile/addresses/create_or_update', 401)
         VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
-          address = build(:va_profile_address_v2, id: 15_035)
+          address = build(:va_profile_v3_address, id: 15_035)
 
           expect(subject).to validate(
             :post,
@@ -2959,7 +2959,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         expect(subject).to validate(:post, '/v0/profile/addresses', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/post_address_success') do
-          address = build(:va_profile_address_v2)
+          address = build(:va_profile_v3_address)
 
           expect(subject).to validate(
             :post,
@@ -2974,7 +2974,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         expect(subject).to validate(:put, '/v0/profile/addresses', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
-          address = build(:va_profile_address_v2, id: 15_035)
+          address = build(:va_profile_v3_address, id: 15_035)
 
           expect(subject).to validate(
             :put,
@@ -2989,7 +2989,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         expect(subject).to validate(:delete, '/v0/profile/addresses', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/delete_address_success') do
-          address = build(:va_profile_address_v2, id: 15_035)
+          address = build(:va_profile_v3_address, id: 15_035)
 
           expect(subject).to validate(
             :delete,
@@ -3752,7 +3752,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       before do
         Flipper.enable(:my_va_form_submission_statuses)
         create(:form_submission, :with_form214142, user_account_id: user.user_account_uuid)
-        create(:form_submission, :with_form210966, user_account_id: user.user_account_uuid)
+        create(:form_submission, :with_form210845, user_account_id: user.user_account_uuid)
         create(:form_submission, :with_form_blocked, user_account_id: user.user_account_uuid)
       end
 

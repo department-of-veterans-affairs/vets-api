@@ -29,21 +29,27 @@ FactoryBot.define do
     trait :with_form214142 do
       user_account_id { '' }
       form_type { '21-4142' }
-      benefits_intake_uuid { 'eff61cbc-f379-421d-977e-d7fd1a06bca3' }
+      form_submission_attempts do
+        create_list(:form_submission_attempt, 1, benefits_intake_uuid: 'eff61cbc-f379-421d-977e-d7fd1a06bca3')
+      end
       created_at { '2024-03-08' }
     end
 
-    trait :with_form210966 do
+    trait :with_form210845 do
       user_account_id { '' }
-      form_type { '21-0966' }
-      benefits_intake_uuid { '6d353dee-a0e0-40e3-a25c-9b652247a0d9' }
+      form_type { '21-0845' }
+      form_submission_attempts do
+        create_list(:form_submission_attempt, 1, benefits_intake_uuid: '6d353dee-a0e0-40e3-a25c-9b652247a0d9')
+      end
       created_at { '2024-03-12' }
     end
 
     trait :with_form_blocked do
       user_account_id { '' }
       form_type { 'NOT-WHITELISTED' }
-      benefits_intake_uuid { '84dd8902-0744-4b1a-ab3f-6b4ec3e5dd3c' }
+      form_submission_attempts do
+        create_list(:form_submission_attempt, 1, benefits_intake_uuid: '84dd8902-0744-4b1a-ab3f-6b4ec3e5dd3c')
+      end
       created_at { '2024-04-12' }
     end
   end

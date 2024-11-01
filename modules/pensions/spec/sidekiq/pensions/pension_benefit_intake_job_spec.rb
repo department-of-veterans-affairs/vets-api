@@ -177,48 +177,54 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
   end
 
   describe 'sidekiq_retries_exhausted block' do
+    let(:exhaustion_msg) do
+      { 'args' => [], 'class' => 'Pensions::PensionBenefitIntakeJob', 'error_message' => 'An error occured',
+        'queue' => nil }
+    end
+
+    before do
+      allow(Pensions::Monitor).to receive(:new).and_return(monitor)
+    end
+
     context 'when retries are exhausted' do
       it 'logs a distinct error when no claim_id provided' do
         Pensions::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: nil, user_uuid: nil, claim_id: nil)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
 
       it 'logs a distinct error when only claim_id provided' do
         Pensions::PensionBenefitIntakeJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: claim.confirmation_number,
-                                     user_uuid: nil, claim_id: claim.id)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+          allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+          expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+
+          exhaustion_msg['args'] = [claim.id]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim_id and user_uuid provided' do
         Pensions::PensionBenefitIntakeJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: claim.confirmation_number, user_uuid: 2, claim_id: claim.id)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+          allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+          expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+
+          exhaustion_msg['args'] = [claim.id, 2]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim is not found' do
         Pensions::PensionBenefitIntakeJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: nil, user_uuid: 2, claim_id: claim.id - 1)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+          expect(Pensions::SavedClaim).to receive(:find).with(claim.id - 1)
+
+          exhaustion_msg['args'] = [claim.id - 1, 2]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end

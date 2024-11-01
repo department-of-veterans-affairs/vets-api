@@ -18,10 +18,13 @@ class LighthouseSupplementalDocumentUploadProvider
   #
   # @param va_document_type [String] VA document code, see LighthouseDocument::DOCUMENT_TYPES
   # @param statsd_metric_prefix [String] prefix, e.g. 'worker.evss.submit_form526_bdd_instructions' from including job
-  def initialize(form526_submission, va_document_type, statsd_metric_prefix)
+  # @param supporting_evidence_attachment [SupportingEvidenceAttachment] (optional) for Veteran-uploaded documents,
+  # the document attachment itself. Required to create the Lighthouse526DocumentUpload polling record for these uploads
+  def initialize(form526_submission, va_document_type, statsd_metric_prefix, supporting_evidence_attachment = nil)
     @form526_submission = form526_submission
     @va_document_type = va_document_type
     @statsd_metric_prefix = statsd_metric_prefix
+    @supporting_evidence_attachment = supporting_evidence_attachment
   end
 
   # Uploads to Lighthouse require both the file body and an instance
@@ -33,11 +36,10 @@ class LighthouseSupplementalDocumentUploadProvider
   #
   # @return [LighthouseDocument]
   def generate_upload_document(file_name)
-    user = User.find(@form526_submission.user_uuid)
-
     LighthouseDocument.new(
       claim_id: @form526_submission.submitted_claim_id,
-      participant_id: user.participant_id,
+      # Participant ID is persisted on the submission record
+      participant_id: @form526_submission.auth_headers['va_eauth_pid'],
       document_type: @va_document_type,
       file_name:
     )
@@ -153,8 +155,33 @@ class LighthouseSupplementalDocumentUploadProvider
   def create_lighthouse_polling_record(lighthouse_request_id)
     Lighthouse526DocumentUpload.create!(
       form526_submission: @form526_submission,
-      document_type: POLLING_DOCUMENT_TYPES[@va_document_type],
-      lighthouse_document_request_id: lighthouse_request_id
+      document_type: polling_record_document_type,
+      lighthouse_document_request_id: lighthouse_request_id,
+      # The Lighthouse526DocumentUpload form_attachment association is
+      # required for uploads of type Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE
+      **form_attachment_params
     )
+  end
+
+  def form_attachment_params
+    return {} unless @supporting_evidence_attachment
+
+    { form_attachment: @supporting_evidence_attachment }
+  end
+
+  # Lighthouse526DocumentUpload polling records are marked and logged according to the type of document uploaded
+  # (e.g. "Veteran Upload", "BDD Instructions"). This is separate from the internal VA document code
+  # (passed to this service as @va_document_type)
+  #
+  # @return [string from Lighthouse526DocumentUpload::VALID_DOCUMENT_TYPES]
+  def polling_record_document_type
+    # Set to Veteran Upload regardless of @va_document_type if @supporting_evidence_attachment is present
+    # Veteran-uploaded documents can be numerous VA document types
+    return Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE if @supporting_evidence_attachment
+
+    case @va_document_type
+    when 'L023'
+      Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE
+    end
   end
 end

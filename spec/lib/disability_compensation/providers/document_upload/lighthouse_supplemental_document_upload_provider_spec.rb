@@ -7,7 +7,6 @@ require 'support/disability_compensation_form/shared_examples/supplemental_docum
 
 RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   let(:submission) { create(:form526_submission, :with_submitted_claim_id) }
-  let(:submission_user) { User.find(submission.user_uuid) }
   let(:file_body) { File.read(fixture_file_upload('doctors-note.pdf', 'application/pdf')) }
   let(:file_name) { Faker::File.file_name }
 
@@ -25,7 +24,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   let(:lighthouse_document) do
     LighthouseDocument.new(
       claim_id: submission.submitted_claim_id,
-      participant_id: submission_user.participant_id,
+      participant_id: submission.auth_headers['va_eauth_pid'],
       document_type: va_document_type,
       file_name:
     )
@@ -62,7 +61,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
       expect(upload_document).to have_attributes(
         {
           claim_id: submission.submitted_claim_id,
-          participant_id: submission_user.participant_id,
+          participant_id: submission.auth_headers['va_eauth_pid'],
           document_type: va_document_type,
           file_name:
         }
@@ -101,6 +100,41 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         # Polling record type mapped to L023 used in tests
         document_type: Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE,
         lighthouse_document_request_id: lighthouse_request_id
+      }
+
+      expect do
+        provider.submit_upload_document(lighthouse_document, file_body)
+      end.to change { Lighthouse526DocumentUpload.where(**upload_attributes).count }.by(1)
+    end
+  end
+
+  context 'For SupportingEvidenceAttachment uploads' do
+    let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
+
+    let!(:supporting_evidence_attachment) do
+      attachment = SupportingEvidenceAttachment.new
+      attachment.set_file_data!(file)
+      attachment.save!
+
+      attachment
+    end
+
+    let!(:provider) do
+      LighthouseSupplementalDocumentUploadProvider.new(
+        submission,
+        va_document_type,
+        'my_stats_metric_prefix',
+        supporting_evidence_attachment
+      )
+    end
+
+    it 'creates a Veteran-upload type Lighthouse526DocumentUpload with a SupportingEvidenceAttachment' do
+      upload_attributes = {
+        aasm_state: 'pending',
+        form526_submission_id: submission.id,
+        document_type: Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE,
+        lighthouse_document_request_id: lighthouse_request_id,
+        form_attachment: supporting_evidence_attachment
       }
 
       expect do

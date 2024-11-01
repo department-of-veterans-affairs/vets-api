@@ -31,7 +31,6 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         # rubocop:disable Layout/LineLength
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled).and_return(true)
         # rubocop:enable Layout/LineLength
-        allow(ClaimsApi::AutoEstablishedClaim).to receive(:where).and_return(double(pluck: ['claim1']))
         allow(ClaimsApi::PowerOfAttorney).to receive(:where).and_return(double(pluck: ['poa1']))
         allow(ClaimsApi::IntentToFile).to receive(:where).and_return(double(pluck: ['itf1']))
         allow(ClaimsApi::EvidenceWaiverSubmission).to receive(:where).and_return(double(pluck: ['ews1']))
@@ -40,8 +39,42 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
       it 'calls notify with the correct parameters' do
         # rubocop:disable RSpec/SubjectStub
         expect(subject).to receive(:notify).with(
-          ['claim1'],
           [],
+          [],
+          ['poa1'],
+          ['itf1'],
+          ['ews1'],
+          kind_of(String),
+          kind_of(String),
+          kind_of(String)
+        )
+        # rubocop:enable RSpec/SubjectStub
+
+        subject.perform
+      end
+
+      it 'does not repeat an alert based on transaction id' do
+        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
+                                                            .and_return(true)
+
+        FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                    transaction_id: 'transaction_1',
+                                                                    id: '1')
+        FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
+                                                                    transaction_id: 'transaction_1',
+                                                                    id: '2')
+        claim_three = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                                  transaction_id: 'transaction_2',
+                                                                                  id: '3')
+        claim_four = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                                 transaction_id: 'transaction_3',
+                                                                                 id: '4')
+        expected_array = [claim_three.id,
+                          claim_four.id] || [claim_four.id, claim_three.id]
+        # rubocop:disable RSpec/SubjectStub
+        expect(subject).to receive(:notify).with(
+          [],
+          expected_array,
           ['poa1'],
           ['itf1'],
           ['ews1'],
@@ -55,7 +88,7 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
       end
     end
 
-    context 'when flipper it not enabled' do
+    context 'when flipper is not enabled' do
       before do
         # rubocop:disable Layout/LineLength
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled).and_return(false)

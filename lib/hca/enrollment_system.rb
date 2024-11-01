@@ -840,9 +840,9 @@ module HCA
 
     def get_va_format(content_type)
       # ES only accepts these strings for 'va:format': PDF,WORD,JPG,RTF
-      extension = MIME::Types[content_type].first.extensions.first
+      extension = MIME::Types[content_type]&.first&.extensions&.first
 
-      if extension.include?('doc')
+      if extension&.include?('doc')
         'WORD'
       elsif extension == 'jpeg'
         'JPG'
