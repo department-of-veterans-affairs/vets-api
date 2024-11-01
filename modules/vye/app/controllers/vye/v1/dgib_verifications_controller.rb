@@ -15,7 +15,7 @@ module Vye
         Rails.logger.debug 'Calling verification_record'
         response = verification_service.get_verification_record(params[:claimant_id])
         serializer = Vye::ClaimantVerificationSerializer
-        process_response(response.status, serializer)
+        process_response(response, serializer)
       end
 
       def verify_claimant
@@ -29,14 +29,14 @@ module Vye
           )
 
         serializer = Vye::VerifyClaimantSerializer
-        process_response(response.status, serializer)
+        process_response(response, serializer)
       end
 
       # the serializer for this endpoint is the same as for verify_claimant
       def claimant_status
         response = claimant_status_service.get_claimant_status(params[:claimant_id])
         serializer = Vye::VerifyClaimantSerializer
-        process_response(response.status, serializer)
+        process_response(response, serializer)
       end
 
       def claimant_lookup
@@ -53,7 +53,7 @@ module Vye
       end
 
       def claimant_status_service
-        Vye::DGIB::ClaimantStatusService.new(@current_user)
+        Vye::DGIB::ClaimantStatus::Service.new(@current_user)
       end
 
       def verification_service
