@@ -99,23 +99,6 @@ describe TravelPay::ClaimAssociationService do
           'clinic' => '408',
           'start' => '2021-06-02T16:00:00Z',
           'cancellable' => false
-        },
-        {
-          'id' => '32081',
-          'kind' => 'telehealth',
-          'status' => 'booked',
-          'patientIcn' => '1012845331V153043',
-          'locationId' => '983',
-          'telehealth' => { 'url' => 'https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VAC000415419@care2.evn.va.gov&pin=862283#&aid=f3b825e7-05e4-4362-8222-a38ac720afc2' },
-          'practitioners' => [{ 'id' => { 'system' => 'dfn-983',
-                                          'value' => '520647363' },
-                                'firstName' => 'MARCY',
-                                'lastName' => 'NADEAU',
-                                'practiceName' => 'CHEYENNE VAMC' }],
-          'start' => '2021-06-03T20:35:00Z',
-          'end' => '2021-06-03T20:55:00Z',
-          'minutesDuration' => 20,
-          'cancellable' => true
         }
       ] }
     end
