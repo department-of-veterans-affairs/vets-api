@@ -149,4 +149,26 @@ RSpec.describe V0::UsersController, type: :controller do
       end
     end
   end
+
+  describe '#credential_emails' do
+    let(:user) { create(:user, :loa1) }
+    let(:user_account) { create(:user_account, user: user) }
+
+    before do
+      sign_in user
+      create(:user_verification, idme_uuid: user.idme_uuid, user_credential_email: create(
+        :user_credential_email,
+        credential_email: 'email1@example.com'
+      ))
+    end
+
+    it 'returns the users credential emails' do
+      get :credential_emails
+      expected_response = {
+        'email1@example.com' => 'email1@example.com'
+      }
+      expect(response).to be_successful
+      expect(JSON.parse(response.body)).to eq(expected_response)
+    end
+  end
 end
