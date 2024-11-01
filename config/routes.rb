@@ -99,6 +99,9 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
+      collection do
+        get 'credential_emails'
+      end
       resource :mhv_user_account, only: [:show], controller: 'user/mhv_user_accounts'
     end
 
