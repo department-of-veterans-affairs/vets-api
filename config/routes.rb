@@ -406,6 +406,18 @@ Rails.application.routes.draw do
       resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
+
+      resources :lce, only: :index, defaults: { format: :json }
+
+      namespace :lce do
+        resources :certifications, only: :show, defaults: { format: :json }
+
+        resources :exams, only: :show, defaults: { format: :json }
+
+        resources :licenses, only: :show, defaults: { format: :json }
+
+        resources :preps, only: :show, defaults: { format: :json }
+      end
     end
 
     resource :decision_review_evidence, only: :create

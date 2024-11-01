@@ -9,6 +9,10 @@ module HCA
     extend SentryLogging
     VALIDATION_ERROR = HCA::SOAPParser::ValidationError
     STATSD_KEY_PREFIX = 'api.1010ezr'
+    DD_ZSF_TAGS = [
+      'service:healthcare-application',
+      'function: 10-10EZR async form submission'
+    ].freeze
 
     # 14 retries was decided on because it's the closest to a 24-hour time span based on
     # Sidekiq's backoff formula: https://github.com/sidekiq/sidekiq/wiki/Error-Handling#automatic-job-retry
@@ -56,6 +60,7 @@ module HCA
         api_key
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.submission_failure_email_sent")
+      StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
     end
 
     def perform(encrypted_form, user_uuid)
