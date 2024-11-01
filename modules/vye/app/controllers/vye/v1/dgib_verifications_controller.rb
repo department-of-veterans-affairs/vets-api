@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
 require 'dgib/claimant_lookup/service'
+require 'dgib/claimant_status/service'
+require 'dgib/verification_record/service'
+require 'dgib/verify_claimant/service'
+
 
 module Vye
   module Vye::V1
@@ -8,6 +12,7 @@ module Vye
       before_action :skip_authorization
 
       def verification_record
+        Rails.logger.debug 'Calling verification_record'
         response = verification_service.get_verification_record(params[:claimant_id])
         serializer = Vye::ClaimantVerificationSerializer
         process_response(response.status, serializer)
