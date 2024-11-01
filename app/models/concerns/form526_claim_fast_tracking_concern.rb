@@ -179,9 +179,16 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('classifier response for 526Submission', payload: response_body)
   end
 
+  def log_and_halt_if_no_disabilities
+    Rails.logger.info("No disabilities found for classification on claim #{id}")
+    false
+  end
+
   # Submits contention information to the VRO contention classification service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
+    return log_and_halt_if_no_disabilities if disabilities.blank?
+
     contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
     params = { claim_id: saved_claim_id, form526_submission_id: id, contentions: contentions_array }
     classifier_response = classify_vagov_contentions(params)
