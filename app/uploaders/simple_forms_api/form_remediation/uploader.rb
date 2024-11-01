@@ -53,7 +53,12 @@ module SimpleFormsApi
       attr_reader :config
 
       def s3_obj(file_path)
-        client = Aws::S3::Client.new(region: config.s3_settings.region)
+        client = Aws::S3::Client.new(
+          retry_limit: 3,
+          retry_base_delay: 1,
+          retry_max_delay: 60,
+          retry_jitter: :full
+        )
         resource = Aws::S3::Resource.new(client:)
         resource.bucket(config.s3_settings.bucket).object(file_path)
       end

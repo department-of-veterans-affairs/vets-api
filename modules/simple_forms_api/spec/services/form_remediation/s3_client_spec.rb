@@ -180,25 +180,25 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
         end
 
         shared_examples 's3 client handles outages gracefully' do
-          before { allow(archive_instance).to receive(:sleep) }
+          let(:s3_client) { Aws::S3::Client.new(stub_responses: true) }
+
+          before do
+            allow(archive_instance).to receive(:sleep)
+            allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
+          end
 
           context 'when S3 service is temporarily unavailable' do
-            before do
-              call_count = 0
-              allow(uploader).to receive(:store!) do
-                call_count += 1
-                raise Aws::S3::Errors::ServiceError.new(nil, 'S3 Service Outage') if call_count < 3
-
-                true
-              end
-            end
+            before { s3_client.stub_responses(:put_object, ['ServiceError', 'ServiceError', {}]) }
 
             it 'retries the upload until it succeeds' do
-              expect(uploader).to receive(:store!).exactly(3).times
-              upload
-              expect(Rails.logger).to have_received(:info).with(
-                a_hash_including(message: "Failed to upload #{type}: #{benefits_intake_uuid} to S3 after 3 retries")
-              ).at_least(:once)
+              expect { upload }.not_to raise_error
+              expect(Rails.logger).not_to have_received(:error).with(
+                a_hash_including(
+                  message: "Failed to upload #{type}: #{benefits_intake_uuid} to S3 after multiple retries"
+                )
+              )
+            end
+          end
             end
           end
 
