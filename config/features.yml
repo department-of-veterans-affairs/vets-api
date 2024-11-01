@@ -147,6 +147,9 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
+  champva_unique_temp_file_names:
+    actor_type: user
+    description: Enables unique temp file names for CHAMPVA PDF files
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -561,10 +564,6 @@ features:
   facility_locator_show_operational_hours_special_instructions:
     actor_type: user
     description: Display new field operationalHoursSpecialInstructions for VA facilities
-    enable_in_development: true
-  find_forms_show_pdf_modal:
-    actor_type: user
-    description: Shows the PDF modal for the Find VA Forms detail page
     enable_in_development: true
   file_upload_short_workflow_enabled:
     actor_type: user
@@ -1443,6 +1442,9 @@ features:
     actor_type: user
     description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
     enable_in_development: false
+  vre_trigger_action_needed_email:
+    actor_type: user
+    description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
   show_edu_benefits_1990EZ_Wizard:
     actor_type: user
     description: Navigates user to 1990EZ or 1990 depending on form questions.
@@ -1599,6 +1601,12 @@ features:
   disability_compensation_upload_0781_to_lighthouse:
     actor_type: user
     description: If enabled uploads 0781/a forms to Lighthouse Benefits Documents API instead of EVSS
+  disability_compensation_use_api_provider_for_submit_veteran_upload:
+    actor_type: user
+    description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading Veteran Evidence
+  disability_compensation_upload_veteran_evidence_to_lighthouse:
+    actor_type: user
+    description: If enabled uploads Veteran Evidence to Lighthouse Benefits Documents API instead of EVSS
   disablity_benefits_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for disability benefits applications

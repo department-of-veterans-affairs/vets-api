@@ -58,6 +58,7 @@ class ApiProviderFactory
 
   FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS = 'disability_compensation_upload_bdd_instructions_to_lighthouse'
   FEATURE_TOGGLE_UPLOAD_0781 = 'disability_compensation_upload_0781_to_lighthouse'
+  FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS = 'disability_compensation_upload_veteran_evidence_to_lighthouse'
 
   attr_reader :type
 

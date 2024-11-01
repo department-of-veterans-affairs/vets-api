@@ -15,7 +15,7 @@ class LighthouseSupplementalDocumentUploadProvider
     'L228' => Lighthouse526DocumentUpload::FORM_0781_DOCUMENT_TYPE,
     'L229' => Lighthouse526DocumentUpload::FORM_0781A_DOCUMENT_TYPE
   }.freeze
-
+  
   # @param form526_submission [Form526Submission]
   #
   # @param va_document_type [String] VA document code, see LighthouseDocument::DOCUMENT_TYPES
