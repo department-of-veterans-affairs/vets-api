@@ -13,9 +13,11 @@ module Vye
 
       def verification_record
         Rails.logger.debug 'Calling verification_record'
-        response = verification_service.get_verification_record(params[:claimant_id])
+        #response = verification_service.get_verification_record(params[:claimant_id])
         serializer = Vye::ClaimantVerificationSerializer
-        process_response(response, serializer)
+        #process_response(response, serializer)
+        json_body_file = 'modules/vye/spec/fixtures/claimant_response.json'
+        render json: serializer.new(File.read(json_body_file).to_json)
       end
 
       def verify_claimant
