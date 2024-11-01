@@ -83,7 +83,6 @@ module Sidekiq
         determine_zip
       end
 
-
       def process!
         # Generates or makes calls to get, all PDFs, adds all to self.docs obj
         gather_docs! unless @docs_gathered
