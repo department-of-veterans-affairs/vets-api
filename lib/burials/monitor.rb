@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'va_notify/notification_email/burial'
 require 'zero_silent_failures/monitor'
 
 module Burials
@@ -145,7 +146,14 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         message: msg
       }
-      log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
+      call_location = caller_locations.first
+
+      if claim
+        Burials::NotificationEmail.new(claim).deliver(:error)
+        log_silent_failure_avoided(additional_context, user_account_uuid, call_location:)
+      else
+        log_silent_failure(additional_context, user_account_uuid, call_location:)
+      end
 
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
       Rails.logger.error('Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!',
