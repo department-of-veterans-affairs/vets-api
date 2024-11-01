@@ -9,6 +9,9 @@ module AskVAApi
         class InquiryPayloadError < StandardError; end
         attr_reader :inquiry_params, :inquiry_details, :submitter_profile, :user, :veteran_profile
 
+        UNAUTHENTICATE_ID = '722310000'
+        INQUIRY_SOURCE_AVA_ID = '722310000'
+
         def initialize(inquiry_params:, user: nil)
           @inquiry_params = inquiry_params
           validate_params!
@@ -30,7 +33,7 @@ module AskVAApi
             DependantFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
 
-          payload[:LevelOfAuthentication] = 'Unauthenticated' if user.nil?
+          payload[:LevelOfAuthentication] = UNAUTHENTICATE_ID if user.nil?
 
           payload
         end
@@ -44,7 +47,7 @@ module AskVAApi
             DependantRelationship: translate_field(:dependent_relationship),
             InquiryAbout: translate_field(:inquiry_about),
             InquiryCategory: inquiry_params[:category_id],
-            InquirySource: '722_310_000',
+            InquirySource: INQUIRY_SOURCE_AVA_ID,
             InquirySubtopic: inquiry_params[:subtopic_id],
             InquirySummary: inquiry_params[:subject],
             InquiryTopic: inquiry_params[:topic_id],
