@@ -201,6 +201,19 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
               ).at_least(:once)
             end
           end
+
+          context 'when S3 service remains unavailable after retries' do
+            before do
+              allow(uploader).to receive(:store!).and_raise(Aws::S3::Errors::ServiceError.new(nil, 'S3 Service Outage'))
+            end
+
+            it 'logs an error after all retries fail' do
+              expect { upload }.to raise_exception(Aws::S3::Errors::ServiceError)
+              expect(Rails.logger).to have_received(:error).with(
+                a_hash_including(message: "Failed to upload #{type}: #{benefits_intake_uuid} to S3 after 3 retries")
+              )
+            end
+          end
         end
 
         context 'when initialized with a valid id' do
