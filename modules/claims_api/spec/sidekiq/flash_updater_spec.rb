@@ -94,4 +94,22 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
       end
     end
   end
+
+  context 'when the claims_api_flash_updater_uses_local_bgs feature flag is enabled' do
+    let(:claimant_service) { instance_double(ClaimsApi::ClaimantService) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_flash_updater_uses_local_bgs).and_return true
+      allow(ClaimsApi::ClaimantService).to receive(:new).with(external_uid: anything,
+                                                              external_key: anything)
+                                                        .and_return(claimant_service)
+      allow(claimant_service).to receive(:add_flash).with({ flashes: anything }).and_return(auto_claim)
+      allow(claimant_service).to receive(:find_assigned_flashes).with(claim: anything).and_return(auto_claim)
+    end
+
+    it 'calls local_bgs instead of bgs-ext' do
+      subject.new.perform(flashes, claim.id)
+      expect(claimant_service).to have_received(:find_assigned_flashes)
+    end
+  end
 end

@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
+require 'bgs_service/claimant_service'
 module ClaimsApi
   class FlashUpdater < UpdaterService
     def perform(flashes, auto_claim_id)
       user = bgs_headers(auto_claim_id)
-      service = bgs_service(user).claimant
 
       flashes.each do |flash_name|
         # NOTE: Assumption that duplicate flashes are ignored when submitted
-        service.add_flash(file_number: user['ssn'], flash_name:)
+        bgs_service(user).add_flash(file_number: user['ssn'], flash_name:)
       rescue BGS::ShareError, BGS::PublicError => e
         persist_exception(e, auto_claim_id:)
       end
 
-      assigned_flashes = service.find_assigned_flashes(user['ssn'])[:flashes]
+      assigned_flashes = bgs_service(user).find_assigned_flashes(user['ssn'])[:flashes]
       flashes.each do |flash_name|
         assigned_flash = assigned_flashes.find { |af| af[:flash_name].strip == flash_name }
         if assigned_flash.blank?
@@ -35,16 +35,24 @@ module ClaimsApi
 
     def bgs_service(user)
       if Flipper.enabled? :claims_api_flash_updater_uses_local_bgs
-        ClaimsApi::ClaimantWebService.new(
-          external_uid: user['ssn'],
-          external_key: user['ssn']
-        )
+        claimant_service(user)
       else
-        BGS::Services.new(
-          external_uid: user['ssn'],
-          external_key: user['ssn']
-        )
+        bgs_ext_service(user).claimant
       end
+    end
+
+    def claimant_service(user)
+      ClaimsApi::ClaimantService.new(
+        external_uid: user['ssn'],
+        external_key: user['ssn']
+      )
+    end
+
+    def bgs_ext_service(user)
+      BGS::Services.new(
+        external_uid: user['ssn'],
+        external_key: user['ssn']
+      )
     end
   end
 end
