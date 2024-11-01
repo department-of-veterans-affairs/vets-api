@@ -31,7 +31,8 @@ module Burials
         user_uuid: current_user&.uuid,
         message: e&.message
       }
-      track_request('error', '21P-530EZ submission not found', CLAIM_STATS_KEY, additional_context, call_location: caller_locations.first)
+      track_request('error', '21P-530EZ submission not found', CLAIM_STATS_KEY, additional_context,
+                    call_location: caller_locations.first)
     end
 
     ##
@@ -48,7 +49,8 @@ module Burials
         user_uuid: current_user&.uuid,
         message: e&.message
       }
-      track_request('error', '21P-530EZ fetching submission failed', CLAIM_STATS_KEY, additional_context, call_location: caller_locations.first)
+      track_request('error', '21P-530EZ fetching submission failed', CLAIM_STATS_KEY, additional_context,
+                    call_location: caller_locations.first)
     end
 
     ##
@@ -63,7 +65,8 @@ module Burials
         confirmation_number: claim&.confirmation_number,
         user_uuid: current_user&.uuid
       }
-      track_request('error', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt", additional_context, call_location: caller_locations.first)
+      track_request('error', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt", additional_context,
+                    call_location: caller_locations.first)
     end
 
     ##
@@ -82,7 +85,8 @@ module Burials
         in_progress_form_id: in_progress_form&.id,
         errors: claim&.errors&.errors
       }
-      track_request('error', '21P-530EZ submission validation error', "#{CLAIM_STATS_KEY}.validation_error", additional_context, call_location: caller_locations.first)
+      track_request('error', '21P-530EZ submission validation error', "#{CLAIM_STATS_KEY}.validation_error",
+                    additional_context, call_location: caller_locations.first)
     end
 
     ##
@@ -102,7 +106,8 @@ module Burials
         errors: claim&.errors&.errors,
         message: e&.message
       }
-      track_request('error', '21P-530EZ submission to Sidekiq failed', "#{CLAIM_STATS_KEY}.failure", additional_context, call_location: caller_locations.first)
+      track_request('error', '21P-530EZ submission to Sidekiq failed', "#{CLAIM_STATS_KEY}.failure",
+                    additional_context, call_location: caller_locations.first)
     end
 
     ##
@@ -120,7 +125,8 @@ module Burials
         in_progress_form_id: in_progress_form&.id,
         errors: claim&.errors&.errors
       }
-      track_request('info', '21P-530EZ submission to Sidekiq success', "#{CLAIM_STATS_KEY}.success", additional_context, call_location: caller_locations.first)
+      track_request('info', '21P-530EZ submission to Sidekiq success', "#{CLAIM_STATS_KEY}.success",
+                    additional_context, call_location: caller_locations.first)
     end
 
     ##
@@ -138,7 +144,8 @@ module Burials
         in_progress_form_id: in_progress_form&.id,
         errors: claim&.errors&.errors
       }
-      track_request('error', '21P-530EZ process attachment error', "#{CLAIM_STATS_KEY}.process_attachment_error", additional_context, call_location: caller_locations.first)
+      track_request('error', '21P-530EZ process attachment error', "#{CLAIM_STATS_KEY}.process_attachment_error",
+                    additional_context, call_location: caller_locations.first)
     end
 
     ##
@@ -159,7 +166,8 @@ module Burials
       }
       log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
 
-      track_request('error', 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!', "#{SUBMISSION_STATS_KEY}.exhausted", additional_context, call_location: caller_locations.first)
+      track_request('error', 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!',
+                    "#{SUBMISSION_STATS_KEY}.exhausted", additional_context, call_location: caller_locations.first)
     end
   end
 end
