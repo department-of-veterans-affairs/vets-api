@@ -2,6 +2,7 @@
 
 require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/filler'
+require 'logging/call_location'
 require 'logging/third_party_transaction'
 require 'zero_silent_failures/monitor'
 

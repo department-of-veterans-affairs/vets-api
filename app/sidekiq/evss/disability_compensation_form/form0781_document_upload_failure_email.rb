@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'logging/call_location'
 require 'va_notify/service'
 require 'zero_silent_failures/monitor'
 

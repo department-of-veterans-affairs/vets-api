@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'logging/call_location'
+require 'zero_silent_failures/monitor'
+
 class FormSubmissionAttempt < ApplicationRecord
   include AASM
 
