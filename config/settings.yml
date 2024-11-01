@@ -176,7 +176,7 @@ form_10_10cg:
       client_id: ~
       client_secret: ~
       timeout: 30
-      async_timeout: 600
+      async_timeout: 120
       auth:
         mock: false
         timeout: ~
