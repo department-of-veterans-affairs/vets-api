@@ -155,11 +155,13 @@ module EVSS
 
         # next, check past submissions for different UserAccounts that might have ICNs
         past_submissions = get_past_submissions(submission)
-        find_user_account_with_icn(past_submissions, submission, 'past submissions')
+        account = find_user_account_with_icn(past_submissions, submission, 'past submissions')
+        return account if account.present? && account.icn.present?
 
         # next, check for any historical UserAccounts for that user which might have an ICN
         user_verifications = get_user_verifications(submission)
-        find_user_account_with_icn(user_verifications, submission, 'user verifications')
+        account = find_user_account_with_icn(user_verifications, submission, 'user verifications')
+        return account if account.present? && account.icn.present?
 
         # failing all the above, default to an Account lookup
         Account.lookup_by_user_uuid(submission.user_uuid)
