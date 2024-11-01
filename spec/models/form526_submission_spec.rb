@@ -1607,18 +1607,18 @@ RSpec.describe Form526Submission do
 
       it 'submissions user account has an ICN, as expected' do
         submission.user_account = UserAccount.new(icn: '123498767V222222')
-        account = submission.send(:account)
+        account = submission.account
         expect(account.icn).to eq('123498767V222222')
       end
 
       it 'submissions user account has no ICN, default to Account lookup' do
         submission.user_account = UserAccount.new(icn: nil)
-        account = submission.send(:account)
+        account = submission.account
         expect(account.icn).to eq('123498767V234859')
       end
 
       it 'submission has NO user account, default to Account lookup' do
-        account = submission.send(:account)
+        account = submission.account
         expect(account.icn).to eq('123498767V234859')
       end
 
@@ -1627,7 +1627,7 @@ RSpec.describe Form526Submission do
         create(:form526_submission, user_uuid: submission.user_uuid, user_account: user_account_with_icn)
         submission.user_account = UserAccount.create!(icn: nil)
         submission.save!
-        account = submission.send(:account)
+        account = submission.account
         expect(account.icn).to eq('123498767V111111')
       end
 
@@ -1636,7 +1636,7 @@ RSpec.describe Form526Submission do
         UserVerification.create!(idme_uuid: submission.user_uuid, user_account_id: user_account_with_icn.id)
         submission.user_account = UserAccount.create!(icn: nil)
         submission.save!
-        account = submission.send(:account)
+        account = submission.account
         expect(account.icn).to eq('123498767V333333')
       end
 
@@ -1646,7 +1646,7 @@ RSpec.describe Form526Submission do
                                  user_account_id: user_account_with_icn.id)
         submission.user_account = UserAccount.create!(icn: nil)
         submission.save!
-        account = submission.send(:account)
+        account = submission.account
         expect(account.icn).to eq('123498767V444444')
       end
 
@@ -1656,7 +1656,7 @@ RSpec.describe Form526Submission do
                                  user_account_id: user_account_with_icn.id)
         submission.user_account = UserAccount.create!(icn: nil)
         submission.save!
-        account = submission.send(:account)
+        account = submission.account
         expect(account.icn).to eq('123498767V555555')
       end
     end

@@ -448,6 +448,25 @@ class Form526Submission < ApplicationRecord
     form526_submission_remediations&.order(:created_at)&.last
   end
 
+  def account
+    # first, check for an ICN on the UserAccount associated to the submission, return it if found
+    account = user_account
+    return account if account&.icn.present?
+
+    # next, check past submissions for different UserAccounts that might have ICNs
+    past_submissions = get_past_submissions
+    account = find_user_account_with_icn(past_submissions, 'past submissions')
+    return account if account.present? && account.icn.present?
+
+    # next, check for any historical UserAccounts for that user which might have an ICN
+    user_verifications = get_user_verifications
+    account = find_user_account_with_icn(user_verifications, 'user verifications')
+    return account if account.present? && account.icn.present?
+
+    # failing all the above, default to an Account lookup
+    Account.lookup_by_user_uuid(user_uuid)
+  end
+
   private
 
   def conditionally_submit_form_4142
@@ -563,25 +582,6 @@ class Form526Submission < ApplicationRecord
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
-  end
-
-  def account
-    # first, check for an ICN on the UserAccount associated to the submission, return it if found
-    account = user_account
-    return account if account&.icn.present?
-
-    # next, check past submissions for different UserAccounts that might have ICNs
-    past_submissions = get_past_submissions
-    account = find_user_account_with_icn(past_submissions, 'past submissions')
-    return account if account.present? && account.icn.present?
-
-    # next, check for any historical UserAccounts for that user which might have an ICN
-    user_verifications = get_user_verifications
-    account = find_user_account_with_icn(user_verifications, 'user verifications')
-    return account if account.present? && account.icn.present?
-
-    # failing all the above, default to an Account lookup
-    Account.lookup_by_user_uuid(user_uuid)
   end
 
   def find_user_account_with_icn(records, record_type)
