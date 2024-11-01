@@ -215,7 +215,7 @@ tier: '1'
 description: Supplemental Claims application
 lifecycle: production
 contacts:
-  - name: '#benefits-decision-reviews'
+  - name: "#benefits-decision-reviews"
     type: slack
     contact: https://dsva.slack.com/archives/C5AGLBNRK
 links:
@@ -246,7 +246,7 @@ dd-service: avs
 team: After Visit Summary
 description: Displays after visit summaries to veterans.
 contacts:
-  - name: '#after-visit-summary'
+  - name: "#after-visit-summary"
     type: slack
     contact: https://dsva.slack.com/archives/C04UBETRY8N
 integrations: {}
@@ -259,7 +259,7 @@ tier: '1'
 description: disability benefits application
 lifecycle: production
 contacts:
-  - name: '#benefits-disability'
+  - name: "#benefits-disability"
     type: slack
     contact: https://dsva.slack.com/archives/C04KW0B46N5
 links:
@@ -293,7 +293,7 @@ team: vfs-websites
 tier: '1'
 description: VA.gov homepage.
 contacts:
-  - name: '#sitewide-public-websites'
+  - name: "#sitewide-public-websites"
     type: slack
     contact: https://dsva.slack.com/archives/C52CL1PKQ
 tags:
@@ -434,7 +434,7 @@ tier: '1'
 description: Veteran medical appointment scheduling service.
 lifecycle: production
 contacts:
-  - name: '#appointments-team'
+  - name: "#appointments-team"
     type: slack
     contact: https://dsva.slack.com/archives/CMNQT72LX
 type: web
