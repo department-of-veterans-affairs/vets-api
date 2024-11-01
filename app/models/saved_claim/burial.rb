@@ -62,21 +62,28 @@ class SavedClaim::Burial < CentralMailClaim
     'NCA'
   end
 
-  ##
-  # utility function to retrieve claimant first name from form
-  #
-  # @return [String] the claimant first name
-  #
-  def veteran_first_name
-    parsed_form.dig('veteranFullName', 'first')
-  end
+  def send_confirmation_email
+    return if parsed_form['claimantEmail'].blank?
 
-  def veteran_last_name
-    parsed_form.dig('veteranFullName', 'last')
-  end
+    facility_name, street_address, city_state_zip = regional_office
+    first_name = parsed_form.dig('veteranFullName', 'first')
+    last_initial = "#{parsed_form.dig('veteranFullName', 'last')&.first}."
 
-  def claimaint_first_name
-    parsed_form.dig('claimantFullName', 'first')
+    VANotify::EmailJob.perform_async(
+      parsed_form['claimantEmail'],
+      Settings.vanotify.services.va_gov.template_id.burial_claim_confirmation_email_template_id,
+      {
+        'form_name' => 'Burial Benefit Claim (Form 21P-530)',
+        'confirmation_number' => guid,
+        'deceased_veteran_first_name_last_initial' => "#{first_name} #{last_initial}",
+        'benefits_claimed' => benefits_claimed,
+        'facility_name' => facility_name,
+        'street_address' => street_address,
+        'city_state_zip' => city_state_zip,
+        'first_name' => parsed_form.dig('claimantFullName', 'first')&.upcase.presence,
+        'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
+      }
+    )
   end
 
   def benefits_claimed
@@ -84,5 +91,6 @@ class SavedClaim::Burial < CentralMailClaim
     claimed << 'Burial Allowance' if parsed_form['burialAllowance']
     claimed << 'Plot Allowance' if parsed_form['plotAllowance']
     claimed << 'Transportation' if parsed_form['transportation']
+    " - #{claimed.join(" \n - ")}"
   end
 end

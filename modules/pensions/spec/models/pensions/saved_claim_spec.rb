@@ -63,17 +63,29 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
         expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
       end
     end
+
+    it '#send_confirmation_email' do
+      allow(VANotify::EmailJob).to receive(:perform_async)
+      allow(Settings.vanotify.services.va_gov.template_id).to receive(:form527ez_confirmation_email).and_return(0)
+
+      claim.send_confirmation_email
+      claim.send_confirmation_email
+
+      expect(VANotify::EmailJob).to have_received(:perform_async).with(
+        'foo@foo.com',
+        0,
+        {
+          'first_name' => 'TEST',
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => claim.guid
+        }
+      ).once
+    end
   end
 
   describe '#email' do
     it 'returns the users email' do
       expect(instance.email).to eq('foo@foo.com')
-    end
-  end
-
-  describe '#first_name' do
-    it 'returns the users first name' do
-      expect(instance.first_name).to eq('Test')
     end
   end
 end

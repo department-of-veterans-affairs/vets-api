@@ -7,7 +7,6 @@ require 'burials/monitor'
 require 'benefits_intake_service/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'pdf_info'
-require 'va_notify/notification_email/burial'
 
 module Lighthouse
   class SubmitBenefitsIntakeClaim
@@ -184,8 +183,6 @@ module Lighthouse
 
     def send_confirmation_email
       @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
-
-      Burials::NotificationEmail.new(@claim).deliver(:confirmation) if %w[21P-530V2 21P-530].include?(@claim&.form_id)
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
                         generate_log_details(e))

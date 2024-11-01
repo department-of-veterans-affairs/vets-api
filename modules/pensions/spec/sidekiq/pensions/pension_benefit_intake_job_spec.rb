@@ -3,7 +3,6 @@
 require 'rails_helper'
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
-require 'pensions/notification_email'
 
 RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
   stub_virus_scan
@@ -162,21 +161,16 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
   describe '#send_confirmation_email' do
     let(:monitor_error) { create(:monitor_error) }
-    let(:notification) { double('notification') }
 
     before do
       job.instance_variable_set(:@claim, claim)
-
-      allow(Pensions::NotificationEmail).to receive(:new).and_return(notification)
-      allow(notification).to receive(:deliver).and_raise(monitor_error)
+      allow(claim).to receive(:send_confirmation_email).and_raise(monitor_error)
 
       job.instance_variable_set(:@pension_monitor, monitor)
       allow(monitor).to receive(:track_send_confirmation_email_failure)
     end
 
     it 'errors and logs but does not reraise' do
-      expect(Pensions::NotificationEmail).to receive(:new).with claim
-      expect(notification).to receive(:deliver).with(:confirmation)
       expect(monitor).to receive(:track_send_confirmation_email_failure)
       job.send(:send_confirmation_email)
     end

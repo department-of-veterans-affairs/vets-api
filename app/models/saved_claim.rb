@@ -116,36 +116,6 @@ class SavedClaim < ApplicationRecord
     ''
   end
 
-  def email
-    nil
-  end
-
-  ##
-  # insert notifcation after VANotify email send
-  #
-  # @see ClaimVANotification
-  #
-  def insert_notification(email_template_id)
-    claim_va_notifications.create!(
-      form_type: form_id,
-      email_sent: true,
-      email_template_id: email_template_id
-    )
-  end
-
-  ##
-  # Find notifcation by args*
-  #
-  # @param email_template_id
-  # @see ClaimVANotification
-  #
-  def va_notification?(email_template_id)
-    claim_va_notifications.find_by(
-      form_type: form_id,
-      email_template_id: email_template_id
-    )
-  end
-
   private
 
   def attachment_keys
