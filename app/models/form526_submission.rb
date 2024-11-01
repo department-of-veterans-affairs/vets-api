@@ -587,7 +587,8 @@ class Form526Submission < ApplicationRecord
   def find_user_account_with_icn(records, record_type)
     records.pluck(:user_account_id).uniq.each do |user_account_id|
       user_account = UserAccount.find(user_account_id)
-      next unless user_account&.icn.present?
+      next if user_account&.icn.blank?
+
       Rails.logger.info("ICN not found on submission #{id}, " \
                         "using ICN for user account #{user_account_id} instead (based on #{record_type})")
       return user_account
