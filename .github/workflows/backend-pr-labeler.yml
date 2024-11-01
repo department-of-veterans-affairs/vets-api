@@ -89,7 +89,6 @@ jobs:
 
       # If backend-review-group approval is required, get reviews
       - name: Get PR Reviews
-        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: get_pr_reviews
         uses: octokit/request-action@v2.x
         with:
@@ -99,7 +98,6 @@ jobs:
 
       # If backend-review-group approval is required, get team members
       - name: Get backend-review-group members
-        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: get_team_members
         uses: octokit/request-action@v2.x
         with:
@@ -109,7 +107,6 @@ jobs:
 
       # If backend-review-group approval is required, confirm an approval exists from at least one BE team member
       - name: Verify backend-review-group approval
-        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: verify_approval
         run: |
           BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
