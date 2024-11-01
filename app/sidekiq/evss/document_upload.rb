@@ -3,6 +3,7 @@
 require 'ddtrace'
 require 'timeout'
 require 'logging/third_party_transaction'
+require 'evss/failure_notification'
 
 class EVSS::DocumentUpload
   include Sidekiq::Job
@@ -49,13 +50,9 @@ class EVSS::DocumentUpload
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
     date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
-    notify_client.send_email(
-      recipient_identifier: { id_value: icn, id_type: 'ICN' },
-      template_id: MAILER_TEMPLATE_ID,
-      personalisation: { first_name:, filename:, date_submitted:, date_failed: }
-    )
+    EVSS::FailureNotification.perform_async(icn, first_name, filename, date_submitted, date_failed)
 
-    ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email sent')
+    ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email queued')
   rescue => e
     ::Rails.logger.error('EVSS::DocumentUpload exhaustion handler email error',
                          { message: e.message })
@@ -93,10 +90,6 @@ class EVSS::DocumentUpload
 
     # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
     timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-  end
-
-  def self.notify_client
-    VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
   end
 
   private
