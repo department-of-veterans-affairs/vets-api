@@ -19,9 +19,9 @@ module SimpleFormsApi
         @upload_type = type
         @config = config
         @id = options[:id]
+        @parent_dir = config.parent_dir
 
         assign_defaults(options)
-        initialize_archive
         log_initialization
       rescue => e
         config.handle_error("#{self.class.name} initialization failed", e)
@@ -31,7 +31,7 @@ module SimpleFormsApi
         config.log_info("Uploading #{upload_type}: #{id} to S3 bucket")
 
         upload_to_s3(archive_path)
-        update_manifest if config.include_manifest
+        update_manifest if manifest_required?
         cleanup!(archive_path)
 
         return generate_presigned_url if presign_required?
@@ -49,10 +49,6 @@ module SimpleFormsApi
         @file_path = options[:file_path]
         @archive_path, @manifest_row = build_archive!(config:, type: upload_type, **options)
         @temp_directory_path = File.dirname(archive_path)
-      end
-
-      def initialize_archive
-        @parent_dir = config.parent_dir
       end
 
       def log_initialization
@@ -79,7 +75,7 @@ module SimpleFormsApi
           form_number = manifest_row[1]
           s3_path = build_s3_manifest_path(form_number)
           local_path = download_manifest(temp_dir, s3_path)
-          write_and_upload_manifest(local_path)
+          write_and_upload_manifest(local_path) if config.include_manifest
         ensure
           cleanup!(temp_dir)
         end
@@ -117,12 +113,19 @@ module SimpleFormsApi
       end
 
       def s3_upload_file_path(type)
+        extension = File.extname(archive_path)
         ext = type == :submission ? '.pdf' : '.zip'
-        build_path(:file, s3_directory_path, archive_path, ext:)
+        build_path(:file, s3_directory_path, archive_path, ext: extension ? nil : ext)
       end
 
       def presign_required?
+        return true if upload_type == :submission
+
         config.presign_s3_url
+      end
+
+      def manifest_required?
+        config.include_manifest && upload_type == :remediation
       end
     end
   end

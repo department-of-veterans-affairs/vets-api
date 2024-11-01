@@ -31,7 +31,6 @@ module ClaimsApi
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
           file_number = check_file_number_exists!
           dependent_participant_id, claimant_ssn = validate_dependent_claimant!(poa_code:)
-          assign_poa_to_dependent_claimant!(poa_code:, file_number:, dependent_participant_id:, claimant_ssn:)
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
                                                                                           source_name:)
@@ -55,10 +54,15 @@ module ClaimsApi
 
           data = power_of_attorney.form_data
 
-          if data.dig('signatures', 'veteran').present? && data.dig('signatures', 'representative').present?
+          if feature_enabled_and_claimant_present?
+            ClaimsApi::PoaAssignDependentClaimantJob.perform_async(
+              dependent_claimant_poa_assignment_service(poa_code:, file_number:, dependent_participant_id:,
+                                                        claimant_ssn:)
+            )
+          elsif data.dig('signatures', 'veteran').present? && data.dig('signatures', 'representative').present?
             # Autogenerate a 21-22 form from the request body and upload it to VBMS.
             # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
-            ClaimsApi::V1::PoaFormBuilderJob.perform_async(power_of_attorney.id)
+            ClaimsApi::V1::PoaFormBuilderJob.perform_async(power_of_attorney.id, 'post')
           end
 
           claims_v1_logging('poa_submit', message: "poa_submit complete, poa: #{power_of_attorney&.id}")
@@ -171,10 +175,8 @@ module ClaimsApi
           [service.claimant_participant_id, service.claimant_ssn]
         end
 
-        def assign_poa_to_dependent_claimant!(poa_code:, file_number:, dependent_participant_id:, claimant_ssn:)
-          return nil unless feature_enabled_and_claimant_present?
-
-          service = ClaimsApi::DependentClaimantPoaAssignmentService.new(
+        def dependent_claimant_poa_assignment_service(poa_code:, file_number:, dependent_participant_id:, claimant_ssn:)
+          ClaimsApi::DependentClaimantPoaAssignmentService.new(
             poa_code:,
             veteran_participant_id: target_veteran.participant_id,
             dependent_participant_id:,
@@ -183,8 +185,6 @@ module ClaimsApi
             allow_poa_cadd: form_attributes[:consentAddressChange].present? ? 'Y' : nil,
             claimant_ssn:
           )
-
-          service.assign_poa_to_dependent!
         end
 
         def current_poa_begin_date

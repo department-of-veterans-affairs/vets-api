@@ -254,16 +254,13 @@ module SimpleFormsApi
       if @data['version']
         race_data = @data.dig('application', 'veteran', 'race')
         race = ''.dup
-
-        if race_data.is_a?(Array)
-          race += 'American Indian or Alaskan Native, ' if race_data.include?('American Indian or Alaskan Native')
-          race += 'Asian, ' if race_data.include?('Asian')
-          race += 'Black or African American, ' if race_data.include?('Black or African American')
-          race += 'Native Hawaiian or other Pacific Islander, ' if race_data.include?('Native Hawaiian or other Pacific Islander')
-          race += 'White, ' if race_data.include?('White')
-          race += 'Prefer not to answer, ' if race_data.include?('Prefer not to answer')
-          race += 'Other, ' if race_data.include?('Other')
-        end
+        race += 'American Indian or Alaskan Native, ' if race_data['is_american_indian_or_alaskan_native']
+        race += 'Asian, ' if race_data['is_asian']
+        race += 'Black or African American, ' if race_data['is_black_or_african_american']
+        race += 'Native Hawaiian or other Pacific Islander, ' if race_data['is_native_hawaiian_or_other_pacific_islander']
+        race += 'White, ' if race_data['is_white']
+        race += 'Prefer not to answer, ' if race_data['na']
+        race += 'Other, ' if race_data['is_other']
         race.chomp!(', ')
       end
       # rubocop:enable Layout/LineLength

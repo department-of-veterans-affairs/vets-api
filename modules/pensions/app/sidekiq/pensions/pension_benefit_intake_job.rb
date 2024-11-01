@@ -31,12 +31,12 @@ module Pensions
 
     # retry exhaustion
     sidekiq_retries_exhausted do |msg|
-      pension_monitor = Pensions::Monitor.new
       begin
         claim = Pensions::SavedClaim.find(msg['args'].first)
       rescue
         claim = nil
       end
+      pension_monitor = Pensions::Monitor.new
       pension_monitor.track_submission_exhaustion(msg, claim)
     end
 
@@ -192,8 +192,11 @@ module Pensions
       }
       form_submission[:user_account] = @user_account unless @user_account_uuid.nil?
 
-      @form_submission = FormSubmission.create(**form_submission)
-      @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission)
+      FormSubmissionAttempt.transaction do
+        @form_submission = FormSubmission.create(**form_submission)
+        @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission,
+                                                                benefits_intake_uuid: @intake_service.uuid)
+      end
 
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
     end

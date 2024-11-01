@@ -57,6 +57,7 @@ class ApiProviderFactory
   FEATURE_TOGGLE_GENERATE_PDF = 'disability_compensation_lighthouse_generate_pdf'
 
   FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS = 'disability_compensation_upload_bdd_instructions_to_lighthouse'
+  FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS = 'disability_compensation_upload_veteran_evidence_to_lighthouse'
 
   attr_reader :type
 
@@ -190,7 +191,8 @@ class ApiProviderFactory
     provider_options = [
       @options[:form526_submission],
       @options[:document_type],
-      @options[:statsd_metric_prefix]
+      @options[:statsd_metric_prefix],
+      @options[:supporting_evidence_attachment]
     ]
 
     case api_provider

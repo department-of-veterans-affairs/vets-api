@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - type
       - id
@@ -16,6 +18,7 @@ properties:
         description: Upstream identifier. Same as provided id.
       attributes:
         type: object
+        additionalProperties: false
         required:
           - appealIds
           - active
@@ -95,9 +98,11 @@ properties:
               - voc_rehub
           status:
             type: object
+            additionalProperties: false
             properties:
               details:
                 type: object
+                additionalProperties: false
                 properties:
                   lastSocDate:
                     type: string

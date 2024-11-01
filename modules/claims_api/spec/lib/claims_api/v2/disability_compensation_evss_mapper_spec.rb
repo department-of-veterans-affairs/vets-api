@@ -78,6 +78,15 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           expect(claim_process_type).to eq('BDD_PROGRAM_CLAIM')
         end
       end
+
+      context 'claimSubmissionSource' do
+        it 'maps the source to VA.gov correctly' do
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
+          source = evss_data[:claimSubmissionSource]
+          expect(source).to eq('VA.gov')
+        end
+      end
     end
 
     context '526 section 1' do

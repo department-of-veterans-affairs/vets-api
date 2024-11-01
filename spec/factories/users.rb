@@ -22,7 +22,7 @@ FactoryBot.define do
       verified_at { nil }
       sec_id { '123498767' }
       participant_id { Faker::Number.number(digits: 8) }
-      birls_id { Faker::Number.number(digits: 10) }
+      birls_id { Faker::Number.number(digits: 9) }
       icn { '123498767V234859' }
       mhv_icn { nil }
       multifactor { false }

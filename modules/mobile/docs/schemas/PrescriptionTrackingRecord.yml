@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -13,6 +14,7 @@ properties:
     example: "PrescriptionTracking"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - prescriptionName
       - prescriptionNumber
@@ -49,6 +51,7 @@ properties:
         example: [{ prescriptionName: 'ETHAMBUTOL HCL 100MG TAB', prescriptionNumber: '2719553' }]
         items:
           type: object
+          additionalProperties: false
           required:
             - prescriptionName
             - prescriptionNumber

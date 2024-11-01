@@ -66,18 +66,20 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
 
     it '#send_confirmation_email' do
       allow(VANotify::EmailJob).to receive(:perform_async)
+      allow(Settings.vanotify.services.va_gov.template_id).to receive(:form527ez_confirmation_email).and_return(0)
 
-      instance.send_confirmation_email
+      claim.send_confirmation_email
+      claim.send_confirmation_email
 
       expect(VANotify::EmailJob).to have_received(:perform_async).with(
         'foo@foo.com',
-        'form527ez_confirmation_email_template_id',
+        0,
         {
           'first_name' => 'TEST',
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => instance.guid
+          'confirmation_number' => claim.guid
         }
-      )
+      ).once
     end
   end
 
