@@ -165,7 +165,6 @@ module Lighthouse
         form_submission = FormSubmission.create(
           form_type: @claim.form_id,
           form_data: @claim.to_json,
-          benefits_intake_uuid: @lighthouse_service.uuid,
           saved_claim: @claim,
           saved_claim_id: @claim.id
         )

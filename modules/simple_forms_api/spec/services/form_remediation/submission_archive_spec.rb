@@ -15,7 +15,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
   let(:file_path) { Rails.root.join(fixtures_path, 'pdfs', 'vba_20_10207-completed.pdf') }
   let(:attachments) { Array.new(5) { fixture_file_upload('doctors-note.pdf', 'application/pdf').path } }
   let(:submission) { create(:form_submission, :pending, form_type:, form_data:) }
-  let(:benefits_intake_uuid) { submission&.benefits_intake_uuid }
+  let(:benefits_intake_uuid) { submission&.latest_attempt&.benefits_intake_uuid }
   let(:metadata) do
     {
       veteranFirstName: 'John',
