@@ -7,7 +7,7 @@ module Vye
     class Vye::V1::DgibVerificationsController < ApplicationController
       before_action :skip_authorization
 
-      def get_verification_record
+      def verification_record
         response = verification_service.get_verification_record(params[:claimant_id])
         serializer = Vye::ClaimantVerificationSerializer
         process_response(response.status, serializer)
@@ -28,14 +28,14 @@ module Vye
       end
 
       # the serializer for this endpoint is the same as for verify_claimant
-      def get_claimant_status
+      def claimant_status
         response = claimant_status_service.get_claimant_status(params[:claimant_id])
         serializer = Vye::VerifyClaimantSerializer
         process_response(response.status, serializer)
       end
 
       def claimant_lookup
-        response = claimant_lookup_service.claimant_lookup(params[:ssn])
+        response = claimant_lookup_service.claimant_lookup(@current_user.ssn)
         serializer = Vye::ClaimantLookupSerializer
         process_response(response, serializer)
       end
