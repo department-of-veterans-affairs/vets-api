@@ -114,12 +114,8 @@ module SimpleFormsApi
         submission&.created_at && form_number && id && metadata
       end
 
-      def should_include_manifest?
-        config.include_manifest && data_exists_for_manifest? && archive_type == :remediation
-      end
-
       def manifest_entry
-        return unless should_include_manifest?
+        return unless data_exists_for_manifest?
 
         [
           submission.created_at,
@@ -138,7 +134,7 @@ module SimpleFormsApi
       end
 
       def determine_final_path
-        return "#{submission_file_name}.pdf" if archive_type == :submission
+        return "#{temp_directory_path}#{submission_file_name}.pdf" if archive_type == :submission
 
         zip_directory!(config.parent_dir, temp_directory_path, submission_file_name)
       end

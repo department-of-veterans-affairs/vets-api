@@ -76,24 +76,26 @@ module DecisionReview
       end
     end
 
-    def send_email_with_vanotify(submission, filename, created_at)
-      email_address = submission.current_email
+    def send_email_with_vanotify(submission, filename, created_at, template_id, reference)
+      email_address = submission.current_email_address
       personalisation = {
         first_name: submission.get_mpi_profile.given_names[0],
         filename:,
         date_submitted: created_at.strftime('%B %d, %Y')
       }
 
-      appeal_type = submission.type_of_appeal
-      template_id = filename.nil? ? FORM_TEMPLATE_IDS[appeal_type] : EVIDENCE_TEMPLATE_IDS[appeal_type]
-      vanotify_service.send_email({ email_address:, template_id:, personalisation: })
+      vanotify_service.send_email({ email_address:, template_id:, personalisation:, reference: })
     end
 
     def send_form_emails
       StatsD.increment("#{STATSD_KEY_PREFIX}.form.processing_records", submissions.size)
 
       submissions.each do |submission|
-        response = send_email_with_vanotify(submission, nil, submission.created_at)
+        appeal_type = submission.type_of_appeal
+        reference = "#{appeal_type}-form-#{submission.submitted_appeal_uuid}"
+
+        response = send_email_with_vanotify(submission, nil, submission.created_at, FORM_TEMPLATE_IDS[appeal_type],
+                                            reference)
         submission.update(failure_notification_sent_at: DateTime.now)
 
         record_form_email_send_successful(submission, response.id)
@@ -106,9 +108,12 @@ module DecisionReview
       StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.processing_records", submission_uploads.size)
 
       submission_uploads.each do |upload|
-        response = send_email_with_vanotify(upload.appeal_submission,
-                                            upload.masked_attachment_filename,
-                                            upload.created_at)
+        submission = upload.appeal_submission
+        appeal_type = submission.type_of_appeal
+        reference = "#{appeal_type}-evidence-#{upload.lighthouse_upload_id}"
+
+        response = send_email_with_vanotify(submission, upload.masked_attachment_filename, upload.created_at,
+                                            EVIDENCE_TEMPLATE_IDS[appeal_type], reference)
         upload.update(failure_notification_sent_at: DateTime.now)
 
         record_evidence_email_send_successful(upload, response.id)

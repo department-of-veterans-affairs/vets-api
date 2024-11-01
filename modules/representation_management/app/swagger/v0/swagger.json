@@ -244,17 +244,6 @@
                       "SICKLE_CELL"
                     ]
                   },
-                  "conditions_of_appointment": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    },
-                    "example": [
-                      "a123",
-                      "b456",
-                      "c789"
-                    ]
-                  },
                   "claimant": {
                     "type": "object",
                     "properties": {
@@ -267,7 +256,7 @@
                           },
                           "middle": {
                             "type": "string",
-                            "example": "A"
+                            "example": "Middle"
                           },
                           "last": {
                             "type": "string",
@@ -338,10 +327,7 @@
                         "type": "string",
                         "example": "6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943"
                       }
-                    },
-                    "required": [
-                      "id"
-                    ]
+                    }
                   },
                   "veteran": {
                     "type": "object",
@@ -365,7 +351,7 @@
                           },
                           "middle": {
                             "type": "string",
-                            "example": "A"
+                            "example": "Middle"
                           },
                           "last": {
                             "type": "string",
