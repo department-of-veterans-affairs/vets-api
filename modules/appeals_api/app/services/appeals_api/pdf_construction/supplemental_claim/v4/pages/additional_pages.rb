@@ -14,10 +14,9 @@ module AppealsApi
             # rubocop:disable Metrics/MethodLength
             def build!
               pdf.start_new_page
-
-              if form_data.long_email?
+              if form_data.veteran_long_email?
                 pdf.text(
-                  "\n<b>Veteran, claimant, or representative Email:</b>\n#{form_data.signing_appellant.email}\n",
+                  "\n<b>Veteran Email:</b>\n#{form_data.veteran_email}\n",
                   inline_format: true
                 )
               end

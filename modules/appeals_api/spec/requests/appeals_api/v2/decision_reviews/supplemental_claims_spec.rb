@@ -124,6 +124,7 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims', type: :req
         post(path, params: extra_data, headers: headers.merge({ 'X-VA-ICN' => icn }))
 
         expect(response).to have_http_status(:unprocessable_entity)
+        puts response.body
         error = JSON.parse(response.body)['errors'][0]
         expect(error['title']).to eql('Invalid length')
         expect(error['detail']).to include("'#{icn}' did not fit within the defined length limits")

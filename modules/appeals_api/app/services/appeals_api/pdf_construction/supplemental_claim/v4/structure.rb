@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
+require 'common/file_helpers'
+
 module AppealsApi
   module PdfConstruction
     module SupplementalClaim
       module V4
         class Structure
-          MAX_ISSUES_ON_MAIN_FORM = 6
+          MAX_ISSUES_ON_MAIN_FORM = 9
           MAX_EVIDENCE_LOCATIONS_ON_MAIN_FORM = 3
           SHORT_EMAIL_THRESHOLD = 50
           DEFAULT_TEXT_OPTIONS = {
@@ -72,7 +74,7 @@ module AppealsApi
           end
 
           def whiteout(pdf, at:, width:, height: 14, **_ignored)
-            pdf.fill_color 'ff0000'
+            pdf.fill_color 'ffffff'
             pdf.fill_rectangle at, width, height
             pdf.fill_color '000000'
           end
@@ -80,8 +82,6 @@ module AppealsApi
           def fill_text(pdf, attr, long_text_override: nil, length_for_override: SHORT_EMAIL_THRESHOLD)
             text = form_data.send(attr)
             return if text.blank?
-            
-
 
             text = long_text_override if long_text_override.present? && text.length > length_for_override
             value = form_fields.boxes[attr]
@@ -90,7 +90,6 @@ module AppealsApi
             text_opts = DEFAULT_TEXT_OPTIONS.merge(form_fields.boxes[attr])
 
             whiteout pdf, **text_opts
-            puts "vet name yea: #{text}"
             pdf.text_box text, text_opts
           end
 
@@ -101,10 +100,6 @@ module AppealsApi
                 pdf.text_box(
                   issue.text,
                   DEFAULT_TEXT_OPTIONS.merge(form_fields.boxes[:contestable_issues][i])
-                )
-                pdf.text_box(
-                  issue.decision_date_string,
-                  DEFAULT_TEXT_OPTIONS.merge(form_fields.boxes[:decision_dates][i])
                 )
                 if (date = issue.soc_date_formatted)
                   pdf.text_box(
@@ -118,12 +113,16 @@ module AppealsApi
 
           def fill_evidence_name_location_text(pdf)
             form_data.new_evidence_locations.take(MAX_EVIDENCE_LOCATIONS_ON_MAIN_FORM).each_with_index do |location, i|
+              text_opts = DEFAULT_TEXT_OPTIONS.merge(form_fields.boxes[:new_evidence_locations][i])
+              whiteout pdf, **text_opts
               pdf.text_box(location, DEFAULT_TEXT_OPTIONS.merge(form_fields.boxes[:new_evidence_locations][i]))
             end
           end
 
           def fill_new_evidence_dates(pdf)
             form_data.new_evidence_dates.take(MAX_EVIDENCE_LOCATIONS_ON_MAIN_FORM).each_with_index do |dates, i|
+              text_opts = DEFAULT_TEXT_OPTIONS.merge(form_fields.boxes[:new_evidence_dates][i])
+              whiteout pdf, **text_opts
               pdf.text_box(dates.join("\n"), DEFAULT_TEXT_OPTIONS.merge(form_fields.boxes[:new_evidence_dates][i]))
             end
           end
@@ -139,14 +138,23 @@ module AppealsApi
               3.times { pdf.start_new_page }
               fill_text pdf, :veteran_first_name
               fill_text pdf, :veteran_last_name
+              fill_text pdf, :veteran_number_and_street
+              fill_text pdf, :veteran_city
+              fill_text pdf, :veteran_zip_code
+              fill_text pdf, :veteran_email,
+                        long_text_override: 'See attached page for veteran email',
+                        length_for_override: FormData::LONG_EMAIL_THRESHOLD
+              fill_text pdf, :veteran_international_phone
+
               fill_text pdf, :claimant_first_name
               fill_text pdf, :claimant_last_name
               fill_text pdf, :claimant_type_other_text
-              fill_text pdf, :signing_appellant_number_and_street
-              fill_text pdf, :signing_appellant_city
-              fill_text pdf, :signing_appellant_zip_code
+              fill_text pdf, :claimant_number_and_street
+              fill_text pdf, :claimant_city
+              fill_text pdf, :claimant_zip_code
+              fill_text pdf, :claimant_email
+
               fill_text pdf, :international_phone
-              fill_text pdf, :signing_appellant_email, long_text_override: 'See attached page for appellant email'
 
               # page 5, homeless info, issues
               pdf.start_new_page
@@ -161,8 +169,7 @@ module AppealsApi
               pdf.start_new_page
 
               fill_text pdf, :veteran_claimant_rep_signature
-              #fill_text pdf, :alternate_signer_signature
-              #fill_text pdf, :alternate_signer_full_name
+              fill_text pdf, :alternate_signer_signature
             end
 
             tmp_path

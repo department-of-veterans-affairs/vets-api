@@ -6,16 +6,19 @@ module AppealsApi
       attributes['locationAndName']
     end
 
-    def dates
+    def dates(month_format: false)
       evidence_dates = attributes['evidenceDates']
 
       return [''] if evidence_dates.blank?
 
       evidence_dates.map do |hash|
+        start_yyyy_mm = hash['startDate'].split('-').take(2).reverse.join('-')
+        end_yyyy_mm = hash['endDate'].split('-').take(2).reverse.join('-')
+
         if hash['startDate'] == hash['endDate']
-          hash['startDate']
+          month_format ? start_yyyy_mm : hash['startDate']
         else
-          "#{hash['startDate']} to #{hash['endDate']}"
+          month_format ? "#{start_yyyy_mm} to #{end_yyyy_mm}" : "#{hash['startDate']} to #{hash['endDate']}"
         end
       end
     end
