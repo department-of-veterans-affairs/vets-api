@@ -68,15 +68,41 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526, type: :job do
         expect(account.icn).to eq('123498767V234859')
       end
 
-      let!(:user_account_with_icn) { UserAccount.create!(id: "26cf12c3-f447-468d-942c-5d90c7648376", icn: '123498767V111111') }
-      let!(:past_submission) { create(:form526_submission, user_uuid: submission.user_uuid, user_account: user_account_with_icn) }
-      it 'submissions user account has no ICN, default to Account lookup' do
+      it 'submissions user account has no ICN, lookup from past submissions' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V111111')
+        create(:form526_submission, user_uuid: submission.user_uuid, user_account: user_account_with_icn)
         submission.user_account = UserAccount.create!(icn: nil)
         submission.save!
         account = subject.new.send(:submission_account, submission)
         expect(account.icn).to eq('123498767V111111')
       end
 
+      it 'lookup ICN from user verifications, idme_uuid defined' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V333333')
+        UserVerification.create!(idme_uuid: submission.user_uuid, user_account_id: user_account_with_icn.id)
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        account = subject.new.send(:submission_account, submission)
+        expect(account.icn).to eq('123498767V333333')
+      end
+
+      it 'lookup ICN from user verifications, backing_idme_uuid defined' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V444444')
+        UserVerification.create!(dslogon_uuid: Faker::Internet.uuid, backing_idme_uuid: submission.user_uuid, user_account_id: user_account_with_icn.id)
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        account = subject.new.send(:submission_account, submission)
+        expect(account.icn).to eq('123498767V444444')
+      end
+
+      it 'lookup ICN from user verifications, alternate provider id defined' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V555555')
+        UserVerification.create!(dslogon_uuid: submission.user_uuid, backing_idme_uuid: Faker::Internet.uuid, user_account_id: user_account_with_icn.id)
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        account = subject.new.send(:submission_account, submission)
+        expect(account.icn).to eq('123498767V555555')
+      end
     end
   end
 end
