@@ -97,7 +97,6 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
 
       expect(FormSubmission).to receive(:create).with(
         form_type: '686C-674',
-        benefits_intake_uuid: 'uuid',
         saved_claim: claim,
         user_account: nil
       ).and_return(FormSubmission.new)
