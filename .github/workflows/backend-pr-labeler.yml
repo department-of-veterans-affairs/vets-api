@@ -20,6 +20,7 @@ jobs:
             echo "exempt=true" >> $GITHUB_OUTPUT
             echo "PR is exempt from backend approval."
           else
+            echo "exempt=false" >> $GITHUB_OUTPUT
             echo "PR requires backend approval."
           fi
 
@@ -124,8 +125,10 @@ jobs:
           echo "Number of backend-review-group approvals: $APPROVALS"
           if [ "$APPROVALS" -eq 0 ]; then
             echo "approval_status=required" >> $GITHUB_OUTPUT
+            echo "Backend-review-group approval required."
           else
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
+            echo "Backend-review-group approval confirmed."
           fi
 
   apply-labels:
