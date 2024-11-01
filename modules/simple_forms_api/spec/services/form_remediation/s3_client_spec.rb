@@ -73,7 +73,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
     allow(SimpleFormsApi::FormRemediation::SubmissionArchive).to(receive(:new).and_return(submission_archive_double))
     allow(submission_archive_double).to receive(:build!).and_return([local_archive_path, manifest_entry])
     allow(SimpleFormsApi::FormRemediation::Uploader).to receive_messages(new: uploader)
-    allow(uploader).to receive(:get_s3_link).with(local_archive_path).and_return('/s3_url/stuff.pdf')
+    allow(uploader).to receive(:get_s3_link).with(s3_archive_path).and_return('/s3_url/stuff.pdf')
     allow(uploader).to receive_messages(get_s3_file: s3_file, store!: carrier_wave_file)
     allow(Rails.logger).to receive(:info).and_call_original
     allow(Rails.logger).to receive(:error).and_call_original
@@ -153,7 +153,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
 
             describe '#generate_presigned_url' do
               it 'requests the s3 link for the correct file' do
-                expect(uploader).to have_received(:get_s3_link).with(local_archive_path)
+                expect(uploader).to have_received(:get_s3_link).with(s3_archive_path)
               end
             end
 
