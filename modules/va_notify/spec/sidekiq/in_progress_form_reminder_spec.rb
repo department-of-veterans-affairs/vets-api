@@ -51,13 +51,14 @@ describe VANotify::InProgressFormReminder, type: :worker do
           described_class.new.perform(in_progress_form_with_user_account_id.id)
         end
 
-        expect(VANotify::UserAccountJob).to
-        have_received(:perform_async).with(in_progress_form_with_user_account_id.user_account_id, 'fake_template_id',
-                                           {
-                                             'first_name' => 'FIRST_NAME',
-                                             'date' => expiration_date,
-                                             'form_age' => ''
-                                           })
+        # rubocop:disable Layout/LineLength
+        expect(VANotify::UserAccountJob).to have_received(:perform_async).with(in_progress_form_with_user_account_id.user_account_id, 'fake_template_id',
+                                                                               {
+                                                                                 'first_name' => 'FIRST_NAME',
+                                                                                 'date' => expiration_date,
+                                                                                 'form_age' => ''
+                                                                               })
+        # rubocop:enable Layout/LineLength
       end
     end
 
