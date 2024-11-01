@@ -464,8 +464,6 @@ class Form526Submission < ApplicationRecord
   # Lighthouse calls the user_account.icn the "ID of Veteran"
   #
   def lighthouse_service
-    account = user_account ||
-              Account.lookup_by_user_uuid(user_uuid)
     BenefitsClaims::Service.new(account.icn)
   end
 
@@ -570,7 +568,7 @@ class Form526Submission < ApplicationRecord
   def account
     # first, check for an ICN on the UserAccount associated to the submission, return it if found
     account = user_account
-    return account if account.present? && account.icn.present?
+    return account if account&.icn.present?
 
     # next, check past submissions for different UserAccounts that might have ICNs
     past_submissions = get_past_submissions
@@ -589,16 +587,15 @@ class Form526Submission < ApplicationRecord
   def find_user_account_with_icn(records, record_type)
     records.pluck(:user_account_id).uniq.each do |user_account_id|
       user_account = UserAccount.find(user_account_id)
-      if user_account&.icn.present?
-        Rails.logger.info("ICN not found on submission #{id}, " \
-                          "using ICN for user account #{user_account_id} instead (based on #{record_type})")
-        return user_account
-      end
+      next unless user_account&.icn.present?
+      Rails.logger.info("ICN not found on submission #{id}, " \
+                        "using ICN for user account #{user_account_id} instead (based on #{record_type})")
+      return user_account
     end
   end
 
   def get_past_submissions
-    Form526Submission.where(user_uuid: user_uuid).where.not(user_account_id: user_account_id)
+    Form526Submission.where(user_uuid:).where.not(user_account_id:)
   end
 
   def get_user_verifications
@@ -607,6 +604,6 @@ class Form526Submission < ApplicationRecord
                     .or(UserVerification.where(logingov_uuid: user_uuid))
                     .or(UserVerification.where(mhv_uuid: user_uuid))
                     .or(UserVerification.where(dslogon_uuid: user_uuid))
-                    .where.not(user_account_id: user_account_id)
+                    .where.not(user_account_id:)
   end
 end
