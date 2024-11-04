@@ -22,6 +22,41 @@ RSpec.describe RepresentationManagement::NextStepsEmailData, type: :model do
   # end
   #
 
+  describe '#entity' do
+    it 'returns the entity for accredited_individual' do
+      accredited_individual = create(:accredited_individual)
+      next_steps_email_data = described_class.new(entity_type: 'individual',
+                                                  entity_id: accredited_individual.id)
+      expect(next_steps_email_data.entity).to eq(accredited_individual)
+    end
+
+    it 'returns the entity for veteran_service_representative' do
+      veteran_service_representative = create(:representative)
+      next_steps_email_data = described_class.new(entity_type: 'individual',
+                                                  entity_id: veteran_service_representative.representative_id)
+      expect(next_steps_email_data.entity).to eq(veteran_service_representative)
+    end
+
+    it 'returns the entity for organization' do
+      organization = create(:organization)
+      next_steps_email_data = described_class.new(entity_type: 'organization',
+                                                  entity_id: organization.poa)
+      expect(next_steps_email_data.entity).to eq(organization)
+    end
+
+    it 'returns the entity for accredited_organization' do
+      accredited_organization = create(:accredited_organization)
+      next_steps_email_data = described_class.new(entity_type: 'organization',
+                                                  entity_id: accredited_organization.id)
+      expect(next_steps_email_data.entity).to eq(accredited_organization)
+    end
+
+    it 'returns nil if entity is not found' do
+      next_steps_email_data = described_class.new(entity_type: 'individual', entity_id: 1)
+      expect(next_steps_email_data.entity).to be_nil
+    end
+  end
+
   describe '#entity_display_type' do
     it 'returns the entity display types for AccreditedIndividual' do
       attorney = create(:accredited_individual, individual_type: 'attorney')
@@ -50,7 +85,79 @@ RSpec.describe RepresentationManagement::NextStepsEmailData, type: :model do
                                                                           entity_id: veteran_service_officer.representative_id)
       expect(next_steps_email_data_attorney.entity_display_type).to eq('Attorney')
       expect(next_steps_email_data_claim_agents.entity_display_type).to eq('Claims Agent')
-      expect(next_steps_email_data_veteran_service_officer.entity_display_type).to eq?('Representative')
+      expect(next_steps_email_data_veteran_service_officer.entity_display_type).to eq('Representative')
+    end
+
+    it 'returns the entity display types for Veteran Service Organization' do
+      organization = create(:organization)
+      accredited_organization = create(:accredited_organization)
+      next_steps_email_data_organization = described_class.new(entity_type: 'organization',
+                                                               entity_id: organization.poa)
+      next_steps_email_data_accredited_organization = described_class.new(entity_type: 'organization',
+                                                                          entity_id: accredited_organization.id)
+      expect(next_steps_email_data_organization.entity_display_type).to eq('Veteran Service Organization')
+      expect(next_steps_email_data_accredited_organization.entity_display_type).to eq('Veteran Service Organization')
+    end
+  end
+
+  describe '#entity_name' do
+    it 'returns the entity name for accredited_individual' do
+      accredited_individual = create(:accredited_individual)
+      next_steps_email_data = described_class.new(entity_type: 'individual',
+                                                  entity_id: accredited_individual.id)
+      expect(next_steps_email_data.entity_name).to eq(accredited_individual.full_name)
+    end
+
+    it 'returns the entity name for veteran_service_representative' do
+      veteran_service_representative = create(:representative)
+      next_steps_email_data = described_class.new(entity_type: 'individual',
+                                                  entity_id: veteran_service_representative.representative_id)
+      expect(next_steps_email_data.entity_name).to eq(veteran_service_representative.full_name)
+    end
+
+    it 'returns the entity name for organization' do
+      organization = create(:organization)
+      next_steps_email_data = described_class.new(entity_type: 'organization',
+                                                  entity_id: organization.poa)
+      expect(next_steps_email_data.entity_name).to eq(organization.name)
+    end
+  end
+
+  describe '#entity_address' do
+    it 'returns the entity address for accredited_individual' do
+      accredited_individual = create(:accredited_individual)
+      next_steps_email_data = described_class.new(entity_type: 'individual',
+                                                  entity_id: accredited_individual.id)
+      expect(next_steps_email_data.entity_address).to eq(
+        "#{accredited_individual.address_line1} #{accredited_individual.address_line2} " \
+        "#{accredited_individual.address_line3} #{accredited_individual.city}, " \
+        "#{accredited_individual.state_code} #{accredited_individual.zip_code} " \
+        "#{accredited_individual.zip_code_suffix} #{accredited_individual.country}"
+      )
+    end
+
+    it 'returns the entity address for veteran_service_representative' do
+      veteran_service_representative = create(:representative)
+      next_steps_email_data = described_class.new(entity_type: 'individual',
+                                                  entity_id: veteran_service_representative.representative_id)
+      expect(next_steps_email_data.entity_address).to eq(
+        "#{veteran_service_representative.address_line1} #{veteran_service_representative.address_line2} " \
+        "#{veteran_service_representative.address_line3} #{veteran_service_representative.city}, " \
+        "#{veteran_service_representative.state_code} #{veteran_service_representative.zip_code} " \
+        "#{veteran_service_representative.zip_code_suffix} #{veteran_service_representative.country}"
+      )
+    end
+
+    it 'returns the entity address for organization' do
+      organization = create(:organization)
+      next_steps_email_data = described_class.new(entity_type: 'organization',
+                                                  entity_id: organization.poa)
+      expect(next_steps_email_data.entity_address).to eq(
+        "#{organization.address_line1} #{organization.address_line2} " \
+        "#{organization.address_line3} #{organization.city}, " \
+        "#{organization.state_code} #{organization.zip_code} " \
+        "#{organization.zip_code_suffix} #{organization.country}"
+      )
     end
   end
 end
