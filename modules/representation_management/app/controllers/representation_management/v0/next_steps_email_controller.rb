@@ -51,9 +51,8 @@ module RepresentationManagement
           :first_name,
           :form_name,
           :form_number,
-          :representative_type,
-          :representative_name,
-          :representative_address
+          :entity_type,
+          :entity_id
         )
       end
     end
