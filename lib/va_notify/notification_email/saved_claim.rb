@@ -14,7 +14,9 @@ module VANotify
     #         confirmation:
     #           template_id: form527ez_confirmation_email_template_id
     #           flipper_id: false
-    #         error: null
+    #         error:
+    #           template_id: form527ez_error_email_template_id,
+    #           flipper_id: form527ez_error_email_flipper_id
     #         received: null
     #     pensions: *vanotify_services_pension
     #
