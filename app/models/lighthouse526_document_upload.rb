@@ -42,9 +42,7 @@ class Lighthouse526DocumentUpload < ApplicationRecord
     end
 
     event :fail do
-      transitions from: :pending, to: :failed,
-        guard: %i[end_time_saved? error_message_saved?],
-        after: :post_failure_actions
+      transitions from: :pending, to: :failed, guard: %i[end_time_saved? error_message_saved?], after: :handle_failure
     end
   end
 
@@ -66,7 +64,7 @@ class Lighthouse526DocumentUpload < ApplicationRecord
     error_message != nil
   end
 
-  def post_failure_actions
+  def handle_failure
     # Do not enable until 100 percent of Lighthouse document upload migration is complete!
     if Flipper.enabled?(:disability_compensation_email_veteran_on_polled_lighthouse_doc_failure)
       BenefitsDocuments::Form526::PolledDocumentFailureHandler.call(self)
