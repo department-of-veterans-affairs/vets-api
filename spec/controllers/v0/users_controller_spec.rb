@@ -151,22 +151,20 @@ RSpec.describe V0::UsersController, type: :controller do
   end
 
   describe '#credential_emails' do
-    let(:user) { create(:user, :loa1) }
-    let(:user_account) { create(:user_account, user: user) }
+    let(:user) { build(:user, :loa3) }
+    let(:user_account) { create(:user_account) }
+    let(:user_credential_email1) { create(:user_credential_email, credential_email: 'email1@example.com') }
+    let(:user_credential_email2) { create(:user_credential_email, credential_email: 'email2@example.com') }
+    let!(:idme_user_verification) { create(:user_verification, idme_uuid: user.idme_uuid, user_credential_email: user_credential_email1, user_account_id: user_account.id) }
+    let!(:logingov_user_verification) { create(:user_verification, logingov_uuid: user.logingov_uuid, user_credential_email: user_credential_email2, user_account_id: user_account.id) }
+    let(:expected_response) { {idme_user_verification.credential_type => user_credential_email1.credential_email, logingov_user_verification.credential_type => user_credential_email2.credential_email } }
 
     before do
       sign_in user
-      create(:user_verification, idme_uuid: user.idme_uuid, user_credential_email: create(
-        :user_credential_email,
-        credential_email: 'email1@example.com'
-      ))
     end
 
     it 'returns the users credential emails' do
       get :credential_emails
-      expected_response = {
-        'email1@example.com' => 'email1@example.com'
-      }
       expect(response).to be_successful
       expect(JSON.parse(response.body)).to eq(expected_response)
     end

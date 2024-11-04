@@ -19,7 +19,7 @@ module V0
 
     def credential_emails
       emails = current_user.user_account.user_verifications.each_with_object({}) do |verification, credentials|
-        credentials[verification.user_credential_email.credential_email.to_sym] =
+        credentials[verification.credential_type.to_sym] =
           verification.user_credential_email.credential_email
       end
 
