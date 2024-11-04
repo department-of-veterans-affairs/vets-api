@@ -344,6 +344,129 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
         end
       end
 
+      context 'SecondaryAppealForm records are present with an error status' do
+        let(:secondary_form_status_error) do
+          {
+            status: 'error',
+            detail: nil,
+            createDate: 10.days.ago,
+            updateDate: 5.days.ago
+          }.to_json
+        end
+        let(:secondary_form_status_success) do
+          {
+            status: 'vbms',
+            detail: nil,
+            createDate: 10.days.ago,
+            updateDate: 5.days.ago
+          }.to_json
+        end
+        let(:appeal_submission1) { create(:appeal_submission, submitted_appeal_uuid: guid1, type_of_appeal: 'SC') }
+        let(:appeal_submission2) { create(:appeal_submission, submitted_appeal_uuid: guid2, type_of_appeal: 'SC') }
+        let!(:secondary_form1) do
+          create(:secondary_appeal_form4142, appeal_submission: appeal_submission1, status: secondary_form_status_error)
+        end
+        let!(:secondary_form2) do
+          create(:secondary_appeal_form4142, appeal_submission: appeal_submission2,
+                                             status: secondary_form_status_success)
+        end
+        let(:personalisation) do
+          {
+            first_name: mpi_profile.given_names[0],
+            filename: nil,
+            date_submitted: secondary_form1.created_at.strftime('%B %d, %Y')
+          }
+        end
+        let(:reference) { "SC-secondary_form-#{secondary_form1.guid}" }
+
+        before do
+          SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}')
+          SavedClaim::SupplementalClaim.create(guid: guid2, form: '{}')
+        end
+
+        context 'with flag enabled' do
+          before do
+            Flipper.enable(:decision_review_notify_4142_failures)
+          end
+
+          it 'sends an email for secondary form and notification date on the secondary form record' do
+            frozen_time = DateTime.new(2024, 1, 1).utc
+
+            Timecop.freeze(frozen_time) do
+              subject.new.perform
+            end
+
+            expect(secondary_form1.reload.failure_notification_sent_at).to eq frozen_time
+            expect(secondary_form2.reload.failure_notification_sent_at).to be_nil
+
+            expect(vanotify_service).to have_received(:send_email)
+              .with({ email_address:,
+                      personalisation:,
+                      template_id: 'fake_sc_secondary_form_template_id',
+                      reference: })
+
+            expect(vanotify_service).not_to have_received(:send_email)
+              .with({ email_address: anything,
+                      personalisation: anything,
+                      template_id: 'fake_sc_evidence_template_id' })
+
+            expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
+                                                                              personalisation: anything,
+                                                                              template_id: 'fake_sc_template_id' })
+
+            expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
+                                                                              personalisation: anything,
+                                                                              template_id: 'fake_nod_template_id' })
+
+            expect(vanotify_service).not_to have_received(:send_email).with({ email_address: anything,
+                                                                              personalisation: anything,
+                                                                              template_id: 'fake_hlr_template_id' })
+
+            logger_params = [
+              'DecisionReview::FailureNotificationEmailJob secondary form email queued',
+              { submitted_appeal_uuid: guid1,
+                lighthouse_upload_id: secondary_form1.guid, appeal_type: 'SC', notification_id: }
+            ]
+            expect(Rails.logger).to have_received(:info).with(*logger_params)
+
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.failure_notification_email.secondary_form.email_queued',
+                    tags: ['appeal_type:SC'])
+              .once
+          end
+
+          context 'when already notified' do
+            before do
+              secondary_form1.update(failure_notification_sent_at: 1.day.ago)
+            end
+
+            it 'does not send another email' do
+              subject.new.perform
+
+              expect(vanotify_service).not_to have_received(:send_email)
+                .with({ email_address: anything,
+                        personalisation: anything,
+                        template_id: 'fake_sc_secondary_form_template_id',
+                        reference: anything })
+
+              expect(Rails.logger).not_to have_received(:error)
+            end
+          end
+        end
+
+        context 'with flag disabled' do
+          before do
+            Flipper.disable(:decision_review_notify_4142_failures)
+          end
+
+          it 'does not attempt to notify about secondary form failures' do
+            expect(SecondaryAppealForm).not_to receive(:where)
+
+            subject.new.perform
+          end
+        end
+      end
+
       context 'when an error occurs during form processing' do
         let(:email_address) { nil }
         let(:message) { 'Failed to retrieve email address' }
@@ -412,6 +535,41 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
           expect(Rails.logger).to have_received(:error).with(*logger_params)
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.failure_notification_email.evidence.error', tags: ['appeal_type:SC'])
+        end
+      end
+
+      context 'when an error occurs during secondary form processing' do
+        let(:mpi_profile) { nil }
+
+        let(:lighthouse_upload_id) { SecureRandom.uuid }
+        let(:message) { 'Failed to fetch MPI profile' }
+        let(:secondary_form_status_error) do
+          {
+            status: 'error',
+            detail: nil,
+            createDate: 10.days.ago,
+            updateDate: 5.days.ago
+          }.to_json
+        end
+
+        before do
+          SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}')
+          appeal_submission = create(:appeal_submission, type_of_appeal: 'SC', submitted_appeal_uuid: guid1)
+
+          create(:secondary_appeal_form4142, guid: lighthouse_upload_id, status: secondary_form_status_error,
+                                             appeal_submission:)
+        end
+
+        it 'handles the error and increments the statsd metric' do
+          expect { subject.new.perform }.not_to raise_exception
+
+          logger_params = [
+            'DecisionReview::FailureNotificationEmailJob secondary form error',
+            { submitted_appeal_uuid: guid1, lighthouse_upload_id:, appeal_type: 'SC', message: }
+          ]
+          expect(Rails.logger).to have_received(:error).with(*logger_params)
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.failure_notification_email.secondary_form.error', tags: ['appeal_type:SC'])
         end
       end
 
