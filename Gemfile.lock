@@ -137,6 +137,18 @@ PATH
     vye (0.1.0)
 
 GEM
+  remote: https://enterprise.contribsys.com/
+  specs:
+    sidekiq-ent (7.2.4)
+      einhorn (~> 1.0)
+      gserver
+      sidekiq (>= 7.2.0, < 8)
+      sidekiq-pro (>= 7.2.0, < 8)
+    sidekiq-pro (7.2.1)
+      base64
+      sidekiq (>= 7.2.0, < 8)
+
+GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (1.1.0)
