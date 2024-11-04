@@ -2,7 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
+RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
+                                                      team: :vfs_authenticated_experience_backend, type: :controller do
   let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
   before do

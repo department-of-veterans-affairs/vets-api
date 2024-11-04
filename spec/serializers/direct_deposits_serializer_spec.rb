@@ -2,7 +2,8 @@
 
 require 'rails_helper'
 
-describe DirectDepositsSerializer, type: :serializer do
+describe DirectDepositsSerializer, feature: :direct_deposit,
+                                   team: :vfs_authenticated_experience_backend, type: :serializer do
   subject { serialize(direct_deposit, serializer_class: described_class) }
 
   let(:direct_deposit) { build(:direct_deposit, :with_payment_account) }

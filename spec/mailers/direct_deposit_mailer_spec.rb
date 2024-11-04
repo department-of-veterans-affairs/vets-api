@@ -2,7 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe DirectDepositMailer, type: [:mailer] do
+RSpec.describe DirectDepositMailer, feature: :direct_deposit,
+                                    team: :vfs_authenticated_experience_backend, type: :mailer do
   subject do
     described_class.build(email, google_analytics_client_id, dd_type).deliver_now
   end
