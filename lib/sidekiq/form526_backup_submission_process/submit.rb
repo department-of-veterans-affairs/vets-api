@@ -54,7 +54,7 @@ module Sidekiq
         )
 
         if Flipper.enabled?(:send_backup_submission_exhaustion_email_notice)
-          ::Form526SubmissionFailureEmailJob.perform_async(form526_submission_id, Time.now.utc)
+          ::Form526SubmissionFailureEmailJob.perform_async(form526_submission_id, Time.now.utc.to_s)
         end
       rescue => e
         ::Rails.logger.error(

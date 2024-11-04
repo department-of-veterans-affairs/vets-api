@@ -95,7 +95,7 @@ module V1
     end
 
     def bearer_token_secret
-      Settings.dig(:nod_vanotify_status_callback, :bearer_token)
+      Settings.nod_vanotify_status_callback.bearer_token
     end
 
     def enabled?
