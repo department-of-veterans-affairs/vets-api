@@ -51,22 +51,23 @@ describe VANotify::InProgressFormReminder, type: :worker do
           described_class.new.perform(in_progress_form_with_user_account_id.id)
         end
 
-        # rubocop:disable Layout/LineLength
-        expect(VANotify::UserAccountJob).to have_received(:perform_async).with(in_progress_form_with_user_account_id.user_account_id, 'fake_template_id',
-                                                                               {
-                                                                                 'first_name' => 'FIRST_NAME',
-                                                                                 'date' => expiration_date,
-                                                                                 'form_age' => ''
-                                                                               })
-        # rubocop:enable Layout/LineLength
+        expect(VANotify::UserAccountJob).to have_received(:perform_async)
+          .with(in_progress_form_with_user_account_id.user_account_id, 'fake_template_id',
+                {
+                  'first_name' => 'FIRST_NAME',
+                  'date' => expiration_date,
+                  'form_age' => ''
+                })
       end
     end
 
     describe 'multiple relevant in_progress_forms' do
       let!(:in_progress_form_1) do
         Timecop.freeze(7.days.ago)
-        in_progress_form = create(:in_progress_686c_form, user_uuid: user.uuid,
-                                                          user_account_id: create(:user_account).id)
+        in_progress_form = create(
+          :in_progress_686c_form, user_uuid: user.uuid, user_account_id:
+          create(:user_account).id
+        )
         Timecop.return
         in_progress_form
       end
