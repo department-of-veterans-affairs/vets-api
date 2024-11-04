@@ -51,8 +51,8 @@ module RepresentationManagement
         #{entity.address_line1}
         #{entity.address_line2}
         #{entity.address_line3}
-        #{entity.city}, #{entity.state_code} #{entity.zip_code} #{entity.zip_code_suffix}
-        #{entity.country}
+        #{entity.city}, #{entity.state_code} #{entity.zip_code}
+        #{entity.country_code_iso3}
       ADDRESS
     end
 

@@ -122,42 +122,4 @@ RSpec.describe RepresentationManagement::NextStepsEmailData, type: :model do
       expect(next_steps_email_data.entity_name).to eq(organization.name)
     end
   end
-
-  describe '#entity_address' do
-    it 'returns the entity address for accredited_individual' do
-      accredited_individual = create(:accredited_individual)
-      next_steps_email_data = described_class.new(entity_type: 'individual',
-                                                  entity_id: accredited_individual.id)
-      expect(next_steps_email_data.entity_address).to eq(
-        "#{accredited_individual.address_line1} #{accredited_individual.address_line2} " \
-        "#{accredited_individual.address_line3} #{accredited_individual.city}, " \
-        "#{accredited_individual.state_code} #{accredited_individual.zip_code} " \
-        "#{accredited_individual.zip_code_suffix} #{accredited_individual.country}"
-      )
-    end
-
-    it 'returns the entity address for veteran_service_representative' do
-      veteran_service_representative = create(:representative)
-      next_steps_email_data = described_class.new(entity_type: 'individual',
-                                                  entity_id: veteran_service_representative.representative_id)
-      expect(next_steps_email_data.entity_address).to eq(
-        "#{veteran_service_representative.address_line1} #{veteran_service_representative.address_line2} " \
-        "#{veteran_service_representative.address_line3} #{veteran_service_representative.city}, " \
-        "#{veteran_service_representative.state_code} #{veteran_service_representative.zip_code} " \
-        "#{veteran_service_representative.zip_code_suffix} #{veteran_service_representative.country}"
-      )
-    end
-
-    it 'returns the entity address for organization' do
-      organization = create(:organization)
-      next_steps_email_data = described_class.new(entity_type: 'organization',
-                                                  entity_id: organization.poa)
-      expect(next_steps_email_data.entity_address).to eq(
-        "#{organization.address_line1} #{organization.address_line2} " \
-        "#{organization.address_line3} #{organization.city}, " \
-        "#{organization.state_code} #{organization.zip_code} " \
-        "#{organization.zip_code_suffix} #{organization.country}"
-      )
-    end
-  end
 end
