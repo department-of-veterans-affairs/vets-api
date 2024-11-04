@@ -467,14 +467,6 @@ features:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
     enable_in_development: true
-  disability_526_maximum_rating:
-    actor_type: user
-    description: enables displaying a short education blurb alongside rated disabilities already at maximum rating.
-    enable_in_development: true
-  disability_526_maximum_rating_api_all_conditions:
-    actor_type: user
-    description: enables calls to VRO Max CFI API for all conditions, otherwise only calls for select conditions are made
-    enable_in_development: false
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.

@@ -17357,7 +17357,8 @@
                         "SICKLE_CELL",
                         "HIV",
                         "ALCOHOLISM"
-                      ]
+                      ],
+                      "procId": "3857415"
                     }
                   }
                 },
@@ -17638,6 +17639,11 @@
                             "consentAddressChange": {
                               "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
                               "type": "boolean"
+                            },
+                            "procId": {
+                              "description": "The process ID of the new Power of Attorney request.",
+                              "type": "string",
+                              "example": "12345"
                             }
                           }
                         }
