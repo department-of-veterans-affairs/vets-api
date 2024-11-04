@@ -52,7 +52,7 @@ module SimpleFormsApi
       end
 
       def fetch_id(options)
-        options[:submission]&.send(config.id_type) || options[:id]
+        options[:submission]&.latest_attempt&.send(config.id_type) || options[:id]
       end
 
       def data_hydrated?
