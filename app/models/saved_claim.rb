@@ -29,9 +29,6 @@ class SavedClaim < ApplicationRecord
   has_many :form_submissions, dependent: :nullify
   has_many :claim_va_notifications, dependent: :destroy
 
-  has_one :appeal_submission, class_name: 'AppealSubmission', foreign_key: :submitted_appeal_uuid, primary_key: :guid,
-                              dependent: nil, inverse_of: :saved_claim, required: false
-
   after_create :after_create_metrics
   after_destroy :after_destroy_metrics
 

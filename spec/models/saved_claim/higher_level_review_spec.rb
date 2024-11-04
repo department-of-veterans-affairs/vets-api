@@ -26,7 +26,7 @@ RSpec.describe SavedClaim::HigherLevelReview, type: :model do
     end
 
     it 'can be accessed from the AppealSubmission' do
-      expect(appeal_submission.saved_claim).to eq saved_claim_hlr
+      expect(appeal_submission.saved_claim_hlr).to eq saved_claim_hlr
     end
   end
 end

@@ -26,7 +26,7 @@ RSpec.describe SavedClaim::SupplementalClaim, type: :model do
     end
 
     it 'can be accessed from the AppealSubmission' do
-      expect(appeal_submission.saved_claim).to eq saved_claim_sc
+      expect(appeal_submission.saved_claim_sc).to eq saved_claim_sc
     end
   end
 end

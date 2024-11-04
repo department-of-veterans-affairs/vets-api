@@ -26,7 +26,7 @@ RSpec.describe SavedClaim::NoticeOfDisagreement, type: :model do
     end
 
     it 'can be accessed from the AppealSubmission' do
-      expect(appeal_submission.saved_claim).to eq saved_claim_nod
+      expect(appeal_submission.saved_claim_nod).to eq saved_claim_nod
     end
   end
 end
