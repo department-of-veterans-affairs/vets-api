@@ -456,12 +456,12 @@ class Form526Submission < ApplicationRecord
     # next, check past submissions for different UserAccounts that might have ICNs
     past_submissions = get_past_submissions
     account = find_user_account_with_icn(past_submissions, 'past submissions')
-    return account if account.present? && account.icn.present?
+    return account if account&.icn.present?
 
     # next, check for any historical UserAccounts for that user which might have an ICN
     user_verifications = get_user_verifications
     account = find_user_account_with_icn(user_verifications, 'user verifications')
-    return account if account.present? && account.icn.present?
+    return account if account&.icn.present?
 
     # failing all the above, default to an Account lookup
     Account.lookup_by_user_uuid(user_uuid)
