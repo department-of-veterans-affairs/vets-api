@@ -1361,6 +1361,7 @@ vanotify:
         notice_of_disagreement_form_error_email: fake_nod_template_id
         supplemental_claim_evidence_error_email: fake_sc_evidence_template_id
         supplemental_claim_form_error_email: fake_sc_template_id
+        supplemental_claim_secondary_form_error_email: fake_sc_secondary_form_template_id
     benefits_disability:
       api_key: fake_secret
       template_id:
