@@ -679,6 +679,70 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#get_recent_sorted_clinic_appointments' do
+    subject { instance_of_class.get_recent_sorted_clinic_appointments }
+
+    let(:instance_of_class) { described_class.new(user) }
+    let(:mock_appointment_one) { double('Appointment', kind: 'clinic', start: '2022-12-02') }
+    let(:mock_appointment_two) { double('Appointment', kind: 'telehealth', start: '2022-12-01T21:38:01.476Z') }
+    let(:mock_appointment_three) { double('Appointment', kind: 'clinic', start: '2022-12-09T21:38:01.476Z') }
+
+    context 'when appointments are available' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [mock_appointment_one,
+                                                                                   mock_appointment_two,
+                                                                                   mock_appointment_three] })
+      end
+
+      it 'returns the recent sorted clinic appointments' do
+        expect(subject).to eq([mock_appointment_two, mock_appointment_one, mock_appointment_three])
+      end
+    end
+
+    context 'when no appointments are available' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [] })
+      end
+
+      it 'returns nil' do
+        expect(subject.first).to be_nil
+      end
+    end
+  end
+
+  describe '#sort_recent_appointments' do
+    subject { instance_of_class }
+
+    let(:instance_of_class) { described_class.new(user) }
+    let(:mock_appointment_one) { double('Appointment', id: '123', kind: 'clinic', start: '2022-12-02') }
+    let(:mock_appointment_two) do
+      double('Appointment', id: '124', kind: 'telehealth', start: '2022-12-01T21:38:01.476Z')
+    end
+    let(:mock_appointment_three) { double('Appointment', id: '125', kind: 'clinic', start: '2022-12-09T21:38:01.476Z') }
+    let(:mock_appointment_four_no_start) { double('Appointment', id: '126', kind: 'clinic', start: nil) }
+    let(:appointments_input_no_start) do
+      [mock_appointment_one, mock_appointment_two, mock_appointment_three, mock_appointment_four_no_start]
+    end
+    let(:appointments_input) { [mock_appointment_one, mock_appointment_two, mock_appointment_three] }
+    let(:filtered_sorted_appointments) { [mock_appointment_two, mock_appointment_one, mock_appointment_three] }
+
+    context 'when appointments are available' do
+      it 'sorts based on start time' do
+        expect(subject.send(:sort_recent_appointments, appointments_input)).to eq(filtered_sorted_appointments)
+        expect(Rails.logger).not_to receive(:info)
+      end
+    end
+
+    context 'when appointments are available and at least one is missing a start time' do
+      it 'filters before sorting and logs removed appointments' do
+        allow(Rails.logger).to receive(:info)
+        expect(subject.send(:sort_recent_appointments, appointments_input_no_start)).to eq(filtered_sorted_appointments)
+        expect(Rails.logger).to have_received(:info)
+          .with('VAOS appointment sorting filtered out id 126 due to missing start time.')
+      end
+    end
+  end
+
   describe '#get_appointment' do
     context 'using VAOS' do
       before do
