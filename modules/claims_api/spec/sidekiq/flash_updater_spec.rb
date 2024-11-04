@@ -2,8 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::FlashUpdater, type: :job do # record: :new_episodes,
-  # vcr: 'claims_api/bgs/claimant_service/flashes' do
+RSpec.describe ClaimsApi::FlashUpdater, type: :job do
   subject { described_class }
 
   before do
@@ -68,7 +67,7 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do # record: :new_episodes,
   it 'stores multiple bgs exceptions correctly' do
     flashes.each do |flash_name|
       expect_any_instance_of(BGS::ClaimantWebService).to receive(:add_flash)
-        .with(file_number: claim.auth_headers['va_eauth_pnid'], flash: { flash_name: })
+        .with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
         .and_raise(BGS::ShareError.new('failed', 500))
     end
     expect_any_instance_of(BGS::ClaimantWebService)
