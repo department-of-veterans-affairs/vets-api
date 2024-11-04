@@ -104,7 +104,7 @@ RSpec.describe Lighthouse526DocumentUpload do
             expect { upload.fail! }.to raise_error(AASM::InvalidTransition)
           end
 
-          context 'when the disability_compensation_email_veteran_on_polled_lighthouse_doc_failure flipper is enabled' do
+          context 'when disability_compensation_email_veteran_on_polled_lighthouse_doc_failure flipper is enabled' do
             before do
               Flipper.enable(:disability_compensation_email_veteran_on_polled_lighthouse_doc_failure)
             end
@@ -158,7 +158,7 @@ RSpec.describe Lighthouse526DocumentUpload do
             end
           end
 
-          context 'when the disability_compensation_email_veteran_on_polled_lighthouse_doc_failure flipper is disabled' do
+          context 'when disability_compensation_email_veteran_on_polled_lighthouse_doc_failure flipper is disabled' do
             before do
               Flipper.disable(:disability_compensation_email_veteran_on_polled_lighthouse_doc_failure)
             end
@@ -174,7 +174,9 @@ RSpec.describe Lighthouse526DocumentUpload do
               end
 
               it 'enqueues a Form526DocumentUploadFailureEmail' do
-                expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail).not_to receive(:perform_async)
+                expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail)
+                  .not_to receive(:perform_async)
+
                 lighthouse526_document_upload.fail!
               end
             end
@@ -190,7 +192,9 @@ RSpec.describe Lighthouse526DocumentUpload do
               end
 
               it 'enqueues a Form0781DocumentUploadFailureEmail' do
-                expect(EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail).not_to receive(:perform_async)
+                expect(EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail)
+                  .not_to receive(:perform_async)
+
                 lighthouse526_document_upload.fail!
               end
             end
@@ -206,7 +210,9 @@ RSpec.describe Lighthouse526DocumentUpload do
               end
 
               it 'enqueues a Form0781DocumentUploadFailureEmail' do
-                expect(EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail).not_to receive(:perform_async)
+                expect(EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail)
+                  .not_to receive(:perform_async)
+
                 lighthouse526_document_upload.fail!
               end
             end

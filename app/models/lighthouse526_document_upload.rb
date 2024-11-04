@@ -42,7 +42,9 @@ class Lighthouse526DocumentUpload < ApplicationRecord
     end
 
     event :fail do
-      transitions from: :pending, to: :failed, guard: %i[end_time_saved? error_message_saved?], after: :post_failure_actions
+      transitions from: :pending, to: :failed,
+        guard: %i[end_time_saved? error_message_saved?],
+        after: :post_failure_actions
     end
   end
 

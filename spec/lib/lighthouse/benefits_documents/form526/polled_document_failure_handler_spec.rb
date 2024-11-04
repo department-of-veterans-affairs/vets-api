@@ -12,7 +12,6 @@ RSpec.describe BenefitsDocuments::Form526::PolledDocumentFailureHandler do
         create(
           :lighthouse526_document_upload,
           document_type: Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE
-
         )
       end
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Service for taking action when we poll Lighthouse for the status of
-# a Lighthouse526DocumentUpload polling record. When Lighthouse marks the 
+# a Lighthouse526DocumentUpload polling record. When Lighthouse marks the
 # record as failed in their system, this class handles any
 # post-polling actions to deal with the failure.
 module BenefitsDocuments
@@ -27,10 +27,7 @@ module BenefitsDocuments
         case @lighthouse526_document_upload.document_type
         when Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE
           enqueue_veteran_evidence_failure_mailer
-        when Lighthouse526DocumentUpload::FORM_0781_DOCUMENT_TYPE
-          enqueue_0781_failure_mailer
-        when Lighthouse526DocumentUpload::FORM_0781A_DOCUMENT_TYPE
-          # We send the same email regardless of whether it was a Form 0781 or Form 0781a that failed
+        when Lighthouse526DocumentUpload::FORM_0781_DOCUMENT_TYPE, Lighthouse526DocumentUpload::FORM_0781A_DOCUMENT_TYPE
           enqueue_0781_failure_mailer
         end
       end
@@ -45,7 +42,7 @@ module BenefitsDocuments
 
       def enqueue_0781_failure_mailer
         EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail
-        .perform_async(@lighthouse526_document_upload.form526_submission_id)
+          .perform_async(@lighthouse526_document_upload.form526_submission_id)
       end
     end
   end
