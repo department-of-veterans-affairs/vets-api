@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe 'NextStepsEmailController', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/next_steps_email' }
+    let(:accredited_individual) { create(:accredited_individual) }
     let(:params) do
       {
         next_steps_email: {
@@ -12,9 +13,8 @@ RSpec.describe 'NextStepsEmailController', type: :request do
           first_name: 'First',
           form_name: 'Form Name',
           form_number: 'Form Number',
-          representative_type: 'attorney',
-          representative_name: 'Name',
-          representative_address: 'Address'
+          entity_type: 'individual',
+          entity_id: accredited_individual.id
         }
       }
     end
@@ -70,8 +70,6 @@ RSpec.describe 'NextStepsEmailController', type: :request do
         before do
           params[:next_steps_email][:email_address] = nil
           params[:next_steps_email][:first_name] = nil
-          params[:next_steps_email][:representative_type] = nil
-          params[:next_steps_email][:representative_name] = nil
           post(base_path, params:)
         end
 
@@ -82,8 +80,6 @@ RSpec.describe 'NextStepsEmailController', type: :request do
         it 'responds with the expected body' do
           expect(response.body).to include("Email address can't be blank")
           expect(response.body).to include("First name can't be blank")
-          expect(response.body).to include("Representative type can't be blank")
-          expect(response.body).to include("Representative name can't be blank")
         end
       end
     end
