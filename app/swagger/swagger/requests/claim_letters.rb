@@ -69,6 +69,7 @@ module Swagger
         end
         property :version, type: :string
         property :type_description, type: :string
+        property :display_description, type: :string
         property :type_id, type: :string
         property :doc_type, type: :string
         property :subject, type: %i[string null]

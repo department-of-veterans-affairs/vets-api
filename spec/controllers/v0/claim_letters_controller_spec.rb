@@ -93,6 +93,24 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     end
   end
 
+  describe '#index when "cst_include_ddl_5103_letters", "cst_include_ddl_boa_letters",
+  and "cst_include_ddl_sqd_letters" feature flags are all enabled' do
+    before do
+      Flipper.enable(:cst_include_ddl_5103_letters)
+      Flipper.enable(:cst_include_ddl_boa_letters)
+      Flipper.enable(:cst_include_ddl_sqd_letters)
+    end
+
+    it 'lists correct documents' do
+      all_allowed_doctypes = %w[27 34 184 408 700 704 706 858 859 864 942 1605]
+      get(:index)
+      letters = JSON.parse(response.body)
+      allowed_letters = letters.select { |d| all_allowed_doctypes.include?(d['doc_type']) }
+
+      expect(allowed_letters.length).to eql(letters.length)
+    end
+  end
+
   describe '#show' do
     it 'responds with a pdf with a dated filename' do
       get(:show, params: { document_id: })
