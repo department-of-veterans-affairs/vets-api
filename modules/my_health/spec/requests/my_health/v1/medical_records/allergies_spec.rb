@@ -110,16 +110,12 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
       allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
                                                 instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
-
-      VCR.insert_cassette('mr_client/get_a_list_of_allergies_oh_data_path')
-    end
-
-    after do
-      VCR.eject_cassette
     end
 
     it 'responds to GET #index' do
-      get '/my_health/v1/medical_records/allergies?use_oh_data_path=1'
+      VCR.use_cassette('mr_client/get_a_list_of_allergies_oh_data_path') do
+        get '/my_health/v1/medical_records/allergies?use_oh_data_path=1'
+      end
 
       expect(response).to be_successful
       expect(response.body).to be_a(String)
@@ -131,6 +127,22 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
       item = body['entry'][1]
       expect(item['resource']['resourceType']).to eq('AllergyIntolerance')
       expect(item['resource']['category'][0]).to eq('food')
+    end
+
+    it 'responds to GET #show' do
+      allergy_id = '4-6Z8D6dAzABlkPZA'
+
+      VCR.use_cassette('mr_client/get_an_allergy_oh_data_path') do
+        get "/my_health/v1/medical_records/allergies/#{allergy_id}?use_oh_data_path=1"
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+
+      body = JSON.parse(response.body)
+      expect(body['resourceType']).to eq('AllergyIntolerance')
+      expect(body['id']).to eq(allergy_id)
+      expect(body['category'][0]).to eq('food')
     end
   end
 end
