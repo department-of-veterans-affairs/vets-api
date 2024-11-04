@@ -27,13 +27,15 @@ module RepresentationManagement
     end
 
     def entity_display_type
-      if entity.is_a?(Veteran::Service::Representative)
-        veteran_service_representative_type
-      elsif entity.is_a?(AccreditedIndividual)
-        entity.individual_type
-      else
-        'Veteran Service Organization'
-      end
+      display_type =
+        if entity.is_a?(Veteran::Service::Representative)
+          veteran_service_representative_type
+        elsif entity.is_a?(AccreditedIndividual)
+          entity.individual_type
+        else
+          'Veteran Service Organization'
+        end
+      display_type.humanize.titleize
     end
 
     def entity_name
@@ -52,10 +54,6 @@ module RepresentationManagement
         #{entity.city}, #{entity.state_code} #{entity.zip_code} #{entity.zip_code_suffix}
         #{entity.country}
       ADDRESS
-    end
-
-    def representative_type_humanized
-      @representative_type_humanized ||= representative_type.humanize.titleize
     end
 
     private
