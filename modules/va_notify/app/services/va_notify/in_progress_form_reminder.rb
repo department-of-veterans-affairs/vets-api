@@ -24,7 +24,10 @@ module VANotify
         if Flipper.enabled?(:va_notify_user_account_job)
           UserAccountJob.perform_async(veteran.uuid,
                                        template_id,
-                                       personalisation_details_single)
+                                       personalisation_details_single,
+                                       Settings.vanotify.services.va_gov.api_key,
+                                       { callback: 'VANotify::InProgressFormReminderCallback',
+                                         metadata: @in_progress_form.form_id })
         else
           IcnJob.perform_async(veteran.icn, template_id, personalisation_details_single)
         end
@@ -33,7 +36,10 @@ module VANotify
         if Flipper.enabled?(:va_notify_user_account_job)
           UserAccountJob.perform_async(veteran.uuid,
                                        template_id,
-                                       personalisation_details_multiple)
+                                       personalisation_details_multiple,
+                                       Settings.vanotify.services.va_gov.api_key,
+                                       { callback: 'VANotify::InProgressFormReminderCallback',
+                                         metadata: @in_progress_form.form_id })
         else
           IcnJob.perform_async(veteran.icn, template_id, personalisation_details_single)
         end
