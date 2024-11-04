@@ -337,7 +337,7 @@ Rails.application.routes.draw do
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
-    resources :backend_statuses, param: :service, only: %i[index show]
+    resources :backend_statuses, only: %i[index]
 
     resources :apidocs, only: [:index]
 
