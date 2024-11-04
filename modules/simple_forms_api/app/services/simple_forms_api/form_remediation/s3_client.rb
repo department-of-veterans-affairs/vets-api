@@ -115,7 +115,7 @@ module SimpleFormsApi
       def s3_upload_file_path(type)
         extension = File.extname(archive_path)
         ext = type == :submission ? '.pdf' : '.zip'
-        build_path(:file, s3_directory_path, archive_path, ext: extension ? nil : ext)
+        build_path(:file, s3_directory_path, File.basename(archive_path), ext: extension ? nil : ext)
       end
 
       def presign_required?

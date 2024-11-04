@@ -188,7 +188,6 @@ form_10_10cg:
       aws_access_key_id: my-aws-key-id
       aws_secret_access_key: my-aws-access-key
       bucket: my-bucket
-      enabled: true
       region: us-gov-west-1
 
 vbs:
@@ -1274,11 +1273,9 @@ vanotify:
       api_key: fake_secret
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
-        burial_claim_confirmation_email_template_id: burial_claim_confirmation_email_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
-        form527ez_confirmation_email: form527ez_confirmation_email_template_id
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         contact_info_change: fake_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
@@ -1364,6 +1361,7 @@ vanotify:
         notice_of_disagreement_form_error_email: fake_nod_template_id
         supplemental_claim_evidence_error_email: fake_sc_evidence_template_id
         supplemental_claim_form_error_email: fake_sc_template_id
+        supplemental_claim_secondary_form_error_email: fake_sc_secondary_form_template_id
     benefits_disability:
       api_key: fake_secret
       template_id:
@@ -1389,6 +1387,27 @@ vanotify:
       template_id:
         form1010_ez_failure_email: fake_template_id
         form1010_ezr_failure_email: fake_template_id
+    # https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/
+    21p_527ez: &vanotify_services_pension
+      api_key: fake_secret
+      email:
+        confirmation:
+          template_id: form527ez_confirmation_email_template_id
+          flipper_id: false
+        error: null
+        received: null
+    pensions: *vanotify_services_pension
+    21p_530ez: &vanotify_services_burial
+      api_key: fake_secret
+      email:
+        confirmation:
+          template_id: burial_claim_confirmation_email_template_id
+          flipper_id: false
+        error: null
+        received: null
+    burials: *vanotify_services_burial
+    21p_530: *vanotify_services_burial
+    21p_530v2: *vanotify_services_burial
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
@@ -1650,7 +1669,6 @@ sidekiq:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 flipper:
   mute_logs: false
@@ -1658,7 +1676,6 @@ flipper:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 lgy:
   base_url: http://www.example.com
@@ -1724,7 +1741,6 @@ coverband:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 dogstatsd:
   enabled: false
@@ -1750,6 +1766,12 @@ avs:
 brd:
   api_key: 'fake_key'
   base_name: 'https://something.fake.va.gov'
+
+nod_vanotify_status_callback:
+  bearer_token: bearer_token_secret
+
+pension_ipf_vanotify_status_callback:
+  bearer_token: bearer_token_secret
 
 travel_pay:
   sts:
