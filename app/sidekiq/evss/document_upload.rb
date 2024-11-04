@@ -38,7 +38,7 @@ class EVSS::DocumentUpload
   end
 
   sidekiq_retries_exhausted do |msg, _ex|
-    # There should be 2 values in msg['args']:
+    # There should be 3 values in msg['args']:
     # 1) Auth headers needed to authenticate with EVSS
     # 2) The uuid of the record in the UserAccount table
     # 3) Document metadata

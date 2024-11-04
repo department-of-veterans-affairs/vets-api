@@ -38,7 +38,6 @@ class Lighthouse::DocumentUpload
     notify_client.send_email(
       recipient_identifier: { id_value: icn, id_type: 'ICN' },
       template_id: MAILER_TEMPLATE_ID,
-<<<<<<< HEAD
       personalisation: { first_name:, filename:, date_submitted:, date_failed: }
     )
 
