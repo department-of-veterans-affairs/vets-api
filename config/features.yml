@@ -153,6 +153,9 @@ features:
   champva_unique_temp_file_names:
     actor_type: user
     description: Enables unique temp file names for CHAMPVA PDF files
+  champva_file_recreate:
+    actor_type: user
+    description: Enhances file creation reliability by adding retry functionality in the vets-api tmp folder
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
