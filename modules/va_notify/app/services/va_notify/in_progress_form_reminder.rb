@@ -18,11 +18,12 @@ module VANotify
       @veteran = VANotify::Veteran.new(in_progress_form)
       return if veteran.first_name.blank?
       return if veteran.icn.blank?
+      return if in_progress_form.user_account_id.blank?
 
       if only_one_supported_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch(in_progress_form.form_id)
         if Flipper.enabled?(:va_notify_user_account_job)
-          UserAccountJob.perform_async(veteran.uuid,
+          UserAccountJob.perform_async(in_progress_form.user_account_id,
                                        template_id,
                                        personalisation_details_single,
                                        Settings.vanotify.services.va_gov.api_key,
@@ -34,7 +35,7 @@ module VANotify
       elsif oldest_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch('generic')
         if Flipper.enabled?(:va_notify_user_account_job)
-          UserAccountJob.perform_async(veteran.uuid,
+          UserAccountJob.perform_async(in_progress_form.user_account_id,
                                        template_id,
                                        personalisation_details_multiple,
                                        Settings.vanotify.services.va_gov.api_key,

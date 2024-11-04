@@ -5,7 +5,9 @@ require 'sidekiq/testing'
 
 describe VANotify::InProgressFormReminder, type: :worker do
   let(:user) { create(:user) }
-  let(:in_progress_form) { create(:in_progress_686c_form, user_uuid: user.uuid) }
+  let(:in_progress_form) do
+    create(:in_progress_686c_form, user_uuid: user.uuid, user_account_id: create(:user_account).id)
+  end
 
   describe '#perform' do
     it 'skips sending if ICN is not present' do
@@ -73,22 +75,27 @@ describe VANotify::InProgressFormReminder, type: :worker do
         end
 
         callback_klass = 'VANotify::InProgressFormReminderCallback'
-        expect(VANotify::UserAccountJob).to have_received(:perform_async).with('uuid', 'fake_template_id',
-                                                                               {
-                                                                                 'first_name' => 'FIRST_NAME',
-                                                                                 'date' => expiration_date,
-                                                                                 'form_age' => ''
-                                                                               },
-                                                                               'fake_secret',
-                                                                               { callback: callback_klass,
-                                                                                 metadata: '686C-674' })
+        expect(VANotify::UserAccountJob).to have_received(:perform_async)
+          .with(in_progress_form.user_account_id, 'fake_template_id',
+                {
+                  'first_name' => 'FIRST_NAME',
+                  'date' => expiration_date,
+                  'form_age' => ''
+                },
+                'fake_secret',
+                { callback: callback_klass,
+                  metadata: '686C-674' })
       end
     end
 
     describe 'multiple relevant in_progress_forms' do
       let!(:in_progress_form_1) do
         Timecop.freeze(7.days.ago)
-        in_progress_form = create(:in_progress_686c_form, user_uuid: user.uuid)
+        in_progress_form = create(
+          :in_progress_686c_form,
+          user_uuid: user.uuid,
+          user_account_id: create(:user_account).id
+        )
         Timecop.return
         in_progress_form
       end
@@ -122,17 +129,23 @@ describe VANotify::InProgressFormReminder, type: :worker do
 
         allow(VANotify::UserAccountJob).to receive(:perform_async)
         stub_const('VANotify::FindInProgressForms::RELEVANT_FORMS', %w[686C-674 form_2_id form_3_id])
-        stub_const('VANotify::InProgressFormHelper::FRIENDLY_FORM_SUMMARY', {
-                     '686C-674' => '686c something',
-                     'form_2_id' => 'form_2 something',
-                     'form_3_id' => 'form_3 something'
-                   })
+        stub_const(
+          'VANotify::InProgressFormHelper::FRIENDLY_FORM_SUMMARY',
+          {
+            '686C-674' => '686c something',
+            'form_2_id' => 'form_2 something',
+            'form_3_id' => 'form_3 something'
+          }
+        )
 
-        stub_const('VANotify::InProgressFormHelper::FRIENDLY_FORM_ID', {
-                     '686C-674' => '686C-674',
-                     'form_2_id' => 'form_2_example_id',
-                     'form_3_id' => 'form_3_example_id'
-                   })
+        stub_const(
+          'VANotify::InProgressFormHelper::FRIENDLY_FORM_ID',
+          {
+            '686C-674' => '686C-674',
+            'form_2_id' => 'form_2_example_id',
+            'form_3_id' => 'form_3_example_id'
+          }
+        )
 
         form_1_date = in_progress_form_1.expires_at.strftime('%B %d, %Y')
         form_2_date = in_progress_form_2.expires_at.strftime('%B %d, %Y')
@@ -143,14 +156,16 @@ describe VANotify::InProgressFormReminder, type: :worker do
         end
 
         # rubocop:disable Layout/LineLength
-        expect(VANotify::UserAccountJob).to have_received(:perform_async).with('uuid', 'fake_template_id',
-                                                                               {
-                                                                                 'first_name' => 'FIRST_NAME',
-                                                                                 'formatted_form_data' => "\n^ FORM 686C-674\n^\n^__686c something__\n^\n^_Application expires on:_ #{form_1_date}\n\n\n^---\n\n^ FORM form_3_example_id\n^\n^__form_3 something__\n^\n^_Application expires on:_ #{form_3_date}\n\n\n^---\n\n^ FORM form_2_example_id\n^\n^__form_2 something__\n^\n^_Application expires on:_ #{form_2_date}\n\n"
-                                                                               },
-                                                                               'fake_secret',
-                                                                               { callback: 'VANotify::InProgressFormReminderCallback',
-                                                                                 metadata: '686C-674' })
+        expect(VANotify::UserAccountJob).to have_received(:perform_async).with(
+          in_progress_form_1.user_account_id,
+          'fake_template_id',
+          {
+            'first_name' => 'FIRST_NAME',
+            'formatted_form_data' => "\n^ FORM 686C-674\n^\n^__686c something__\n^\n^_Application expires on:_ #{form_1_date}\n\n\n^---\n\n^ FORM form_3_example_id\n^\n^__form_3 something__\n^\n^_Application expires on:_ #{form_3_date}\n\n\n^---\n\n^ FORM form_2_example_id\n^\n^__form_2 something__\n^\n^_Application expires on:_ #{form_2_date}\n\n"
+          },
+          'fake_secret',
+          { callback: 'VANotify::InProgressFormReminderCallback',
+            metadata: '686C-674' })
         # rubocop:enable Layout/LineLength
       end
     end
