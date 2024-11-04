@@ -24,26 +24,13 @@ module ClaimsApi
     # @return {parameters, file}
     def generate_body(claim:, doc_type:, pdf_path:, ptcpnt_vet_id:)
       auth_headers = claim.auth_headers
-      veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'],
-                                          auth_headers['va_eauth_lastName'])
+      veteran_name = compact_name_for_file(auth_headers['va_eauth_firstName'],
+                                           auth_headers['va_eauth_lastName'])
       tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
 
       generate_upload_body(claim_id: claim.claim_id, system_name: 'VA.gov', doc_type:, pdf_path:,
-                           file_name: file_name(claim, veteran_name), birls_file_number: nil,
+                           file_name: file_name(claim, veteran_name, FORM_SUFFIX), birls_file_number: nil,
                            participant_id: ptcpnt_vet_id, tracked_item_ids:)
-    end
-
-    def dependent_filing?(claim)
-      claim.auth_headers['dependent']
-    end
-
-    def file_name(claim, veteran_name)
-      build_file_name(
-        veteran_name:,
-        identifier: claim.id,
-        suffix: FORM_SUFFIX,
-        dependent: dependent_filing?(claim)
-      )
     end
   end
 end

@@ -42,10 +42,6 @@ module ClaimsApi
 
     private
 
-    def enable_vbms_access?(poa_form:)
-      poa_form.form_data['recordConsent'] && poa_form.form_data['consentLimits'].blank?
-    end
-
     def vanotify?(auth_headers, rep)
       if Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify)
         auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?

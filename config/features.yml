@@ -209,6 +209,10 @@ features:
     actor_type: user
     description: Diverts codepath to use refactored BD methods
     enable_in_development: true
+  claims_api_ews_updater_enables_local_bgs:
+    actor_type: user
+    description: Uses local_bgs rather than bgs-ext
+    enable_in_development: true
   claims_api_ews_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends ews forms to BD via the refactored logic
@@ -459,14 +463,6 @@ features:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
     enable_in_development: true
-  disability_526_maximum_rating:
-    actor_type: user
-    description: enables displaying a short education blurb alongside rated disabilities already at maximum rating.
-    enable_in_development: true
-  disability_526_maximum_rating_api_all_conditions:
-    actor_type: user
-    description: enables calls to VRO Max CFI API for all conditions, otherwise only calls for select conditions are made
-    enable_in_development: false
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
@@ -1604,6 +1600,12 @@ features:
   disability_compensation_upload_bdd_instructions_to_lighthouse:
     actor_type: user
     description: If enabled uploads BDD instructions to Lighthouse Benefits Documents API instead of EVSS
+  disability_compensation_use_api_provider_for_0781_uploads:
+    actor_type: user
+    description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading 0781/a forms
+  disability_compensation_upload_0781_to_lighthouse:
+    actor_type: user
+    description: If enabled uploads 0781/a forms to Lighthouse Benefits Documents API instead of EVSS
   disability_compensation_use_api_provider_for_submit_veteran_upload:
     actor_type: user
     description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading Veteran Evidence
