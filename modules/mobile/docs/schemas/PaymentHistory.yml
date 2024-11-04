@@ -42,10 +42,12 @@ properties:
               type: string
               example: "Compensation & Pension - Recurring"
             bank:
-              type: string, null
+              type: string
+              nullable: true
               example: "PACIFIC PREMIER BANK"
             account:
-              type: string, null
+              type: string
+              nullable: true
               example: "************6464"
   meta:
     type: object

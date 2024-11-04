@@ -242,9 +242,17 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
       end
 
       it 'increments statsd when job fails permanently' do
-        expect do
-          described_class.new.sidekiq_retries_exhausted_block.call
-        end.to trigger_statsd_increment('worker.decision_review.submit_upload.permanent_error')
+        msg = {
+          'jid' => 'job_id',
+          'args' => [appeal_submission_upload.id],
+          'error_message' => 'An error occurred for sidekiq job'
+        }
+
+        tags = ['service:board-appeal', 'function: evidence submission to Lighthouse']
+
+        expect { described_class.new.sidekiq_retries_exhausted_block.call(msg) }
+          .to trigger_statsd_increment('worker.decision_review.submit_upload.permanent_error')
+          .and trigger_statsd_increment('silent_failure', tags:)
       end
     end
 

@@ -159,14 +159,14 @@ RSpec.describe Form526StatusPollingJob, type: :job do
                 .and_return(response)
 
               expect(Form526SubmissionFailureEmailJob)
-                .not_to receive(:perform_async).with(backup_submission_a.id, timestamp)
+                .not_to receive(:perform_async).with(backup_submission_a.id, timestamp.to_s)
               expect(Form526SubmissionFailureEmailJob)
-                .not_to receive(:perform_async).with(backup_submission_b.id, timestamp)
+                .not_to receive(:perform_async).with(backup_submission_b.id, timestamp.to_s)
 
               expect(Form526SubmissionFailureEmailJob)
-                .to receive(:perform_async).once.ordered.with(backup_submission_c.id, timestamp)
+                .to receive(:perform_async).once.ordered.with(backup_submission_c.id, timestamp.to_s)
               expect(Form526SubmissionFailureEmailJob)
-                .to receive(:perform_async).once.ordered.with(backup_submission_d.id, timestamp)
+                .to receive(:perform_async).once.ordered.with(backup_submission_d.id, timestamp.to_s)
 
               Form526StatusPollingJob.new.perform
             end
