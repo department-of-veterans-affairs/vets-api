@@ -19,7 +19,7 @@ module ClaimStatusTool
       '864' => 'Copy of request for medical records sent to a non-VA provider',
       '942' => 'Final notification: Request for specific evidence or information',
       '1605' => 'Copy of request for non-medical records sent to a non-VA organization'
-    }
+    }.freeze
 
     def initialize(user, allowed_doctypes = DEFAULT_ALLOWED_DOCTYPES)
       @user = user
@@ -94,7 +94,7 @@ module ClaimStatusTool
       letters = docs.map { |d| filter_letters(d.marshal_dump) }.compact
       letters = letters.select { |d| filter_boa_letters(d) }
       # Issue 96224, consolidating letters' display names upstream
-      letters.each { |d| d[:display_description] = DOCTYPE_TO_DISPLAY_DESCRIPTION[d[:doc_type]]}
+      letters.each { |d| d[:display_description] = DOCTYPE_TO_DISPLAY_DESCRIPTION[d[:doc_type]] }
       # TODO: (rare) Handle nil received_at
       letters.sort_by { |d| d[:received_at] }.reverse
     end
