@@ -179,7 +179,14 @@ module VAOS
       end
 
       def sort_recent_appointments(appointments)
-        appointments.sort_by { |appointment| DateTime.parse(appointment.start) }
+        filtered_appts = appointments.reject { |appt| appt&.start.nil? }
+        removed_appts = appointments - filtered_appts
+        if removed_appts.length.positive?
+          removed_appts.each do |rem_appt|
+            Rails.logger.info("VAOS appointment sorting filtered out id #{rem_appt.id} due to missing start time.")
+          end
+        end
+        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)

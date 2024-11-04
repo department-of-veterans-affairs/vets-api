@@ -267,6 +267,11 @@
             "consentAddressChange": {
               "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
               "type": "boolean"
+            },
+            "procId": {
+              "description": "The process ID of the new Power of Attorney request.",
+              "type": "string",
+              "example": "12345"
             }
           }
         }
