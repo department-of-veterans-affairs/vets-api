@@ -197,18 +197,6 @@ module ClaimsApi
           }
         end
 
-        def dependent_claimant_poa_assignment_service(poa_code:, file_number:, dependent_participant_id:, claimant_ssn:)
-          ClaimsApi::DependentClaimantPoaAssignmentService.new(
-            poa_code:,
-            veteran_participant_id: target_veteran.participant_id,
-            dependent_participant_id:,
-            veteran_file_number: file_number,
-            allow_poa_access: form_attributes[:recordConsent].present? ? 'Y' : nil,
-            allow_poa_cadd: form_attributes[:consentAddressChange].present? ? 'Y' : nil,
-            claimant_ssn:
-          )
-        end
-
         def current_poa_begin_date
           return nil if power_of_attorney_verifier.current_poa.try(:begin_date).blank?
 

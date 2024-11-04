@@ -167,6 +167,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122a', type: :request do
 
               context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
                 before do
+                  allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
+                    .to receive(:disable_jobs?).and_return(false)
                   Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
                 end
 
@@ -174,14 +176,18 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122a', type: :request do
                   it 'enqueues the PoaFormBuilderJob' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['claimant'] = claimant_data
+                        request_body = json.to_json
+
                         expect do
-                          post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
-                        end.not_to change(ClaimsApi::V2::PoaFormBuilderJob.jobs, :size)
+                          post appoint_individual_path, params: request_body, headers: auth_header
+                        end.to change(ClaimsApi::V2::PoaFormBuilderJob.jobs, :size).by(1)
                       end
                     end
                   end
 
-                  it 'adds dependent values to the auth_headers' do
+                  it 'adds dependent values to the auth_headers when flipper enabled' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
                         json = JSON.parse(request_body)

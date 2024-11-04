@@ -97,7 +97,7 @@ module ClaimsApi
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
-          unless Settings.claims_api&.poa_v2&.disable_jobs
+          unless disable_jobs?
             ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id, 'post')
           end
 
@@ -124,7 +124,7 @@ module ClaimsApi
 
           headers.merge!({
                            dependent: {
-                             participant_id: claimant.participant_ids[0],
+                             participant_id: claimant.participant_id,
                              ssn: claimant.ssn,
                              first_name: claimant.given_names[0],
                              last_name: claimant.family_name
@@ -240,6 +240,10 @@ module ClaimsApi
           end
         rescue ArgumentError
           mpi_profile
+        end
+
+        def disable_jobs?
+          Settings.claims_api&.poa_v2&.disable_jobs
         end
 
         def add_claimant_data_to_form
