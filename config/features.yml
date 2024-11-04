@@ -695,6 +695,10 @@ features:
     actor_type: user
     description: Enables form 40-0247 email submission confirmation (VaNotify)
     enable_in_development: true
+  form40_10007_confirmation_email:
+    actor_type: user
+    description: Enables form 40-10007 email submission error (VaNotify)
+    enable_in_development: true  
   form1990meb_confirmation_email:
     actor_type: user
     description: Enables form 1990 MEB email submission confirmation (VaNotify)
