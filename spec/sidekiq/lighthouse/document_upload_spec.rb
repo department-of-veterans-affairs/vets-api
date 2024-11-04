@@ -17,7 +17,6 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
   let(:args) do
     {
       'args' => [user_account.icn, { 'file_name' => filename, 'first_name' => 'Bob' }],
-<<<<<<< HEAD
       'created_at' => issue_instant,
       'failed_at' => issue_instant
     }
