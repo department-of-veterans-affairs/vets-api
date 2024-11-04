@@ -81,7 +81,6 @@ module CentralMail
       FormSubmissionAttempt.transaction do
         form_submission = FormSubmission.create(
           form_type: claim.submittable_686? ? FORM_ID : FORM_ID_674,
-          benefits_intake_uuid: intake_uuid,
           saved_claim: claim,
           user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
         )
