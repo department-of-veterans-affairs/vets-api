@@ -105,7 +105,8 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
                                                         .and_return(claimant_service)
       allow(claimant_service).to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'],
                                                           flash: { flash_name: anything }).and_return(claim)
-      allow(claimant_service).to receive(:find_assigned_flashes).with(claim.auth_headers['va_eauth_pnid']).and_return(claim)
+      allow(claimant_service).to receive(:find_assigned_flashes).with(claim.auth_headers['va_eauth_pnid'])
+                                                                .and_return(claim)
     end
 
     it 'calls local_bgs instead of bgs-ext' do
