@@ -4,11 +4,8 @@ FactoryBot.define do
   factory :form_submission do
     form_type { '21-4142' }
     form_data { '{}' }
-    benefits_intake_uuid { SecureRandom.uuid }
 
     trait :pending do
-      benefits_intake_uuid { '6d8433c1-cd55-4c24-affd-f592287a7572' }
-
       form_submission_attempts { create_list(:form_submission_attempt, 1, :pending) }
     end
 

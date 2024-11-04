@@ -168,30 +168,6 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
             end
           end
         end
-
-        context 'lighthouse_claims_v2_poa_requests_skip_bgs disabled' do
-          before do
-            Flipper.disable(:lighthouse_claims_v2_poa_requests_skip_bgs)
-          end
-
-          it 'responds with created status and the original request body' do
-            VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
-              mock_ccg(scopes) do |auth_header|
-                # the final return from BGS does not matter at this point in time, the calls need only to succeed
-                allow_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
-                  .to receive(:submit_request)
-                  .and_return(true)
-
-                post request_path, params: request_body, headers: auth_header
-
-                response_body = JSON.parse(response.body)
-
-                expect(response).to have_http_status(:created)
-                expect(response_body).to eq(JSON.parse(request_body))
-              end
-            end
-          end
-        end
       end
     end
 

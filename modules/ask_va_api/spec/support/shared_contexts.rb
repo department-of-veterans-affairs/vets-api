@@ -114,7 +114,7 @@ RSpec.shared_context 'shared data' do
       DependantRelationship: nil,
       InquiryAbout: 722_310_001,
       InquiryCategory: '73524deb-d864-eb11-bb24-000d3a579c45',
-      InquirySource: '722_310_000',
+      InquirySource: '722310000',
       InquirySubtopic: '',
       InquirySummary: nil,
       InquiryTopic: 'c0da1728-d91f-ed11-b83c-001dd8069009',

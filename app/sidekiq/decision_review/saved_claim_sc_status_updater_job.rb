@@ -20,6 +20,8 @@ module DecisionReview
 
     ATTRIBUTES_TO_STORE = %w[status detail createDate updateDate].freeze
 
+    SECONDARY_FORM_ATTRIBUTES_TO_STORE = %w[status detail updated_at].freeze
+
     STATSD_KEY_PREFIX = 'worker.decision_review.saved_claim_sc_status_updater'
 
     def perform
@@ -57,6 +59,10 @@ module DecisionReview
       @service ||= DecisionReviewV1::Service.new
     end
 
+    def benefits_intake_service
+      @intake_service ||= BenefitsIntake::Service.new
+    end
+
     def supplemental_claims
       @supplemental_claims ||= ::SavedClaim::SupplementalClaim.where(delete_date: nil).order(created_at: :asc)
     end
@@ -92,8 +98,8 @@ module DecisionReview
       secondary_forms = secondary_forms&.filter { |form| form.delete_date.nil? } || []
 
       secondary_forms.each do |form|
-        response = decision_review_service.get_supplemental_claim_upload(uuid: form.guid).body
-        attributes = response.dig('data', 'attributes').slice(*ATTRIBUTES_TO_STORE)
+        response = benefits_intake_service.get_status(uuid: form.guid).body
+        attributes = response.dig('data', 'attributes').slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE)
         all_complete = false unless UPLOAD_SUCCESSFUL_STATUS.include?(attributes['status'])
         handle_secondary_form_status_metrics_and_logging(form, attributes['status'])
         update_secondary_form_status(form, attributes)

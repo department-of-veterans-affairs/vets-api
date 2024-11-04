@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../../../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/committee_helper'
+
 RSpec.describe 'Mobile::V0::Appointments::CheckIn', type: :request do
+  include CommitteeHelper
+
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
   let!(:user) { sis_user }
 
@@ -13,8 +17,7 @@ RSpec.describe 'Mobile::V0::Appointments::CheckIn', type: :request do
                                                    params: { 'appointmentIEN' => '516', 'locationId' => '516' }
         end
       end
-
-      expect(response).to have_http_status(:ok)
+      assert_schema_conform(200)
       expect(attributes['code']).to match('check-in-success')
       expect(attributes['message']).to match('Check-In successful')
     end
@@ -26,8 +29,7 @@ RSpec.describe 'Mobile::V0::Appointments::CheckIn', type: :request do
                                                    params: { 'appointmentIEN' => nil, 'locationId' => '516' }
         end
       end
-
-      expect(response).to have_http_status(:bad_request)
+      assert_schema_conform(400)
       expect(response.parsed_body.dig('errors', 0, 'title')).to match('Missing parameter')
     end
 
@@ -38,8 +40,7 @@ RSpec.describe 'Mobile::V0::Appointments::CheckIn', type: :request do
                                                    params: { 'appointmentIEN' => '516', 'locationId' => nil }
         end
       end
-
-      expect(response).to have_http_status(:bad_request)
+      assert_schema_conform(400)
       expect(response.parsed_body.dig('errors', 0, 'title')).to match('Missing parameter')
     end
 
@@ -68,7 +69,7 @@ RSpec.describe 'Mobile::V0::Appointments::CheckIn', type: :request do
             post '/mobile/v0/appointments/check-in', headers: sis_headers, params:
           end
         end
-        expect(response).to have_http_status(:bad_request)
+        assert_schema_conform(400)
         expect(JSON.parse(response.body).dig('errors', 0)).to eq(response_values)
       end
     end
@@ -92,7 +93,7 @@ RSpec.describe 'Mobile::V0::Appointments::CheckIn', type: :request do
             post '/mobile/v0/appointments/check-in', headers: sis_headers, params:
           end
         end
-        expect(response).to have_http_status(:internal_server_error)
+        assert_schema_conform(500)
         expect(response.parsed_body).to eq(expected_body)
       end
     end
@@ -120,7 +121,7 @@ RSpec.describe 'Mobile::V0::Appointments::CheckIn', type: :request do
           post '/mobile/v0/appointments/check-in', headers: sis_headers, params:
         end
 
-        expect(response).to have_http_status(:internal_server_error)
+        assert_schema_conform(500)
         expect(response.parsed_body).to eq(expected_body)
       end
     end
