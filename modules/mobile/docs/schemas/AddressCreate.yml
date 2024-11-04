@@ -33,9 +33,11 @@ properties:
         type: string
         example: "1493 Martin Luther King Rd"
       addressLine2:
-        type: string, null
+        type: string
+        nullable: true
       addressLine3:
-        type: string, null
+        type: string
+        nullable: true
       addressPou:
         type: string
         enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
@@ -51,17 +53,22 @@ properties:
         type: string
         example: "USA"
       internationalPostalCode:
-        type: string, null
+        type: string
+        nullable: true
         example: null
       province:
-        type: string, null
+        type: string
+        nullable: true
         example: null
       stateCode:
-        type: string, null
+        type: string
+        nullable: true
         example: "NY"
       zipCode:
-        type: string, null
+        type: string
+        nullable: true
         example: "97062"
       zipCodeSuffix:
-        type: string, null
+        type: string
+        nullable: true
         example: "1234"
