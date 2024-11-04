@@ -8,7 +8,7 @@ module ClaimsApi
 
       flashes.each do |flash_name|
         # NOTE: Assumption that duplicate flashes are ignored when submitted
-        bgs_service(user).add_flash(file_number: user['ssn'], flash_name:)
+        bgs_service(user).add_flash(file_number: user['ssn'], flash: { flash_name: })
       rescue BGS::ShareError, BGS::PublicError => e
         persist_exception(e, auto_claim_id:)
       end

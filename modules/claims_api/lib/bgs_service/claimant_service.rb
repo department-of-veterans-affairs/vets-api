@@ -16,47 +16,21 @@ module ClaimsApi
       end
 
       response = make_request(endpoint: bean_name, action: 'findAssignedFlashes', body:)
-      response.body[:find_assigned_flashes_response][:return]
+      response[:return] || response.body[:find_assigned_flashes_response][:return]
     end
 
-    def add_flash(options = {})
-      # builder = Nokogiri::XML::Builder.new do
-      #   addFlash do
-      #     FileNumber options[:file_number]
-      #     # flash do
-      #     # assignedIndicator options[:assigned_indicator]
-      #     # flashName options[:flash_name]
-      #     # flashType options[:flash_type]
-      #     # end
-      #   end
-      # end
-      # body = builder_to_xml(builder)
-
-      # injected = convert_nil_values(options)
-      # body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-      #   <ser:addFlash>
-      #     #{injected}
-      #   </ser:addFlash>
-      # EOXML
-      body =
-        "<soapenv:Envelope xmlns:soapenv='http://schemas.xmlsoap.org/soap/envelope/' xmlns:ser='http://services.share.benefits.vba.va.gov/'>
-          <soapenv:Header/>
-          <soapenv:Body>
-              <ser:addFlash>
-                <fileNumber>#{options[:file_number]}</fileNumber>
-                <flash>
-                    <assignedIndicator>?</assignedIndicator>
-                    <flashName>?</flashName>
-                    <flashType>?</flashType>
-                </flash>
-              </ser:addFlash>
-          </soapenv:Body>
-        </soapenv:Envelope>"
+    def add_flash(file_number:, flash: {})
+      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <fileNumber>#{file_number}</fileNumber>
+        <flash>
+          <assignedIndicator>#{flash[:assigned_indicator]}</assignedIndicator>
+          <flashName>#{flash[:flash_name]}</flashName>
+          <flashType>#{flash[:flash_type]}</flashType>
+        </flash>
+      EOXML
 
       response = make_request(endpoint: bean_name, action: 'addFlash', body:)
-      # namespaces: 'ser')
-      # , namespaces: { ser: addFlash }
-      response.body[:add_flash_response]
+      response&.dig(:body, :add_flash_response) || response
     end
   end
 end
