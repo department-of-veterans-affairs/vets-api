@@ -17,16 +17,16 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
             template_id: confirmation_email_template_id,
             flipper_id: false
           ),
-          error:  OpenStruct.new(
+          error: OpenStruct.new(
             template_id: error_email_template_id,
             flipper_id: error_email_flipper_id
           ),
           received: nil,
           no_config: nil,
-          no_template:  OpenStruct.new(
+          no_template: OpenStruct.new(
             template_id: nil,
             flipper_id: false
-          ),
+          )
         )
       )
     )
