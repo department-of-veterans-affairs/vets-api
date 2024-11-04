@@ -34,6 +34,24 @@ RSpec.describe PCPG::Monitor do
 
         monitor.track_submission_exhaustion(msg, claim)
       end
+
+      it 'logs with no claim information if claim is passed in as nil' do
+        msg = { 'args' => [claim.id, current_user.uuid], error_message: 'Error!' }
+
+        log = "Failed all retries on SubmitCareerCounselingJob, last error: #{msg['error_message']}"
+        payload = {
+          form_id: nil,
+          claim_id: msg['args'].first,
+          confirmation_number: nil,
+          message: msg
+        }
+
+        expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
+        expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
+
+        monitor.track_submission_exhaustion(msg, nil)
+      end
     end
 
     describe '#track_benefits_intake_submission_exhaustion' do
