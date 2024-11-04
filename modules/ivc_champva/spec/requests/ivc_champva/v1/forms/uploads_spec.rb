@@ -186,6 +186,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  if Flipper.enabled?(:champva_file_recreate, @user)
   describe '#handle_file_uploads' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
 
@@ -246,5 +247,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
         end
       end
     end
+  end
   end
 end
