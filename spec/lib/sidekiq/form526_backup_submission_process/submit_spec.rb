@@ -64,7 +64,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
             args = { 'jid' => form526_job_status.job_id, 'args' => [form526_submission.id] }
             subject.within_sidekiq_retries_exhausted_block(args) do
               expect(Form526SubmissionFailureEmailJob)
-                .to receive(:perform_async).with(form526_submission.id, timestamp)
+                .to receive(:perform_async).with(form526_submission.id, timestamp.to_s)
             end
           end
         end
@@ -81,7 +81,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
             subject.within_sidekiq_retries_exhausted_block(args) do
               expect(Form526SubmissionFailureEmailJob)
                 .not_to receive(:perform_async)
-                .with(form526_submission.id, timestamp)
+                .with(form526_submission.id, timestamp.to_s)
             end
           end
         end
