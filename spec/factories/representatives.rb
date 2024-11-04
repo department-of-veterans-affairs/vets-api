@@ -2,10 +2,10 @@
 
 FactoryBot.define do
   factory :representative, class: 'Veteran::Service::Representative' do
-    representative_id { Faker::Number.number(digits: 4) }
+    representative_id { '1234' }
     poa_codes { ['A1Q'] }
-    first_name { Faker::Name.first_name }
-    last_name { Faker::Name.last_name }
+    first_name { 'Bob' }
+    last_name { 'Law' }
     phone_number { '1234567890' }
     phone { '222-222-2222' }
     email { 'example@email.com' }

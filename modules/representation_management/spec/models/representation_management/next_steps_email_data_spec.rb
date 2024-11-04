@@ -74,18 +74,20 @@ RSpec.describe RepresentationManagement::NextStepsEmailData, type: :model do
     end
 
     it 'returns the entity display types for Veteran::Service::Representative' do
-      attorney = create(:representative, user_types: ['attorney'])
-      claim_agents = create(:representative, user_types: ['claim_agents'])
-      veteran_service_officer = create(:representative, user_types: ['veteran_service_officer'])
+      attorney = create(:representative, first_name: 'Bob', user_types: ['attorney'])
+      claim_agents = create(:representative, first_name: 'Bobby', user_types: ['claim_agents'],
+                                             representative_id: '12345')
+      veteran_service_officer = create(:representative, first_name: 'Bobbie', user_types: ['veteran_service_officer'],
+                                                        representative_id: '123456')
       next_steps_email_data_attorney = described_class.new(entity_type: 'individual',
                                                            entity_id: attorney.representative_id)
       next_steps_email_data_claim_agents = described_class.new(entity_type: 'individual',
                                                                entity_id: claim_agents.representative_id)
-      next_steps_email_data_veteran_service_officer = described_class.new(entity_type: 'individual',
-                                                                          entity_id: veteran_service_officer.representative_id)
+      next_steps_email_data_vso = described_class.new(entity_type: 'individual',
+                                                      entity_id: veteran_service_officer.representative_id)
       expect(next_steps_email_data_attorney.entity_display_type).to eq('Attorney')
       expect(next_steps_email_data_claim_agents.entity_display_type).to eq('Claims Agent')
-      expect(next_steps_email_data_veteran_service_officer.entity_display_type).to eq('Representative')
+      expect(next_steps_email_data_vso.entity_display_type).to eq('Representative')
     end
 
     it 'returns the entity display types for Veteran Service Organization' do
