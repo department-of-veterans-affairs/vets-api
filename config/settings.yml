@@ -266,7 +266,7 @@ vet360:
     timeout: 30
     mock: false
   demographics:
-    cache_enabled: false
+    cache_enabled: true
     enabled: true
     timeout: 30
     mock: true

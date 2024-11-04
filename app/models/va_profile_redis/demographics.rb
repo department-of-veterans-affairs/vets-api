@@ -11,7 +11,7 @@ module VAProfileRedis
   class Demographics < Common::RedisStore
     include Common::CacheAside
 
-    redis_config_key :va_profile_demographics
+    redis_config_key :va_profile_demographics_response
 
     attr_accessor :user
 

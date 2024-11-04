@@ -99,7 +99,7 @@ development: &defaults
   va_profile_v2_contact_info_response:
     namespace: va-profile-v2-contact-info-response
     each_ttl: 3600 # 1 hour
-  va_profile_demographics:
+  va_profile_demographics_response:
     namespace: va-profile-demographics-response
     each_ttl: 3600 # 1 hour
   intent_to_file_response:
