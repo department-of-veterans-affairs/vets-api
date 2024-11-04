@@ -165,7 +165,8 @@ describe VANotify::InProgressFormReminder, type: :worker do
           },
           'fake_secret',
           { callback: 'VANotify::InProgressFormReminderCallback',
-            metadata: '686C-674' })
+            metadata: '686C-674' }
+        )
         # rubocop:enable Layout/LineLength
       end
     end
