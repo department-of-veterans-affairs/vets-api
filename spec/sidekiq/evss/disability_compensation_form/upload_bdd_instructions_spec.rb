@@ -169,7 +169,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::UploadBddInstructions, type: :j
             'LighthouseSupplementalDocumentUploadProvider upload failed',
             {
               class: 'LighthouseSupplementalDocumentUploadProvider',
-              submission_id: submission.submitted_claim_id,
+              submitted_claim_id: submission.submitted_claim_id,
+              submission_id: submission.id,
               user_uuid: submission.user_uuid,
               va_document_type_code: 'L023',
               primary_form: 'Form526',
