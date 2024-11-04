@@ -29,7 +29,7 @@ module Logging
           function:,
           file:,
           line:,
-          additional_context: context
+          additional_context:
         }
         Rails.logger.public_send(error_level, message.to_s, payload)
       else

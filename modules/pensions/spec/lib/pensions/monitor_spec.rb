@@ -211,22 +211,50 @@ RSpec.describe Pensions::Monitor do
     end
 
     describe '#track_submission_exhaustion' do
-      it 'logs sidekiq job exhaustion' do
-        msg = { 'args' => [claim.id, current_user.uuid] }
+      context 'with a claim parameter' do
+        it 'logs sidekiq job exhaustion' do
+          notification = double(Pensions::NotificationEmail)
+          msg = { 'args' => [claim.id, current_user.uuid] }
 
-        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
-        payload = {
-          form_id: claim.form_id,
-          claim_id: claim.id,
-          confirmation_number: claim.confirmation_number,
-          message: msg
-        }
+          log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
+          payload = {
+            form_id: claim.form_id,
+            claim_id: claim.id,
+            confirmation_number: claim.confirmation_number,
+            message: msg
+          }
 
-        expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
-        expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
-        expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
+          expect(Pensions::NotificationEmail).to receive(:new).with(claim).and_return notification
+          expect(notification).to receive(:deliver).with(:error)
+          expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
 
-        monitor.track_submission_exhaustion(msg, claim)
+          expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
+          expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
+
+          monitor.track_submission_exhaustion(msg, claim)
+        end
+      end
+
+      context 'without a claim parameter' do
+        it 'logs sidekiq job exhaustion' do
+          msg = { 'args' => [claim.id, current_user.uuid] }
+
+          log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
+          payload = {
+            form_id: nil,
+            claim_id: claim.id, # pulled from msg.args
+            confirmation_number: nil,
+            message: msg
+          }
+
+          expect(Pensions::NotificationEmail).not_to receive(:new)
+          expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+
+          expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
+          expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
+
+          monitor.track_submission_exhaustion(msg, nil)
+        end
       end
     end
 
