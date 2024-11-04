@@ -26,6 +26,27 @@ module RepresentationManagement
       @entity ||= find_entity
     end
 
+    def entity_display_type
+      if entity.is_a?(Veteran::Service::Representative)
+        veteran_service_representative_type
+      elsif entity.is_a?(AccreditedIndividual)
+        entity.individual_type
+      else
+        'Veteran Service Organization'
+      end
+    end
+
+    def entity_name
+      if entity_type == 'individual'
+        entity.full_name
+      elsif entity_type == 'organization'
+        entity.name
+      end
+    end
+
+    def entity_address
+    end
+
     def representative_type_humanized
       @representative_type_humanized ||= representative_type.humanize.titleize
     end
