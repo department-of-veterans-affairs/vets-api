@@ -42,6 +42,7 @@ module KmsKeyRotation
 
     def gids_for_model(model, max_records_per_batch)
       model = MODELS_FOR_QUERY[model.name] if MODELS_FOR_QUERY.key?(model.name)
+
       model
         # Exclude records with the current KMS version
         .where.not('encrypted_kms_key LIKE ?', "v#{KmsEncryptedModelPatch.kms_version}:%")
