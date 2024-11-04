@@ -16,6 +16,22 @@ module SimpleFormsApi
         %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
       end
 
+      def content_type_allowlist
+        [
+          'image/bmp',         # bmp
+          'text/csv',          # csv
+          'image/gif',         # gif
+          'image/jpeg',        # jpeg
+          'image/jpg',         # jpg
+          'application/json',  # json
+          'application/pdf',   # pdf
+          'image/png',         # png
+          'image/tiff',        # tif, tiff
+          'text/plain',        # txt
+          'application/zip'    # zip
+        ]
+      end
+
       def initialize(directory:, config:)
         raise 'The S3 directory is missing.' if directory.blank?
         raise 'The configuration is missing.' unless config
@@ -53,12 +69,7 @@ module SimpleFormsApi
       attr_reader :config
 
       def s3_obj(file_path)
-        client = Aws::S3::Client.new(
-          retry_limit: 3,
-          retry_base_delay: 1,
-          retry_max_delay: 60,
-          retry_jitter: :full
-        )
+        client = Aws::S3::Client.new(stub_responses: Rails.env.test?)
         resource = Aws::S3::Resource.new(client:)
         resource.bucket(config.s3_settings.bucket).object(file_path)
       end
@@ -66,10 +77,18 @@ module SimpleFormsApi
       def set_storage_options!
         settings = config.s3_settings
 
-        self.aws_credentials = { region: settings.region }
+        self.aws_credentials = {
+          region: settings.region
+          # retry_mode: 'standard', # Use 'standard' or 'adaptive' for better retry handling
+          # retry_limit: 3 # Maximum retry attempts
+        }
         self.aws_acl = 'private'
         self.aws_bucket = settings.bucket
-        self.aws_attributes = { server_side_encryption: 'AES256' }
+        self.aws_attributes = {
+          server_side_encryption: 'AES256',
+          retry_mode: 'standard', # Use 'standard' or 'adaptive' for better retry handling
+          retry_limit: 3 # Maximum retry attempts
+        }
         self.class.storage = :aws
       end
     end

@@ -180,7 +180,17 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
         end
 
         shared_examples 's3 client handles outages gracefully' do
-          let(:s3_client) { Aws::S3::Client.new(stub_responses: true) }
+          let(:s3_client) { instance_double(Aws::S3::Client) }
+
+          before do
+            allow(Aws::S3::Client).to receive(:new).and_return(s3_client)
+            allow(object).to receive(:get).and_wrap_original do |method, *args|
+              call_count += 1
+              raise Aws::S3::Errors::ServiceError.new(nil, 'S3 Service Outage') if call_count < 3
+
+              method.call(*args)
+            end
+          end
 
           before do
             allow(archive_instance).to receive(:sleep)
@@ -199,18 +209,38 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
               )
             end
           end
+
+          context 'when S3 service is unavailable after all retries' do
+            before { s3_client.stub_responses(:put_object, 'ServiceError') }
+
+            it 'raises an error after max retries are exceeded' do
+              expect { upload }.to raise_exception(Aws::S3::Errors::ServiceError)
+              expect(Rails.logger).to have_received(:error).with(
+                a_hash_including(
+                  message: "Failed to upload #{type}: #{benefits_intake_uuid} to S3 after multiple retries"
+                )
+              )
             end
           end
 
-          context 'when S3 service remains unavailable after retries' do
+          context 'when the error is recoverable' do
+            it 'logs a user-friendly message for transient S3 issues' do
+              expect(Rails.logger).to receive(:info).with(
+                { message: 'S3 service is temporarily unavailable. Please try again later.' }
+              )
+              expect { upload }.to raise_exception(Aws::S3::Errors::ServiceError)
+            end
+          end
+
+          context 'when all retries fail' do
             before do
-              allow(uploader).to receive(:store!).and_raise(Aws::S3::Errors::ServiceError.new(nil, 'S3 Service Outage'))
+              allow(uploader).to receive(:store!).and_raise(Aws::S3::Errors::ServiceError.new(nil, 'S3 failure'))
             end
 
-            it 'logs an error after all retries fail' do
+            it 'notifies the user about the issue with a friendly message' do
               expect { upload }.to raise_exception(Aws::S3::Errors::ServiceError)
               expect(Rails.logger).to have_received(:error).with(
-                a_hash_including(message: "Failed to upload #{type}: #{benefits_intake_uuid} to S3 after 3 retries")
+                a_hash_including(message: "Final upload failure for #{type} with ID: #{benefits_intake_uuid}")
               )
             end
           end
