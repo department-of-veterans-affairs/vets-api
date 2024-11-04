@@ -45,6 +45,13 @@ module RepresentationManagement
     end
 
     def entity_address
+      <<~ADDRESS.squish
+        #{entity.address_line1}
+        #{entity.address_line2}
+        #{entity.address_line3}
+        #{entity.city}, #{entity.state_code} #{entity.zip_code} #{entity.zip_code_suffix}
+        #{entity.country}
+      ADDRESS
     end
 
     def representative_type_humanized
@@ -69,6 +76,22 @@ module RepresentationManagement
     def find_organization
       AccreditedOrganization.find_by(id: entity_id) ||
         Veteran::Service::Organization.find_by(poa: entity_id)
+    end
+
+    def veteran_service_representative_type
+      representative_type = entity.user_types.first
+      return '' if representative_type.blank?
+
+      case representative_type
+      when 'claims_agent', 'claim_agents'
+        'claims_agent'
+      when 'veteran_service_officer'
+        'representative'
+      when 'attorney'
+        'attorney'
+      else
+        ''
+      end
     end
   end
 end
