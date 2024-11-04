@@ -20,9 +20,11 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
       'created_at' => issue_instant
     }
   end
+  let(:tags) { subject::DD_ZSF_TAGS }
 
   before do
     allow(Rails.logger).to receive(:info)
+    allow(StatsD).to receive(:increment)
   end
 
   context 'when cst_send_evidence_failure_emails is enabled' do
@@ -57,6 +59,7 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
         expect(Rails.logger)
           .to receive(:info)
           .with('Lighthouse::DocumentUpload exhaustion handler email sent')
+        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
       end
     end
   end
