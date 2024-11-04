@@ -72,12 +72,16 @@ describe VANotify::InProgressFormReminder, type: :worker do
           described_class.new.perform(in_progress_form.id)
         end
 
+        callback_klass = 'VANotify::InProgressFormReminderCallback'
         expect(VANotify::UserAccountJob).to have_received(:perform_async).with('uuid', 'fake_template_id',
                                                                                {
                                                                                  'first_name' => 'FIRST_NAME',
                                                                                  'date' => expiration_date,
                                                                                  'form_age' => ''
-                                                                               })
+                                                                               },
+                                                                               'fake_secret',
+                                                                               { callback: callback_klass,
+                                                                                 metadata: '686C-674' })
       end
     end
 
@@ -143,7 +147,10 @@ describe VANotify::InProgressFormReminder, type: :worker do
                                                                                {
                                                                                  'first_name' => 'FIRST_NAME',
                                                                                  'formatted_form_data' => "\n^ FORM 686C-674\n^\n^__686c something__\n^\n^_Application expires on:_ #{form_1_date}\n\n\n^---\n\n^ FORM form_3_example_id\n^\n^__form_3 something__\n^\n^_Application expires on:_ #{form_3_date}\n\n\n^---\n\n^ FORM form_2_example_id\n^\n^__form_2 something__\n^\n^_Application expires on:_ #{form_2_date}\n\n"
-                                                                               })
+                                                                               },
+                                                                               'fake_secret',
+                                                                               { callback: 'VANotify::InProgressFormReminderCallback',
+                                                                                 metadata: '686C-674' })
         # rubocop:enable Layout/LineLength
       end
     end
