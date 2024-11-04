@@ -17,7 +17,9 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
   let(:args) do
     {
       'args' => [user_account.icn, { 'file_name' => filename, 'first_name' => 'Bob' }],
-      'created_at' => issue_instant
+<<<<<<< HEAD
+      'created_at' => issue_instant,
+      'failed_at' => issue_instant
     }
   end
   let(:tags) { subject::DD_ZSF_TAGS }
@@ -51,7 +53,8 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
             personalisation: {
               first_name: 'Bob',
               filename: 'docXXXX-XXte.pdf',
-              date_submitted: formatted_submit_date
+              date_submitted: formatted_submit_date,
+              date_failed: formatted_submit_date
             }
           }
         )

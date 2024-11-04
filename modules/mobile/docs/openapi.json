@@ -459,19 +459,13 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -523,19 +517,13 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -587,19 +575,13 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -642,19 +624,13 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -722,19 +698,13 @@
                             "best_time_to_call": [
                               "Morning"
                             ],
-                            "friendly_location_name": "DAYTSHR -Dayton VA Medical Center",
-                            "locationId": "938"
+                            "friendly_location_name": "DAYTSHR -Dayton VA Medical Center"
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -804,22 +774,28 @@
                               "Evening",
                               "Morning"
                             ],
-                            "friendly_location_name": "CHYSHR-Cheyenne VA Medical Center",
-                            "locationId": "938"
+                            "friendly_location_name": "CHYSHR-Cheyenne VA Medical Center"
                           }
                         }
                       ],
                       "meta": {
-                        "errors": null,
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
-                  },
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Appointments"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "207": {
+            "content": {
+              "application/json": {
+                "examples": {
                   "Partial Appointments": {
                     "description": "For cases when 1 or more errors are returned from upstream, an error message with source `VA Service` is added within the meta",
                     "value": {
@@ -869,8 +845,7 @@
                             "patient_phone_number": null,
                             "patient_email": null,
                             "best_time_to_call": null,
-                            "friendly_location_name": null,
-                            "locationId": "938"
+                            "friendly_location_name": null
                           }
                         }
                       ],
@@ -880,12 +855,8 @@
                             "source": "VA Service"
                           }
                         ],
-                        "checkinWindow": {
-                          "minutesBefore": 45,
-                          "minutesAfter": 15
-                        },
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   }
@@ -895,7 +866,7 @@
                 }
               }
             },
-            "description": "OK"
+            "description": "Multi Status"
           },
           "401": {
             "$ref": "#/components/responses/401"
@@ -949,6 +920,9 @@
           },
           "408": {
             "$ref": "#/components/responses/408"
+          },
+          "418": {
+            "$ref": "#/components/responses/418"
           },
           "422": {
             "$ref": "#/components/responses/422"
@@ -3480,6 +3454,81 @@
           }
         ],
         "summary": "/v0/efolder/documents"
+      }
+    },
+    "/v0/efolder/documents/{documentId}/download": {
+      "post": {
+        "description": "returns requested document",
+        "parameters": [
+          {
+            "description": "File name of the document to be returned.",
+            "in": "query",
+            "name": "file_name",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "description": "ID of the document to be returned.",
+            "in": "path",
+            "name": "document_id",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "{93631483-E9F9-44AA-BB55-3552376400D8}"
+            }
+          },
+          {
+            "$ref": "#/components/parameters/InflectionHeader"
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK"
+          },
+          "401": {
+            "$ref": "#/components/responses/401"
+          },
+          "403": {
+            "$ref": "#/components/responses/403"
+          },
+          "404": {
+            "$ref": "#/components/responses/404"
+          },
+          "408": {
+            "$ref": "#/components/responses/408"
+          },
+          "422": {
+            "$ref": "#/components/responses/422"
+          },
+          "500": {
+            "$ref": "#/components/responses/500"
+          },
+          "502": {
+            "$ref": "#/components/responses/502"
+          },
+          "503": {
+            "$ref": "#/components/responses/503"
+          },
+          "504": {
+            "$ref": "#/components/responses/504"
+          }
+        },
+        "security": [
+          {
+            "Bearer": []
+          }
+        ],
+        "summary": "/v0/efolder/documents/{documentId}/download"
       }
     },
     "/v0/enrollment-status": {
@@ -8349,6 +8398,16 @@
         },
         "description": "The response from this API timed out."
       },
+      "418": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/CustomErrors"
+            }
+          }
+        },
+        "description": "Custom Error Message"
+      },
       "422": {
         "content": {
           "application/json": {
@@ -9033,8 +9092,6 @@
               "appointmentIen",
               "cancelId",
               "comment",
-              "clinicId",
-              "facilityId",
               "healthcareProvider",
               "healthcareService",
               "location",
@@ -9048,8 +9105,7 @@
               "timeZone",
               "vetextId",
               "reason",
-              "isCovidVaccine",
-              "locationId"
+              "isCovidVaccine"
             ],
             "properties": {
               "appointmentType": {
@@ -9066,22 +9122,27 @@
               },
               "appointmentIen": {
                 "type": "string",
+                "nullable": true,
                 "example": 19648
               },
               "cancelId": {
                 "type": "string",
+                "nullable": true,
                 "example": "MzA4OzIwMjAxMTAzLjA5MDAwMDs0NDI7Q0hZIFBDIEtJTFBBVFJJQ0s="
               },
               "comment": {
                 "type": "string",
+                "nullable": true,
                 "example": "Please arrive 20 minutes before the start of your appointment"
               },
               "healthcareProvider": {
                 "type": "string",
+                "nullable": true,
                 "example": "John Smith"
               },
               "healthcareService": {
-                "type": null,
+                "type": "string",
+                "nullable": true,
                 "example": null,
                 "description": "This is deprecated and will always return null. It is still included for backwards compatibility."
               },
@@ -9089,19 +9150,24 @@
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
+                  "id",
                   "name",
                   "address",
-                  "phoneNumber",
+                  "lat",
+                  "long",
+                  "phone",
                   "url",
                   "code"
                 ],
                 "properties": {
                   "id": {
                     "type": "string",
+                    "nullable": true,
                     "example": 442
                   },
                   "name": {
                     "type": "string",
+                    "nullable": true,
                     "example": "VA Long Beach Healthcare System"
                   },
                   "address": {
@@ -9116,68 +9182,82 @@
                     "properties": {
                       "street": {
                         "type": "string",
+                        "nullable": true,
                         "example": "5901 East 7th Street, Building 166"
                       },
                       "city": {
                         "type": "string",
+                        "nullable": true,
                         "example": "Long Beach"
                       },
                       "state": {
                         "type": "string",
+                        "nullable": true,
                         "example": "CA"
                       },
                       "zipCode": {
                         "type": "string",
+                        "nullable": true,
                         "example": 90822
                       }
                     }
                   },
                   "lat": {
                     "type": "float",
+                    "nullable": true,
                     "example": 33.77005
                   },
                   "long": {
                     "type": "float",
+                    "nullable": true,
                     "example": -118.193741
                   },
                   "phone": {
                     "type": "object",
                     "additionalProperties": false,
                     "required": [
+                      "areaCode",
                       "number",
                       "extension"
                     ],
                     "properties": {
                       "areaCode": {
                         "type": "string",
+                        "nullable": true,
                         "example": 562
                       },
                       "number": {
                         "type": "string",
+                        "nullable": true,
                         "example": "434-6008"
                       },
                       "extension": {
                         "type": "string",
+                        "nullable": true,
                         "example": 1001
                       }
                     }
                   },
                   "url": {
                     "type": "string",
+                    "nullable": true,
                     "example": "https://care2.evn.va.gov/vvc-app/?join=1&media=1&escalate=1&conference=VVC8275247@care2.evn.va.gov&pin=3242949390#"
                   },
                   "code": {
                     "type": "string",
+                    "nullable": true,
                     "example": "GL32C"
                   }
                 }
               },
               "physicalLocation": {
                 "type": "string",
+                "nullable": true,
                 "example": "Blind Rehabilitation Center"
               },
               "minutesDuration": {
                 "type": "integer",
+                "nullable": true,
                 "example": 60
               },
               "phoneOnly": {
@@ -9205,6 +9285,7 @@
               },
               "statusDetail": {
                 "type": "string",
+                "nullable": true,
                 "description": "For a cancelled appointment return details about who or why it was cancelled.",
                 "enum": [
                   "CANCELLED BY CLINIC & AUTO RE-BOOK",
@@ -9217,6 +9298,7 @@
               },
               "timeZone": {
                 "type": "string",
+                "nullable": true,
                 "example": "America/Los_Angeles"
               },
               "vetextId": {
@@ -9225,6 +9307,7 @@
               },
               "reason": {
                 "type": "string",
+                "nullable": true,
                 "example": "Follow-up/Routine: Reason 1"
               },
               "isCovidVaccine": {
@@ -9237,6 +9320,7 @@
               },
               "proposedTimes": {
                 "type": "array",
+                "nullable": true,
                 "example": [
                   {
                     "date": "10/01/2020",
@@ -9254,18 +9338,22 @@
               },
               "typeOfCare": {
                 "type": "string",
+                "nullable": true,
                 "example": "Primary Care"
               },
               "patientPhoneNumber": {
                 "type": "string",
+                "nullable": true,
                 "example": "123-456-7890"
               },
               "patientEmail": {
                 "type": "string",
+                "nullable": true,
                 "example": "someone@example.com"
               },
               "bestTimeToCall": {
                 "type": "array",
+                "nullable": true,
                 "example": [
                   "Morning",
                   "Afternoon",
@@ -9274,15 +9362,13 @@
               },
               "friendlyLocationName": {
                 "type": "string",
+                "nullable": true,
                 "example": "CHYSHR-Cheyenne VA Medical Center"
               },
               "serviceCategoryName": {
                 "type": "string",
+                "nullable": true,
                 "example": "COMPENSATION & PENSION"
-              },
-              "locationId": {
-                "type": "string",
-                "example": "983"
               }
             }
           }
@@ -9306,10 +9392,9 @@
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "errors",
-              "checkinWindow",
               "upcomingAppointmentsCount",
-              "upcomingDaysLimit"
+              "upcomingDaysLimit",
+              "pagination"
             ],
             "properties": {
               "errors": {
@@ -9318,31 +9403,84 @@
                   null
                 ]
               },
-              "checkinWindow": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "minutesBefore",
-                  "minutesAfter"
-                ],
-                "properties": {
-                  "minutesBefore": {
-                    "type": "integer",
-                    "example": 45
-                  },
-                  "minutesAfter": {
-                    "type": "integer",
-                    "example": 15
-                  }
-                }
-              },
               "upcomingAppointmentsCount": {
                 "type": "number",
                 "description": "The number of BOOKED, non-pending appointments in the next upcomingDaysLimit number of days."
               },
               "upcomingDaysLimit": {
                 "type": "number",
-                "description": "The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 7."
+                "description": "The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 30."
+              },
+              "pagination": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "currentPage",
+                  "perPage",
+                  "totalPages",
+                  "totalEntries"
+                ],
+                "properties": {
+                  "currentPage": {
+                    "type": "number",
+                    "example": 1
+                  },
+                  "perPage": {
+                    "type": "number",
+                    "example": 10
+                  },
+                  "totalPages": {
+                    "type": "number",
+                    "example": 2
+                  },
+                  "totalEntries": {
+                    "type": "number",
+                    "example": 15
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "CustomErrors": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "title",
+                "body",
+                "source",
+                "telephone",
+                "refreshable"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "body": {
+                  "type": "string"
+                },
+                "source": {
+                  "type": "string"
+                },
+                "telephone": {
+                  "type": "string"
+                },
+                "refreshable": {
+                  "type": "boolean"
+                },
+                "status": {
+                  "type": "integer"
+                }
               }
             }
           }
@@ -11381,6 +11519,10 @@
           "upload_date": {
             "type": "string",
             "example": "2023-03-01"
+          },
+          "document_id": {
+            "type": "string",
+            "example": "{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}"
           }
         }
       },
@@ -11464,6 +11606,12 @@
           "filename": {
             "type": "string",
             "example": "7B434B58-477C-4379-816F-05E6D3A10487.pdf"
+          },
+          "document_id": {
+            "type": "string",
+            "description": "Only used for other_documents_list type event for untracked documents",
+            "nullable": true,
+            "example": "{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}"
           }
         }
       },
@@ -17993,43 +18141,46 @@
         ],
         "properties": {
           "data": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "type",
-              "id",
-              "attributes"
-            ],
-            "properties": {
-              "type": {
-                "type": "string",
-                "example": "efolder_document"
-              },
-              "id": {
-                "type": "string",
-                "example": "{23fe358d-6e82-4541-804c-ce7562ba28f4}",
-                "description": "document id"
-              },
-              "attributes": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "doc_type",
-                  "type_description",
-                  "received_at"
-                ],
-                "properties": {
-                  "doc_type": {
-                    "type": "string",
-                    "example": 1215
-                  },
-                  "type_description": {
-                    "type": "string",
-                    "example": "DMC - Debt Increase Letter"
-                  },
-                  "received_at": {
-                    "type": "date",
-                    "example": "2020-05-28"
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "type",
+                "attributes"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "example": "{23fe358d-6e82-4541-804c-ce7562ba28f4}",
+                  "description": "document id"
+                },
+                "type": {
+                  "type": "string",
+                  "example": "efolder_document"
+                },
+                "attributes": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "doc_type",
+                    "type_description",
+                    "received_at"
+                  ],
+                  "properties": {
+                    "doc_type": {
+                      "type": "string",
+                      "example": 1215
+                    },
+                    "type_description": {
+                      "type": "string",
+                      "example": "DMC - Debt Increase Letter"
+                    },
+                    "received_at": {
+                      "type": "date",
+                      "example": "2020-05-28"
+                    }
                   }
                 }
               }
@@ -18216,39 +18367,53 @@
             ],
             "properties": {
               "cvxCode": {
-                "type": "integer, null",
+                "type": "integer",
+                "nullable": true,
                 "example": 140
               },
               "date": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "2009-03-19T12:24:55Z"
               },
               "doseNumber": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Booster"
               },
               "doseSeries": {
-                "type": "integer, null",
+                "type": {
+                  "anyOf": [
+                    "string",
+                    "integer"
+                  ]
+                },
+                "nullable": true,
                 "example": 1
               },
               "groupName": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "FLU"
               },
               "manufacturer": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "nil"
               },
               "note": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Dose #45 of 101 of Influenza  seasonal  injectable  preservative free vaccine administered."
               },
               "shortDescription": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Influenza  seasonal  injectable  preservative free"
               },
               "reaction": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Swelling"
               }
             }
@@ -18269,10 +18434,9 @@
                 ],
                 "properties": {
                   "data": {
-                    "type": [
-                      "object",
-                      null
-                    ],
+                    "type": "object",
+                    "additionalProperties": false,
+                    "nullable": true,
                     "required": [
                       "id",
                       "type"
@@ -18296,10 +18460,8 @@
                     ],
                     "properties": {
                       "related": {
-                        "type": [
-                          "string",
-                          null
-                        ],
+                        "type": "string",
+                        "nullable": true,
                         "example": "staging-api.va.gov/mobile/v0/health/locations/I2-2FPCKUIXVR7RJLLG34XVWGZERM000000"
                       }
                     }
@@ -23351,19 +23513,19 @@
                 ],
                 "properties": {
                   "currentPage": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 1
                   },
                   "perPage": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 10
                   },
                   "totalPages": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 2
                   },
                   "totalEntries": {
-                    "type": "number",
+                    "type": "integer",
                     "example": 15
                   }
                 }

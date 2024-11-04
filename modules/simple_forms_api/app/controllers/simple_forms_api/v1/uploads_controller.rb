@@ -4,6 +4,7 @@ require 'ddtrace'
 require 'simple_forms_api_submission/metadata_validator'
 require 'lgy/service'
 require 'lighthouse/benefits_intake/service'
+require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 module SimpleFormsApi
   module V1
@@ -13,18 +14,18 @@ module SimpleFormsApi
       skip_after_action :set_csrf_header
 
       FORM_NUMBER_MAP = {
+        '20-10206' => 'vba_20_10206',
+        '20-10207' => 'vba_20_10207',
+        '21-0845' => 'vba_21_0845',
         '21-0966' => 'vba_21_0966',
         '21-0972' => 'vba_21_0972',
-        '21-0845' => 'vba_21_0845',
         '21-10210' => 'vba_21_10210',
         '21-4138' => 'vba_21_4138',
         '21-4142' => 'vba_21_4142',
         '21P-0847' => 'vba_21p_0847',
         '26-4555' => 'vba_26_4555',
         '40-0247' => 'vba_40_0247',
-        '20-10206' => 'vba_20_10206',
-        '40-10007' => 'vba_40_10007',
-        '20-10207' => 'vba_20_10207'
+        '40-10007' => 'vba_40_10007'
       }.freeze
 
       UNAUTHENTICATED_FORMS = %w[40-0247 21-10210 21P-0847 40-10007].freeze
@@ -34,12 +35,11 @@ module SimpleFormsApi
 
         response = if intent_service.use_intent_api?
                      handle_210966_authenticated
-                   elsif form_is264555_and_should_use_lgy_api
+                   elsif params[:form_number] == '26-4555'
                      handle264555
                    else
                      submit_form_to_benefits_intake
                    end
-
         clear_saved_form(params[:form_number])
 
         render response
@@ -121,7 +121,7 @@ module SimpleFormsApi
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
-        status, confirmation_number = upload_pdf(file_path, metadata, form)
+        status, confirmation_number, submission = upload_pdf(file_path, metadata, form)
 
         form.track_user_identity(confirmation_number)
 
@@ -130,11 +130,16 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, uuid: confirmation_number }
         )
 
+        presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
+                             upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
+                           end
+
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           send_confirmation_email(parsed_form_data, form_id, confirmation_number)
         end
 
-        { json: get_json(confirmation_number || nil, form_id), status: }
+        json = get_json(confirmation_number || nil, form_id, presigned_s3_url)
+        { json:, status: }
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
@@ -160,11 +165,11 @@ module SimpleFormsApi
       end
 
       def upload_pdf(file_path, metadata, form)
-        location, uuid = prepare_for_upload(form, file_path)
+        location, uuid, submission = prepare_for_upload(form, file_path)
         log_upload_details(location, uuid)
         response = perform_pdf_upload(location, file_path, metadata, form)
 
-        [response.status, uuid]
+        [response.status, uuid, submission]
       end
 
       def prepare_for_upload(form, file_path)
@@ -172,9 +177,9 @@ module SimpleFormsApi
                           form_id: get_form_id)
         location, uuid = lighthouse_service.request_upload
         stamp_pdf_with_uuid(form, uuid, file_path)
-        create_form_submission_attempt(uuid)
+        attempt = create_form_submission_attempt(uuid)
 
-        [location, uuid]
+        [location, uuid, attempt.form_submission]
       end
 
       def stamp_pdf_with_uuid(form, uuid, stamped_template_path)
@@ -184,14 +189,15 @@ module SimpleFormsApi
       end
 
       def create_form_submission_attempt(uuid)
-        form_submission = create_form_submission(uuid)
-        FormSubmissionAttempt.create(form_submission:)
+        FormSubmissionAttempt.transaction do
+          form_submission = create_form_submission
+          FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
+        end
       end
 
-      def create_form_submission(uuid)
+      def create_form_submission
         FormSubmission.create(
           form_type: params[:form_number],
-          benefits_intake_uuid: uuid,
           form_data: params.to_json,
           user_account: @current_user&.user_account
         )
@@ -213,6 +219,15 @@ module SimpleFormsApi
         lighthouse_service.perform_upload(**upload_params)
       end
 
+      def upload_pdf_to_s3(id, file_path, metadata, submission, form)
+        config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
+        attachments = get_form_id == 'vba_20_10207' ? form.attachment_guids : []
+        s3_client = config.s3_client.new(
+          config:, type: :submission, id:, submission:, attachments:, file_path:, metadata:
+        )
+        s3_client.upload
+      end
+
       def form_is264555_and_should_use_lgy_api
         params[:form_number] == '26-4555' && icn
       end
@@ -228,11 +243,11 @@ module SimpleFormsApi
         FORM_NUMBER_MAP[form_number]
       end
 
-      def get_json(confirmation_number, form_id)
-        json = { confirmation_number: }
-        json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
-
-        json
+      def get_json(confirmation_number, form_id, pdf_url)
+        { confirmation_number: }.tap do |json|
+          json[:pdf_url] = pdf_url if pdf_url.present?
+          json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
+        end
       end
 
       def prepare_params_for_benefits_intake_and_log_error(e)

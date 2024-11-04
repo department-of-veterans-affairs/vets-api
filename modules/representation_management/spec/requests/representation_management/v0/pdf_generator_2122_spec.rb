@@ -5,7 +5,8 @@ require 'rails_helper'
 RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/pdf_generator2122' }
-    let(:organization) { create(:organization) }
+    let(:organization) { create(:organization) } # This is the legacy organization
+    let(:representative) { create(:representative) } # This is the legacy representative
     let(:params) do
       {
         pdf_generator2122: {
@@ -13,20 +14,20 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
           consent_address_change: '',
           consent_limits: [],
           claimant: {
-            date_of_birth: '1980-01-01',
+            date_of_birth: '1980-12-31',
             relationship: 'Spouse',
             phone: '5555555555',
             email: 'claimant@example.com',
             name: {
-              first: 'First',
-              middle: 'M',
-              last: 'Last'
+              first: 'John',
+              middle: 'Middle', # This is a middle name as submitted by the frontend
+              last: 'Claimant'
             },
             address: {
-              address_line1: '123 Claimant St',
+              address_line1: '123 Fake Claimant St',
               address_line2: '',
-              city: 'ClaimantCity',
-              state_code: 'CC',
+              city: 'Portland',
+              state_code: 'OR',
               country: 'USA', # This is a 3 character country code as submitted by the frontend
               zip_code: '12345',
               zip_code_suffix: '6789'
@@ -34,30 +35,31 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
           },
           veteran: {
             ssn: '123456789',
-            va_file_number: '987654321',
-            date_of_birth: '1970-01-01',
-            service_number: '123123456',
+            va_file_number: '123456789',
+            date_of_birth: '1980-12-31',
+            service_number: '123456789',
             service_branch: 'ARMY',
             phone: '5555555555',
             email: 'veteran@example.com',
             insurance_numbers: [],
             name: {
-              first: 'First',
-              middle: 'M',
-              last: 'Last'
+              first: 'John',
+              middle: 'Middle', # This is a middle name as submitted by the frontend
+              last: 'Veteran'
             },
             address: {
-              address_line1: '456 Veteran Rd',
+              address_line1: '123 Fake Veteran St',
               address_line2: '',
-              city: 'VeteranCity',
-              state_code: 'VC',
+              city: 'Portland',
+              state_code: 'OR',
               country: 'USA', # This is a 3 character country code as submitted by the frontend
-              zip_code: '98765',
-              zip_code_suffix: '4321'
+              zip_code: '12345',
+              zip_code_suffix: '6789'
             }
           },
           representative: {
-            organization_id: organization.poa
+            organization_id: organization.poa,
+            id: representative.representative_id
           }
         }
       }
@@ -80,6 +82,39 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
     context 'When submitting a valid request without a claimant' do
       before do
         params[:pdf_generator2122].delete(:claimant)
+        post(base_path, params:)
+      end
+
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'responds with a PDF' do
+        expect(response.content_type).to eq('application/pdf')
+      end
+    end
+
+    context 'When submitting a valid request without a representative id' do
+      before do
+        params[:pdf_generator2122][:representative].delete(:id)
+        post(base_path, params:)
+      end
+
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'responds with a PDF' do
+        expect(response.content_type).to eq('application/pdf')
+      end
+    end
+
+    context 'When submitting a valid request with the accredited organization and individual ids' do
+      before do
+        accredited_organization = create(:accredited_organization)
+        accredited_individual = create(:accredited_individual)
+        params[:pdf_generator2122][:representative][:organization_id] = accredited_organization.id
+        params[:pdf_generator2122][:representative][:id] = accredited_individual.id
         post(base_path, params:)
       end
 

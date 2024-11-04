@@ -224,7 +224,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               submission.reload
               expect(submission.read_metadata(:ep_merge_pending_claim_id)).to eq('600114692') # from claims.yml
               expect(submission.disabilities.first).to include('specialIssues' => ['EMP'])
-              expect(Flipper).to have_received(:enabled?).with(:disability_526_ep_merge_api, User).once
+              actor = OpenStruct.new({ flipper_id: submission.user_uuid })
+              expect(Flipper).to have_received(:enabled?).with(:disability_526_ep_merge_api, actor).once
             end
 
             context 'when the claim is not fully classified' do
@@ -323,6 +324,34 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         subject.perform_async(submission.id)
         expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions)
         described_class.drain
+      end
+
+      context 'when the disabilities array is empty' do
+        before do
+          allow(Rails.logger).to receive(:info)
+        end
+
+        let(:submission) do
+          create(:form526_submission,
+                 :with_empty_disabilities,
+                 user_uuid: user.uuid,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id)
+        end
+
+        it 'returns false to skip classification and continue other jobs' do
+          subject.perform_async(submission.id)
+          expect(submission.update_contention_classification_all!).to eq false
+          expect(Rails.logger).to have_received(:info).with(
+            "No disabilities found for classification on claim #{submission.id}"
+          )
+        end
+
+        it 'does not call va-gov-claim-classifier' do
+          subject.perform_async(submission.id)
+          described_class.drain
+          expect(submission).not_to receive(:classify_vagov_contentions)
+        end
       end
     end
 
@@ -552,7 +581,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         }
         Form526JobStatus.upsert(values, unique_by: :job_id)
         expect_any_instance_of(Sidekiq::Form526JobStatusTracker::Metrics).to(
-          receive(:increment_success).with(false).once
+          receive(:increment_success).with(false, 'evss').once
         )
         described_class.drain
         job_status = Form526JobStatus.where(job_id: values[:job_id]).first

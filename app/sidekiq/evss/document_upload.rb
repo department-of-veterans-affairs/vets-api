@@ -49,11 +49,12 @@ class EVSS::DocumentUpload
     first_name = msg['args'].first['va_eauth_firstName'].titleize
     filename = obscured_filename(msg['args'][2]['file_name'])
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
+    date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
     notify_client.send_email(
       recipient_identifier: { id_value: icn, id_type: 'ICN' },
       template_id: MAILER_TEMPLATE_ID,
-      personalisation: { first_name:, filename:, date_submitted: }
+      personalisation: { first_name:, filename:, date_submitted:, date_failed: }
     )
 
     ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email sent')

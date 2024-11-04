@@ -30,7 +30,8 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   let(:args) do
     {
       'args' => [{ 'va_eauth_firstName' => 'Bob' }, user_account_uuid, { 'file_name' => filename }],
-      'created_at' => issue_instant
+      'created_at' => issue_instant,
+      'failed_at' => issue_instant
     }
   end
   let(:tags) { subject::DD_ZSF_TAGS }
@@ -75,7 +76,8 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
             personalisation: {
               first_name: 'Bob',
               filename: 'docXXXX-XXte.pdf',
-              date_submitted: formatted_submit_date
+              date_submitted: formatted_submit_date,
+              date_failed: formatted_submit_date
             }
           }
         )

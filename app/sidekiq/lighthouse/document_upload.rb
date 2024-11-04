@@ -33,11 +33,13 @@ class Lighthouse::DocumentUpload
     first_name = msg['args'][1]['first_name'].titleize
     filename = obscured_filename(msg['args'][1]['file_name'])
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
+    date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
     notify_client.send_email(
       recipient_identifier: { id_value: icn, id_type: 'ICN' },
       template_id: MAILER_TEMPLATE_ID,
-      personalisation: { first_name:, filename:, date_submitted: }
+<<<<<<< HEAD
+      personalisation: { first_name:, filename:, date_submitted:, date_failed: }
     )
 
     ::Rails.logger.info('Lighthouse::DocumentUpload exhaustion handler email sent')

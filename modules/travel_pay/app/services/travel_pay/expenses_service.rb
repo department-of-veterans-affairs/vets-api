@@ -2,7 +2,13 @@
 
 module TravelPay
   class ExpensesService
-    def add_expense(veis_token, btsss_token, params = {})
+    def initialize(auth_manager)
+      @auth_manager = auth_manager
+    end
+
+    def add_expense(params = {})
+      @auth_manager.authorize => { veis_token:, btsss_token: }
+
       # check for required params (that don't have a default set in the client)
       unless params['claim_id'] && params['appt_date']
         raise ArgumentError,

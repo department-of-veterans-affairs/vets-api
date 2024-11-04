@@ -337,7 +337,7 @@ Rails.application.routes.draw do
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
-    resources :backend_statuses, param: :service, only: %i[index show]
+    resources :backend_statuses, only: %i[index]
 
     resources :apidocs, only: [:index]
 
@@ -406,6 +406,18 @@ Rails.application.routes.draw do
       resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
+
+      resources :lce, only: :index, defaults: { format: :json }
+
+      namespace :lce do
+        resources :certifications, only: :show, defaults: { format: :json }
+
+        resources :exams, only: :show, defaults: { format: :json }
+
+        resources :licenses, only: :show, defaults: { format: :json }
+
+        resources :preps, only: :show, defaults: { format: :json }
+      end
     end
 
     resource :decision_review_evidence, only: :create
@@ -449,6 +461,7 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount Banners::Engine, at: '/banners'
   mount CheckIn::Engine, at: '/check_in'
   mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
@@ -464,6 +477,7 @@ Rails.application.routes.draw do
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount TravelPay::Engine, at: '/travel_pay'
+  mount VaNotify::Engine, at: '/va_notify'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'

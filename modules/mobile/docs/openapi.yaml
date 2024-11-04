@@ -197,13 +197,20 @@ paths:
                 VA Appointment Request:
                   value:
                     $ref: ./examples/appointments/va_appointment_request.yml
+              schema:
+                $ref: ./schemas/Appointments.yml
+          description: OK
+        '207':
+          content:
+            application/json:
+              examples:
                 Partial Appointments:
                   description: For cases when 1 or more errors are returned from upstream, an error message with source `VA Service` is added within the meta
                   value:
                     $ref: ./examples/appointments/partial_appointments.yml
               schema:
                 $ref: ./schemas/Appointments.yml
-          description: OK
+          description: Multi Status
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -223,6 +230,8 @@ paths:
           $ref: '#/components/responses/404'
         '408':
           $ref: '#/components/responses/408'
+        '418':
+          $ref: '#/components/responses/418'
         '422':
           $ref: '#/components/responses/422'
         '500':
@@ -1768,6 +1777,53 @@ paths:
       security:
         - Bearer: []
       summary: /v0/efolder/documents
+  /v0/efolder/documents/{documentId}/download:
+    post:
+      description: returns requested document
+      parameters:
+        - description: File name of the document to be returned.
+          in: query
+          name: file_name
+          required: true
+          schema:
+            type: string
+        - description: ID of the document to be returned.
+          in: path
+          name: document_id
+          required: true
+          schema:
+            type: string
+            example: '{93631483-E9F9-44AA-BB55-3552376400D8}'
+        - $ref: '#/components/parameters/InflectionHeader'
+      responses:
+        '200':
+          content:
+            application/pdf:
+              schema:
+                format: binary
+                type: string
+          description: OK
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '408':
+          $ref: '#/components/responses/408'
+        '422':
+          $ref: '#/components/responses/422'
+        '500':
+          $ref: '#/components/responses/500'
+        '502':
+          $ref: '#/components/responses/502'
+        '503':
+          $ref: '#/components/responses/503'
+        '504':
+          $ref: '#/components/responses/504'
+      security:
+        - Bearer: []
+      summary: /v0/efolder/documents/{documentId}/download
   /v0/enrollment-status:
     get:
       description: Returns the user's VA enrollment status.
@@ -4825,6 +4881,12 @@ components:
           schema:
             $ref: ./schemas/Errors.yml
       description: The response from this API timed out.
+    '418':
+      content:
+        application/json:
+          schema:
+            $ref: ./schemas/CustomErrors.yml
+      description: Custom Error Message
     '422':
       content:
         application/json:

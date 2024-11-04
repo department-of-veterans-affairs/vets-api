@@ -19,7 +19,7 @@ RSpec.describe FormSubmission, type: :model do
       @fsa, @fsb, @fsc = create_list(:form_submission, 3, user_account:)
                          .zip(%w[FORM-A FORM-B FORM-C])
                          .map do |submission, form_type|
-        submission.update(form_type:, benefits_intake_uuid: SecureRandom.uuid)
+        submission.update(form_type:)
         submission
       end
 
@@ -101,6 +101,16 @@ RSpec.describe FormSubmission, type: :model do
 
         expect(form_submission.non_failure_attempt).not_to be_nil
       end
+    end
+  end
+
+  describe '#latest_attempt' do
+    it 'returns the newest, associated form_submission_attempt' do
+      form_submission = create(:form_submission, created_at: 1.day.ago)
+      create_list(:form_submission_attempt, 2, form_submission:, created_at: 1.day.ago)
+      form_submission_attempt = create(:form_submission_attempt, form_submission:)
+
+      expect(form_submission.latest_attempt).to eq form_submission_attempt
     end
   end
 end

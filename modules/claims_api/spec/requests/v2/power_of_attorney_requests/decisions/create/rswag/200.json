@@ -1,0 +1,31 @@
+{
+  "type": "object",
+  "properties": {
+    "VSOUserEmail": {
+      "type": ["string", "null"]
+    },
+    "VSOUserFirstName": {
+      "type": ["string", "null"]
+    },
+    "VSOUserLastName": {
+      "type": ["string", "null"]
+    },
+    "dateRequestActioned": {
+      "type": "string"
+    },
+    "declinedReason": {
+      "type": ["string", "null"]
+    },
+    "procId": {
+      "type": "string"
+    },
+    "secondaryStatus": {
+      "type": "string",
+      "enum": [
+        "ACC",
+        "DEC",
+        "OBS"
+      ]
+    }
+  }
+}

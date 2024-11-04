@@ -108,6 +108,41 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     end
   end
 
+  context 'For SupportingEvidenceAttachment uploads' do
+    let(:file) { Rack::Test::UploadedFile.new('spec/fixtures/files/sm_file1.jpg', 'image/jpg') }
+
+    let!(:supporting_evidence_attachment) do
+      attachment = SupportingEvidenceAttachment.new
+      attachment.set_file_data!(file)
+      attachment.save!
+
+      attachment
+    end
+
+    let!(:provider) do
+      LighthouseSupplementalDocumentUploadProvider.new(
+        submission,
+        va_document_type,
+        'my_stats_metric_prefix',
+        supporting_evidence_attachment
+      )
+    end
+
+    it 'creates a Veteran-upload type Lighthouse526DocumentUpload with a SupportingEvidenceAttachment' do
+      upload_attributes = {
+        aasm_state: 'pending',
+        form526_submission_id: submission.id,
+        document_type: Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE,
+        lighthouse_document_request_id: lighthouse_request_id,
+        form_attachment: supporting_evidence_attachment
+      }
+
+      expect do
+        provider.submit_upload_document(lighthouse_document, file_body)
+      end.to change { Lighthouse526DocumentUpload.where(**upload_attributes).count }.by(1)
+    end
+  end
+
   describe 'events logging' do
     context 'when attempting to upload a document' do
       before do
@@ -120,7 +155,8 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
           'LighthouseSupplementalDocumentUploadProvider upload attempted',
           {
             class: 'LighthouseSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526'
@@ -150,7 +186,8 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
           'LighthouseSupplementalDocumentUploadProvider upload successful',
           {
             class: 'LighthouseSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526',
@@ -201,7 +238,8 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
           'LighthouseSupplementalDocumentUploadProvider upload failed',
           {
             class: 'LighthouseSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526',
@@ -231,7 +269,8 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
           "#{uploading_job_class} LighthouseSupplementalDocumentUploadProvider Failure",
           {
             class: 'LighthouseSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526',
