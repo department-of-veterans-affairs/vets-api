@@ -4,6 +4,7 @@ require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'pensions/tag_sentry'
 require 'pensions/monitor'
+require 'pensions/notification_email'
 require 'pdf_utilities/datestamp_pdf'
 
 module Pensions
@@ -186,7 +187,6 @@ module Pensions
       form_submission = {
         form_type: @claim.form_id,
         form_data: @claim.to_json,
-        benefits_intake_uuid: @intake_service.uuid,
         saved_claim: @claim,
         saved_claim_id: @claim.id
       }
@@ -205,7 +205,7 @@ module Pensions
     # Being VANotify job to send email to veteran
     #
     def send_confirmation_email
-      @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
+      Pensions::NotificationEmail.new(@claim).deliver(:confirmation)
     rescue => e
       @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
     end
