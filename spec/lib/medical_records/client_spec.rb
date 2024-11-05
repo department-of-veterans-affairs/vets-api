@@ -79,6 +79,16 @@ describe MedicalRecords::Client do
         end
       end
     end
+
+    context 'when the patient is not found', :vcr do
+      it 'gets a patient by identifer', :vcr do
+        VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
+          expect do
+            client.get_patient_by_identifier(client.fhir_client, patient_id)
+          end.to raise_error(MedicalRecords::PatientNotFound)
+        end
+      end
+    end
   end
 
   it 'gets a list of allergies', :vcr do
