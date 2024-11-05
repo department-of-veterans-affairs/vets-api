@@ -1,7 +1,7 @@
 name: Backend PR Labeler
 on:
   pull_request:
-    types: [opened, reopened, review_requested, ready_for_review, converted_to_draft, labeled, unlabeled]
+    types: [opened, reopened, review_requested, ready_for_review, synchronize, labeled, unlabeled]
   workflow_run:
     workflows: 
       - "Code Checks"
