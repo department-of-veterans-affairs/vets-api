@@ -45,7 +45,7 @@ module DecisionReviewV1
           response, bm = run_and_benchmark_if_enabled do
             perform :post, 'supplemental_claims', request_body, headers
           rescue => e
-            log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+            log_formatted(**common_log_params.merge(error_log_params(e)))
             raise e
           end
           log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
@@ -60,7 +60,7 @@ module DecisionReviewV1
       end
 
       ##
-      # Creates a new 4142(a) PDF, and sends to central mail
+      # Creates a new 4142(a) PDF, and sends to Lighthouse
       #
       # @param appeal_submission_id
       # @param rejiggered_payload
@@ -72,12 +72,39 @@ module DecisionReviewV1
             submit_form4142(form_data: rejiggered_payload)
           end
           form4142_response, uuid = response_container
+
+          if Flipper.enabled?(:decision_review_track_4142_submissions)
+            save_form4142_submission(appeal_submission_id:, rejiggered_payload:, guid: uuid)
+          end
+
           form4142_submission_info_message = parse_form412_response_to_log_msg(
             appeal_submission_id:, data: form4142_response, uuid:, bm:
           )
           ::Rails.logger.info(form4142_submission_info_message)
           form4142_response
         end
+      end
+
+      def save_form4142_submission(appeal_submission_id:, rejiggered_payload:, guid:)
+        form_record = SecondaryAppealForm.new(
+          form: rejiggered_payload.to_json,
+          form_id: '21-4142',
+          appeal_submission_id: appeal_submission_id,
+          guid: guid
+        )
+        form_record.save!
+      rescue => e
+        ::Rails.logger.error({
+                               error_message: e.message,
+                               form_id: DecisionReviewV1::FORM4142_ID,
+                               parent_form_id: DecisionReviewV1::SUPP_CLAIM_FORM_ID,
+                               message: 'Supplemental Claim Form4142 Persistence Errored',
+                               appeal_submission_id:,
+                               lighthouse_submission: {
+                                 id: uuid
+                               }
+                             })
+        raise e
       end
 
       ##
@@ -101,7 +128,7 @@ module DecisionReviewV1
           rescue => e
             # We can freely log Lighthouse's error responses because they do not include PII or PHI.
             # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v1.
-            log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+            log_formatted(**common_log_params.merge(error_log_params(e)))
             raise e
           end
           raise_schema_error_unless_200_status response.status
@@ -141,7 +168,7 @@ module DecisionReviewV1
         rescue => e
           # We can freely log Lighthouse's error responses because they do not include PII or PHI.
           # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v2
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
       end
@@ -158,7 +185,8 @@ module DecisionReviewV1
       # rubocop:disable Metrics/MethodLength
       def put_supplemental_claim_upload(upload_url:, file_upload:, metadata_string:, user_uuid: nil,
                                         appeal_submission_upload_id: nil)
-        content_tmpfile = Tempfile.new(file_upload.filename, encoding: file_upload.read.encoding)
+        tmpfile_name = construct_tmpfile_name(appeal_submission_upload_id, file_upload.filename)
+        content_tmpfile = Tempfile.new([tmpfile_name, '.pdf'], encoding: file_upload.read.encoding)
         content_tmpfile.write(file_upload.read)
         content_tmpfile.rewind
 
@@ -188,7 +216,7 @@ module DecisionReviewV1
         rescue => e
           # We can freely log Lighthouse's error responses because they do not include PII or PHI.
           # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v2
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
       ensure
@@ -248,24 +276,18 @@ module DecisionReviewV1
 
       def submit_form4142(form_data:)
         processor = DecisionReviewV1::Processor::Form4142Processor.new(form_data:)
+        service = BenefitsIntake::Service.new
+        service.request_upload
 
-        if Flipper.enabled? :decision_review_sc_use_lighthouse_api_for_form4142
-          service = BenefitsIntake::Service.new
-          service.request_upload
+        payload = {
+          metadata: processor.request_body['metadata'],
+          document: processor.request_body['document'],
+          upload_url: service.location
+        }
 
-          payload = {
-            metadata: processor.request_body['metadata'],
-            document: processor.request_body['document'],
-            upload_url: service.location
-          }
+        response = service.perform_upload(**payload)
 
-          response = service.perform_upload(**payload)
-
-          [response, service.uuid]
-        else
-          response = CentralMail::Service.new.upload(processor.request_body)
-          [response, nil]
-        end
+        [response, service.uuid]
       end
     end
     # rubocop:enable Metrics/ModuleLength

@@ -8,6 +8,11 @@ module FacilitiesApi
 
     attributes :classification, :distance, :facility_type, :id, :lat, :long, :mobile, :name,
                :operational_hours_special_instructions, :unique_id, :visn, :website, :tmp_covid_online_scheduling
+    attribute :access do |obj|
+      obj.access&.deep_stringify_keys&.deep_transform_keys do |key|
+        key.camelize(:lower)
+      end || { 'health' => [], 'effectiveDate' => '' }
+    end
     attribute :address do |obj|
       obj.address&.deep_stringify_keys&.deep_transform_keys { |key| key.camelize(:lower) } || []
     end

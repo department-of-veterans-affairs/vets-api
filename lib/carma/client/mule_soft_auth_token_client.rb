@@ -24,7 +24,7 @@ module CARMA
                              token_headers,
                              { timeout: config.timeout })
 
-          return response.body[:access_token] if response.status == 201
+          return JSON.parse(response.body)['access_token'] if response.status == 200
 
           raise GetAuthTokenError, "Response: #{response}"
         end

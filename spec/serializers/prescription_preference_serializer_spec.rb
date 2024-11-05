@@ -9,6 +9,10 @@ describe PrescriptionPreferenceSerializer do
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
+  it 'includes :id' do
+    expect(data['id']).to eq prescription_preference.id
+  end
+
   it 'includes :email_address' do
     expect(attributes['email_address']).to eq prescription_preference.email_address
   end

@@ -44,6 +44,8 @@ module Vye
             .product(config[:award_line].each_pair.to_a)
             .each do |(award_line, i), (field, length)|
               extracted = award_line.slice!(0...length).strip
+              extracted = extracted.to_i / 100.0 if field == :monthly_rate
+
               awards[i] ||= {}
               awards[i].update(field => extracted)
             end

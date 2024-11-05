@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
-class Post911GIBillStatusSerializer < ActiveModel::Serializer
+class Post911GIBillStatusSerializer
+  include JSONAPI::Serializer
+
+  set_id { '' }
   attribute :first_name
   attribute :last_name
   attribute :name_suffix
@@ -16,8 +19,4 @@ class Post911GIBillStatusSerializer < ActiveModel::Serializer
   attribute :active_duty
   attribute :veteran_is_eligible
   attribute :enrollments
-
-  def id
-    nil
-  end
 end

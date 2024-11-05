@@ -7,7 +7,7 @@ module Mobile
     class Rating < Common::Resource
       attribute :id, Types::String
       attribute :combined_disability_rating, Types::Integer
-      attribute :individual_ratings, Types::Array
+      attribute :individual_ratings, Types::Array.of(IndividualRating)
     end
   end
 end

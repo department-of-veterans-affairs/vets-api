@@ -42,6 +42,31 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
     end
 
     context 'when successful' do
+      let(:cache_data) do
+        {
+          Topics: [
+            {
+              Name: 'Veteran Affairs  - Debt',
+              Id: '5c524deb-d864-eb11-bb24-000d3a579c45',
+              ParentId: nil,
+              Description: nil,
+              RequiresAuthentication: true,
+              AllowAttachments: true,
+              RankOrder: 4,
+              DisplayName: 'Veteran Affairs  - Debt',
+              TopicType: 'Category',
+              ContactPreferences: []
+            }
+          ]
+        }
+      end
+
+      before do
+        allow_any_instance_of(AskVAApi::RedisClient).to receive(:fetch)
+          .with('categories_topics_subtopics')
+          .and_return(cache_data)
+      end
+
       context 'with user_mock_data' do
         context 'when an ID is given' do
           let(:user_mock_data) { true }
@@ -66,19 +91,28 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
         context 'when an ID is given' do
           let(:id) { '123' }
           let(:response) do
-            { Data: [{ Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
-                       InquiryNumber: 'A-20230305-306178',
-                       InquiryStatus: 'Reopened',
-                       SubmitterQuestion: 'test',
-                       LastUpdate: '4/1/2024 12:00:00 AM',
-                       InquiryHasAttachments: true,
-                       InquiryHasBeenSplit: true,
-                       VeteranRelationship: 'GIBillBeneficiary',
-                       SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
-                       InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
-                       InquiryLevelOfAuthentication: 'Unauthenticated',
-                       AttachmentNames: [{ Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
-                                           Name: 'Test.txt' }] }] }
+            { Data: [{
+              InquiryHasBeenSplit: true,
+              CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
+              CreatedOn: '8/5/2024 4:51:52 PM',
+              Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
+              InquiryLevelOfAuthentication: 'Personal',
+              InquiryNumber: 'A-123456',
+              InquiryStatus: 'In Progress',
+              InquiryTopic: 'Cemetery Debt',
+              LastUpdate: '1/1/1900',
+              QueueId: '9876t54',
+              QueueName: 'Debt Management Center',
+              SchoolFacilityCode: '0123',
+              SubmitterQuestion: 'My question is... ',
+              VeteranRelationship: 'self',
+              AttachmentNames: [
+                {
+                  Id: '012345',
+                  Name: 'File A.pdf'
+                }
+              ]
+            }] }
           end
 
           before do
@@ -97,51 +131,70 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
             {
               Data: [
                 {
-                  Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
-                  InquiryNumber: 'A-20230305-306178',
-                  InquiryStatus: 'Reopened',
-                  SubmitterQuestion: 'test',
-                  LastUpdate: '4/1/2024 12:00:00 AM',
-                  InquiryHasAttachments: true,
                   InquiryHasBeenSplit: true,
-                  VeteranRelationship: 'GIBillBeneficiary',
-                  SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
-                  InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
-                  InquiryLevelOfAuthentication: 'Unauthenticated',
+                  CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
+                  CreatedOn: '8/5/2024 4:51:52 PM',
+                  Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
+                  InquiryLevelOfAuthentication: 'Personal',
+                  InquiryNumber: 'A-123456',
+                  InquiryStatus: 'In Progress',
+                  InquiryTopic: 'Cemetery Debt',
+                  LastUpdate: '1/1/1900',
+                  QueueId: '9876t54',
+                  QueueName: 'Debt Management Center',
+                  SchoolFacilityCode: '0123',
+                  SubmitterQuestion: 'My question is... ',
+                  VeteranRelationship: 'self',
                   AttachmentNames: [
                     {
-                      Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
-                      Name: 'Test.txt'
+                      Id: '012345',
+                      Name: 'File A.pdf'
                     }
                   ]
                 },
                 {
-                  Id: 'b24e8113-92d1-ed11-9ac4-00155da17a6f',
-                  InquiryNumber: 'A-20230402-306218',
-                  InquiryStatus: 'New',
-                  SubmitterQuestion: 'test',
-                  LastUpdate: '1/1/0001 12:00:00 AM',
-                  InquiryHasAttachments: false,
-                  InquiryHasBeenSplit: false,
-                  VeteranRelationship: nil,
-                  SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
-                  InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
+                  InquiryHasBeenSplit: true,
+                  CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
+                  CreatedOn: '8/5/2024 4:51:52 PM',
+                  Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
                   InquiryLevelOfAuthentication: 'Personal',
-                  AttachmentNames: nil
+                  InquiryNumber: 'A-123456',
+                  InquiryStatus: 'In Progress',
+                  InquiryTopic: 'Cemetery Debt',
+                  LastUpdate: '1/1/1900',
+                  QueueId: '9876t54',
+                  QueueName: 'Debt Management Center',
+                  SchoolFacilityCode: '0123',
+                  SubmitterQuestion: 'My question is... ',
+                  VeteranRelationship: 'self',
+                  AttachmentNames: [
+                    {
+                      Id: '012345',
+                      Name: 'File A.pdf'
+                    }
+                  ]
                 },
                 {
-                  Id: 'e1ce6ae6-40ec-ee11-904d-001dd8306a72',
-                  InquiryNumber: 'A-20240327-307060',
-                  InquiryStatus: 'New',
-                  SubmitterQuestion: 'test',
-                  LastUpdate: '3/27/2024 12:00:00 AM',
-                  InquiryHasAttachments: true,
                   InquiryHasBeenSplit: true,
-                  VeteranRelationship: nil,
-                  SchoolFacilityCode: nil,
-                  InquiryTopic: 'Filing for compensation benefits',
+                  CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
+                  CreatedOn: '8/5/2024 4:51:52 PM',
+                  Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
                   InquiryLevelOfAuthentication: 'Personal',
-                  AttachmentNames: nil
+                  InquiryNumber: 'A-123456',
+                  InquiryStatus: 'In Progress',
+                  InquiryTopic: 'Cemetery Debt',
+                  LastUpdate: '1/1/1900',
+                  QueueId: '9876t54',
+                  QueueName: 'Debt Management Center',
+                  SchoolFacilityCode: '0123',
+                  SubmitterQuestion: 'My question is... ',
+                  VeteranRelationship: 'self',
+                  AttachmentNames: [
+                    {
+                      Id: '012345',
+                      Name: 'File A.pdf'
+                    }
+                  ]
                 }
               ],
               Message: nil,
@@ -165,19 +218,28 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
       context 'with Correspondences' do
         let(:id) { '123' }
         let(:response) do
-          { Data: [{ Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
-                     InquiryNumber: 'A-20230305-306178',
-                     InquiryStatus: 'Reopened',
-                     SubmitterQuestion: 'test',
-                     LastUpdate: '4/1/2024 12:00:00 AM',
-                     InquiryHasAttachments: true,
-                     InquiryHasBeenSplit: true,
-                     VeteranRelationship: 'GIBillBeneficiary',
-                     SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
-                     InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
-                     InquiryLevelOfAuthentication: 'Unauthenticated',
-                     AttachmentNames: [{ Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
-                                         Name: 'Test.txt' }] }] }
+          { Data: [{
+            InquiryHasBeenSplit: true,
+            CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
+            CreatedOn: '8/5/2024 4:51:52 PM',
+            Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
+            InquiryLevelOfAuthentication: 'Personal',
+            InquiryNumber: 'A-123456',
+            InquiryStatus: 'In Progress',
+            InquiryTopic: 'Cemetery Debt',
+            LastUpdate: '1/1/1900',
+            QueueId: '9876t54',
+            QueueName: 'Debt Management Center',
+            SchoolFacilityCode: '0123',
+            SubmitterQuestion: 'My question is... ',
+            VeteranRelationship: 'self',
+            AttachmentNames: [
+              {
+                Id: '012345',
+                Name: 'File A.pdf'
+              }
+            ]
+          }] }
         end
 
         context 'when Correspondence::Retriever returns an error' do
@@ -208,7 +270,6 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
               AttachmentNames: nil
             }
           end
-
           let(:correspondence) { AskVAApi::Correspondences::Entity.new(cor_info) }
 
           before do

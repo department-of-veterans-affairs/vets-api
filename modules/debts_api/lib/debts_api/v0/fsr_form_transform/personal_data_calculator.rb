@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'debts_api/v0/fsr_form_transform/utils'
+
 module DebtsApi
   module V0
     module FsrFormTransform
@@ -75,7 +77,7 @@ module DebtsApi
         def address
           {
             'addresslineOne' => @personal_data['veteran_contact_information']['address']['address_line1'],
-            'addresslineTwo' => @personal_data['veteran_contact_information']['address']['address_line2'],
+            'addresslineTwo' => @personal_data['veteran_contact_information']['address']['address_line2'] || '',
             'addresslineThree' => @personal_data['veteran_contact_information']['address']['address_line3'] || '',
             'city' => @personal_data['veteran_contact_information']['address']['city'],
             'stateOrProvince' => @personal_data['veteran_contact_information']['address']['state_code'],
@@ -100,7 +102,7 @@ module DebtsApi
             {
               'first' => @personal_data['spouse_full_name']['first'],
               'middle' => @personal_data['spouse_full_name']['middle'] || '',
-              'last' => @personal_data['spouse_full_name']['last']
+              'last' => @personal_data['spouse_full_name']['last'] || ''
             }
           else
             {

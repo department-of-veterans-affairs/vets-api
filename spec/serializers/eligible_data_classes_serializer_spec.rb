@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'bb/generate_report_request_form'
 
 describe EligibleDataClassesSerializer, type: :serializer do
-  subject { serialize(eligible_data_classes, serializer_class: described_class) }
+  subject { serialize(eligible_data_classes, { serializer_class: described_class, is_collection: false }) }
 
   let(:eligible_data_classes) { build_list(:eligible_data_class, 3) }
   let(:data) { JSON.parse(subject)['data'] }

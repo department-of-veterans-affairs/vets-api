@@ -56,7 +56,7 @@ http_interactions:
       - max-age=63072000; includeSubDomains; preload
     body:
       encoding: UTF-8
-      string: '{"id":"70060","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/ars/id","value":"8a4890c47da65e2b017db59b20500000"}],"kind":"clinic","status":"cancelled","serviceType":"socialWork","reasonCode":{"text":"text"},"patientIcn":"1012846043V576341","locationId":"983GB","created":"2021-12-13T14:03:02Z","requestedPeriods":[{"start":"2021-12-20T00:00:00Z","end":"2021-12-20T11:59:59.999Z"}],"contact":{"telecom":[{"type":"email","value":"C_Natalie.Yun@cerner.com"},{"type":"phone","value":"2566832029"}]},"preferredTimesForPhoneCall":["Morning"],"cancellationReason":{"code":"other"},"cancellable":true,"extension":{"ccLocation":{"address":{}}}}'
+      string: '{"id":"70060","identifier":[{"system":"http://med.va.gov/fhir/urn/vaos/ars/id","value":"8a4890c47da65e2b017db59b20500000"}],"kind":"clinic","status":"cancelled","serviceType":"socialWork","reasonCode":{"text":"text"},"patientIcn":"1012846043V576341","clinic":"455","locationId":"983GB","created":"2021-12-13T14:03:02Z","requestedPeriods":[{"start":"2021-12-20T00:00:00Z","end":"2021-12-20T11:59:59.999Z"}],"contact":{"telecom":[{"type":"email","value":"C_Natalie.Yun@cerner.com"},{"type":"phone","value":"2566832029"}]},"preferredTimesForPhoneCall":["Morning"],"cancellationReason":{"code":"other"},"cancellable":true,"extension":{"ccLocation":{"address":{}}}}'
   recorded_at: Wed, 15 Dec 2021 18:51:34 GMT
 - request:
     method: put

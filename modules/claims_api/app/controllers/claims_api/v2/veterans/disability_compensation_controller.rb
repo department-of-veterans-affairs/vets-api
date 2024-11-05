@@ -103,9 +103,9 @@ module ClaimsApi
           auto_claim = shared_submit_methods
 
           unless claims_load_testing # || sandbox_request(request)
-            pdf_generation_service.generate(auto_claim&.id, veteran_middle_initial) unless mocking
-            docker_container_service.upload(auto_claim&.id)
-            queue_flash_updater(auto_claim.flashes, auto_claim&.id)
+            generate_pdf_from_service!(auto_claim.id, veteran_middle_initial) unless mocking
+            docker_container_service.upload(auto_claim.id)
+            queue_flash_updater(auto_claim.flashes, auto_claim.id)
             start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
             auto_claim.reload
           end
@@ -114,6 +114,8 @@ module ClaimsApi
             auto_claim, async: false
           ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
         end
+
+        private
 
         def shared_submit_methods
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
@@ -136,7 +138,15 @@ module ClaimsApi
           auto_claim
         end
 
-        private
+        def generate_pdf_from_service!(auto_claim_id, veteran_middle_initial)
+          claim_status = pdf_generation_service.generate(auto_claim_id, veteran_middle_initial)
+
+          if claim_status == ClaimsApi::AutoEstablishedClaim::ERRORED
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: 'Failed to generate PDF'
+            )
+          end
+        end
 
         def generate_pdf_mapper_service(form_data, pdf_data_wrapper, auth_headers, middle_initial, created_at)
           ClaimsApi::V2::DisabilityCompensationPdfMapper.new(
@@ -165,7 +175,7 @@ module ClaimsApi
 
         # Only value required by background jobs that is missing in headers is middle name
         def veteran_middle_initial
-          @target_veteran.middle_name ? @target_veteran.middle_name[0].uppercase : ''
+          target_veteran.middle_name&.first&.upcase || ''
         end
 
         def flashes
@@ -187,7 +197,7 @@ module ClaimsApi
           validate_veteran_name(true)
           # if we get here there were only validations file errors
           if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
         end

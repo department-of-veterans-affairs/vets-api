@@ -106,8 +106,7 @@ module Mobile
       # fetches MPI, either from external source or cache, then makes an external call for facility data
       def fetch_locations
         lambda {
-          v1_facilities_flag = Flipper.enabled?(:mobile_v1_lighthouse_facilities, user)
-          Mobile::FacilitiesHelper.get_facility_names(user.va_treatment_facility_ids, v1_facilities_flag)
+          Mobile::FacilitiesHelper.get_facility_names(user.va_treatment_facility_ids)
         }
       end
 

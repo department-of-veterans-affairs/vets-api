@@ -2,7 +2,9 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
+RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
+                                                      team_owner: :vfs_authenticated_experience_backend,
+                                                      type: :controller do
   let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
   before do
@@ -10,7 +12,6 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
     token = 'abcdefghijklmnop'
     allow_any_instance_of(DirectDeposit::Configuration).to receive(:access_token).and_return(token)
     allow(Rails.logger).to receive(:info)
-    Flipper.disable(:profile_show_direct_deposit_single_form)
   end
 
   describe '#show' do
@@ -96,7 +97,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
         e = json['errors'].first
 
         expect(response).to have_http_status(:bad_request)
-        expect(e['code']).to eq('cnp.payment.invalid.scopes')
+        expect(e['code']).to eq('direct.deposit.invalid.scopes')
       end
     end
 
@@ -110,7 +111,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
         e = json['errors'].first
 
         expect(response).to have_http_status(:unauthorized)
-        expect(e['code']).to eq('cnp.payment.invalid.token')
+        expect(e['code']).to eq('direct.deposit.invalid.token')
       end
     end
 
@@ -124,7 +125,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
         e = json['errors'].first
 
         expect(response).to have_http_status(:not_found)
-        expect(e['code']).to eq('cnp.payment.icn.not.found')
+        expect(e['code']).to eq('direct.deposit.icn.not.found')
       end
     end
 
@@ -139,7 +140,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
         json = JSON.parse(response.body)
         e = json['errors'].first
 
-        expect(e['code']).to eq('cnp.payment.api.gateway.timeout')
+        expect(e['code']).to eq('direct.deposit.api.gateway.timeout')
       end
     end
   end
@@ -248,7 +249,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
 
         expect(e).not_to be_nil
         expect(e['title']).to eq('Bad Request')
-        expect(e['code']).to eq('cnp.payment.account.type.invalid')
+        expect(e['code']).to eq('direct.deposit.account.type.invalid')
       end
     end
 
@@ -267,7 +268,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
 
         expect(e).not_to be_nil
         expect(e['title']).to eq('Bad Request')
-        expect(e['code']).to eq('cnp.payment.account.number.invalid')
+        expect(e['code']).to eq('direct.deposit.account.number.invalid')
       end
     end
 
@@ -286,7 +287,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
 
         expect(e).not_to be_nil
         expect(e['title']).to eq('Bad Request')
-        expect(e['code']).to eq('cnp.payment.routing.number.invalid')
+        expect(e['code']).to eq('direct.deposit.routing.number.invalid')
       end
     end
 
@@ -303,7 +304,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
 
         expect(e).not_to be_nil
         expect(e['title']).to eq('Bad Request')
-        expect(e['code']).to eq('cnp.payment.routing.number.fraud')
+        expect(e['code']).to eq('direct.deposit.routing.number.fraud')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
 
@@ -319,7 +320,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
 
         expect(e).not_to be_nil
         expect(e['title']).to eq('Bad Request')
-        expect(e['code']).to eq('cnp.payment.account.number.fraud')
+        expect(e['code']).to eq('direct.deposit.account.number.fraud')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
     end
@@ -337,7 +338,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
 
         expect(e).not_to be_nil
         expect(e['title']).to eq('Bad Request')
-        expect(e['code']).to eq('cnp.payment.day.phone.number.invalid')
+        expect(e['code']).to eq('direct.deposit.day.phone.number.invalid')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
 
@@ -353,7 +354,7 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
 
         expect(e).not_to be_nil
         expect(e['title']).to eq('Bad Request')
-        expect(e['code']).to eq('cnp.payment.mailing.address.invalid')
+        expect(e['code']).to eq('direct.deposit.mailing.address.invalid')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
 
@@ -369,12 +370,12 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
 
         expect(e).not_to be_nil
         expect(e['title']).to eq('Bad Request')
-        expect(e['code']).to eq('cnp.payment.routing.number.invalid.checksum')
+        expect(e['code']).to eq('direct.deposit.routing.number.invalid.checksum')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
 
-      it 'returns a potential fraud error' do
-        VCR.use_cassette('lighthouse/direct_deposit/update/400_potential_fraud') do
+      it 'returns a potential fraud error from code GUIE50041' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_potential_fraud_GUIE50041') do
           put(:update, params:)
         end
 
@@ -385,7 +386,23 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
 
         expect(e).not_to be_nil
         expect(e['title']).to eq('Bad Request')
-        expect(e['code']).to eq('cnp.payment.potential.fraud')
+        expect(e['code']).to eq('direct.deposit.potential.fraud')
+        expect(e['source']).to eq('Lighthouse Direct Deposit')
+      end
+
+      it 'returns a potential fraud error from code GUIE50022' do
+        VCR.use_cassette('lighthouse/direct_deposit/update/400_potential_fraud_GUIE50022') do
+          put(:update, params:)
+        end
+
+        expect(response).to have_http_status(:bad_request)
+
+        json = JSON.parse(response.body)
+        e = json['errors'].first
+
+        expect(e).not_to be_nil
+        expect(e['title']).to eq('Bad Request')
+        expect(e['code']).to eq('direct.deposit.potential.fraud')
         expect(e['source']).to eq('Lighthouse Direct Deposit')
       end
     end
@@ -405,36 +422,6 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
           is_edu_claim_available: true
         }
       }
-    end
-
-    context 'when feature flag is on' do
-      before do
-        Flipper.enable(:profile_show_direct_deposit_single_form)
-      end
-
-      it 'error code is prefixed with direct.deposit' do
-        VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_account_type') do
-          put(:update, params:)
-        end
-
-        json = JSON.parse(response.body)
-        e = json['errors'].first
-
-        expect(e['code']).to eq('direct.deposit.account.type.invalid')
-      end
-    end
-
-    context 'when feature flag is off' do
-      it 'error code is prefixed with cnp.payment' do
-        VCR.use_cassette('lighthouse/direct_deposit/update/400_invalid_account_type') do
-          put(:update, params:)
-        end
-
-        json = JSON.parse(response.body)
-        e = json['errors'].first
-
-        expect(e['code']).to eq('cnp.payment.account.type.invalid')
-      end
     end
   end
 end

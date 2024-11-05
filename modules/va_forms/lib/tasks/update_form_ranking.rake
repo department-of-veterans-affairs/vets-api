@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop:disable Metrics/BlockLength
 module VAForms
   module UpdateFormRanking
     module_function
@@ -104,4 +103,3 @@ namespace :va_forms do
     VAForms::UpdateFormRanking.run
   end
 end
-# rubocop:enable Metrics/BlockLength

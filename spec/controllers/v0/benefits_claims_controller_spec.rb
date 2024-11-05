@@ -218,7 +218,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
   describe '#submit5103' do
     it 'returns a status of 200' do
       VCR.use_cassette('lighthouse/benefits_claims/submit5103/200_response') do
-        post(:submit5103, params: { id: '600397108' })
+        post(:submit5103, params: { id: '600397108', trackedItemId: 12_345 }, as: :json)
       end
 
       expect(response).to have_http_status(:ok)
@@ -226,7 +226,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
     it 'returns a status of 404' do
       VCR.use_cassette('lighthouse/benefits_claims/submit5103/404_response') do
-        post(:submit5103, params: { id: '600397108' })
+        post(:submit5103, params: { id: '600397108', trackedItemId: 12_345 }, as: :json)
       end
 
       expect(response).to have_http_status(:not_found)
@@ -235,7 +235,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
     context 'when LH takes too long to respond' do
       it 'returns a status of 504' do
         allow_any_instance_of(BenefitsClaims::Configuration).to receive(:post).and_raise(Faraday::TimeoutError)
-        post(:submit5103, params: { id: '60038334' })
+        post(:submit5103, params: { id: '600397108', trackedItemId: 12_345 }, as: :json)
 
         expect(response).to have_http_status(:gateway_timeout)
       end

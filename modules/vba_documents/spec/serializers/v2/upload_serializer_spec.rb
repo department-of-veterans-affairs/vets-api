@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../shared_upload_serializer'
+require_relative '../shared_examples_upload_serializer'
 
 describe VBADocuments::V2::UploadSerializer, type: :serializer do
   subject { serialize(upload_submission, serializer_class: described_class) }
@@ -10,15 +10,11 @@ describe VBADocuments::V2::UploadSerializer, type: :serializer do
     allow(Settings.vba_documents).to receive(:v2_upload_endpoint_enabled).and_return(false)
   end
 
-  let(:upload_submission) { build_stubbed(:upload_submission, status: 'vbms') }
+  let(:upload_submission) { build_stubbed(:upload_submission, :status_uploaded) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
   it_behaves_like 'VBADocuments::UploadSerializer'
-
-  it 'includes :status' do
-    expect(attributes['status']).to eq upload_submission.status
-  end
 
   context 'when observing is true' do
     before do

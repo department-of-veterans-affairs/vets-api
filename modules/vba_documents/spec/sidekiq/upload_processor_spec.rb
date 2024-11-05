@@ -217,6 +217,26 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.status).to eq('received')
     end
 
+    it 'trims leading\trailing whitespace from consumer supplied fileNumber metadata part' do
+      md = JSON.parse(valid_metadata)
+      md['fileNumber'] = '  012345678  '
+      allow(VBADocuments::MultipartParser).to receive(:parse) {
+        { 'metadata' => md.to_json, 'content' => valid_doc, 'attachment1' => valid_doc }
+      }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
+      capture_body = nil
+      expect(client_stub).to receive(:upload) { |arg|
+        capture_body = arg
+        faraday_response
+      }
+
+      described_class.new.perform(upload.guid, test_caller)
+      metadata = JSON.parse(capture_body['metadata'])
+      # leading\trailing whitespace should have been removed
+      expect(metadata['fileNumber']).to eq(metadata['fileNumber']&.strip)
+    end
+
     context 'when payload is empty' do
       let(:empty_payload) { get_fixture('emptyfile.blob') }
 

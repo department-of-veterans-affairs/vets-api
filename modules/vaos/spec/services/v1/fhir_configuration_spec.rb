@@ -18,8 +18,8 @@ describe VAOS::V1::FHIRConfiguration do
   end
 
   describe '#read_timeout' do
-    it 'has a default timeout of 55 seconds' do
-      expect(subject.read_timeout).to eq(55)
+    it 'has a default timeout of 25 seconds' do
+      expect(subject.read_timeout).to eq(25)
     end
   end
 end

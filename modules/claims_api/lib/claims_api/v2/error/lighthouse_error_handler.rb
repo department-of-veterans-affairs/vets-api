@@ -2,12 +2,13 @@
 
 require 'claims_api/common/exceptions/lighthouse/token_validation_error'
 require 'claims_api/common/exceptions/lighthouse/json_validation_error'
-require 'claims_api/common/exceptions/lighthouse/json_disability_compensation_validation_error'
+require 'claims_api/common/exceptions/lighthouse/json_form_validation_error'
 require 'claims_api/common/exceptions/lighthouse/backend_service_exception'
 require './lib/common/exceptions/backend_service_exception'
 require 'claims_api/common/exceptions/lighthouse/unprocessable_entity'
 require 'claims_api/common/exceptions/lighthouse/resource_not_found'
 require 'claims_api/common/exceptions/lighthouse/bad_request'
+require 'claims_api/common/exceptions/lighthouse/bad_gateway'
 require 'claims_api/common/exceptions/lighthouse/timeout'
 
 module ClaimsApi
@@ -28,6 +29,7 @@ module ClaimsApi
                         ::ClaimsApi::Common::Exceptions::Lighthouse::BadRequest,
                         ::Common::Exceptions::BackendServiceException,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::Timeout,
+                        ::ClaimsApi::Common::Exceptions::Lighthouse::BadGateway,
                         ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException do |err|
                           render_non_source_error(err)
                         end
@@ -46,7 +48,7 @@ module ClaimsApi
             rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity do |err|
               render_error(err)
             end
-            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError do |errs|
+            rescue_from ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError do |errs|
               render_validation_errors(errs)
             end
           end

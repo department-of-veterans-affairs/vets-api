@@ -261,6 +261,36 @@ FactoryBot.define do
     end
   end
 
+  trait :with_failed_primary_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :non_retryable_error, form526_submission: submission)
+    end
+  end
+
+  trait :with_exhausted_primary_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :pif_in_use_error, form526_submission: submission)
+    end
+  end
+
+  trait :with_failed_backup_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :backup_path_job, :non_retryable_error, form526_submission: submission)
+    end
+  end
+
+  trait :with_exhausted_backup_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :exhausted_backup_job, form526_submission: submission)
+    end
+  end
+
+  trait :with_successful_backup_job do
+    after(:create) do |submission|
+      create(:form526_job_status, :backup_path_job, form526_submission: submission)
+    end
+  end
+
   trait :with_pif_in_use_error do
     after(:create) do |submission|
       create(:form526_job_status, :pif_in_use_error, form526_submission: submission)
@@ -291,6 +321,25 @@ FactoryBot.define do
              form526_submission: submission,
              lifecycle: ['i am no longer remediated'],
              success: false)
+    end
+  end
+
+  trait :with_uploads_and_ancillary_forms do
+    form_json do
+      with_ancillary = JSON.parse(File.read("#{submissions_path}/with_everything.json"))
+      with_uploads = JSON.parse(File.read("#{submissions_path}/with_uploads.json"))['form526_uploads']
+      with_uploads.each do |upload|
+        create(:supporting_evidence_attachment, :with_file_data, guid: upload['confirmationCode'])
+      end
+
+      with_ancillary['form526_uploads'] = with_uploads
+      with_ancillary.to_json
+    end
+  end
+
+  trait :with_empty_disabilities do
+    form_json do
+      File.read("#{submissions_path}/only_526_empty_disabilities.json")
     end
   end
 end

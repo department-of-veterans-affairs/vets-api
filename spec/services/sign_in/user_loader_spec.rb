@@ -7,7 +7,9 @@ RSpec.describe SignIn::UserLoader do
     subject { SignIn::UserLoader.new(access_token:, request_ip:).perform }
 
     let(:access_token) { create(:access_token, user_uuid: user.uuid, session_handle:) }
-    let!(:user) { create(:user, :loa3, uuid: user_uuid, loa: user_loa, icn: user_icn) }
+    let!(:user) do
+      create(:user, :loa3, uuid: user_uuid, loa: user_loa, icn: user_icn, session_handle: user_session_handle)
+    end
     let(:user_uuid) { user_account.id }
     let(:user_account) { create(:user_account) }
     let(:user_verification) { create(:idme_user_verification, user_account:) }
@@ -15,6 +17,7 @@ RSpec.describe SignIn::UserLoader do
     let(:user_icn) { user_account.icn }
     let(:session) { create(:oauth_session, user_account:, user_verification:) }
     let(:session_handle) { session.handle }
+    let(:user_session_handle) { session_handle }
     let(:request_ip) { '123.456.78.90' }
 
     shared_examples 'reloaded user' do
@@ -86,6 +89,32 @@ RSpec.describe SignIn::UserLoader do
         it 'reloads user object so that MPI can be called for additional attributes' do
           expect(subject.edipi).to be edipi
         end
+
+        context 'when an MHV account is created' do
+          let(:enabled) { true }
+
+          before do
+            allow(MHV::AccountCreatorJob).to receive(:perform_async)
+            allow(Flipper).to receive(:enabled?).with(:mhv_account_creation_after_login,
+                                                      user_account).and_return(enabled)
+          end
+
+          context 'when :mhv_account_creation_after_login is enabled' do
+            it 'enqueues an MHV::AccountCreatorJob' do
+              subject
+              expect(MHV::AccountCreatorJob).to have_received(:perform_async).with(user_verification.id)
+            end
+          end
+
+          context 'when :mhv_account_creation_after_login is disabled' do
+            let(:enabled) { false }
+
+            it 'does not enqueue an MHV::AccountCreatorJob' do
+              subject
+              expect(MHV::AccountCreatorJob).not_to have_received(:perform_async)
+            end
+          end
+        end
       end
     end
 
@@ -93,8 +122,16 @@ RSpec.describe SignIn::UserLoader do
       let(:user_uuid) { user_account.id }
 
       context 'and user identity record exists in redis' do
-        it 'returns existing user redis record' do
-          expect(subject.uuid).to eq(user_uuid)
+        context 'and session handle on access token matches session handle on user record' do
+          it 'returns existing user redis record' do
+            expect(subject.uuid).to eq(user_uuid)
+          end
+        end
+
+        context 'and session handle on access token does not match session handle on user record' do
+          let(:user_session_handle) { 'some-user-session-handle' }
+
+          it_behaves_like 'reloaded user'
         end
       end
 

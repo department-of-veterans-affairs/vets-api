@@ -265,7 +265,7 @@ describe HCA::Service do
           response = subject.health_check
           expect(response).to eq(
             formSubmissionId: ::HCA::Configuration::HEALTH_CHECK_ID,
-            timestamp: '2016-12-12T08:06:08.423-06:00'
+            timestamp: '2024-08-20T11:38:44.535-05:00'
           )
         end
       end

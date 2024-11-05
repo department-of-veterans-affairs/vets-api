@@ -58,7 +58,7 @@
                 "type": ["string", "null"]
               },
               "healthcareService": {
-                "type": "string"
+                "type": "null"
               },
               "location": {
                 "type": "object",

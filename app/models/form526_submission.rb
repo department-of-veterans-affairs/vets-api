@@ -5,11 +5,13 @@ require 'sentry_logging'
 require 'sidekiq/form526_backup_submission_process/submit'
 require 'logging/third_party_transaction'
 require 'lighthouse/poll_form526_pdf'
+require 'scopes/form526_submission_state'
 
 class Form526Submission < ApplicationRecord
   extend Logging::ThirdPartyTransaction::MethodWrapper
   include SentryLogging
   include Form526ClaimFastTrackingConcern
+  include Scopes::Form526SubmissionState
 
   wrap_with_logging(:start_evss_submission_job,
                     :enqueue_backup_submission,
@@ -61,59 +63,8 @@ class Form526Submission < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
-  # Documentation describing the purpose of 'paranoid success'
-  # https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/disability/526ez/engineering_research/paranoid_success_submissions.md
   enum backup_submitted_claim_status: { accepted: 0, rejected: 1, paranoid_success: 2 }
   enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
-
-  # Documentation describing the purpose of these scopes:
-  # https://github.com/department-of-veterans-affairs/va.gov-team/blob/master/products/disability/526ez/engineering_research/untouched_submission_audit/526_state_repair_tdd.md
-  scope :pending_backup_submissions, lambda {
-    where(submitted_claim_id: nil, backup_submitted_claim_status: nil)
-      .where.not(backup_submitted_claim_id: nil)
-      .where.missing(:form526_submission_remediations)
-  }
-  scope :in_process, lambda {
-    where(submitted_claim_id: nil, backup_submitted_claim_status: nil)
-      .where(arel_table[:created_at].gt(MAX_PENDING_TIME.ago))
-      .where.missing(:form526_submission_remediations)
-  }
-  scope :accepted_to_primary_path, lambda {
-    where.not(submitted_claim_id: nil)
-  }
-  scope :accepted_to_backup_path, lambda {
-    where.not(backup_submitted_claim_id: nil)
-         .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:accepted])
-  }
-  scope :rejected_from_backup_path, lambda {
-    where.not(backup_submitted_claim_id: nil)
-         .where(backup_submitted_claim_status: backup_submitted_claim_statuses[:rejected])
-  }
-  scope :remediated, lambda {
-    left_joins(:form526_submission_remediations)
-      .where(form526_submission_remediations: { success: true })
-  }
-  scope :success_type, lambda {
-    where(id: accepted_to_primary_path.select(:id))
-      .or(where(id: accepted_to_backup_path.select(:id)))
-      .or(where(id: remediated.select(:id)))
-      .or(where(id: paranoid_success_type.select(:id)))
-      .or(where(id: success_by_age_type.select(:id)))
-  }
-  scope :failure_type, lambda {
-    where.not(id: in_process.select(:id))
-         .where.not(id: success_type.select(:id))
-  }
-  # after 1 year as paranoid success, we consider it fully successful
-  scope :success_by_age_type, lambda {
-    where(backup_submitted_claim_status: backup_submitted_claim_statuses[:paranoid_success])
-      .where(arel_table[:created_at].lt(1.year.ago))
-  }
-  # addresses a Benefits Intake API edge case where 'success' can revert to failure
-  scope :paranoid_success_type, lambda {
-    where(backup_submitted_claim_status: backup_submitted_claim_statuses[:paranoid_success])
-      .where(arel_table[:created_at].gt(1.year.ago))
-  }
 
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'
@@ -126,6 +77,15 @@ class Form526Submission < ApplicationRecord
   # MAX_PENDING_TIME aligns with the farthest out expectation given in the LH BI docs,
   # plus 1 week to accomodate for edge cases and our sidekiq jobs
   MAX_PENDING_TIME = 3.weeks
+  ZSF_DD_TAG_SERVICE = 'disability-application'
+
+  # used to track in APMs between systems such as Lighthouse
+  # example: can be used as a search parameter in Datadog
+  # TODO: follow-up in ticket #93563 to make this more robust, i.e. attempts of jobs, etc.
+  def system_transaction_id
+    service_provider = saved_claim.parsed_form['startedFormVersion'].present? ? 'lighthouse' : 'evss'
+    "Form526Submission_#{id}, user_uuid: #{user_uuid}, service_provider: #{service_provider}"
+  end
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
   # submission process. Currently this passes directly to the retryable EVSS workflow, but if any
@@ -363,12 +323,13 @@ class Form526Submission < ApplicationRecord
     )
     workflow_batch.jobs do
       submit_uploads if form[FORM_526_UPLOADS].present?
-      submit_form_4142 if form[FORM_4142].present?
+      conditionally_submit_form_4142
       submit_form_0781 if form[FORM_0781].present?
       submit_form_8940 if form[FORM_8940].present?
       upload_bdd_instructions if bdd?
       submit_flashes if form[FLASHES].present?
-      poll_form526_pdf if Flipper.enabled?(:disability_526_toxic_exposure_document_upload_polling, User.find(user_uuid))
+      poll_form526_pdf if Flipper.enabled?(:disability_526_toxic_exposure_document_upload_polling,
+                                           OpenStruct.new({ flipper_id: user_uuid }))
       cleanup
     end
   end
@@ -464,7 +425,7 @@ class Form526Submission < ApplicationRecord
   end
 
   def duplicate?
-    last_remediation&.ignored_as_duplicate || false
+    last_remediation&.ignored_as_duplicate?
   end
 
   def remediated?
@@ -487,7 +448,34 @@ class Form526Submission < ApplicationRecord
     form526_submission_remediations&.order(:created_at)&.last
   end
 
+  def account
+    # first, check for an ICN on the UserAccount associated to the submission, return it if found
+    account = user_account
+    return account if account&.icn.present?
+
+    # next, check past submissions for different UserAccounts that might have ICNs
+    past_submissions = get_past_submissions
+    account = find_user_account_with_icn(past_submissions, 'past submissions')
+    return account if account.present? && account.icn.present?
+
+    # next, check for any historical UserAccounts for that user which might have an ICN
+    user_verifications = get_user_verifications
+    account = find_user_account_with_icn(user_verifications, 'user verifications')
+    return account if account.present? && account.icn.present?
+
+    # failing all the above, default to an Account lookup
+    Account.lookup_by_user_uuid(user_uuid)
+  end
+
   private
+
+  def conditionally_submit_form_4142
+    if Flipper.enabled?(:disability_compensation_production_tester, OpenStruct.new({ flipper_id: user_uuid }))
+      Rails.logger.info("submit_form_4142 call skipped for submission #{id}")
+    elsif form[FORM_4142].present?
+      submit_form_4142
+    end
+  end
 
   attr_accessor :lighthouse_validation_response
 
@@ -495,8 +483,6 @@ class Form526Submission < ApplicationRecord
   # Lighthouse calls the user_account.icn the "ID of Veteran"
   #
   def lighthouse_service
-    account = user_account ||
-              Account.lookup_by_user_uuid(user_uuid)
     BenefitsClaims::Service.new(account.icn)
   end
 
@@ -589,10 +575,36 @@ class Form526Submission < ApplicationRecord
   def poll_form526_pdf
     # In order to track the status of the 526 PDF upload via Lighthouse,
     # call poll_form526_pdf, provided we received a valid claim_id from Lighthouse
-    Lighthouse::PollForm526Pdf.perform_async(id) if id
+    if saved_claim.parsed_form['startedFormVersion'].present? && submitted_claim_id
+      Lighthouse::PollForm526Pdf.perform_async(id)
+    end
   end
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
+  end
+
+  def find_user_account_with_icn(records, record_type)
+    records.pluck(:user_account_id).uniq.each do |user_account_id|
+      user_account = UserAccount.find(user_account_id)
+      next if user_account&.icn.blank?
+
+      Rails.logger.info("ICN not found on submission #{id}, " \
+                        "using ICN for user account #{user_account_id} instead (based on #{record_type})")
+      return user_account
+    end
+  end
+
+  def get_past_submissions
+    Form526Submission.where(user_uuid:).where.not(user_account_id:)
+  end
+
+  def get_user_verifications
+    UserVerification.where(idme_uuid: user_uuid)
+                    .or(UserVerification.where(backing_idme_uuid: user_uuid))
+                    .or(UserVerification.where(logingov_uuid: user_uuid))
+                    .or(UserVerification.where(mhv_uuid: user_uuid))
+                    .or(UserVerification.where(dslogon_uuid: user_uuid))
+                    .where.not(user_account_id:)
   end
 end

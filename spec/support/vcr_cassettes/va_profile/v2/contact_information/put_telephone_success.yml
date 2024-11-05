@@ -1,0 +1,64 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA/telephones
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551235","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2024-08-27T18:51:06.012Z","sourceSystemUser":"1234","telephoneId":458781,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"vet360Id":"1781151","voiceMailAcceptableInd":true,"effectiveStartDate":null,"effectiveEndDate":null}}'
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      Cufsystemname:
+      - VETSGOV
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1799792056", dtSInfo;desc="0"
+      - dtRpid;desc="-900381764", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - b49c8083-306d-4815-b5cd-4e84e9a3ac82
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 12 Sep 2024 23:46:46 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"c915d801-5693-4860-b2df-83baa8c3c910","status":"RECEIVED"}'
+  recorded_at: Thu, 12 Sep 2024 23:46:47 GMT
+recorded_with: VCR 6.3.1

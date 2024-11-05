@@ -4,6 +4,7 @@ require 'rails_helper'
 
 describe VAProfileRedis::ContactInformation do
   let(:user) { build :user, :loa3 }
+  Flipper.disable(:va_v3_contact_information_service)
   let(:person_response) do
     raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
 

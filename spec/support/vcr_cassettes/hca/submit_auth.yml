@@ -34,7 +34,7 @@ http_interactions:
       Date:
       - Tue, 31 Jan 2017 00:00:00 GMT
       Content-Length:
-      - '12906'
+      - '12734'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -43,20 +43,39 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 08 Feb 2017 19:50:31 GMT
+      - Tue, 20 Aug 2024 17:26:48 GMT
       Server:
-      - Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.1e-fips
-      X-Powered-By:
-      - Servlet/2.5 JSP/2.1
+      - Apache
+      X-Frame-Options:
+      - SAMEORIGIN
+      Content-Security-Policy:
+      - 'default-src https: data: ''unsafe-inline'' ''unsafe-eval'''
+      X-Oracle-Dms-Rid:
+      - '0'
+      X-Oracle-Dms-Ecid:
+      - c2c62aca-191c-42ad-bad8-dbbd9c5271ad-00160c5a
+      X-Oneagent-Js-Injection:
+      - 'true'
+      Ssl-Env:
+      - 'On'
+      X-Xss-Protection:
+      - 1; mode=block
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - max-age=0, no-store
+      Server-Timing:
+      - dtSInfo;desc="0", dtRpid;desc="-871226266"
       Transfer-Encoding:
       - chunked
       Content-Type:
       - text/xml; charset=utf-8
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><submitFormResponse
-        xmlns:ns2="http://jaxws.webservices.esr.med.va.gov/schemas" xmlns="http://va.gov/schema/esr/voa/v1"><status>100</status><formSubmissionId>40125311094</formSubmissionId><message><type>Form
-        successfully received for EE processing</type></message><timeStamp>2017-02-08T13:50:32.020-06:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
-    http_version:
+        xmlns="http://va.gov/schema/esr/voa/v1" xmlns:ns0="http://jaxws.webservices.esr.med.va.gov/schemas"><status>100</status><formSubmissionId>436426340</formSubmissionId><message><type>Form
+        successfully received for EE processing</type></message><timeStamp>2024-08-20T12:26:48.275-05:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
   recorded_at: Tue, 31 Jan 2017 00:00:00 GMT
-recorded_with: VCR 3.0.3
+recorded_with: VCR 6.2.0

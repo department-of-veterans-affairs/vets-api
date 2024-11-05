@@ -16,11 +16,7 @@ module V0
 
         handle_errors!(response)
 
-        render(
-          json: response,
-          status: response.status,
-          serializer: PersonalInformationSerializer
-        )
+        render json: PersonalInformationSerializer.new(response), status: response.status
       end
 
       private

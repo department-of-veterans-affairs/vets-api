@@ -10,6 +10,7 @@ module ClaimsApi
       '0oadnb1x4blVaQ5iY297' => 'Disability Law Pro',
       '0oadnavva9u5F6vRz297' => 'Vet Claim Pro',
       '0oagdm49ygCSJTp8X297' => 'VA.gov',
+      '0oaqzbqj9wGOCJBG8297' => 'Panoramic Software',
       '0oao7p92peuKEvQ73297' => 'VetraSpec'
     }.freeze
 

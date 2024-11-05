@@ -1,16 +1,22 @@
 # frozen_string_literal: true
 
+require 'zero_silent_failures/monitor'
+
 module Pensions
   ##
   # Monitor functions for Rails logging and StatsD
   # @todo abstract, split logging for controller and sidekiq
   #
-  class Monitor
+  class Monitor < ::ZeroSilentFailures::Monitor
     # statsd key for api
     CLAIM_STATS_KEY = 'api.pension_claim'
 
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'worker.lighthouse.pension_benefit_intake_job'
+
+    def initialize
+      super('pension-application')
+    end
 
     ##
     # log GET 404 from controller
@@ -48,7 +54,25 @@ module Pensions
     def track_create_attempt(claim, current_user)
       StatsD.increment("#{CLAIM_STATS_KEY}.attempt")
       Rails.logger.info('21P-527EZ submission to Sidekiq begun',
-                        { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid })
+                        { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid,
+                          statsd: "#{CLAIM_STATS_KEY}.attempt" })
+    end
+
+    ##
+    # log POST claim save validation error
+    # @see PensionClaimsController
+    #
+    # @param in_progress_form [InProgressForm]
+    # @param claim [Pension::SavedClaim]
+    # @param current_user [User]
+    # @param e [Error]
+    #
+    def track_create_validation_error(in_progress_form, claim, current_user)
+      StatsD.increment("#{CLAIM_STATS_KEY}.validation_error")
+      Rails.logger.error('21P-527EZ submission validation error',
+                         { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid,
+                           in_progress_form_id: in_progress_form&.id, errors: claim&.errors&.errors,
+                           statsd: "#{CLAIM_STATS_KEY}.validation_error" })
     end
 
     ##
@@ -65,7 +89,7 @@ module Pensions
       Rails.logger.error('21P-527EZ submission to Sidekiq failed',
                          { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid,
                            in_progress_form_id: in_progress_form&.id, errors: claim&.errors&.errors,
-                           message: e&.message })
+                           message: e&.message, statsd: "#{CLAIM_STATS_KEY}.failure" })
     end
 
     ##
@@ -78,17 +102,29 @@ module Pensions
     #
     def track_create_success(in_progress_form, claim, current_user)
       StatsD.increment("#{CLAIM_STATS_KEY}.success")
-      if claim.form_start_date
-        claim_duration = claim.created_at - claim.form_start_date
-        tags = ["form_id:#{claim.form_id}"]
-        StatsD.measure('saved_claim.time-to-file', claim_duration, tags:)
-      end
       context = {
         confirmation_number: claim&.confirmation_number,
         user_uuid: current_user&.uuid,
-        in_progress_form_id: in_progress_form&.id
+        in_progress_form_id: in_progress_form&.id,
+        statsd: "#{CLAIM_STATS_KEY}.success"
       }
       Rails.logger.info('21P-527EZ submission to Sidekiq success', context)
+    end
+
+    ##
+    # log process_attachments! error
+    # @see PensionClaimsController
+    #
+    # @param claim [Pension::SavedClaim]
+    # @param current_user [User]
+    # @param e [Error]
+    #
+    def track_process_attachment_error(in_progress_form, claim, current_user)
+      StatsD.increment("#{CLAIM_STATS_KEY}.process_attachment_error")
+      Rails.logger.error('21P-527EZ process attachment error',
+                         { confirmation_number: claim&.confirmation_number, user_uuid: current_user&.uuid,
+                           in_progress_form_id: in_progress_form&.id, errors: claim&.errors&.errors,
+                           statsd: "#{CLAIM_STATS_KEY}.process_attachment_error" })
     end
 
     ##
@@ -177,13 +213,37 @@ module Pensions
     # @param claim [Pension::SavedClaim]
     #
     def track_submission_exhaustion(msg, claim = nil)
+      user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
+      additional_context = {
+        form_id: claim&.form_id,
+        claim_id: msg['args'].first,
+        confirmation_number: claim&.confirmation_number,
+        message: msg
+      }
+      log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
+
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
-      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!', {
-                           claim_id: msg['args'].first,
-                           confirmation_number: claim&.confirmation_number,
-                           user_uuid: msg['args'].length <= 1 ? nil : msg['args'][1],
-                           message: msg
-                         })
+      Rails.logger.error('Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
+                         user_uuid: user_account_uuid, **additional_context)
+    end
+
+    ##
+    # Tracks the failure to send a confirmation email for a claim.
+    # @see PensionBenefitIntakeJob
+    #
+    # @param claim [Pension::SavedClaim]
+    # @param lighthouse_service [LighthouseService]
+    # @param user_uuid [String]
+    # @param e [Exception]
+    #
+    def track_send_confirmation_email_failure(claim, lighthouse_service, user_uuid, e)
+      Rails.logger.warn('Lighthouse::PensionBenefitIntakeJob send_confirmation_email failed', {
+                          claim_id: claim&.id,
+                          benefits_intake_uuid: lighthouse_service&.uuid,
+                          confirmation_number: claim&.confirmation_number,
+                          user_uuid:,
+                          message: e&.message
+                        })
     end
 
     ##
@@ -196,6 +256,7 @@ module Pensions
     # @param e [Error]
     #
     def track_file_cleanup_error(claim, lighthouse_service, user_uuid, e)
+      StatsD.increment("#{SUBMISSION_STATS_KEY}.cleanup_failed")
       Rails.logger.error('Lighthouse::PensionBenefitIntakeJob cleanup failed',
                          {
                            claim_id: claim&.id,

@@ -54,6 +54,6 @@ http_interactions:
         string:
           '[{"threadId":3719179,"folderId":0,"messageId":3719187,"threadPageSize":1,"messageCount":2,"category":"OTHER","subject":"OH
           THREAD 001","triageGroupName":"John Triage","sentDate":"2024-06-25T14:14:51.000+00:00","draftDate":null,"senderId":2444644,"senderName":"DOE,
-          John","recipientName":"MHVTP, GREEN G","recipientId":2570050,"proxySenderName":null,"hasAttachment":true,"threadHasAttachment":true,"unsentDrafts":true,"unreadMessages":false}]'
+          John","recipientName":"MHVTP, GREEN G","recipientId":2570050,"proxySenderName":null,"hasAttachment":true,"threadHasAttachment":true,"threadHasAttachment":true,"unsentDrafts":true,"unreadMessages":false}]'
     recorded_at: Fri, 28 Jun 2024 14:04:08 GMT
 recorded_with: VCR 6.2.0

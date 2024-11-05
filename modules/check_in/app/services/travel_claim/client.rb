@@ -12,16 +12,17 @@ module TravelClaim
     CLAIMANT_ID_TYPE = 'icn'
     TRIP_TYPE = 'RoundTrip'
 
-    attr_reader :settings, :check_in
+    attr_reader :settings, :check_in, :client_number
 
     def_delegators :settings, :auth_url, :tenant_id, :client_id, :client_secret, :scope, :claims_url, :claims_base_path,
-                   :client_number, :subscription_key, :e_subscription_key, :s_subscription_key, :service_name
+                   :subscription_key, :e_subscription_key, :s_subscription_key, :service_name
 
     ##
     # Builds a Client instance
     #
     # @param opts [Hash] options to create a Client
     # @option opts [CheckIn::V2::Session] :check_in the check_in session object
+    # @option opts [String] :client_number the client number to use for the claim
     #
     # @return [TravelClaim::Client] an instance of this class
     #
@@ -30,8 +31,9 @@ module TravelClaim
     end
 
     def initialize(opts)
-      @settings = Settings.check_in.travel_reimbursement_api
+      @settings = Settings.check_in.travel_reimbursement_api_v2
       @check_in = opts[:check_in]
+      @client_number = opts[:client_number] || settings.client_number
     end
 
     ##
@@ -195,23 +197,11 @@ module TravelClaim
     end
 
     def auth_url
-      if btsss_ssm_urls_enabled? && settings.auth_url_v2.present?
-        settings.auth_url_v2
-      else
-        settings.auth_url
-      end
+      settings.auth_url_v2
     end
 
     def claims_url
-      if btsss_ssm_urls_enabled? && settings.claims_url_v2.present?
-        settings.claims_url_v2
-      else
-        settings.claims_url
-      end
-    end
-
-    def btsss_ssm_urls_enabled?
-      Flipper.enabled?('check_in_experience_travel_btsss_ssm_urls_enabled') || false
+      settings.claims_url_v2
     end
 
     def mock_enabled?

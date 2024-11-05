@@ -19,6 +19,7 @@ class MessageThread < Common::Base
   attribute :recipient_id, Integer
   attribute :proxySender_name, String
   attribute :has_attachment, Boolean
+  attribute :thread_has_attachment, Boolean
   attribute :unsent_drafts, Boolean
   attribute :unread_messages, Boolean
 

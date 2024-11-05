@@ -7,11 +7,45 @@ require 'sidekiq/form526_job_status_tracker/job_tracker'
 require 'sidekiq/form526_job_status_tracker/metrics'
 
 module Lighthouse
+  # rubocop:disable Metrics/MethodLength
+  class PollForm526PdfError < StandardError; end
+
+  class PollForm526PdfStatus
+    def self.update_job_status(form_job_status:, message:, error_class:, error_message:)
+      timestamp = Time.now.utc
+      form526_submission_id = form_job_status.form526_submission_id
+      job_id = form_job_status.job_id
+      bgjob_errors = form_job_status.bgjob_errors || {}
+      new_error = {
+        "#{timestamp.to_i}": {
+          caller_method: __method__.to_s,
+          error_class:,
+          error_message:,
+          timestamp:,
+          form526_submission_id:
+        }
+      }
+
+      form_job_status.update(
+        status: Form526JobStatus::STATUS[:pdf_not_found],
+        bgjob_errors: bgjob_errors.merge(new_error),
+        error_class:,
+        error_message: message
+      )
+
+      ::Rails.logger.warn(
+        message,
+        { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+      )
+    end
+  end
+
   class PollForm526Pdf
     include Sidekiq::Job
     include Sidekiq::Form526JobStatusTracker::JobTracker
-    extend Logging::ThirdPartyTransaction::MethodWrapper
     extend ActiveSupport::Concern
+    extend SentryLogging
+    extend Logging::ThirdPartyTransaction::MethodWrapper
 
     attr_accessor :submission_id
 
@@ -32,33 +66,16 @@ module Lighthouse
     # :nocov:
     sidekiq_retries_exhausted do |msg, _ex|
       # log, mark Form526JobStatus for submission as "pdf_not_found"
-
       job_id = msg['jid']
       error_class = msg['error_class']
       error_message = msg['error_message']
-      timestamp = Time.now.utc
-      form526_submission_id = msg['args'].first
-
       form_job_status = Form526JobStatus.find_by(job_id:)
-      bgjob_errors = form_job_status.bgjob_errors || {}
-      new_error = {
-        "#{timestamp.to_i}": {
-          caller_method: __method__.to_s,
-          error_class:,
-          error_message:,
-          timestamp:,
-          form526_submission_id:
-        }
-      }
 
-      form_job_status.update(
-        status: Form526JobStatus::STATUS[:pdf_not_found],
-        bgjob_errors: bgjob_errors.merge(new_error)
-      )
-
-      ::Rails.logger.warn(
-        'Poll for Form 526 PDF: Retries exhausted',
-        { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+      PollForm526PdfStatus.update_job_status(
+        form_job_status:,
+        message: 'Poll for Form 526 PDF: Retries exhausted',
+        error_class:,
+        error_message:
       )
     rescue => e
       log_exception_to_sentry(e)
@@ -70,45 +87,31 @@ module Lighthouse
     #
     # @param submission_id [Integer] The {Form526Submission} id
     #
-    def perform(submission_id) # rubocop:disable Metrics/MethodLength
+    def perform(submission_id)
       @submission_id = submission_id
 
       Sentry.set_tags(source: '526EZ-all-claims')
 
       with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
-        user_account = UserAccount.find_by(id: submission.user_account_id) ||
-                       Account.lookup_by_user_uuid(submission.user_uuid)
-
-        icn = user_account.icn
-        service = BenefitsClaims::Service.new(icn)
-        raw_response = service.get_claim(submission.submitted_claim_id)
-        raw_response_body = if raw_response.is_a? String
-                              JSON.parse(raw_response)
-                            else
-                              raw_response
-                            end
-
-        supporting_documents = raw_response_body.dig('data', 'attributes', 'supportingDocuments')
-        form526_pdf = supporting_documents.find do |d|
-          d['documentTypeLabel'] == 'VA 21-526 Veterans Application for Compensation or Pension'
-        end
+        form526_pdf = get_form526_pdf(submission)
         if form526_pdf.present?
           Rails.logger.info('Poll for form 526 PDF: PDF found')
           return
         else
           # Check the submission.created_at date, if it's more than 2 days old
           # update the job status to pdf_not_found immediately and exit the job
-          unless submission.created_at.between?(Date.current - 2, Date.current)
-            form_job_status.update(
-              status: Form526JobStatus::STATUS[:pdf_not_found],
-              bgjob_errors: bgjob_errors.merge(new_error)
-            )
-            ::Rails.logger.warn(
-              'Poll for form 526 PDF: Submission creation date is over 2 days old. Exiting...'
+          unless submission.created_at.between?(DateTime.now - 2.days, DateTime.now)
+            form_job_status = submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')
+            message = 'Poll for form 526 PDF: Submission creation date is over 2 days old. Exiting...'
+            PollForm526PdfStatus.update_job_status(
+              form_job_status:,
+              message:,
+              error_class: 'PollForm526PdfError',
+              error_message: message
             )
             return
           end
-          raise StandardError('Poll for form 526 PDF: Keep on retrying!')
+          raise Lighthouse::PollForm526PdfError, 'Poll for form 526 PDF: Keep on retrying!'
         end
       end
     end
@@ -118,5 +121,25 @@ module Lighthouse
     def submission
       @submission ||= Form526Submission.find(@submission_id)
     end
+
+    def get_form526_pdf(submission)
+      user_account = UserAccount.find_by(id: submission.user_account_id) ||
+                     Account.lookup_by_user_uuid(submission.user_uuid)
+
+      icn = user_account.icn
+      service = BenefitsClaims::Service.new(icn)
+      raw_response = service.get_claim(submission.submitted_claim_id)
+      raw_response_body = if raw_response.is_a? String
+                            JSON.parse(raw_response)
+                          else
+                            raw_response
+                          end
+
+      supporting_documents = raw_response_body.dig('data', 'attributes', 'supportingDocuments')
+      supporting_documents.find do |d|
+        d['documentTypeLabel'] == 'VA 21-526 Veterans Application for Compensation or Pension'
+      end
+    end
   end
+  # rubocop:enable Metrics/MethodLength
 end

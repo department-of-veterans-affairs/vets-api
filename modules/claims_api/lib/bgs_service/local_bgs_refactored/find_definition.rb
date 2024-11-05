@@ -26,7 +26,7 @@ module ClaimsApi
           # Rather than hardcode a duplicated list of service definitions or
           # polluting the code that this adapts to to care about this temporary
           # adapter logic, we query constants and select the ones that are
-          # service definitons.
+          # service definitions.
           Mod.constants.each do |service_mod|
             service_mod = Mod.const_get(service_mod)
             next unless service_mod.const_defined?(:DEFINITION)

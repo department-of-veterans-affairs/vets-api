@@ -2,19 +2,16 @@
 
 module IvcChampva
   class S3
-    attr_reader :region, :access_key_id, :secret_access_key, :bucket
+    attr_reader :region, :bucket
 
-    def initialize(region:, access_key_id:, secret_access_key:, bucket:)
+    def initialize(region:, bucket:)
       @region = region
-      @access_key_id = access_key_id
-      @secret_access_key = secret_access_key
       @bucket = bucket
     end
 
-    def put_object(key, file, metadata = {}, attachment_ids = {})
+    def put_object(key, file, metadata = {})
       Datadog::Tracing.trace('S3 Put File(s)') do
         metadata&.transform_values! { |value| value || '' }
-        metadata['attachment_ids'] = attachment_ids.empty? ? '' : attachment_ids.join(',')
 
         client.put_object({
                             bucket:,
@@ -43,9 +40,7 @@ module IvcChampva
 
     def client
       @client ||= Aws::S3::Client.new(
-        region:,
-        access_key_id:,
-        secret_access_key:
+        region:
       )
     end
 

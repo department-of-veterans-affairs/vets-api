@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://auth.veis.gov/tenant_id/oauth2/token
+    uri: "<VEIS_AUTH_URL>/tenant_id/oauth2/token"
     body:
       encoding: US-ASCII
       string: 'client_id=client_id&client_secret=client_secret&client_info=1&grant_type=client_credentials&resource=resource_id'
@@ -179,7 +179,7 @@ http_interactions:
             "modifiedOn": "2024-04-23T16:44:34.465Z"
           },
           {
-            "id": "claim_id_3",
+            "id": "claim_id_2",
             "claimNumber": "TC0928098228366",
             "claimStatus": "Incomplete",
             "appointmentDateTime": "2024-04-09T20:15:34.465Z",
@@ -188,7 +188,7 @@ http_interactions:
             "modifiedOn": "2024-04-09T20:29:34.465Z"
           },
           {
-            "id": "claim_id_2",
+            "id": "claim_id_3",
             "claimNumber": "TC092809828275",
             "claimStatus": "InManualReview",
             "appointmentDateTime": "2024-04-13T20:30:34.465Z",

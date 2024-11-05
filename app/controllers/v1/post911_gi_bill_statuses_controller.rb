@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'formatters/date_formatter'
-require 'lighthouse/benefits_education/outside_working_hours'
 require 'lighthouse/benefits_education/service'
 
 module V1
@@ -10,15 +9,12 @@ module V1
     include SentryLogging
     service_tag 'gibill-statement'
 
-    before_action :service_available?, only: :show
-
     STATSD_GI_BILL_TOTAL_KEY = 'api.lighthouse.gi_bill_status.total'
     STATSD_GI_BILL_FAIL_KEY = 'api.lighthouse.gi_bill_status.fail'
 
     def show
       response = service.get_gi_bill_status
-      render json: response,
-             serializer: Post911GIBillStatusSerializer
+      render json: Post911GIBillStatusSerializer.new(response)
     rescue Breakers::OutageException => e
       raise e
     rescue => e
@@ -34,15 +30,6 @@ module V1
       log_vet_not_found(@current_user, Time.now.in_time_zone('Eastern Time (US & Canada)')) if status == 404
       StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:#{status}"])
       render json: { errors: e.errors }, status: status || :internal_server_error
-    end
-
-    def service_available?
-      unless BenefitsEducation::Service.within_scheduled_uptime?
-        StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ['error:scheduled_downtime'])
-        headers['Retry-After'] = BenefitsEducation::Service.retry_after_time
-        # 503 response
-        raise BenefitsEducation::OutsideWorkingHours
-      end
     end
 
     def log_vet_not_found(user, timestamp)
@@ -66,10 +53,6 @@ module V1
         ssn: user.ssn,
         birth_date: Formatters::DateFormatter.format_date(user.birth_date, :datetime_iso8601)
       }.to_json
-    end
-
-    def skip_sentry_exception_types
-      super + [BenefitsEducation::OutsideWorkingHours]
     end
 
     def service

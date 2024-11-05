@@ -131,29 +131,4 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
       end
     end
   end
-
-  describe 'handle_attachments' do
-    it 'saves the combined pdf' do
-      combined_pdf = double
-      original_file_path = 'original-file-path'
-      attachment = double(to_pdf: double)
-      allow(PersistentAttachment).to receive(:where).and_return([attachment])
-      form = SimpleFormsApi::VBA2010207.new(
-        {
-          'financial_hardship_documents' => [{ confirmation_code: double }],
-          'als_documents' => [{ confirmation_code: double }]
-        }
-      )
-      allow(CombinePDF).to receive(:new).and_return(combined_pdf)
-      allow(combined_pdf).to receive(:<<)
-      allow(CombinePDF).to receive(:load)
-      allow(CombinePDF).to receive(:load).with(original_file_path)
-      allow(CombinePDF).to receive(:load).with(attachment).twice
-      allow(combined_pdf).to receive(:save).with(original_file_path)
-
-      form.handle_attachments(original_file_path)
-
-      expect(combined_pdf).to have_received(:save).with(original_file_path)
-    end
-  end
 end

@@ -51,6 +51,8 @@ module V0
     def bearer_token
       secret = if Flipper.enabled?(:virtual_agent_enable_pva2_chatbot, current_user)
                  Settings.virtual_agent.webchat_pva2_secret
+               elsif Flipper.enabled?(:virtual_agent_enable_root_bot, current_user)
+                 Settings.virtual_agent.webchat_root_bot_secret
                else
                  Settings.virtual_agent.webchat_secret
                end

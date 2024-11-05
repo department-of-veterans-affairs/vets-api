@@ -6,25 +6,38 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
   describe '#perform' do
     describe 'submission to the bulk status report endpoint' do
       it 'submits only pending form submissions' do
-        pending_form_submission_ids = create_list(:form_submission, 2, :pending).map(&:benefits_intake_uuid)
+        pending_form_submission_attempts_ids = create_list(:form_submission_attempt, 2,
+                                                           :pending).map(&:benefits_intake_uuid)
         create_list(:form_submission, 2, :success)
         create_list(:form_submission, 2, :failure)
         response = double(body: { 'data' => [] }, success?: true)
 
         expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
-          .with(uuids: pending_form_submission_ids).and_return(response)
+          .with(uuids: pending_form_submission_attempts_ids).and_return(response)
 
         BenefitsIntakeStatusJob.new.perform
+      end
+
+      context 'form submission has one pending attempt and one successful attempt' do
+        it 'does not process the form submission' do
+          form_submission = create(:form_submission)
+          create(:form_submission_attempt, :pending, form_submission:)
+          create(:form_submission_attempt, :vbms, form_submission:)
+          expect_any_instance_of(BenefitsIntake::Service).not_to receive(:bulk_status)
+
+          BenefitsIntakeStatusJob.new.perform
+        end
       end
     end
 
     describe 'when batch size is less than or equal to max batch size' do
       it 'successfully submits batch intake' do
-        pending_form_submission_ids = create_list(:form_submission, 2, :pending).map(&:benefits_intake_uuid)
+        pending_form_submission_attempts_ids = create_list(:form_submission_attempt, 2,
+                                                           :pending).map(&:benefits_intake_uuid)
         response = double(body: { 'data' => [] }, success?: true)
 
         expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
-          .with(uuids: pending_form_submission_ids).and_return(response)
+          .with(uuids: pending_form_submission_attempts_ids).and_return(response)
 
         BenefitsIntakeStatusJob.new.perform
       end
@@ -64,103 +77,116 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
     end
 
     describe 'updating the form submission status' do
+      before { allow_any_instance_of(SimpleFormsApi::NotificationEmail).to receive(:send) }
+
       it 'updates the status with vbms from the bulk status report endpoint' do
-        pending_form_submissions = create_list(:form_submission, 1, :pending)
-        batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
+        pending_form_submission_attempts = create_list(:form_submission_attempt, 1, :pending)
+        batch_uuids = pending_form_submission_attempts.map(&:benefits_intake_uuid)
         data = batch_uuids.map { |id| { 'id' => id, 'attributes' => { 'status' => 'vbms' } } }
         response = double(success?: true, body: { 'data' => data })
 
         status_job = BenefitsIntakeStatusJob.new
 
-        pfs = pending_form_submissions.first
-        expect(status_job).to receive(:log_result).with('success', pfs.form_type, pfs.benefits_intake_uuid, anything)
+        pfsa = pending_form_submission_attempts.first
+        expect(status_job).to receive(:log_result).with('success', pfsa.form_submission.form_type,
+                                                        pfsa.benefits_intake_uuid, anything)
         expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
           .with(uuids: batch_uuids).and_return(response)
 
         status_job.perform
 
-        pending_form_submissions.each do |form_submission|
-          expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'vbms'
+        pending_form_submission_attempts.each do |form_submission_attempt|
+          expect(form_submission_attempt.reload.aasm_state).to eq 'vbms'
         end
       end
 
       it 'updates the status with error from the bulk status report endpoint' do
-        pending_form_submissions = create_list(:form_submission, 1, :pending)
-        batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
-        data = batch_uuids.map { |id| { 'id' => id, 'attributes' => { 'status' => 'error' } } }
+        pending_form_submission_attempts = create_list(:form_submission_attempt, 1, :pending)
+        batch_uuids = pending_form_submission_attempts.map(&:benefits_intake_uuid)
+        error_code = 'error-code'
+        error_detail = 'error-detail'
+        data = batch_uuids.map do |id|
+          { 'id' => id, 'attributes' => { 'code' => error_code, 'detail' => error_detail, 'status' => 'error' } }
+        end
         response = double(success?: true, body: { 'data' => data })
 
         status_job = BenefitsIntakeStatusJob.new
 
-        pfs = pending_form_submissions.first
-        expect(status_job).to receive(:log_result).with('failure', pfs.form_type, pfs.benefits_intake_uuid, anything)
+        pfsa = pending_form_submission_attempts.first
+        expect(status_job).to receive(:log_result).with('failure', pfsa.form_submission.form_type,
+                                                        pfsa.benefits_intake_uuid, anything,
+                                                        "#{error_code}: #{error_detail}")
         expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
           .with(uuids: batch_uuids).and_return(response)
 
         status_job.perform
 
-        pending_form_submissions.each do |form_submission|
-          expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'failure'
+        pending_form_submission_attempts.each do |form_submission_attempt|
+          expect(form_submission_attempt.reload.aasm_state).to eq 'failure'
         end
       end
 
       it 'updates the status with expired from the bulk status report endpoint' do
-        pending_form_submissions = create_list(:form_submission, 1, :pending)
-        batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
+        pending_form_submission_attempts = create_list(:form_submission_attempt, 1, :pending)
+        batch_uuids = pending_form_submission_attempts.map(&:benefits_intake_uuid)
         data = batch_uuids.map { |id| { 'id' => id, 'attributes' => { 'status' => 'expired' } } }
         response = double(success?: true, body: { 'data' => data })
 
         status_job = BenefitsIntakeStatusJob.new
 
-        pfs = pending_form_submissions.first
-        expect(status_job).to receive(:log_result).with('failure', pfs.form_type, pfs.benefits_intake_uuid, anything)
+        pfsa = pending_form_submission_attempts.first
+        expect(status_job).to receive(:log_result).with('failure', pfsa.form_submission.form_type,
+                                                        pfsa.benefits_intake_uuid, anything,
+                                                        'expired')
         expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
           .with(uuids: batch_uuids).and_return(response)
 
         status_job.perform
 
-        pending_form_submissions.each do |form_submission|
-          expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'failure'
+        pending_form_submission_attempts.each do |form_submission_attempt|
+          expect(form_submission_attempt.reload.aasm_state).to eq 'failure'
         end
       end
 
       it 'logs a stale submission if over the number of SLA days' do
-        pending_form_submissions = create_list(:form_submission, 1, :stale)
-        batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
+        pending_form_submission_attempts = create_list(:form_submission_attempt, 1, :stale)
+        batch_uuids = pending_form_submission_attempts.map(&:benefits_intake_uuid)
         data = batch_uuids.map { |id| { 'id' => id, 'attributes' => { 'status' => 'ANYTHING-ELSE' } } }
         response = double(success?: true, body: { 'data' => data })
 
         status_job = BenefitsIntakeStatusJob.new
 
-        pfs = pending_form_submissions.first
-        expect(status_job).to receive(:log_result).with('stale', pfs.form_type, pfs.benefits_intake_uuid, anything)
+        pfsa = pending_form_submission_attempts.first
+        expect(status_job).to receive(:log_result).with('stale', pfsa.form_submission.form_type,
+                                                        pfsa.benefits_intake_uuid, anything)
         expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
           .with(uuids: batch_uuids).and_return(response)
 
         status_job.perform
 
-        pending_form_submissions.each do |form_submission|
-          expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'pending'
+        pending_form_submission_attempts.each do |form_submission_attempt|
+          expect(form_submission_attempt.reload.aasm_state).to eq 'pending'
         end
       end
 
       it 'logs a pending submission' do
-        pending_form_submissions = create_list(:form_submission, 1, :pending)
-        batch_uuids = pending_form_submissions.map(&:benefits_intake_uuid)
+        pending_form_submission_attempts = create_list(:form_submission_attempt, 1, :pending)
+        batch_uuids = pending_form_submission_attempts.map(&:benefits_intake_uuid)
         data = batch_uuids.map { |id| { 'id' => id, 'attributes' => { 'status' => 'ANYTHING-ELSE' } } }
         response = double(success?: true, body: { 'data' => data })
 
         status_job = BenefitsIntakeStatusJob.new
 
-        pfs = pending_form_submissions.first
-        expect(status_job).to receive(:log_result).with('pending', pfs.form_type, pfs.benefits_intake_uuid)
+        pfsa = pending_form_submission_attempts.first
+        expect(status_job).to receive(:log_result).with('pending', pfsa.form_submission.form_type,
+                                                        pfsa.benefits_intake_uuid)
         expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
           .with(uuids: batch_uuids).and_return(response)
 
         status_job.perform
 
-        pending_form_submissions.each do |form_submission|
-          expect(form_submission.form_submission_attempts.first.reload.aasm_state).to eq 'pending'
+        pending_form_submission_attempts.each do |form_submission_attempt|
+          expect(form_submission_attempt.reload.aasm_state).to eq 'pending'
         end
       end
 

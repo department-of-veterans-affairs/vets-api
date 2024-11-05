@@ -13,9 +13,7 @@ module SimpleFormsApi
     end
 
     def use_intent_api?
-      if params[:form_number] == '21-0966' && participant_id && icn && params[:preparer_identification] == 'VETERAN'
-        true
-      end
+      params[:form_number] == '21-0966' && participant_id && icn && params[:preparer_identification] == 'VETERAN'
     end
 
     def submit

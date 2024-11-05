@@ -1,0 +1,45 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: https://veteran.apps.va.gov/vpg/v1/patients/1012845331V153043/relationships?clinicalService=primaryCare&location=100
+      body:
+        encoding: US-ASCII
+        string: ''
+      headers:
+        Accept:
+          - application/json
+        Content-Type:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Referer:
+          - https://review-instance.va.gov
+        X-Vamf-Jwt:
+          - stubbed_token
+        X-Request-Id:
+          - 06054f2f-fec7-4ee1-be71-6d9e381f063a
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+    response:
+      status:
+        code: 500
+        message: Internal Server Error
+      headers:
+        Date:
+          - Fri, 23 Aug 2024 14:46:54 GMT
+        Content-Type:
+          - application/json
+        Access-Control-Allow-Headers:
+          - x-vamf-jwt
+        Access-Control-Allow-Origin:
+          - "*"
+        Access-Control-Allow-Methods:
+          - GET,OPTIONS
+        Access-Control-Max-Age:
+          - '3600'
+      body:
+        encoding: UTF-8
+        string: '{"code":500,"status":500,"message":"Failed to fetch relationships","id":"8f82ace3-725b-4ac2-9dd9-af24a08b9511","traceId":"66cca2fc08756a082363af261c74ee40"}'
+    recorded_at: Fri, 23 Aug 2024 14:46:55 GMT
+recorded_with: VCR 6.2.0

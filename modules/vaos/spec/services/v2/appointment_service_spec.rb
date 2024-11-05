@@ -92,11 +92,14 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query]) do
             VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
                              match_requests_on: %i[method path query]) do
-              allow(Rails.logger).to receive(:info).at_least(:once)
-              response = subject.post_appointment(va_booked_request_body)
-              expect(response[:id]).to be_a(String)
-              expect(response[:local_start_time])
-                .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+              VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                               match_requests_on: %i[method path query]) do
+                allow(Rails.logger).to receive(:info).at_least(:once)
+                response = subject.post_appointment(va_booked_request_body)
+                expect(response[:id]).to be_a(String)
+                expect(response[:local_start_time])
+                  .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+              end
             end
           end
         end
@@ -106,10 +109,13 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query]) do
             VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
                              match_requests_on: %i[method path query]) do
-              response = subject.post_appointment(va_booked_request_body)
-              expect(response[:id]).to be_a(String)
-              expect(response[:local_start_time])
-                .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+              VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                               match_requests_on: %i[method path query]) do
+                response = subject.post_appointment(va_booked_request_body)
+                expect(response[:id]).to be_a(String)
+                expect(response[:local_start_time])
+                  .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+              end
             end
           end
         end
@@ -117,8 +123,14 @@ describe VAOS::V2::AppointmentsService do
         it 'returns the created appointment-va-proposed-clinic' do
           VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_clinic_200',
                            match_requests_on: %i[method path query]) do
-            response = subject.post_appointment(va_proposed_clinic_request_body)
-            expect(response[:id]).to eq('70065')
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                               match_requests_on: %i[method path query]) do
+                response = subject.post_appointment(va_proposed_clinic_request_body)
+                expect(response[:id]).to eq('70065')
+              end
+            end
           end
         end
       end
@@ -186,11 +198,14 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query]) do
             VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
                              match_requests_on: %i[method path query]) do
-              allow(Rails.logger).to receive(:info).at_least(:once)
-              response = subject.post_appointment(va_booked_request_body)
-              expect(response[:id]).to be_a(String)
-              expect(response[:local_start_time])
-                .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+              VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                               match_requests_on: %i[method path query]) do
+                allow(Rails.logger).to receive(:info).at_least(:once)
+                response = subject.post_appointment(va_booked_request_body)
+                expect(response[:id]).to be_a(String)
+                expect(response[:local_start_time])
+                  .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+              end
             end
           end
         end
@@ -200,10 +215,13 @@ describe VAOS::V2::AppointmentsService do
                            match_requests_on: %i[method path query]) do
             VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
                              match_requests_on: %i[method path query]) do
-              response = subject.post_appointment(va_booked_request_body)
-              expect(response[:id]).to be_a(String)
-              expect(response[:local_start_time])
-                .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+              VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                               match_requests_on: %i[method path query]) do
+                response = subject.post_appointment(va_booked_request_body)
+                expect(response[:id]).to be_a(String)
+                expect(response[:local_start_time])
+                  .to eq(DateTime.parse('2022-11-30T13:45:00-07:00'))
+              end
             end
           end
         end
@@ -211,8 +229,14 @@ describe VAOS::V2::AppointmentsService do
         it 'returns the created appointment-va-proposed-clinic' do
           VCR.use_cassette('vaos/v2/appointments/post_appointments_va_proposed_clinic_200_vpg',
                            match_requests_on: %i[method path query]) do
-            response = subject.post_appointment(va_proposed_clinic_request_body)
-            expect(response[:id]).to eq('70065')
+            VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
+                             match_requests_on: %i[method path query]) do
+              VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                               match_requests_on: %i[method path query]) do
+                response = subject.post_appointment(va_proposed_clinic_request_body)
+                expect(response[:id]).to eq('70065')
+              end
+            end
           end
         end
       end
@@ -497,6 +521,108 @@ describe VAOS::V2::AppointmentsService do
         end
       end
     end
+
+    context 'when a MAP token error occurs' do
+      it 'logs missing ICN error' do
+        expected_error = MAP::SecurityToken::Errors::MissingICNError.new 'Missing ICN message'
+        # Set up SessionService to raise the expected error. Although the error should be raised by
+        # the MAP::SecurityToken::Service, it is easier to mock the behavior in this way for testing.
+        # This is functionally equivalent since SessionService calls the MAP::SecurityToken::Service
+        # in the :headers method.
+        allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
+        allow(Rails.logger).to receive(:warn).at_least(:once)
+        result = subject.get_appointments(start_date, end_date)
+        expect(Rails.logger).to have_received(:warn).with('VAOS::V2::AppointmentService#get_appointments missing ICN')
+        expect(result[:data]).to eq({})
+        expect(result[:meta][:failures]).to eq('Missing ICN message')
+      end
+
+      it 'logs application mismatch error' do
+        expected_error = MAP::SecurityToken::Errors::ApplicationMismatchError.new 'Application Mismatch message'
+        # Set up SessionService to raise the expected error. Although the error should be raised by
+        # the MAP::SecurityToken::Service, it is easier to mock the behavior in this way for testing.
+        # This is functionally equivalent since SessionService calls the MAP::SecurityToken::Service
+        # in the :headers method.
+        allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
+        allow(Rails.logger).to receive(:warn).at_least(:once)
+        result = subject.get_appointments(start_date, end_date)
+        expect(Rails.logger).to have_received(:warn).with(
+          'VAOS::V2::AppointmentService#get_appointments application mismatch',
+          {
+            icn: 'd12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d',
+            context: 'Application Mismatch message'
+          }
+        )
+        expect(result[:data]).to eq({})
+        expect(result[:meta][:failures]).to eq('Application Mismatch message')
+      end
+
+      it 'logs gateway timeout error' do
+        expected_error = Common::Exceptions::GatewayTimeout.new
+        # Set up SessionService to raise the expected error. Although the error should be raised by
+        # the MAP::SecurityToken::Service, it is easier to mock the behavior in this way for testing.
+        # This is functionally equivalent since SessionService calls the MAP::SecurityToken::Service
+        # in the :headers method.
+        allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
+        allow(Rails.logger).to receive(:warn).at_least(:once)
+        result = subject.get_appointments(start_date, end_date)
+        expect(Rails.logger).to have_received(:warn).with(
+          'VAOS::V2::AppointmentService#get_appointments token failed, gateway timeout',
+          {
+            icn: 'd12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d'
+          }
+        )
+        expect(result[:data]).to eq({})
+        expect(result[:meta][:failures]).to eq('Gateway timeout')
+      end
+
+      it 'logs parsing error' do
+        expected_error = Common::Client::Errors::ParsingError.new 'Parsing Error message'
+        # Set up SessionService to raise the expected error. Although the error should be raised by
+        # the MAP::SecurityToken::Service, it is easier to mock the behavior in this way for testing.
+        # This is functionally equivalent since SessionService calls the MAP::SecurityToken::Service
+        # in the :headers method.
+        allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
+        allow(Rails.logger).to receive(:warn).at_least(:once)
+        result = subject.get_appointments(start_date, end_date)
+        expect(Rails.logger).to have_received(:warn).with(
+          'VAOS::V2::AppointmentService#get_appointments token failed, parsing error',
+          {
+            icn: 'd12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d',
+            context: 'Parsing Error message'
+          }
+        )
+        expect(result[:data]).to eq({})
+        expect(result[:meta][:failures]).to eq('Parsing Error message')
+      end
+
+      it 'logs client error' do
+        expected_error = Common::Client::Errors::ClientError.new 'Parsing Error message', 400, 'additional details'
+        # Set up SessionService to raise the expected error. Although the error should be raised by
+        # the MAP::SecurityToken::Service, it is easier to mock the behavior in this way for testing.
+        # This is functionally equivalent since SessionService calls the MAP::SecurityToken::Service
+        # in the :headers method.
+        allow_any_instance_of(VAOS::SessionService).to receive(:headers).and_raise(expected_error)
+        allow(Rails.logger).to receive(:warn).at_least(:once)
+        result = subject.get_appointments(start_date, end_date)
+        expect(Rails.logger).to have_received(:warn).with(
+          'VAOS::V2::AppointmentService#get_appointments token failed, status: 400',
+          {
+            status: 400,
+            icn: 'd12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d',
+            context: 'additional details'
+          }
+        )
+        expect(result[:data]).to eq({})
+        expect(result[:meta][:failures])
+          .to eq({
+                   message: 'VAOS::V2::AppointmentService#get_appointments token failed, status: 400',
+                   status: 400,
+                   icn: 'd12672eba61b7e9bc50bb6085a0697133a5fbadf195e6cade452ddaad7921c1d',
+                   context: 'additional details'
+                 })
+      end
+    end
   end
 
   describe '#get_most_recent_visited_clinic_appointment' do
@@ -549,6 +675,70 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns the most recent clinic appointment' do
         expect(subject).to eq(mock_appointment_three)
+      end
+    end
+  end
+
+  describe '#get_recent_sorted_clinic_appointments' do
+    subject { instance_of_class.get_recent_sorted_clinic_appointments }
+
+    let(:instance_of_class) { described_class.new(user) }
+    let(:mock_appointment_one) { double('Appointment', kind: 'clinic', start: '2022-12-02') }
+    let(:mock_appointment_two) { double('Appointment', kind: 'telehealth', start: '2022-12-01T21:38:01.476Z') }
+    let(:mock_appointment_three) { double('Appointment', kind: 'clinic', start: '2022-12-09T21:38:01.476Z') }
+
+    context 'when appointments are available' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [mock_appointment_one,
+                                                                                   mock_appointment_two,
+                                                                                   mock_appointment_three] })
+      end
+
+      it 'returns the recent sorted clinic appointments' do
+        expect(subject).to eq([mock_appointment_two, mock_appointment_one, mock_appointment_three])
+      end
+    end
+
+    context 'when no appointments are available' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [] })
+      end
+
+      it 'returns nil' do
+        expect(subject.first).to be_nil
+      end
+    end
+  end
+
+  describe '#sort_recent_appointments' do
+    subject { instance_of_class }
+
+    let(:instance_of_class) { described_class.new(user) }
+    let(:mock_appointment_one) { double('Appointment', id: '123', kind: 'clinic', start: '2022-12-02') }
+    let(:mock_appointment_two) do
+      double('Appointment', id: '124', kind: 'telehealth', start: '2022-12-01T21:38:01.476Z')
+    end
+    let(:mock_appointment_three) { double('Appointment', id: '125', kind: 'clinic', start: '2022-12-09T21:38:01.476Z') }
+    let(:mock_appointment_four_no_start) { double('Appointment', id: '126', kind: 'clinic', start: nil) }
+    let(:appointments_input_no_start) do
+      [mock_appointment_one, mock_appointment_two, mock_appointment_three, mock_appointment_four_no_start]
+    end
+    let(:appointments_input) { [mock_appointment_one, mock_appointment_two, mock_appointment_three] }
+    let(:filtered_sorted_appointments) { [mock_appointment_two, mock_appointment_one, mock_appointment_three] }
+
+    context 'when appointments are available' do
+      it 'sorts based on start time' do
+        expect(subject.send(:sort_recent_appointments, appointments_input)).to eq(filtered_sorted_appointments)
+        expect(Rails.logger).not_to receive(:info)
+      end
+    end
+
+    context 'when appointments are available and at least one is missing a start time' do
+      it 'filters before sorting and logs removed appointments' do
+        allow(Rails.logger).to receive(:info)
+        expect(subject.send(:sort_recent_appointments, appointments_input_no_start)).to eq(filtered_sorted_appointments)
+        expect(Rails.logger).to have_received(:info)
+          .with('VAOS appointment sorting filtered out id 126 due to missing start time.')
       end
     end
   end
@@ -788,8 +978,11 @@ describe VAOS::V2::AppointmentsService do
                              match_requests_on: %i[method path query]) do
               VCR.use_cassette('vaos/v2/mobile_facility_service/get_facility_200',
                                match_requests_on: %i[method path query]) do
-                response = subject.update_appointment('70060', 'cancelled')
-                expect(response.status).to eq('cancelled')
+                VCR.use_cassette('vaos/v2/mobile_facility_service/get_clinic_200',
+                                 match_requests_on: %i[method path query]) do
+                  response = subject.update_appointment('70060', 'cancelled')
+                  expect(response.status).to eq('cancelled')
+                end
               end
             end
           end
@@ -1122,17 +1315,27 @@ describe VAOS::V2::AppointmentsService do
     let(:past_appointment) { { status: 'booked', start: '2023-09-25T10:00:00-07:00' } }
     let(:future_appointment) { { status: 'booked', start: '2023-09-27T11:00:00-07:00' } }
     let(:unbooked_appointment) { { status: 'pending', start: '2023-09-25T10:00:00-07:00' } }
+    let(:avs_param_included) { true }
+    let(:avs_param_excluded) { false }
 
-    it 'returns true if the appointment is booked and is in the past' do
-      expect(subject.send(:avs_applicable?, past_appointment)).to be true
+    it 'returns true if the appointment is booked and is in the past and avs is included' do
+      expect(subject.send(:avs_applicable?, past_appointment, avs_param_included)).to be true
     end
 
     it 'returns false if the appointment is not booked' do
-      expect(subject.send(:avs_applicable?, unbooked_appointment)).to be false
+      expect(subject.send(:avs_applicable?, unbooked_appointment, avs_param_included)).to be false
     end
 
     it 'returns false on a booked future appointment' do
-      expect(subject.send(:avs_applicable?, future_appointment)).to be false
+      expect(subject.send(:avs_applicable?, future_appointment, avs_param_included)).to be false
+    end
+
+    it 'returns false if the avs param is not included' do
+      expect(subject.send(:avs_applicable?, past_appointment, avs_param_excluded)).to be false
+    end
+
+    it 'returns false if the avs param is nil' do
+      expect(subject.send(:avs_applicable?, past_appointment, nil)).to be false
     end
   end
 
@@ -1203,7 +1406,9 @@ describe VAOS::V2::AppointmentsService do
             system: 'http://www.va.gov/Terminology/VistADefinedTerms/409_84',
             value: '500:9876543'
           }
-        ]
+        ],
+        ien: '9876543',
+        station: '500'
       }
     end
 
@@ -1239,7 +1444,10 @@ describe VAOS::V2::AppointmentsService do
   describe '#fetch_avs_and_update_appt_body' do
     let(:avs_resp) { double(body: [{ icn: '1012846043V576341', sid: '12345' }], status: 200) }
     let(:avs_link) { '/my-health/medical-records/summaries-and-notes/visit-summary/12345' }
-    let(:appt) { { identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }] } }
+    let(:appt) do
+      { id: '12345', identifier: [{ system: '/Terminology/VistADefinedTerms/409_84', value: '983:12345678' }],
+        ien: '12345678', station: '983' }
+    end
     let(:avs_error_message) { 'Error retrieving AVS link' }
 
     context 'when AVS successfully retrieved the AVS link' do
@@ -1377,6 +1585,48 @@ describe VAOS::V2::AppointmentsService do
         subject.send(:modify_desired_date, va_booked_request_body, 'America/Denver')
         expect(va_booked_request_body[:extension][:desired_date].to_s).to eq('2022-11-30T00:00:00-07:00')
       end
+    end
+  end
+
+  describe '#extract_appointment_fields' do
+    it 'do not overwrite existing preferred dates' do
+      # Note that the va_proposed appointment here contains both a reason code text and
+      # requested periods which will not occur in a real scenario. However the example
+      # demonstrates that the preferred dates from reason code text are not overwritten.
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text, user:).attributes
+      subject.send(:extract_appointment_fields, appt)
+      expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
+                                            'Wed, June 26, 2024 in the afternoon'])
+    end
+
+    it 'extracts preferred dates if possible' do
+      appt = FactoryBot.build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
+      subject.send(:extract_appointment_fields, appt)
+      expect(appt[:preferred_dates]).to eq(['Wed, August 28, 2024 in the morning',
+                                            'Wed, August 28, 2024 in the afternoon'])
+    end
+
+    it 'do not extract preferred dates if no requested periods' do
+      appt = FactoryBot.build(:appointment_form_v2, :community_cares_no_request_dates, user:).attributes
+      subject.send(:extract_appointment_fields, appt)
+      expect(appt[:preferred_dates]).to be_nil
+    end
+  end
+
+  describe '#extract_request_preferred_dates' do
+    let(:appt_no_req_periods) do
+      { id: '12345', requestedPeriods: [{ start: nil, end: nil }] }
+    end
+
+    it 'does not extract when requested period start is nil' do
+      subject.send(:extract_request_preferred_dates, appt_no_req_periods)
+      expect(appt_no_req_periods[:preferred_dates]).to be_nil
+    end
+
+    it 'extracts when requested period start is present' do
+      appt = FactoryBot.build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
+      subject.send(:extract_request_preferred_dates, appt)
+      expect(appt[:preferred_dates]).not_to be_nil
     end
   end
 end

@@ -103,7 +103,7 @@ describe Search::Service do
       end
     end
 
-    context 'when exceeding the Search.gov rate limit' do
+    context 'when exceeding the API rate limit' do
       it 'raises an exception', :aggregate_failures do
         VCR.use_cassette('search/exceeds_rate_limit', VCR::MATCH_EVERYTHING) do
           expect { subject.results }.to raise_error do |e|

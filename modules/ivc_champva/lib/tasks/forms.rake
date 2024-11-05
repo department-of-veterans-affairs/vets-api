@@ -5,7 +5,6 @@ PDFTK_LOCAL_PATH    = '/usr/local/bin/pdftk' unless defined?(PDFTK_LOCAL_PATH)
 MODELS_PATH = 'modules/ivc_champva/app/models/ivc_champva'
 MAPPINGS_PATH = 'modules/ivc_champva/app/form_mappings'
 
-# rubocop:disable Metrics/BlockLength
 namespace :ivc_champva do
   task :generate, [:form_path] => :environment do |_, args|
     file_path = args[:form_path]
@@ -112,4 +111,3 @@ namespace :ivc_champva do
     puts "Created #{mapping_file}"
   end
 end
-# rubocop:enable Metrics/BlockLength

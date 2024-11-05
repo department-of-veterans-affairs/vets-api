@@ -8,12 +8,7 @@ module V0
 
     skip_before_action :verify_authenticity_token, only: [:update_provisioning]
     skip_before_action :authenticate
-    before_action :terms_authenticate, except: [:current_status]
-
-    def current_status
-      agreement_status = find_terms_of_use_agreement_by_icn(params[:icn])
-      render_success(action: 'current_status', body: { agreement_status: }, icn: params[:icn])
-    end
+    before_action :terms_authenticate
 
     def latest
       terms_of_use_agreement = find_latest_agreement_by_version(params[:version])
@@ -85,14 +80,6 @@ module V0
         path: TermsOfUse::Constants::PROVISIONER_COOKIE_PATH,
         domain: TermsOfUse::Constants::PROVISIONER_COOKIE_DOMAIN
       }
-    end
-
-    def find_terms_of_use_agreement_by_icn(icn)
-      user_account = UserAccount.find_by(icn:)
-      return unless user_account
-
-      latest_terms_of_use_agreement = user_account.terms_of_use_agreements.current.last
-      latest_terms_of_use_agreement&.response
     end
 
     def find_latest_agreement_by_version(version)

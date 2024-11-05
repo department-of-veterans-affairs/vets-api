@@ -12,6 +12,7 @@ module MedicalCopays
     # @!attribute response_data
     #   @return [ResponseData]
     class Service
+      include RedisCaching
       class StatementNotFound < StandardError
       end
 
@@ -43,7 +44,11 @@ module MedicalCopays
       def get_copays
         raise InvalidVBSRequestError, request_data.errors unless request_data.valid?
 
-        response = request.post("#{settings.base_path}/GetStatementsByEDIPIAndVistaAccountNumber", request_data.to_hash)
+        response = if Flipper.enabled?(:debts_cache_vbs_copays_empty_response)
+                     get_cached_copay_response
+                   else
+                     get_copay_response
+                   end
 
         # enable zero balance debt feature if flip is on
         if Flipper.enabled?(:medical_copays_zero_debt)
@@ -55,6 +60,26 @@ module MedicalCopays
         end
 
         ResponseData.build(response:).handle
+      end
+
+      def get_cached_copay_response
+        StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_copays.fired")
+
+        cached_response = get_user_cached_response
+        if cached_response
+          StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_copays.cached_response_returned")
+          return cached_response
+        end
+
+        response = get_copay_response
+        response_body = response.body
+
+        if response_body.is_a?(Array) && response_body.empty?
+          StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_copays.empty_response_cached")
+          Rails.cache.write("vbs_copays_data_#{user.uuid}", response, expires_in: self.class.time_until_5am_utc)
+        end
+
+        response
       end
 
       ##
@@ -89,6 +114,15 @@ module MedicalCopays
       rescue => e
         StatsD.increment("#{STATSD_KEY_PREFIX}.pdf.failure")
         raise e
+      end
+
+      def get_copay_response
+        request.post("#{settings.base_path}/GetStatementsByEDIPIAndVistaAccountNumber", request_data.to_hash)
+      end
+
+      def get_user_cached_response
+        cache_key = "vbs_copays_data_#{user.uuid}"
+        Rails.cache.read(cache_key)
       end
 
       def send_statement_notifications(statements_json_byte)

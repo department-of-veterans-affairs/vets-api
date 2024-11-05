@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe EVSSSeparationLocationSerializer, type: :serializer do
-  subject { serialize(intake_sites_response, serializer_class: described_class) }
+  subject { described_class.new(intake_sites_response).to_json }
 
   let(:separation_locations) do
     [
@@ -16,15 +16,15 @@ RSpec.describe EVSSSeparationLocationSerializer, type: :serializer do
     DisabilityCompensation::ApiProvider::IntakeSitesResponse.new(status: 200, separation_locations:)
   end
 
-  let(:data) { JSON.parse(subject)['data'] }
+  let(:data) { JSON.parse(subject) }
   let(:attributes) { data['attributes'] }
 
-  it 'includes :id' do
-    expect(data['id']).to be_blank
+  it 'includes :status' do
+    expect(data['status']).to eq intake_sites_response.status
   end
 
   it 'includes :separation_locations as an array' do
-    expect(attributes['separation_locations'].size).to eq intake_sites_response.separation_locations.size
-    expect(attributes['separation_locations'].first['code']).to eq intake_sites_response.separation_locations.first.code
+    expect(data['separation_locations'].size).to eq intake_sites_response.separation_locations.size
+    expect(data['separation_locations'].first['code']).to eq intake_sites_response.separation_locations.first.code
   end
 end

@@ -160,8 +160,6 @@ describe V2::Chip::Client do
       end
 
       it 'handles the exception and returns original error' do
-        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry)
-
         response = subject.set_precheckin_started(token:)
         expect(response.status).to eq(resp.status)
         expect(response.body).to eq(resp.body)

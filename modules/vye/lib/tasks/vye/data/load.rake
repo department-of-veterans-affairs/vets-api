@@ -10,7 +10,7 @@ namespace :vye do
       files = root.glob('**/*.yaml')
       raise "No files found in #{root}" if files.empty?
 
-      bdn_clone = Vye::BdnClone.create!
+      bdn_clone = Vye::BdnClone.create!(transact_date: Time.zone.today)
 
       files.each do |file|
         source = :team_sensitive

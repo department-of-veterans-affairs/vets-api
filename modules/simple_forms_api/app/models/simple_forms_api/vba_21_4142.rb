@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA214142
-    include Virtus.model(nullify_blank: true)
+  class VBA214142 < BaseForm
     STATS_KEY = 'api.simple_forms_api.21_4142'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def words_to_remove
       veteran_ssn + veteran_date_of_birth + veteran_address + patient_identification + veteran_home_phone +
@@ -36,8 +29,8 @@ module SimpleFormsApi
       [{ coords: [50, 560], text: data['statement_of_truth_signature'], page: 1 }]
     end
 
-    def submission_date_stamps
-      [submission_date_stamps_first_page, submission_date_stamps_fourth_page].flatten
+    def submission_date_stamps(timestamp)
+      [submission_date_stamps_first_page(timestamp), submission_date_stamps_fourth_page(timestamp)].flatten
     end
 
     def track_user_identity(confirmation_number)
@@ -94,7 +87,7 @@ module SimpleFormsApi
       ]
     end
 
-    def submission_date_stamps_first_page
+    def submission_date_stamps_first_page(timestamp)
       [
         {
           coords: [440, 710],
@@ -104,14 +97,14 @@ module SimpleFormsApi
         },
         {
           coords: [440, 690],
-          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: 0,
           font_size: 12
         }
       ]
     end
 
-    def submission_date_stamps_fourth_page
+    def submission_date_stamps_fourth_page(timestamp)
       [
         {
           coords: [440, 710],
@@ -121,7 +114,7 @@ module SimpleFormsApi
         },
         {
           coords: [440, 690],
-          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: 3,
           font_size: 12
         }

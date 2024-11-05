@@ -13,11 +13,11 @@ module BGS
 
     sidekiq_options retry: 14
 
-    sidekiq_retries_exhausted do |msg, error|
+    sidekiq_retries_exhausted do |msg, _error|
       user_uuid, icn, saved_claim_id, encrypted_vet_info, encrypted_user_struct_hash = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      Rails.logger.error('BGS::SubmitForm674Job failed, retries exhausted...',
-                         { user_uuid:, saved_claim_id:, icn:, error: })
+      Rails.logger.error("BGS::SubmitForm674Job failed, retries exhausted! Last error: #{msg['error_message']}",
+                         { user_uuid:, saved_claim_id:, icn: })
 
       BGS::SubmitForm674Job.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
     end
@@ -36,7 +36,6 @@ module BGS
 
       Rails.logger.warn('BGS::SubmitForm674Job received error, retrying...',
                         { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
-      log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
       raise
     end
 

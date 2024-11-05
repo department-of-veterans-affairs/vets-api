@@ -10,16 +10,15 @@ module VANotify
 
     FORM_NAME = '26-1880'
 
-    class MissingICN < StandardError; end
-
     def perform(form_id)
       return unless Flipper.enabled?(:in_progress_1880_form_reminder)
 
       in_progress_form = InProgressForm.find(form_id)
+
       veteran = VANotify::Veteran.new(in_progress_form)
 
       return if veteran.first_name.blank?
-      raise MissingICN, "ICN not found for InProgressForm: #{in_progress_form.id}" if veteran.icn.blank?
+      return if veteran.icn.blank?
 
       template_id = Settings.vanotify.services.va_gov.template_id.form1880_reminder_email
       personalisation_details = {
@@ -28,6 +27,8 @@ module VANotify
       }
       OneTimeInProgressReminder.perform_async(in_progress_form.user_account_id, FORM_NAME, template_id,
                                               personalisation_details)
+    rescue VANotify::Veteran::MPINameError, VANotify::Veteran::MPIError
+      nil
     end
   end
 end

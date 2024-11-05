@@ -2,10 +2,12 @@
 
 $LOAD_PATH.push File.expand_path('lib', __dir__)
 
+require 'pensions/version'
+
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |spec|
   spec.name        = 'pensions'
-  spec.version     = '0.1.0'
+  spec.version     = Pensions::VERSION
   spec.authors     = ['Benefits Pensions']
   spec.email       = ['']
   spec.homepage    = 'https://api.va.gov'

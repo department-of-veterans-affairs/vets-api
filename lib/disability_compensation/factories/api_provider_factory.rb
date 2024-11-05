@@ -18,6 +18,8 @@ require 'disability_compensation/providers/brd/lighthouse_brd_provider'
 require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
 require 'disability_compensation/providers/generate_pdf/evss_generate_pdf_provider'
 require 'disability_compensation/providers/generate_pdf/lighthouse_generate_pdf_provider'
+require 'disability_compensation/providers/document_upload/lighthouse_supplemental_document_upload_provider'
+require 'disability_compensation/providers/document_upload/evss_supplemental_document_upload_provider'
 require 'logging/third_party_transaction'
 
 class ApiProviderFactory
@@ -35,7 +37,8 @@ class ApiProviderFactory
     ppiu: :ppiu,
     claims: :claims,
     brd: :brd,
-    generate_pdf: :generate_pdf
+    generate_pdf: :generate_pdf,
+    supplemental_document_upload: :supplemental_document_upload
   }.freeze
 
   # Splitting the rated disabilities functionality into two use cases:
@@ -53,6 +56,10 @@ class ApiProviderFactory
   FEATURE_TOGGLE_BRD = 'disability_compensation_lighthouse_brd'
   FEATURE_TOGGLE_GENERATE_PDF = 'disability_compensation_lighthouse_generate_pdf'
 
+  FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS = 'disability_compensation_upload_bdd_instructions_to_lighthouse'
+  FEATURE_TOGGLE_UPLOAD_0781 = 'disability_compensation_upload_0781_to_lighthouse'
+  FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS = 'disability_compensation_upload_veteran_evidence_to_lighthouse'
+
   attr_reader :type
 
   wrap_with_logging(
@@ -62,6 +69,7 @@ class ApiProviderFactory
     :claims_service_provider,
     :brd_service_provider,
     :generate_pdf_service_provider,
+    :supplemental_document_upload_service_provider,
     additional_class_logs: {
       action: 'disability compensation factory choosing API Provider'
     },
@@ -99,6 +107,8 @@ class ApiProviderFactory
       brd_service_provider
     when FACTORIES[:generate_pdf]
       generate_pdf_service_provider
+    when FACTORIES[:supplemental_document_upload]
+      supplemental_document_upload_service_provider
     else
       raise UndefinedFactoryTypeError
     end
@@ -175,6 +185,24 @@ class ApiProviderFactory
       LighthouseGeneratePdfProvider.new(@current_user[:icn])
     else
       raise NotImplementedError, 'No known Generate Pdf Api Provider type provided'
+    end
+  end
+
+  def supplemental_document_upload_service_provider
+    provider_options = [
+      @options[:form526_submission],
+      @options[:document_type],
+      @options[:statsd_metric_prefix],
+      @options[:supporting_evidence_attachment]
+    ]
+
+    case api_provider
+    when API_PROVIDER[:evss]
+      EVSSSupplementalDocumentUploadProvider.new(*provider_options)
+    when API_PROVIDER[:lighthouse]
+      LighthouseSupplementalDocumentUploadProvider.new(*provider_options)
+    else
+      raise NotImplementedError, 'No known Supplemental Document Upload Api Provider type provided'
     end
   end
 

@@ -85,7 +85,7 @@ class FormProfile
   include Virtus.model
   include SentryLogging
 
-  MAPPINGS = Dir[Rails.root.join('config', 'form_profile_mappings', '*.yml')].map { |f| File.basename(f, '.*') }
+  MAPPINGS = Rails.root.glob('config/form_profile_mappings/*.yml').map { |f| File.basename(f, '.*') }
 
   ALL_FORMS = {
     edu: %w[22-1990 22-1990N 22-1990E 22-1990EMEB 22-1995 22-5490 22-5490E
@@ -102,8 +102,10 @@ class FormProfile
     coe: ['26-1880'],
     adapted_housing: ['26-4555'],
     intent_to_file: ['21-0966'],
-    ivc_champva: %w[10-7959F-1 10-7959C],
-    form_upload_flow: ['FORM-UPLOAD-FLOW']
+    ivc_champva: ['10-7959C'],
+    form_upload_flow: ['FORM-UPLOAD-FLOW'],
+    acc_rep_management: %w[21-22 21-22A],
+    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -142,8 +144,10 @@ class FormProfile
     '26-1880' => ::FormProfiles::VA261880,
     '26-4555' => ::FormProfiles::VA264555,
     '21-0966' => ::FormProfiles::VA210966,
-    '10-7959F-1' => ::FormProfiles::VA107959f1,
-    'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow
+    'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
+    '21-22' => ::FormProfiles::VA2122,
+    '21-22A' => ::FormProfiles::VA2122a,
+    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -177,6 +181,8 @@ class FormProfile
 
   def self.mappings_for_form(form_id)
     @mappings ||= {}
+    # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
+    form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
     @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
   end
 
@@ -352,10 +358,10 @@ class FormProfile
   # preference: vet360 mobile -> vet360 home -> pciu
   def phone_object
     mobile = vet360_contact_info&.mobile_phone
-    return mobile if mobile&.area_code && mobile&.phone_number
+    return mobile if mobile&.area_code && mobile.phone_number
 
     home = vet360_contact_info&.home_phone
-    return home if home&.area_code && home&.phone_number
+    return home if home&.area_code && home.phone_number
 
     phone_struct = Struct.new(:area_code, :phone_number)
 

@@ -41,6 +41,32 @@ module VAOS
         render json: VAOS::V2::ClinicsSerializer.new(clinic)
       end
 
+      def recent_clinics
+        sorted_clinics = []
+        sorted_appointments = appointments_service.get_recent_sorted_clinic_appointments
+
+        if sorted_appointments.blank?
+          render json: { message: 'No appointments found' }, status: :not_found
+          return
+        end
+        sorted_appointments.each do |appt|
+          # if we don't have the information to lookup the clinic, return 'unable to lookup' message
+          if unable_to_lookup_clinic?(appt)
+            log_unable_to_lookup_clinic(appt)
+          else
+            # get the clinic details using the station id and clinic id
+            location_id = appt.location_id
+            clinic_ids = appt.clinic
+            clinic = systems_service.get_facility_clinics(location_id:, clinic_ids:)&.first
+
+            # if clinic details are not returned, log 'not found' message
+            clinic.nil? ? log_no_clinic_details_found(location_id, clinic_ids) : sorted_clinics.push(clinic)
+          end
+        end
+
+        render json: VAOS::V2::ClinicsSerializer.new(sorted_clinics)
+      end
+
       private
 
       def appointments_service

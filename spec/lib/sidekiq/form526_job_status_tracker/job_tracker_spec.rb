@@ -13,6 +13,7 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
 
   before do
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
+    Flipper.disable(:disability_compensation_production_tester)
   end
 
   context 'with an exhausted callback message' do
@@ -79,6 +80,11 @@ describe Sidekiq::Form526JobStatusTracker::JobTracker do
       # In order for it to kick off a backup submission, additional_birls must not exist
       allow_any_instance_of(Form526Submission).to receive(:birls_ids_that_havent_been_tried_yet).and_return([])
       form526_submission.auth_headers.delete('va_eauth_birlsfilenumber')
+
+      new_form_data = form526_submission.saved_claim.parsed_form
+      new_form_data['startedFormVersion'] = nil
+      form526_submission.saved_claim.form = new_form_data.to_json
+      form526_submission.saved_claim.save
       form526_submission.save!
       VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
         VCR.use_cassette('form526_backup/200_evss_get_pdf') do

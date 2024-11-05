@@ -11,13 +11,14 @@ RSpec.describe VAForms::FormBuilder, type: :job do
   let(:slack_messenger) { instance_double(VAForms::Slack::Messenger) }
 
   let(:default_form_data) { JSON.parse(File.read(VAForms::Engine.root.join('spec', 'fixtures', 'gql_form.json'))) }
-  let(:bad_url_form_data) { JSON.parse(File.read(VAForms::Engine.root.join('spec', 'fixtures', 'gql_form_invalid_url.json'))) }
+  let(:invalid_url_form_data) { JSON.parse(File.read(VAForms::Engine.root.join('spec', 'fixtures', 'gql_form_invalid_url.json'))) }
   let(:deleted_form_data) { JSON.parse(File.read(VAForms::Engine.root.join('spec', 'fixtures', 'gql_form_deleted.json'))) }
 
   let(:valid_pdf_cassette) { 'va_forms/valid_pdf' }
   let(:not_found_pdf_cassette) { 'va_forms/pdf_not_found' }
+  let(:server_error_pdf_cassette) { 'va_forms/pdf_internal_server_error' }
 
-  let(:form_fetch_error_message) { 'The form could not be fetched from the url provided.' }
+  let(:form_fetch_error_message) { 'The form could not be fetched from the url provided. Response code: 500' }
 
   before do
     Sidekiq::Job.clear_all
@@ -47,7 +48,7 @@ RSpec.describe VAForms::FormBuilder, type: :job do
       form.reload
     end
 
-    context 'when the form url returns a valid body' do
+    context 'when the form url returns a successful response' do
       it 'correctly updates attributes based on the new form data' do
         expect(result).to have_attributes(
           form_name: '21-0966',
@@ -76,10 +77,69 @@ RSpec.describe VAForms::FormBuilder, type: :job do
     end
 
     context 'when the form url returns a 404' do
-      let(:form_data) { bad_url_form_data }
+      let(:form_data) { invalid_url_form_data }
+      let(:invalid_form_url) { 'https://www.vba.va.gov/pubs/forms/not_a_valid_url.pdf' }
+      let(:result) do
+        form = VAForms::Form.create!(url:, form_name:, sha256:, title:, valid_pdf:, row_id:)
+        with_settings(Settings.va_forms.slack, enabled: enable_notifications) do
+          VCR.use_cassette(not_found_pdf_cassette) do
+            form_builder.perform(form_data)
+          end
+        end
+        form.reload
+      end
 
+      it 'marks the form as invalid' do
+        expect(result.valid_pdf).to be(false)
+      end
+
+      it 'updates the form url' do
+        expect(result.url).to eql(invalid_form_url)
+      end
+
+      it 'clears the sha256' do
+        expect(result.sha256).to be_nil
+      end
+
+      it 'correctly updates the remaining attributes based on the form data' do
+        expect(result).to have_attributes(
+          form_name: '21-0966',
+          row_id: 5382,
+          title: 'Intent to File a Claim for Compensation and/or Pension, or Survivors Pension and/or DIC',
+          first_issued_on: Date.new(2019, 11, 7),
+          last_revision_on: Date.new(2018, 8, 22),
+          pages: 1,
+          ranking: nil,
+          tags: '21-0966',
+          language: 'en',
+          related_forms: ['10-10d'],
+          benefit_categories: [{ 'name' => 'Pension', 'description' => 'VA pension benefits' }],
+          va_form_administration: 'Veterans Benefits Administration',
+          form_type: 'benefit',
+          form_usage: 'Someusagehtml',
+          form_tool_intro: 'some intro text',
+          form_tool_url: 'https://www.va.gov/education/apply-for-education-benefits/application/1995/introduction',
+          form_details_url: 'https://www.va.gov/find-forms/about-form-21-0966',
+          deleted_at: nil
+        )
+      end
+
+      it 'notifies slack that the form url no longer returns a valid form' do
+        result
+        expect(VAForms::Slack::Messenger).to have_received(:new).with(
+          {
+            class: described_class.to_s,
+            message: "URL for form #{form_name} no longer returns a valid PDF or web page.",
+            form_url: invalid_form_url
+          }
+        )
+        expect(slack_messenger).to have_received(:notify!)
+      end
+    end
+
+    context 'when the form url returns a 500' do
       it 'raises an error' do
-        VCR.use_cassette(not_found_pdf_cassette) do
+        VCR.use_cassette(server_error_pdf_cassette) do
           expect { form_builder.perform(form_data) }
             .to raise_error(described_class::FormFetchError, form_fetch_error_message)
         end
@@ -227,7 +287,7 @@ RSpec.describe VAForms::FormBuilder, type: :job do
           let(:expected_notify) do
             {
               class: described_class.to_s,
-              message: "URL for form_name: #{form_name}, row_id: #{row_id} no longer returns a valid PDF or web page.",
+              message: "URL for form #{form_name} no longer returns a valid PDF or web page.",
               form_url: url
             }
           end

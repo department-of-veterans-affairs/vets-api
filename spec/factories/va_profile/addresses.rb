@@ -62,5 +62,28 @@ FactoryBot.define do
       source_date { Time.now.utc.iso8601 }
       effective_start_date { Time.now.utc.iso8601 }
     end
+
+    trait :id_error do
+      address_pou { 'RESIDENCE' }
+    end
+
+    trait :contact_info_v2 do
+      address_pou { 'RESIDENCE' }
+    end
+
+    trait :v2_override do
+      id { 15_035 }
+      address_pou { 'CORRESPONDENCE' }
+      address_line1 { '1494 Martin Luther King Rd' }
+      address_line2 { 'c/o foo' }
+      city { 'Fulton' }
+      state_code { 'MS' }
+      zip_code { '38843' }
+      validation_key { 713_117_306 }
+      vet360_id { '1' }
+      source_system_user { '1234' }
+      source_date { '2024-08-27T18:51:06.012Z' }
+      effective_start_date { '2024-08-27T18:51:06.012Z' }
+    end
   end
 end

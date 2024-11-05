@@ -4,8 +4,9 @@ module Mobile
   module V0
     module Adapters
       class LetterInfo
-        def parse(letter_info)
+        def parse(user_uuid, letter_info)
           Mobile::V0::LetterInfo.new(
+            id: user_uuid,
             benefit_information: benefit_information(letter_info[:benefitInformation]),
             military_service: military_service(letter_info[:militaryService])
           )
@@ -32,12 +33,12 @@ module Mobile
 
         def military_service(military_services)
           military_services.map do |military_service|
-            {
-              branch: military_service[:branch],
+            BenefitMilitaryInformation.new(
+              branch: military_service[:branch].titleize,
               character_of_service: military_service[:characterOfService],
               entered_date: military_service[:enteredDate],
               released_date: military_service[:releasedDate]
-            }
+            )
           end
         end
       end
