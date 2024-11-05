@@ -112,10 +112,12 @@ module SimpleFormsApi
 
     def async_job_with_form_data(email, first_name, at, template_id)
       if Flipper.enabled?(:simple_forms_notification_callbacks)
-        VANotify::EmailJob.perform_async(
+        VANotify::EmailJob.perform_at(
+          at,
           email,
           template_id,
           get_personalization(first_name),
+          nil,
           callback: 'SimpleFormsApi::NotificationCallbacks',
           metadata: { notification_type:, form_number: }.to_json
         )
