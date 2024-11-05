@@ -19,13 +19,7 @@ module ClaimsApi
                                    local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
                                  end
 
-                   if file_number.nil?
-                     claims_v2_logging('benefits_documents',
-                                       message: "calling benefits documents api for claim_id: #{params[:id]} " \
-                                                'returned a nil file number in claims controller v2')
-
-                     return []
-                   end
+                   return [] if check_file_number(file_number).nil?
 
                    claims_v2_logging('benefits_documents',
                                      message: "calling benefits documents api for claim_id #{params[:id]} " \
@@ -53,6 +47,16 @@ module ClaimsApi
           end
         end
         # rubocop:enable Metrics/MethodLength
+
+        def check_file_number(file_number)
+          if file_number.blank?
+            claims_v2_logging('benefits_documents',
+                              message: "calling benefits documents api for claim_id: #{params[:id]} " \
+                                       'returned a nil file number in claims controller v2')
+
+            []
+          end
+        end
 
         def get_evss_documents(claim_id)
           evss_docs_service.get_claim_documents(claim_id).body
