@@ -339,7 +339,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
               'LighthouseSupplementalDocumentUploadProvider upload failed',
               {
                 class: 'LighthouseSupplementalDocumentUploadProvider',
-                submission_id: submission.submitted_claim_id,
+                submission_id: submission.id,
+                submitted_claim_id: submission.submitted_claim_id,
                 user_uuid: submission.user_uuid,
                 va_document_type_code: 'L228',
                 primary_form: 'Form526',
@@ -351,7 +352,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
               'LighthouseSupplementalDocumentUploadProvider upload failed',
               {
                 class: 'LighthouseSupplementalDocumentUploadProvider',
-                submission_id: submission.submitted_claim_id,
+                submission_id: submission.id,
+                submitted_claim_id: submission.submitted_claim_id,
                 user_uuid: submission.user_uuid,
                 va_document_type_code: 'L229',
                 primary_form: 'Form526',
@@ -406,7 +408,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
               'LighthouseSupplementalDocumentUploadProvider upload failed',
               {
                 class: 'LighthouseSupplementalDocumentUploadProvider',
-                submission_id: submission.submitted_claim_id,
+                submission_id: submission.id,
+                submitted_claim_id: submission.submitted_claim_id,
                 user_uuid: submission.user_uuid,
                 va_document_type_code: 'L228',
                 primary_form: 'Form526',
@@ -461,7 +464,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
               'LighthouseSupplementalDocumentUploadProvider upload failed',
               {
                 class: 'LighthouseSupplementalDocumentUploadProvider',
-                submission_id: submission.submitted_claim_id,
+                submission_id: submission.id,
+                submitted_claim_id: submission.submitted_claim_id,
                 user_uuid: submission.user_uuid,
                 va_document_type_code: 'L229',
                 primary_form: 'Form526',
