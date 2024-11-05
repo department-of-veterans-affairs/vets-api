@@ -177,9 +177,6 @@ module MedicalRecords
       result = yield
       duration = (::Process.clock_gettime(::Process::CLOCK_MONOTONIC) - start_time).round(4)
 
-      # log duration
-      Rails.logger.info("Duration: #{duration}")
-
       StatsD.measure("api.mhv.lighthouse.#{event}.duration", duration, tags:)
       result
     end
