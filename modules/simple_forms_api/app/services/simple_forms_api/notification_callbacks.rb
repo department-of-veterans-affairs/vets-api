@@ -6,18 +6,13 @@ module SimpleFormsApi
       metadata = JSON.parse(notification_record.metadata)
       notification_type = metadata['notification_type']
       form_number = metadata['form_number']
+      tags = ['service:veteran-facing-forms', "function: #{form_number} form submission to Lighthouse"]
 
       case notification_record.status
       when 'delivered'
-        if notification_type == 'error'
-          tags = ['service:veteran-facing-forms', "function: #{form_number} form submission to Lighthouse"]
-          StatsD.increment('silent_failure_avoided', tags:)
-        end
+        StatsD.increment('silent_failure_avoided', tags:) if notification_type == 'error'
       when 'permanent-failure'
-        if notification_type == 'error'
-          tags = ['service:veteran-facing-forms', "function: #{form_number} form submission to Lighthouse"]
-          StatsD.increment('silent_failure', tags:)
-        end
+        StatsD.increment('silent_failure', tags:) if notification_type == 'error'
       end
     end
   end
