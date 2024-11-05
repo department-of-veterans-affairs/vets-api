@@ -858,9 +858,17 @@ features:
     actor_type: user
     descriptiom: Enables access to MHV Account Creation API
     enable_in_development: true
+  mhv_accelerated_delivery_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching MR data from LightHouse
+    enable_in_development: false
   mhv_accelerated_delivery_allergies_enabled:
     actor_type: user
     description: Control fetching OH allergies data
+    enable_in_development: false
+  mhv_accelerated_delivery_vital_signs_enabled:
+    actor_type: user
+    description: Control fetching OH vitals data
     enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
