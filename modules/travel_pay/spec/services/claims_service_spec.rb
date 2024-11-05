@@ -195,18 +195,14 @@ describe TravelPay::ClaimsService do
       )
     end
 
-    let(:claims_no_data) do
-      {
-        'statusCode' => 200,
-        'message' => 'No claims found.',
-        'success' => true,
-        'data' => []
-      }
-    end
-
     let(:claims_no_data_response) do
       Faraday::Response.new(
-        body: claims_no_data
+        body: {
+          'statusCode' => 200,
+          'message' => 'No claims found.',
+          'success' => true,
+          'data' => []
+        }
       )
     end
 
