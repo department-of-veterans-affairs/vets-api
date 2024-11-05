@@ -79,8 +79,10 @@ module IvcChampva
           parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
       end
 
-      if Flipper.enabled?(:champva_unique_temp_file_names, @user)
-        def get_file_paths_and_metadata(parsed_form_data)
+      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Style/IdenticalConditionalBranches
+      def get_file_paths_and_metadata(parsed_form_data)
+        if Flipper.enabled?(:champva_unique_temp_file_names, @user)
           attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
           filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
           file_path = if @current_user
@@ -92,9 +94,7 @@ module IvcChampva
           file_paths = form.handle_attachments(file_path)
 
           [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
-        end
-      else
-        def get_file_paths_and_metadata(parsed_form_data)
+        else
           attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
           filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:)
           file_path = if @current_user
@@ -108,6 +108,8 @@ module IvcChampva
           [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
         end
       end
+      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Style/IdenticalConditionalBranches
 
       def get_form_id
         form_number = params[:form_number]
