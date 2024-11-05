@@ -13,6 +13,8 @@ module ClaimsApi
 
         def index
           poa_codes = form_attributes['poaCodes']
+          page_size = form_attributes['pageSize']
+          page_index = form_attributes['pageIndex']
 
           unless poa_codes.is_a?(Array) && poa_codes.size.positive?
             raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
@@ -22,7 +24,7 @@ module ClaimsApi
           service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
                                                     external_key: 'power_of_attorney_request_key')
 
-          res = service.read_poa_request(poa_codes:)
+          res = service.read_poa_request(poa_codes:, page_size:, page_index:)
 
           poa_list = res['poaRequestRespondReturnVOList']
 
