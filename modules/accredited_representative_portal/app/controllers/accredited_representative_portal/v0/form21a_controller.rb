@@ -5,9 +5,17 @@ module AccreditedRepresentativePortal
     # Form21aController handles the submission of Form 21a to the accreditation service.
     # It parses the request body, submits the form via AccreditationService, and processes the response.
     class Form21aController < ApplicationController
+      class SchemaValidationError < StandardError
+        attr_reader :errors
+        def initialize(errors)
+          @errors = errors
+          super("Validation failed: #{errors}")
+        end
+      end
+
       FORM_ID = '21a'
 
-      before_action :parse_request_body, only: [:submit]
+      before_action :parse_request_body, :validate_schema, only: [:submit]
 
       # Parses the request body and submits the form.
       # Renders the appropriate response based on the service's outcome.
@@ -29,6 +37,23 @@ module AccreditedRepresentativePortal
       rescue JSON::ParserError
         Rails.logger.error(
           "Form21aController: Invalid JSON in request body for user with user_uuid=#{@current_user&.uuid}"
+        )
+        render json: { errors: 'Invalid JSON' }, status: :bad_request
+      end
+
+      def schema
+        # NOTE: This doesn't reject any extra attributes not found in the schema. If
+        # we want that the schema needs to have { "additionalProperties" => false }
+        VetsJsonSchema::SCHEMAS[FORM_ID.upcase]
+      end
+
+      def validate_schema
+        errors = JSON::Validator.fully_validate(schema, parsed_request_body)
+        raise SchemaValidationError, errors if errors.any?
+      rescue SchemaValidationError => e
+        Rails.logger.error(
+          "Form21aController: Invalid JSON in request body for user with user_uuid=#{@current_user&.uuid}. " \
+          "Errors: #{e.errors.join(', ')}"
         )
         render json: { errors: 'Invalid JSON' }, status: :bad_request
       end
