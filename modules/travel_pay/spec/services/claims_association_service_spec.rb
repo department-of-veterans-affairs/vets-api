@@ -118,17 +118,17 @@ describe TravelPay::ClaimAssociationService do
                                                                                  'end_date' => '2024-01-15T16:45:00Z' })
 
       actual_appts_with_claims = appts_with_claims.filter do |c|
-        c['associatedTravelPayClaim']['claim']
+        c['travelPayClaim']['claim']
       end
 
       expect(appts_with_claims.count).to eq(appointments['data'].count)
       appts_with_claims.each do |appt|
-        expect(appt['associatedTravelPayClaim']['metadata']['status']).to eq(200)
-        expect(appt['associatedTravelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
-        expect(appt['associatedTravelPayClaim']['metadata']['success']).to eq(true)
+        expect(appt['travelPayClaim']['metadata']['status']).to eq(200)
+        expect(appt['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
+        expect(appt['travelPayClaim']['metadata']['success']).to eq(true)
       end
       expect(actual_appts_with_claims.count).to equal(1)
-      expect(actual_appts_with_claims[0]['associatedTravelPayClaim']['claim']['id']).to eq(expected_uuids[0])
+      expect(actual_appts_with_claims[0]['travelPayClaim']['claim']['id']).to eq(expected_uuids[0])
     end
 
     it 'returns appointments with error metadata if claims call fails' do
@@ -147,12 +147,12 @@ describe TravelPay::ClaimAssociationService do
 
       expect(appts_with_claims.count).to eq(appointments['data'].count)
       expect(appts_with_claims.find do |c|
-        c['associatedTravelPayClaim']['claim']
+        c['travelPayClaim']['claim']
       end).to be_nil
       appts_with_claims.each do |appt|
-        expect(appt['associatedTravelPayClaim']['metadata']['status']).to equal(503)
-        expect(appt['associatedTravelPayClaim']['metadata']['message']).to eq('Travel Pay service unavailable.')
-        expect(appt['associatedTravelPayClaim']['metadata']['success']).to eq(false)
+        expect(appt['travelPayClaim']['metadata']['status']).to equal(503)
+        expect(appt['travelPayClaim']['metadata']['message']).to eq('Travel Pay service unavailable.')
+        expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
       end
     end
   end
@@ -225,10 +225,10 @@ describe TravelPay::ClaimAssociationService do
         { 'appointment' => single_appointment }
       )
 
-      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['status']).to eq(200)
-      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
-      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['success']).to eq(true)
-      expect(appt_with_claim['associatedTravelPayClaim']['claim']).to eq(single_claim_data_success[:data][0])
+      expect(appt_with_claim['travelPayClaim']['metadata']['status']).to eq(200)
+      expect(appt_with_claim['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
+      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(true)
+      expect(appt_with_claim['travelPayClaim']['claim']).to eq(single_claim_data_success[:data][0])
     end
 
     it 'returns an appointment with success metadata but no claim' do
@@ -245,10 +245,10 @@ describe TravelPay::ClaimAssociationService do
         { 'appointment' => single_appointment }
       )
 
-      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['status']).to eq(200)
-      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
-      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['success']).to eq(true)
-      expect(appt_with_claim['associatedTravelPayClaim']['claim']).to be_nil
+      expect(appt_with_claim['travelPayClaim']['metadata']['status']).to eq(200)
+      expect(appt_with_claim['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
+      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(true)
+      expect(appt_with_claim['travelPayClaim']['claim']).to be_nil
     end
 
     it 'returns appointment with error metadata if claims call fails' do
@@ -265,11 +265,11 @@ describe TravelPay::ClaimAssociationService do
         { 'appointment' => single_appointment }
       )
 
-      expect(appt_with_claim['associatedTravelPayClaim']['claim']).to be_nil
-      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['status']).to equal(503)
-      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['message'])
+      expect(appt_with_claim['travelPayClaim']['claim']).to be_nil
+      expect(appt_with_claim['travelPayClaim']['metadata']['status']).to equal(503)
+      expect(appt_with_claim['travelPayClaim']['metadata']['message'])
         .to eq('Travel Pay service unavailable.')
-      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['success']).to eq(false)
+      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(false)
     end
   end
 end
