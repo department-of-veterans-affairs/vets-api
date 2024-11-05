@@ -62,8 +62,8 @@ module IvcChampva
     end
     # rubocop:enable Metrics/MethodLength
 
-    if Flipper.enabled?(:champva_unique_temp_file_names, @user)
-      def create_tempfile
+    def create_tempfile
+      if Flipper.enabled?(:champva_unique_temp_file_names, @user)
         # Tempfile workaround inspired by this:
         #   https://github.com/actions/runner-images/issues/4443#issuecomment-965391736
         template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
