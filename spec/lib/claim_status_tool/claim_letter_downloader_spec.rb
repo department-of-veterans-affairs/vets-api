@@ -86,7 +86,7 @@ describe ClaimStatusTool::ClaimLetterDownloader do
 
   describe 'unifying letters display names in the api' do
     let(:allowed_doctypes) { %w[27 34 184 408 700 704 706 858 859 864 942 1605] }
-    let(:display_name_map) do
+    let(:type_description_map) do
       {
         '27' => 'Board decision',
         '34' => 'Request for specific evidence or information',
@@ -110,7 +110,7 @@ describe ClaimStatusTool::ClaimLetterDownloader do
     it 'gives each letter a `display_description` field' do
       letters = @downloader.get_letters
       letters.each do |letter|
-        expect(letter[:display_description]).to eq(display_name_map[letter[:doc_type]])
+        expect(letter[:type_description]).to eq(type_description_map[letter[:doc_type]])
       end
     end
   end

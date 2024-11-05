@@ -6,7 +6,7 @@ module ClaimStatusTool
   class ClaimLetterDownloader
     FILENAME = 'ClaimLetter'
     DEFAULT_ALLOWED_DOCTYPES = %w[184].freeze
-    DOCTYPE_TO_DISPLAY_DESCRIPTION = {
+    DOCTYPE_TO_TYPE_DESCRIPTION = {
       '27' => 'Board decision',
       '34' => 'Request for specific evidence or information',
       '184' => 'Claim decision (or other notification, like Intent to File)',
@@ -94,7 +94,7 @@ module ClaimStatusTool
       letters = docs.map { |d| filter_letters(d.marshal_dump) }.compact
       letters = letters.select { |d| filter_boa_letters(d) }
       # Issue 96224, consolidating letters' display names upstream
-      letters.each { |d| d[:display_description] = DOCTYPE_TO_DISPLAY_DESCRIPTION[d[:doc_type]] }
+      letters.each { |d| d[:type_description] = DOCTYPE_TO_TYPE_DESCRIPTION[d[:doc_type]] }
       # TODO: (rare) Handle nil received_at
       letters.sort_by { |d| d[:received_at] }.reverse
     end
