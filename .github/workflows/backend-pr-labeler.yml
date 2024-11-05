@@ -19,7 +19,7 @@ jobs:
       #   uses: actions/checkout@v4
 
       - name: Print code checks outputs
-        if: ${{ github.event_name == 'workflow_run' }}
+        if: github.event_name == 'workflow_run'
         run: |
           echo "workflow=${{ github.event.workflow_run }}"
 
