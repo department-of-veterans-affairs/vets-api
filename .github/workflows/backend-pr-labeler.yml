@@ -1,7 +1,12 @@
 name: Backend PR Labeler
 on:
   pull_request:
-    types: [opened, reopened, review_requested, synchronize, ready_for_review, converted_to_draft, labeled, unlabeled]
+    types: [opened, reopened, review_requested, ready_for_review, converted_to_draft, labeled, unlabeled]
+  workflow_run:
+    workflows: 
+      - "Code Checks"
+    types: 
+    - completed
 jobs:
   check-pr-status:
     runs-on: ubuntu-latest
@@ -13,10 +18,15 @@ jobs:
       # - name: Checkout code
       #   uses: actions/checkout@v4
 
+      - name: Print code checks outputs
+        if: ${{ github.event_name == 'workflow_run' }}
+        run: |
+          echo "workflow=${{ github.event.workflow_run }}"
+
       - name: Check for exemption
         id: check_exemption
         run: |
-          if [ ! ${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), 'backend') }} ]; then
+          if [ ! ${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), 'backend-review-group') }} ]; then
             echo "exempt=true" >> $GITHUB_OUTPUT
             echo "PR is exempt from backend approval."
           else
