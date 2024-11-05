@@ -72,6 +72,18 @@ RSpec.describe V1::NodCallbacksController, type: :controller do
 
         post(:create, params:, as: :json)
       end
+
+      context 'when the reference is for a secondary form' do
+        let(:reference) { "SC-secondary_form-#{SecureRandom.uuid}" }
+        let(:tags) { ['service:supplemental-claims', 'function: secondary_form submission to Lighthouse'] }
+
+        it 'sends a silent_failure_avoided statsd metric' do
+          expect(StatsD).to receive(:increment).with('silent_failure_avoided', tags:)
+          expect(Rails.logger).not_to receive(:error)
+
+          post(:create, params:, as: :json)
+        end
+      end
     end
 
     context 'the reference appeal_type is invalid' do
