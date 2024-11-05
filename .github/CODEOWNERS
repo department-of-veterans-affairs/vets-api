@@ -152,7 +152,6 @@ app/controllers/v0/virtual_agent_token_nlu_controller.rb @department-of-veterans
 app/controllers/v0/virtual_agent/virtual_agent_appeal_controller.rb @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/virtual_agent/virtual_agent_claim_controller.rb @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/veteran_onboardings_controller.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-iir
-app/controllers/v1/facilities @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v1/gids @department-of-veterans-affairs/govcio-vfep-codereviewers @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v1/higher_level_reviews_controller.rb @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
 app/controllers/v1/higher_level_reviews @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
