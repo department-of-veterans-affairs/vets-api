@@ -8,9 +8,11 @@ jobs:
   check-requested-teams:
     runs-on: ubuntu-latest
     if: |
-        contains(toJSON(github.event.pull_request.requested_teams), '"mobile"') ||
-        contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
-        contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
+        (
+          contains(toJSON(github.event.pull_request.requested_teams), '"mobile"') ||
+          contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
+          contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
+        )
     outputs:
       omitted_team_found: ${{ steps.set-output.outputs.omitted_team_found }}
 
@@ -19,10 +21,19 @@ jobs:
         id: set-output
         run: echo "omitted_team_found=true"
 
+  set-skip-status:
+    runs-on: ubuntu-latest
+    needs: check-requested-teams
+    outputs:
+      team_check_skipped: ${{ job.status == 'skipped' && 'true' || 'false' }}
+
+    steps:
+      - name: Set Skip Status Output
+        run: echo "Team check job status: ${{ job.status }}"
+
   handle-output:
     runs-on: ubuntu-latest
     needs: check-requested-teams
-
     steps:
       - name: Assign team approval
         id: assign_approval_team
