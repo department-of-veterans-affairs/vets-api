@@ -20,7 +20,7 @@ module MedicalRecords
 
       @icn = icn
 
-      @client ||= Lighthouse::VeteransHealth::Client.new(@icn)
+      @client = Lighthouse::VeteransHealth::Client.new(@icn)
     end
 
     def authenticate
