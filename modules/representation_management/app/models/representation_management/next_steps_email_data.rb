@@ -21,6 +21,7 @@ module RepresentationManagement
     validates :form_number, presence: true
     validates :entity_type, presence: true
     validates :entity_id, presence: true
+    validate :entity_exists?
 
     def entity
       @entity ||= find_entity
@@ -64,6 +65,12 @@ module RepresentationManagement
       elsif entity_type == 'organization'
         find_organization
       end
+    end
+
+    def entity_exists?
+      return unless entity.nil?
+
+      errors.add(:entity, 'Entity not found')
     end
 
     def find_representative
