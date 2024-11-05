@@ -31,6 +31,25 @@ jobs:
       - name: Set Skip Status Output
         run: echo "Team check job status: ${{ job.status }}"
 
+  run-if-skipped:
+    runs-on: ubuntu-latest
+    needs: set-skip-status
+    if: needs.set-skip-status.outputs.team_check_skipped == 'true'
+
+    steps:
+      - name: Log Skipped Job
+        run: echo "The 'check-requested-teams' job was skipped. Running alternative job."
+
+  set-skip-status:
+    runs-on: ubuntu-latest
+    needs: check-requested-teams
+    outputs:
+      team_check_skipped: ${{ job.status == 'skipped' && 'true' || 'false' }}
+
+    steps:
+      - name: Set Skip Status Output
+        run: echo "Team check job status: ${{ job.status }}"
+
   handle-output:
     runs-on: ubuntu-latest
     needs: check-requested-teams
