@@ -156,4 +156,113 @@ describe TravelPay::ClaimAssociationService do
       end
     end
   end
+
+  context 'associate_appointment_to_claim' do
+    let(:user) { build(:user) }
+    let(:single_claim_data_success) do
+      {
+        metadata: {
+          'status' => 200,
+          'message' => 'Data retrieved successfully.',
+          'success' => true
+        },
+        data: [
+          {
+            'id' => 'uuid1',
+            'claimNumber' => 'TC0000000000001',
+            'claimStatus' => 'InProgress',
+            'appointmentDateTime' => '2024-01-01T16:45:34Z',
+            'facilityName' => 'Cheyenne VA Medical Center',
+            'createdOn' => '2024-03-22T21:22:34.465Z',
+            'modifiedOn' => '2024-01-01T16:44:34.465Z'
+          }
+        ]
+      }
+    end
+
+    let(:no_claim_data_success) do
+      {
+        metadata: {
+          'status' => 200,
+          'message' => 'Data retrieved successfully.',
+          'success' => true
+        },
+        data: []
+      }
+    end
+
+    let(:single_appointment) do
+      {
+        'id' => '32066',
+        'kind' => 'clinic',
+        'status' => 'cancelled',
+        'patientIcn' => '1012845331V153043',
+        'locationId' => '983',
+        'clinic' => '1081',
+        'start' => '2024-01-01T16:45:34Z',
+        'cancellable' => false
+      }
+    end
+
+    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
+    before do
+      auth_manager = object_double(TravelPay::AuthManager.new(123, user), authorize: tokens)
+      @service = TravelPay::ClaimsService.new(auth_manager)
+    end
+
+    it 'returns an appointment with a claim' do
+      allow_any_instance_of(TravelPay::ClaimsService)
+        .to receive(:get_claims_by_date_range)
+        .with(
+          { 'start_date' => '2024-01-01T16:45:34Z',
+            'end_date' => '2024-01-01T16:45:34Z' }
+        )
+        .and_return(single_claim_data_success)
+
+      association_service = TravelPay::ClaimAssociationService.new
+      appt_with_claim = association_service.associate_appointment_to_claim({ 'appointment' => single_appointment })
+
+      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['status']).to eq(200)
+      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
+      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['success']).to eq(true)
+      expect(appt_with_claim['associatedTravelPayClaim']['claim']).to eq(single_claim_data_success[:data][0])
+    end
+
+    it 'returns an appointment with success metadata but no claim' do
+      allow_any_instance_of(TravelPay::ClaimsService)
+        .to receive(:get_claims_by_date_range)
+        .with(
+          { 'start_date' => '2024-01-01T16:45:34Z',
+            'end_date' => '2024-01-01T16:45:34Z' }
+        )
+        .and_return(no_claim_data_success)
+
+      association_service = TravelPay::ClaimAssociationService.new
+      appt_with_claim = association_service.associate_appointment_to_claim({ 'appointment' => single_appointment })
+
+      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['status']).to eq(200)
+      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
+      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['success']).to eq(true)
+      expect(appt_with_claim['associatedTravelPayClaim']['claim']).to be_nil
+    end
+
+    it 'returns appointment with error metadata if claims call fails' do
+      allow_any_instance_of(TravelPay::ClaimsService)
+        .to receive(:get_claims_by_date_range)
+        .with(
+          { 'start_date' => '2024-01-01T16:45:34Z',
+            'end_date' => '2024-01-01T16:45:34Z' }
+        )
+        .and_return(nil)
+
+      association_service = TravelPay::ClaimAssociationService.new
+      appt_with_claim = association_service.associate_appointment_to_claim({ 'appointment' => single_appointment })
+
+      expect(appt_with_claim['associatedTravelPayClaim']['claim']).to be_nil
+      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['status']).to equal(503)
+      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['message']).to eq('Travel Pay service unavailable.')
+      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['success']).to eq(false)
+    end
+  end
 end

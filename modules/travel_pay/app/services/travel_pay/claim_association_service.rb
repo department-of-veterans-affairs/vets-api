@@ -40,7 +40,40 @@ module TravelPay
       end
     end
 
+    def associate_appointment_to_claim(params = {})
+      appt = params['appointment']
+
+      raw_claim = service.get_claims_by_date_range(
+        { 'start_date' => appt['start'],
+          'end_date' => appt['start'] }
+      )
+      if raw_claim
+        append_single_claim(appt, raw_claim)
+      else
+        appt['associatedTravelPayClaim'] = {
+          'metadata' => { 'status' => 503,
+                          'success' => false,
+                          'message' => 'Travel Pay service unavailable.' }
+        }
+        appt
+      end
+    end
+
     private
+
+    def append_single_claim(appt, claim_response)
+      appt['associatedTravelPayClaim'] = if claim_response[:data].count
+                                           {
+                                             'metadata' => claim_response[:metadata],
+                                             'claim' => claim_response[:data][0]
+                                           }
+                                         else
+                                           {
+                                             'metadata' => claim_response[:metadata]
+                                           }
+                                         end
+      appt
+    end
 
     def append_claims(appts, claims, metadata)
       appointments = []
