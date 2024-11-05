@@ -33,9 +33,8 @@ module MedicalRecords
 
     def list_vitals(from_date, to_date)
       params = {
-        patient: @icn,
-        _count: 100,
-        date: [from_date, to_date]
+        category: 'vital-signs',
+        date: ["ge#{from_date}", "le#{to_date}"]
       }
       bundle = lighthouse_client.list_observations(params)
       bundle = Oj.load(bundle[:body].to_json, symbol_keys: true)
