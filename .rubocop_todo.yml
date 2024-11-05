@@ -640,6 +640,7 @@ RSpec/ClassCheck:
     - "spec/controllers/v0/virtual_agent/virtual_agent_claim_spec.rb"
     - "spec/lib/common/models/redis_store_spec.rb"
     - "spec/lib/iam_ssoe_oauth/session_manager_spec.rb"
+    - "spec/requests/v1/facilities/va_request_spec.rb"
 
 # Offense count: 67
 # This cop supports safe autocorrection (--autocorrect).
@@ -1105,6 +1106,7 @@ Rails/Pluck:
     - "rakelib/decision_review_repl.rb"
     - "spec/controllers/v0/onsite_notifications_controller_spec.rb"
     - "spec/lib/lighthouse/veterans_health/integration/client_spec.rb"
+    - "spec/requests/v1/facilities/va_request_spec.rb"
     - "spec/services/users/profile_spec.rb"
     - "spec/support/request_helper.rb"
 
