@@ -1827,3 +1827,7 @@ features:
   va_notify_notification_creation:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
+  is_DGIB_endpoint:
+    actor_type: user
+    description: used to call data from DGIB endpoints for MGIB VYE application
+
