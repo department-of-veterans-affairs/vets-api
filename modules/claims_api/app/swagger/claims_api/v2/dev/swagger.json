@@ -350,8 +350,8 @@
                             "type": "string",
                             "description": "The decision of the request.",
                             "enum": [
-                              "approved",
-                              "declined"
+                              "ACCEPTED",
+                              "DECLINED"
                             ]
                           },
                           "declinedReason": {
@@ -368,7 +368,7 @@
                   "data": {
                     "attributes": {
                       "procId": "76529",
-                      "decision": "accepted",
+                      "decision": "ACCEPTED",
                       "declinedReason": null
                     }
                   }
