@@ -93,8 +93,21 @@ module Users
       }
     end
 
+    def demographics_info
+      return nil unless DemographicsPolicy.new(user).access? && MPIPolicy.new(user).queryable?
+
+      @demographics_info ||= VAProfileRedis::Demographics.for_user(user)
+    rescue => e
+      Rails.logger.info('[Profile] VAProfileRedis::Demographics error', e.message)
+      raise
+    end
+
+    def demographics
+      demographics_info&.demographics
+    end
+
     def preferred_name
-      user&.demographics&.preferred_name&.text
+      demographics&.preferred_name&.text
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile::Demographics').serialize_error
       nil
