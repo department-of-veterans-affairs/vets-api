@@ -21,6 +21,11 @@ module ClaimsApi
                                                              detail: 'poaCodes is required and cannot be empty')
           end
 
+          if page_index.present? && page_size.blank?
+            raise ::Common::Exceptions::ParameterMissing.new('pageSize',
+                                                             detail: 'pageSize is required when pageIndex is present')
+          end
+
           service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
                                                     external_key: 'power_of_attorney_request_key')
 
