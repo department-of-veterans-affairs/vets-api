@@ -294,7 +294,7 @@ app/models/prescription_preference.rb @department-of-veterans-affairs/vfs-mhv-me
 app/models/prescription.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/rate_limited_search.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/saml_request_tracker.rb @department-of-veterans-affairs/octo-identity
-app/models/saved_claim_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-10-10
+app/models/saved_claim.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/vfs-10-10
 app/models/saved_claim/education_benefits/va_10203.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/disability_compensation.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/models/saved_claim/dependency_claim.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
