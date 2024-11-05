@@ -568,7 +568,6 @@ app/swagger/swagger/schemas/vet360/states.rb @department-of-veterans-affairs/vfs
 app/swagger/swagger/schemas/vet360/telephone.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/vet360/zipcodes.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/schemas/virtual_agent_webchat_token.rb @department-of-veterans-affairs/vfs-virtual-agent-chatbot @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-app/swagger/swagger/v1/requests/facilities.rb  @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/v1/requests/income_limits.rb @department-of-veterans-affairs/vfs-public-websites-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/v1/requests/ivc_champva_forms.rb @department-of-veterans-affairs/champva-engineering @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/swagger/swagger/v1/requests/appeals/appeals.rb @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-decision-reviews-be
