@@ -37,7 +37,7 @@ RSpec.describe FormSubmission, feature: :form_submission, type: :model do
     end
 
     context 'when form submission has no attempts' do
-      it 'returns benefits_intake_id from the form submission' do
+      it 'returns nil' do
         result = FormSubmission.with_latest_benefits_intake_uuid(user_account).with_form_types(['FORM-C']).first
 
         expect(result.benefits_intake_uuid).to be_nil
@@ -61,7 +61,7 @@ RSpec.describe FormSubmission, feature: :form_submission, type: :model do
     end
 
     context 'when form submission has a single attempt with no uuid' do
-      it 'returns the benefits_intake_id from the only form submission' do
+      it 'returns nil' do
         @fsb1.update!(benefits_intake_uuid: nil)
         result = FormSubmission.with_latest_benefits_intake_uuid(user_account).with_form_types(['FORM-B']).first
 
