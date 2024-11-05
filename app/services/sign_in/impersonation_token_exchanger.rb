@@ -58,7 +58,10 @@ module SignIn
     end
 
     def valid_actor_token?
-      decoded_actor_token['exp'] > Time.now.to_i && impersonated_user_verification
+      decoded_actor_token['exp'] > Time.now.to_i &&
+        decoded_actor_token['iss'] == client_config.client_id &&
+        decoded_actor_token['aud'] == "#{hostname}#{Constants::Auth::TOKEN_ROUTE_PATH}" &&
+        impersonated_user_verification
     end
 
     def verified_user_account
@@ -106,6 +109,18 @@ module SignIn
 
     def client_config
       @client_config ||= ClientConfig.find_by(client_id: current_access_token.client_id)
+    end
+
+    def hostname
+      return localhost_hostname if Settings.vsp_environment == 'localhost'
+
+      "https://#{Settings.hostname}"
+    end
+
+    def localhost_hostname
+      port = URI.parse("http://#{Settings.hostname}").port
+
+      "http://localhost:#{port}"
     end
   end
 end

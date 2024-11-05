@@ -1068,6 +1068,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_24_211447) do
     t.text "user_attributes_ciphertext"
     t.text "encrypted_kms_key"
     t.string "hashed_device_secret"
+    t.string "verified_user_account_icn"
     t.index ["handle"], name: "index_oauth_sessions_on_handle", unique: true
     t.index ["hashed_device_secret"], name: "index_oauth_sessions_on_hashed_device_secret"
     t.index ["hashed_refresh_token"], name: "index_oauth_sessions_on_hashed_refresh_token", unique: true
