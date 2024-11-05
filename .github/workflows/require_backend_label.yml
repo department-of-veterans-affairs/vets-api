@@ -36,7 +36,7 @@ jobs:
           echo "omit_backend_approval=true" >> $GITHUB_OUTPUT
 
       - name: Check omit backend approval
-        run: echo "${{ steps.assign_team_approval.outputs}}"
+        run: echo "${{ steps.assign_team_approval.outputs }}"
 
       - name: Add omit-backend-approval label
         if: |
