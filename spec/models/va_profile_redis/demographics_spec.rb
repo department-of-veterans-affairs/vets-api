@@ -42,4 +42,46 @@ describe VAProfileRedis::Demographics do
       end
     end
   end
+
+  context 'demographics attribute' do
+    context 'with a successful response' do
+      before do
+        allow_any_instance_of(VAProfile::Demographics::Service)
+          .to receive(:get_demographics).and_return(demographics_response)
+      end
+
+      describe '#demographics' do
+        it 'returns a demographics object', :aggregate_failures do
+          demographics_store = VAProfileRedis::Demographics.for_user(user)
+          expect(demographics_store.demographics).not_to be_nil
+          expect(demographics_store.demographics.preferred_name).not_to be_nil
+        end
+      end
+    end
+
+    context 'with an empty response' do
+      let(:empty_response) do
+        raw_response = OpenStruct.new(status: 500, body: nil)
+
+        VAProfile::Demographics::DemographicResponse.from(raw_response)
+      end
+
+      before do
+        allow_any_instance_of(VAProfile::Demographics::Service)
+          .to receive(:get_demographics).and_return(empty_response)
+      end
+
+      describe '#demographics' do
+        it 'returns an object with nil values' do
+          demographics_store = VAProfileRedis::Demographics.for_user(user)
+          expect(demographics_store.demographics.id).to be_nil
+          expect(demographics_store.demographics.type).to be_nil
+          expect(demographics_store.demographics.birth_date).to be_nil
+          expect(demographics_store.demographics.gender).to be_nil
+          expect(demographics_store.demographics.gender_identity).to be_nil
+          expect(demographics_store.demographics.preferred_name).to be_nil
+        end
+      end
+    end
+  end
 end
