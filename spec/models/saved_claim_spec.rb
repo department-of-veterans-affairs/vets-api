@@ -123,31 +123,6 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
     end
   end
 
-  # describe '.add_form_and_validation' do
-  #   # before do
-  #   #   # Reset the class constant if it has been set before
-  #   #   TestSavedClaim.send(:remove_const, :FORM) if TestSavedClaim.const_defined?(:FORM)
-  #   # end
-
-  #   let(:form_id) { 'some_form_id' }
-
-  #   it 'sets the FORM constant' do
-  #     TestSavedClaim.add_form_and_validation(form_id)
-  #     expect(TestSavedClaim::FORM).to eq(form_id)
-  #   end
-
-  #   it 'adds validation for the form_id attribute' do
-  #     TestSavedClaim.add_form_and_validation(form_id)
-
-  #     binding.pry
-
-  #     expect(saved_claim.valid?).to be true
-  #     saved_claim.form_id = 'invalid_form_id'
-  #     expect(saved_claim.valid?).to be false
-  #     expect(saved_claim.errors[:form_id]).to include('is not included in the list')
-  #   end
-  # end
-
   describe '#process_attachments!' do
     let(:confirmation_code) { SecureRandom.uuid }
     let(:form_data) { { some_key: [{ confirmationCode: confirmation_code }] }.to_json }
