@@ -7,6 +7,8 @@ module TermsOfUse
   class SignUpServiceUpdaterJob
     include Sidekiq::Job
 
+    LOG_TITLE = '[TermsOfUse][SignUpServiceUpdaterJob]'
+
     sidekiq_options retry_for: 48.hours
 
     sidekiq_retries_exhausted do |job, exception|
@@ -22,7 +24,7 @@ module TermsOfUse
         exception_message: exception.message
       }
 
-      Rails.logger.warn('[TermsOfUse][SignUpServiceUpdaterJob] retries exhausted', payload)
+      Rails.logger.warn("#{LOG_TITLE} retries exhausted", payload)
     end
 
     attr_reader :user_account_uuid, :version
@@ -31,35 +33,67 @@ module TermsOfUse
       @user_account_uuid = user_account_uuid
       @version = version
 
-      return unless sec_id?
+      return if missing_sec_id? || agreement_unchanged?
 
+      log_updated_icn
       terms_of_use_agreement.accepted? ? accept : decline
     end
 
     private
 
+    def log_updated_icn
+      if user_account.icn != mpi_profile.icn
+        Rails.logger.info("#{LOG_TITLE} Detected changed ICN for user",
+                          { icn: user_account.icn, mpi_icn: mpi_profile.icn })
+      end
+    end
+
+    def map_client
+      @map_client ||= MAP::SignUp::Service.new
+    end
+
+    def map_status
+      @map_status ||= map_client.status(icn: mpi_profile.icn)
+    end
+
+    def agreement_unchanged?
+      if terms_of_use_agreement.declined? != map_status[:opt_out] ||
+         terms_of_use_agreement.accepted? != map_status[:agreement_signed]
+        return false
+      end
+
+      Rails.logger.info("#{LOG_TITLE} Not updating Sign Up Service due to unchanged agreement",
+                        { icn: user_account.icn })
+      true
+    end
+
     def accept
-      MAP::SignUp::Service.new.agreements_accept(icn:, signature_name:, version:)
+      map_client.agreements_accept(icn: mpi_profile.icn, signature_name:, version:)
     end
 
     def decline
-      MAP::SignUp::Service.new.agreements_decline(icn:)
+      map_client.agreements_decline(icn: mpi_profile.icn)
     end
 
-    def sec_id?
-      return true if mpi_profile.sec_id.present?
+    def missing_sec_id?
+      if mpi_profile.sec_id.present?
+        validate_multiple_sec_ids
+        return false
+      end
 
-      Rails.logger.info('[TermsOfUse][SignUpServiceUpdaterJob] Sign Up Service not updated due to user missing sec_id',
-                        { icn: })
-      false
+      Rails.logger.info("#{LOG_TITLE} Sign Up Service not updated due to user missing sec_id",
+                        { icn: user_account.icn })
+      true
+    end
+
+    def validate_multiple_sec_ids
+      if mpi_profile.sec_ids.many?
+        Rails.logger.info("#{LOG_TITLE} Multiple sec_id values detected", { icn: user_account.icn })
+      end
     end
 
     def user_account
       @user_account ||= UserAccount.find(user_account_uuid)
-    end
-
-    def icn
-      @icn ||= user_account.icn
     end
 
     def terms_of_use_agreement
@@ -71,7 +105,7 @@ module TermsOfUse
     end
 
     def mpi_profile
-      @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier: icn,
+      @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier: user_account.icn,
                                                                    identifier_type: MPI::Constants::ICN)&.profile
     end
   end

@@ -33,6 +33,7 @@ class SourceAppMiddleware
     10206-pa
     10207-pp
     10210-lay-witness-statement
+    10-7959f-1-FMP
     1990-edu-benefits
     1990e-edu-benefits
     1990ez-edu-benefits
@@ -122,6 +123,7 @@ class SourceAppMiddleware
     search-representative
     secure-messaging
     secure-messaging-pilot
+    survivor-dependent-education-benefit-22-5490
     static-pages
     submitted-appeal
     terms-of-use

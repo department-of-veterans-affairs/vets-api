@@ -33,7 +33,21 @@ RSpec.describe LighthouseRatedDisabilitiesProvider do
     end
   end
 
-  Lighthouse::ServiceException::ERROR_MAP.except(422).each do |status, error_class|
+  it 'returns the proper error through the Timeout class' do
+    allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::TimeoutError)
+    expect do
+      @provider.get_rated_disabilities('', '')
+    end.to raise_error(Common::Exceptions::Timeout)
+  end
+
+  it 'returns the proper error through the ServiceError class' do
+    allow_any_instance_of(Faraday::Connection).to receive(:get).and_raise(Faraday::ServerError.new(status: nil))
+    expect do
+      @provider.get_rated_disabilities('', '')
+    end.to raise_error(Common::Exceptions::ServiceError)
+  end
+
+  Lighthouse::ServiceException::ERROR_MAP.except(422, 499, 501).each do |status, error_class|
     it "throws a #{status} error if Lighthouse sends it back" do
       expect do
         test_error(

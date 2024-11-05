@@ -9,13 +9,10 @@
 require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
 require 'claims_api/evss_bgs_mapper'
-
 require 'bgs_service/local_bgs_refactored'
 
 module ClaimsApi
   class LocalBGS
-    CACHED_SERVICES = %w[ClaimantServiceBean/ClaimantWebService].freeze
-
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
       @client_ip =
@@ -311,27 +308,22 @@ module ClaimsApi
       soap_error_handler.handle_errors(response) if response
 
       log_duration(event: 'parsed_response', key:) do
-        parsed_response(response, action:, key:, transform: transform_response)
+        parsed_response = parse_response(response, action:, key:)
+        transform_response ? transform_keys(parsed_response) : parsed_response
       end
     end
 
     def namespace(connection, endpoint)
-      if CACHED_SERVICES.include?(endpoint) && Flipper.enabled?(:lighthouse_claims_api_hardcode_wsdl)
-        begin
-          ClaimsApi::LocalBGSRefactored::FindDefinition
-            .for_service(endpoint)
-            .bean.namespaces.target
-        rescue => e
-          unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
-            ClaimsApi::Logger.log('local_bgs', level: :error,
-                                               detail: "local BGS FindDefinition Error: #{e.message}")
-          end
-
-          fetch_namespace(connection, endpoint)
-        end
-      else
-        fetch_namespace(connection, endpoint)
+      ClaimsApi::LocalBGSRefactored::FindDefinition
+        .for_service(endpoint)
+        .bean.namespaces.target
+    rescue => e
+      unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+        ClaimsApi::Logger.log('local_bgs', level: :error,
+                                           detail: "local BGS FindDefinition Error: #{e.message}")
       end
+
+      fetch_namespace(connection, endpoint)
     end
 
     def fetch_namespace(connection, endpoint)
@@ -415,6 +407,36 @@ module ClaimsApi
         jrn_user_id: Settings.bgs.client_username,
         jrn_obj_id: Settings.bgs.application
       }
+    end
+
+    private
+
+    def builder_to_xml(builder)
+      builder.to_xml(save_with: Nokogiri::XML::Node::SaveOptions::NO_DECLARATION)
+    end
+
+    def transform_keys(hash_or_array)
+      transformer = lambda do |object|
+        case object
+        when Hash
+          object.deep_transform_keys! { |k| k.underscore.to_sym }
+        when Array
+          object.map { |item| transformer.call(item) }
+        else
+          object
+        end
+      end
+
+      transformer.call(hash_or_array)
+    end
+
+    def parse_response(response, action:, key:)
+      keys = ['Envelope', 'Body', "#{action}Response"]
+      keys << key if key.present?
+
+      result = Hash.from_xml(response.body).dig(*keys)
+
+      result.is_a?(Array) ? result : result.to_h
     end
   end
 end

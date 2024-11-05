@@ -159,12 +159,30 @@ en:
         detail: The request was well-formed but was unable to be followed due to semantic or validation errors
         code: 422
         status: 422
+      upstream_unprocessable_entity:
+          <<: *defaults
+          title: Unprocessable Entity
+          detail: The request was well-formed but was unable to be followed due to semantic or validation errors
+          code: 422
+          status: 422
       too_many_requests:
         <<: *defaults
         title: Too Many Requests
         detail: The user has sent too many requests in a given amount of time
         code: 429
         status: 429
+      client_disconnected:
+        <<: *defaults
+        title: Client Closed Request
+        detail: The client disconnected before the server finished processing the request
+        code: 499
+        status: 499
+      not_implemented:
+        <<: *defaults
+        title: Not Implemented
+        detail: The client disconnected before the server finished processing the request
+        code: 501
+        status: 501
       internal_server_error:
         <<: *defaults
         title: Internal server error
@@ -174,6 +192,11 @@ en:
         <<: *defaults
         title: Internal server error
         detail: The external service sent back an internal server error
+        code: 500
+        status: 500
+      timeout:
+        <<: *defaults
+        title: Net::ReadTimeout
         code: 500
         status: 500
       bad_gateway:
@@ -467,6 +490,11 @@ en:
         <<: *validation_errors
         code: 'SM152'
         detail: 'Email address is invalid'
+      SM172:
+        <<: *external_defaults
+        code: 'SM172'
+        detail: 'Attachment scan failed'
+        status: 400
       SM900: # 'Mailbox Service Error'
         <<: *external_defaults
         code: 'SM900'
@@ -792,6 +820,30 @@ en:
         title: Gateway Timeout
         code: 'SEARCH_504'
         detail: 'Did not receive a timely response from Search.gov'
+        status: 504
+      SEARCH_GSA_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: 'SEARCH_GSA_400'
+        detail: 'api.gsa.gov service responded with a Bad Request'
+        status: 400
+      SEARCH_GSA_429:
+        <<: *external_defaults
+        title: Exceeded rate limit
+        code: 'SEARCH_GSA_429'
+        detail: 'Exceeded api.gsa.gov rate limit'
+        status: 429
+      SEARCH_GSA_503:
+        <<: *external_defaults
+        title: Service Unavailable
+        code: 'SEARCH_GSA_503'
+        detail: 'api.gsa.gov service is currently unavailable'
+        status: 503
+      SEARCH_GSA_504:
+        <<: *external_defaults
+        title: Gateway Timeout
+        code: 'SEARCH_GSA_504'
+        detail: 'Did not receive a timely response from api.gsa.gov'
         status: 504
       SEARCH_TYPEAHEAD_400:
         <<: *external_defaults
@@ -2123,6 +2175,18 @@ en:
         code: DR_502
         detail: Received an an invalid response from the upstream server
         status: 502
+      DR_503:
+        <<: *defaults
+        title: Service Unavailable
+        code: DR_503
+        detail: The downstream server is currently unavailable
+        status: 503
+      DR_504:
+        <<: *defaults
+        title: Gateway Timeout
+        code: DR_504
+        detail: Did not receive a timely response from the downstream server
+        status: 504
       DR_401:
         <<: *defaults
         title: Invalid API Key
@@ -2183,13 +2247,6 @@ en:
         <<: *defaults
         code: LH_gateway_timeout
         status: 504
-    benefits_education:
-      outside_working_hours:
-        <<: *defaults
-        title: External service unavailable
-        detail: 'Lighthouse GI Bill Status is not available outside of working hours'
-        code: 114
-        status: 503
   evss:
     external_service_unavailable:
       <<: *defaults

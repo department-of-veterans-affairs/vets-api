@@ -13,6 +13,9 @@ RSpec.describe ClaimsApi::ServiceBase do
   let(:claim_date) { (Time.zone.today - 1.day).to_s }
   let(:anticipated_separation_date) { 2.days.from_now.strftime('%m-%d-%Y') }
 
+  let(:ews) { create(:evidence_waiver_submission, :with_full_headers_tamara) }
+  let(:errored_ews) { create(:evidence_waiver_submission, :with_full_headers_tamara, status: 'errored') }
+
   let(:form_data) do
     temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
                            'form_526_json_api.json').read
@@ -49,6 +52,34 @@ RSpec.describe ClaimsApi::ServiceBase do
       @service.send(:set_pending_state_on_claim, claim)
       claim.reload
       expect(claim.status).to eq('pending')
+    end
+  end
+
+  describe '#set_state_for_submission' do
+    it 'updates claim status as ERRORED' do
+      @service.send(:set_state_for_submission, claim, 'errored')
+      claim.reload
+      expect(claim.status).to eq('errored')
+    end
+
+    it 'updates EWS status as ERRORED' do
+      @service.send(:set_state_for_submission, ews, 'errored')
+      ews.reload
+      expect(ews.status).to eq('errored')
+    end
+
+    it 'updates EWS status as PENDING' do
+      @service.send(:set_state_for_submission, errored_ews, 'pending')
+      errored_ews.reload
+      expect(errored_ews.status).to eq('pending')
+    end
+  end
+
+  describe '#preserve_original_form_data' do
+    it 'preserves the form data as expected' do
+      preserved_form_data = @service.send(:preserve_original_form_data, claim.form_data)
+      claim.reload
+      expect(claim.form_data).to eq(preserved_form_data)
     end
   end
 
@@ -119,6 +150,14 @@ RSpec.describe ClaimsApi::ServiceBase do
       expect(ClaimsApi::Logger).to receive(:log).with('claims_api_sidekiq_service_base', claim_id: claim.id, detail:)
 
       @service.send(:log_job_progress, claim.id, detail)
+    end
+
+    it 'logs job progress with transaction_id when provided' do
+      transaction_id = '00000000-0000-0000-000000000000'
+      expect(ClaimsApi::Logger).to receive(:log).with('claims_api_sidekiq_service_base', claim_id: claim.id, detail:,
+                                                                                         transaction_id:)
+
+      @service.send(:log_job_progress, claim.id, detail, transaction_id)
     end
   end
 end

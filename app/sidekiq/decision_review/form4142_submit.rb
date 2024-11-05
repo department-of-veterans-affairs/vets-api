@@ -14,13 +14,36 @@ module DecisionReview
     # be long enough to resolve transient errors like temporary Central Mail outages.
     sidekiq_options retry: 13
 
+    sidekiq_retries_exhausted do |msg, _ex|
+      error_message = msg['error_message']
+      appeal_submission_id, _encrypted_payload, submitted_appeal_uuid = msg['args']
+      job_id = msg['jid']
+
+      tags = ['service:supplemental-claims-4142', 'function: 21-4142 PDF submission to Lighthouse']
+      StatsD.increment('silent_failure', tags:)
+
+      ::Rails.logger.error(
+        {
+          error_message:,
+          message: 'DecisionReview::Form4142Submit retries exhausted',
+          form_id: DecisionReviewV1::FORM4142_ID,
+          parent_form_id: DecisionReviewV1::SUPP_CLAIM_FORM_ID,
+          appeal_submission_id:,
+          submitted_appeal_uuid:,
+          job_id:
+        }
+      )
+      StatsD.increment("#{STATSD_KEY_PREFIX}.permanent_error")
+    end
+
     def decrypt_form(encrypted_payload)
       JSON.parse(DecisionReviewV1::Appeals::Helpers::DR_LOCKBOX.decrypt(encrypted_payload))
     end
 
     def perform(appeal_submission_id, encrypted_payload, submitted_appeal_uuid)
-      decision_review_service.process_form4142_submission(appeal_submission_id:,
-                                                          rejiggered_payload: decrypt_form(encrypted_payload))
+      rejiggered_payload = decrypt_form(encrypted_payload)
+      decision_review_service.process_form4142_submission(appeal_submission_id:, rejiggered_payload:)
+
       StatsD.increment("#{STATSD_KEY_PREFIX}.success")
     rescue => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.error")

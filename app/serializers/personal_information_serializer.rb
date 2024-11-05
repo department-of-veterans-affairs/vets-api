@@ -1,15 +1,11 @@
 # frozen_string_literal: true
 
-class PersonalInformationSerializer < ActiveModel::Serializer
-  attributes :gender, :birth_date, :preferred_name, :gender_identity
+class PersonalInformationSerializer
+  include JSONAPI::Serializer
 
-  delegate :gender, to: :object
+  set_id { '' }
 
-  def id
-    nil
-  end
-
-  def gender
+  attribute :gender do |object|
     object.demographics&.gender
   end
 
@@ -18,7 +14,7 @@ class PersonalInformationSerializer < ActiveModel::Serializer
   #
   # @return [String] For example, '1949-03-04'
   #
-  def birth_date
+  attribute :birth_date do |object|
     object.demographics&.birth_date&.to_date&.to_s
   end
 
@@ -26,7 +22,7 @@ class PersonalInformationSerializer < ActiveModel::Serializer
   #
   # @return [String] For example, 'SAM'
   #
-  def preferred_name
+  attribute :preferred_name do |object|
     object.demographics&.preferred_name&.text
   end
 
@@ -34,7 +30,7 @@ class PersonalInformationSerializer < ActiveModel::Serializer
   #
   # @return [Object] For example, code: 'F', name: 'Female'
   #
-  def gender_identity
+  attribute :gender_identity do |object|
     return {} if object.demographics&.gender_identity&.nil?
 
     {

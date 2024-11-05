@@ -29,6 +29,8 @@ module VAProfile
           service_response = perform(:post, path, { bios: [{ bioPath: 'healthBenefit' }] })
           response = VAProfile::Profile::V3::HealthBenefitBioResponse.new(service_response)
           Sentry.set_extras(response.debug_data) unless response.ok?
+          code = response.code || 502
+          raise_backend_exception("VET360_#{code}", self.class) if response.server_error?
           response
         end
 

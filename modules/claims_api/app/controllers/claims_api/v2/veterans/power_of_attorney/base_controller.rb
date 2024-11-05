@@ -15,6 +15,7 @@ module ClaimsApi
         include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
         FORM_NUMBER_INDIVIDUAL = '2122A'
+        VA_NOTIFY_KEY = 'va_notify_recipient_identifier'
 
         def show
           poa_code = BGS::PowerOfAttorneyVerifier.new(target_veteran).current_poa_code
@@ -42,25 +43,33 @@ module ClaimsApi
         private
 
         def shared_form_validation(form_number)
+          # validate target veteran exists
           target_veteran
-          # Custom validations for POA submission, we must check this first
-          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(user_profile)
-          # JSON validations for POA submission, will combine with previously captured errors and raise
+
+          base = form_number == '2122' ? 'serviceOrganization' : 'representative'
+          poa_code = form_attributes.dig(base, 'poaCode')
+
+          @claims_api_forms_validation_errors = validate_form_2122_and_2122a_submission_values(
+            user_profile:, veteran_participant_id: target_veteran.participant_id, poa_code:, base:
+          )
+
           validate_json_schema(form_number.upcase)
-          @rep_id = validate_registration_number!(form_number)
+          @rep_id = validate_registration_number!(base, poa_code)
 
           add_claimant_data_to_form if user_profile
-          # if we get here there were only validations file errors
+
           if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
         end
 
-        def validate_registration_number!(form_number)
-          base = form_number == '2122' ? 'serviceOrganization' : 'representative'
+        def feature_enabled_and_claimant_present?
+          Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
+        end
+
+        def validate_registration_number!(base, poa_code)
           rn = form_attributes.dig(base, 'registrationNumber')
-          poa_code = form_attributes.dig(base, 'poaCode')
           rep = ::Veteran::Service::Representative.where('? = ANY(poa_codes) AND representative_id = ?',
                                                          poa_code,
                                                          rn).order(created_at: :desc).first
@@ -73,20 +82,23 @@ module ClaimsApi
           rep.id
         end
 
-        def submit_power_of_attorney(poa_code, form_number)
-          attributes = {
+        def attributes
+          {
             status: ClaimsApi::PowerOfAttorney::PENDING,
-            auth_headers:,
+            auth_headers: set_auth_headers,
             form_data: form_attributes,
             current_poa: current_poa_code,
             header_md5:
           }
+        end
+
+        def submit_power_of_attorney(poa_code, form_number)
           attributes.merge!({ source_data: }) unless token.client_credentials_token?
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
-          unless Settings.claims_api&.poa_v2&.disable_jobs
-            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id)
+          unless disable_jobs?
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id, 'post')
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
@@ -95,6 +107,29 @@ module ClaimsApi
           ), status: :accepted, location: url_for(
             controller: 'power_of_attorney/base', action: 'show', id: power_of_attorney.id
           )
+        end
+
+        def set_auth_headers
+          headers = auth_headers.merge!({ VA_NOTIFY_KEY => icn_for_vanotify })
+
+          if feature_enabled_and_claimant_present?
+            add_dependent_to_auth_headers(headers)
+          else
+            auth_headers
+          end
+        end
+
+        def add_dependent_to_auth_headers(headers)
+          claimant = user_profile.profile
+
+          headers.merge!({
+                           dependent: {
+                             participant_id: claimant.participant_id,
+                             ssn: claimant.ssn,
+                             first_name: claimant.given_names[0],
+                             last_name: claimant.family_name
+                           }
+                         })
         end
 
         def validation_success(form_number)
@@ -190,9 +225,11 @@ module ClaimsApi
         end
 
         def user_profile
-          return @user_profile if defined? @user_profile
-
           @user_profile ||= fetch_claimant
+        end
+
+        def icn_for_vanotify
+          params[:veteranId]
         end
 
         def fetch_claimant
@@ -203,6 +240,10 @@ module ClaimsApi
           end
         rescue ArgumentError
           mpi_profile
+        end
+
+        def disable_jobs?
+          Settings.claims_api&.poa_v2&.disable_jobs
         end
 
         def add_claimant_data_to_form

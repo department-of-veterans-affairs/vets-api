@@ -6,26 +6,32 @@ require 'evss_service/base'
 
 module ClaimsApi
   module DisabilityCompensation
-    class DockerContainerService < ClaimsApi::Service
-      def upload(claim_id)
-        log_service_progress(claim_id, 'docker_service',
-                             'Docker container service started')
+    class DockerContainerService < ServiceBase
+      LOG_TAG = '526_v2_Docker_Container_service'
 
+      def upload(claim_id)
         auto_claim = get_claim(claim_id)
+
+        log_job_progress(claim_id, 'Docker container service started', auto_claim.transaction_id)
 
         update_auth_headers(auto_claim) if auto_claim.transaction_id.present?
 
         evss_data = get_evss_data(auto_claim)
 
-        log_service_progress(claim_id, 'docker_service',
-                             'Submitting mapped data to Docker container')
+        log_job_progress(claim_id, 'Submitting mapped data to Docker container', auto_claim.transaction_id)
 
         evss_res = evss_service.submit(auto_claim, evss_data, false)
 
-        log_service_progress(claim_id, 'docker_service',
-                             "Successfully submitted to Docker container with response: #{evss_res}")
+        log_job_progress(claim_id, "Successfully submitted to Docker container with response: #{evss_res}",
+                         auto_claim.transaction_id)
+
         # update with the evss_id returned
         auto_claim.update!(evss_id: evss_res[:claimId])
+      rescue => e
+        auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+        auto_claim.evss_response = e.errors if e.methods.include?(:errors)
+        auto_claim.save
+        raise e
       end
 
       private
@@ -37,7 +43,7 @@ module ClaimsApi
       end
 
       def get_evss_data(auto_claim)
-        evss_mapper_service(auto_claim, veteran_file_number(auto_claim)).map_claim
+        evss_mapper_service(auto_claim).map_claim
       end
     end
   end

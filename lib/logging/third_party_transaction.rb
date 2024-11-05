@@ -27,11 +27,10 @@ module Logging
           method_names.each do |method_name|
             # define patchable method(s) with the same name inside of a proxy module.
             define_method(method_name) do |*args, &block|
-              str_args = args.to_s
-              log_3pi_begin(method_name, additional_class_logs, additional_instance_logs, str_args)
+              log_3pi_begin(method_name, additional_class_logs, additional_instance_logs)
               # delegate to the original behavior
               result = super(*args, &block)
-              log_3pi_complete(method_name, additional_class_logs, additional_instance_logs, str_args)
+              log_3pi_complete(method_name, additional_class_logs, additional_instance_logs)
               result
             end
           end
@@ -45,13 +44,12 @@ module Logging
     # these will be included after instance instantiation, making them available
     # to the instance and retaining their scope.
     module ScopedInstanceMethods
-      def log_3pi_begin(method_name, additional_class_logs, additional_instance_logs, args)
+      def log_3pi_begin(method_name, additional_class_logs, additional_instance_logs)
         @start_time = Time.current
 
         log = {
           start_time: @start_time.to_s,
-          wrapped_method: "#{self.class}##{method_name}",
-          passed_args: args.to_s
+          wrapped_method: "#{self.class}##{method_name}"
         }
 
         log.merge!(default_logs)
@@ -63,14 +61,13 @@ module Logging
         Rails.logger.error(e)
       end
 
-      def log_3pi_complete(method_name, additional_class_logs, additional_instance_logs, args)
+      def log_3pi_complete(method_name, additional_class_logs, additional_instance_logs)
         now = Time.current
 
         log = {
           upload_duration: (now - @start_time).to_f,
           wrapped_method: "#{self.class}##{method_name}",
-          end_time: now.to_s,
-          passed_args: args.to_s
+          end_time: now.to_s
         }
 
         log.merge!(default_logs)

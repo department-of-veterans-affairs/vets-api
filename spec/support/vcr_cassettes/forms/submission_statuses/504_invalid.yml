@@ -1,0 +1,48 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/vba_documents/v1/uploads/report
+    body:
+      encoding: UTF-8
+      string: '{"ids":["4b846069-e496-4f83-8587-42b570f24483","d0c6cea6-9885-4e2f-8e0c-708d5933833a","d772f671-fbca-4392-ab55-b0e4115dee47"]}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Apikey:
+      - fake_api_key
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 504
+      message: Unauthorized
+    headers:
+      Date:
+      - Mon, 12 Aug 2024 15:05:57 GMT
+      Content-Type:
+      - application/json; charset=utf-8
+      Content-Length:
+      - '52'
+      Connection:
+      - keep-alive
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      Strict-Transport-Security:
+      - max-age=31536000; includeSubDomains; preload
+      X-Frame-Options:
+      - SAMEORIGIN
+    body:
+      encoding: UTF-8
+      string: |-
+        {
+          "message": "The server took too long to respond"
+        }
+  recorded_at: Mon, 12 Aug 2024 15:05:57 GMT
+recorded_with: VCR 6.2.0

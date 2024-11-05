@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api_submission/metadata_validator'
 
 module SimpleFormsApi
@@ -21,6 +22,10 @@ module SimpleFormsApi
       end
 
       private
+
+      def lighthouse_service
+        @lighthouse_service ||= BenefitsIntake::Service.new
+      end
 
       def upload_response
         file_path = find_attachment_path(params[:confirmation_code])
@@ -51,7 +56,44 @@ module SimpleFormsApi
       end
 
       def upload_pdf(file_path, metadata)
-        SimpleFormsApi::PdfUploader.new(file_path, metadata, params[:form_number]).upload_to_benefits_intake(params)
+        location, uuid = prepare_for_upload
+        log_upload_details(location, uuid)
+        response = perform_pdf_upload(location, file_path, metadata)
+        [response.status, uuid]
+      end
+
+      def prepare_for_upload
+        location, uuid = lighthouse_service.request_upload
+        create_form_submission_attempt(uuid)
+
+        [location, uuid]
+      end
+
+      def create_form_submission_attempt(uuid)
+        FormSubmissionAttempt.transaction do
+          form_submission = create_form_submission
+          FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
+        end
+      end
+
+      def create_form_submission
+        FormSubmission.create(
+          form_type: params[:form_number],
+          user_account: @current_user&.user_account
+        )
+      end
+
+      def log_upload_details(location, uuid)
+        Datadog::Tracing.active_trace&.set_tag('uuid', uuid)
+        Rails.logger.info('Simple forms api - preparing to upload scanned PDF to benefits intake', { location:, uuid: })
+      end
+
+      def perform_pdf_upload(location, file_path, metadata)
+        lighthouse_service.perform_upload(
+          metadata: metadata.to_json,
+          document: file_path,
+          upload_url: location
+        )
       end
     end
   end

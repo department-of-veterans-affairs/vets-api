@@ -121,6 +121,13 @@
       :uid_location: header
       :uid_locator: 'vaapikey'
 
+- :name: 'MHV UserAccount Creation'
+  :base_uri: <%= "#{URI(Settings.mhv.account_creation.host).host}:#{URI(Settings.mhv.account_creation.host).port}" %>
+  :endpoints:
+  - :method: :post
+    :path: '/v1/usermgmt/account-service/account'
+    :file_path: 'mhv/account_creation/create_account/default'
+
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
   :endpoints:
@@ -135,6 +142,13 @@
     - :method: :get
       :path: "/mhv-api/patient/v1/prescription/getactiverx"
       :file_path: "mhv/prescription/getactiverx"
+      :cache_multiple_responses:
+        :uid_location: header
+        :uid_locator: 'Token'
+    # MHV rx medications
+    - :method: :get
+      :path: "/mhv-api/patient/v1/prescription/medications"
+      :file_path: "mhv/prescription/medications"
       :cache_multiple_responses:
         :uid_location: header
         :uid_locator: 'Token'
@@ -588,28 +602,14 @@
     :path: "/api/v2/search/i14y"
     :file_path: "search/default"
 
-#GIS
-- :name: 'GIS'
-  :base_uri: <%= "#{URI(Settings.locators.gis_base_path).host}:#{URI(Settings.locators.gis_base_path).port}" %>
+# Search GSA
+- :name: 'Search GSA'
+  :base_uri: <%= "#{URI(Settings.search_gsa.url).host}:#{URI(Settings.search_gsa.url).port}" %>
   :endpoints:
-    # VHA
-    - :method: :get
-      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/query"
-      :file_path: "gis/vha/facilities"
-    - :method: :get
-      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0"
-      :file_path: "gis/vha/metadata"
-
-#PSSG
-- :name: 'PSSG'
-  :base_uri: <%= "#{URI(Settings.locators.drive_time_band_base_path).host}:#{URI(Settings.locators.drive_time_band_base_path).port}" %>
-  :endpoints:
-    - :method: :get
-      :path: "/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/*"
-      :file_path: "pssg/drivetime_bands"
-      :cache_multiple_responses:
-        :uid_location: query
-        :uid_locator:  resultOffset
+  # Search results
+  - :method: :get
+    :path: "/technology/searchgov/v2/results/i14y"
+    :file_path: "search/default"
 
 #VANotify
 - :name: 'VANotify'
@@ -636,6 +636,32 @@
     :path: "/appointments/v1/patients/*/appointments/*"
     :file_path: "hqva_mobile/appointments/default"
 
+#VAOS Appointments Service
+- :name: "VAOS Appointments"
+  :base_uri: <%= "#{URI(Settings.va_mobile.url).host}:#{URI(Settings.va_mobile.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/vaos/v1/patients/*/appointments"
+      :file_path: "vaos/appointments"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/vaos\/v1\/patients\/^[a-zA-Z0-9]+$\/appointments'
+    - :method: :get
+      :path: "/facilities/v2/facilities/*"
+      :file_path: "vaos/facilities"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$'
+    - :method: :get
+      :path: "/facilities/v2/facilities/*/clinics/*"
+      :file_path: "vaos/clinics"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: 'url'
+        :uid_locator: '\/facilities\/v2\/facilities\/^[0-9]+$\/clinics\/^[0-9]+$'
+
 #LoROTA (CheckIn)
 - :name: "LoROTA"
   :base_uri: <%= "#{URI(Settings.check_in.lorota_v2.url).host}:#{URI(Settings.check_in.lorota_v2.url).port}" %>
@@ -657,23 +683,23 @@
 
 #Travel Claim VEIS Auth (BTSSS)
 - :name: "Travel Claim VEIS Auth Service"
-  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.auth_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.auth_url).port}" %>
+  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api_v2.auth_url).host}:#{URI(Settings.check_in.travel_reimbursement_api_v2.auth_url).port}" %>
   :endpoints:
     - :method: :post
-      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.tenant_id}/oauth2/v2.0/token" %>
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.tenant_id}/oauth2/v2.0/token" %>
       :file_path: "/travel_claim/token/default"
       :response_delay: 0.3
 
 #Travel Claim Ingest Service (BTSSS)
 - :name: "Travel Claim Ingest Service"
-  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api.claims_url).host}:#{URI(Settings.check_in.travel_reimbursement_api.claims_url).port}" %>
+  :base_uri: <%= "#{URI(Settings.check_in.travel_reimbursement_api_v2.claims_url).host}:#{URI(Settings.check_in.travel_reimbursement_api_v2.claims_url).port}" %>
   :endpoints:
     - :method: :post
-      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.claims_base_path}/api/ClaimIngest/submitclaim" %>
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path}/api/ClaimIngest/submitclaim" %>
       :file_path: "/travel_claim/submitclaim/default"
       :response_delay: 15
     - :method: :post
-      :path: <%= "/#{Settings.check_in.travel_reimbursement_api.claims_base_path}/api/ClaimIngest/V1/GetClaimsStatus" %>
+      :path: <%= "/#{Settings.check_in.travel_reimbursement_api_v2.claims_base_path}/api/ClaimIngest/V1/GetClaimsStatus" %>
       :file_path: "/travel_claim/claimstatus/default"
       :response_delay: 1
 
@@ -777,21 +803,11 @@
         :uid_location: 'query'
         :uid_locator: 'edipi'
 
-# Lighthouse Benefits Education API (GI Bill Statement of Benefits - GIBS)
-- :name: "Lighthouse Benefits Education"
-  :base_uri: <%= "#{URI(Settings.lighthouse.benefits_education.host).host}:#{URI(Settings.lighthouse.benefits_education.host).port}" %>
-  :endpoints:
-  - :method: :get
-    :path: '/services/benefits-education/v1/education/chapter33'
-    :file_path: "/lighthouse/benefits_education"
-    :cache_multiple_responses:
-      :uid_location: "query"
-      :uid_locator: "icn"
-
-# Lighthouse Benefits Claims API
-- :name: "Lighthouse Benefits Claims"
+# Lighthouse
+- :name: "Lighthouse"
   :base_uri: <%= "#{URI(Settings.lighthouse.benefits_claims.host).host}:#{URI(Settings.lighthouse.benefits_claims.host).port}" %>
   :endpoints:
+    # Benefits Claims API
     - :method: :get
       :path: "/services/claims/v2/veterans/*/claims"
       :file_path: "/lighthouse/benefits_claims/index"
@@ -824,6 +840,13 @@
       :cache_multiple_responses:
         :uid_location: "url"
         :uid_locator: "\/services/veteran_verification/v2/disability_rating\/(.+)"
+    # Benefits Education
+    - :method: :get
+      :path: '/services/benefits-education/v1/education/chapter33'
+      :file_path: "/lighthouse/benefits_education"
+      :cache_multiple_responses:
+        :uid_location: "query"
+        :uid_locator: "icn"
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
@@ -894,3 +917,29 @@
     - :method: :get
       :path: "/demographics/demographics/v1/*/*"
       :file_path: "vet360/demographics/default"
+    - :method: :post
+      :path: "/profile-service/profile/v3/*/*"
+      :file_path: "vet360/profile-service/default"
+
+# GIDS
+- :name: "GIDS"
+  :base_uri: <%= "#{URI(Settings.gids.url).host}:#{URI(Settings.gids.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/gids/v1/lce"
+      :file_path: "gids/lce"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: type
+    - :method: :get
+      :path: "/gids/v1/lce/certifications/*"
+      :file_path: "gids/lce/certifications/default"
+    - :method: :get
+      :path: "/gids/v1/lce/exams/*"
+      :file_path: "gids/lce/exams/default"
+    - :method: :get
+      :path: "/gids/v1/lce/licenses/*"
+      :file_path: "gids/lce/licenses/default"
+    - :method: :get
+      :path: "/gids/v1/lce/preps/*"
+      :file_path: "gids/lce/preps/default"

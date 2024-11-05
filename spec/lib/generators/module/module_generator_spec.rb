@@ -8,7 +8,7 @@ describe ModuleGenerator do
 
   after do
     # remove generated files
-    FileUtils.rm_rf(Dir[Rails.root.join('modules', module_name)])
+    FileUtils.rm_rf(Rails.root.glob("modules/#{module_name}"))
   end
 
   describe 'create_directory_structure' do

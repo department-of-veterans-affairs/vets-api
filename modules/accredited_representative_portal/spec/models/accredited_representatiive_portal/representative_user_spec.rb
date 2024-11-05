@@ -61,6 +61,15 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUser, type: :model 
         expect(representative_user.errors[:icn]).to include(expected_error_message)
       end
     end
+
+    context 'when user_account_uuid is missing' do
+      let(:representative_user) { build(:representative_user, user_account_uuid: nil) }
+
+      it 'is invalid' do
+        expect(representative_user).not_to be_valid
+        expect(representative_user.errors[:user_account_uuid]).to include(expected_error_message)
+      end
+    end
   end
 
   describe 'alias attributes' do
@@ -89,6 +98,15 @@ RSpec.describe AccreditedRepresentativePortal::RepresentativeUser, type: :model 
 
     it 'returns a unique identifier of email' do
       expect(representative_user.flipper_id).to eq(representative_user.email)
+    end
+  end
+
+  describe '#user_account' do
+    let(:user_account) { create(:user_account) }
+    let(:representative_user) { build(:representative_user, user_account_uuid: user_account.id) }
+
+    it 'returns expected user_account' do
+      expect(representative_user.user_account).to eq(user_account)
     end
   end
 end

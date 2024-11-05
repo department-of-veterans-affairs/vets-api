@@ -1,12 +1,15 @@
 # frozen_string_literal: true
 
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/filler'
 require 'logging/third_party_transaction'
+require 'zero_silent_failures/monitor'
 
 module EVSS
   module DisabilityCompensationForm
     class SubmitForm0781 < Job
+      ZSF_DD_TAG_FUNCTION = '526_form_0781_failure_email_queuing'
+
       extend Logging::ThirdPartyTransaction::MethodWrapper
 
       attr_reader :submission_id, :evss_claim_id, :uuid
@@ -47,6 +50,9 @@ module EVSS
         error_message = msg['error_message']
         timestamp = Time.now.utc
         form526_submission_id = msg['args'].first
+        log_info = { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
+
+        ::Rails.logger.warn('Submit Form 0781 Retries exhausted', log_info)
 
         form_job_status = Form526JobStatus.find_by(job_id:)
         bgjob_errors = form_job_status.bgjob_errors || {}
@@ -66,11 +72,21 @@ module EVSS
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
-        ::Rails.logger.warn(
-          'Submit Form 0781 Retries exhausted',
-          { job_id:, error_class:, error_message:, timestamp:, form526_submission_id: }
-        )
+        if Flipper.enabled?(:form526_send_0781_failure_notification)
+          EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail.perform_async(form526_submission_id)
+        end
       rescue => e
+        cl = caller_locations.first
+        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
+        user_account_id = begin
+          Form526Submission.find(form526_submission_id).user_account_id
+        rescue
+          nil
+        end
+
+        zsf_monitor.log_silent_failure(log_info, user_account_id, call_location:)
+
         ::Rails.logger.error(
           'Failure in SubmitForm0781#sidekiq_retries_exhausted',
           {
@@ -84,6 +100,21 @@ module EVSS
           }
         )
         raise e
+      end
+
+      def self.api_upload_provider(submission, form_id)
+        user = User.find(submission.user_uuid)
+
+        ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
+          options: {
+            form526_submission: submission,
+            document_type: FORMS_METADATA[form_id][:docType],
+            statsd_metric_prefix: STATSD_KEY_PREFIX
+          },
+          current_user: user,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781
+        )
       end
 
       # This method generates the PDF documents but does NOT send them anywhere.
@@ -154,16 +185,16 @@ module EVSS
       end
 
       # Invokes Filler ancillary form method to generate PDF document
-      # Then calls method CentralMail::DatestampPdf to stamp the document.
+      # Then calls method PDFUtilities::DatestampPdf to stamp the document.
       # Its called twice, once to stamp with text "VA.gov YYYY-MM-DD" at the bottom of each page
       # and second time to stamp with text "VA.gov Submission" at the top of each page
       def generate_stamp_pdf(form_content, evss_claim_id, form_id)
         submission_date = @submission&.created_at&.in_time_zone('Central Time (US & Canada)')
         form_content = form_content.merge({ 'signatureDate' => submission_date })
         pdf_path = PdfFill::Filler.fill_ancillary_form(form_content, evss_claim_id, form_id)
-        stamped_path = CentralMail::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5,
-                                                                   timestamp: submission_date)
-        CentralMail::DatestampPdf.new(stamped_path).run(
+        stamped_path = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.gov', x: 5, y: 5,
+                                                                    timestamp: submission_date)
+        PDFUtilities::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,
@@ -196,22 +227,20 @@ module EVSS
 
         # thin wrapper to isolate upload for logging
         file_body = File.open(pdf_path).read
-        perform_client_upload(file_body, document_data)
+        perform_client_upload(file_body, document_data, form_id)
       ensure
         # Delete the temporary PDF file
         File.delete(pdf_path) if pdf_path.present?
       end
 
-      def perform_client_upload(file_body, document_data)
-        client.upload(file_body, document_data)
-      end
-
-      def client
-        @client ||= if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-                      # TODO: create client from lighthouse document service
-                    else
-                      EVSS::DocumentsService.new(submission.auth_headers)
-                    end
+      def perform_client_upload(file_body, document_data, form_id)
+        if Flipper.enabled?(:disability_compensation_use_api_provider_for_0781_uploads)
+          provider = self.class.api_upload_provider(submission, form_id)
+          upload_document = provider.generate_upload_document(document_data.file_name)
+          provider.submit_upload_document(upload_document, file_body)
+        else
+          EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
+        end
       end
     end
   end

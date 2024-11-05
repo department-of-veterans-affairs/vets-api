@@ -14,7 +14,7 @@ RSpec.describe DebtManagementCenter::DebtsService do
   let(:cached_total_metric) { 'api.dmc.init_cached_debts.total' }
   let(:non_cached_total_metric) { 'api.dmc.init_debts.total' }
 
-  describe '#get_letters' do
+  describe '#get_debts' do
     context 'with Flipper debts_cache_dmc_empty_response disabled' do
       it_behaves_like 'Flipper debts_cache_dmc_empty_response behavior', false
     end

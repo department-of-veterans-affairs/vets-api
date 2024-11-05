@@ -31,7 +31,6 @@ module VAProfileRedis
       contact_info      = new
       contact_info.user = user
       contact_info.populate_from_redis
-
       contact_info
     end
 
@@ -187,7 +186,7 @@ module VAProfileRedis
     end
 
     def contact_info_service
-      @service ||= VAProfile::ContactInformation::Service.new(@user)
+      @service ||= VAProfile::ContactInformation::Service.new @user
     end
   end
 end

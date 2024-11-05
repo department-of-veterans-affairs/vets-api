@@ -125,7 +125,7 @@ class GIBillFeedback < Common::RedisStore
   def transform_keys_into_array(hash)
     return [] if hash.blank?
 
-    hash.keep_if { |_, v| v.present? }.keys
+    hash.compact_blank!.keys
   end
 
   def create_submission_job

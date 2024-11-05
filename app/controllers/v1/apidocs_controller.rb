@@ -83,6 +83,7 @@ module V1
       Swagger::V1::Schemas::Appeals::HigherLevelReview,
       Swagger::V1::Schemas::Appeals::NoticeOfDisagreement,
       Swagger::V1::Schemas::Appeals::SupplementalClaims,
+      Swagger::V1::Schemas::Appeals::DecisionReviewEvidence,
       Swagger::V1::Requests::Post911GIBillStatuses,
       Swagger::V1::Requests::IvcChampvaForms,
       self

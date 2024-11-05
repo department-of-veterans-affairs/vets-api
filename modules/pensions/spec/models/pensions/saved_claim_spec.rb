@@ -51,7 +51,7 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
 
     describe '#process_attachments!' do
       it 'sets the attachments saved_claim_id' do
-        expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
+        expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async).with(claim.id)
         claim.process_attachments!
         expect(claim.persistent_attachments.size).to eq(2)
       end
@@ -63,27 +63,17 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
         expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
       end
     end
-
-    it '#send_confirmation_email' do
-      allow(VANotify::EmailJob).to receive(:perform_async)
-
-      instance.send_confirmation_email
-
-      expect(VANotify::EmailJob).to have_received(:perform_async).with(
-        'foo@foo.com',
-        'form527ez_confirmation_email_template_id',
-        {
-          'first_name' => 'TEST',
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => instance.guid
-        }
-      )
-    end
   end
 
   describe '#email' do
     it 'returns the users email' do
       expect(instance.email).to eq('foo@foo.com')
+    end
+  end
+
+  describe '#first_name' do
+    it 'returns the users first name' do
+      expect(instance.first_name).to eq('Test')
     end
   end
 end

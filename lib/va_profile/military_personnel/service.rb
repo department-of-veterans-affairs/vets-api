@@ -8,6 +8,9 @@ require 'va_profile/models/service_history'
 require_relative 'configuration'
 require_relative 'service_history_response'
 
+##
+# @see https://qa.vaprofile.va.gov:7005/profile-service/swagger-ui/index.html?urls.primaryName=ProfileServiceV3
+# Swagger docs can only be accessed over VA network
 module VAProfile
   module MilitaryPersonnel
     class Service < VAProfile::Service

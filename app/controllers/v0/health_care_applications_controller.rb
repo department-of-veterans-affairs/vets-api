@@ -72,10 +72,32 @@ module V0
     end
 
     def facilities
-      render(json: lighthouse_facilities_service.get_facilities(lighthouse_facilities_params))
+      lighthouse_facilities = lighthouse_facilities_service.get_facilities(lighthouse_facilities_params)
+
+      render(json: active_facilities(lighthouse_facilities))
     end
 
     private
+
+    def active_facilities(lighthouse_facilities)
+      active_ids = active_ves_facility_ids
+      lighthouse_facilities.select { |facility| active_ids.include?(facility.unique_id) }
+    end
+
+    def active_ves_facility_ids
+      ids = cached_ves_facility_ids
+
+      return ids if ids.any?
+      return ids if Flipper.enabled?(:hca_retrieve_facilities_without_repopulating)
+
+      HCA::StdInstitutionImportJob.new.perform
+
+      cached_ves_facility_ids
+    end
+
+    def cached_ves_facility_ids
+      StdInstitutionFacility.active.pluck(:station_number).compact
+    end
 
     def health_care_application
       @health_care_application ||= HealthCareApplication.new(params.permit(:form))
@@ -86,7 +108,7 @@ module V0
     end
 
     def lighthouse_facilities_params
-      params.permit(
+      params.except(:format).permit(
         :zip,
         :state,
         :lat,

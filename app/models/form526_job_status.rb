@@ -5,14 +5,16 @@ class Form526JobStatus < ApplicationRecord
 
   alias submission form526_submission
 
+  FAILURE_STATUSES = {
+    non_retryable_error: 'non_retryable_error',
+    exhausted: 'exhausted'
+  }.freeze
   STATUS = {
     try: 'try',
     success: 'success',
     retryable_error: 'retryable_error',
-    non_retryable_error: 'non_retryable_error',
-    exhausted: 'exhausted',
     pdf_not_found: 'pdf_not_found'
-  }.freeze
+  }.merge(FAILURE_STATUSES).freeze
 
   store_accessor :bgjob_errors
 

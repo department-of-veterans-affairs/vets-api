@@ -6,7 +6,6 @@ require 'medical_records/phr_mgr/client'
 
 module MyHealth
   class MrController < ApplicationController
-    include ActionController::Serialization
     include MyHealth::MHVControllerConcerns
     service_tag 'mhv-medical-records'
 
@@ -29,7 +28,8 @@ module MyHealth
     end
 
     def bb_client
-      @bb_client ||= BBInternal::Client.new(session: { user_id: current_user.mhv_correlation_id })
+      @bb_client ||= BBInternal::Client.new(session: { user_id: current_user.mhv_correlation_id,
+                                                       icn: current_user.icn })
     end
 
     def authenticate_bb_client

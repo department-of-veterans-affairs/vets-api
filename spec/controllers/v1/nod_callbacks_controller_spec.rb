@@ -3,11 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe V1::NodCallbacksController, type: :controller do
+  let(:notification_id) { SecureRandom.uuid }
+  let(:reference) { "NOD-form-#{SecureRandom.uuid}" }
   let(:status) { 'delivered' }
   let(:params) do
     {
-      id: '6ba01111-f3ee-4a40-9d04-234asdfb6abab9c',
-      reference: nil,
+      id: notification_id,
+      reference:,
       to: 'test@test.com',
       status:,
       created_at: '2023-01-10T00:04:25.273410Z',
@@ -16,56 +18,107 @@ RSpec.describe V1::NodCallbacksController, type: :controller do
       notification_type: 'email',
       status_reason: '',
       provider: 'sendgrid'
-    }
+    }.stringify_keys!
   end
 
   describe '#create' do
     before do
       request.headers['Authorization'] = "Bearer #{Settings.nod_vanotify_status_callback.bearer_token}"
       Flipper.enable(:nod_callbacks_endpoint)
-      allow(NodNotification).to receive(:create!)
+
+      allow(DecisionReviewNotificationAuditLog).to receive(:create!)
     end
 
-    context 'with payload' do
-      context 'if status is delivered' do
-        it 'returns success and does not save a record of the payload' do
-          post(:create, params:, as: :json)
+    context 'the record saved without an issue' do
+      it 'returns success' do
+        expect(DecisionReviewNotificationAuditLog).to receive(:create!)
+          .with(notification_id:, reference:, status:, payload: params)
 
-          expect(NodNotification).not_to receive(:create!)
+        post(:create, params:, as: :json)
 
-          expect(response).to have_http_status(:ok)
+        expect(response).to have_http_status(:ok)
 
-          res = JSON.parse(response.body)
-          expect(res['message']).to eq 'success'
-        end
+        res = JSON.parse(response.body)
+        expect(res['message']).to eq 'success'
+      end
+    end
+
+    context 'the record failed to save' do
+      before do
+        expect(DecisionReviewNotificationAuditLog).to receive(:create!).and_raise(ActiveRecord::RecordInvalid)
       end
 
-      context 'if status is a failure that will not retry' do
-        let(:status) { 'permanent-failure' }
+      it 'returns failed' do
+        post(:create, params:, as: :json)
 
-        it 'returns success' do
+        expect(response).to have_http_status(:ok)
+
+        res = JSON.parse(response.body)
+        expect(res['message']).to eq 'failed'
+      end
+    end
+
+    context 'the reference value is formatted correctly' do
+      let(:tags) { ['service:board-appeal', 'function: form submission to Lighthouse'] }
+
+      before do
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'sends a silent_failure_avoided statsd metric' do
+        expect(StatsD).to receive(:increment).with('silent_failure_avoided', tags:)
+        expect(Rails.logger).not_to receive(:error)
+
+        post(:create, params:, as: :json)
+      end
+
+      context 'when the reference is for a secondary form' do
+        let(:reference) { "SC-secondary_form-#{SecureRandom.uuid}" }
+        let(:tags) { ['service:supplemental-claims', 'function: secondary_form submission to Lighthouse'] }
+
+        it 'sends a silent_failure_avoided statsd metric' do
+          expect(StatsD).to receive(:increment).with('silent_failure_avoided', tags:)
+          expect(Rails.logger).not_to receive(:error)
+
           post(:create, params:, as: :json)
-
-          expect(response).to have_http_status(:ok)
-
-          res = JSON.parse(response.body)
-          expect(res['message']).to eq 'success'
         end
+      end
+    end
 
-        context 'and the record failed to save' do
-          before do
-            allow(NodNotification).to receive(:create!).and_raise(ActiveRecord::RecordInvalid)
-          end
+    context 'the reference appeal_type is invalid' do
+      let(:reference) { 'APPEALTYPE-form-submitted-appeal-uuid' }
+      let(:logged_params) { { reference:, message: 'key not found: "APPEALTYPE"' } }
 
-          it 'returns failed' do
-            post(:create, params:, as: :json)
+      before do
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:error)
+      end
 
-            expect(response).to have_http_status(:ok)
+      it 'logs an error and does not send a silent_failure_avoided statsd metric' do
+        expect(StatsD).not_to receive(:increment).with('silent_failure_avoided', tags: anything)
+        expect(Rails.logger).to receive(:error).with('Failed to send silent_failure_avoided metric',
+                                                     params: logged_params)
 
-            res = JSON.parse(response.body)
-            expect(res['message']).to eq 'failed'
-          end
-        end
+        post(:create, params:, as: :json)
+      end
+    end
+
+    context 'the reference function_type is invalid' do
+      let(:reference) { 'HLR-function_type-submitted-appeal-uuid' }
+      let(:logged_params) { { reference:, message: 'Invalid function_type' } }
+
+      before do
+        allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:error)
+      end
+
+      it 'logs an error and does not send a silent_failure_avoided statsd metric' do
+        expect(StatsD).not_to receive(:increment).with('silent_failure_avoided', tags: anything)
+        expect(Rails.logger).to receive(:error).with('Failed to send silent_failure_avoided metric',
+                                                     params: logged_params)
+
+        post(:create, params:, as: :json)
       end
     end
   end
@@ -75,6 +128,7 @@ RSpec.describe V1::NodCallbacksController, type: :controller do
       it 'returns 401' do
         request.headers['Authorization'] = nil
         post(:create, params:, as: :json)
+
         expect(response).to have_http_status(:unauthorized)
       end
     end
@@ -83,8 +137,22 @@ RSpec.describe V1::NodCallbacksController, type: :controller do
       it 'returns 401' do
         request.headers['Authorization'] = 'Bearer foo'
         post(:create, params:, as: :json)
+
         expect(response).to have_http_status(:unauthorized)
       end
+    end
+  end
+
+  describe 'feature flag is disabled' do
+    before do
+      Flipper.disable :nod_callbacks_endpoint
+    end
+
+    it 'returns a 404 error code' do
+      request.headers['Authorization'] = "Bearer #{Settings.nod_vanotify_status_callback.bearer_token}"
+      post(:create, params:, as: :json)
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

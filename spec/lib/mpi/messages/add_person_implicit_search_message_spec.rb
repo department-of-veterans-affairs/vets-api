@@ -42,23 +42,9 @@ describe MPI::Messages::AddPersonImplicitSearchMessage do
       end
     end
 
-    context 'when first name is not defined' do
-      let(:first_name) { nil }
-      let(:missing_keys) { [:first_name] }
-
-      it_behaves_like 'missing values response'
-    end
-
     context 'when last name is not defined' do
       let(:last_name) { nil }
       let(:missing_keys) { [:last_name] }
-
-      it_behaves_like 'missing values response'
-    end
-
-    context 'when ssn is not defined' do
-      let(:ssn) { nil }
-      let(:missing_keys) { [:ssn] }
 
       it_behaves_like 'missing values response'
     end

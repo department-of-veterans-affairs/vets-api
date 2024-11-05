@@ -46,9 +46,10 @@ module MAP
 
       def parse_and_raise_error(e, icn, application)
         status = e.status
+        error_source = status >= 500 ? 'server' : 'client'
         parse_body = e.body.presence || {}
         context = { error: parse_body['error'] }
-        message = "#{config.logging_prefix} token failed, client error"
+        message = "#{config.logging_prefix} token failed, #{error_source} error"
 
         Rails.logger.error(message, status:, application:, icn:, context:)
         raise e, "#{message}, status: #{status}, application: #{application}, icn: #{icn}, context: #{context}"

@@ -20,6 +20,7 @@ module Login
       Login::UserAcceptableVerifiedCredentialUpdater.new(user_account: @current_user.user_account).perform
       update_account_login_stats(login_type)
       id_mismatch_validations
+      create_mhv_account
 
       if Settings.test_user_dashboard.env == 'staging'
         TestUserDashboard::UpdateUser.new(current_user).call(Time.current)
@@ -52,6 +53,13 @@ module Login
         error_data.merge!(identity_value:, mpi_value:) unless error_message.include?('SSN')
         Rails.logger.warn("[SessionsController version:v1] #{error_message}", error_data)
       end
+    end
+
+    def create_mhv_account
+      return unless current_user.loa3?
+      return unless Flipper.enabled?(:mhv_account_creation_after_login, current_user.user_account)
+
+      MHV::AccountCreatorJob.perform_async(current_user.user_verification_id)
     end
   end
 end

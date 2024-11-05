@@ -65,16 +65,16 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
 
       expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
       expect(claim).to receive(:to_pdf).and_return('path1')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
       expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
         y: 770,
         text_only: true
       ).and_return('path3')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
       expect(datestamp_double3).to receive(:run).with(
         text: 'Application Submitted on va.gov',
         x: 400,
@@ -97,11 +97,11 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
 
       expect(FormSubmission).to receive(:create).with(
         form_type: '686C-674',
-        benefits_intake_uuid: 'uuid',
         saved_claim: claim,
         user_account: nil
       ).and_return(FormSubmission.new)
-      expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission))
+      expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission),
+                                                             benefits_intake_uuid: 'uuid')
     end
 
     context 'with an response error' do
@@ -154,16 +154,16 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
       datestamp_double2 = double
       datestamp_double3 = double
 
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
       expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
         y: 770,
         text_only: true
       ).and_return('path3')
-      expect(CentralMail::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
+      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path3').and_return(datestamp_double3)
       expect(datestamp_double3).to receive(:run).with(
         text: 'Application Submitted on va.gov',
         x: 400,

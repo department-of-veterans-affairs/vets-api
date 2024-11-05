@@ -797,6 +797,68 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  "/relationships":
+    parameters:
+      - in: query
+        required: false
+        name: clinical_service_id
+        description: The clinical service (type of care) ID to filter results by. The currently supported/available VAOS clinical service IDs can be discovered from Mobile Facility Service v2.
+        schema:
+          type: string
+      - in: query
+        required: false
+        name: facility_id
+        description: The VHA facility ID to filter results by
+        schema:
+          type: string
+    get:
+      tags:
+        - relationships
+      summary: Search patient relationships
+      operationId: getRelationships
+      security:
+        - bearerAuth: [ ]
+      responses:
+        "200":
+          description: Retrieves all matching relationships for the patient
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      required:
+                        - type
+                        - attributes
+                      properties:
+                        type:
+                          type: string
+                          example: relationships
+                        attributes:
+                          $ref: "#/components/schemas/PatientProviderRelationship"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
 components:
   securitySchemes:
     bearerAuth:
@@ -1209,7 +1271,6 @@ components:
     PatientEligibilityResponse:
       type: object
       required:
-        - id
         - type
         - attributes
       properties:
@@ -1245,6 +1306,29 @@ components:
               items:
                 $ref: '#/components/schemas/CodeableConcept'
       description: The response for a patient scheduing eligibility request.
+    PatientProviderRelationship:
+      type: object
+      required:
+        - type
+        - attributes
+      properties:
+        type:
+          type: string
+        attributes:
+          type: object
+          properties:
+            provider:
+              $ref: "#/components/schemas/PractitionerReference"
+            location:
+              $ref: "#/components/schemas/LocationReference"
+            clinic:
+              $ref: "#/components/schemas/ClinicReference"
+            serviceType:
+              $ref: "#/components/schemas/CodeableConcept"
+            lastSeen:
+              type: string
+              description: The date-time (in UTC) when the patient was last seen.
+              format: date-time
     PreferredLocation:
       type: object
       properties:
@@ -1295,6 +1379,19 @@ components:
             clinicIen:
               type: string
               example: "32216049"
+    ClinicReference:
+      type: object
+      properties:
+        vistaSite:
+          type: string
+          example: 534
+        ien:
+          type: string
+          example: 6569
+        name:
+          type: string
+          description: The clinic name. The clinic patient friendly name will be used if one is set.
+          example: Zanesville Primary Care
     ContactPoint:
       type: object
       properties:
@@ -1393,6 +1490,16 @@ components:
           pattern: '([01][0-9]|2[0-3]):[0-5][0-9]:([0-5][0-9]|60)(\.[0-9]+)?'
       description: |
         Standard hours of operation. Currently formatted as descriptive text suitable for display, with no guarantee of a standard parsable format. Hours of operation may vary due to holidays or other events.
+    LocationReference:
+      type: object
+      properties:
+        vhaFacilityId:
+          type: string
+          description: The VHA Facility ID.
+        name:
+          type: string
+          description: The name of the location.
+          example: Marion VA Clinic
     OperatingStatus:
       type: object
       description: 'Current status of facility operations.The overall status of the facility which can be Normal Hours and Services, Facility Notice, Limited Hours and/or Services, or Closed. This field replaces active_status.'
@@ -1448,6 +1555,17 @@ components:
           type: array
           items:
             "$ref": "#/components/schemas/Identifier"
+    PractitionerReference:
+      type: object
+      properties:
+        cernerId:
+          type: string
+          description: The logical ID of the Cerner Practitioner.
+          example: Practitioner/123456
+        name:
+          type: string
+          description: The name of the practitioner.
+          example: Doe, John D, MD
     PhoneNumbers:
       type: object
       properties:

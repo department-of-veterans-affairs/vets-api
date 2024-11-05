@@ -33,6 +33,7 @@ module SignIn
       create_user_acceptable_verified_credential
       create_terms_code_container if needs_accepted_terms_of_use?
       create_code_container
+
       user_code_map
     end
 

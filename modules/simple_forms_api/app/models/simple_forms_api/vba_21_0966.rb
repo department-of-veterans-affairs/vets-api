@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA210966
-    include Virtus.model(nullify_blank: true)
+  class VBA210966 < BaseForm
     STATS_KEY = 'api.simple_forms_api.21_0966'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def populate_veteran_data(user)
       @data['veteran_full_name'] ||= {
@@ -85,7 +78,7 @@ module SimpleFormsApi
       [{ coords: [50, 415], text: data['statement_of_truth_signature'], page: 1 }]
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(timestamp = Time.current)
       [
         {
           coords: [460, 710],
@@ -95,7 +88,7 @@ module SimpleFormsApi
         },
         {
           coords: [460, 690],
-          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: 0,
           font_size: 12
         }

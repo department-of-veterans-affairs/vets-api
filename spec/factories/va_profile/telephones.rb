@@ -41,5 +41,9 @@ FactoryBot.define do
       is_textable { false }
       is_text_permitted { false }
     end
+
+    trait :contact_info_v2 do
+      source_date { '2024-08-27T18:51:06.012Z' }
+    end
   end
 end

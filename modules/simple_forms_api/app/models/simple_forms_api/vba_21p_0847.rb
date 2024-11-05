@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA21p0847
-    include Virtus.model(nullify_blank: true)
+  class VBA21p0847 < BaseForm
     STATS_KEY = 'api.simple_forms_api.21p_0847'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def words_to_remove
       veteran_ssn + veteran_date_of_birth + deceased_claimant_date_of_death + preparer_ssn + preparer_address
@@ -35,7 +28,7 @@ module SimpleFormsApi
       [{ coords: [50, 190], text: data['statement_of_truth_signature'], page: 1 }]
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(timestamp = Time.current)
       [
         {
           coords: [460, 710],
@@ -45,7 +38,7 @@ module SimpleFormsApi
         },
         {
           coords: [460, 690],
-          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: 1,
           font_size: 12
         }

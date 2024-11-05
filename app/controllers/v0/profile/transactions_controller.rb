@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_profile/contact_information/service'
+require 'va_profile/v2/contact_information/service'
 
 module V0
   module Profile
@@ -9,7 +10,7 @@ module V0
       include Vet360::Writeable
       service_tag 'profile'
 
-      before_action { authorize :vet360, :access? }
+      before_action { authorize :va_profile, :access_to_v2? }
       after_action :invalidate_cache
 
       def status
@@ -28,7 +29,11 @@ module V0
       end
 
       def service
-        VAProfile::ContactInformation::Service.new(@current_user)
+        if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+          VAProfile::V2::ContactInformation::Service.new @current_user
+        else
+          VAProfile::ContactInformation::Service.new @current_user
+        end
       end
     end
   end

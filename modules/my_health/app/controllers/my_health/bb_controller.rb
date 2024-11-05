@@ -4,7 +4,6 @@ require 'bb/client'
 
 module MyHealth
   class BBController < ApplicationController
-    include ActionController::Serialization
     include MyHealth::MHVControllerConcerns
     service_tag 'mhv-medical-records'
 

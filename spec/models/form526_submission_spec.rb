@@ -27,6 +27,10 @@ RSpec.describe Form526Submission do
   let(:submit_endpoint) { nil }
   let(:backup_submitted_claim_status) { nil }
 
+  before do
+    Flipper.disable(:disability_compensation_production_tester)
+  end
+
   describe 'associations' do
     it { is_expected.to have_many(:form526_submission_remediations) }
   end
@@ -109,17 +113,55 @@ RSpec.describe Form526Submission do
     let!(:in_process) { create(:form526_submission) }
     let!(:expired) { create(:form526_submission, :created_more_than_3_weeks_ago) }
     let!(:happy_path_success) { create(:form526_submission, :with_submitted_claim_id) }
+    let!(:happy_lighthouse_path_success) do
+      create(:form526_submission, :with_submitted_claim_id, submit_endpoint: 'claims_api')
+    end
     let!(:pending_backup) { create(:form526_submission, :backup_path) }
     let!(:accepted_backup) { create(:form526_submission, :backup_path, :backup_accepted) }
     let!(:rejected_backup) { create(:form526_submission, :backup_path, :backup_rejected) }
     let!(:remediated) { create(:form526_submission, :remediated) }
     let!(:remediated_and_expired) { create(:form526_submission, :remediated, :created_more_than_3_weeks_ago) }
     let!(:remediated_and_rejected) { create(:form526_submission, :remediated, :backup_path, :backup_rejected) }
-    let!(:no_longer_remediated) { create(:form526_submission, :no_longer_remediated) }
+    let!(:new_no_longer_remediated) { create(:form526_submission, :no_longer_remediated) }
+    let!(:old_no_longer_remediated) do
+      Timecop.freeze(3.months.ago) do
+        create(:form526_submission, :no_longer_remediated)
+      end
+    end
     let!(:paranoid_success) { create(:form526_submission, :backup_path, :paranoid_success) }
     let!(:success_by_age) do
       Timecop.freeze((1.year + 1.day).ago) do
         create(:form526_submission, :backup_path, :paranoid_success)
+      end
+    end
+    let!(:failed_primary) { create(:form526_submission, :with_failed_primary_job) }
+    let!(:exhausted_primary) { create(:form526_submission, :with_exhausted_primary_job) }
+    let!(:failed_backup) { create(:form526_submission, :with_failed_backup_job) }
+    let!(:exhausted_backup) { create(:form526_submission, :with_exhausted_backup_job) }
+
+    before do
+      happy_lighthouse_path_success.form526_job_statuses << Form526JobStatus.new(
+        job_class: 'PollForm526Pdf',
+        status: Form526JobStatus::STATUS[:success],
+        job_id: 1
+      )
+    end
+
+    describe 'with_exhausted_primary_jobs' do
+      it 'returns submissions associated to failed or exhausted primary jobs' do
+        expect(Form526Submission.with_exhausted_primary_jobs).to contain_exactly(
+          failed_primary,
+          exhausted_primary
+        )
+      end
+    end
+
+    describe 'with_exhausted_backup_jobs' do
+      it 'returns submissions associated to failed or exhausted backup jobs' do
+        expect(Form526Submission.with_exhausted_backup_jobs).to contain_exactly(
+          failed_backup,
+          exhausted_backup
+        )
       end
     end
 
@@ -131,17 +173,17 @@ RSpec.describe Form526Submission do
       end
     end
 
-    describe 'success_by_age_type' do
+    describe 'success_by_age' do
       it 'returns records more than a year old with paranoid_success backup status' do
-        expect(Form526Submission.success_by_age_type).to contain_exactly(
+        expect(Form526Submission.success_by_age).to contain_exactly(
           success_by_age
         )
       end
     end
 
-    describe 'pending_backup_submissions' do
+    describe 'pending_backup' do
       it 'returns records submitted to the backup path but lacking a decisive state' do
-        expect(Form526Submission.pending_backup_submissions).to contain_exactly(
+        expect(Form526Submission.pending_backup).to contain_exactly(
           pending_backup
         )
       end
@@ -151,23 +193,76 @@ RSpec.describe Form526Submission do
       it 'only returns submissions that are still in process' do
         expect(Form526Submission.in_process).to contain_exactly(
           in_process,
-          pending_backup
+          new_no_longer_remediated,
+          exhausted_primary,
+          failed_primary
+        )
+      end
+    end
+
+    describe 'incomplete_type' do
+      it 'only returns submissions that are still in process' do
+        expect(Form526Submission.incomplete_type).to contain_exactly(
+          in_process,
+          pending_backup,
+          new_no_longer_remediated,
+          exhausted_primary,
+          failed_primary
         )
       end
     end
 
     describe 'accepted_to_primary_path' do
       it 'returns submissions with a submitted_claim_id' do
+        expect(Form526Submission.accepted_to_evss_primary_path).to contain_exactly(
+          happy_path_success
+        )
+      end
+
+      it 'returns Lighthouse submissions with a found PDF with a submitted_claim_id' do
+        expect(Form526Submission.accepted_to_lighthouse_primary_path).to contain_exactly(happy_lighthouse_path_success)
+      end
+
+      it 'returns both an EVSS submission and a Lighthouse submission with a found PDF and a submitted_claim_id' do
+        expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
+          happy_path_success, happy_lighthouse_path_success
+        )
+      end
+
+      it 'does not return the LH submission when the PDF is not found' do
+        happy_lighthouse_path_success.form526_job_statuses.last.update(status: Form526JobStatus::STATUS[:pdf_not_found])
+
+        expect(Form526Submission.accepted_to_lighthouse_primary_path).to be_empty
+      end
+
+      it 'returns the EVSS submission when the Lighthouse submission is not found' do
+        happy_lighthouse_path_success.update(submitted_claim_id: nil)
         expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
           happy_path_success
         )
+      end
+
+      it 'returns the Lighthouse submission when the EVSS submission has no submitted claim id' do
+        happy_path_success.update(submitted_claim_id: nil)
+        expect(Form526Submission.accepted_to_primary_path).to contain_exactly(
+          happy_lighthouse_path_success
+        )
+      end
+
+      it 'returns neither submission when neither EVSS nor Lighthouse submissions have submitted claim ids' do
+        happy_path_success.update(submitted_claim_id: nil)
+        happy_lighthouse_path_success.update(submitted_claim_id: nil)
+
+        expect(Form526Submission.accepted_to_primary_path).to be_empty
       end
     end
 
     describe 'accepted_to_backup_path' do
       it 'returns submissions with a backup_submitted_claim_id that have been explicitly accepted' do
         expect(Form526Submission.accepted_to_backup_path).to contain_exactly(
-          accepted_backup
+          accepted_backup,
+          paranoid_success,
+          success_by_age
         )
       end
     end
@@ -198,6 +293,7 @@ RSpec.describe Form526Submission do
           remediated_and_expired,
           remediated_and_rejected,
           happy_path_success,
+          happy_lighthouse_path_success,
           accepted_backup,
           paranoid_success,
           success_by_age
@@ -209,8 +305,21 @@ RSpec.describe Form526Submission do
       it 'returns anything not explicitly successful or still in process' do
         expect(Form526Submission.failure_type).to contain_exactly(
           rejected_backup,
-          no_longer_remediated,
-          expired
+          expired,
+          old_no_longer_remediated,
+          failed_backup,
+          exhausted_backup
+        )
+      end
+
+      it 'handles the edge case where a submission succeeds during query building' do
+        expired.update!(submitted_claim_id: 'abc123')
+
+        expect(Form526Submission.failure_type).to contain_exactly(
+          rejected_backup,
+          old_no_longer_remediated,
+          failed_backup,
+          exhausted_backup
         )
       end
     end
@@ -252,15 +361,29 @@ RSpec.describe Form526Submission do
       before do
         allow(StatsD).to receive(:increment)
         allow(Rails.logger).to receive(:info)
-        Flipper.disable(:disability_526_maximum_rating)
       end
 
-      def expect_max_cfi_logged(max_cfi_enabled, disability_claimed, diagnostic_code, total_increase_conditions)
+      def expect_submit_log(num_max_rated, num_max_rated_cfi, total_cfi)
         expect(Rails.logger).to have_received(:info).with(
           'Max CFI form526 submission',
-          { id: subject.id, max_cfi_enabled:, disability_claimed:, diagnostic_code:, total_increase_conditions:,
+          { id: subject.id,
+            num_max_rated:,
+            num_max_rated_cfi:,
+            total_cfi:,
             cfi_checkbox_was_selected: false }
         )
+      end
+
+      def expect_max_cfi_logged(disability_claimed, diagnostic_code)
+        expect(StatsD).to have_received(:increment).with('api.max_cfi.submit',
+                                                         tags: ["diagnostic_code:#{diagnostic_code}",
+                                                                "claimed:#{disability_claimed}"])
+      end
+
+      def expect_no_max_cfi_logged(diagnostic_code)
+        expect(StatsD).not_to have_received(:increment).with('api.max_cfi.submit',
+                                                             tags: ["diagnostic_code:#{diagnostic_code}",
+                                                                    anything])
       end
 
       context 'the submission is for tinnitus' do
@@ -277,45 +400,24 @@ RSpec.describe Form526Submission do
         end
         let(:rating_percentage) { 0 }
 
-        context 'Max rating education enabled' do
-          before { Flipper.enable(:disability_526_maximum_rating, user) }
+        context 'Rated Tinnitus is at maximum' do
+          let(:rating_percentage) { 10 }
 
-          context 'Rated Tinnitus is at maximum' do
-            let(:rating_percentage) { 10 }
-
-            it 'logs CFI metric upon submission' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
-              expect_max_cfi_logged('on', true, 6260, 1)
-            end
-          end
-
-          context 'Rated Tinnitus is not at maximum' do
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
-            end
+          it 'logs CFI metric upon submission' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 6260)
+            expect_submit_log(1, 1, 1)
           end
         end
 
-        context 'Max rating education disabled' do
-          before { Flipper.disable(:disability_526_maximum_rating, user) }
-
-          context 'Rated Tinnitus is at maximum' do
-            let(:rating_percentage) { 10 }
-
-            it 'logs CFI metric upon submission' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
-              expect_max_cfi_logged('off', true, 6260, 1)
-            end
-          end
-
-          context 'Rated Tinnitus is not at maximum' do
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
-            end
+        context 'Rated Tinnitus is not at maximum' do
+          it 'logs CFI metric upon submission' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:false', 'has_max_rated:false'])
+            expect_no_max_cfi_logged(6260)
           end
         end
       end
@@ -332,26 +434,74 @@ RSpec.describe Form526Submission do
           ]
         end
 
-        context 'Max rating education enabled' do
-          before { Flipper.enable(:disability_526_maximum_rating, user) }
+        it 'logs CFI metric upon submission' do
+          subject.start
+          expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                           tags: ['claimed:false', 'has_max_rated:false'])
+          expect_no_max_cfi_logged(7101)
+          expect_submit_log(0, 0, 1)
+        end
+      end
 
-          it 'does not log CFI metric upon submission' do
+      context 'the submission for single cfi for a Veteran with multiple rated conditions' do
+        let(:form_json) do
+          File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
+        end
+        let(:rated_disabilities) do
+          [
+            { name: 'Tinnitus',
+              diagnostic_code: ClaimFastTracking::DiagnosticCodes::TINNITUS,
+              rating_percentage: rating_percentage_tinnitus,
+              maximum_rating_percentage: 10 },
+            { name: 'Hypertension',
+              diagnostic_code: ClaimFastTracking::DiagnosticCodes::HYPERTENSION,
+              rating_percentage: rating_percentage_hypertension,
+              maximum_rating_percentage: 60 }
+          ]
+        end
+        let(:rating_percentage_tinnitus) { 0 }
+        let(:rating_percentage_hypertension) { 0 }
+
+        context 'Rated Disabilities are not at maximum' do
+          it 'logs CFI metric upon submission for only hypertension' do
             subject.start
-            expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:false', 'has_max_rated:false'])
+            expect_no_max_cfi_logged(6260)
+            expect_no_max_cfi_logged(7101)
+            expect_submit_log(0, 0, 1)
           end
         end
 
-        context 'Max rating education disabled' do
-          before { Flipper.disable(:disability_526_maximum_rating, user) }
+        context 'Rated Disabilities of cfi is at maximum' do
+          let(:rating_percentage_hypertension) { 60 }
 
-          it 'does not log CFI metric upon submission' do
+          it 'logs CFI metric upon submission for only hypertension' do
             subject.start
-            expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 7101)
+            expect_submit_log(1, 1, 1)
+            expect_no_max_cfi_logged(6260)
+          end
+        end
+
+        context 'All Rated Disabilities at maximum' do
+          let(:rating_percentage_tinnitus) { 10 }
+          let(:rating_percentage_hypertension) { 60 }
+
+          it 'logs CFI metric upon submission for only hypertension' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 7101)
+            expect_max_cfi_logged(false, 6260)
+            expect_submit_log(2, 1, 1)
           end
         end
       end
 
-      context 'the submission is from a Veteran with rated tinnitus and hypertension' do
+      context 'the submission for multiple cfi for a Veteran with multiple rated conditions' do
         let(:form_json) do
           File.read('spec/support/disability_compensation_form/submissions/only_526_two_cfi_with_max_ratings.json')
         end
@@ -370,104 +520,54 @@ RSpec.describe Form526Submission do
         let(:rating_percentage_tinnitus) { 0 }
         let(:rating_percentage_hypertension) { 0 }
 
-        context 'Max rating education enabled' do
-          before { Flipper.enable(:disability_526_maximum_rating, user) }
-
-          context 'Rated Disabilities are not at maximum' do
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
-            end
-          end
-
-          context 'Rated Disabilities are at maximum' do
-            let(:rating_percentage_tinnitus) { 10 }
-            let(:rating_percentage_hypertension) { 60 }
-
-            it 'logs CFI metric upon submission only for tinnitus' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
-              expect_max_cfi_logged('on', true, 6260, 2)
-            end
-
-            context 'when the submission omits tinnitus' do
-              let(:form_json) do
-                File.read('spec/support/disability_compensation_form/submissions/only_526_hypertension.json')
-              end
-
-              it 'logs CFI metric upon submission for tinnitus being omitted' do
-                subject.start
-                expect_max_cfi_logged('on', false, 6260, 1)
-              end
-            end
-          end
-
-          context 'Only Tinnitus is rated at the maximum' do
-            let(:rating_percentage_tinnitus) { 10 }
-
-            it 'logs CFI metric upon submission only for tinnitus' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.on.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
-              expect_max_cfi_logged('on', true, 6260, 2)
-            end
-          end
-
-          context 'Only Hypertension is rated at the maximum' do
-            let(:rating_percentage_hypertension) { 60 }
-
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.on.submit.7101')
-            end
+        context 'Rated Disabilities are not at maximum' do
+          it 'does not log CFI metric upon submission' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:false', 'has_max_rated:false'])
+            expect_no_max_cfi_logged(6260)
+            expect_no_max_cfi_logged(7101)
+            expect_submit_log(0, 0, 2)
           end
         end
 
-        context 'Max rating education disabled' do
-          before { Flipper.disable(:disability_526_maximum_rating, user) }
+        context 'Rated Disabilities are at maximum' do
+          let(:rating_percentage_tinnitus) { 10 }
+          let(:rating_percentage_hypertension) { 60 }
 
-          context 'Rated Disabilities are not at maximum' do
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
-            end
+          it 'logs CFI metric upon submission' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 6260)
+            expect_max_cfi_logged(true, 7101)
+            expect_submit_log(2, 2, 2)
           end
+        end
 
-          context 'Rated Disabilities are at maximum' do
-            let(:rating_percentage_tinnitus) { 10 }
-            let(:rating_percentage_hypertension) { 60 }
+        context 'Only Tinnitus is rated at the maximum' do
+          let(:rating_percentage_tinnitus) { 10 }
 
-            it 'logs CFI metric upon submission only for tinnitus' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
-              expect_max_cfi_logged('off', true, 6260, 2)
-            end
+          it 'logs CFI metric upon submission only for tinnitus' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 6260)
+            expect_no_max_cfi_logged(7101)
+            expect_submit_log(1, 1, 2)
           end
+        end
 
-          context 'Only Tinnitus is rated at the maximum' do
-            let(:rating_percentage_tinnitus) { 10 }
+        context 'Only Hypertension is rated at the maximum' do
+          let(:rating_percentage_hypertension) { 60 }
 
-            it 'logs CFI metric upon submission only for tinnitus' do
-              subject.start
-              expect(StatsD).to have_received(:increment).with('api.max_cfi.off.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
-              expect_max_cfi_logged('off', true, 6260, 2)
-            end
-          end
-
-          context 'Only Hypertension is rated at the maximum' do
-            let(:rating_percentage_hypertension) { 60 }
-
-            it 'does not log CFI metric upon submission' do
-              subject.start
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.6260')
-              expect(StatsD).not_to have_received(:increment).with('api.max_cfi.off.submit.7101')
-            end
+          it 'does not log CFI metric upon submission' do
+            subject.start
+            expect(StatsD).to have_received(:increment).with('api.max_cfi.on_submit',
+                                                             tags: ['claimed:true', 'has_max_rated:true'])
+            expect_max_cfi_logged(true, 7101)
+            expect_no_max_cfi_logged(6260)
+            expect_submit_log(1, 1, 2)
           end
         end
       end
@@ -961,6 +1061,10 @@ RSpec.describe Form526Submission do
 
         it 'queues polling job' do
           expect do
+            form = subject.saved_claim.parsed_form
+            form['startedFormVersion'] = '2022'
+            subject.update(submitted_claim_id: 1)
+            subject.saved_claim.update(form: form.to_json)
             subject.perform_ancillary_jobs(first_name)
           end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
         end
@@ -1345,44 +1449,6 @@ RSpec.describe Form526Submission do
     end
   end
 
-  describe '#eligible_for_ep_merge?' do
-    subject { Form526Submission.create(form_json: File.read(path)).eligible_for_ep_merge? }
-
-    before { Flipper.disable(:disability_526_ep_merge_multi_contention) }
-
-    context 'when there are multiple contentions' do
-      let(:path) { 'spec/support/disability_compensation_form/submissions/only_526_mixed_action_disabilities.json' }
-
-      context 'when multi-contention claims are not eligible' do
-        it { is_expected.to be_falsey }
-      end
-
-      context 'when multi-contention claims are eligible' do
-        before { Flipper.enable(:disability_526_ep_merge_multi_contention) }
-
-        it { is_expected.to be_truthy }
-      end
-    end
-
-    context 'when there is a single new contention' do
-      let(:path) { 'spec/support/disability_compensation_form/submissions/only_526_new_disability.json' }
-
-      context 'when new claims are eligible' do
-        before { Flipper.enable(:disability_526_ep_merge_new_claims) }
-        after { Flipper.disable(:disability_526_ep_merge_new_claims) }
-
-        it { is_expected.to be_truthy }
-      end
-
-      context 'when new claims are not eligible' do
-        before { Flipper.disable(:disability_526_ep_merge_new_claims) }
-        after { Flipper.enable(:disability_526_ep_merge_new_claims) }
-
-        it { is_expected.to be_falsey }
-      end
-    end
-  end
-
   describe '#remediated?' do
     context 'when there are no form526_submission_remediations' do
       it 'returns false' do
@@ -1419,13 +1485,13 @@ RSpec.describe Form526Submission do
         FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
       end
 
-      it 'returns true if the most recent remediation ignored_as_duplicate value is true' do
-        remediation.update(ignored_as_duplicate: true)
+      it 'returns true if the most recent remediation_type is ignored_as_duplicate' do
+        remediation.update(remediation_type: :ignored_as_duplicate)
         expect(subject).to be_duplicate
       end
 
-      it 'returns false if the most recent remediation ignored_as_duplicate value is false' do
-        remediation.update(ignored_as_duplicate: false)
+      it 'returns false if the most recent remediation_type is not ignored_as_duplicate' do
+        remediation.update(remediation_type: :manual)
         expect(subject).not_to be_duplicate
       end
     end
@@ -1521,6 +1587,77 @@ RSpec.describe Form526Submission do
 
       it 'returns true' do
         expect(subject).to be_failure_type
+      end
+    end
+  end
+
+  describe 'ICN retrieval' do
+    context 'various ICN retrieval scenarios' do
+      let(:user) { FactoryBot.create(:user, :loa3) }
+      let(:auth_headers) do
+        EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+      end
+      let(:submission) do
+        create(:form526_submission,
+               user_uuid: user.uuid,
+               auth_headers_json: auth_headers.to_json,
+               saved_claim_id: saved_claim.id)
+      end
+      let!(:form526_submission) { create(:form526_submission) }
+
+      it 'submissions user account has an ICN, as expected' do
+        submission.user_account = UserAccount.new(icn: '123498767V222222')
+        account = submission.account
+        expect(account.icn).to eq('123498767V222222')
+      end
+
+      it 'submissions user account has no ICN, default to Account lookup' do
+        submission.user_account = UserAccount.new(icn: nil)
+        account = submission.account
+        expect(account.icn).to eq('123498767V234859')
+      end
+
+      it 'submission has NO user account, default to Account lookup' do
+        account = submission.account
+        expect(account.icn).to eq('123498767V234859')
+      end
+
+      it 'submissions user account has no ICN, lookup from past submissions' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V111111')
+        create(:form526_submission, user_uuid: submission.user_uuid, user_account: user_account_with_icn)
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        account = submission.account
+        expect(account.icn).to eq('123498767V111111')
+      end
+
+      it 'lookup ICN from user verifications, idme_uuid defined' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V333333')
+        UserVerification.create!(idme_uuid: submission.user_uuid, user_account_id: user_account_with_icn.id)
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        account = submission.account
+        expect(account.icn).to eq('123498767V333333')
+      end
+
+      it 'lookup ICN from user verifications, backing_idme_uuid defined' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V444444')
+        UserVerification.create!(dslogon_uuid: Faker::Internet.uuid, backing_idme_uuid: submission.user_uuid,
+                                 user_account_id: user_account_with_icn.id)
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        account = submission.account
+        expect(account.icn).to eq('123498767V444444')
+      end
+
+      it 'lookup ICN from user verifications, alternate provider id defined' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V555555')
+        UserVerification.create!(dslogon_uuid: submission.user_uuid, backing_idme_uuid: Faker::Internet.uuid,
+                                 user_account_id: user_account_with_icn.id)
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        account = submission.account
+        expect(account.icn).to eq('123498767V555555')
       end
     end
   end

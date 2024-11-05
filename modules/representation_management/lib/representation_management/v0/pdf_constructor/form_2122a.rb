@@ -14,24 +14,39 @@ module RepresentationManagement
           true
         end
 
+        def next_steps_part1(pdf)
+          add_text_with_spacing(pdf,
+                                'Request help from a VA accredited representative or VSO', size: 20,
+                                                                                           style: :bold)
+          add_text_with_spacing(pdf, 'VA Form 21-22a')
+          add_text_with_spacing(pdf, 'Your Next Steps', size: 16, style: :bold)
+          str = <<~HEREDOC.squish
+            Both you and the accredited representative will need to sign your form.
+            You can bring your form to them in person or mail it to them.
+          HEREDOC
+          add_text_with_spacing(pdf, str, move_down: 30, font: 'soursesanspro')
+        end
+
         def next_steps_contact(pdf, data)
           rep_name = <<~HEREDOC.squish
-            #{data.representative_first_name}
-            #{data.representative_middle_initial}
-            #{data.representative_last_name}
+            #{data.representative.first_name}
+            #{data.representative.middle_initial}
+            #{data.representative.last_name}
           HEREDOC
-          pdf.text(rep_name)
-          pdf.text(data.representative_address_line1)
-          pdf.text(data.representative_address_line2)
-          city_state_zip = <<~HEREDOC.squish
-            #{data.representative_city},
-            #{data.representative_state_code}
-            #{data.representative_zip_code}
-          HEREDOC
-          pdf.text(city_state_zip)
-          pdf.move_down(5)
-          pdf.text(data.representative_phone)
-          pdf.text(data.representative_email_address)
+          add_text_with_spacing(pdf, rep_name, style: :bold, move_down: 8)
+          pdf.font('soursesanspro') do
+            pdf.text(data.representative.address_line1)
+            pdf.text(data.representative.address_line2)
+            city_state_zip = <<~HEREDOC.squish
+              #{data.representative.city},
+              #{data.representative.state_code}
+              #{data.representative.zip_code}
+            HEREDOC
+            pdf.text(city_state_zip)
+            pdf.move_down(5)
+            pdf.text(format_phone_number(data.representative_phone))
+            pdf.text(data.representative.email)
+          end
         end
 
         def template_path
@@ -69,9 +84,9 @@ module RepresentationManagement
             # Veteran File Number
             "#{PAGE1_KEY}.Veterans_Service_Number_If_Applicable[0]": data.veteran_va_file_number,
             # Veteran DOB
-            "#{PAGE1_KEY}.Date_Of_Birth_Month[0]": data.veteran_date_of_birth.split('/').first,
-            "#{PAGE1_KEY}.Date_Of_Birth_Day[0]": data.veteran_date_of_birth.split('/').second,
-            "#{PAGE1_KEY}.Date_Of_Birth_Year[0]": data.veteran_date_of_birth.split('/').last,
+            "#{PAGE1_KEY}.Date_Of_Birth_Month[0]": data.veteran_date_of_birth.split('-').second,
+            "#{PAGE1_KEY}.Date_Of_Birth_Day[0]": data.veteran_date_of_birth.split('-').last,
+            "#{PAGE1_KEY}.Date_Of_Birth_Year[0]": data.veteran_date_of_birth.split('-').first,
             # Veteran Service Number
             "#{PAGE1_KEY}.Veterans_Service_Number_If_Applicable[1]": data.veteran_service_number,
             # Item 6 Service Branch
@@ -90,9 +105,9 @@ module RepresentationManagement
             "#{PAGE1_KEY}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": data.veteran_zip_code,
             "#{PAGE1_KEY}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": data.veteran_zip_code_suffix,
             # Veteran Phone Number
-            "#{PAGE1_KEY}.Telephone_Number_Area_Code[1]": data.veteran_phone[0..2],
-            "#{PAGE1_KEY}.Telephone_Middle_Three_Numbers[0]": data.veteran_phone[3..5],
-            "#{PAGE1_KEY}.Telephone_Last_Four_Numbers[1]": data.veteran_phone[6..9],
+            "#{PAGE1_KEY}.Telephone_Number_Area_Code[1]": data.veteran_phone ? data.veteran_phone[0..2] : '',
+            "#{PAGE1_KEY}.Telephone_Middle_Three_Numbers[0]": data.veteran_phone ? data.veteran_phone[3..5] : '',
+            "#{PAGE1_KEY}.Telephone_Last_Four_Numbers[1]": data.veteran_phone ? data.veteran_phone[6..9] : '',
             # Veteran Email
             "#{PAGE1_KEY}.E_Mail_Address_Optional[1]": data.veteran_email
           }
@@ -107,9 +122,9 @@ module RepresentationManagement
             "#{PAGE1_KEY}.Claimants_Middle_Initial[0]": data.claimant_middle_initial,
             "#{PAGE1_KEY}.Claimants_Last_Name[0]": data.claimant_last_name,
             # Claimant DOB
-            "#{PAGE1_KEY}.Claimants_Date_Of_Birth_Month[0]": data.claimant_date_of_birth.split('/').first,
-            "#{PAGE1_KEY}.Date_Of_Birth_Day[1]": data.claimant_date_of_birth.split('/').second,
-            "#{PAGE1_KEY}.Date_Of_Birth_Year[1]": data.claimant_date_of_birth.split('/').last,
+            "#{PAGE1_KEY}.Claimants_Date_Of_Birth_Month[0]": data.claimant_date_of_birth.split('-').second,
+            "#{PAGE1_KEY}.Date_Of_Birth_Day[1]": data.claimant_date_of_birth.split('-').last,
+            "#{PAGE1_KEY}.Date_Of_Birth_Year[1]": data.claimant_date_of_birth.split('-').first,
             # Claimant Relationship
             "#{PAGE1_KEY}.RelationshipToVeteran[0]": data.claimant_relationship
           }
@@ -139,31 +154,35 @@ module RepresentationManagement
         def representative_identification(data)
           {
             # Representative Name
-            "#{PAGE1_KEY}.Name_Of_Individual_Appointed_As_Representative_First_Name[0]": data.representative_first_name,
-            "#{PAGE1_KEY}.Middle_Initial[0]": data.representative_middle_initial,
-            "#{PAGE1_KEY}.Last_Name[0]": data.representative_last_name,
+            "#{PAGE1_KEY}.Name_Of_Individual_Appointed_As_Representative_First_Name[0]": data.representative.first_name,
+            "#{PAGE1_KEY}.Middle_Initial[0]": data.representative.middle_initial,
+            "#{PAGE1_KEY}.Last_Name[0]": data.representative.last_name,
             # Representative Type
-            "#{PAGE1_KEY}.RadioButtonList[0]": representative_type_checkbox(data.representative_type)
+            "#{PAGE1_KEY}.RadioButtonList[0]": representative_type_checkbox(
+              data.representative_individual_type.to_s.upcase
+            )
           }
         end
 
         def representative_contact_details(data)
           {
             # Representative Mailing Address
-            "#{PAGE2_KEY}.MailingAddress_NumberAndStreet[2]": data.representative_address_line1,
-            "#{PAGE2_KEY}.MailingAddress_ApartmentOrUnitNumber[2]": data.representative_address_line2,
-            "#{PAGE2_KEY}.MailingAddress_City[2]": data.representative_city,
-            "#{PAGE2_KEY}.MailingAddress_StateOrProvince[2]": data.representative_state_code,
-            "#{PAGE2_KEY}.MailingAddress_Country[2]": data.representative_country,
-            "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[2]": data.representative_zip_code,
-            "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[2]": data.representative_zip_code_suffix,
+            "#{PAGE2_KEY}.MailingAddress_NumberAndStreet[2]": data.representative.address_line1,
+            "#{PAGE2_KEY}.MailingAddress_ApartmentOrUnitNumber[2]": data.representative.address_line2,
+            "#{PAGE2_KEY}.MailingAddress_City[2]": data.representative.city,
+            "#{PAGE2_KEY}.MailingAddress_StateOrProvince[2]": data.representative.state_code,
+            "#{PAGE2_KEY}.MailingAddress_Country[2]": normalize_country_code_to_alpha2(
+              data.representative.country_code_iso3
+            ),
+            "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[2]": data.representative.zip_code,
+            "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[2]": data.representative.zip_suffix,
             # Representative Phone Number
             "#{PAGE2_KEY}.Telephone_Number_Area_Code[2]": data.representative_phone[0..2],
             "#{PAGE2_KEY}.Telephone_Middle_Three_Numbers[1]": data.representative_phone[3..5],
             "#{PAGE2_KEY}.Telephone_Last_Four_Numbers[2]": data.representative_phone[6..9],
             # Representative Email
             "#{PAGE2_KEY}.E_Mail_Address_Of_Individual_Appointed_As_Claimants_Representative_Optional[0]": \
-            data.representative_email_address
+            data.representative.email
           }
         end
 
@@ -174,9 +193,7 @@ module RepresentationManagement
             # Consent Limits
             "#{PAGE2_KEY}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits),
             # Consent Address Change
-            "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0,
-            # Condtions of Appointment
-            "#{PAGE3_KEY}.LIMITATIONS[0]": data.conditions_of_appointment.join(', ')
+            "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0
           }
         end
 
@@ -228,6 +245,14 @@ module RepresentationManagement
           }
           consent_text = consent_limits.filter_map { |limit| limitations[limit] }.to_sentence
           consent_text.presence || "No, they can't access any of these types of records."
+        end
+
+        def normalize_country_code_to_alpha2(country_code)
+          if country_code.present?
+            IsoCountryCodes.find(country_code).alpha2
+          else
+            ''
+          end
         end
       end
     end

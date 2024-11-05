@@ -331,6 +331,7 @@ RSpec/ScatteredLet:
     - 'spec/mailers/spool_submissions_report_mailer_spec.rb'
     - 'spec/models/form_profile_spec.rb'
     - 'spec/models/va_profile_redis/contact_information_spec.rb'
+    - 'spec/models/va_profile_redis/v2/contact_information_spec.rb'
     - 'spec/requests/health_care_applications_request_spec.rb'
     - 'spec/requests/health_records_request_spec.rb'
     - 'spec/requests/http_method_not_allowed_spec.rb'

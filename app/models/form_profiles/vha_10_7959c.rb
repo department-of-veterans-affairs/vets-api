@@ -7,7 +7,7 @@ class FormProfiles::VHA107959c < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/your-information/description'
+      returnUrl: '/applicant-info'
     }
   end
 end

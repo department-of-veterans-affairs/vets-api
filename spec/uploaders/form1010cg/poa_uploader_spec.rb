@@ -95,7 +95,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
       let(:source_file) { Rack::Test::UploadedFile.new('spec/fixtures/files/doctors-note.jpg', 'image/jpg') }
 
       before do
-        expect(subject).to receive(:size_range).and_return(1.byte...3.byte) # rubocop:disable RSpec/SubjectStub
+        expect(subject).to receive(:size_range).and_return(1.byte...3.bytes) # rubocop:disable RSpec/SubjectStub
       end
 
       it 'raises an error' do

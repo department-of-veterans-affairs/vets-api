@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/filler'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 require 'decision_review_v1/utilities/constants'
 require 'simple_forms_api_submission/metadata_validator'
 
@@ -32,9 +32,9 @@ module DecisionReviewV1
         pdf = PdfFill::Filler.fill_ancillary_form(
           @form, @uuid, FORM_ID
         )
-        stamped_path = CentralMail::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
-                                                              timestamp: submission_date)
-        CentralMail::DatestampPdf.new(stamped_path).run(
+        stamped_path = PDFUtilities::DatestampPdf.new(pdf).run(text: 'VA.gov', x: 5, y: 5,
+                                                               timestamp: submission_date)
+        PDFUtilities::DatestampPdf.new(stamped_path).run(
           text: 'VA.gov Submission',
           x: 510,
           y: 775,

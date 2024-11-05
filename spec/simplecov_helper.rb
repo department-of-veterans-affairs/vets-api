@@ -62,6 +62,7 @@ class SimpleCovHelper
     add_group 'AppealsApi', 'modules/appeals_api/'
     add_group 'AskVAApi', 'modules/ask_va_api/'
     add_group 'Avs', 'modules/avs/'
+    add_group 'Banners', 'modules/banners/'
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidVaccine', 'modules/covid_vaccine/'
@@ -75,6 +76,7 @@ class SimpleCovHelper
     add_group 'IncomeLimits', 'modules/income_limits/'
     add_group 'MebApi', 'modules/meb_api/'
     add_group 'MyHealth', 'modules/my_health/'
+    add_group 'Pensions', 'modules/pensions/'
     add_group 'Policies', 'app/policies'
     add_group 'Serializers', 'app/serializers'
     add_group 'Services', 'app/services'
@@ -88,6 +90,5 @@ class SimpleCovHelper
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_group 'Vye', 'modules/vye/'
-    add_group 'Pensions', 'modules/pensions/'
   end
 end

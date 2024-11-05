@@ -30,6 +30,13 @@ module Vye
       presence: true
     )
 
+    def td_number
+      return nil unless ssn
+
+      ssn_str = ssn.rjust(9, '0')
+      (ssn_str[-2..] + ssn_str[0...-2])
+    end
+
     def backend_address = address_changes.backend.first
     def latest_address = address_changes.latest.first
     def zip_code = backend_address&.zip_code&.slice(0, 5)

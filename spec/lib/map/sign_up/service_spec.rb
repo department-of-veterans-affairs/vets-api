@@ -33,6 +33,17 @@ describe MAP::SignUp::Service do
     end
   end
 
+  shared_examples 'malformed response' do
+    it 'logs the expected error message and raises a parsing error' do
+      VCR.use_cassette('map/security_token_service_200_response') do
+        VCR.use_cassette('map/sign_up_service_200_malformed_responses') do
+          expect(Rails.logger).to receive(:error).with(expected_log_message, { icn: })
+          expect { subject }.to raise_error(Common::Client::Errors::ParsingError)
+        end
+      end
+    end
+  end
+
   describe '#status' do
     subject { described_class.new.status(icn:) }
 
@@ -46,6 +57,12 @@ describe MAP::SignUp::Service do
       let(:expected_error_trace_id) { nil }
 
       it_behaves_like 'error response'
+    end
+
+    context 'when there is a parsing error' do
+      let(:expected_log_message) { "#{log_prefix} status response parsing error" }
+
+      it_behaves_like 'malformed response'
     end
 
     context 'when response is successful' do
@@ -99,6 +116,12 @@ describe MAP::SignUp::Service do
       it_behaves_like 'error response'
     end
 
+    context 'when there is a parsing error' do
+      let(:expected_log_message) { "#{log_prefix} agreements accept response parsing error" }
+
+      it_behaves_like 'malformed response'
+    end
+
     context 'when response is successful' do
       let(:expected_log_message) { "#{log_prefix} agreements accept success, icn: #{icn}" }
 
@@ -145,6 +168,12 @@ describe MAP::SignUp::Service do
       let(:expected_error_trace_id) { '9ab25637428a6eb92f4713ce15475939' }
 
       it_behaves_like 'error response'
+    end
+
+    context 'when there is a parsing error' do
+      let(:expected_log_message) { "#{log_prefix} agreements decline response parsing error" }
+
+      it_behaves_like 'malformed response'
     end
 
     context 'when response is successful' do
@@ -263,20 +292,8 @@ describe MAP::SignUp::Service do
 
     context 'when there is a parsing error' do
       let(:expected_log_message) { "#{log_prefix} update provisioning response parsing error" }
-      let(:response_body) do
-        { agreementSigned: true, optOut: false, cernerProvisioned: false, bypassEligible: false }.to_json
-      end
-      let(:expected_log_payload) { { response_body:, icn: } }
 
-      before do
-        allow(JSON).to receive(:parse).and_raise(JSON::ParserError)
-      end
-
-      it 'logs the expected error message',
-         vcr: { cassette_name: 'map/sign_up_service_200_responses' } do
-        expect(Rails.logger).to receive(:error).with(expected_log_message, { response_body:, icn: })
-        expect { subject }.to raise_error(JSON::ParserError)
-      end
+      it_behaves_like 'malformed response'
     end
   end
 end

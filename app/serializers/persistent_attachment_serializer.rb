@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-class PersistentAttachmentSerializer < ActiveModel::Serializer
-  attribute :id
-  attribute :guid, key: :confirmation_code
+class PersistentAttachmentSerializer
+  include JSONAPI::Serializer
 
-  attribute :original_filename, key: :name
+  attribute :confirmation_code, &:guid
+  attribute :name, &:original_filename
   attribute :size
 end

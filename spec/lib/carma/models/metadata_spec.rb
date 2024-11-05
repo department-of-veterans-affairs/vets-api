@@ -18,6 +18,14 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
     end
   end
 
+  describe '#submitted_at' do
+    it 'is accessible' do
+      claim_created_at = DateTime.now.iso8601
+      subject.submitted_at = claim_created_at
+      expect(subject.submitted_at).to eq(claim_created_at)
+    end
+  end
+
   describe '#veteran' do
     it 'is accessible' do
       subject.veteran = { icn: 'ABCD1234', is_veteran: true }
@@ -87,10 +95,12 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
       expect(subject.secondary_caregiver_two).to eq(nil)
     end
 
-    it 'accepts :claim_id, :veteran, :primary_caregiver, :secondary_caregiver_one, :secondary_caregiver_two' do
+    it 'accepts claim_id, submitted_at, veteran, primary_caregiver, secondary_caregiver_one, secondary_caregiver_two' do
+      claim_created_at = DateTime.now.iso8601
       subject = described_class.new(
         claim_id: 123,
         claim_guid: 'my-uuid',
+        submitted_at: claim_created_at,
         veteran: {
           icn: 'VET1234',
           is_veteran: true
@@ -108,6 +118,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
 
       expect(subject.claim_id).to eq(123)
       expect(subject.claim_guid).to eq('my-uuid')
+      expect(subject.submitted_at).to eq(claim_created_at)
       expect(subject.veteran.icn).to eq('VET1234')
       expect(subject.veteran.is_veteran).to eq(true)
       expect(subject.primary_caregiver.icn).to eq('PC1234')
@@ -126,6 +137,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
         %i[
           claim_id
           claim_guid
+          submitted_at
           veteran
           primary_caregiver
           secondary_caregiver_one
@@ -151,6 +163,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
             {
               'claimId' => 123,
               'claimGuid' => 'my-uuid',
+              'submittedAt' => nil,
               'veteran' => {
                 'icn' => nil,
                 'isVeteran' => nil
@@ -179,6 +192,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
             {
               'claimId' => 123,
               'claimGuid' => 'my-uuid',
+              'submittedAt' => nil,
               'veteran' => {
                 'icn' => nil,
                 'isVeteran' => nil
@@ -196,9 +210,11 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
 
     context 'with a maximum data set' do
       it 'can receive :to_request_payload' do
+        claim_created_at = DateTime.now.iso8601
         subject = described_class.new(
           claim_id: 123,
           claim_guid: 'my-uuid',
+          submitted_at: claim_created_at,
           veteran: {
             icn: 'VET1234',
             is_veteran: true
@@ -218,6 +234,7 @@ RSpec.describe CARMA::Models::Metadata, type: :model do
           {
             'claimId' => 123,
             'claimGuid' => 'my-uuid',
+            'submittedAt' => claim_created_at,
             'veteran' => {
               'icn' => 'VET1234',
               'isVeteran' => true

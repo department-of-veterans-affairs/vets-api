@@ -8,6 +8,7 @@ permissions:
   checks: write
 jobs:
   audit_service_tags:
+    permissions: write-all
     name: Audit Service Tags
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
@@ -19,6 +20,14 @@ jobs:
     runs-on: ubuntu-16-cores-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Remove Review label
+        if:  github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            ready-for-backend-review
 
       - uses: docker/login-action@v3
         with:
@@ -61,8 +70,13 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Setup Database
-        run: |
-             docker-compose -f docker-compose.test.yml run web bash \
+        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        with:
+          timeout_minutes: 20
+          retry_wait_seconds: 3 # Seconds
+          max_attempts: 3
+          command: |
+            docker compose -f docker-compose.test.yml run web bash \
              -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
 
       - name: Get changed files
@@ -73,7 +87,29 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run service tags audit controllers task
-        run: |
-             docker-compose -f docker-compose.test.yml run -e CHANGED_FILES=${{ env.CHANGED_FILES }} web bash \
-             -c "CI=true DISABLE_BOOTSNAP=true bundle exec rake service_tags:audit_controllers_ci"
+        timeout-minutes: 20
+        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        with:
+          timeout_minutes: 20
+          retry_wait_seconds: 3 # Seconds
+          max_attempts: 3
+          command: |
+            docker compose -f docker-compose.test.yml run -e CHANGED_FILES=${{ env.CHANGED_FILES }} web bash \
+              -c "CI=true DISABLE_BOOTSNAP=true bundle exec rake service_tags:audit_controllers_ci"
 
+      - name: Add Failure label
+        if: failure() && !contains(github.event.pull_request.labels.*.name, 'audit-service-failure')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          fail_on_error: true
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            audit-service-failure
+
+      - name: Remove Failure label
+        if: success() && contains(github.event.pull_request.labels.*.name, 'audit-service-failure')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            audit-service-failure

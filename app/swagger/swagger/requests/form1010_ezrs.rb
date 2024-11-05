@@ -41,8 +41,8 @@ module Swagger
       swagger_schema :Form1010EzrSubmissionResponse do
         key :required, %i[formSubmissionId timestamp success]
 
-        property :formSubmissionId, type: :integer
-        property :timestamp, type: :string
+        property :formSubmissionId, type: %i[integer null], example: nil
+        property :timestamp, type: %i[string null], example: nil
         property :success, type: :boolean
       end
     end

@@ -9,7 +9,7 @@ require 'evss/disability_compensation_form/service'
 require 'evss/disability_compensation_form/non_breakered_service'
 require 'form526_backup_submission/service'
 require 'decision_review_v1/utilities/form_4142_processor'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/filler'
 require 'logging/third_party_transaction'
 require 'simple_forms_api_submission/metadata_validator'
@@ -69,8 +69,7 @@ module Sidekiq
       def initialize(submission_id, docs = [], get_upload_location_on_instantiation: true, ignore_expiration: false)
         @submission_id = submission_id
         @submission = Form526Submission.find(submission_id)
-        @user_account = UserAccount.find_by(id: submission.user_uuid) ||
-                        Account.lookup_by_user_uuid(submission.user_uuid)
+        @user_account = @submission.account
         @docs = docs
         @docs_gathered = false
         @initial_upload_fetched = false
@@ -330,8 +329,11 @@ module Sidekiq
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
 
-        if submission.claims_api?
-          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json)
+        form_version = submission.saved_claim.parsed_form['startedFormVersion']
+        if form_version.present?
+          transaction_id = submission.system_transaction_id
+          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json,
+                                            transaction_id)
           content = resp.env.response_body
         else
           resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:evss], form_json.to_json)
@@ -343,11 +345,14 @@ module Sidekiq
       end
 
       # 82245 - Adding provider to method. this should be removed when toxic exposure flipper is removed
-      def get_form_from_external_api(headers, provider, form_json)
+      # @param headers auth headers for evss transmission
+      # @param provider which provider is desired? :evss or :lighthouse
+      # @param form_json the request body as a hash
+      # @param transaction_id for lighthouse provider only: to track submission's journey in APM(s) across systems
+      def get_form_from_external_api(headers, provider, form_json, transaction_id = nil)
         # get the "breakered" version
         service = choose_provider(headers, provider, breakered: true)
-
-        service.generate_526_pdf(form_json)
+        service.generate_526_pdf(form_json, transaction_id)
       end
 
       def get_uploads
@@ -449,7 +454,9 @@ module Sidekiq
         form_json = submission.form[FORM_526]
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
-        if submission.claims_api?
+
+        form_version = submission.saved_claim.parsed_form['startedFormVersion']
+        if form_version.present?
           resp = get_from_non_breakered_service(headers, ApiProviderFactory::API_PROVIDER[:lighthouse],
                                                 form_json.to_json)
           content = resp.env.response_body

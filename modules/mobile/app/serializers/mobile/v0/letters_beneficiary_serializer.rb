@@ -14,9 +14,9 @@ module Mobile
           resource.military_service.each do |service_episode|
             service_episode[:branch] = service_episode[:branch].titleize
           end
-        end
 
-        resource = LettersBeneficiaryStruct.new(user.uuid, resource.benefit_information, resource.military_service)
+          resource = LettersBeneficiaryStruct.new(user.uuid, resource.benefit_information, resource.military_service)
+        end
         super(resource, options)
       end
     end

@@ -9,6 +9,10 @@ RSpec.describe Form1010cg::SubmissionJob do
     create(:caregivers_assistance_claim)
   end
 
+  it 'has a retry count of 14' do
+    expect(described_class.get_sidekiq_options['retry']).to eq(14)
+  end
+
   it 'defines #notify' do
     expect(described_class.new.respond_to?(:notify)).to eq(true)
   end
@@ -23,14 +27,42 @@ RSpec.describe Form1010cg::SubmissionJob do
   end
 
   it 'returns an array of integers from retry_limits_for_notification' do
-    expect(described_class.new.retry_limits_for_notification).to be_a(Array)
+    expect(described_class.new.retry_limits_for_notification).to eq([1, 10])
   end
 
   describe '#notify' do
-    it 'increments statsd' do
-      expect do
-        described_class.new.notify({})
-      end.to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ['params:{}'])
+    subject(:notify) { described_class.new.notify(params) }
+
+    context 'retry_count is 0' do
+      let(:params) { { 'retry_count' => 0 } }
+
+      it 'increments applications_retried statsd' do
+        expect { notify }.to trigger_statsd_increment('api.form1010cg.async.applications_retried')
+      end
+    end
+
+    context 'retry_count is not 0 or 9' do
+      let(:params) { { 'retry_count' => 5 } }
+
+      it 'does not increment applications_retried statsd' do
+        expect { notify }.not_to trigger_statsd_increment('api.form1010cg.async.applications_retried')
+      end
+
+      it 'does not increment failed_ten_retries statsd' do
+        expect do
+          notify
+        end.not_to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
+      end
+    end
+
+    context 'retry_count is 9' do
+      let(:params) { { 'retry_count' => 9 } }
+
+      it 'increments failed_ten_retries statsd' do
+        expect do
+          notify
+        end.to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
+      end
     end
   end
 
@@ -52,13 +84,13 @@ RSpec.describe Form1010cg::SubmissionJob do
     let(:job) { described_class.new }
 
     context 'when there is a standarderror' do
-      it 'increments statsd' do
+      it 'increments statsd except applications_retried' do
         allow_any_instance_of(Form1010cg::Service).to receive(
           :process_claim_v2!
         ).and_raise(StandardError)
 
         expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
-        expect(StatsD).to receive(:increment).with('api.form1010cg.async.applications_retried')
+        expect(StatsD).not_to receive(:increment).with('api.form1010cg.async.applications_retried')
         expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
 
         # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging

@@ -7,6 +7,7 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
     subject do
       described_class.build(1.day.ago, Time.zone.now, consumer_claims_totals: [],
                                                       unsuccessful_claims_submissions: [],
+                                                      unsuccessful_va_gov_claims_submissions: [],
                                                       poa_totals: [],
                                                       unsuccessful_poa_submissions: [],
                                                       ews_totals: [],
@@ -22,7 +23,6 @@ RSpec.describe ClaimsApi::UnsuccessfulReportMailer, type: [:mailer] do
       expect(subject.to).to eq(
         %w[
           alex.wilson@oddball.io
-          austin.covrig@oddball.io
           david.mazik@va.gov
           emily.goodrich@oddball.io
           janet.coutinho@va.gov

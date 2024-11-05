@@ -21,6 +21,8 @@ module ClaimsApi
       validate_form_526_service_information_confinements!
       # ensure conflicting homelessness values are not provided
       validate_form_526_veteran_homelessness!
+      # ensure that the active duty start date is not prior to the claimants 13th birthday
+      validate_service_after_13th_birthday!
       # ensure 'militaryRetiredPay.receiving' and 'militaryRetiredPay.willReceiveInFuture' are not same non-null values
       validate_form_526_service_pay!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
@@ -63,12 +65,14 @@ module ClaimsApi
     end
 
     def validate_form_526_change_of_address!
-      validate_form_526_change_of_address_beginning_date!
-      validate_form_526_change_of_address_country!
+      change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+
+      validate_form_526_change_of_address_beginning_date!(change_of_address)
+      validate_form_526_change_of_address_ending_date!(change_of_address)
+      validate_form_526_change_of_address_country!(change_of_address)
     end
 
-    def validate_form_526_change_of_address_beginning_date!
-      change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+    def validate_form_526_change_of_address_beginning_date!(change_of_address)
       return if change_of_address.blank?
       return unless 'TEMPORARY'.casecmp?(change_of_address['addressChangeType'])
       return if Date.parse(change_of_address['beginningDate']) > Time.zone.now
@@ -76,8 +80,26 @@ module ClaimsApi
       raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', change_of_address['beginningDate'])
     end
 
-    def validate_form_526_change_of_address_country!
-      change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+    def validate_form_526_change_of_address_ending_date!(change_of_address)
+      return if change_of_address.blank?
+
+      change_type = change_of_address['addressChangeType']
+      ending_date = change_of_address['endingDate']
+
+      case change_type&.upcase
+      when 'PERMANENT'
+        raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date) if ending_date.present?
+      when 'TEMPORARY'
+        raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date) if ending_date.blank?
+
+        beginning_date = change_of_address['beginningDate']
+        if Date.parse(beginning_date) >= Date.parse(ending_date)
+          raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date)
+        end
+      end
+    end
+
+    def validate_form_526_change_of_address_country!(change_of_address)
       return if change_of_address.blank?
       return if valid_countries.include?(change_of_address['country'])
 
@@ -228,6 +250,23 @@ module ClaimsApi
         raise ::Common::Exceptions::UnprocessableEntity.new(
           detail: "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is "\
                   "defined, then 'veteran.homelessness.pointOfContact' is required"
+        )
+      end
+    end
+
+    def validate_service_after_13th_birthday!
+      service_periods = form_attributes&.dig('serviceInformation', 'servicePeriods')
+      age_thirteen = auth_headers['va_eauth_birthdate'].to_datetime.next_year(13).to_date
+
+      return if age_thirteen.nil? || service_periods.nil?
+
+      started_before_age_thirteen = service_periods.any? do |period|
+        Date.parse(period['activeDutyBeginDate']) < age_thirteen
+      end
+      if started_before_age_thirteen
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "If any 'serviceInformation.servicePeriods.activeDutyBeginDate' is "\
+                  "before the Veteran's 13th birthdate: #{age_thirteen}, the claim can not be processed."
         )
       end
     end

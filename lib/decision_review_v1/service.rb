@@ -43,7 +43,7 @@ module DecisionReviewV1
           response = perform :post, 'higher_level_reviews', request_body, headers
           log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
         rescue => e
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
         raise_schema_error_unless_200_status response.status
@@ -88,7 +88,7 @@ module DecisionReviewV1
         rescue => e
           # We can freely log Lighthouse's error responses because they do not include PII or PHI.
           # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v1.
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
         raise_schema_error_unless_200_status response.status
@@ -144,16 +144,13 @@ module DecisionReviewV1
           key: :overall_claim_submission,
           form_id: '10182',
           user_uuid: user.uuid,
-          downstream_system: 'Lighthouse',
-          params: {
-            version_number: 'v2'
-          }
+          downstream_system: 'Lighthouse'
         }
         begin
           response = perform :post, 'notice_of_disagreements', request_body, headers
           log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
         rescue => e
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
         raise_schema_error_unless_200_status response.status
@@ -230,7 +227,7 @@ module DecisionReviewV1
         rescue => e
           # We can freely log Lighthouse's error responses because they do not include PII or PHI.
           # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v2
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
       end
@@ -247,7 +244,8 @@ module DecisionReviewV1
     #
     # rubocop:disable Metrics/MethodLength
     def put_notice_of_disagreement_upload(upload_url:, file_upload:, metadata_string:, user_uuid: nil, appeal_submission_upload_id: nil) # rubocop:disable Layout/LineLength
-      content_tmpfile = Tempfile.new(file_upload.filename, encoding: file_upload.read.encoding)
+      tmpfile_name = construct_tmpfile_name(appeal_submission_upload_id, file_upload.filename)
+      content_tmpfile = Tempfile.new([tmpfile_name, '.pdf'], encoding: file_upload.read.encoding)
       content_tmpfile.write(file_upload.read)
       content_tmpfile.rewind
 
@@ -278,7 +276,7 @@ module DecisionReviewV1
       rescue => e
         # We can freely log Lighthouse's error responses because they do not include PII or PHI.
         # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v2
-        log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+        log_formatted(**common_log_params.merge(error_log_params(e)))
         raise e
       end
     ensure
@@ -320,6 +318,12 @@ module DecisionReviewV1
         'source' => 'va.gov',
         'businessLine' => 'BVA'
       }.to_json
+    end
+
+    def construct_tmpfile_name(appeal_submission_upload_id, original_filename)
+      return "appeal_submission_upload_#{appeal_submission_upload_id}_" if appeal_submission_upload_id.present?
+
+      File.basename(original_filename, '.pdf').first(240)
     end
 
     private
@@ -410,6 +414,12 @@ module DecisionReviewV1
         error:
       }
       ::Rails.logger.info(info)
+    end
+
+    def error_log_params(error)
+      log_params = { is_success: false, response_error: error }
+      log_params[:body] = error.body if error.try(:status) == 422
+      log_params
     end
 
     def handle_error(error:, message: nil)

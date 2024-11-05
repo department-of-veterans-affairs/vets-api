@@ -54,23 +54,8 @@ module RepresentationManagement
           raise 'NotImplemented' # Extend this class and implement
         end
 
-        def next_steps_part1(pdf)
-          pdf.font_size(20)
-          pdf.text('Fill out your form to appoint a VA accredited representative or VSO')
-          pdf.move_down(10)
-          pdf.font_size(12)
-          pdf.text('VA Form 21-22a')
-          pdf.move_down(10)
-          pdf.font_size(16)
-          pdf.text('Your Next Steps')
-          pdf.move_down(10)
-          pdf.font_size(12)
-          str = <<~HEREDOC.squish
-            Both you and the accredited representative will need to sign your form.
-            You can bring your form to them in person or mail it to them.
-          HEREDOC
-          pdf.text(str)
-          pdf.move_down(30)
+        def next_steps_part1(_pdf)
+          raise 'NotImplemented' # Extend this class and implement
         end
 
         def next_steps_part2(pdf)
@@ -79,36 +64,58 @@ module RepresentationManagement
             After your form is signed, you or the accredited representative
             can submit it online, by mail, or in person.
           HEREDOC
-          pdf.text(str)
-          pdf.move_down(10)
-          pdf.font_size(16)
-          pdf.text('After you submit your printed form')
-          pdf.move_down(10)
-          pdf.font_size(12)
-          str = <<~HEREDOC.squish
-            We'll confirm that the accredited representative is available to help you.
-            Then we'll update your VA.gov profile with their information.
-          HEREDOC
-          pdf.text(str)
-          pdf.move_down(10)
+          add_text_with_spacing(pdf, str, font: 'soursesanspro')
+          add_text_with_spacing(pdf, 'After you submit your printed form', size: 16, style: :bold)
         end
 
         def next_steps_part3(pdf)
           str = <<~HEREDOC.squish
-            We usually process your form within 1 week.
-            You can contact the accredited representative any time to ask when they can start helping you.
+            We usually process your form within 1 week. You can contact the accredited representative any time.
           HEREDOC
-          pdf.text(str)
-          pdf.move_down(10)
-          pdf.font_size(14)
-          pdf.text('Need help?')
-          pdf.move_down(10)
-          pdf.font_size(12)
-          pdf.text("You can call us at 800-698-2411, ext. 0 (TTY: 711). We're here 24/7.")
-          pdf.move_down(10)
+          add_text_with_spacing(pdf, str, font: 'soursesanspro')
+          add_text_with_spacing(pdf, 'Need help?', size: 14, style: :bold)
+          add_text_with_spacing(pdf, "You can call us at 800-698-2411, ext. 0 (TTY: 711). We're here 24/7.",
+                                font: 'soursesanspro')
         end
 
         private
+
+        # Adds text to the PDF with specified spacing and formatting options.
+        #
+        # @param pdf [PDF::Document] The PDF document to add the text to.
+        # @param text [String] The text to be added.
+        # @param options [Hash] (optional) The formatting options for the text.
+        # @option options [Integer] :size (12) The font size of the text.
+        # @option options [Integer] :move_down (10) The amount of vertical spacing to move down after adding the text.
+        # @option options [Symbol] :style (:normal) The font style of the text.
+        # @option options [String] :font ('bitter') The font family of the text.
+        # @return [void]
+        def add_text_with_spacing(pdf, text, options = {})
+          size = options.fetch(:size, 12)
+          move_down = options.fetch(:move_down, 10)
+          style = options.fetch(:style, :normal)
+          font = options.fetch(:font, 'bitter')
+
+          pdf.font(font, style:) do
+            pdf.font_size(size)
+            pdf.text(text)
+            pdf.move_down(move_down)
+          end
+          pdf.font_size(12) # Reset to default size
+        end
+
+        # Formats a phone number by removing non-digit characters and adding dashes.
+        #
+        # @param phone_number [String] The phone number to be formatted.
+        # @return [String] The formatted phone number.
+        def format_phone_number(phone_number)
+          return '' if phone_number.blank?
+
+          phone_number = phone_number.gsub(/\D/, '')
+          return phone_number if phone_number.length < 10
+
+          "#{phone_number[0..2]}-#{phone_number[3..5]}-#{phone_number[6..9]}"
+        end
 
         #
         # Fill in pdf form fields based on data provided, then combine all
@@ -130,6 +137,16 @@ module RepresentationManagement
         def generate_next_steps_page(data)
           tempfile = Tempfile.new
           next_steps = Prawn::Document.new
+          next_steps.font_families.update(
+            'bitter' => {
+              normal: Rails.root.join('modules', 'representation_management', 'lib', 'fonts', 'bitter-regular.ttf'),
+              bold: Rails.root.join('modules', 'representation_management', 'lib', 'fonts', 'bitter-bold.ttf')
+            },
+            'soursesanspro' => {
+              normal: Rails.root.join('modules', 'representation_management', 'lib', 'fonts',
+                                      'sourcesanspro-regular-webfont.ttf')
+            }
+          )
           next_steps_part1(next_steps)
           next_steps_contact(next_steps, data)
           next_steps_part2(next_steps)

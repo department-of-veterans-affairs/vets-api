@@ -7,6 +7,9 @@ module VAProfile
   module MilitaryPersonnel
     class ServiceHistoryResponse < VAProfile::Response
       attribute :episodes, Array
+      attribute :uniformed_service_initial_entry_date, String
+      attribute :release_from_active_duty_date, String
+      attribute :vet_status_eligibility, Object
 
       def self.from(current_user, raw_response = nil)
         body = raw_response&.body
@@ -17,7 +20,10 @@ module VAProfile
 
         new(
           raw_response&.status,
-          episodes: episodes ? sort_by_begin_date(episodes) : episodes
+          episodes: episodes ? sort_by_begin_date(episodes) : episodes,
+          uniformed_service_initial_entry_date: get_uniformed_service_initial_entry_date(body),
+          release_from_active_duty_date: get_release_from_active_duty_date(body),
+          vet_status_eligibility: get_eligibility(episodes)
         )
       end
 
@@ -41,12 +47,32 @@ module VAProfile
         episodes&.map { |e| VAProfile::Models::ServiceHistory.build_from(e, episode_type) }
       end
 
+      def self.get_uniformed_service_initial_entry_date(body)
+        body&.dig(
+          'profile',
+          'military_person',
+          'military_service_history',
+          'uniformed_service_initial_entry_date')
+      end
+
+      def self.get_release_from_active_duty_date(body)
+        body&.dig(
+          'profile',
+          'military_person',
+          'military_service_history',
+          'release_from_active_duty_date')
+      end
+
       def self.sort_by_begin_date(service_episodes)
         service_episodes.sort_by { |se| se.begin_date || Time.zone.today + 3650 }
       end
 
       def self.include_academy_attendance?(current_user)
         Flipper.enabled?(:profile_show_military_academy_attendance, current_user)
+      end
+
+      def self.get_eligibility(episodes)
+        VAProfile::Models::ServiceHistory.determine_eligibility(episodes)
       end
     end
   end

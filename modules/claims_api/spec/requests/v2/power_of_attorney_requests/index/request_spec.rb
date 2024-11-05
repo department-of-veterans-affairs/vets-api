@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
 
-RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
+RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests#index', :bgs, type: :request do
   subject { perform_request(params) }
 
   def perform_request(params)
@@ -302,7 +302,7 @@ RSpec.describe 'Power Of Attorney Requests: index', :bgs, type: :request do
 
       result =
         mock_ccg(scopes) do
-          use_soap_cassette('healthy_parameter_set', use_spec_name_prefix: true, record: :new_episodes) do
+          use_soap_cassette('healthy_parameter_set', use_spec_name_prefix: true) do
             perform_request(
               'filter' => {
                 'poaCodes' => %w[

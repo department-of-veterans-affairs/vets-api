@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
   - meta
@@ -7,6 +8,7 @@ properties:
     type: array
     items:
       type: object
+      additionalProperties: false
       $ref: "./ClaimsAndAppeals.yml"
   meta:
     properties:
@@ -16,10 +18,12 @@ properties:
           type: array
           items:
             type: object
+            additionalProperties: false
             $ref: "./ClaimsAndAppealsOverviewErrors.yml"
             description: Array info about failing upstream services
       pagination:
         type: object
+        additionalProperties: false
         required:
           - currentPage
           - perPage

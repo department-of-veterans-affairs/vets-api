@@ -51,6 +51,34 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.toxic_exposure.herbicide_hazard_service.class).to eq(Requests::HerbicideHazardService)
       expect(result.toxic_exposure.additional_hazard_exposures.class).to eq(Requests::AdditionalHazardExposures)
       expect(result.toxic_exposure.multiple_exposures.class).to eq(Array)
+      expect(result.claim_notes).to eq('some overflow text')
+    end
+
+    it 'sends uniq values in multiple exposures array' do
+      expect(transformer).to receive(:evss_claims_process_type)
+        .with(data['form526'])
+        .and_return('STANDARD_CLAIM_PROCESS')
+      # "airspace" is the repeated multiple exposure
+      data['form526']['toxicExposure'].merge!({
+                                                'gulfWar2001Details' =>
+                                                  { 'airspace' => { 'startDate' => '2014-01-26',
+                                                                    'endDate' => '2014-02-28' },
+                                                    'yemen' => { 'startDate' => '2014-01-26',
+                                                                 'endDate' => '2014-02-28' },
+                                                    'djibouti' => { 'startDate' => '2014-01-26',
+                                                                    'endDate' => '2014-02-28' } },
+                                                'gulfWar2001' => { 'djibouti' => true, 'yemen' => true,
+                                                                   'airspace' => true },
+                                                'gulfWar1990Details' =>
+                     { 'airspace' => { 'startDate' => '2014-01-26', 'endDate' => '2014-02-28' },
+                       'somalia' => { 'startDate' => '2014-01-26', 'endDate' => '2014-02-28' },
+                       'kuwait' => { 'startDate' => '2014-01-26', 'endDate' => '2014-02-28' } },
+                                                'gulfWar1990' => { 'kuwait' => true, 'somalia' => true,
+                                                                   'airspace' => true }
+                                              })
+      result = transformer.transform(data)
+      # since this is now a uniq list, it is now 12 items instead of 13
+      expect(result.toxic_exposure.multiple_exposures.count).to eq(12)
     end
   end
 
@@ -65,6 +93,67 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.direct_deposit).to be_nil
       expect(result.treatments).to eq([])
       expect(result.service_pay).to be_nil
+    end
+  end
+
+  describe 'specifyOtherExposure and otherHerbicideLocations' do
+    let(:submission) { create(:form526_submission, :with_everything_toxic_exposure) }
+    let(:data) { submission.form['form526'] }
+
+    context 'multiple exposures' do
+      it 'is processed if descriptions are present' do
+        # specifyOtherExposure and otherHerbicideLocations should be processed if descriptions are present
+        data['form526']['toxicExposure'] = {
+          'gulfWar2001Details' => {},
+          'gulfWar1990Details' => {},
+          'herbicide' => {},
+          'herbicideDetails' => {},
+          'otherExposureDetails' => {},
+          'specifyOtherExposures' => {
+            'description' => 'specifyOtherExposures',
+            'startDate' => '1992-01-01',
+            'endDate' => '1993-01-01'
+          },
+          'otherHerbicideLocations' => {
+            'description' => 'otherHerbicideLocations',
+            'startDate' => '1992-01-01',
+            'endDate' => '1993-01-01'
+          }
+        }
+        result = transformer.transform(data)
+
+        # "other" objects should have been processed for MultipleExposures because the descriptions are there
+        expect(result.toxic_exposure.multiple_exposures.length).to eq(2)
+        expect(result.toxic_exposure.multiple_exposures.first.exposure_location).to eq('otherHerbicideLocations')
+        expect(result.toxic_exposure.multiple_exposures.first.hazard_exposed_to).to eq(nil)
+        expect(result.toxic_exposure.multiple_exposures.last.exposure_location).to eq(nil)
+        expect(result.toxic_exposure.multiple_exposures.last.hazard_exposed_to).to eq('specifyOtherExposures')
+      end
+
+      it 'is not processed if missing descriptions' do
+        # specifyOtherExposure and otherHerbicideLocations should not be processed if missing descriptions
+        data['form526']['toxicExposure'] = {
+          'gulfWar2001Details' => {},
+          'gulfWar1990Details' => {},
+          'herbicide' => {},
+          'herbicideDetails' => {},
+          'otherExposureDetails' => {},
+          'specifyOtherExposures' => {
+            'description' => ' ',
+            'startDate' => '1992-01-01',
+            'endDate' => '1993-01-01'
+          },
+          'otherHerbicideLocations' => {
+            'description' => ' ',
+            'startDate' => '1992-01-01',
+            'endDate' => '1993-01-01'
+          }
+        }
+        result = transformer.transform(data)
+        # nothing should have been processed for MultipleExposures because
+        # all of the details are missing and the descriptions are missing in the "other" objects
+        expect(result.toxic_exposure.multiple_exposures).to eq([])
+      end
     end
   end
 
@@ -121,7 +210,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_veteran, data['form526']['veteran'])
       expect(result.mailing_address.city).to eq('APO')
       expect(result.mailing_address.state).to eq('AE')
-      expect(result.mailing_address.zip_first_five).to eq('817')
+      expect(result.mailing_address.international_postal_code).to eq('817')
     end
 
     it 'trims leading/trailing spaces from address line 1' do
@@ -149,7 +238,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_change_of_address, data['form526']['veteran'])
       expect(result.city).to eq('APO')
       expect(result.state).to eq('AE')
-      expect(result.zip_first_five).to eq('817')
+      expect(result.international_postal_code).to eq('817')
       expect(result.dates).not_to be_nil
     end
   end
@@ -235,6 +324,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       toxic_exposure_conditions = submission.form['form526']['form526']['toxicExposure']['conditions']
       results = transformer.send(:transform_disabilities, data, toxic_exposure_conditions)
       expect(results.first.is_related_to_toxic_exposure).to eq(true)
+      text = 'My condition was caused by an injury or event that happened when I was receiving VA care; toxic exposure.'
+      expect(results.first.exposure_or_event_or_injury).to eq(text)
       expect(results.last.is_related_to_toxic_exposure).to eq(false)
     end
 
@@ -242,9 +333,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       toxic_exposure_conditions = submission.form['form526']['form526']['toxicExposure']['conditions']
       results = transformer.send(:transform_disabilities, data, toxic_exposure_conditions)
       cause_map = EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform::TOXIC_EXPOSURE_CAUSE_MAP
-      expect(results.first.exposure_or_event_or_injury).to eq(cause_map[:VA])
-      expect(results[1].exposure_or_event_or_injury).to eq(cause_map[:NEW])
-      expect(results[2].exposure_or_event_or_injury).to eq(cause_map[:WORSENED])
+      expect(results.first.exposure_or_event_or_injury).to eq(cause_map[:VA].sub(/[.]?$/, '; toxic exposure.'))
+      expect(results[1].exposure_or_event_or_injury).to eq(cause_map[:NEW].sub(/[.]?$/, '; toxic exposure.'))
+      expect(results[2].exposure_or_event_or_injury).to eq(cause_map[:WORSENED].sub(/[.]?$/, '; toxic exposure.'))
+      # last condition is not a toxic exposure condition
       expect(results.last.exposure_or_event_or_injury).to eq(cause_map[:SECONDARY])
     end
   end
@@ -367,6 +459,71 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       expect(result.gulf_war_hazard_service.served_in_gulf_war_hazard_locations).to eq('YES')
     end
 
+    it 'filters and transforms multiple exposure details correctly' do
+      # data sample mimics if a user filled out date data for a toxic exposure item
+      # and then went back and unselected the options
+      deselected_multiple_exposures_details = data.merge({
+                                                           'gulfWar1990' => {
+                                                             'iraq' => false,
+                                                             'kuwait' => false,
+                                                             'qatar' => false
+                                                           },
+                                                           'gulfWar2001' => {
+                                                             'iraq' => { 'startDate' => '1991-03-XX',
+                                                                         'endDate' => '1992-01-01' },
+                                                             'qatar' => { 'startDate' => '1991-03-01',
+                                                                          'endDate' => '1992-01-01' },
+                                                             'kuwait' => { 'startDate' => '1991-03-15' }
+                                                           },
+                                                           'herbicide' => {
+                                                             'cambodia' => false,
+                                                             'guam' => false,
+                                                             'laos' => false
+                                                           },
+                                                           'herbicideDetails' => {
+                                                             'cambodia' => {
+                                                               'startDate' => '1991-03-01',
+                                                               'endDate' => '1992-01-01'
+                                                             },
+                                                             'guam' => {
+                                                               'startDate' => '1991-02-12',
+                                                               'endDate' => '1991-06-01'
+                                                             },
+                                                             'laos' => {
+                                                               'startDate' => '1991-03-15'
+                                                             }
+                                                           },
+                                                           'otherExposures' => {
+                                                             'asbestos' => false,
+                                                             'chemical' => false,
+                                                             'mos' => false,
+                                                             'mustardgas' => false,
+                                                             'radiation' => false,
+                                                             'water' => false
+                                                           },
+                                                           'otherExposuresDetails' => {
+                                                             'asbestos' => {
+                                                               'startDate' => '1991-03-01',
+                                                               'endDate' => '1992-01-01'
+                                                             },
+                                                             'radiation' => {
+                                                               'startDate' => '1991-03-01',
+                                                               'endDate' => '1992-01-01'
+                                                             },
+                                                             'chemical' => {
+                                                               'startDate' => '1991-03-01'
+                                                             },
+                                                             'mos' => {
+                                                               'endDate' => '1991-03-01'
+                                                             }
+                                                           },
+                                                           'otherHerbicideLocations' => nil,
+                                                           'specifyOtherExposures' => nil
+                                                         })
+      result = transformer.send(:transform_toxic_exposure, deselected_multiple_exposures_details)
+      expect(result.multiple_exposures).to eq([])
+    end
+
     it 'transforms gulf war, herbicide and hazard multiple exposure dates' do
       result = transformer.send(:transform_multiple_exposures, data['gulfWar1990Details'])
       expect(result[0].exposure_dates.begin_date).to eq('1991-03')
@@ -416,6 +573,36 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                        })
       result = transformer.send(:transform_multiple_exposures, no_location_details['gulfWar1990Details'])
       expect(result.length).to eq(0)
+    end
+
+    it 'convert_date_no_day converts various dates to YYYY-MM or YYYY' do
+      date = '2024-03-22'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024-03')
+
+      date = '2024-03-XX'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024-03')
+
+      date = '2024-XX-XX'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024')
+
+      date = '2024-03'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024-03')
+
+      date = '2024'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq('2024')
+
+      date = 'XXXX'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq(nil)
+
+      date = 'XX-XX-XX'
+      result = transformer.send(:convert_date_no_day, date)
+      expect(result).to eq(nil)
     end
 
     it 'set served_in_herbicide_hazard_locations correctly' do
@@ -487,6 +674,31 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
                                                               })
       result = transformer.send(:transform_herbicide, other_herbicide_locations_has_blank_fields['herbicide'],
                                 other_herbicide_locations_has_blank_fields['otherHerbicideLocations'])
+      expect(result.served_in_herbicide_hazard_locations).to eq('NO')
+
+      # description must be in the otherHerbicideLocations object for it to be processed (blank string)
+      other_herbicide_locations_description_blank = data.merge({
+                                                                 'herbicide' => nil,
+                                                                 'otherHerbicideLocations' => {
+                                                                   'description' => '',
+                                                                   'startDate' => '1992-01-01',
+                                                                   'endDate' => '1992-01-01'
+                                                                 }
+                                                               })
+      result = transformer.send(:transform_herbicide, other_herbicide_locations_description_blank['herbicide'],
+                                other_herbicide_locations_description_blank['otherHerbicideLocations'])
+      expect(result.served_in_herbicide_hazard_locations).to eq('NO')
+
+      # description must be in the otherHerbicideLocations object for it to be processed (attribute missing)
+      other_herbicide_locations_description_missing = data.merge({
+                                                                   'herbicide' => nil,
+                                                                   'otherHerbicideLocations' => {
+                                                                     'startDate' => '1992-01-01',
+                                                                     'endDate' => '1992-01-01'
+                                                                   }
+                                                                 })
+      result = transformer.send(:transform_herbicide, other_herbicide_locations_description_missing['herbicide'],
+                                other_herbicide_locations_description_missing['otherHerbicideLocations'])
       expect(result.served_in_herbicide_hazard_locations).to eq('NO')
     end
 
@@ -591,6 +803,44 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form526ToLighthouseTransform do
       result = transformer.send(:transform_other_exposures, none_option_with_no_other['otherExposures'],
                                 none_option_with_no_other['specifyOtherExposures'])
       expect(result).to eq(nil)
+
+      # description must be in the specifyOtherExposures object for it to be processed (blank string)
+      no_option_with_no_other_blank_string = data.merge({
+                                                          'otherExposures' => {},
+                                                          'specifyOtherExposures' => {
+                                                            'description' => '',
+                                                            'startDate' => '1991-03-01',
+                                                            'endDate' => '1992-01-01'
+                                                          }
+                                                        })
+      result = transformer.send(:transform_other_exposures, no_option_with_no_other_blank_string['otherExposures'],
+                                no_option_with_no_other_blank_string['specifyOtherExposures'])
+      expect(result).to eq(nil)
+
+      # description must be in the specifyOtherExposures object for it to be processed (missing attribute)
+      no_option_with_no_other_missing = data.merge({
+                                                     'otherExposures' => {},
+                                                     'specifyOtherExposures' => {
+                                                       'startDate' => '1991-03-01',
+                                                       'endDate' => '1992-01-01'
+                                                     }
+                                                   })
+      result = transformer.send(:transform_other_exposures, no_option_with_no_other_missing['otherExposures'],
+                                no_option_with_no_other_missing['specifyOtherExposures'])
+
+      expect(result).to eq(nil)
+    end
+
+    it 'filters unselected items from details objects correctly' do
+      source = { 'afghanistan' => true, 'bahrain' => true, 'jordan' => true, 'kuwait' => true, 'iraq' => true,
+                 'qatar' => false }
+      details = { 'iraq' => { startDate: '1991-03-01', endDate: '1992-01-01' },
+                  'qatar' => { startDate: '1991-02-12', endDate: '1991-06-01' },
+                  'kuwait' => { startDate: '1991-03-15' } }
+      result = transformer.send(:filtered_details, source, details)
+
+      expect(result).to eq({ 'iraq' => { startDate: '1991-03-01', endDate: '1992-01-01' },
+                             'kuwait' => { startDate: '1991-03-15' } })
     end
   end
 end

@@ -222,9 +222,9 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
   before do
     allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
-    allow(Flipper).to receive(:enabled?).with('check_in_experience_travel_btsss_ssm_urls_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with(:check_in_experience_check_claim_status_on_timeout)
                                         .and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(false)
 
     allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
                                             station_number:, facility_type: nil)

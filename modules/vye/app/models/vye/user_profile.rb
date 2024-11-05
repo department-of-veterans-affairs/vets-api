@@ -7,7 +7,10 @@ class Vye::UserProfile < ApplicationRecord
       icn_hit: "#{STATSD_PREFIX}.icn_hit",
       icn_miss: "#{STATSD_PREFIX}.icn_miss",
       ssn_hit: "#{STATSD_PREFIX}.ssn_hit",
-      ssn_miss: "#{STATSD_PREFIX}.ssn_miss"
+      ssn_miss: "#{STATSD_PREFIX}.ssn_miss",
+      icn_and_ssn_miss: "#{STATSD_PREFIX}.icn_and_ssn_miss",
+      active_user_info_hit: "#{STATSD_PREFIX}.active_user_info_hit",
+      active_user_info_miss: "#{STATSD_PREFIX}.active_user_info_miss"
     }.freeze
 
   include Vye::DigestProtected
@@ -48,6 +51,17 @@ class Vye::UserProfile < ApplicationRecord
     }
   )
 
+  def confirm_active_user_info_present?
+    if active_user_info.blank?
+      Rails.logger.error "#{self.class.name}: There is no active_user_info for id##{id}."
+      StatsD.increment(STATSD_NAMES[:active_user_info_miss])
+      false
+    else
+      StatsD.increment(STATSD_NAMES[:active_user_info_hit])
+      true
+    end
+  end
+
   def self.find_and_update_icn(user:)
     if user.blank?
       Rails.logger.error "#{name}: There is no user in session."
@@ -72,6 +86,9 @@ class Vye::UserProfile < ApplicationRecord
     user_profile = with_assos.find_by(icn: user.icn)
     if user_profile
       StatsD.increment(STATSD_NAMES[:icn_hit])
+
+      return unless user_profile.confirm_active_user_info_present?
+
       return user_profile
     else
       StatsD.increment(STATSD_NAMES[:icn_miss])
@@ -81,10 +98,15 @@ class Vye::UserProfile < ApplicationRecord
     if user_profile
       user_profile.update!(icn: user.icn)
       StatsD.increment(STATSD_NAMES[:ssn_hit])
+
+      return unless user_profile.confirm_active_user_info_present?
+
       return user_profile
     else
       StatsD.increment(STATSD_NAMES[:ssn_miss])
     end
+
+    Rails.logger.warn "#{name}: The user(#{user&.user_account&.id}) in session could not find by ICN or SSN."
 
     nil
   end

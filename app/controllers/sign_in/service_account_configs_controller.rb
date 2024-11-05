@@ -22,7 +22,7 @@ module SignIn
       if service_account_config.save
         render json: service_account_config, status: :created
       else
-        render json: service_account_config.errors, status: :unprocessable_entity
+        render json: { errors: service_account_config.errors }, status: :unprocessable_entity
       end
     end
 
@@ -30,7 +30,7 @@ module SignIn
       if @service_account_config.update(service_account_config_params)
         render json: @service_account_config, status: :ok
       else
-        render json: @service_account_config.errors, status: :unprocessable_entity
+        render json: { errors: @service_account_config.errors }, status: :unprocessable_entity
       end
     end
 
@@ -38,7 +38,7 @@ module SignIn
       if @service_account_config.destroy
         head :no_content
       else
-        render json: @service_account_config.errors, status: :unprocessable_entity
+        render json: { errors: @service_account_config.errors }, status: :unprocessable_entity
       end
     end
 
@@ -55,11 +55,11 @@ module SignIn
     end
 
     def set_service_account_config
-      @service_account_config = ServiceAccountConfig.find(params[:id])
+      @service_account_config = ServiceAccountConfig.find_by!(service_account_id: params[:service_account_id])
     end
 
     def not_found
-      render json: { error: 'Service account config not found' }, status: :not_found
+      render json: { errors: { service_account_config: ['not found'] } }, status: :not_found
     end
   end
 end

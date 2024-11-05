@@ -6,14 +6,7 @@ module Mobile
       include JSONAPI::Serializer
 
       set_type :facilities_info
-      attributes :facilities
-
-      def initialize(id, facilities)
-        resource = FacilityInfoStruct.new(id, facilities)
-        super(resource, {})
-      end
+      attribute :facilities
     end
-
-    FacilityInfoStruct = Struct.new(:id, :facilities)
   end
 end

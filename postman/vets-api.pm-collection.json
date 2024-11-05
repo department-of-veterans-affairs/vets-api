@@ -1,0 +1,1141 @@
+{
+	"info": {
+		"_postman_id": "01f8fb9c-b9c0-48e8-8304-681931b023fc",
+		"name": "vets-api-initial-test",
+		"description": "This collection of tests is designed to be able to run against any `vets-api` environment from production to development due to the complete absence of authenticated endpoint testing.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "30919894",
+		"_collection_link": "https://vagov-prt.postman.co/workspace/My-Workspace~185144e6-e8c9-422f-8b0d-4419d7c6241f/collection/30919894-01f8fb9c-b9c0-48e8-8304-681931b023fc?action=share&source=collection_link&creator=30919894"
+	},
+	"item": [
+		{
+			"name": "Unauthenticated vets-api endpoints",
+			"item": [
+				{
+					"name": "/v0/education_benefits_claims/stem_claim_status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint returns valid data object\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"    var responseBody = pm.response.json();",
+									"    pm.expect(responseBody).to.have.property('data');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/v0/education_benefits_claims/stem_claim_status",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"v0",
+								"education_benefits_claims",
+								"stem_claim_status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/v0/feature_toggles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint returns valid feature_toggles status object\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"    var responseBody = pm.response.json();",
+									"    pm.expect(responseBody).to.have.property('data');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/v0/feature_toggles",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"v0",
+								"feature_toggles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/v0/maintenance_windows",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code != 200) { return };"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/v0/maintenance_windows",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"v0",
+								"maintenance_windows"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/v0/backend_statuses",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint returns valid backend status object\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"    var responseBody = pm.response.json();",
+									"    pm.expect(responseBody).to.have.property('data');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/v0/backend_statuses",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"v0",
+								"backend_statuses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/v0/forms",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint returns valid forms object in response\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"    var responseBody = pm.response.json();",
+									"    pm.expect(responseBody).to.have.property('data');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/v0/forms",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"v0",
+								"forms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/v0/search",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint returns valid search object\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"    var responseBody = pm.response.json();",
+									"    pm.expect(responseBody).to.have.property('data');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/v0/search?query=vets&page=1",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"v0",
+								"search"
+							],
+							"query": [
+								{
+									"key": "query",
+									"value": "vets"
+								},
+								{
+									"key": "page",
+									"value": "1"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/appeals/v1/healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint passes health check\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"    var responseBody = pm.response.json();",
+									"    pm.expect(responseBody.status).to.include('pass');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/appeals/v1/healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"appeals",
+								"v1",
+								"healthcheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/loan_guaranty/v1/healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint passes health check\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/loan_guaranty/v1/healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"loan_guaranty",
+								"v1",
+								"healthcheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/appeals/v0/healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint passes health check\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"    var responseBody = pm.response.json();",
+									"    pm.expect(responseBody.status).to.include('pass');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/appeals/v0/healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"appeals",
+								"v0",
+								"healthcheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/appeals/v1/upstream_healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint passes upstream health check\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"    var responseBody = pm.response.json();",
+									"    pm.expect(responseBody.status).to.not.include('DOWN');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/appeals/v1/upstream_healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"appeals",
+								"v1",
+								"upstream_healthcheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/claims/v2/upstream_healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint passes upstream health check\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"    var responseBody = pm.response.json();",
+									"",
+									"    pm.expect(responseBody.default.message).to.eql('Application is running');",
+									"    pm.expect(responseBody.default.success).to.eql(true);",
+									"    pm.expect(responseBody.database.success).to.eql(true);",
+									"    pm.expect(responseBody.mpi.success).to.eql(true);",
+									"    pm.expect(responseBody['bgs-vet_record'].success).to.eql(true);",
+									"    pm.expect(responseBody['bgs-corporate_update'].success).to.eql(true);",
+									"    pm.expect(responseBody['bgs-contention'].success).to.eql(true);",
+									"    pm.expect(responseBody['localbgs-claimant'].success).to.eql(true);",
+									"    pm.expect(responseBody['localbgs-person'].success).to.eql(true);",
+									"    pm.expect(responseBody['localbgs-org'].success).to.eql(true);",
+									"    pm.expect(responseBody['localbgs-ebenefitsbenftclaim'].success).to.eql(true);",
+									"    pm.expect(responseBody['localbgs-intenttofile'].success).to.eql(true);",
+									"    pm.expect(responseBody['localbgs-trackeditem'].success).to.eql(true);",
+									"",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/claims/v2/upstream_healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"claims",
+								"v2",
+								"upstream_healthcheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/v0/apidocs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint returns valid Swagger JSON\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"    var responseBody = pm.response.json();",
+									"    pm.expect(responseBody.info.title).to.include('va.gov API');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/v0/apidocs",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"v0",
+								"apidocs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/v1/apidocs",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Endpoint returns valid Swagger JSON\", function () {",
+									"    if (pm.response.code != 200) { return };",
+									"    var responseBody = pm.response.json();",
+									"    pm.expect(responseBody.info.title).to.include('va.gov API');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/v1/apidocs",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"v1",
+								"apidocs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/v0/limited",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the required field 'message'\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.message).to.exist;",
+									"});",
+									"",
+									"",
+									"pm.test(\"Content-Type header is application/json\", function () {",
+									"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.include(\"application/json\");",
+									"});",
+									"",
+									"",
+									"pm.test(\"Ensure the message field is a non-empty string\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData.message).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Value should not be empty\");",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/v0/limited",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"v0",
+								"limited"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/v0/status",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response time is within an acceptable range\", function () {",
+									"  pm.expect(pm.response.responseTime).to.be.below(300);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the expected schema\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('git_revision');",
+									"    pm.expect(responseData).to.have.property('db_url');",
+									"    pm.expect(responseData).to.have.property('postgres_up');",
+									"    pm.expect(responseData).to.have.property('redis_up');",
+									"    pm.expect(responseData).to.have.property('redis_details');",
+									"    pm.expect(responseData.redis_details).to.have.property('app_data_redis');",
+									"    pm.expect(responseData.redis_details).to.have.property('rails_cache');",
+									"    pm.expect(responseData.redis_details).to.have.property('sidekiq_redis');",
+									"});",
+									"",
+									"pm.test(\"Verify postgres and redis are available\", function () {",
+									"    const responseData = pm.response.json();",
+									"    pm.expect(responseData.postgres_up).to.eql(true);",
+									"    pm.expect(responseData.redis_up).to.eql(true);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/v0/status",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"v0",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/claims/v1/healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has the expected schema\", function () {",
+									"    const responseData = pm.response.json();",
+									"",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('default');",
+									"    pm.expect(responseData.default).to.have.property('message');",
+									"    pm.expect(responseData.default).to.have.property('success');",
+									"    pm.expect(responseData.default).to.have.property('time');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/claims/v1/healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"claims",
+								"v1",
+								"healthcheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/address_validation/healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has the required fields - status and groups\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('status');",
+									"    pm.expect(responseData).to.have.property('groups');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Status should be UP\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.status).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Status should not be empty\");",
+									"    pm.expect(responseData.status).to.deep.equal('UP');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/address_validation/healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"address_validation",
+								"healthcheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/appeals/v0/upstream_healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Validate the response schema for required fields\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('description');",
+									"    pm.expect(responseData).to.have.property('status');",
+									"    pm.expect(responseData).to.have.property('time');",
+									"    pm.expect(responseData).to.have.property('details');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Status for Appeals should be 'UP'\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.status).to.deep.equal('UP');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Upstream services should be 'UP'\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.details.upstreamServices[0].status).to.deep.equal('UP');",
+									"",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/appeals/v0/upstream_healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"appeals",
+								"v0",
+								"upstream_healthcheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/veteran_confirmation/v0/health",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response has the required fields - status, components, and groups\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('status');",
+									"    pm.expect(responseData).to.have.property('components');",
+									"    pm.expect(responseData).to.have.property('groups');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Status should be UP\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.status).to.be.a('string').and.to.have.lengthOf.at.least(1, \"Status should not be empty\");",
+									"    pm.expect(responseData.status).to.deep.equal('UP');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/veteran_confirmation/v0/health",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"veteran_confirmation",
+								"v0",
+								"health"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/va_forms/v0/healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the required fields - description, status, and time\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('description');",
+									"    pm.expect(responseData).to.have.property('status');",
+									"    pm.expect(responseData).to.have.property('time');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Health check reports expected values\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.description).to.deep.equal('VA Forms API Health Check');",
+									"    pm.expect(responseData.status).to.deep.equal('UP');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/va_forms/v0/healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"va_forms",
+								"v0",
+								"healthcheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/va_forms/v0/upstream_healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the required fields - description, status, and time\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('description');",
+									"    pm.expect(responseData).to.have.property('status');",
+									"    pm.expect(responseData).to.have.property('time');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Health check reports expected values\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.description).to.deep.equal('VA Forms API Upstream Health Check');",
+									"    pm.expect(responseData.status).to.deep.equal('UP');",
+									"});",
+									"",
+									"pm.test(\"Upstream services report expected values\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.details.upstreamServices[0].description).to.deep.equal('Content Management System');",
+									"    pm.expect(responseData.details.upstreamServices[0].status).to.deep.equal('UP');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/va_forms/v0/upstream_healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"va_forms",
+								"v0",
+								"upstream_healthcheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/vba_documents/v1/healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the required fields - description, status, and time\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('description');",
+									"    pm.expect(responseData).to.have.property('status');",
+									"    pm.expect(responseData).to.have.property('time');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Health check reports expected values\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.description).to.deep.equal('VBA Documents API health check');",
+									"    pm.expect(responseData.status).to.deep.equal('pass');",
+									"});",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/vba_documents/v1/healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"vba_documents",
+								"v1",
+								"healthcheck"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/services/vba_documents/v1/upstream_healthcheck",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Response status code is 200\", function () {",
+									"  pm.response.to.have.status(200);",
+									"});",
+									"",
+									"",
+									"pm.test(\"Response has the required fields - description, status, and time\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData).to.be.an('object');",
+									"    pm.expect(responseData).to.have.property('description');",
+									"    pm.expect(responseData).to.have.property('status');",
+									"    pm.expect(responseData).to.have.property('time');",
+									"});",
+									"",
+									"",
+									"pm.test(\"Health check reports expected values\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.description).to.deep.equal('VBA Documents API upstream health check');",
+									"    pm.expect(responseData.status).to.deep.equal('UP');",
+									"});",
+									"",
+									"pm.test(\"Upstream services report expected values\", function () {",
+									"    const responseData = pm.response.json();",
+									"    ",
+									"    pm.expect(responseData.details.upstreamServices[0].description).to.deep.equal('Central Mail');",
+									"    pm.expect(responseData.details.upstreamServices[0].status).to.deep.equal('UP');",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{vets_api_env}}/services/vba_documents/v1/upstream_healthcheck",
+							"host": [
+								"{{vets_api_env}}"
+							],
+							"path": [
+								"services",
+								"vba_documents",
+								"v1",
+								"upstream_healthcheck"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"description": "This collection of tests is designed to be able to run against any `vets-api` environment from production to development due to the complete absence of authenticated endpoint testing."
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					"const envVar = pm.environment.get(\"envUnderTest\");",
+					"// console.log(pm.collectionVariables.get('vets_api_env'));",
+					"if (envVar) {",
+					"    pm.collectionVariables.set('vets_api_env', envVar);",
+					"};"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "vets_api_env",
+			"value": "https://dev-api.va.gov",
+			"type": "string"
+		},
+		{
+			"key": "acr",
+			"value": "ial2",
+			"type": "string"
+		},
+		{
+			"key": "csp_type",
+			"value": "logingov",
+			"type": "string"
+		},
+		{
+			"key": "code_challenge",
+			"value": "1BUpxy37SoIPmKw96wbd6MDcvayOYm3ptT-zbe6L_zM=",
+			"type": "string"
+		},
+		{
+			"key": "mock_encoded_credential",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "mock_auth_state",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "anti_csrf_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "auth_code",
+			"value": ""
+		},
+		{
+			"key": "access_token",
+			"value": ""
+		},
+		{
+			"key": "refresh_token",
+			"value": ""
+		},
+		{
+			"key": "X-CSRF-Token",
+			"value": ""
+		},
+		{
+			"key": "client_id",
+			"value": "vaweb",
+			"type": "string"
+		},
+		{
+			"key": "X-Csrf-Token",
+			"value": ""
+		},
+		{
+			"key": "transaction_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "application_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "vets_api_env_dev",
+			"value": "https://dev-api.va.gov",
+			"type": "string"
+		}
+	]
+}

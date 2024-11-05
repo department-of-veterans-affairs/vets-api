@@ -26,8 +26,13 @@ bin/test
 ```
 
 - Replace existing testing command(s)
-- Options include --ci, --no-parallel, --coverage, --log
+- Options include --ci, --parallel, --coverage, --log
 - Input folders/files can be include like with rspec 
+
+*Note*: `pry` is not supported. Consider `pry` alternative: [debugger](https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem)
+
+*Note*: parallel can produce false failures. This issue is being investigated
+
 
 ## Lint
 

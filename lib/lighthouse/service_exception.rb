@@ -12,7 +12,9 @@ module Lighthouse
       504 => Common::Exceptions::GatewayTimeout,
       503 => Common::Exceptions::ServiceUnavailable,
       502 => Common::Exceptions::BadGateway,
+      501 => Common::Exceptions::NotImplemented,
       500 => Common::Exceptions::ExternalServerInternalServerError,
+      499 => Common::Exceptions::ClientDisconnected,
       429 => Common::Exceptions::TooManyRequests,
       422 => Common::Exceptions::UnprocessableEntity,
       413 => Common::Exceptions::PayloadTooLarge,
@@ -31,10 +33,20 @@ module Lighthouse
 
       response = error.response
       status_code = get_status_code(response)
-      return error unless status_code
+      raise missing_http_status_server_error(error) unless status_code
 
       errors = get_errors_from_response(error, status_code) if json_response?(response)
       raise error_class(status_code).new(errors:)
+    end
+
+    def self.missing_http_status_server_error(error)
+      if error.instance_of?(Faraday::TimeoutError)
+        # we've seen this Faraday error in production so we're adding this to categorize it
+        Common::Exceptions::Timeout.new(errors: [{ title: error.class, detail: error.message }])
+      else
+        # we're not sure if there are other uncategorized errors, so we're adding this to catch any
+        Common::Exceptions::ServiceError.new(errors: [{ title: error.class, detail: error.message }])
+      end
     end
 
     # chooses which error class should be reported based on the http status
