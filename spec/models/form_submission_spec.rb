@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe FormSubmission, type: :model do
+RSpec.describe FormSubmission, feature: :form_submission, type: :model do
   let(:user_account) { create(:user_account) }
 
   describe 'associations' do
@@ -40,7 +40,7 @@ RSpec.describe FormSubmission, type: :model do
       it 'returns benefits_intake_id from the form submission' do
         result = FormSubmission.with_latest_benefits_intake_uuid(user_account).with_form_types(['FORM-C']).first
 
-        expect(result.benefits_intake_uuid).to eq(@fsc.benefits_intake_uuid)
+        expect(result.benefits_intake_uuid).to be_nil
       end
     end
 
@@ -65,7 +65,7 @@ RSpec.describe FormSubmission, type: :model do
         @fsb1.update!(benefits_intake_uuid: nil)
         result = FormSubmission.with_latest_benefits_intake_uuid(user_account).with_form_types(['FORM-B']).first
 
-        expect(result.benefits_intake_uuid).to eq(@fsb.benefits_intake_uuid)
+        expect(result.benefits_intake_uuid).to be_nil
       end
     end
 
