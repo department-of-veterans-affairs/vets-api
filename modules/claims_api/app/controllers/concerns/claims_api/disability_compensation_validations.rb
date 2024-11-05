@@ -65,12 +65,14 @@ module ClaimsApi
     end
 
     def validate_form_526_change_of_address!
-      validate_form_526_change_of_address_beginning_date!
-      validate_form_526_change_of_address_country!
+      change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+
+      validate_form_526_change_of_address_beginning_date!(change_of_address)
+      validate_form_526_change_of_address_ending_date!(change_of_address)
+      validate_form_526_change_of_address_country!(change_of_address)
     end
 
-    def validate_form_526_change_of_address_beginning_date!
-      change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+    def validate_form_526_change_of_address_beginning_date!(change_of_address)
       return if change_of_address.blank?
       return unless 'TEMPORARY'.casecmp?(change_of_address['addressChangeType'])
       return if Date.parse(change_of_address['beginningDate']) > Time.zone.now
@@ -78,8 +80,26 @@ module ClaimsApi
       raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', change_of_address['beginningDate'])
     end
 
-    def validate_form_526_change_of_address_country!
-      change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+    def validate_form_526_change_of_address_ending_date!(change_of_address)
+      return if change_of_address.blank?
+
+      change_type = change_of_address['addressChangeType']
+      ending_date = change_of_address['endingDate']
+
+      case change_type&.upcase
+      when 'PERMANENT'
+        raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date) if ending_date.present?
+      when 'TEMPORARY'
+        raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date) if ending_date.blank?
+
+        beginning_date = change_of_address['beginningDate']
+        if Date.parse(beginning_date) >= Date.parse(ending_date)
+          raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date)
+        end
+      end
+    end
+
+    def validate_form_526_change_of_address_country!(change_of_address)
       return if change_of_address.blank?
       return if valid_countries.include?(change_of_address['country'])
 
