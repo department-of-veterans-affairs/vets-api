@@ -29,8 +29,11 @@ module Pensions
     def track_show404(confirmation_number, current_user, e)
       additional_context = {
         confirmation_number:,
-        user_uuid: current_user&.uuid,
-        message: e&.message
+        user_account_uuid: current_user&.user_account_uuid,
+        message: e&.message,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', '21P-527EZ submission not found', CLAIM_STATS_KEY, additional_context,
                     call_location: caller_locations.first)
@@ -47,8 +50,11 @@ module Pensions
     def track_show_error(confirmation_number, current_user, e)
       additional_context = {
         confirmation_number:,
-        user_uuid: current_user&.uuid,
-        message: e&.message
+        user_account_uuid: current_user&.user_account_uuid,
+        message: e&.message,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', '21P-527EZ fetching submission failed', CLAIM_STATS_KEY, additional_context,
                     call_location: caller_locations.first)
@@ -64,7 +70,10 @@ module Pensions
     def track_create_attempt(claim, current_user)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid: current_user&.uuid
+        user_account_uuid: current_user&.user_account_uuid,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('info', '21P-527EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt", additional_context,
                     call_location: caller_locations.first)
@@ -82,9 +91,12 @@ module Pensions
     def track_create_validation_error(in_progress_form, claim, current_user)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid: current_user&.uuid,
+        user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
-        errors: claim&.errors&.errors
+        errors: claim&.errors&.errors,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', '21P-527EZ submission validation error', "#{CLAIM_STATS_KEY}.validation_error",
                     additional_context, call_location: caller_locations.first)
@@ -102,10 +114,13 @@ module Pensions
     def track_create_error(in_progress_form, claim, current_user, e = nil)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid: current_user&.uuid,
+        user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
         errors: claim&.errors&.errors,
-        message: e&.message
+        message: e&.message,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', '21P-527EZ submission to Sidekiq failed', "#{CLAIM_STATS_KEY}.failure", additional_context,
                     call_location: caller_locations.first)
@@ -122,8 +137,11 @@ module Pensions
     def track_create_success(in_progress_form, claim, current_user)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid: current_user&.uuid,
-        in_progress_form_id: in_progress_form&.id
+        user_account_uuid: current_user&.user_account_uuid,
+        in_progress_form_id: in_progress_form&.id,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('info', '21P-527EZ submission to Sidekiq success', "#{CLAIM_STATS_KEY}.success",
                     additional_context, call_location: caller_locations.first)
@@ -140,9 +158,12 @@ module Pensions
     def track_process_attachment_error(in_progress_form, claim, current_user)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid: current_user&.uuid,
+        user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
-        errors: claim&.errors&.errors
+        errors: claim&.errors&.errors,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', '21P-527EZ process attachment error', "#{CLAIM_STATS_KEY}.process_attachment_error",
                     additional_context, call_location: caller_locations.first)
@@ -154,14 +175,17 @@ module Pensions
     #
     # @param claim [Pension::SavedClaim]
     # @param lighthouse_service [BenefitsIntake::Service]
-    # @param user_uuid [UUID]
+    # @param user_account_uuid [UUID]
     #
-    def track_submission_begun(claim, lighthouse_service, user_uuid)
+    def track_submission_begun(claim, lighthouse_service, user_account_uuid)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid:,
+        user_account_uuid:,
         claim_id: claim&.id,
-        benefits_intake_uuid: lighthouse_service&.uuid
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('info', 'Lighthouse::PensionBenefitIntakeJob submission to LH begun',
                     "#{SUBMISSION_STATS_KEY}.begun", additional_context, call_location: caller_locations.first)
@@ -173,17 +197,20 @@ module Pensions
     #
     # @param claim [Pension::SavedClaim]
     # @param lighthouse_service [BenefitsIntake::Service]
-    # @param user_uuid [UUID]
+    # @param user_account_uuid [UUID]
     # @param upload [Hash] lighthouse upload data
     #
-    def track_submission_attempted(claim, lighthouse_service, user_uuid, upload)
+    def track_submission_attempted(claim, lighthouse_service, user_account_uuid, upload)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid:,
+        user_account_uuid:,
         claim_id: claim&.id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         file: upload[:file],
-        attachments: upload[:attachments]
+        attachments: upload[:attachments],
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('info', 'Lighthouse::PensionBenefitIntakeJob submission to LH attempted',
                     "#{SUBMISSION_STATS_KEY}.attempt", additional_context, call_location: caller_locations.first)
@@ -195,14 +222,17 @@ module Pensions
     #
     # @param claim [Pension::SavedClaim]
     # @param lighthouse_service [BenefitsIntake::Service]
-    # @param user_uuid [UUID]
+    # @param user_account_uuid [UUID]
     #
-    def track_submission_success(claim, lighthouse_service, user_uuid)
+    def track_submission_success(claim, lighthouse_service, user_account_uuid)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid:,
+        user_account_uuid:,
         claim_id: claim&.id,
-        benefits_intake_uuid: lighthouse_service&.uuid
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('info', 'Lighthouse::PensionBenefitIntakeJob submission to LH succeeded',
                     "#{SUBMISSION_STATS_KEY}.success", additional_context, call_location: caller_locations.first)
@@ -214,16 +244,19 @@ module Pensions
     #
     # @param claim [Pension::SavedClaim]
     # @param lighthouse_service [BenefitsIntake::Service]
-    # @param user_uuid [UUID]
+    # @param user_account_uuid [UUID]
     # @param e [Error]
     #
-    def track_submission_retry(claim, lighthouse_service, user_uuid, e)
+    def track_submission_retry(claim, lighthouse_service, user_account_uuid, e)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid:,
+        user_account_uuid:,
         claim_id: claim&.id,
         benefits_intake_uuid: lighthouse_service&.uuid,
-        message: e&.message
+        message: e&.message,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('warn', 'Lighthouse::PensionBenefitIntakeJob submission to LH failed, retrying',
                     "#{SUBMISSION_STATS_KEY}.failure", additional_context, call_location: caller_locations.first)
@@ -240,10 +273,13 @@ module Pensions
       user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid: user_account_uuid,
+        user_account_uuid: user_account_uuid,
         claim_id: msg['args'].first,
         form_id: claim&.form_id,
-        message: msg
+        message: msg,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
       track_request('error', 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
@@ -256,18 +292,21 @@ module Pensions
     #
     # @param claim [Pension::SavedClaim]
     # @param lighthouse_service [LighthouseService]
-    # @param user_uuid [String]
+    # @param user_account_uuid [String]
     # @param e [Exception]
     #
-    def track_send_confirmation_email_failure(claim, lighthouse_service, user_uuid, e)
+    def track_send_confirmation_email_failure(claim, lighthouse_service, user_account_uuid, e)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid:,
+        user_account_uuid:,
         claim_id: claim&.id,
         benefits_intake_uuid: lighthouse_service&.uuid,
-        message: e&.message
+        message: e&.message,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
-      log_silent_failure(additional_context, user_uuid, call_location: caller_locations.first)
+
       track_request('warn', 'Lighthouse::PensionBenefitIntakeJob send_confirmation_email failed', CLAIM_STATS_KEY,
                     additional_context, call_location: caller_locations.first)
     end
@@ -278,16 +317,19 @@ module Pensions
     #
     # @param claim [Pension::SavedClaim]
     # @param lighthouse_service [BenefitsIntake::Service]
-    # @param user_uuid [UUID]
+    # @param user_account_uuid [UUID]
     # @param e [Error]
     #
-    def track_file_cleanup_error(claim, lighthouse_service, user_uuid, e)
+    def track_file_cleanup_error(claim, lighthouse_service, user_account_uuid, e)
       additional_context = {
         confirmation_number: claim&.confirmation_number,
-        user_uuid:,
+        user_account_uuid:,
         claim_id: claim&.id,
         benefits_intake_uuid: lighthouse_service&.uuid,
-        error: e&.message
+        error: e&.message,
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', 'Lighthouse::PensionBenefitIntakeJob cleanup failed',
                     "#{SUBMISSION_STATS_KEY}.cleanup_failed", additional_context, call_location: caller_locations.first)
