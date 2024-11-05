@@ -5,62 +5,71 @@ on:
     types: [opened, synchronize, review_requested, review_request_removed, ready_for_review, unlabeled]
 
 jobs:
-  label-pr-codeowners:
-    permissions: write-all
+  check-requested-teams:
     runs-on: ubuntu-latest
+    if: |
+        contains(toJSON(github.event.pull_request.requested_teams), '"mobile"') ||
+        contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
+        contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
+    outputs:
+      omitted_team_found: ${{ steps.set-output.outputs.omitted_team_found }}
+
+    steps:
+      - name: Set Output if Team Found
+        id: set-output
+        run: echo "omitted_team_found=true"
+
+  status-check:
+    runs-on: ubuntu-latest
+    id: status_check
+    needs: check-requested-teams
+    steps:
+      - name: Check if Previous Job Ran
+        run: |
+          if [ "${{ job.status }}" == "skipped" ]; then
+            echo "omit_backend_approval=false" >> $GITHUB_OUTPUT
+            echo "The 'check-requested-teams'skipped. Backend approval required."
+          else
+            echo "omit_backend_approval=true" >> $GITHUB_OUTPUT
+            echo "The 'check-requested-teams' job found omitted teams."
+          f
+
+  assign-approval-labels:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    needs: status-check
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Add omit-backend-approval label
+        if: steps.status_check.outputs.omit_backend_approval == 'true'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            omit-backend-approval
+
       - name: Remove require-backend-approval label
+        if: steps.status_check.outputs.omit_backend_approval == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            require-backend-approval
+
+      - name: Add require-backend-approval label
+        if: steps.status_check.outputs.omit_backend_approval == 'false'
+        uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
             require-backend-approval
 
       - name: Remove omit-backend-approval label
+        if: steps.status_check.outputs.omit_backend_approval == 'false'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
             omit-backend-approval
-
-      - name: Assign team approval
-        id: assign_team_approval
-        if: |
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
-        run: |
-          echo "omit_backend_approval=true" >> $GITHUB_OUTPUT
-
-      - name: Check omit backend approval
-        run: echo "${{ steps.assign_team_approval.outputs }}"
-
-      - name: Add omit-backend-approval label
-        if: |
-          github.event.pull_request.draft == false &&
-          (
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
-          )
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            omit-backend-approval
-
-
-      - name: Add require-backend-approval label
-        uses: actions-ecosystem/action-add-labels@v1
-        if: |
-            github.event.pull_request.draft == false &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') &&
-            !contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            require-backend-approval
