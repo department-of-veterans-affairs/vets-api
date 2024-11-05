@@ -117,7 +117,7 @@ module SimpleFormsApi
           email,
           template_id,
           get_personalization(first_name),
-          nil,
+          Settings.vanotify.services.va_gov.api_key,
           callback: 'SimpleFormsApi::NotificationCallbacks',
           metadata: { notification_type:, form_number: }.to_json
         )
