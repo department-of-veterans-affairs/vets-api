@@ -24,7 +24,7 @@ module AskVAApi
 
         def call
           payload = {
-            AreYouTheDependent: inquiry_details[:inquiry_about].include?('dependent'),
+            AreYouTheDependent: dependent_of_veteran?,
             AttachmentPresent: attachment_present?,
             CaregiverZipCode: nil,
             ContactMethod: @translator.call(:response_type, inquiry_params[:contact_preference]),
@@ -132,6 +132,11 @@ module AskVAApi
             Name: fetch_state(inquiry_params.dig(obj, key)),
             StateCode: inquiry_params.dig(obj, key)
           }
+        end
+
+        def dependent_of_veteran?
+          inquiry_params[:who_is_your_question_about] == 'Myself' &&
+            inquiry_params[:relationship_to_veteran] == "I'm a family member of a Veteran"
         end
       end
     end

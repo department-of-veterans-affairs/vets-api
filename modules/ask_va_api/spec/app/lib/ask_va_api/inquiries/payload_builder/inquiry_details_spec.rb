@@ -105,14 +105,14 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
         let(:who_is_your_question_about) { 'Someone else' }
         let(:relationship_to_veteran) { "I'm a family member of a Veteran" }
         let(:is_question_about_veteran_or_someone_else) { 'Veteran' }
-        let(:their_relationship_to_veteran) { 'CHILD' }
+        let(:more_about_your_relationship_to_veteran) { "I'm the Veteran's child" }
 
         it 'returns a payload structure to CRM API' do
           expect(builder.call)
             .to eq({
                      inquiry_about: 'On Behalf of a Veteran',
                      dependent_relationship: nil,
-                     veteran_relationship: their_relationship_to_veteran,
+                     veteran_relationship: more_about_your_relationship_to_veteran,
                      level_of_authentication: 'Personal'
                    })
         end
