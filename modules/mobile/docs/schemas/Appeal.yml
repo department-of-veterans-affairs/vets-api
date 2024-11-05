@@ -97,6 +97,7 @@ properties:
               - multiple
               - vha
               - voc_rehub
+              - voc_rehab
           status:
             type: object
             additionalProperties: false
