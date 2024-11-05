@@ -157,7 +157,7 @@ describe TravelPay::ClaimAssociationService do
     end
   end
 
-  context 'associate_appointment_to_claim' do
+  context 'associate_single_appointment_to_claim' do
     let(:user) { build(:user) }
     let(:single_claim_data_success) do
       {
@@ -221,7 +221,9 @@ describe TravelPay::ClaimAssociationService do
         .and_return(single_claim_data_success)
 
       association_service = TravelPay::ClaimAssociationService.new
-      appt_with_claim = association_service.associate_appointment_to_claim({ 'appointment' => single_appointment })
+      appt_with_claim = association_service.associate_single_appointment_to_claim(
+        { 'appointment' => single_appointment }
+      )
 
       expect(appt_with_claim['associatedTravelPayClaim']['metadata']['status']).to eq(200)
       expect(appt_with_claim['associatedTravelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
@@ -239,7 +241,9 @@ describe TravelPay::ClaimAssociationService do
         .and_return(no_claim_data_success)
 
       association_service = TravelPay::ClaimAssociationService.new
-      appt_with_claim = association_service.associate_appointment_to_claim({ 'appointment' => single_appointment })
+      appt_with_claim = association_service.associate_single_appointment_to_claim(
+        { 'appointment' => single_appointment }
+      )
 
       expect(appt_with_claim['associatedTravelPayClaim']['metadata']['status']).to eq(200)
       expect(appt_with_claim['associatedTravelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
@@ -257,7 +261,9 @@ describe TravelPay::ClaimAssociationService do
         .and_return(nil)
 
       association_service = TravelPay::ClaimAssociationService.new
-      appt_with_claim = association_service.associate_appointment_to_claim({ 'appointment' => single_appointment })
+      appt_with_claim = association_service.associate_single_appointment_to_claim(
+        { 'appointment' => single_appointment }
+      )
 
       expect(appt_with_claim['associatedTravelPayClaim']['claim']).to be_nil
       expect(appt_with_claim['associatedTravelPayClaim']['metadata']['status']).to equal(503)

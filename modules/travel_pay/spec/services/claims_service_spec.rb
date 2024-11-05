@@ -174,6 +174,27 @@ describe TravelPay::ClaimsService do
       )
     end
 
+    let(:single_claim_by_date_response) do
+      Faraday::Response.new(
+        body: {
+          'statusCode' => 200,
+          'message' => 'Data retrieved successfully.',
+          'success' => true,
+          'data' => [
+            {
+              'id' => 'uuid1',
+              'claimNumber' => 'TC0000000000001',
+              'claimStatus' => 'InProgress',
+              'appointmentDateTime' => '2024-01-01T16:45:34.465Z',
+              'facilityName' => 'Cheyenne VA Medical Center',
+              'createdOn' => '2024-03-22T21:22:34.465Z',
+              'modifiedOn' => '2024-01-01T16:44:34.465Z'
+            }
+          ]
+        }
+      )
+    end
+
     let(:claims_no_data) do
       {
         'statusCode' => 200,
@@ -219,6 +240,26 @@ describe TravelPay::ClaimsService do
                                                          })
 
       expect(claims_by_date[:data].count).to equal(3)
+      expect(claims_by_date[:metadata]['status']).to equal(200)
+      expect(claims_by_date[:metadata]['success']).to eq(true)
+      expect(claims_by_date[:metadata]['message']).to eq('Data retrieved successfully.')
+    end
+
+    it 'returns a single claim if dates are the same' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token], {
+                'start_date' => '2024-01-01T16:45:34Z',
+                'end_date' => '2024-01-01T16:45:34Z'
+              })
+        .and_return(single_claim_by_date_response)
+
+      claims_by_date = @service.get_claims_by_date_range({
+                                                           'start_date' => '2024-01-01T16:45:34Z',
+                                                           'end_date' => '2024-01-01T16:45:34Z'
+                                                         })
+
+      expect(claims_by_date[:data].count).to equal(1)
       expect(claims_by_date[:metadata]['status']).to equal(200)
       expect(claims_by_date[:metadata]['success']).to eq(true)
       expect(claims_by_date[:metadata]['message']).to eq('Data retrieved successfully.')

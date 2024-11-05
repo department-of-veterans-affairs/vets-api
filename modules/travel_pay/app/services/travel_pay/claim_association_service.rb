@@ -40,7 +40,7 @@ module TravelPay
       end
     end
 
-    def associate_appointment_to_claim(params = {})
+    def associate_single_appointment_to_claim(params = {})
       appt = params['appointment']
 
       raw_claim = service.get_claims_by_date_range(
