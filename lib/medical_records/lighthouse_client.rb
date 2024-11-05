@@ -19,8 +19,10 @@ module MedicalRecords
       raise Common::Exceptions::ParameterMissing, 'ICN' if icn.blank?
 
       @icn = icn
+    end
 
-      @client ||= Lighthouse::VeteransHealth::Client.new(@icn)
+    def lighthouse_client
+      @lighthouse_client ||= Lighthouse::VeteransHealth::Client.new(@icn)
     end
 
     def authenticate
@@ -29,14 +31,25 @@ module MedicalRecords
       # because it is handled in Lighthouse::VeteransHealth::Client::retrieve_bearer_token
     end
 
+    def list_vitals(from_date, to_date)
+      params = {
+        patient: @icn,
+        _count: 100,
+        date: [from_date, to_date]
+      }
+      bundle = lighthouse_client.list_observations(params)
+      bundle = Oj.load(bundle[:body].to_json, symbol_keys: true)
+      sort_bundle(bundle, :recordedDate, :desc)
+    end
+
     def list_allergies
-      bundle = @client.list_allergy_intolerances
+      bundle = lighthouse_client.list_allergy_intolerances
       bundle = Oj.load(bundle[:body].to_json, symbol_keys: true)
       sort_bundle(bundle, :recordedDate, :desc)
     end
 
     def get_allergy(allergy_id)
-      bundle = @client.get_allergy_intolerance(allergy_id)
+      bundle = lighthouse_client.get_allergy_intolerance(allergy_id)
       Oj.load(bundle[:body].to_json, symbol_keys: true)
     end
 
