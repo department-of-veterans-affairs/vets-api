@@ -10,21 +10,29 @@ module SimpleFormsApi
 
       case notification_record.status
       when 'delivered'
-        if notification_type == 'error'
-          StatsD.increment('silent_failure_avoided', tags:)
-          Rails.logger.info('Simple forms api - error email delivered',
-                            { notification_record_id: notification_record.id,
-                              notification_record_to: notification_record.to,
-                              form_number: })
-        end
+        delivered(notification_record, notification_type, tags)
       when 'permanent-failure'
-        if notification_type == 'error'
-          StatsD.increment('silent_failure', tags:)
-          Rails.logger.error('Simple forms api - error email failed to deliver',
-                             { notification_record_id: notification_record.id,
-                               notification_record_to: notification_record.to,
-                               form_number: })
-        end
+        permanent_failure(notification_record, notification_type, tags)
+      end
+    end
+
+    private
+
+    def delivered(notification_record, notification_type, tags)
+      if notification_type == 'error'
+        StatsD.increment('silent_failure_avoided', tags:)
+        Rails.logger.info('Simple forms api - error email delivered',
+                          { notification_record_id: notification_record.id,
+                            form_number: })
+      end
+    end
+
+    def permanent_failure(notification_record, notification_type, tags)
+      if notification_type == 'error'
+        StatsD.increment('silent_failure', tags:)
+        Rails.logger.error('Simple forms api - error email failed to deliver',
+                           { notification_record_id: notification_record.id,
+                             form_number: })
       end
     end
   end
