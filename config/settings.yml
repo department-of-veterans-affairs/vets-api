@@ -1315,6 +1315,7 @@ vanotify:
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form21_4142_error_email: form21_4142_error_email_template_id
         form21_4142_received_email: form21_4142_received_email_template_id
+        form27_8832_action_needed_email: form27_8832_action_needed_email_template_id
         form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
         form40_0247_error_email: form40_0247_error_email_template_id
         form40_10007_error_email: form40_10007_error_email_template_id
@@ -1380,6 +1381,7 @@ vanotify:
         form_10_10d_email: form_10_10d_email
         form_10_10d_failure_email: form_10_10d_failure_email
         form_10_7959f_1_email: form_10_7959f_1_email
+        form_10_7959f_1_failure_email: form_10_7959f_1_failure_email
         form_10_7959f_2_email: form_10_7959f_2_email
         form_10_7959c_email: form_10_7959c_email
         form_10_7959a_email: form_10_7959a_email
