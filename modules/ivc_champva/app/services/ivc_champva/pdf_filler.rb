@@ -10,25 +10,14 @@ module IvcChampva
 
     TEMPLATE_BASE = Rails.root.join('modules', 'ivc_champva', 'templates')
 
-    if Flipper.enabled?(:champva_unique_temp_file_names, @user)
-      def initialize(form_number:, form:, name: nil, uuid: nil)
-        raise 'form_number is required' if form_number.blank?
-        raise 'form needs a data attribute' unless form&.data
+    def initialize(form_number:, form:, name: nil, uuid: nil)
+      raise 'form_number is required' if form_number.blank?
+      raise 'form needs a data attribute' unless form&.data
 
-        @form = form
-        @form_number = form_number
-        @name = name || form_number
-        @uuid = uuid
-      end
-    else
-      def initialize(form_number:, form:, name: nil)
-        raise 'form_number is required' if form_number.blank?
-        raise 'form needs a data attribute' unless form&.data
-
-        @form = form
-        @form_number = form_number
-        @name = name || form_number
-      end
+      @form = form
+      @form_number = form_number
+      @name = name || form_number
+      @uuid = uuid if Flipper.enabled?(:champva_unique_temp_file_names, @user)
     end
 
     # rubocop:disable Metrics/MethodLength
