@@ -1,14 +1,18 @@
 # frozen_string_literal: true
 
+require 'logging/monitor'
+
 # ZeroSilentFailures namespace
 module ZeroSilentFailures
   # global monitoring functions for ZSF - statsd and logging
-  class Monitor
+  class Monitor < Logging::Monitor
     # Proxy class to allow a custom `caller_location` to be used
     class CallLocation
       attr_accessor :base_label, :path, :lineno
 
       # create proxy caller_location
+      # @see Thread::Backtrace::Location
+      # @see ZeroSilentFailures::Monitor#parse_caller
       def initialize(function = nil, file = nil, line = nil)
         @base_label = function
         @path = file
@@ -16,27 +20,23 @@ module ZeroSilentFailures
       end
     end
 
-    # create ZSF monitor instance
-    def initialize(service)
-      @service = service
-    end
-
     def log_silent_failure(additional_context, user_account_uuid = nil, call_location: nil)
       function, file, line = parse_caller(call_location)
 
       metric = 'silent_failure'
       message = 'Silent failure!'
+      payload = {
+        statsd: metric,
+        service:,
+        function:,
+        file:,
+        line:,
+        user_account_uuid:,
+        additional_context:
+      }
 
       StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
-      Rails.logger.error(message, {
-                           statsd: metric,
-                           service:,
-                           function:,
-                           file:,
-                           line:,
-                           user_account_uuid:,
-                           additional_context:
-                         })
+      Rails.logger.error(message, payload)
     end
 
     def log_silent_failure_avoided(additional_context, user_account_uuid = nil, call_location: nil,
@@ -51,16 +51,18 @@ module ZeroSilentFailures
         message = "#{message} (no confirmation)"
       end
 
+      payload = {
+        statsd: metric,
+        service:,
+        function:,
+        file:,
+        line:,
+        user_account_uuid:,
+        additional_context:
+      }
+
       StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
-      Rails.logger.error(message, {
-                           statsd: metric,
-                           service:,
-                           function:,
-                           file:,
-                           line:,
-                           user_account_uuid:,
-                           additional_context:
-                         })
+      Rails.logger.error(message, payload)
     end
 
     private

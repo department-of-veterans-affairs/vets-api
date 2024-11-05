@@ -146,43 +146,6 @@
 					"response": []
 				},
 				{
-					"name": "/v0/backend_statuses/{service}",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									"pm.test(\"Endpoint returns valid backend status object\", function () {",
-									"    if (pm.response.code != 200) { return };",
-									"    var responseBody = pm.response.json();",
-									"    pm.expect(responseBody).to.have.property('data');",
-									"});",
-									""
-								],
-								"type": "text/javascript",
-								"packages": {}
-							}
-						}
-					],
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{vets_api_env}}//v0/backend_statuses/gibs",
-							"host": [
-								"{{vets_api_env}}"
-							],
-							"path": [
-								"",
-								"v0",
-								"backend_statuses",
-								"gibs"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "/v0/forms",
 					"event": [
 						{

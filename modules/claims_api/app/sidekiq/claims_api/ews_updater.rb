@@ -34,7 +34,7 @@ module ClaimsApi
     end
 
     def update_bgs_claim(ews, bgs_claim)
-      response = bgs_service(ews).benefit_claims.update_bnft_claim(claim: bgs_claim)
+      response = get_response(ews, bgs_claim)
       if response[:bnft_claim_dto].nil?
         ews.status = ClaimsApi::EvidenceWaiverSubmission::ERRORED
         ews.bgs_error_message = "BGS Error: update_record failed with code #{response[:return_code]}"
@@ -46,6 +46,14 @@ module ClaimsApi
         ClaimsApi::Logger.log('ews_updater', ews_id: ews.id, claim_id: ews.claim_id,
                                              detail: 'Waiver update Success')
         ews.status = ClaimsApi::EvidenceWaiverSubmission::UPDATED
+      end
+    end
+
+    def get_response(ews, bgs_claim)
+      if Flipper.enabled? :claims_api_ews_updater_enables_local_bgs
+        benefit_claim_web_service(ews).update_bnft_claim(claim: bgs_claim)
+      else
+        bgs_service(ews).benefit_claims.update_bnft_claim(claim: bgs_claim)
       end
     end
 
