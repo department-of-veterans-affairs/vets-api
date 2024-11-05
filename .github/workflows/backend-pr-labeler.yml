@@ -214,5 +214,6 @@ jobs:
         run: |
           echo "labels: ${{ toJSON(github.event.pull_request.labels.*.name) }}"
           echo "labels: ${{ github.event.pull_request.labels.*.name[0] }}"
-          echo '${{ toJSON(github.event.pull_request) }}' | jq .
-          echo '${{ toJSON(github.event.workflow_run) }}' | jq .
+          echo '${{ toJSON(github.event.pull_request.requested_teams) }}' | jq 'length'
+          echo '${{ toJSON(github.event.pull_request.requested_teams) }}' | jq .
+          echo '${{ toJSON(github.event.workflow) }}' | jq .
