@@ -96,7 +96,7 @@ module ClaimsApi
             "#{base_form}.Name_Of_Service_Organization[0]": data.dig('serviceOrganization', 'organizationName'),
             "#{base_form}.Name_Of_Official_Representative[0]": "#{data.dig('serviceOrganization', 'firstName')} #{data.dig('serviceOrganization', 'lastName')}",
             "#{base_form}.Email_Address[0]": data.dig('serviceOrganization', 'email'),
-            "#{base_form}.Job_Title[0]": data.dig('serviceOrganization', 'jobTitle'),
+            "#{base_form}.Job_Title_Of_Person_Named_In_Item15A[0]": data.dig('serviceOrganization', 'jobTitle'),
             "#{base_form}.Date_Of_This_Appointment[0]": I18n.l(Time.zone.now.to_date, format: :va_form)
           }
         end
