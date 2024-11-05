@@ -83,14 +83,15 @@ class SavedClaim < ApplicationRecord
 
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
 
-    schema_errors = JSON::Validator.fully_validate_schema(schema, { errors_as_objects: true })
+    schema_errors = validate_schema(schema)
+
     clear_cache = false
     unless schema_errors.empty?
       Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
       clear_cache = true
     end
 
-    validation_errors = JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true, clear_cache: })
+    validation_errors = validate_form(schema, clear_cache)
 
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])
@@ -147,6 +148,20 @@ class SavedClaim < ApplicationRecord
   end
 
   private
+
+  def validate_schema(schema)
+    JSON::Validator.fully_validate_schema(schema, { errors_as_objects: true })
+  rescue => e
+    Rails.logger.error('Error during schema validation!', { error: e.message, backtrace: e.backtrace })
+    [] # Return empty array since we don't have an error array
+  end
+
+  def validate_form(schema, clear_cache)
+    JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true, clear_cache: })
+  rescue => e
+    Rails.logger.error('Error during form validation!', { error: e.message, backtrace: e.backtrace })
+    [] # Return empty array since we don't have an error array
+  end
 
   def attachment_keys
     []
