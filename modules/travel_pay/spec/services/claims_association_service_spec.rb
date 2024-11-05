@@ -261,7 +261,8 @@ describe TravelPay::ClaimAssociationService do
 
       expect(appt_with_claim['associatedTravelPayClaim']['claim']).to be_nil
       expect(appt_with_claim['associatedTravelPayClaim']['metadata']['status']).to equal(503)
-      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['message']).to eq('Travel Pay service unavailable.')
+      expect(appt_with_claim['associatedTravelPayClaim']['metadata']['message'])
+        .to eq('Travel Pay service unavailable.')
       expect(appt_with_claim['associatedTravelPayClaim']['metadata']['success']).to eq(false)
     end
   end
