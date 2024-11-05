@@ -64,7 +64,7 @@ jobs:
 
     - name: Remove Failure label
       uses: actions-ecosystem/action-remove-labels@v1
-      if: ${{ success() }}
+      if: ${{ success() && contains(github.event.pull_request.labels.*.name, 'codeowners-addition-failure') }}
       with:
         number: ${{ github.event.pull_request.number }}
         labels: |
