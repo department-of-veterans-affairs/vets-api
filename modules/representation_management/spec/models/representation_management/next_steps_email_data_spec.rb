@@ -14,14 +14,6 @@ RSpec.describe RepresentationManagement::NextStepsEmailData, type: :model do
     it { expect(subject).to validate_presence_of(:entity_id) }
   end
 
-  # describe '#representative_type_humanized' do
-  #   it 'returns the humanized and titleized version of the representative type' do
-  #     next_steps_email_data = described_class.new(representative_type: 'claims_agent')
-  #     expect(next_steps_email_data.representative_type_humanized).to eq('Claims Agent')
-  #   end
-  # end
-  #
-
   describe '#entity' do
     it 'returns the entity for accredited_individual' do
       accredited_individual = create(:accredited_individual)
