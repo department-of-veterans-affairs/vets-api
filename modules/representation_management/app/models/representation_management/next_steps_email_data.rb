@@ -40,9 +40,9 @@ module RepresentationManagement
 
     def entity_name
       if entity_type == 'individual'
-        entity.full_name
+        entity.full_name.strip
       elsif entity_type == 'organization'
-        entity.name
+        entity.name.strip
       end
     end
 

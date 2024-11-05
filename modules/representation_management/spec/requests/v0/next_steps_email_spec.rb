@@ -5,7 +5,11 @@ require 'rails_helper'
 RSpec.describe 'NextStepsEmailController', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/next_steps_email' }
-    let(:accredited_individual) { create(:accredited_individual) }
+    let(:accredited_individual) do
+      create(:accredited_individual, individual_type: 'attorney', first_name: 'Bob', last_name: 'Law',
+                                     address_line1: '123 Fake St', address_line2: 'Bldg 2', address_line3: 'Suite 3',
+                                     city: 'Portland', state_code: 'OR', zip_code: '97214', country_code_iso3: 'USA')
+    end
     let(:params) do
       {
         next_steps_email: {
@@ -42,8 +46,8 @@ RSpec.describe 'NextStepsEmailController', type: :request do
             'form name' => 'Form Name',
             'form number' => 'Form Number',
             'representative type' => 'Attorney', # We enqueue this as a humanized and titleized string
-            'representative name' => 'Name',
-            'representative address' => 'Address'
+            'representative name' => 'Bob Law',
+            'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
           }
         )
         post(base_path, params:)
