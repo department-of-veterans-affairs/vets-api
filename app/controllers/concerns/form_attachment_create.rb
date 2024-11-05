@@ -42,7 +42,7 @@ module FormAttachmentCreate
     end
   rescue => e
     log_message_to_sentry(
-      'form attachment error 1',
+      'form attachment error 1 - validate class',
       :info,
       phase: 'FAC_validate',
       klass: filtered_params[:file_data].class.name,
@@ -55,8 +55,10 @@ module FormAttachmentCreate
     form_attachment.set_file_data!(filtered_params[:file_data], filtered_params[:password])
   rescue => e
     log_message_to_sentry(
-      'form attachment error 2',
+      'form attachment error 2 - save to cloud',
       :info,
+      has_pass: filtered_params[:password].present?,
+      ext: File.extname(filtered_params[:file_data]).last(5),
       phase: 'FAC_cloud',
       exception: e.message
     )
@@ -67,7 +69,7 @@ module FormAttachmentCreate
     form_attachment.save!
   rescue => e
     log_message_to_sentry(
-      'form attachment error 3',
+      'form attachment error 3 - save to db',
       :info,
       phase: 'FAC_db',
       errors: form_attachment.errors,
