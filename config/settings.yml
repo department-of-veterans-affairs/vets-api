@@ -1074,6 +1074,12 @@ lighthouse:
       access_token:
         client_id: ~
         rsa_key: ~
+      use_mocks: true
+    status:
+      host: https://staging-api.va.gov
+      access_token:
+        client_id: ~
+        rsa_key: ~
       use_mocks: false
   s3:
     uploads_enabled: false

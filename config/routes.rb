@@ -297,6 +297,7 @@ Rails.application.routes.draw do
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
+      resource :vet_verification_status, only: :show
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do
