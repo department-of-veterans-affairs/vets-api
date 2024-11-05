@@ -21,10 +21,10 @@ jobs:
 
   status-check:
     runs-on: ubuntu-latest
-    id: status_check
     needs: check-requested-teams
     steps:
       - name: Check if Previous Job Ran
+        id: assign_approval_label
         run: |
           if [ "${{ job.status }}" == "skipped" ]; then
             echo "omit_backend_approval=false" >> $GITHUB_OUTPUT
@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Add omit-backend-approval label
-        if: steps.status_check.outputs.omit_backend_approval == 'true'
+        if: steps.assign_approval_label.outputs.omit_backend_approval == 'true'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -51,7 +51,7 @@ jobs:
             omit-backend-approval
 
       - name: Remove require-backend-approval label
-        if: steps.status_check.outputs.omit_backend_approval == 'true'
+        if: steps.assign_approval_label.outputs.omit_backend_approval == 'true'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -59,7 +59,7 @@ jobs:
             require-backend-approval
 
       - name: Add require-backend-approval label
-        if: steps.status_check.outputs.omit_backend_approval == 'false'
+        if: steps.assign_approval_label.outputs.omit_backend_approval == 'false'
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -67,7 +67,7 @@ jobs:
             require-backend-approval
 
       - name: Remove omit-backend-approval label
-        if: steps.status_check.outputs.omit_backend_approval == 'false'
+        if: steps.assign_approval_label.outputs.omit_backend_approval == 'false'
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
