@@ -11,7 +11,8 @@ module SignIn
                 :user_attributes,
                 :client_config,
                 :hashed_device_secret,
-                :refresh_creation
+                :refresh_creation,
+                :verified_user_account_icn
 
     validate :validate_credential_lock!,
              :validate_terms_of_use!
@@ -23,6 +24,7 @@ module SignIn
       @client_config = client_config
       @hashed_device_secret = current_session.hashed_device_secret
       @refresh_creation = current_session.refresh_creation
+      @verified_user_account_icn = current_session.user_account.icn
     end
 
     def perform
@@ -103,7 +105,8 @@ module SignIn
         refresh_expiration: refresh_expiration_time,
         refresh_creation:,
         user_attributes:,
-        hashed_device_secret:
+        hashed_device_secret:,
+        verified_user_account_icn:
       )
     end
 
