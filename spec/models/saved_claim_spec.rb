@@ -63,11 +63,11 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
           allow(JSON::Validator).to receive(:fully_validate).and_return([])
         end
 
-        it 'logs exception and returns empty array' do
+        it 'logs exception and returns true' do
           expect(Rails.logger).to receive(:error)
             .with('Error during schema validation!', { error: exception.message, backtrace: anything })
 
-          saved_claim.validate
+          expect(saved_claim.validate).to eq true
         end
       end
 
@@ -79,11 +79,11 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
           allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
         end
 
-        it 'logs exception and returns empty array' do
+        it 'logs exception and returns true' do
           expect(Rails.logger).to receive(:error)
             .with('Error during form validation!', { error: exception.message, backtrace: anything })
 
-          saved_claim.validate
+          expect(saved_claim.validate).to eq true
         end
       end
     end
