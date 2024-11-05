@@ -153,6 +153,9 @@ features:
   champva_unique_temp_file_names:
     actor_type: user
     description: Enables unique temp file names for CHAMPVA PDF files
+  champva_file_recreate:
+    actor_type: user
+    description: Enhances file creation reliability by adding retry functionality in the vets-api tmp folder
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -692,6 +695,10 @@ features:
     actor_type: user
     description: Enables form 40-0247 email submission confirmation (VaNotify)
     enable_in_development: true
+  form40_10007_confirmation_email:
+    actor_type: user
+    description: Enables form 40-10007 email submission error (VaNotify)
+    enable_in_development: true  
   form1990meb_confirmation_email:
     actor_type: user
     description: Enables form 1990 MEB email submission confirmation (VaNotify)
@@ -1000,6 +1007,9 @@ features:
   organic_conversion_experiment:
     actor_type: user
     description: Toggle to enable login.gov create account experiment
+  pcpg_trigger_action_needed_email:
+    actor_type: user
+    description: Set whether to enable VANotify email to Veteran for PCPG failure exhaustion
   pension_income_and_assets_clarification:
     actor_type: user
     description: >

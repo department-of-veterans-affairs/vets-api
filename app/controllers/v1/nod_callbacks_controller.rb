@@ -24,7 +24,7 @@ module V1
       'SC' => 'supplemental-claims'
     }.freeze
 
-    VALID_FUNCTION_TYPES = %w[form evidence].freeze
+    VALID_FUNCTION_TYPES = %w[form evidence secondary_form].freeze
 
     def create
       return render json: nil, status: :not_found unless enabled?
