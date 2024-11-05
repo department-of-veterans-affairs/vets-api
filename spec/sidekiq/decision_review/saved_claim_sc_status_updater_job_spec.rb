@@ -184,6 +184,7 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
       end
 
       context 'SavedClaim records are present with completed status in LH and have associated secondary forms' do
+        let(:benefits_intake_service) { instance_double(BenefitsIntake::Service) }
         let!(:secondary_form1) { create(:secondary_appeal_form4142, guid: SecureRandom.uuid) }
         let!(:secondary_form2) { create(:secondary_appeal_form4142, guid: SecureRandom.uuid) }
         let!(:secondary_form3) { create(:secondary_appeal_form4142, guid: SecureRandom.uuid) }
@@ -208,18 +209,18 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
         end
 
         let(:upload_response_4142_vbms) do
-          response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_upload_show_response_200.json'))
+          response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json'))
           instance_double(Faraday::Response, body: response)
         end
 
         let(:upload_response_4142_processing) do
-          response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_upload_show_response_200.json'))
+          response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json'))
           response['data']['attributes']['status'] = 'processing'
           instance_double(Faraday::Response, body: response)
         end
 
         let(:upload_response_4142_error) do
-          response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_upload_show_response_200.json'))
+          response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_4142_show_response_200.json'))
           response['data']['attributes']['status'] = 'error'
           response['data']['attributes']['detail'] = 'Invalid PDF'
           instance_double(Faraday::Response, body: response)
@@ -227,6 +228,7 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
 
         before do
           allow(DecisionReviewV1::Service).to receive(:new).and_return(service)
+          allow(BenefitsIntake::Service).to receive(:new).and_return(benefits_intake_service)
           allow(service).to receive(:get_supplemental_claim).with(saved_claim1.guid).and_return(response_complete)
           allow(service).to receive(:get_supplemental_claim).with(saved_claim2.guid).and_return(response_complete)
           allow(service).to receive(:get_supplemental_claim).with(saved_claim3.guid).and_return(response_complete)
@@ -237,10 +239,10 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
         end
 
         it 'does NOT check status for 4142 records that already have a delete_date' do
-          expect(service).to receive(:get_supplemental_claim_upload).with(uuid: secondary_form1.guid)
-          expect(service).to receive(:get_supplemental_claim_upload).with(uuid: secondary_form2.guid)
-          expect(service).to receive(:get_supplemental_claim_upload).with(uuid: secondary_form3.guid)
-          expect(service).not_to receive(:get_supplemental_claim_upload)
+          expect(benefits_intake_service).to receive(:get_status).with(uuid: secondary_form1.guid)
+          expect(benefits_intake_service).to receive(:get_status).with(uuid: secondary_form2.guid)
+          expect(benefits_intake_service).to receive(:get_status).with(uuid: secondary_form3.guid)
+          expect(benefits_intake_service).not_to receive(:get_status)
             .with(uuid: secondary_form_with_delete_date.guid)
           subject.new.perform
         end
@@ -249,11 +251,11 @@ RSpec.describe DecisionReview::SavedClaimScStatusUpdaterJob, type: :job do
           let(:frozen_time) { DateTime.new(2024, 1, 1).utc }
 
           before do
-            allow(service).to receive(:get_supplemental_claim_upload)
+            allow(benefits_intake_service).to receive(:get_status)
               .with(uuid: secondary_form1.guid).and_return(upload_response_4142_vbms)
-            allow(service).to receive(:get_supplemental_claim_upload)
+            allow(benefits_intake_service).to receive(:get_status)
               .with(uuid: secondary_form2.guid).and_return(upload_response_4142_processing)
-            allow(service).to receive(:get_supplemental_claim_upload)
+            allow(benefits_intake_service).to receive(:get_status)
               .with(uuid: secondary_form3.guid).and_return(upload_response_4142_error)
           end
 
