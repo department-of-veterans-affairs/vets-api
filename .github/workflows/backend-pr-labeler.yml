@@ -165,7 +165,7 @@ jobs:
 
       # Remove require-backend-approval label
       - name: Remove require-backend-approval label
-        if: ${{ (env.draft == 'true' || env.exempt == 'true') && contains(github.event.pull_request.labels.*.name, 'require-backend-approval')}}
+        if: ${{ (env.draft == 'true' || env.exempt == 'true') && contains(github.event.pull_request.labels.*.name, 'require-backend-approval') }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
@@ -210,9 +210,9 @@ jobs:
             ready-for-backend-review
       
       - name: Debugging
+        if: ${{ always() }}
         run: |
           echo "labels: ${{ toJSON(github.event.pull_request.labels.*.name) }}"
           echo "labels: ${{ github.event.pull_request.labels.*.name[0] }}"
-          echo '${{ toJSON(github.event.pull_request.requested_teams) }}' | jq 'length'
-          echo '${{ toJSON(github.event.pull_request.requested_teams) }}' | jq .
           echo '${{ toJSON(github.event.pull_request) }}' | jq .
+          echo '${{ toJSON(github.event.workflow_run) }}' | jq .
