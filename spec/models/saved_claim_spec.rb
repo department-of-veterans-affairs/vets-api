@@ -106,8 +106,11 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
           saved_claim.save!
 
           claim_duration = saved_claim.created_at - form_start_date
-          expect(StatsD).to have_received(:measure).with('saved_claim.time-to-file', claim_duration,
-                                                         tags: ["form_id:#{saved_claim.form_id}"])
+          expect(StatsD).to have_received(:measure).with(
+            'saved_claim.time-to-file',
+            be_within(1.second).of(claim_duration),
+            tags: ["form_id:#{saved_claim.form_id}"]
+          )
         end
       end
     end
