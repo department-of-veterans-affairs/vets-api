@@ -44,11 +44,11 @@ describe MedicalRecords::Client do
 
     it 'adds adds a custom header to bypass FHIR server cache', :vcr do
       VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-        client.get_patient_by_identifier(client.fhir_client, patient_id)
-        expect(
-          a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
-        ).to have_been_made.at_least_once
-      end
+      client.get_patient_by_identifier(client.fhir_client, patient_id)
+      expect(
+        a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+      ).to have_been_made.at_least_once
+    end
     end
 
     context 'when the redaction feature toggle is enabled', :vcr do
@@ -81,11 +81,47 @@ describe MedicalRecords::Client do
     end
 
     context 'when the patient is not found', :vcr do
-      it 'gets a patient by identifer', :vcr do
-        VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
-          expect do
-            client.get_patient_by_identifier(client.fhir_client, patient_id)
-          end.to raise_error(MedicalRecords::PatientNotFound)
+      # Here we test using list_allergies instead of get_patient_by_identifier directly because the PatientNotFound
+      # exception is eaten while creating the session and later re-thrown if no patient ID exists while trying to
+      # access FHIR resources.
+
+      it 'does not find a patient by identifer (HAPI-1363)', :vcr do
+        VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
+                         match_requests_on: %i[method sm_user_ignoring_path_param]) do
+          VCR.use_cassette 'mr_client/session' do
+            VCR.use_cassette 'mr_client/get_a_patient_by_identifier_hapi_1363' do
+              partial_client ||= begin
+                partial_client = MedicalRecords::Client.new(session: { user_id: '22406991',
+                                                                       icn: '1013868614V792025' })
+                partial_client.authenticate
+                VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
+                  expect do
+                    partial_client.list_allergies
+                  end.to raise_error(MedicalRecords::PatientNotFound)
+                end
+              end
+            end
+          end
+        end
+      end
+
+      it 'does not find a patient by identifer (202)', :vcr do
+        VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
+                         match_requests_on: %i[method sm_user_ignoring_path_param]) do
+          VCR.use_cassette 'mr_client/session' do
+            VCR.use_cassette 'mr_client/get_a_patient_by_identifier_not_found' do
+              partial_client ||= begin
+                partial_client = MedicalRecords::Client.new(session: { user_id: '22406991',
+                                                                       icn: '1013868614V792025' })
+                partial_client.authenticate
+                VCR.use_cassette 'mr_client/get_a_list_of_allergies' do
+                  expect do
+                    partial_client.list_allergies
+                  end.to raise_error(MedicalRecords::PatientNotFound)
+                end
+              end
+            end
+          end
         end
       end
     end
