@@ -10,11 +10,12 @@ module TravelPay
     #
     # VAOS::Appointment
     #   +  associatedTravelPayClaim => {
-    #         claim => TravelPay::Claim
     #         metadata => {
-    #           status => string ('success' | 'error')
-    #           message => string (optional) ('No claim for this appt' | 'Claim service is unavailable')
-    #     }
+    #           status => int (http status code, i.e. 200)
+    #           success => boolean
+    #           message => string ('No claim for this appt' | 'Claim service is unavailable')
+    #         }
+    #         claim => TravelPay::Claim (if a claim matches)
     #   }
     #
     # @params
@@ -30,11 +31,12 @@ module TravelPay
         { 'start_date' => params['start_date'],
           'end_date' => params['end_date'] }
       )
-
       if raw_claims
-        append_claims(params['appointments']['data'], raw_claims[:data], { 'status' => 'success' })
+        append_claims(params['appointments']['data'], raw_claims[:data], raw_claims[:metadata])
       else
-        append_error(params['appointments']['data'], { 'status' => 'error', 'message' => 'Claim service unavailable' })
+        append_error(params['appointments']['data'], { 'status' => 503,
+                                                       'success' => false,
+                                                       'message' => 'Travel Pay service unavailable.' })
       end
     end
 

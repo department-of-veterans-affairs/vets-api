@@ -8,9 +8,11 @@ describe TravelPay::ClaimAssociationService do
     let(:user) { build(:user) }
     let(:claims_data_success) do
       {
-        # metadata: {
-        #   'status' => 'success'
-        # },
+        metadata: {
+          'status' => 200,
+          'message' => 'Data retrieved successfully.',
+          'success' => true
+        },
         data: [
           {
             'id' => 'uuid1',
@@ -52,16 +54,6 @@ describe TravelPay::ClaimAssociationService do
         ]
       }
     end
-
-    # let(:claims_data_error) do
-    #   {
-    #     metadata: {
-    #       'status' => 'error',
-    #       'message' => 'Claim service unavailable'
-    #     },
-    #     data: nil
-    #   }
-    # end
 
     let(:appointments) do
       { 'data' =>
@@ -130,6 +122,11 @@ describe TravelPay::ClaimAssociationService do
       end
 
       expect(appts_with_claims.count).to eq(appointments['data'].count)
+      appts_with_claims.each do |appt|
+        expect(appt['associatedTravelPayClaim']['metadata']['status']).to eq(200)
+        expect(appt['associatedTravelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
+        expect(appt['associatedTravelPayClaim']['metadata']['success']).to eq(true)
+      end
       expect(actual_appts_with_claims.count).to equal(1)
       expect(actual_appts_with_claims[0]['associatedTravelPayClaim']['claim']['id']).to eq(expected_uuids[0])
     end
@@ -153,8 +150,9 @@ describe TravelPay::ClaimAssociationService do
         c['associatedTravelPayClaim']['claim']
       end).to be_nil
       appts_with_claims.each do |appt|
-        expect(appt['associatedTravelPayClaim']['metadata']['status']).to eq('error')
-        expect(appt['associatedTravelPayClaim']['metadata']['message']).to eq('Claim service unavailable')
+        expect(appt['associatedTravelPayClaim']['metadata']['status']).to equal(503)
+        expect(appt['associatedTravelPayClaim']['metadata']['message']).to eq('Travel Pay service unavailable.')
+        expect(appt['associatedTravelPayClaim']['metadata']['success']).to eq(false)
       end
     end
   end
