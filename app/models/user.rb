@@ -394,7 +394,7 @@ class User < Common::RedisStore
   end
 
   def demographics_info
-    # return nil unless DemographicsPolicy.new(self).access? && MPIPolicy.new(self).queryable?
+    return nil unless DemographicsPolicy.new(self).access? && MPIPolicy.new(self).queryable?
 
     @demographics_info ||= VAProfileRedis::Demographics.for_user(self)
   rescue => e
