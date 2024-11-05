@@ -69,52 +69,12 @@ module Pensions
     end
 
     ##
-    # enqueue the sending of the submission confirmation email
+    # utility function to retrieve claimant first name from form
     #
-    # @see VANotify::EmailJob
+    # @return [String] the claimant first name
     #
-    def send_confirmation_email
-      if email.blank? || va_notification?(Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email)
-        return
-      end
-
-      VANotify::EmailJob.perform_async(
-        email,
-        Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email,
-        {
-          'first_name' => parsed_form.dig('veteranFullName', 'first')&.upcase.presence,
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => guid
-        }
-      )
-
-      insert_notification(Settings.vanotify.services.va_gov.template_id.form527ez_confirmation_email)
-    end
-
-    ##
-    # insert notifcation after VANotify email send
-    #
-    # @see ClaimVANotification
-    #
-    def insert_notification(email_template_id)
-      claim_va_notifications.create!(
-        form_type: form_id,
-        email_sent: true,
-        email_template_id: email_template_id
-      )
-    end
-
-    ##
-    # Find notifcation by args*
-    #
-    # @param email_template_id
-    # @see ClaimVANotification
-    #
-    def va_notification?(email_template_id)
-      claim_va_notifications.find_by(
-        form_type: form_id,
-        email_template_id: email_template_id
-      )
+    def first_name
+      parsed_form.dig('veteranFullName', 'first')
     end
 
     # Run after a claim is saved, this processes any files and workflows that are present

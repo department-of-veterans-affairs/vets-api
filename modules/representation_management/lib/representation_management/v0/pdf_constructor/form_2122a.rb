@@ -44,7 +44,7 @@ module RepresentationManagement
             HEREDOC
             pdf.text(city_state_zip)
             pdf.move_down(5)
-            pdf.text(format_phone_number(data.representative.phone))
+            pdf.text(format_phone_number(data.representative_phone))
             pdf.text(data.representative.email)
           end
         end
@@ -159,7 +159,7 @@ module RepresentationManagement
             "#{PAGE1_KEY}.Last_Name[0]": data.representative.last_name,
             # Representative Type
             "#{PAGE1_KEY}.RadioButtonList[0]": representative_type_checkbox(
-              data.representative.individual_type.to_s.upcase
+              data.representative_individual_type.to_s.upcase
             )
           }
         end
@@ -177,9 +177,9 @@ module RepresentationManagement
             "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[2]": data.representative.zip_code,
             "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[2]": data.representative.zip_suffix,
             # Representative Phone Number
-            "#{PAGE2_KEY}.Telephone_Number_Area_Code[2]": data.representative.phone[0..2],
-            "#{PAGE2_KEY}.Telephone_Middle_Three_Numbers[1]": data.representative.phone[3..5],
-            "#{PAGE2_KEY}.Telephone_Last_Four_Numbers[2]": data.representative.phone[6..9],
+            "#{PAGE2_KEY}.Telephone_Number_Area_Code[2]": data.representative_phone[0..2],
+            "#{PAGE2_KEY}.Telephone_Middle_Three_Numbers[1]": data.representative_phone[3..5],
+            "#{PAGE2_KEY}.Telephone_Last_Four_Numbers[2]": data.representative_phone[6..9],
             # Representative Email
             "#{PAGE2_KEY}.E_Mail_Address_Of_Individual_Appointed_As_Claimants_Representative_Optional[0]": \
             data.representative.email
@@ -193,9 +193,7 @@ module RepresentationManagement
             # Consent Limits
             "#{PAGE2_KEY}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits),
             # Consent Address Change
-            "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0,
-            # Condtions of Appointment
-            "#{PAGE3_KEY}.LIMITATIONS[0]": data.conditions_of_appointment.join(', ')
+            "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0
           }
         end
 

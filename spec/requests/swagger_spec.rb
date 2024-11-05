@@ -51,12 +51,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     describe 'backend statuses' do
-      describe '/v0/backend_statuses/{service}' do
-        it 'supports getting backend service status' do
-          expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, headers.merge('service' => 'gibs'))
-        end
-      end
-
       describe '/v0/backend_statuses' do
         context 'when successful' do
           include_context 'simulating Redis caching of PagerDuty#get_services'
@@ -3808,19 +3802,10 @@ RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :de
 
     context 'GI Bill Status' do
       it 'supports getting Gi Bill Status' do
-        Flipper.enable(:sob_updated_design)
-        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
         expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 401)
         VCR.use_cassette('lighthouse/benefits_education/200_response') do
           expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 200, headers)
         end
-        Timecop.return
-      end
-
-      it 'supports Gi Bill Status 503 condition' do
-        Flipper.disable(:sob_updated_design)
-        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 00:15:06'))
-        expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 503, headers)
         Timecop.return
       end
     end

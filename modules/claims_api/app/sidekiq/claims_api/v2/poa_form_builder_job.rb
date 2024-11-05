@@ -22,6 +22,7 @@ module ClaimsApi
 
         output_path = pdf_constructor(form_number).construct(data(power_of_attorney, form_number, rep),
                                                              id: power_of_attorney.id)
+        power_of_attorney.form_data.dig('serviceOrganization', 'poaCode')
 
         if Flipper.enabled?(:lighthouse_claims_api_poa_use_bd)
           doc_type = form_number == '2122' ? 'L190' : 'L075'
@@ -29,7 +30,12 @@ module ClaimsApi
         else
           upload_to_vbms(power_of_attorney, output_path)
         end
-        ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep)
+
+        if dependent_filing?(power_of_attorney)
+          ClaimsApi::PoaAssignDependentClaimantJob.perform_async(power_of_attorney.id)
+        else
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep)
+        end
       rescue VBMS::Unknown
         rescue_vbms_error(power_of_attorney)
       rescue Errno::ENOENT

@@ -197,7 +197,17 @@ describe 'PowerOfAttorney',
       let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
       let(:Authorization) { 'Bearer token' }
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a]
-      description 'Updates current Power of Attorney for Veteran.'
+      post_description = <<~VERBIAGE
+        Dependent Claimant Information:\n
+          - If dependent claimant information is included in the request, the dependent relationship will be
+          validated.\n
+          - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n
+
+        Response Information:\n
+          - A 202 response indicates that the submission was accepted.\n
+          - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n
+      VERBIAGE
+      description post_description
       let(:scopes) { %w[system/claim.read system/claim.write] }
       let(:poa_code) { '067' }
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
@@ -345,7 +355,17 @@ describe 'PowerOfAttorney',
 
   path '/veterans/{veteranId}/2122' do
     post 'Appoint an organization Power of Attorney for a Veteran.' do
-      description 'Updates current Power of Attorney for Veteran.'
+      post_description = <<~VERBIAGE
+        Dependent Claimant Information:\n
+          - If dependent claimant information is included in the request, the dependent relationship will be
+          validated.\n
+          - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n
+
+        Response Information:\n
+          - A 202 response indicates that the submission was accepted.\n
+          - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n
+      VERBIAGE
+      description post_description
       tags 'Power of Attorney'
       operationId 'post2122'
       security [
@@ -987,7 +1007,10 @@ describe 'PowerOfAttorney',
           after do |example|
             example.metadata[:response][:content] = {
               'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
+                example: JSON.parse(response.body, symbolize_names: true).tap do |json|
+                  json[:data][:attributes]
+                    .merge!(procId: '3857415')
+                end
               }
             }
           end

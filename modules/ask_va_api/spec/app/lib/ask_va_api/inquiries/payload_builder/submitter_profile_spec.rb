@@ -30,7 +30,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
           first: 'Test',
           last: 'User',
           middle: 'Middle',
-          social_or_service_num: '123456789',
+          social_or_service_num: { ssn: '123456799' },
           suffix: 'Jr.'
         },
         address: {
@@ -92,7 +92,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
         SchoolFacilityCode: '123456',
         SchoolId: nil,
         BranchOfService: nil,
-        SSN: nil,
+        SSN: '123456799',
         EDIPI: '123',
         ICN: '234',
         ServiceNumber: nil,
