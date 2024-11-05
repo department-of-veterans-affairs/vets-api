@@ -8,7 +8,7 @@ module ClaimsApi
 
       flashes.each do |flash_name|
         # NOTE: Assumption that duplicate flashes are ignored when submitted
-        bgs_service(user).add_flash(file_number: user['ssn'], flash: { flash_name: })
+        add_flash(user, flash_name)
       rescue BGS::ShareError, BGS::PublicError => e
         persist_exception(e, auto_claim_id:)
       end
@@ -31,6 +31,14 @@ module ClaimsApi
         auto_claim.save
       end
       log_exception_to_sentry(e)
+    end
+
+    def add_flash(user, flash_name)
+      if Flipper.enabled? :claims_api_flash_updater_uses_local_bgs
+        bgs_service(user).add_flash(file_number: user['ssn'], flash: { flash_name: })
+      else
+        bgs_service(user).add_flash(file_number: user['ssn'], flash_name:)
+      end
     end
 
     def bgs_service(user)
