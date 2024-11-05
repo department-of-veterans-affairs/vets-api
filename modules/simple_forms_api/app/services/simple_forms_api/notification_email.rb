@@ -345,7 +345,7 @@ module SimpleFormsApi
 
     def form40_10007_first_name
       applicant_relationship = form_data.dig('application', 'applicant', 'applicant_relationship_to_claimant')
-      if applicant_relationship == 'self'
+      if applicant_relationship == 'Self'
         form_data.dig('application', 'veteran', 'current_name', 'first')
       else
         form_data.dig('application', 'claimant', 'name', 'first')
