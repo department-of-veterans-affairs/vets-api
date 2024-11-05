@@ -44,11 +44,11 @@ describe MedicalRecords::Client do
 
     it 'adds adds a custom header to bypass FHIR server cache', :vcr do
       VCR.use_cassette 'mr_client/get_a_patient_by_identifier' do
-      client.get_patient_by_identifier(client.fhir_client, patient_id)
-      expect(
-        a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
-      ).to have_been_made.at_least_once
-    end
+        client.get_patient_by_identifier(client.fhir_client, patient_id)
+        expect(
+          a_request(:any, //).with(headers: { 'Cache-Control' => 'no-cache' })
+        ).to have_been_made.at_least_once
+      end
     end
 
     context 'when the redaction feature toggle is enabled', :vcr do
