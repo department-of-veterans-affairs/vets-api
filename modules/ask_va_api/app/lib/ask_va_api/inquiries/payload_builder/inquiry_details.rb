@@ -106,7 +106,7 @@ module AskVAApi
         def general_inquiry(inquiry_params, details)
           build_inquiry_details(
             inquiry_details: details,
-            inquiry_about: "It's a general question",
+            inquiry_about: 'A general question',
             veteran_relationship: inquiry_params[:your_role]
           )
         end

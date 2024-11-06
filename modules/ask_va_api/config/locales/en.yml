@@ -144,11 +144,8 @@ en:
             - :residency_state
             - :school_state
           files:
-            - :base64
-            - :file_id
             - :file_name
-            - :file_size
-            - :file_type
+            - :file_content
           school_obj:
             - :institution_name
             - :school_facility_code

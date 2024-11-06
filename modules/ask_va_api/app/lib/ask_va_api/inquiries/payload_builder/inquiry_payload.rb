@@ -87,7 +87,7 @@ module AskVAApi
           return if inquiry_params[:files].first[:file_name].nil?
 
           inquiry_params[:files].map do |file|
-            { FileName: file[:file_name], FileContent: file[:base64] }
+            { FileName: file[:file_name], FileContent: file[:file_content] }
           end
         end
 
@@ -115,8 +115,8 @@ module AskVAApi
 
         def build_residency_state_data
           {
-            Name: inquiry_params.dig(:state_or_residency, :residency_state),
-            StateCode: fetch_state_code(inquiry_params.dig(:state_or_residency, :residency_state))
+            Name: fetch_state(inquiry_params.dig(:state_or_residency, :residency_state)),
+            StateCode: inquiry_params.dig(:state_or_residency, :residency_state)
           }
         end
 

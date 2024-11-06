@@ -38,7 +38,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryDetails do
         it 'returns the correct info' do
           expect(builder.call)
             .to eq({
-                     inquiry_about: "It's a general question",
+                     inquiry_about: 'A general question',
                      dependent_relationship: nil,
                      veteran_relationship: nil,
                      level_of_authentication: 'Personal'
