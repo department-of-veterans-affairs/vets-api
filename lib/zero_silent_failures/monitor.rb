@@ -5,23 +5,15 @@ require 'logging/monitor'
 # ZeroSilentFailures namespace
 module ZeroSilentFailures
   # global monitoring functions for ZSF - statsd and logging
+  # @see Logging::Monitor
   class Monitor < Logging::Monitor
-    # Proxy class to allow a custom `caller_location` to be used
-    class CallLocation
-      attr_accessor :base_label, :path, :lineno
-
-      # create proxy caller_location
-      # @see Thread::Backtrace::Location
-      # @see ZeroSilentFailures::Monitor#parse_caller
-      def initialize(function = nil, file = nil, line = nil)
-        @base_label = function
-        @path = file
-        @lineno = line
-      end
-    end
-
+    # record metrics and log for a silent failure
+    #
+    # @param additional_context [Hash] information to accompany the log to aid in debugging
+    # @param user_account_uuid [UUID]
+    # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged as failure point
     def log_silent_failure(additional_context, user_account_uuid = nil, call_location: nil)
-      function, file, line = parse_caller(call_location)
+      function, file, line = parse_caller(call_location || caller_locations.first)
 
       metric = 'silent_failure'
       message = 'Silent failure!'
@@ -39,9 +31,15 @@ module ZeroSilentFailures
       Rails.logger.error(message, payload)
     end
 
+    # record metrics and log for a silent failure, avoided - an email was sent
+    #
+    # @param additional_context [Hash] information to accompany the log to aid in debugging
+    # @param user_account_uuid [UUID]
+    # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged as failure point
+    # @param email_confirmed [Boolean] whether the email was successfully delivered
     def log_silent_failure_avoided(additional_context, user_account_uuid = nil, call_location: nil,
                                    email_confirmed: false)
-      function, file, line = parse_caller(call_location)
+      function, file, line = parse_caller(call_location || caller_locations.first)
 
       metric = 'silent_failure_avoided'
       message = 'Silent failure avoided'
@@ -63,22 +61,6 @@ module ZeroSilentFailures
 
       StatsD.increment(metric, tags: ["service:#{service}", "function:#{function}"])
       Rails.logger.error(message, payload)
-    end
-
-    private
-
-    attr_reader :service
-
-    # parse information from the `caller`
-    #
-    # @see https://alextaylor.ca/read/caller-tricks/
-    # @see https://stackoverflow.com/a/37565500/1812854
-    # @see https://ruby-doc.org/core-2.2.3/Thread/Backtrace/Location.html
-    #
-    # @param call_location [CallLocation | Thread::Backtrace::Location] location to be logged as failure point
-    def parse_caller(call_location)
-      call_location ||= caller_locations.second # default to location calling 'log_silent_failure...'
-      [call_location.base_label, call_location.path, call_location.lineno]
     end
   end
 end
