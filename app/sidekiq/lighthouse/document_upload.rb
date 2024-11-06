@@ -10,6 +10,8 @@ class Lighthouse::DocumentUpload
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
   OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
 
+  DD_ZSF_TAGS = ['service:claim-status', 'function: evidence upload to Lighthouse'].freeze
+
   NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
   MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
 
@@ -21,6 +23,10 @@ class Lighthouse::DocumentUpload
   end
 
   sidekiq_retries_exhausted do |msg, _ex|
+    # There should be 2 values in msg['args']:
+    # 1) The ICN of the user
+    # 2) Document metadata
+
     next unless Flipper.enabled?('cst_send_evidence_failure_emails')
 
     icn = msg['args'].first
@@ -36,9 +42,11 @@ class Lighthouse::DocumentUpload
     )
 
     ::Rails.logger.info('Lighthouse::DocumentUpload exhaustion handler email sent')
+    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   rescue => e
     ::Rails.logger.error('Lighthouse::DocumentUpload exhaustion handler email error',
                          { message: e.message })
+    StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
   end
 
   def self.obscured_filename(original_filename)
