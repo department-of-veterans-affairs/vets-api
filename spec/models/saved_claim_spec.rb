@@ -20,6 +20,11 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
   let(:form_data) { { some_key: 'some_value' }.to_json }
 
+  before do
+    allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return('schema_content')
+    allow(JSON::Validator).to receive_messages(fully_validate_schema: [], fully_validate: [])
+  end
+
   describe 'associations' do
     it { is_expected.to have_many(:persistent_attachments).dependent(:destroy) }
     it { is_expected.to have_many(:form_submissions).dependent(:nullify) }
@@ -27,12 +32,6 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
   end
 
   describe 'validations' do
-    before do
-      allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return('schema_content')
-    end
-
-    it { is_expected.to validate_presence_of(:form) }
-
     context 'no validation errors' do
       before do
         allow(JSON::Validator).to receive(:fully_validate).and_return([])
@@ -63,11 +62,11 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
           allow(JSON::Validator).to receive(:fully_validate).and_return([])
         end
 
-        it 'logs exception and returns true' do
+        it 'logs exception and raises exception' do
           expect(Rails.logger).to receive(:error)
             .with('Error during schema validation!', { error: exception.message, backtrace: anything })
 
-          expect(saved_claim.validate).to eq true
+          expect { saved_claim.validate }.to raise_error(exception.class, exception.message)
         end
       end
 
@@ -79,11 +78,11 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
           allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
         end
 
-        it 'logs exception and returns true' do
+        it 'logs exception and raises exception' do
           expect(Rails.logger).to receive(:error)
             .with('Error during form validation!', { error: exception.message, backtrace: anything })
 
-          expect(saved_claim.validate).to eq true
+          expect { saved_claim.validate }.to raise_error(exception.class, exception.message)
         end
       end
     end
