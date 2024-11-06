@@ -31,31 +31,33 @@ module AccreditedRepresentativePortal
 
       attr_reader :parsed_request_body
 
-      # Parses the raw request body as JSON and assigns it to an instance variable.
-      # Renders a bad request response if the JSON is invalid.
-      def parse_request_body
-        @parsed_request_body = JSON.parse(request.raw_post)
-      rescue JSON::ParserError
-        Rails.logger.error(
-          "Form21aController: Invalid JSON in request body for user with user_uuid=#{@current_user&.uuid}"
-        )
-        render json: { errors: 'Invalid JSON' }, status: :bad_request
-      end
-
       def schema
         # NOTE: This doesn't reject any extra attributes not found in the schema. If
         # we want that the schema needs to have { "additionalProperties" => false }
         VetsJsonSchema::SCHEMAS[FORM_ID.upcase]
       end
 
+      # Parses the raw request body as JSON and assigns it to an instance variable.
+      # Renders a bad request response if the JSON is invalid.
+      def parse_request_body
+        @parsed_request_body = JSON.parse(request.raw_post)
+      rescue JSON::ParserError
+        handle_json_error
+      end
+
       def validate_schema
         errors = JSON::Validator.fully_validate(schema, parsed_request_body)
         raise SchemaValidationError, errors if errors.any?
       rescue SchemaValidationError => e
-        Rails.logger.error(
-          "Form21aController: Invalid JSON in request body for user with user_uuid=#{@current_user&.uuid}. " \
-          "Errors: #{e.errors.join(', ')}"
-        )
+        handle_json_error(e.errors.join(', ').squeeze(' '))
+      end
+
+      def handle_json_error(details = nil)
+        error_message = 'Form21aController: Invalid JSON in request body for user ' \
+                        "with user_uuid=#{@current_user&.uuid}."
+        error_message += " Errors: #{details}" if details
+
+        Rails.logger.error(error_message)
         render json: { errors: 'Invalid JSON' }, status: :bad_request
       end
 

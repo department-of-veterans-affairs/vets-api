@@ -58,7 +58,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
     context 'with invalid JSON' do
       it 'logs the error and returns a bad request status' do
         expect(Rails.logger).to receive(:error).with(
-          "Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}"
+          "Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}."
         )
 
         headers = { 'Content-Type' => 'application/json' }
@@ -77,7 +77,9 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
 
         expect(Rails.logger).to receive(:error).with(
           matching(
-            %r{Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}. Errors: The property '#/firstName' of type integer did not match the following type: string in schema [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}}
+            %r{Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}. \
+Errors: The property '#/firstName' of type integer did not match the following type: string in schema \
+[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}}
           )
         )
 
