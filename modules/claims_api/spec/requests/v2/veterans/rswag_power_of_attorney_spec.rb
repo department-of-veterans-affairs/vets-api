@@ -199,8 +199,8 @@ describe 'PowerOfAttorney',
       parameter SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a]
       post_description = <<~VERBIAGE
         Dependent Claimant Information:\n
-          - If dependent claimant information is included in the request, the dependent relationship will be
-          validated.\n
+          - If dependent claimant information is included in the request, the dependent relationship to the Veteran
+          will be validated.\n
           - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n
 
         Response Information:\n
@@ -357,8 +357,8 @@ describe 'PowerOfAttorney',
     post 'Appoint an organization Power of Attorney for a Veteran.' do
       post_description = <<~VERBIAGE
         Dependent Claimant Information:\n
-          - If dependent claimant information is included in the request, the dependent relationship will be
-          validated.\n
+          - If dependent claimant information is included in the request, the dependent relationship to the Veteran
+          will be validated.\n
           - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n
 
         Response Information:\n
