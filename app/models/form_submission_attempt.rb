@@ -17,6 +17,11 @@ class FormSubmissionAttempt < ApplicationRecord
 
   HOUR_TO_SEND_NOTIFICATIONS = 9
 
+  def self.latest_attempts
+    select('DISTINCT ON (form_submission_id) form_submission_id, benefits_intake_uuid')
+      .order('form_submission_id, created_at DESC')
+  end
+
   aasm do
     after_all_transitions :log_status_change
 
