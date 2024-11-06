@@ -40,7 +40,7 @@ module AskVAApi
             MiddleName: submitter_info[:middle],
             LastName: submitter_info[:last],
             PreferredName: inquiry_params[:preferred_name],
-            Suffix: @translator.call(submitter_info[:suffix]),
+            Suffix: @translator.call(:suffix, submitter_info[:suffix]),
             Gender: nil,
             Pronouns: formatted_pronouns(inquiry_params[:pronouns]),
             Country: country_data,
@@ -73,10 +73,10 @@ module AskVAApi
         def service_info
           {
             BranchOfService: submitter_info[:branch_of_service],
-            SSN: submitter_info[:ssn],
+            SSN: submitter_info.dig(:social_or_service_num, :ssn),
             EDIPI: user&.edipi,
             ICN: user&.icn,
-            ServiceNumber: nil,
+            ServiceNumber: submitter_info.dig(:social_or_service_num, :service_number),
             ClaimNumber: nil,
             VeteranServiceStateDate: nil,
             VeteranServiceEndDate: nil
