@@ -21,7 +21,7 @@ module ClaimsApi
         'status = ? AND created_at BETWEEN ? AND ? AND cid <> ?',
         'errored', @search_from, @search_to, '0oagdm49ygCSJTp8X297'
       ).pluck(:id).uniq
-      @va_gov_errored_claims = get_filtered_unique_errors # get_unique_errors
+      @va_gov_errored_claims = get_filtered_unique_errors
       @errored_poa = ClaimsApi::PowerOfAttorney.where(created_at: @search_from..@search_to,
                                                       status: 'errored').pluck(:id).uniq
       @errored_itf = ClaimsApi::IntentToFile.where(created_at: @search_from..@search_to,
@@ -72,17 +72,19 @@ module ClaimsApi
     end
 
     def get_filtered_unique_errors
-      unique_errors = get_unique_errors # unique by transaction_id
-      filtered_errors = []
+      unique_errors = unique_errors_by_transaction_id # unique by transaction_id
+      filtered_error_ids = []
 
       unique_errors.each do |ue|
-        filtered_errors << ue[:id] unless NO_INVESTIGATION_ERROR_TEXT.any? { |text| ue[:evss_response]&.include?(text) }
+        filtered_error_ids << ue[:id] unless NO_INVESTIGATION_ERROR_TEXT.any? do |text|
+          ue[:evss_response]&.include?(text)
+        end
       end
 
-      filtered_errors
+      filtered_error_ids
     end
 
-    def get_unique_errors
+    def unique_errors_by_transaction_id
       last_day = ClaimsApi::AutoEstablishedClaim
                  .where(created_at: 24.hours.ago..1.hour.ago,
                         status: 'errored', cid: '0oagdm49ygCSJTp8X297')
