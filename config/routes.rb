@@ -99,8 +99,6 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
-      get 'linked_user_accounts', to: 'users#linked_user_accounts'
-      post 'delegate_access', to: 'users#delegate_access'
       collection do
         get 'credential_emails'
       end
@@ -108,6 +106,7 @@ Rails.application.routes.draw do
     end
 
     resource :test_account_user_email, only: [:create]
+    resource :user_account_delegations, only: %i[create show destroy]
 
     resource :veteran_onboarding, only: %i[show update]
 
