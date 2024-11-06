@@ -72,7 +72,7 @@ module ClaimsApi
     end
 
     def get_filtered_unique_errors
-      unique_errors = unique_errors_by_transaction_id # unique by transaction_id
+      unique_errors = unique_errors_by_transaction_id
       filtered_error_ids = []
 
       unique_errors.each do |ue|
