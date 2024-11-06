@@ -1,0 +1,405 @@
+openapi: 3.0.1
+info:
+  title: OpenAPI definition
+  version: v2
+servers:
+  - url: https://localhost
+    description: Generated server url
+paths:
+  /dgi/vye/claimantLookup:
+    summary: Fetch the DGI Claimant ID for the supplied SSN
+    description: Fetch the DGI Claimant ID for the supplied SSN
+    post:
+      tags:
+        - DGI Utility Endpoints
+      operationId: lookup_1
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: JWT for client authentication
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClaimantRequestBody'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClaimantResponse'
+        '204':
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+        '404':
+          description: Claimant Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+  /verifications/vye/{claimantId}/status:
+    get:
+      tags:
+        - Enrollment Verification Endpoints
+      operationId: status_1
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: JWT for client authentication
+          schema:
+            type: string
+        - name: claimantId
+          in: path
+          required: true
+          description: Claimant Id of the user
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '204':
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+  /verifications/vye/{claimantId}/verification-record:
+    get:
+      tags:
+        - Enrollment Verification Endpoints
+      operationId: getEnrollments
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: JWT for client authentication
+          schema:
+            type: string
+        - name: claimantId
+          in: path
+          required: true
+          description: Claimant Id of the user
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationDetailsResponse'
+        '204':
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+  /verifications/vye/verify:
+    post:
+      tags:
+        - Enrollment Verification Endpoints
+      operationId: verify_1
+      parameters:
+        - name: Authorization
+          in: header
+          required: true
+          description: JWT for client authentication
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRequestBody'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '204':
+          description: No Content
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ErrorMessageResponse'
+components:
+  schemas:
+    ErrorMessageResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          format: int32
+        error:
+          type: string
+    AppCommunication:
+      type: object
+      properties:
+        responseType:
+          type: string
+          enum:
+            - 'Y'
+            - 'N'
+            - NR
+    EnrollmentCertifyRequest:
+      type: object
+      properties:
+        claimantId:
+          type: integer
+          format: int64
+        certifiedPeriodBeginDate:
+          type: string
+          format: date
+        certifiedPeriodEndDate:
+          type: string
+          format: date
+        certifiedThroughDate:
+          type: string
+          format: date
+        certificationMethod:
+          type: string
+          enum:
+            - MEB
+        appCommunication:
+          $ref: '#/components/schemas/AppCommunication'
+    EnrollmentSubmissionRequest:
+      type: object
+      properties:
+        claimantId:
+          type: integer
+          format: int64
+        enrollmentCertifyRequests:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrollmentCertifyRequest'
+    EnrollmentCertifyResponse:
+      type: object
+      properties:
+        claimantId:
+          type: integer
+          format: int64
+        enrollmentPeriodEndDate:
+          type: string
+          format: date
+        certifiedThroughDate:
+          type: string
+          format: date
+        certificationMethod:
+          type: string
+        paymentOnHold:
+          type: boolean
+    EnrollmentSubmissionResponse:
+      type: object
+      properties:
+        enrollmentCertifyResponses:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrollmentCertifyResponse'
+    ClaimantRequestBody:
+      type: object
+      properties:
+        ssn:
+          description: 'Social Security Number ###-##-####'
+          type: string
+          pattern: ^\d{3}-\d{2}-\d{4}$
+    VerifyRequestBody:
+      type: object
+      properties:
+        claimantId:
+          type: integer
+          format: int64
+          description: Claimant Id to verify
+        verifiedPeriodBeginDate:
+          type: string
+          format: date
+          description: Begin date of period being verified
+        verifiedPeriodEndDate:
+          type: string
+          format: date
+          description: End date of period being verified
+        verifiedThroughDate:
+          type: string
+          format: date
+          description: New verified through date.
+        verificationMethod:
+          description: Calling app Id. Should be VYE
+          type: string
+          enum:
+            - VYE
+        appCommunication:
+          type: object
+          properties:
+            responseType:
+              type: string
+              enum:
+                - 'Y'
+                - 'N'
+    VerificationDetailsResponse:
+      type: object
+      properties:
+        claimantId:
+          type: integer
+          format: int64
+        delimitingDate:
+          type: string
+          format: date
+        enrollmentVerifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrollmentAwardResponse'
+        verifiedDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrollmentSummary'
+        paymentOnHold:
+          type: boolean
+    EnrollmentAwardResponse:
+      type: object
+      properties:
+        verificationMonth:
+          type: string
+          format: yearmonth
+          example: December 2023
+          description: Verification month. E.g December 2023
+        verificationBeginDate:
+          type: string
+          format: date
+          description: Begin date for verification period
+        verificationEndDate:
+          type: string
+          format: date
+          description: End date for verification period
+        verificationThroughDate:
+          type: string
+          format: date
+          description: Verified through date after verification
+        createdDate:
+          type: string
+          format: date
+          description: Date enrollment was verified
+        verificationMethod:
+          type: string
+          enum:
+            - Initial
+            - Manual
+            - Auto
+            - Text
+            - Email
+            - MEB
+            - VYE
+          description: Verification method used
+        verificationResponse:
+          type: string
+          enum:
+            - 'Y'
+            - 'N'
+            - NR
+          description: Verification response (Yes/No/No Response)
+        facilityName:
+          type: string
+          description: School name
+        totalCreditHours:
+          type: number
+          description: Credit hours in enrollment
+        paymentTransmissionDate:
+          type: string
+          format: date
+          description: Date payment was sent
+        lastDepositAmount:
+          type: number
+          format: currency
+          description: Amount paid in this enrollment period
+        remainingEntitlement:
+          type: string
+          pattern: ^\d{2}-\d{2}$
+          description: Remaining entitlement in MM-DD form
+    EnrollmentSummary:
+      type: object
+      properties:
+        benefitType:
+          type: string
+          enum:
+            - CH33
+            - STEM
+            - CH30
+            - CH35
+            - CH1606
+        verifiedThroughDate:
+          type: string
+          format: date
+        verificationMethod:
+          type: string
+          enum:
+            - Initial
+            - Manual
+            - Auto
+            - Text
+            - Email
+            - MEB
+            - VYE
+    ClaimantResponse:
+      type: object
+      properties:
+        claimantId:
+          type: integer
+          format: int64
+    StatusResponse:
+      type: object
+      properties:
+        claimantId:
+          type: integer
+          format: int64
+        delimitingDate:
+          type: string
+          format: date
+        paymentOnHold:
+          type: boolean
+        verifiedDetails:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrollmentSummary'
