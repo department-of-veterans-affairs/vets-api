@@ -32,7 +32,10 @@ module CentralMail
       monitor = Dependents::Monitor.new
       monitor.track_submission_exhaustion(msg)
 
-      #this is where the email will go
+      saved_claim_id, encrypted_vet_info, encrypted_user_struct = msg['args']
+      if Flipper.enabled?(:dependents_trigger_action_needed_email)
+        CentralMail::SubmitCentralForm686cJob.trigger_failure_events(saved_claim_id, encrypted_user_struct)
+      end
     end
 
     def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
@@ -81,6 +84,7 @@ module CentralMail
       FormSubmissionAttempt.transaction do
         form_submission = FormSubmission.create(
           form_type: claim.submittable_686? ? FORM_ID : FORM_ID_674,
+          benefits_intake_uuid: intake_uuid,
           saved_claim: claim,
           user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
         )
@@ -225,6 +229,33 @@ module CentralMail
         first_name: user&.first_name&.upcase,
         user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
       )
+    end
+
+    def self.trigger_failure_events(claim, encrypted_user_struct)
+      claim = SavedClaim.find(saved_claim_id)
+      user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct))
+      email = claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') || user_struct.va_profile_email
+      template_id = if claim.submittable_686?
+                      if claim.submittable_674?
+                        Settings.vanotify.services.va_gov.template_id.form21_686c_674_action_needed_email
+                      else
+                        Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email
+                      end
+                    elsif claim.submittable_674?
+                      Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email
+                    end
+      if claim.present? && email.present? && template_id.present?
+        Rails.logger.debug("in here")
+        VANotify::EmailJob.perform_async(
+          email,
+          template_id,
+          {
+            'first_name' => claim.parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => claim.confirmation_number
+          }
+        )
+      end
     end
 
     private
