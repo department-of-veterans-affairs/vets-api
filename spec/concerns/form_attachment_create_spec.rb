@@ -51,7 +51,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
           'begin form attachment creation',
           :info,
           file_data_present: true,
-          class_name: 'ActionDispatch::Http::UploadedFile',
+          klass: 'ActionDispatch::Http::UploadedFile',
           debug_timestamp: anything
         )
         expect(@controller).to receive(:log_message_to_sentry).with(
@@ -76,10 +76,16 @@ RSpec.describe FormAttachmentCreate, type: :controller do
           'begin form attachment creation',
           :info,
           file_data_present: true,
-          class_name: 'String',
+          klass: 'String',
           debug_timestamp: anything
         )
-        expect(@controller).to receive(:log_exception_to_sentry).twice
+        expect(@controller).to receive(:log_message_to_sentry).with(
+          'form attachment error 1 - validate class',
+          :info,
+          phase: 'FAC_validate',
+          klass: 'String',
+          exception: 'Invalid field value'
+        )
         post(:create, params: { hca_attachment: { file_data: } })
       end
 
@@ -92,10 +98,17 @@ RSpec.describe FormAttachmentCreate, type: :controller do
           'begin form attachment creation',
           :info,
           file_data_present: true,
-          class_name: 'ActionDispatch::Http::UploadedFile',
+          klass: 'ActionDispatch::Http::UploadedFile',
           debug_timestamp: anything
         )
-        expect(@controller).to receive(:log_exception_to_sentry).twice
+        expect(@controller).to receive(:log_message_to_sentry).with(
+          'form attachment error 2 - save to cloud',
+          :info,
+          has_pass: false,
+          ext: File.extname(file_data).last(5),
+          phase: 'FAC_cloud',
+          exception: 'Unprocessable Entity'
+        )
 
         form_attachment = double(HCAAttachment)
         expect(HCAAttachment).to receive(:new) { form_attachment }
@@ -113,15 +126,22 @@ RSpec.describe FormAttachmentCreate, type: :controller do
           'begin form attachment creation',
           :info,
           file_data_present: true,
-          class_name: 'ActionDispatch::Http::UploadedFile',
+          klass: 'ActionDispatch::Http::UploadedFile',
           debug_timestamp: anything
         )
-        expect(@controller).to receive(:log_exception_to_sentry)
+        expect(@controller).to receive(:log_message_to_sentry).with(
+          'form attachment error 3 - save to db',
+          :info,
+          phase: 'FAC_db',
+          errors: 'error text',
+          exception: 'Record invalid'
+        )
 
         form_attachment = double(HCAAttachment)
         expect(HCAAttachment).to receive(:new) { form_attachment }
         expect(form_attachment).to receive(:set_file_data!)
         expect(form_attachment).to receive(:save!).and_raise(ActiveRecord::RecordInvalid)
+        expect(form_attachment).to receive(:errors).and_return('error text')
 
         post(:create, params: { hca_attachment: { file_data: } })
       end

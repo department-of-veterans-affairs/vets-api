@@ -66,11 +66,13 @@ module DecisionReview
     end
 
     def handle_form_status_metrics_and_logging(hlr, status)
-      if status == ERROR_STATUS
-        # ignore logging and metrics for stale errors
-        return if JSON.parse(hlr.metadata || '{}')['status'] == ERROR_STATUS
+      # Skip logging and statsd metrics when there is no status change
+      return if JSON.parse(hlr.metadata || '{}')['status'] == status
 
+      if status == ERROR_STATUS
         Rails.logger.info('DecisionReview::SavedClaimHlrStatusUpdaterJob form status error', guid: hlr.guid)
+        tags = ['service:higher-level-review', 'function: form submission to Lighthouse']
+        StatsD.increment('silent_failure', tags:)
       end
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])

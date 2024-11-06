@@ -56,7 +56,9 @@ class ApiProviderFactory
   FEATURE_TOGGLE_BRD = 'disability_compensation_lighthouse_brd'
   FEATURE_TOGGLE_GENERATE_PDF = 'disability_compensation_lighthouse_generate_pdf'
 
-  FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT = 'disability_compensation_lighthouse_upload_supplemental_document'
+  FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS = 'disability_compensation_upload_bdd_instructions_to_lighthouse'
+  FEATURE_TOGGLE_UPLOAD_0781 = 'disability_compensation_upload_0781_to_lighthouse'
+  FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS = 'disability_compensation_upload_veteran_evidence_to_lighthouse'
 
   attr_reader :type
 
@@ -187,11 +189,18 @@ class ApiProviderFactory
   end
 
   def supplemental_document_upload_service_provider
+    provider_options = [
+      @options[:form526_submission],
+      @options[:document_type],
+      @options[:statsd_metric_prefix],
+      @options[:supporting_evidence_attachment]
+    ]
+
     case api_provider
     when API_PROVIDER[:evss]
-      EVSSSupplementalDocumentUploadProvider.new(@options[:form526_submission])
+      EVSSSupplementalDocumentUploadProvider.new(*provider_options)
     when API_PROVIDER[:lighthouse]
-      LighthouseSupplementalDocumentUploadProvider.new(@options[:form526_submission])
+      LighthouseSupplementalDocumentUploadProvider.new(*provider_options)
     else
       raise NotImplementedError, 'No known Supplemental Document Upload Api Provider type provided'
     end

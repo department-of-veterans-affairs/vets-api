@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA2010207
-    include Virtus.model(nullify_blank: true)
+  class VBA2010207 < BaseForm
     STATS_KEY = 'api.simple_forms_api.20_10207'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def facility_name(index)
       facility = @data['medical_treatments']&.[](index - 1)
@@ -117,21 +110,14 @@ module SimpleFormsApi
     end
 
     def get_attachments
-      [].tap do |attachments|
-        %w[
-          als_documents
-          financial_hardship_documents
-          medal_award_documents
-          pow_documents
-          terminal_illness_documents
-          vsi_documents
-        ].each do |doc_type|
-          next unless @data[doc_type]
+      PersistentAttachment.where(guid: attachment_guids).map(&:to_pdf)
+    end
 
-          confirmation_codes = @data[doc_type].pluck('confirmation_code')
-          attachments.concat(PersistentAttachment.where(guid: confirmation_codes).map(&:to_pdf))
-        end
-      end
+    def attachment_guids
+      doc_types = %w[als_documents financial_hardship_documents medal_award_documents pow_documents
+                     terminal_illness_documents vsi_documents]
+
+      doc_types.flat_map { |type| @data[type]&.pluck('confirmation_code') }.compact
     end
 
     private

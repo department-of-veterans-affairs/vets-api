@@ -16,8 +16,8 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Radiology', type: :request do
   before do
     bb_internal_client = BBInternal::Client.new(
       session: {
-        user_id: 15_176_497,
-        patient_id: '15176498',
+        user_id: 11_375_034,
+        patient_id: '11382904',
         expires_at: 1.hour.from_now,
         token: 'SESSION_TOKEN'
       }
@@ -25,6 +25,12 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Radiology', type: :request do
     allow(MedicalRecords::Client).to receive(:new).and_return(authenticated_client)
     allow(BBInternal::Client).to receive(:new).and_return(bb_internal_client)
     sign_in_as(current_user)
+    VCR.insert_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
+                        match_requests_on: %i[method sm_user_ignoring_path_param])
+  end
+
+  after do
+    VCR.eject_cassette
   end
 
   it 'responds to GET #index' do

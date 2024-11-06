@@ -1,11 +1,21 @@
 # frozen_string_literal: true
 
+require 'zero_silent_failures/monitor'
+
 module Burials
   ##
   # Monitor functions for Rails logging and StatsD
   #
-  class Monitor
+  class Monitor < ::ZeroSilentFailures::Monitor
+    # statsd key for api
     CLAIM_STATS_KEY = 'api.burial_claim'
+
+    # statsd key for sidekiq
+    SUBMISSION_STATS_KEY = 'worker.lighthouse.submit_benefits_intake_claim'
+
+    def initialize
+      super('burial-application')
+    end
 
     ##
     # log GET 404 from controller
@@ -98,6 +108,48 @@ module Burials
         statsd: "#{CLAIM_STATS_KEY}.success"
       }
       Rails.logger.info('21P-530EZ submission to Sidekiq success', context)
+    end
+
+    ##
+    # log process_attachments! error
+    # @see BurialClaimsController
+    #
+    # @param in_progress_form [InProgressForm]
+    # @param claim [SavedClaim::Burial]
+    # @param current_user [User]
+    #
+    def track_process_attachment_error(in_progress_form, claim, current_user)
+      StatsD.increment("#{CLAIM_STATS_KEY}.process_attachment_error")
+      context = {
+        confirmation_number: claim&.confirmation_number,
+        user_uuid: current_user&.uuid,
+        in_progress_form_id: in_progress_form&.id,
+        errors: claim&.errors&.errors,
+        statsd: "#{CLAIM_STATS_KEY}.process_attachment_error"
+      }
+      Rails.logger.error('21P-530EZ process attachment error', context)
+    end
+
+    ##
+    # log Sidkiq job exhaustion, complete failure after all retries
+    # @see Lighthouse::SubmitBenefitsIntakeClaim
+    #
+    # @param msg [Hash] sidekiq exhaustion response
+    # @param claim [SavedClaim::Burial]
+    #
+    def track_submission_exhaustion(msg, claim = nil)
+      user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
+      additional_context = {
+        form_id: claim&.form_id,
+        claim_id: msg['args'].first,
+        confirmation_number: claim&.confirmation_number,
+        message: msg
+      }
+      log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
+
+      StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
+      Rails.logger.error('Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!',
+                         user_uuid: user_account_uuid, **additional_context)
     end
   end
 end

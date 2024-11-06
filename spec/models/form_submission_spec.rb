@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe FormSubmission, type: :model do
+RSpec.describe FormSubmission, feature: :form_submission, type: :model do
   let(:user_account) { create(:user_account) }
 
   describe 'associations' do
@@ -19,7 +19,7 @@ RSpec.describe FormSubmission, type: :model do
       @fsa, @fsb, @fsc = create_list(:form_submission, 3, user_account:)
                          .zip(%w[FORM-A FORM-B FORM-C])
                          .map do |submission, form_type|
-        submission.update(form_type:, benefits_intake_uuid: SecureRandom.uuid)
+        submission.update(form_type:)
         submission
       end
 
@@ -37,10 +37,10 @@ RSpec.describe FormSubmission, type: :model do
     end
 
     context 'when form submission has no attempts' do
-      it 'returns benefits_intake_id from the form submission' do
+      it 'returns nil' do
         result = FormSubmission.with_latest_benefits_intake_uuid(user_account).with_form_types(['FORM-C']).first
 
-        expect(result.benefits_intake_uuid).to eq(@fsc.benefits_intake_uuid)
+        expect(result.benefits_intake_uuid).to be_nil
       end
     end
 
@@ -61,11 +61,11 @@ RSpec.describe FormSubmission, type: :model do
     end
 
     context 'when form submission has a single attempt with no uuid' do
-      it 'returns the benefits_intake_id from the only form submission' do
+      it 'returns nil' do
         @fsb1.update!(benefits_intake_uuid: nil)
         result = FormSubmission.with_latest_benefits_intake_uuid(user_account).with_form_types(['FORM-B']).first
 
-        expect(result.benefits_intake_uuid).to eq(@fsb.benefits_intake_uuid)
+        expect(result.benefits_intake_uuid).to be_nil
       end
     end
 
@@ -85,6 +85,32 @@ RSpec.describe FormSubmission, type: :model do
 
         expect(results.count).to eq(3)
       end
+    end
+
+    context 'latest_pending_attempt' do
+      it 'returns db record' do
+        form_submission = FormSubmission.with_form_types(nil).first
+
+        expect(form_submission.latest_pending_attempt).not_to be_nil
+      end
+    end
+
+    context 'non_failure_attempt' do
+      it 'returns db record' do
+        form_submission = FormSubmission.with_form_types(nil).first
+
+        expect(form_submission.non_failure_attempt).not_to be_nil
+      end
+    end
+  end
+
+  describe '#latest_attempt' do
+    it 'returns the newest, associated form_submission_attempt' do
+      form_submission = create(:form_submission, created_at: 1.day.ago)
+      create_list(:form_submission_attempt, 2, form_submission:, created_at: 1.day.ago)
+      form_submission_attempt = create(:form_submission_attempt, form_submission:)
+
+      expect(form_submission.latest_attempt).to eq form_submission_attempt
     end
   end
 end

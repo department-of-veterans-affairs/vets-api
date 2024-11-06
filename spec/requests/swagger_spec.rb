@@ -47,15 +47,10 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
     before do
       Flipper.enable(:va_burial_v2)
+      create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id)
     end
 
     describe 'backend statuses' do
-      describe '/v0/backend_statuses/{service}' do
-        it 'supports getting backend service status' do
-          expect(subject).to validate(:get, '/v0/backend_statuses/{service}', 200, headers.merge('service' => 'gibs'))
-        end
-      end
-
       describe '/v0/backend_statuses' do
         context 'when successful' do
           include_context 'simulating Redis caching of PagerDuty#get_services'
@@ -654,7 +649,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       context 'efolder index' do
-        stub_efolder_documents(:index)
+        stub_efolder_index_documents
 
         it 'validates the route' do
           expect(subject).to validate(
@@ -667,7 +662,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
 
       context 'efolder show' do
-        stub_efolder_documents(:show)
+        stub_efolder_show_document
 
         it 'validates the route' do
           expect(subject).to validate(
@@ -1962,6 +1957,10 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:user) { build(:user, middle_name: 'Lee') }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user, nil, true) } } }
 
+      before do
+        create(:user_verification, idme_uuid: user.idme_uuid)
+      end
+
       it 'supports getting user with some external errors', :skip_mvi do
         expect(subject).to validate(:get, '/v0/user', 296, headers)
       end
@@ -2939,7 +2938,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       it 'supports va_profile create or update address api' do
         expect(subject).to validate(:post, '/v0/profile/addresses/create_or_update', 401)
         VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
-          address = build(:va_profile_address_v2, id: 15_035)
+          address = build(:va_profile_v3_address, id: 15_035)
 
           expect(subject).to validate(
             :post,
@@ -2954,7 +2953,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         expect(subject).to validate(:post, '/v0/profile/addresses', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/post_address_success') do
-          address = build(:va_profile_address_v2)
+          address = build(:va_profile_v3_address)
 
           expect(subject).to validate(
             :post,
@@ -2969,7 +2968,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         expect(subject).to validate(:put, '/v0/profile/addresses', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
-          address = build(:va_profile_address_v2, id: 15_035)
+          address = build(:va_profile_v3_address, id: 15_035)
 
           expect(subject).to validate(
             :put,
@@ -2984,7 +2983,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         expect(subject).to validate(:delete, '/v0/profile/addresses', 401)
 
         VCR.use_cassette('va_profile/v2/contact_information/delete_address_success') do
-          address = build(:va_profile_address_v2, id: 15_035)
+          address = build(:va_profile_v3_address, id: 15_035)
 
           expect(subject).to validate(
             :delete,
@@ -3747,7 +3746,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       before do
         Flipper.enable(:my_va_form_submission_statuses)
         create(:form_submission, :with_form214142, user_account_id: user.user_account_uuid)
-        create(:form_submission, :with_form210966, user_account_id: user.user_account_uuid)
+        create(:form_submission, :with_form210845, user_account_id: user.user_account_uuid)
         create(:form_submission, :with_form_blocked, user_account_id: user.user_account_uuid)
       end
 
@@ -3798,17 +3797,10 @@ RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :de
 
     context 'GI Bill Status' do
       it 'supports getting Gi Bill Status' do
-        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 12:15:06'))
         expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 401)
         VCR.use_cassette('lighthouse/benefits_education/200_response') do
           expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 200, headers)
         end
-        Timecop.return
-      end
-
-      it 'supports Gi Bill Status 503 condition' do
-        Timecop.freeze(ActiveSupport::TimeZone.new('Eastern Time (US & Canada)').parse('1st Feb 2018 00:15:06'))
-        expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 503, headers)
         Timecop.return
       end
     end

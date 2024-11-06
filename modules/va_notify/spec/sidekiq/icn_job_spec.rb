@@ -31,6 +31,8 @@ RSpec.describe VANotify::IcnJob, type: :worker do
         }
       )
 
+      expect(StatsD).to receive(:increment).with('api.vanotify.icn_job.success')
+
       described_class.new.perform(icn, template_id)
     end
 

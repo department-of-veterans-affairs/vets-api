@@ -13,7 +13,7 @@ jobs:
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
     permissions: write-all
-    runs-on: ubuntu-16-cores-latest
+    runs-on: ubuntu-32-cores-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -63,7 +63,7 @@ jobs:
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
     permissions: write-all
-    runs-on: ubuntu-16-cores-latest
+    runs-on: ubuntu-32-cores-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -131,13 +131,13 @@ jobs:
           max_attempts: 3
           command: |
             docker compose -f docker-compose.test.yml run web bash \
-              -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
+              -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 24  -e 'bin/rails db:reset'"
 
       - name: Run Specs
         timeout-minutes: 20
         run: |
           docker compose -f docker-compose.test.yml run web bash \
-          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
+          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 24 -o '--color --tty'"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4

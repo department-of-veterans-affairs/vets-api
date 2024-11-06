@@ -81,6 +81,8 @@ sign_in:
   sts_client:
     base_url: http://localhost:3000
     key_path: spec/fixtures/sign_in/sts_client.pem
+  web_origins:
+    - http://localhost:4000
 
 terms_of_use:
   current_version: v1
@@ -186,7 +188,6 @@ form_10_10cg:
       aws_access_key_id: my-aws-key-id
       aws_secret_access_key: my-aws-access-key
       bucket: my-bucket
-      enabled: true
       region: us-gov-west-1
 
 vbs:
@@ -259,7 +260,6 @@ bip:
 vet360:
   url: "https://int.vet360.va.gov"
   contact_information:
-    url: "https://qa.vaprofile.va.gov"
     cache_enabled: false
     enabled: true
     timeout: 30
@@ -499,6 +499,8 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
+  lce:
+    use_mocks: false
 
 mvi_hca:
   url: http://example.com
@@ -514,23 +516,8 @@ hca:
     user: "HCASvcUsr"
     pass: "password"
 
-# Settings for the facility locator
-locators:
-  vha: https://gis.va.gov/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/
-  nca: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/NCA_Facilities/FeatureServer/0
-  vba: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VBA_Facilities/FeatureServer/0
-  vc: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/VHA_VetCenters/FeatureServer/0
-  vha_access_satisfaction: https://www.accesstopwt.va.gov/
-  vha_access_waittime: https://www.accesstocare.va.gov/
-  base_path: https://services3.arcgis.com/aqgBd3l68G8hEFFE/ArcGIS/rest/services/
-  gis_base_path: https://gis.va.gov/server/rest/services/VA
-  drive_time_band_base_path: https://vhanflwebgistst.v08.med.va.gov
-  providers_enabled: false
-  mock_gis: false
-
 ppms:
   url: https://some.fakesite.com
-  apim_url: https://some.other.fakesite.com
   open_timeout: 15
   read_timeout: 55
   api_keys:
@@ -649,12 +636,7 @@ ask_va_api:
     veis_api_path: eis/vagov.lob.ava/api
     tenant_id: abcdefgh-1234-5678-12345-11e8b8ce491e
     ocp_apim_subscription_key: subscription_key
-    redis_token_expiry: 3540 # 59 minutes
-    mock: true
     service_name: VEIS-API
-  authentication:
-    max_auth_retry_limit: 3
-    retry_attempt_expiry: 604800 # 7 Days
 
 #Settings for Claims Api Module
 claims_api:
@@ -690,6 +672,12 @@ claims_api:
     use_mocks: false
   poa_v2:
     disable_jobs: false
+  vanotify:
+    representative_template_id: ~
+    service_organization_template_id: ~
+    services:
+      lighthouse:
+        api_key: ~
 
 connected_apps_api:
   connected_apps:
@@ -874,6 +862,7 @@ maintenance:
     logingov: P2SHMM9
     mvi: PCIPVGJ
     mhv: PP2ZZ2V
+    form107959f1: P63EKXC
     pega: P3ZJCBK
     search: PRG8HJI
     tims: PUL8OQ4
@@ -918,7 +907,6 @@ search_typeahead:
 search_click_tracking:
   access_key: SEARCH_GOV_ACCESS_KEY
   affiliate: va
-  mock: false
   url: https://api.gsa.gov/technology/searchgov/v2
 
 bgs:
@@ -934,7 +922,6 @@ bgs:
 directory:
   url: http://example.com/services/apps/v0/
   apikey: fake_apikey
-  health_server_id: ~
 
 va_mobile:
   url: "https://veteran.apps.va.gov"
@@ -952,9 +939,7 @@ vetext:
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
-  key_path: /app/secret/health-quest.key
   development_key_path: modules/health_quest/config/rsa/sandbox_rsa
-  timeout: 15
   facilities:
     url: "https://staging-api.va.gov"
     ids_path: "/facilities_api/v1/va"
@@ -1114,11 +1099,6 @@ vbms:
   server_cert: vbms.aide.oit.va.gov.crt
   environment_directory: /app/secret
   env: test
-
-vet_verification:
-  key_path: modules/veteran_verification/spec/fixtures/verification_test.pem
-  mock_bgs: false
-  mock_bgs_url: false
 
 github_stats:
   username: github-stats-rake
@@ -1293,15 +1273,14 @@ vanotify:
       api_key: fake_secret
       template_id:
         appoint_a_representative_confirmation_email: appoint_a_representative_confirmation_email_template_id
-        burial_claim_confirmation_email_template_id: burial_claim_confirmation_email_template_id
         ch31_vbms_form_confirmation_email: ch31_vbms_fake_template_id
         ch31_central_mail_form_confirmation_email: ch31_central_mail_fake_template_id
         career_counseling_confirmation_email: career_counseling_confirmation_email_template_id
-        form527ez_confirmation_email: form527ez_confirmation_email_template_id
         preneeds_burial_form_email: preneeds_burial_form_email_template_id
         contact_info_change: fake_template_id
         form0994_confirmation_email: form0994_confirmation_email_template_id
         form0994_extra_action_confirmation_email: form0994_extra_action_confirmation_email_template_id
+        form1900_action_needed_email: form1900_action_needed_email_template_id
         form1990_confirmation_email: form1990_confirmation_email_template_id
         form1990e_confirmation_email: form1990e_confirmation_email_template_id
         form1990meb_approved_confirmation_email: form1990meb_approved_confirmation_email_template_id
@@ -1312,6 +1291,7 @@ vanotify:
         form1990emeb_denied_confirmation_email: form1990emeb_denied_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
         form21_0966_confirmation_email: form21_0966_confirmation_email_template_id
+        form21_0966_error_email: form21_0966_error_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_0972_error_email: form21_0972_error_email_template_id
         form21_0972_received_email: form21_0972_received_email_template_id
@@ -1334,7 +1314,10 @@ vanotify:
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form21_4142_error_email: form21_4142_error_email_template_id
         form21_4142_received_email: form21_4142_received_email_template_id
+        form27_8832_action_needed_email: form27_8832_action_needed_email_template_id
         form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
+        form40_0247_error_email: form40_0247_error_email_template_id
+        form40_10007_error_email: form40_10007_error_email_template_id
         form526_confirmation_email: fake_template_id
         form526_submission_failed_email: fake_template_id
         form5490_confirmation_email: form5490_confirmation_email_template_id
@@ -1373,17 +1356,31 @@ vanotify:
         claim_submission_error_text: fake_template_id
     benefits_decision_review:
       api_key: fake_secret
+      template_id:
+        higher_level_review_form_error_email: fake_hlr_template_id
+        notice_of_disagreement_evidence_error_email: fake_nod_evidence_template_id
+        notice_of_disagreement_form_error_email: fake_nod_template_id
+        supplemental_claim_evidence_error_email: fake_sc_evidence_template_id
+        supplemental_claim_form_error_email: fake_sc_template_id
+        supplemental_claim_secondary_form_error_email: fake_sc_secondary_form_template_id
     benefits_disability:
       api_key: fake_secret
       template_id:
         form526_document_upload_failure_notification_template_id: form526_document_upload_failure_notification_template_id
+        form526_submission_failure_notification_template_id: form526_submission_failure_notification_template_id
         form4142_upload_failure_notification_template_id: form4142_upload_failure_notification_template_id
         form0781_upload_failure_notification_template_id: form0781_upload_failure_notification_template_id
+    benefits_management_tools:
+      api_key: fake_secret
+      template_id:
+        evidence_submission_failure_email: fake_template_id
     ivc_champva:
       api_key: fake_secret
       template_id:
         form_10_10d_email: form_10_10d_email
+        form_10_10d_failure_email: form_10_10d_failure_email
         form_10_7959f_1_email: form_10_7959f_1_email
+        form_10_7959f_1_failure_email: form_10_7959f_1_failure_email
         form_10_7959f_2_email: form_10_7959f_2_email
         form_10_7959c_email: form_10_7959c_email
         form_10_7959a_email: form_10_7959a_email
@@ -1392,10 +1389,33 @@ vanotify:
       template_id:
         form1010_ez_failure_email: fake_template_id
         form1010_ezr_failure_email: fake_template_id
+    # https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/
+    21p_527ez: &vanotify_services_pension
+      api_key: fake_secret
+      email:
+        confirmation:
+          template_id: form527ez_confirmation_email_template_id
+          flipper_id: false
+        error: null
+        received: null
+    pensions: *vanotify_services_pension
+    21p_530ez: &vanotify_services_burial
+      api_key: fake_secret
+      email:
+        confirmation:
+          template_id: burial_claim_confirmation_email_template_id
+          flipper_id: false
+        error: null
+        received: null
+    burials: *vanotify_services_burial
+    21p_530: *vanotify_services_burial
+    21p_530v2: *vanotify_services_burial
   mock: false
   links:
     connected_applications: https://www.va.gov/profile/connected-applications
     password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
+  status_callback:
+    bearer_token: fake_bearer_token
 
 # Settings to connect to the drupal forms graphql api
 va_forms:
@@ -1528,7 +1548,6 @@ chip:
   url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
   base_path: dev
   api_gtwy_id: 2dcdrrn5zc
-  redis_timeout: 30
   mock: true
   mobile_app:
     tenant_id: 6f1c8b41-9c77-469d-852d-269c51a7d380
@@ -1564,33 +1583,17 @@ check_in:
   authentication:
     max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days
-  chip_api:
-    url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
-    base_path: dev
-    host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
-    tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
-    tmp_api_id: 2dcdrrn5zc
-    tmp_api_username: vetsapiTempUser
-    service_name: CHIP-API
-    mock: false
-    key_path: fake_api_path
-    redis_session_prefix: check_in
-    timeout: 30
   chip_api_v2:
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     base_path: dev
-    host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     tmp_api_user: TzY6DFrnjPE8dwxUMbFf9HjbFqRim2MgXpMpMciXJFVohyURUJAc7W99rpFzhfh2B3sVnn4
     tmp_api_id: 2dcdrrn5zc
     tmp_api_username: vetsapiTempUser
     service_name: CHIP-API
     mock: false
-    key_path: fake_api_path
     redis_session_prefix: check_in_chip_v2
-    timeout: 30
   lorota_v2:
     url: https://vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
-    host: vpce-06399548ef94bdb41-lk4qp2nd.execute-api.us-gov-west-1.vpce.amazonaws.com
     base_path: dev
     api_id: 22t00c6f97
     api_key: fake_key
@@ -1599,9 +1602,6 @@ check_in:
     key_path: fake_api_path
     redis_session_prefix: check_in_lorota_v2
     redis_token_expiry: 43200 # 12 Hours
-
-rack:
-  cookie_secret: ~
 
 # Settings for BID Services
 bid:
@@ -1631,7 +1631,6 @@ virtual_regional_office:
   url: http://localhost:8120
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
-  ctn_classification_path: classifier
   vagov_classification_path: contention-classification/va-gov-claim-classifier
   max_cfi_path: employee-experience/max-ratings
   ep_merge_path: employee-experience-ep-merge-app/merge
@@ -1672,7 +1671,6 @@ sidekiq:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 flipper:
   mute_logs: false
@@ -1680,7 +1678,6 @@ flipper:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 lgy:
   base_url: http://www.example.com
@@ -1692,7 +1689,6 @@ lgy_sahsha:
   base_url: http://www.example.com
   app_id: ~
   api_key: ~
-  mock_coe: false
 
 form526_backup:
   enabled: true
@@ -1732,13 +1728,11 @@ form1095_b:
     aws_access_key_id: ~
     aws_secret_access_key: ~
     bucket: "bucket"
-    enabled: true
     region: "region"
 
 ivc_forms:
   s3:
     bucket: "bucket"
-    enabled: true
     region: "region"
   sidekiq:
     missing_form_status_job:
@@ -1749,7 +1743,6 @@ coverband:
   github_team: ~
   github_oauth_key: ~
   github_oauth_secret: ~
-  github_api_key: ~
 
 dogstatsd:
   enabled: false
@@ -1775,6 +1768,12 @@ avs:
 brd:
   api_key: 'fake_key'
   base_name: 'https://something.fake.va.gov'
+
+nod_vanotify_status_callback:
+  bearer_token: bearer_token_secret
+
+pension_ipf_vanotify_status_callback:
+  bearer_token: bearer_token_secret
 
 travel_pay:
   sts:

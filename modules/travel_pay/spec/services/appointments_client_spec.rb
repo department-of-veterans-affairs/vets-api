@@ -88,12 +88,6 @@ describe TravelPay::AppointmentsClient do
   end
 
   context '/appointments' do
-    before do
-      allow_any_instance_of(TravelPay::TokenService)
-        .to receive(:get_tokens)
-        .and_return(*tokens)
-    end
-
     it 'returns a response only with appointments with no claims' do
       @stubs.get('/api/v1.1/appointments?excludeWithClaims=true') do
         [

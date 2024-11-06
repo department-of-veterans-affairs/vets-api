@@ -1554,6 +1554,10 @@ describe HCA::EnrollmentSystem do
       [
         'application/octet-stream',
         'PDF'
+      ],
+      [
+        'application/unknown-mime',
+        'PDF'
       ]
     ]
   )

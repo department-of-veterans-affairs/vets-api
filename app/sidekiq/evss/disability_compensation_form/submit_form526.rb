@@ -75,7 +75,6 @@ module EVSS
       # submission service (currently EVSS)
       #
       # @param submission_id [Integer] The {Form526Submission} id
-      #
       def perform(submission_id)
         Sentry.set_tags(source: '526EZ-all-claims')
         super(submission_id)
@@ -88,19 +87,14 @@ module EVSS
         # be addressed to make this service and test more robust and readable.
         service = service(submission.auth_headers)
 
-        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
+        with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?,
+                      service_provider) do
           submission.mark_birls_id_as_tried!
 
           return unless successfully_prepare_submission_for_evss?(submission)
 
           begin
-            # send submission data to either EVSS or Lighthouse (LH)
-            response = if submission.claims_api? # not needed once fully migrated to LH
-                         send_submission_data_to_lighthouse(submission, submission_account(submission).icn)
-                       else
-                         service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
-                       end
-
+            response = choose_service_provider(submission, service)
             response_handler(response)
             send_post_evss_notifications(submission, true)
           rescue => e
@@ -112,12 +106,25 @@ module EVSS
 
       private
 
+      # send submission data to either EVSS or Lighthouse (LH)
+      def choose_service_provider(submission, service)
+        if submission.claims_api? # not needed once fully migrated to LH
+          send_submission_data_to_lighthouse(submission, submission.account.icn)
+        else
+          service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
+        end
+      end
+
       def conditionally_handle_errors(e)
         if submission.claims_api?
           handle_lighthouse_errors(submission, e)
         else
           handle_errors(submission, e)
         end
+      end
+
+      def service_provider
+        submission.claims_api? ? 'lighthouse' : 'evss'
       end
 
       def fail_submission_feature_enabled?(submission)
@@ -139,10 +146,6 @@ module EVSS
       rescue => e
         handle_errors(submission, e)
         false
-      end
-
-      def submission_account(submission)
-        UserAccount.find_by(id: submission.user_account_id) || Account.lookup_by_user_uuid(submission.user_uuid)
       end
 
       def send_submission_data_to_lighthouse(submission, icn)

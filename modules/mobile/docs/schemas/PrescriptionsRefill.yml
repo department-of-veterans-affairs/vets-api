@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -13,6 +14,7 @@ properties:
     example: "PrescriptionRefills"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - failedStationList
       - successfulStationList
@@ -23,16 +25,20 @@ properties:
       - infoMessages
     properties:
       failedStationList:
-        type: string, null
+        type: string
+        nullable: true
         example: "DAYT29, DAYT29"
       successfulStationList:
-        type: string, null
+        type: string
+        nullable: true
         example: "SLC4, VAMCSLC-OUTPTRX"
       lastUpdatedTime:
-        type: string, null
+        type: string
+        nullable: true
         example: "Thu, 08 Dec 2022 12:11:33 EST"
       prescriptionList:
-        type: string, null
+        type: string
+        nullable: true
         example: null
       failedPrescriptionIds:
         type: array
