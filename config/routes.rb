@@ -99,6 +99,9 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
+      collection do
+        get 'credential_emails'
+      end
       resource :mhv_user_account, only: [:show], controller: 'user/mhv_user_accounts'
     end
 
@@ -337,7 +340,7 @@ Rails.application.routes.draw do
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
-    resources :backend_statuses, param: :service, only: %i[index show]
+    resources :backend_statuses, only: %i[index]
 
     resources :apidocs, only: [:index]
 
