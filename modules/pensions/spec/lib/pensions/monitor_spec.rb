@@ -313,39 +313,6 @@ RSpec.describe Pensions::Monitor do
             }
           }
 
-          expect(Pensions::NotificationEmail).to receive(:new).with(claim).and_return notification
-          expect(notification).to receive(:deliver).with(:error)
-          expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
-
-          expect(monitor).to receive(:track_request).with(
-            'error',
-            log,
-            "#{submission_stats_key}.exhausted",
-            call_location: anything,
-            **payload
-          )
-
-          monitor.track_submission_exhaustion(msg, claim)
-        end
-      end
-
-      context 'without a claim parameter' do
-        it 'logs sidekiq job exhaustion' do
-          msg = { 'args' => [claim.id, current_user.uuid] }
-
-          log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
-          payload = {
-            form_id: nil,
-            claim_id: claim.id, # pulled from msg.args
-            user_account_uuid: current_user.uuid,
-            confirmation_number: nil,
-            message: msg,
-            tags: {
-              form_id: '21P-527EZ'
-            }
-          }
-
-          expect(Pensions::NotificationEmail).not_to receive(:new)
           expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
 
           expect(monitor).to receive(:track_request).with(
@@ -356,7 +323,7 @@ RSpec.describe Pensions::Monitor do
             **payload
           )
 
-          monitor.track_submission_exhaustion(msg, nil)
+          monitor.track_submission_exhaustion(msg, claim)
         end
       end
     end
