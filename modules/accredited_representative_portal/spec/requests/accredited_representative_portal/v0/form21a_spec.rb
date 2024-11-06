@@ -5,19 +5,19 @@ require_relative '../../../rails_helper'
 RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
   let(:valid_json) { { field: 'value' }.to_json }
   let(:invalid_json) { 'invalid json' }
-  let(:schema) {
+  let(:schema) do
     {
-      "$schema" => "http://json-schema.org/draft-04/schema#",
-      "title" => "Apply to become a VA-accredited attorney or claims agent",
-      "type" => "object",
-      "properties" => {
-        "firstName" => {
-          "type" => "string"
+      '$schema' => 'http://json-schema.org/draft-04/schema#',
+      'title' => 'Apply to become a VA-accredited attorney or claims agent',
+      'type' => 'object',
+      'properties' => {
+        'firstName' => {
+          'type' => 'string'
         }
       }
     }
-  }
-  let(:wrong_schema) { { "firstName" => 1234 }.to_json }
+  end
+  let(:wrong_schema) { { 'firstName' => 1234 }.to_json }
   let(:representative_user) { create(:representative_user) }
 
   before do
@@ -76,7 +76,13 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
           .and_return(schema)
 
         expect(Rails.logger).to receive(:error).with(
-          matching(/Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}. Errors: The property '#\/firstName' of type integer did not match the following type: string in schema [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/)
+          matching(
+            %r{
+              Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}.
+              Errors: The property '#/firstName' of type integer did not match the following type: string in schema
+              [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+            }x
+          )
         )
 
         headers = { 'Content-Type' => 'application/json' }

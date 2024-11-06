@@ -7,6 +7,7 @@ module AccreditedRepresentativePortal
     class Form21aController < ApplicationController
       class SchemaValidationError < StandardError
         attr_reader :errors
+
         def initialize(errors)
           @errors = errors
           super("Validation failed: #{errors}")
