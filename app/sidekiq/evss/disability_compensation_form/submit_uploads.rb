@@ -8,8 +8,9 @@ module EVSS
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_upload'
       ZSF_DD_TAG_FUNCTION = '526_evidence_upload_failure_email_queuing'
 
-      # retry for one day
-      sidekiq_options retry: 14
+      # retry for  2d 1h 47m 12s
+      # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+      sidekiq_options retry: 16
 
       sidekiq_retries_exhausted do |msg, _ex|
         job_id = msg['jid']
