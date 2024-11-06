@@ -29,24 +29,24 @@ class BenefitsIntakeStatusJob
     resolved_form_submission_ids = form_submissions_and_attempts
                                    .where(form_submission_attempts: { aasm_state: %w[vbms failure] })
                                    .pluck(:id)
-    pending_form_submissions = form_submissions_and_attempts
-                               .where(form_submission_attempts: { aasm_state: 'pending' })
-                               .where.not(id: resolved_form_submission_ids)
-    # We're calculating the resolved_form_submissions and removing them because it is possible for a FormSubmission
+    pending_form_submission_attempts = FormSubmissionAttempt
+                                       .where(aasm_state: 'pending')
+                                       .where.not(form_submission_id: resolved_form_submission_ids)
+    # We're calculating the resolved_form_submission_ids and removing them because it is possible for a FormSubmission
     # to have two (or more) attempts, one 'pending' and the other 'vbms'. In such cases we don't want to include
     # that FormSubmission because it has been resolved.
-    total_handled, result = batch_process(pending_form_submissions)
+    total_handled, result = batch_process(pending_form_submission_attempts)
     Rails.logger.info('BenefitsIntakeStatusJob ended', total_handled:) if result
   end
 
   private
 
-  def batch_process(pending_form_submissions)
+  def batch_process(pending_form_submission_attempts)
     total_handled = 0
     intake_service = BenefitsIntake::Service.new
 
-    pending_form_submissions.each_slice(batch_size) do |batch|
-      batch_uuids = batch.map { |submission| submission.latest_attempt&.benefits_intake_uuid }
+    pending_form_submission_attempts.each_slice(batch_size) do |batch|
+      batch_uuids = batch.map(&:benefits_intake_uuid)
       response = intake_service.bulk_status(uuids: batch_uuids)
 
       # Log the entire response for debugging purposes
@@ -64,7 +64,7 @@ class BenefitsIntakeStatusJob
   end
 
   # rubocop:disable Metrics/MethodLength
-  def handle_response(response, pending_form_submissions)
+  def handle_response(response, pending_form_submission_attempts)
     total_handled = 0
 
     # Ensure response body contains data, and log the data for debugging
@@ -75,13 +75,14 @@ class BenefitsIntakeStatusJob
 
     response.body['data']&.each do |submission|
       uuid = submission['id']
-      form_submission = pending_form_submissions.find do |submission_from_db|
-        submission_from_db.latest_attempt&.benefits_intake_uuid == uuid
+      form_submission_attempt = pending_form_submission_attempts.find do |submission_attempt_from_db|
+        submission_attempt_from_db&.benefits_intake_uuid == uuid
       end
-      form_id = form_submission.form_type
-      saved_claim_id = form_submission.saved_claim_id
 
-      form_submission_attempt = form_submission.latest_pending_attempt
+      form_submission = form_submission_attempt&.form_submission
+      form_id = form_submission&.form_type
+      saved_claim_id = form_submission&.saved_claim_id
+
       time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
 
       # https://developer.va.gov/explore/api/benefits-intake/docs
