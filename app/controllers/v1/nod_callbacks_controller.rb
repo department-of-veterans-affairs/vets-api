@@ -18,31 +18,31 @@ module V1
 
     DELIVERED_STATUS = 'delivered'
 
+    APPEAL_TYPE_TO_SERVICE_MAP = {
+      'HLR' => 'higher-level-review',
+      'NOD' => 'board-appeal',
+      'SC' => 'supplemental-claims'
+    }.freeze
+
+    VALID_FUNCTION_TYPES = %w[form evidence secondary_form].freeze
+
     def create
       return render json: nil, status: :not_found unless enabled?
 
       payload = JSON.parse(request.body.string)
       status = payload['status']&.downcase
+      reference = payload['reference']
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.received", tags: { status: })
+      send_silent_failure_avoided_metric(reference) if status == DELIVERED_STATUS
 
-      if status == DELIVERED_STATUS
-        tags = ['service:supplemental-claim', 'function: form or evidence submission to Lighthouse']
-        StatsD.increment('silent_failure_avoided', tags:)
-      end
-
-      begin
-        DecisionReviewNotificationAuditLog.create!(notification_id: payload['id'],
-                                                   reference: payload['reference'],
-                                                   status:,
-                                                   payload:)
-      rescue ActiveRecord::RecordInvalid => e
-        log_formatted(**log_params(payload, false), params: { exception_message: e.message })
-        return render json: { message: 'failed' }
-      end
+      DecisionReviewNotificationAuditLog.create!(notification_id: payload['id'], reference:, status:, payload:)
 
       log_formatted(**log_params(payload, true))
       render json: { message: 'success' }
+    rescue => e
+      log_formatted(**log_params(payload, false), params: { exception_message: e.message })
+      render json: { message: 'failed' }
     end
 
     private
@@ -60,6 +60,21 @@ module V1
           status: payload['status']
         }
       }
+    end
+
+    def send_silent_failure_avoided_metric(reference)
+      service_name, function_type = parse_reference_value(reference)
+      tags = ["service:#{service_name}", "function: #{function_type} submission to Lighthouse"]
+      StatsD.increment('silent_failure_avoided', tags:)
+    rescue => e
+      Rails.logger.error('Failed to send silent_failure_avoided metric', params: { reference:, message: e.message })
+    end
+
+    def parse_reference_value(reference)
+      appeal_type, function_type = reference.split('-')
+      raise 'Invalid function_type' unless VALID_FUNCTION_TYPES.include? function_type
+
+      [APPEAL_TYPE_TO_SERVICE_MAP.fetch(appeal_type.upcase), function_type]
     end
 
     def authenticate_header
@@ -80,7 +95,7 @@ module V1
     end
 
     def bearer_token_secret
-      Settings.dig(:nod_vanotify_status_callback, :bearer_token)
+      Settings.nod_vanotify_status_callback.bearer_token
     end
 
     def enabled?

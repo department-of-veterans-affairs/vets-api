@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require AskVAApi::Engine.root.join('spec', 'support', 'shared_contexts.rb')
 
 RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
-  # allow to have access to inquiry_params and translated_payload
-  include_context 'shared data'
-
   describe '#call' do
     subject(:builder) { described_class.new(inquiry_params: params, inquiry_details:) }
 
+    let(:cached_data) do
+      data = File.read('modules/ask_va_api/config/locales/get_optionset_mock_data.json')
+      JSON.parse(data, symbolize_names: true)
+    end
     let(:params) do
       {
         about_the_veteran: {
@@ -64,7 +64,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::VeteranProfile do
       allow(cache_data_service).to receive(:call).with(
         endpoint: 'optionset',
         cache_key: 'optionset'
-      ).and_return(optionset_cached_data)
+      ).and_return(cached_data)
     end
 
     context 'when PERSONAL inquiry_params is received' do

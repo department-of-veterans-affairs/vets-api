@@ -144,14 +144,16 @@ module Lighthouse
       form_submission = {
         form_type: @claim.form_id,
         form_data: @claim.to_json,
-        benefits_intake_uuid: @intake_service.uuid,
         saved_claim: @claim,
         saved_claim_id: @claim.id
       }
       form_submission[:user_account] = @user_account unless @user_account_uuid.nil?
 
-      @form_submission = FormSubmission.create(**form_submission)
-      @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission)
+      FormSubmissionAttempt.transaction do
+        @form_submission = FormSubmission.create(**form_submission)
+        @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission,
+                                                                benefits_intake_uuid: @intake_service.uuid)
+      end
 
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
     end

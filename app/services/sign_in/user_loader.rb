@@ -31,6 +31,8 @@ module SignIn
       current_user.session_handle = access_token.session_handle
       current_user.save && user_identity.save
       current_user.invalidate_mpi_cache
+      current_user.create_mhv_account_async
+
       current_user
     end
 
@@ -40,7 +42,7 @@ module SignIn
 
     def user_attributes
       {
-        mhv_icn: session.user_account.icn,
+        mhv_icn: user_account.icn,
         idme_uuid: user_verification.idme_uuid || user_verification.backing_idme_uuid,
         logingov_uuid: user_verification.logingov_uuid,
         loa:,
@@ -84,11 +86,15 @@ module SignIn
     end
 
     def user_is_verified?
-      session.user_account.verified?
+      user_account.verified?
     end
 
     def session
       @session ||= OAuthSession.find_by(handle: access_token.session_handle)
+    end
+
+    def user_account
+      @user_account ||= session.user_account
     end
 
     def user_verification

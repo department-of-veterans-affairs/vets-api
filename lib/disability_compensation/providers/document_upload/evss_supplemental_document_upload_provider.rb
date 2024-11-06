@@ -10,10 +10,14 @@ class EVSSSupplementalDocumentUploadProvider
   # @param form526_submission [Form526Submission]
   # @param va_document_type [String] VA document code; see LighthouseDocument::DOCUMENT_TYPES
   # @param statsd_metric_prefix [String] prefix, e.g. 'worker.evss.submit_form526_bdd_instructions' from including job
-  def initialize(form526_submission, va_document_type, statsd_metric_prefix)
+  # @param supporting_evidence_attachment [SupportingEvidenceAttachment] (optional) for Veteran-uploaded documents,
+  # the document attachment itself.
+  def initialize(form526_submission, va_document_type, statsd_metric_prefix, supporting_evidence_attachment = nil)
     @form526_submission = form526_submission
     @va_document_type = va_document_type
     @statsd_metric_prefix = statsd_metric_prefix
+    # Unused for EVSS uploads:
+    @supporting_evidence_attachment = supporting_evidence_attachment
   end
 
   # Uploads to EVSS via the EVSS::DocumentsService require both the file body and an instance
@@ -88,7 +92,8 @@ class EVSSSupplementalDocumentUploadProvider
   def base_logging_info
     {
       class: 'EVSSSupplementalDocumentUploadProvider',
-      submission_id: @form526_submission.submitted_claim_id,
+      submitted_claim_id: @form526_submission.submitted_claim_id,
+      submission_id: @form526_submission.id,
       user_uuid: @form526_submission.user_uuid,
       va_document_type_code: @va_document_type,
       primary_form: 'Form526'

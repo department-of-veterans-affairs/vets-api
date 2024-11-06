@@ -42,17 +42,24 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEm
       allow(notification_client).to receive(:send_email)
     end
 
-    it 'increments a Statsd metric' do
+    it 'increments StatsD success & silent failure avoided metrics' do
       expect do
         subject.perform_async(form526_submission.id)
         subject.drain
       end.to trigger_statsd_increment(
         'api.form_526.veteran_notifications.form0781_upload_failure_email.success'
+      ).and trigger_statsd_increment(
+        'silent_failure_avoided_no_confirmation',
+        tags: [
+          'service:disability-application',
+          'function:526_form_0781_failure_email_queuing'
+        ]
       )
     end
 
     it 'logs to the Rails logger' do
       allow(Rails.logger).to receive(:info)
+
       exhaustion_time = Time.new(1985, 10, 26).utc
 
       Timecop.freeze(exhaustion_time) do
@@ -112,7 +119,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEm
       allow(notification_client).to receive(:send_email)
     end
 
-    it 'increments a StatsD exhaustion metric, logs to the Rails logger and updates the job status' do
+    it 'increments StatsD exhaustion & silent failure metrics, logs to the Rails logger and updates the job status' do
       Timecop.freeze(exhaustion_time) do
         described_class.within_sidekiq_retries_exhausted_block(retry_params) do
           expect(Rails.logger).to receive(:warn).with(
@@ -125,9 +132,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEm
               form526_submission_id: form526_submission.id
             }
           ).and_call_original
+
           expect(StatsD).to receive(:increment).with(
             'api.form_526.veteran_notifications.form0781_upload_failure_email.exhausted'
-          )
+          ).ordered
+
+          expect(StatsD).to receive(:increment).with(
+            'silent_failure',
+            tags: [
+              'service:disability-application',
+              'function:526_form_0781_failure_email_queuing'
+            ]
+          ).ordered
         end
 
         expect(form526_job_status.reload.status).to eq(Form526JobStatus::STATUS[:exhausted])
