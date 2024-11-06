@@ -108,13 +108,13 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
 
   describe '#build_supporting_docs from Benefits Documents' do
     it 'builds and returns the correctly number of docs' do
-      allow(controller).to receive(:check_file_number).with(file_number).and_return([])
+      allow(controller).to receive(:get_file_number).and_return('796111863')
       result = controller.build_supporting_docs(bgs_claim)
       expect(result.length).to eq(supporting_doc_list[:data][:documents].length)
     end
 
     it 'builds the correct doc output' do
-      allow(controller).to receive(:check_file_number).with(file_number).and_return([])
+      allow(controller).to receive(:get_file_number).and_return('796111863')
       result = controller.build_supporting_docs(bgs_claim)
 
       expect(result[0][:document_id]).to eq(supporting_doc_list[:data][:documents][0][:documentId])
@@ -173,16 +173,11 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
     end
   end
 
-  describe '#check_file_number' do
+  describe '#get_file_number' do
     it 'checks if the file number' do
-      result = controller.check_file_number('796111863')
+      result = controller.get_file_number
 
-      expect(result).to eq(nil)
-    end
-
-    it 'returns [] if the file number is empty' do
-      result = controller.check_file_number('')
-      expect(result).to eq([])
+      expect(result).to eq('796111863')
     end
   end
 end
