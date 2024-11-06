@@ -298,7 +298,6 @@ RSpec.describe Pensions::Monitor do
     describe '#track_submission_exhaustion' do
       context 'with a claim parameter' do
         it 'logs sidekiq job exhaustion' do
-          notification = double(Pensions::NotificationEmail)
           msg = { 'args' => [claim.id, current_user.uuid] }
 
           log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
