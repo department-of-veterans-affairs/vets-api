@@ -32,10 +32,10 @@ module TravelPay
     protected
 
     def scrub_logs
-      logger.filter = -> log do
+      logger.filter = lambda do |log|
         if (log.name =~ /TravelPay/) && (log.payload[:action].eql? 'show')
           log.payload[:params]['id'] = 'SCRUBBED_CLAIM_ID'
-          log.payload[:path] = log.payload[:path].gsub(/(.+claims\/)(.+)/, '\1SCRUBBED_CLAIM_ID')
+          log.payload[:path] = log.payload[:path].gsub(%r{(.+claims/)(.+)}, '\1SCRUBBED_CLAIM_ID')
         end
         # After the log has been scrubbed, make sure it is logged:
         true
