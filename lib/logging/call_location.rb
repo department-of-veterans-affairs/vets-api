@@ -7,7 +7,7 @@ module Logging
 
     # create proxy caller_location
     # @see Thread::Backtrace::Location
-    # @see ZeroSilentFailures::Monitor#parse_caller
+    # @see Logging::Monitor#parse_caller
     def initialize(function = nil, file = nil, line = nil)
       @base_label = function
       @path = file
