@@ -129,7 +129,6 @@ flipper:
   github_team: 0000000
   github_oauth_key: xxx000
   github_oauth_secret: 000xxx
-  github_api_key: ~
 
 va_forms:
   drupal_username: ~
@@ -166,6 +165,7 @@ vanotify:
         notice_of_disagreement_form_error_email: fake_nod_template_id
         supplemental_claim_evidence_error_email: fake_sc_evidence_template_id
         supplemental_claim_form_error_email: fake_sc_template_id
+        supplemental_claim_secondary_form_error_email: fake_sc_secondary_form_template_id
     benefits_management_tools:
       api_key: fake_secret
       template_id:
@@ -245,6 +245,12 @@ lighthouse:
       access_token:
         client_id: abc123456
         rsa_key: path/to/key
+      use_mocks: false
+    status:
+      host: https://sandbox-api.va.gov
+      access_token:
+        client_id: ~
+        rsa_key: ~
       use_mocks: false
   benefits_claims:
     host: https://sandbox-api.va.gov

@@ -24,7 +24,7 @@ module V1
       'SC' => 'supplemental-claims'
     }.freeze
 
-    VALID_FUNCTION_TYPES = %w[form evidence].freeze
+    VALID_FUNCTION_TYPES = %w[form evidence secondary_form].freeze
 
     def create
       return render json: nil, status: :not_found unless enabled?
@@ -95,7 +95,7 @@ module V1
     end
 
     def bearer_token_secret
-      Settings.dig(:nod_vanotify_status_callback, :bearer_token)
+      Settings.nod_vanotify_status_callback.bearer_token
     end
 
     def enabled?

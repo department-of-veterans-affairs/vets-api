@@ -1590,4 +1590,75 @@ RSpec.describe Form526Submission do
       end
     end
   end
+
+  describe 'ICN retrieval' do
+    context 'various ICN retrieval scenarios' do
+      let(:user) { FactoryBot.create(:user, :loa3) }
+      let(:auth_headers) do
+        EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+      end
+      let(:submission) do
+        create(:form526_submission,
+               user_uuid: user.uuid,
+               auth_headers_json: auth_headers.to_json,
+               saved_claim_id: saved_claim.id)
+      end
+      let!(:form526_submission) { create(:form526_submission) }
+
+      it 'submissions user account has an ICN, as expected' do
+        submission.user_account = UserAccount.new(icn: '123498767V222222')
+        account = submission.account
+        expect(account.icn).to eq('123498767V222222')
+      end
+
+      it 'submissions user account has no ICN, default to Account lookup' do
+        submission.user_account = UserAccount.new(icn: nil)
+        account = submission.account
+        expect(account.icn).to eq('123498767V234859')
+      end
+
+      it 'submission has NO user account, default to Account lookup' do
+        account = submission.account
+        expect(account.icn).to eq('123498767V234859')
+      end
+
+      it 'submissions user account has no ICN, lookup from past submissions' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V111111')
+        create(:form526_submission, user_uuid: submission.user_uuid, user_account: user_account_with_icn)
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        account = submission.account
+        expect(account.icn).to eq('123498767V111111')
+      end
+
+      it 'lookup ICN from user verifications, idme_uuid defined' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V333333')
+        UserVerification.create!(idme_uuid: submission.user_uuid, user_account_id: user_account_with_icn.id)
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        account = submission.account
+        expect(account.icn).to eq('123498767V333333')
+      end
+
+      it 'lookup ICN from user verifications, backing_idme_uuid defined' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V444444')
+        UserVerification.create!(dslogon_uuid: Faker::Internet.uuid, backing_idme_uuid: submission.user_uuid,
+                                 user_account_id: user_account_with_icn.id)
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        account = submission.account
+        expect(account.icn).to eq('123498767V444444')
+      end
+
+      it 'lookup ICN from user verifications, alternate provider id defined' do
+        user_account_with_icn = UserAccount.create!(icn: '123498767V555555')
+        UserVerification.create!(dslogon_uuid: submission.user_uuid, backing_idme_uuid: Faker::Internet.uuid,
+                                 user_account_id: user_account_with_icn.id)
+        submission.user_account = UserAccount.create!(icn: nil)
+        submission.save!
+        account = submission.account
+        expect(account.icn).to eq('123498767V555555')
+      end
+    end
+  end
 end
