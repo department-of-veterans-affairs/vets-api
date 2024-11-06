@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs_service/manage_representative_service'
+require 'claims_api/common/exceptions/lighthouse/bad_gateway'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
 
@@ -23,9 +24,9 @@ module ClaimsApi
 
           res = service.read_poa_request(poa_codes:)
 
-          poa_list = res[:poa_request_respond_return_vo_list]
+          poa_list = res['poaRequestRespondReturnVOList']
 
-          raise ::Common::Exceptions::Lighthouse::BadGateway unless poa_list
+          raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
           render json: poa_list, status: :ok
         end
@@ -43,7 +44,7 @@ module ClaimsApi
           unless decision && %w[accepted declined].include?(normalize(decision))
             raise ::Common::Exceptions::ParameterMissing.new(
               'decision',
-              detail: 'decision is required and must be either "accepted" or "declined"'
+              detail: 'decision is required and must be either "ACCEPTED" or "DECLINED"'
             )
           end
 
@@ -58,7 +59,7 @@ module ClaimsApi
           render json: res, status: :ok
         end
 
-        def request_representative
+        def create
           # validate target veteran exists
           target_veteran
 
@@ -80,10 +81,11 @@ module ClaimsApi
 
           # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
           unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
-            ClaimsApi::PowerOfAttorneyRequestService::Orchestrator.new(target_veteran.participant_id,
-                                                                       bgs_form_attributes.deep_symbolize_keys,
-                                                                       user_profile&.profile&.participant_id,
-                                                                       :poa).submit_request
+            res = ClaimsApi::PowerOfAttorneyRequestService::Orchestrator.new(target_veteran.participant_id,
+                                                                             bgs_form_attributes.deep_symbolize_keys,
+                                                                             user_profile&.profile&.participant_id,
+                                                                             :poa).submit_request
+            form_attributes['procId'] = res['procId']
           end
 
           # return only the form information consumers provided

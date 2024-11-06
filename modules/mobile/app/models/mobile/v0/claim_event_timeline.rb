@@ -24,6 +24,7 @@ module Mobile
       attribute :file_type, Types::String.optional.default(nil)
       attribute :document_type, Types::String.optional.default(nil)
       attribute :filename, Types::String.optional.default(nil)
+      attribute :document_id, Types::String.optional.default(nil)
     end
   end
 end
