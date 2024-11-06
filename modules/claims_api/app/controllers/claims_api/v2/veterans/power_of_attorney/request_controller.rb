@@ -44,7 +44,7 @@ module ClaimsApi
           unless decision && %w[accepted declined].include?(normalize(decision))
             raise ::Common::Exceptions::ParameterMissing.new(
               'decision',
-              detail: 'decision is required and must be either "accepted" or "declined"'
+              detail: 'decision is required and must be either "ACCEPTED" or "DECLINED"'
             )
           end
 
