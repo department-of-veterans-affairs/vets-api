@@ -333,8 +333,13 @@ FactoryBot.define do
       end
 
       with_ancillary['form526_uploads'] = with_uploads
-      with_ancillary['form526']['form526']['veteran']['emailAddress'] = 'test@example.com'
       with_ancillary.to_json
+    end
+  end
+
+  trait :with_empty_disabilities do
+    form_json do
+      File.read("#{submissions_path}/only_526_empty_disabilities.json")
     end
   end
 end

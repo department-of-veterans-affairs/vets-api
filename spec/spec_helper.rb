@@ -56,6 +56,7 @@ unless ENV['NOCOVERAGE']
     add_group 'AppsApi', 'modules/apps_api'
     add_group 'AskVAApi', 'modules/ask_va_api/'
     add_group 'Avs', 'modules/avs/'
+    add_group 'Banners', 'modules/banners/'
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidResearch', 'modules/covid_research/'

@@ -12,6 +12,12 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::InstallmentContractsOtherDebtsCal
       get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/post_transform')
     end
 
+    let(:transformer_data) do
+      transformer = described_class.new(pre_form_data)
+      transformer.get_data
+      transformer.get_totals_data
+    end
+
     def get_data
       transformer = described_class.new(pre_form_data)
       @data = transformer.get_data
@@ -31,6 +37,15 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::InstallmentContractsOtherDebtsCal
       it 'gets total of installment contracts and other debts data correct' do
         expected_installment_contracts_other_debts_data = post_form_data['totalOfInstallmentContractsAndOtherDebts']
         expect(expected_installment_contracts_other_debts_data).to eq(@total_data)
+      end
+
+      it 'returns empty string for creditorName' do
+        pre_form_data['installment_contracts'].first['creditor_name'] = nil
+        calculator = described_class.new(pre_form_data)
+        calculator_data = calculator.get_data
+
+        creditor_names = calculator_data.pluck('creditorName')
+        expect(creditor_names).to eq(['', ''])
       end
     end
   end

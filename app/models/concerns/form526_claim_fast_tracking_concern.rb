@@ -132,7 +132,7 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
     return unless pending_eps.count == 1
 
-    feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
+    feature_enabled = ep_merge_feature_enabled?
     open_claim_review = open_claim_review?
     Rails.logger.info(
       'EP Merge open EP eligibility',
@@ -179,9 +179,16 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('classifier response for 526Submission', payload: response_body)
   end
 
+  def log_and_halt_if_no_disabilities
+    Rails.logger.info("No disabilities found for classification on claim #{id}")
+    false
+  end
+
   # Submits contention information to the VRO contention classification service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
+    return log_and_halt_if_no_disabilities if disabilities.blank?
+
     contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
     params = { claim_id: saved_claim_id, form526_submission_id: id, contentions: contentions_array }
     classifier_response = classify_vagov_contentions(params)
@@ -253,6 +260,15 @@ module Form526ClaimFastTrackingConcern
       disability['specialIssues'].append(EP_MERGE_SPECIAL_ISSUE).uniq!
     end
     update!(form_json: JSON.dump(form))
+  end
+
+  def ep_merge_feature_enabled?
+    actor = OpenStruct.new({ flipper_id: user_uuid })
+    if Flipper.enabled?(:disability_compensation_production_tester, actor)
+      Rails.logger.info("EP merge skipped for submission #{id}, user_uuid #{user_uuid}")
+      return false
+    end
+    Flipper.enabled?(:disability_526_ep_merge_api, actor)
   end
 
   private

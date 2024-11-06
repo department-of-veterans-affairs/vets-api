@@ -57,31 +57,43 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
                                                             .and_return(true)
 
-        FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                    transaction_id: 'transaction_1',
-                                                                    id: '1')
-        FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
-                                                                    transaction_id: 'transaction_1',
-                                                                    id: '2')
+        claim_one = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                                transaction_id: 'transaction_1',
+                                                                                id: '1')
+        claim_two = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
+                                                                                transaction_id: 'transaction_1',
+                                                                                id: '2')
         claim_three = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
                                                                                   transaction_id: 'transaction_2',
                                                                                   id: '3')
         claim_four = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
                                                                                  transaction_id: 'transaction_3',
                                                                                  id: '4')
-        expected_array = [claim_three.id,
-                          claim_four.id] || [claim_four.id, claim_three.id]
-        # rubocop:disable RSpec/SubjectStub
-        expect(subject).to receive(:notify).with(
+        expected_vagov_claims = [claim_three.id, claim_four.id]
+        expected_absent_values = [claim_one.id, claim_two.id]
+
+        expected_present_values = [
           [],
-          expected_array,
+          expected_vagov_claims,
           ['poa1'],
           ['itf1'],
-          ['ews1'],
-          kind_of(String),
-          kind_of(String),
-          kind_of(String)
-        )
+          ['ews1']
+        ]
+
+        # rubocop:disable RSpec/SubjectStub
+        expect(subject).to receive(:notify) do |*args|
+          args.each_with_index do |arg, idx|
+            if [5, 6, 7].include?(idx)
+              expect(arg).to be_a(String)
+            elsif idx == 1
+              expect(arg.flatten).to include(*expected_vagov_claims)
+              expect(arg.flatten).not_to include(*expected_absent_values)
+            else
+              expect(expected_present_values).to include(arg)
+              expect(expected_absent_values.flatten).not_to include(arg)
+            end
+          end
+        end
         # rubocop:enable RSpec/SubjectStub
 
         subject.perform
