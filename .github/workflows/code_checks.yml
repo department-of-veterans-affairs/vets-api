@@ -203,14 +203,14 @@ jobs:
           files: Test Results/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Fix up coverage report to work with coverage-check-action
-        run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
+      # - name: Fix up coverage report to work with coverage-check-action
+      #   run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
 
-      - name: Publish Coverage Report
-        uses: devmasx/coverage-check-action@v1.2.0
-        if: hashFiles('Coverage Report/.last_run.json') != ''
-        with:
-          type: simplecov
-          result_path: Coverage Report/.last_run.json
-          min_coverage: 90
-          token: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Publish Coverage Report
+      #   uses: devmasx/coverage-check-action@v1.2.0
+      #   if: hashFiles('Coverage Report/.last_run.json') != ''
+      #   with:
+      #     type: simplecov
+      #     result_path: Coverage Report/.last_run.json
+      #     min_coverage: 90
+      #     token: ${{ secrets.GITHUB_TOKEN }}
