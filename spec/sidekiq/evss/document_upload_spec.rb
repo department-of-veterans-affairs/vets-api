@@ -84,7 +84,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
     before do
       Flipper.disable(:cst_send_evidence_failure_emails)
     end
-    
+
     it 'does not call Lighthouse::Failure Notification' do
       subject.within_sidekiq_retries_exhausted_block(args) do
         expect(EVSS::FailureNotification).not_to receive(:perform_async)

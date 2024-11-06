@@ -13,7 +13,7 @@ class Lighthouse::FailureNotification
     rand(3600..3660) if count < 9
   end
 
-  sidekiq_retries_exhausted do |msg, _ex|
+  sidekiq_retries_exhausted do
     ::Rails.logger.info('Lighthouse::FailureNotification email could not be sent')
   end
 
