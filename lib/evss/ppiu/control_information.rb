@@ -4,7 +4,8 @@ require 'vets/model'
 
 module EVSS
   module PPIU
-    class ControlInformation < Vets::Model
+    class ControlInformation
+      include Vets::Model
       ##
       # Determines if the user can update their address.
       # Updates are only allowed when all member variables of this object are 'true'

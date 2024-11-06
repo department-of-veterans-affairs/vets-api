@@ -32,7 +32,9 @@ module EVSS
     #   @return [Array<EVSS::DisabilityCompensationForm::SpecialIssue>] List of complicating issues
     #     e.g. ['POW', 'PTSD_1']
     #
-    class RatedDisability < Vets::Model
+    class RatedDisability
+      include Vets::Model
+
       attribute :decision_code, String
       attribute :decision_text, String
       attribute :diagnostic_code, Integer

@@ -32,7 +32,9 @@ module EVSS
     # @!attribute military_state_code
     #   @return [String] For military addresses, the state code
     #
-    class PaymentAddress < Vets::Model
+    class PaymentAddress
+      include Vets::Model
+
       attribute :type, String
       attribute :address_effective_date, DateTime
       attribute :address_one, String

@@ -19,7 +19,9 @@ module EVSS
     # @!attribute payment_type
     #   @return [String] The payment type
     #
-    class PaymentInformation < Vets::Model
+    class PaymentInformation
+      include Vets::Model
+
       attribute :control_information, EVSS::PPIU::ControlInformation
       attribute :payment_account, EVSS::PPIU::PaymentAccount
       attribute :payment_address, EVSS::PPIU::PaymentAddress

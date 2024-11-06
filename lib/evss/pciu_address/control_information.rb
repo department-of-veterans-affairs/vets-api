@@ -29,7 +29,9 @@ module EVSS
     # @!attribute not_deceased_indicator
     #   @return [Bool] Returns true if the veteran is still alive
     #
-    class ControlInformation < Vets::Model
+    class ControlInformation
+      include Vets::Model
+
       attribute :can_update, Bool
       attribute :corp_avail_indicator, Bool
       attribute :corp_rec_found_indicator, Bool

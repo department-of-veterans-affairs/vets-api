@@ -16,7 +16,9 @@ module EVSS
     # @!attribute financial_institution_routing_number
     #   @return [String] The routing number of the financial institution; exactly 9 digits
     #
-    class PaymentAccount < Vets::Model
+    class PaymentAccount
+      include Vets::Model
+
       ACCOUNT_NUM_REGEX = /\A\d*\z/
       ROUTING_NUM_REGEX = /\A\d{9}\z/
 

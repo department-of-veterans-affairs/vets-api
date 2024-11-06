@@ -14,7 +14,9 @@ module EVSS
     # @!attribute user_percent_of_disability
     #   @return [Integer] User percent of disability rating (ex. 90)
     #
-    class RatingInfo < Vets::Model
+    class RatingInfo
+      include Vets::Model
+
       attribute :disability_decision_type_name, String
       attribute :service_connected_combined_degree, Integer
       attribute :user_percent_of_disability, Integer
