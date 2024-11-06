@@ -43,9 +43,24 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
     end
 
     context 'validation errors' do
-      context 'when form does not match schema' do
+      let(:schema_errors) { [{ fragment: 'error' }] }
+
+      context 'when fully_validate_schema returns errors' do
         before do
-          allow(JSON::Validator).to receive(:fully_validate).and_return([{ fragment: 'error' }])
+          allow(JSON::Validator).to receive_messages(fully_validate_schema: schema_errors, fully_validate: [])
+        end
+
+        it 'logs schema failed error and calls fully_validate' do
+          expect(Rails.logger).to receive(:error)
+            .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
+
+          expect(saved_claim.validate).to eq true
+        end
+      end
+
+      context 'when fully_validate returns errors' do
+        before do
+          allow(JSON::Validator).to receive(:fully_validate).and_return(schema_errors)
         end
 
         it 'adds validation errors to the form' do
