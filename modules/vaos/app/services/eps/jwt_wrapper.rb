@@ -6,7 +6,7 @@ module EPS
 
     attr_reader :expiration, :settings
 
-    delegate :key_path, :client_id, :audience_claim_url, to: :settings
+    delegate :key_path, :client_id, :kid, :audience_claim_url, to: :settings
     def initialize
       @settings = Settings.vaos.eps
       @expiration = 5
@@ -35,7 +35,7 @@ module EPS
 
     def jwt_headers
       {
-        kid: 'e7e84f04bed8eb0ec8b8c9f',
+        kid: kid,
         typ: 'JWT',
         alg: SIGNING_ALGORITHM
       }
