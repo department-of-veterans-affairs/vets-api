@@ -3,7 +3,9 @@
 require 'vets/model'
 
 module Avs
-  class V0::AfterVisitSummary < Vets::Model
+  class V0::AfterVisitSummary
+    include Vets::Model
+
     attribute :id, String
     attribute :icn, String
     attribute :meta, Object
