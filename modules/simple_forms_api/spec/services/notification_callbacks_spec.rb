@@ -6,7 +6,7 @@ describe SimpleFormsApi::NotificationCallbacks do
   describe '.call' do
     context 'notification of error delivered' do
       let(:notification_record) do
-        build(:notification, status: 'delivered', metadata: { notification_type: :error }.to_json)
+        build(:notification, status: 'delivered', metadata: { notification_type: :error, statsd_tags: {} }.to_json)
       end
 
       it 'increments StatsD' do
@@ -20,7 +20,7 @@ describe SimpleFormsApi::NotificationCallbacks do
 
     context 'notification of vbms delivered' do
       let(:notification_record) do
-        build(:notification, status: 'delivered', metadata: { notification_type: :received }.to_json)
+        build(:notification, status: 'delivered', metadata: { notification_type: :received, statsd_tags: {} }.to_json)
       end
 
       it 'does not increment StatsD' do
@@ -34,7 +34,8 @@ describe SimpleFormsApi::NotificationCallbacks do
 
     context 'notification of error permanently failed' do
       let(:notification_record) do
-        build(:notification, status: 'permanent-failure', metadata: { notification_type: :error }.to_json)
+        build(:notification, status: 'permanent-failure',
+                             metadata: { notification_type: :error, statsd_tags: {} }.to_json)
       end
 
       it 'increments StatsD' do
@@ -48,7 +49,8 @@ describe SimpleFormsApi::NotificationCallbacks do
 
     context 'notification of vbms permanently failed' do
       let(:notification_record) do
-        build(:notification, status: 'permanent-failure', metadata: { notification_type: :received }.to_json)
+        build(:notification, status: 'permanent-failure',
+                             metadata: { notification_type: :received, statsd_tags: {} }.to_json)
       end
 
       it 'increments StatsD' do
