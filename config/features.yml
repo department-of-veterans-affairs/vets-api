@@ -76,10 +76,6 @@ features:
   caregiver1010:
     actor_type: user
     description: Enables new features while investigating 1010CG errors
-  expanded_contention_classification:
-    actor_type: user
-    description: Enables the expanded contention classificatier service maintained by the Conditions Team.
-    enable_in_development: true
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -488,6 +484,10 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
+    enable_in_development: true
+  disability_526_expanded_contention_classification:
+    actor_type: user
+    description: Enables the expanded contention classification service maintained by the Conditions Team.
     enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
