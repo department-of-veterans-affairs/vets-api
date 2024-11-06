@@ -1,0 +1,36 @@
+name: Backend PR Labeler
+on:
+  pull_request:
+    types: [opened, reopened, review_requested, review_request_removed, ready_for_review, converted_to_draft, labeled, unlabeled]
+  workflow_run:
+    workflows: 
+      - "Code Checks"
+    types: [completed]
+jobs:
+  check-pr-status:
+    runs-on: ubuntu-latest
+    outputs:
+      exempt: ${{ steps.check_exemption.outputs.exempt }}
+      draft: ${{ steps.check_draft.outputs.draft }}
+    steps:
+      - name: Check for exemption
+        id: check_exemption
+        run: |
+          if [ ! ${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), 'backend-review-group') }} ]; then
+            echo "exempt=true" >> $GITHUB_OUTPUT
+            echo "PR is exempt from backend approval."
+          else
+            echo "exempt=false" >> $GITHUB_OUTPUT
+            echo "PR requires backend approval."
+          fi
+
+      - name: Check Draft state
+        id: check_draft
+        run: |
+          if ${{ github.event.pull_request.draft }}; then
+            echo "draft=true" >> $GITHUB_OUTPUT
+            echo "Draft PR detected, skipping label checks."
+          else
+            echo "draft=false" >> $GITHUB_OUTPUT
+            echo "PR is ready for review."
+          fi
