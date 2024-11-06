@@ -17,7 +17,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
   # Params setup
   let(:attachments) { Array.new(5) { Rails.root.join(fixtures_path, 'doctors-note.pdf') } }
   let(:submission) { create(:form_submission, :pending, form_type:, form_data:) }
-  let(:benefits_intake_uuid) { submission.benefits_intake_uuid }
+  let(:benefits_intake_uuid) { submission.latest_attempt.benefits_intake_uuid }
   let(:config) { SimpleFormsApi::FormRemediation::Configuration::VffConfig.new }
   let(:file_path) { Rails.root.join(fixtures_path, 'pdfs', 'vba_20_10207-completed.pdf') }
   let(:metadata) do
