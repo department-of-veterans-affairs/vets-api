@@ -12,5 +12,5 @@ spec:
       imagePullPolicy: {{ .Values.image.pullPolicy }}
       env:
         - name: "API_URL"
-          value: "https://{{ $root.Values.domain }}"
+          value: "{{ $root.Values.domain }}"
   restartPolicy: Never
