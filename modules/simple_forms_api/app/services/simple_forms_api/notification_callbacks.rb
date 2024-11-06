@@ -6,7 +6,10 @@ module SimpleFormsApi
       metadata = JSON.parse(notification_record.metadata)
       notification_type = metadata['notification_type']
       form_number = metadata['form_number']
-      tags = ['service:veteran-facing-forms', "function: #{form_number} form submission to Lighthouse"]
+      statsd_tags = metadata['statsd_tags']
+      service = statsd_tags['service']
+      function = statsd_tags['function']
+      tags = ["service:#{service}", "function:#{function}"]
 
       case notification_record.status
       when 'delivered'
@@ -19,7 +22,7 @@ module SimpleFormsApi
     def self.delivered(notification_record, notification_type, tags, form_number)
       if notification_type == 'error'
         StatsD.increment('silent_failure_avoided', tags:)
-        Rails.logger.info('Simple forms api - error email delivered',
+        Rails.logger.info('Error notification to user delivered',
                           { notification_record_id: notification_record.id,
                             form_number: })
       end
@@ -28,7 +31,7 @@ module SimpleFormsApi
     def self.permanent_failure(notification_record, notification_type, tags, form_number)
       if notification_type == 'error'
         StatsD.increment('silent_failure', tags:)
-        Rails.logger.error('Simple forms api - error email failed to deliver',
+        Rails.logger.error('Error notification to user failed to deliver',
                            { notification_record_id: notification_record.id,
                              form_number: })
       end

@@ -119,7 +119,7 @@ module SimpleFormsApi
           get_personalization(first_name),
           Settings.vanotify.services.va_gov.api_key,
           { callback: 'SimpleFormsApi::NotificationCallbacks',
-            metadata: { notification_type:, form_number: }.to_json }
+            metadata: { notification_type:, form_number:, statsd_tags: }.to_json }
         )
       else
         VANotify::EmailJob.perform_at(
@@ -370,6 +370,10 @@ module SimpleFormsApi
       else
         form_data.dig('application', 'claimant', 'name', 'first')
       end
+    end
+
+    def statsd_tags
+      { 'service' => 'veteran-facing-forms', 'function' => "#{form_number} form submission to Lighthouse" }
     end
   end
 end
