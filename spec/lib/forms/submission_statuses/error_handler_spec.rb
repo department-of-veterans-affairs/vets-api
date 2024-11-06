@@ -3,7 +3,8 @@
 require 'rails_helper'
 require 'forms/submission_statuses/error_handler'
 
-describe Forms::SubmissionStatuses::ErrorHandler do
+describe Forms::SubmissionStatuses::ErrorHandler, feature: :form_submission,
+                                                  team_owner: :vfs_authenticated_experience_backend do
   let(:error_handler) { described_class.new }
 
   it 'parses an error with a message key' do
