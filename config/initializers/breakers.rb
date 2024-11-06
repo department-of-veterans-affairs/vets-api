@@ -29,6 +29,7 @@ require 'search_gsa/configuration'
 require 'search_typeahead/configuration'
 require 'search_click_tracking/configuration'
 require 'va_profile/address_validation/configuration'
+require 'va_profile/v3/address_validation/configuration'
 require 'va_profile/contact_information/configuration'
 require 'va_profile/v2/contact_information/configuration'
 require 'va_profile/communication/configuration'
@@ -64,6 +65,7 @@ Rails.application.reloader.to_prepare do
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
     VAProfile::AddressValidation::Configuration.instance.breakers_service,
+    VAProfile::V3::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::Configuration.instance.breakers_service,
     VAProfile::V2::ContactInformation::Configuration.instance.breakers_service,
     VAProfile::Communication::Configuration.instance.breakers_service,
