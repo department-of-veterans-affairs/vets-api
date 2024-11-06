@@ -143,6 +143,8 @@ module ClaimsApi
     end
 
     def transform_form_526_unit_name!
+      return if form_attributes&.dig('serviceInformation', 'reservesNationalGuardService').nil?
+
       unit_name = form_attributes&.dig('serviceInformation', 'reservesNationalGuardService', 'unitName')
       unit_name = ' ' if unit_name&.blank? || unit_name&.empty?
       form_attributes['serviceInformation']['reservesNationalGuardService']['unitName'] = unit_name
