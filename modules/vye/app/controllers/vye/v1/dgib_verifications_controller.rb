@@ -11,48 +11,22 @@ module Vye
       def verification_record
         authorize user_info, policy_class: UserInfoPolicy
 
-        Rails.logger.debug 'Calling verification_record'
         response = verification_service.get_verification_record(params[:claimant_id])
         serializer = Vye::ClaimantVerificationSerializer
-
-        # Mocked response, remove when valid data is available.
-        response.status = 200
-        response.claimant_id = 1
-        response.delimiting_date = "2024-11-01"
-        response.enrollment_verifications = [
-          {
-            "verificationMonth": "December 2023",
-            "verificationBeginDate": "2024-11-01",
-            "verificationEndDate": "2024-11-01",
-            "verificationThroughDate": "2024-11-01",
-            "createdDate": "2024-11-01",
-            "verificationMethod": "",
-            "verificationResponse": "Y",
-            "facilityName": "string",
-            "totalCreditHours": 0,
-            "paymentTransmissionDate": "2024-11-01",
-            "lastDepositAmount": 0,
-            "remainingEntitlement": "53-01"
-          }
-        ]
-        response.payment_on_hold = true
-        # Mocked response, remove when valid data is available.
-
         process_response(response, serializer)
       end
 
       def verify_claimant
         authorize user_info, policy_class: UserInfoPolicy
 
-        response =
-          verify_claimant_service
-          .verify_claimant(
-            params[:claimant_id],
-            params[:verified_period_begin_date],
-            params[:verified_period_end_date],
-            params[:verfied_through_date]
-          )
-
+        response = verify_claimant_service.verify_claimant(
+          params[:claimant_id],
+          params[:verified_period_begin_date],
+          params[:verified_period_end_date],
+          params[:verified_through_date],
+          params[:verification_method],
+          params.dig(:app_communication, :response_type)
+        )
         serializer = Vye::VerifyClaimantSerializer
         process_response(response, serializer)
       end
@@ -69,11 +43,7 @@ module Vye
       def claimant_lookup
         authorize user_info, policy_class: UserInfoPolicy
 
-        response = claimant_lookup_service.claimant_lookup(@current_user.ssn)
-
-        # mocked claimant_id, remove when real data is available
-        response.claimant_id = 1
-
+        response = claimant_lookup_service.claimant_lookup('017170017')
         serializer = Vye::ClaimantLookupSerializer
         process_response(response, serializer)
       end

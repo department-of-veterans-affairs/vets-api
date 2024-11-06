@@ -13,15 +13,24 @@ module Vye
         configuration Vye::DGIB::VerifyClaimant::Configuration
         STATSD_KEY_PREFIX = 'api.dgi.verify_claimant_service'
 
-        def verify_claimant(claimant_id, verified_period_begin_date, verified_period_end_date, verified_through_date)
-          params = ActionController::Parameters.new(
-            {
-              claimant_id:,
-              verified_period_begin_date:,
-              verified_period_end_date:,
-              verified_through_date:
-            }
-          )
+        def verify_claimant(
+          claimant_id,
+          verified_period_begin_date,
+          verified_period_end_date,
+          verified_through_date,
+          verification_method,
+          response_type
+        )
+
+          params = ActionController::Parameters.new({
+                                                      claimant_id:,
+                                                      verified_period_begin_date:,
+                                                      verified_period_end_date:,
+                                                      verified_through_date:,
+                                                      verification_method:,
+                                                      app_communication: { response_type: }
+                                                    })
+
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
