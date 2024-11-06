@@ -25,6 +25,8 @@ module ClaimsApi
       validate_service_after_13th_birthday!
       # ensure 'militaryRetiredPay.receiving' and 'militaryRetiredPay.willReceiveInFuture' are not same non-null values
       validate_form_526_service_pay!
+      # ensure an error is avoided if the unit name is not provided
+      validate_form_526_unit_name!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
       # ensure 'title10Activation.anticipatedSeparationDate' is in the future
@@ -46,6 +48,7 @@ module ClaimsApi
       # ensure the 'treatment.endDate' is after the 'treatment.startDate'
       # ensure any provided 'treatment.treatedDisabilityNames' match a provided 'disabilities.name'
       validate_form_526_treatments!
+      validate_form_526_direct_depost!
     end
 
     def validate_form_526_current_mailing_address!
@@ -137,6 +140,12 @@ module ClaimsApi
         'anticipatedSeparationDate',
         title10_anticipated_separation_date
       )
+    end
+
+    def validate_form_526_unit_name!
+      unit_name = form_attributes&.dig('serviceInformation', 'reservesNationalGuardService', 'unitName')
+      unit_name = ' ' if unit_name.empty?
+      form_attributes['serviceInformation']['reservesNationalGuardService']['unitName'] = unit_name
     end
 
     def validate_form_526_submission_claim_date!
@@ -548,6 +557,19 @@ module ClaimsApi
         treatment['center']['name'] = name
 
         treatment
+      end
+    end
+
+    def validate_form_526_direct_depost!
+      direct_deposit = form_attributes['directDeposit']
+      return if direct_deposit.blank?
+
+      bank_name = direct_deposit['bankName']
+      if bank_name.blank?
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'directDeposit.bankName',
+          direct_deposit['bankName']
+        )
       end
     end
   end
