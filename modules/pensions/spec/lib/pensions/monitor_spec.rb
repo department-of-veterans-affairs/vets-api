@@ -27,12 +27,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           claim_stats_key,
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_show404(claim.confirmation_number, current_user, monitor_error)
@@ -51,12 +51,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           claim_stats_key,
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_show_error(claim.confirmation_number, current_user, monitor_error)
@@ -74,12 +74,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'info',
           log,
           "#{claim_stats_key}.attempt",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_create_attempt(claim, current_user)
@@ -99,12 +99,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           "#{claim_stats_key}.validation_error",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_create_validation_error(ipf, claim, current_user)
@@ -124,12 +124,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           "#{claim_stats_key}.process_attachment_error",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_process_attachment_error(ipf, claim, current_user)
@@ -150,12 +150,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           "#{claim_stats_key}.failure",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_create_error(ipf, claim, current_user, monitor_error)
@@ -175,12 +175,12 @@ RSpec.describe Pensions::Monitor do
         }
         claim.form_start_date = Time.zone.now
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'info',
           log,
           "#{claim_stats_key}.success",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_create_success(ipf, claim, current_user)
@@ -200,12 +200,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'info',
           log,
           "#{submission_stats_key}.begun",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_submission_begun(claim, lh_service, current_user.uuid)
@@ -232,12 +232,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'info',
           log,
           "#{submission_stats_key}.attempt",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_submission_attempted(claim, lh_service, current_user.uuid, upload)
@@ -257,12 +257,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'info',
           log,
           "#{submission_stats_key}.success",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_submission_success(claim, lh_service, current_user.uuid)
@@ -283,12 +283,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'warn',
           log,
           "#{submission_stats_key}.failure",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_submission_retry(claim, lh_service, current_user.uuid, monitor_error)
@@ -296,32 +296,68 @@ RSpec.describe Pensions::Monitor do
     end
 
     describe '#track_submission_exhaustion' do
-      it 'logs sidekiq job exhaustion' do
-        msg = { 'args' => [claim.id, current_user.uuid] }
+      context 'with a claim parameter' do
+        it 'logs sidekiq job exhaustion' do
+          notification = double(Pensions::NotificationEmail)
+          msg = { 'args' => [claim.id, current_user.uuid] }
 
-        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
-        payload = {
-          form_id: claim.form_id,
-          claim_id: claim.id,
-          user_account_uuid: current_user.uuid,
-          confirmation_number: claim.confirmation_number,
-          message: msg,
-          tags: {
-            form_id: '21P-527EZ'
+          log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
+          payload = {
+            form_id: claim.form_id,
+            claim_id: claim.id,
+            user_account_uuid: current_user.uuid,
+            confirmation_number: claim.confirmation_number,
+            message: msg,
+            tags: {
+              form_id: '21P-527EZ'
+            }
           }
-        }
 
-        expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+          expect(Pensions::NotificationEmail).to receive(:new).with(claim).and_return notification
+          expect(notification).to receive(:deliver).with(:error)
+          expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
-          'error',
-          log,
-          "#{submission_stats_key}.exhausted",
-          payload,
-          anything
-        )
+          expect(monitor).to receive(:track_request).with(
+            'error',
+            log,
+            "#{submission_stats_key}.exhausted",
+            call_location: anything,
+            **payload
+          )
 
-        monitor.track_submission_exhaustion(msg, claim)
+          monitor.track_submission_exhaustion(msg, claim)
+        end
+      end
+
+      context 'without a claim parameter' do
+        it 'logs sidekiq job exhaustion' do
+          msg = { 'args' => [claim.id, current_user.uuid] }
+
+          log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
+          payload = {
+            form_id: nil,
+            claim_id: claim.id, # pulled from msg.args
+            user_account_uuid: current_user.uuid,
+            confirmation_number: nil,
+            message: msg,
+            tags: {
+              form_id: '21P-527EZ'
+            }
+          }
+
+          expect(Pensions::NotificationEmail).not_to receive(:new)
+          expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+
+          expect(monitor).to receive(:track_request).with(
+            'error',
+            log,
+            "#{submission_stats_key}.exhausted",
+            call_location: anything,
+            **payload
+          )
+
+          monitor.track_submission_exhaustion(msg, nil)
+        end
       end
     end
 
@@ -339,12 +375,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'warn',
           log,
-          claim_stats_key,
-          payload,
-          anything
+          "#{submission_stats_key}.send_confirmation_failed",
+          call_location: anything,
+          **payload
         )
 
         monitor.track_send_confirmation_email_failure(claim, lh_service, current_user.uuid, monitor_error)
@@ -365,12 +401,12 @@ RSpec.describe Pensions::Monitor do
           }
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           "#{submission_stats_key}.cleanup_failed",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
 
         monitor.track_file_cleanup_error(claim, lh_service, current_user.uuid, monitor_error)
