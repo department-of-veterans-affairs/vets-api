@@ -40,10 +40,6 @@ class HealthCareApplication < ApplicationRecord
     }
   end
 
-  def form_id
-    self.class::FORM_ID.upcase
-  end
-
   def success?
     state == 'success'
   end
@@ -96,8 +92,6 @@ class HealthCareApplication < ApplicationRecord
     prefill_fields
 
     unless valid?
-      Rails.logger.warn("HealthCareApplication::ValidationError: #{Flipper.enabled?(:hca_use_facilities_API)}")
-
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error")
 
       StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.validation_error_short_form") if short_form?
@@ -261,9 +255,15 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def log_async_submission_failure
+    log_zero_silent_failures
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
     log_submission_failure_details
+  end
+
+  def log_zero_silent_failures
+    tags = ['service:healthcare-application', 'function: 10-10EZ async form submission']
+    StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
   end
 
   def log_submission_failure_details
@@ -304,28 +304,11 @@ class HealthCareApplication < ApplicationRecord
     log_exception_to_sentry(e)
   end
 
-  # If the hca_use_facilities_API flag is on then vaMedicalFacility will only
-  # validate for a string, else it will validate through the enum.  This avoids
-  # changes to vets-website and vets-json-schema having to deploy simultaneously.
   def form_matches_schema
     if form.present?
-      JSON::Validator.fully_validate(current_schema, parsed_form).each do |v|
+      JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form).each do |v|
         errors.add(:form, v.to_s)
       end
-    end
-  end
-
-  def current_schema
-    feature_enabled_for_user = Flipper.enabled?(:hca_use_facilities_API, user)
-    Rails.logger.warn(
-      "HealthCareApplication::hca_use_facilitiesAPI enabled = #{feature_enabled_for_user}"
-    )
-
-    schema = VetsJsonSchema::SCHEMAS[self.class::FORM_ID]
-    return schema unless feature_enabled_for_user
-
-    schema.deep_dup.tap do |c|
-      c['properties']['vaMedicalFacility'] = { type: 'string' }.as_json
     end
   end
 end

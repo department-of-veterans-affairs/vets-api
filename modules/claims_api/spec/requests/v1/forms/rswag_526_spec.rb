@@ -297,7 +297,7 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
                                             'disability', 'upload.json').read)
 
           let(:scopes) { %w[claim.write] }
-          let(:auto_claim) { create(:auto_established_claim) }
+          let(:auto_claim) { create(:auto_established_claim, status: ClaimsApi::AutoEstablishedClaim::PENDING) }
           let(:attachment) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)
@@ -330,13 +330,12 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
       describe 'Getting a 400 response' do
         response '400', 'Bad Request' do
           let(:scopes) { %w[claim.write] }
-          let(:auto_claim) { create(:auto_established_claim) }
+          let(:auto_claim) { create(:auto_established_claim, :errored) }
           let(:attachment) { nil }
           let(:id) { auto_claim.id }
 
           before do |example|
             stub_poa_verification
-
             mock_acg(scopes) do
               submit_request(example.metadata)
             end
@@ -686,7 +685,7 @@ Rspec.describe 'Disability Claims', openapi_spec: 'modules/claims_api/app/swagge
                                             'disability', 'attachments.json').read)
 
           let(:scopes) { %w[claim.write] }
-          let(:auto_claim) { create(:auto_established_claim) }
+          let(:auto_claim) { create(:auto_established_claim, :pending) }
           let(:attachment1) do
             Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
                                                      .to_s)

@@ -16,7 +16,7 @@ describe 'bb client' do
   end
 
   before(:all) do
-    VCR.use_cassette 'bb_client/session', record: :new_episodes do
+    VCR.use_cassette 'bb_client/session' do
       @client ||= begin
         client = BB::Client.new(session: { user_id: '5751732' })
         client.authenticate

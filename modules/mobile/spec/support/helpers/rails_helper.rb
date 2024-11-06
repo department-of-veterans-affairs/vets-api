@@ -17,7 +17,7 @@ RSpec.configure do |config|
     Flipper.enable('va_online_scheduling')
   end
 
-  config.after :each, :mobile_spec, type: :request do |example|
+  config.after :each, :mobile_spec, skipped?: false, type: :request do |example|
     content_type = response.header['Content-Type']
 
     if content_type != 'application/pdf' && response.body.present? &&

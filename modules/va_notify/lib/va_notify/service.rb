@@ -13,26 +13,43 @@ module VaNotify
 
     configuration VaNotify::Configuration
 
-    attr_reader :notify_client
+    attr_reader :notify_client, :callback_options
 
-    def initialize(api_key)
+    def initialize(api_key, callback_options = {})
       overwrite_client_networking
       @notify_client ||= Notifications::Client.new(api_key, client_url)
+      @callback_options = callback_options
     rescue => e
       handle_error(e)
     end
 
     def send_email(args)
-      with_monitoring do
-        notify_client.send_email(args)
+      if Flipper.enabled?(:va_notify_notification_creation)
+        response = with_monitoring do
+          notify_client.send_email(args)
+        end
+        create_notification(response)
+        response
+      else
+        with_monitoring do
+          notify_client.send_email(args)
+        end
       end
     rescue => e
       handle_error(e)
     end
 
     def send_sms(args)
-      with_monitoring do
-        notify_client.send_sms(args)
+      if Flipper.enabled?(:va_notify_notification_creation)
+        response = with_monitoring do
+          notify_client.send_sms(args)
+        end
+        create_notification(response)
+        response
+      else
+        with_monitoring do
+          notify_client.send_sms(args)
+        end
       end
     rescue => e
       handle_error(e)
@@ -80,6 +97,51 @@ module VaNotify
         message: error.message,
         body: error.body
       )
+    end
+
+    def create_notification(response)
+      if response.nil?
+        Rails.logger.error('VANotify - no response')
+        return
+      end
+
+      notification = VANotify::Notification.new(
+        notification_id: response.id,
+        source_location: find_caller_locations,
+        callback: callback_options[:callback],
+        metadata: callback_options[:metadata]
+      )
+
+      if notification.save
+        notification
+      else
+        log_notification_failed_to_save(notification)
+      end
+    rescue => e
+      Rails.logger.error(e)
+    end
+
+    def log_notification_failed_to_save(notification)
+      Rails.logger.error(
+        'VANotify notification record failed to save',
+        {
+          error_messages: notification.errors
+        }
+      )
+    end
+
+    def find_caller_locations
+      va_notify_classes = [
+        'modules/va_notify/lib/va_notify/service.rb',
+        'va_notify/app/sidekiq/va_notify/email_job.rb',
+        'va_notify/app/sidekiq/va_notify/user_account_job.rb'
+      ]
+
+      caller_locations.each do |location|
+        next if va_notify_classes.any? { |path| location.path.include?(path) }
+
+        return "#{location.path}:#{location.lineno} in #{location.label}"
+      end
     end
   end
 end

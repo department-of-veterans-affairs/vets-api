@@ -3,12 +3,16 @@
 require 'rails_helper'
 require 'vets/model'
 
-class FakeApartment < Vets::Model
+class FakeApartment
+  include Vets::Model
+
   attribute :unit_number, Integer
   attribute :building_number, Integer
 end
 
-class FakeAddress < Vets::Model
+class FakeAddress
+  include Vets::Model
+
   attribute :street, String
   attribute :street2, String
   attribute :city, String
@@ -59,6 +63,11 @@ RSpec.describe Vets::Model do
 
     it 'sets missing parameters to nil' do
       expect(address.instance_variable_get('@street2')).to be_nil
+    end
+
+    it 'rejects unknown attributes' do
+      address = FakeAddress.new(street9: '456 Elm St')
+      expect(address).not_to respond_to(:street9)
     end
   end
 

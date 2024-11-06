@@ -45,10 +45,8 @@ module VAOS
           return
         end
 
-        # Convert the text to a hash for querying, or return if no valid key value pairs are found
-        reason_code_hash = reason_code_text.split('|')
-                                           .select { |pair| pair.split(':').count == 2 }
-                                           .to_h { |pair| pair.split(':').map!(&:strip) }
+        # Parse reason code text or return if no valid key value pairs are found
+        reason_code_hash = parse_reason_code_text(reason_code_text)
         return if reason_code_hash.empty?
 
         # VA Direct Scheduling appointments
@@ -75,6 +73,27 @@ module VAOS
       end
 
       private
+
+      # Convert the reason code text to a hash for querying.
+      #
+      # @param reason_code_text [String] the reason code text
+      # @return [Hash, nil] A hash containing the parsed values.
+      def parse_reason_code_text(reason_code_text)
+        reason_code_hash = {}
+        kvps = reason_code_text.split('|')
+        kvps.each do |kvp|
+          segments = kvp.split(':')
+          # Key value pairs consisting of two segments are valid
+          if segments.count == 2
+            reason_code_hash[segments[0].strip] = segments[1].strip
+          # User comments may contain colons so valid comments may consist of >=2
+          # segments. We take the string after the first colon as the comments value.
+          elsif segments[0].strip == 'comments' && segments.count > 1
+            reason_code_hash['comments'] = kvp.partition(':')[2].strip
+          end
+        end
+        reason_code_hash
+      end
 
       # Extract contact fields from the reason code hash if possible.
       #

@@ -3,7 +3,7 @@
   "info": {
     "title": "Benefits Claims",
     "version": "v2",
-    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers: \n\n-   Retrieve existing claim information, including status, by claim ID\n-   Automatically establish an Intent To File (21-0966) in VBMS\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS\n-   Digitally submit supporting documentation for disability compensation claims\n-   Retrieve the active Power of Attorney organization of individual with power of attorney for a Veteran\n-   Automatically establish a power of attorney appointment in VBMS for an accredited organization (VA Form 21-22).\n-   Automatically establish a power of attorney appointment in VBMS for an accredited individual (VA Form 21-22a).\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if you are a consumer outside of VA and do not have the necessary VA agreements to use this API.\n    \n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nClaims are first submitted by this API and then established in Veterans Benefits Management System (VBMS). A 200 response means that the claim was successfully submitted by the API. It does not mean VA has received the claim. Use the appropriate GET endpoint and the ID returned with your submission response to confirm the status of the submission. Statuses are:\n\n-   Pending - the claim is successfully submitted for processing\n-   Errored -  the submission encountered upstream errors\n-   Canceled -  the claim was identified as a duplicate or another issue caused the claim to be canceled. For duplicate claims,  the tracking of the claim's progress happens under a different Claim ID . \n\nOther statuses this API returns align with the [VA.gov](http://va.gov/) [claim status descriptions](https://www.va.gov/resources/what-your-claim-status-means/), which are:\n\n-   Claim received\n-   Initial review\n-   Evidence gathering, review, and decision\n-   Preparation for notification\n-   Complete\n\n### Finding a Veteran's unique VA ID\n\nThis API uses a unique Veteran identifier to identify the subject of each API request. This Veteran identifier can be retrieved by passing the Veteran’s first name, last name, DOB, and SSN to the ‘/veteran-id’ endpoint. This identifier should then be used as the Veteran ID parameter in request URLs.\n\nNote: though Veteran identifiers are typically static, they may change over time. If a specific Veteran ID suddenly responds with a ‘404 not found’ error, the identifier may have changed. It’s a good idea to periodically check the identifier for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
+    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers: \n\n-   Retrieve existing claim information, including status, by claim ID.\n-   Automatically establish an Intent To File (21-0966) in VBMS.\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS.\n-   Digitally submit supporting documentation for disability compensation claims.\n-   Retrieve the active Power of Attorney organization of individual with power of attorney for a claimant.\n-   Automatically establish a power of attorney appointment in VBMS for an accredited organization (VA Form 21-22).\n-   Automatically establish a power of attorney appointment in VBMS for an accredited individual (VA Form 21-22a).\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if you are a consumer outside of VA and do not have the necessary VA agreements to use this API.\n    \n## Appointing an accredited representative for dependents\n\nDependents of Veterans, such as spouses, children (biological and step), and parents (biological and foster) may be eligible for VA benefits and can request representation by an accredited representative.\n\nTo file claims through an accredited representative, dependents must appoint their own. Once appointed, the representative will have power of attorney (POA) to assist with the dependentʼs VA claims.\n\nBefore appointing a representative, the dependentʼs relationship to the Veteran must be established. If a new representative is being appointed, the dependentʼs relationship to the Veteran will be validated first. The representative will be appointed to the dependent, not the Veteran.\n\n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nClaims are first submitted by this API and then established in Veterans Benefits Management System (VBMS). A 200 response means that the claim was successfully submitted by the API. It does not mean VA has received the claim. Use the appropriate GET endpoint and the ID returned with your submission response to confirm the status of the submission. Statuses are:\n\n-   Pending - the claim is successfully submitted for processing\n-   Errored -  the submission encountered upstream errors\n-   Canceled -  the claim was identified as a duplicate or another issue caused the claim to be canceled. For duplicate claims,  the tracking of the claim's progress happens under a different Claim ID . \n\nOther statuses this API returns align with the [VA.gov](http://va.gov/) [claim status descriptions](https://www.va.gov/resources/what-your-claim-status-means/), which are:\n\n-   Claim received\n-   Initial review\n-   Evidence gathering, review, and decision\n-   Preparation for notification\n-   Complete\n\n### Finding a Veteran's unique VA ID\n\nThis API uses a unique Veteran identifier to identify the subject of each API request. This Veteran identifier can be retrieved by passing the Veteran’s first name, last name, DOB, and SSN to the ‘/veteran-id’ endpoint. This identifier should then be used as the Veteran ID parameter in request URLs.\n\nNote: though Veteran identifiers are typically static, they may change over time. If a specific Veteran ID suddenly responds with a ‘404 not found’ error, the identifier may have changed. It’s a good idea to periodically check the identifier for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
   },
   "tags": [
     {
@@ -69,9 +69,9 @@
     }
   },
   "paths": {
-    "/power-of-attorney-requests/{id}/decision": {
+    "/veterans/power-of-attorney-requests/decide": {
       "post": {
-        "summary": "Create the decision for Power of Attorney requests.",
+        "summary": "Submit the decision for Power of Attorney requests.",
         "tags": [
           "Power of Attorney"
         ],
@@ -97,36 +97,128 @@
         ],
         "description": "Create the decision for Power of Attorney requests",
         "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "type": "string"
-            }
-          }
+
         ],
         "responses": {
-          "202": {
-            "description": "Create decision",
+          "200": {
+            "description": "Submit decision",
             "content": {
               "application/json": {
                 "example": {
+                  "VSOUserEmail": null,
+                  "VSOUserFirstName": "vets-api",
+                  "VSOUserLastName": "vets-api",
+                  "dateRequestActioned": "2024-10-15T17:40:36-05:00",
+                  "declinedReason": null,
+                  "procId": "76529",
+                  "secondaryStatus": "ACC"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "VSOUserEmail": {
+                      "type": "string"
+                    },
+                    "VSOUserFirstName": {
+                      "type": "string"
+                    },
+                    "VSOUserLastName": {
+                      "type": "string"
+                    },
+                    "dateRequestActioned": {
+                      "type": "string"
+                    },
+                    "declinedReason": {
+                      "type": "string"
+                    },
+                    "procId": {
+                      "type": "string"
+                    },
+                    "secondaryStatus": {
+                      "type": "string",
+                      "enum": [
+                        "ACC",
+                        "DEC",
+                        "OBS"
+                      ]
+                    }
+                  }
                 }
               }
             }
           },
-          "404": {
-            "description": "Not found",
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "schema_validation_error": {
+                    "summary": "Schema validation error",
+                    "value": {
+                      "errors": [
+                        {
+                          "title": "Missing parameter",
+                          "detail": "procId is required",
+                          "code": "108",
+                          "status": "400"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "400"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Malformed request body",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "title": "Record not found",
-                      "detail": "The record identified by 1234_5678 could not be found",
-                      "code": "404",
-                      "status": "404"
+                      "title": "Unprocessable entity",
+                      "status": "422",
+                      "detail": "The request body is not a valid JSON object: Hash/Object not terminated (after ) at line 1",
+                      "source": {
+                        "pointer": " at line 1"
+                      }
                     }
                   ]
                 },
@@ -143,104 +235,6 @@
                         "required": [
                           "title",
                           "detail",
-                          "code",
-                          "status"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Record not found"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string"
-                          },
-                          "code": {
-                            "type": "string",
-                            "enum": [
-                              "404"
-                            ]
-                          },
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "404"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "examples": {
-                  "schema_validation_error": {
-                    "summary": "Schema validation error",
-                    "value": {
-                      "errors": [
-                        {
-                          "title": "Validation error",
-                          "detail": "object at `/data/attributes` is missing required properties: status, decliningReason",
-                          "code": "109",
-                          "status": "422"
-                        }
-                      ]
-                    }
-                  },
-                  "invalid_recreation_error": {
-                    "summary": "Invalid recreation error",
-                    "value": {
-                      "errors": [
-                        {
-                          "title": "must be original",
-                          "detail": "base - must be original",
-                          "code": "100",
-                          "source": {
-                            "pointer": "data/attributes/base"
-                          },
-                          "status": "422"
-                        }
-                      ]
-                    }
-                  },
-                  "obsolete_error": {
-                    "summary": "Obsolete Power Of Attorney request",
-                    "value": {
-                      "errors": [
-                        {
-                          "title": "Power of attorney request must not be obsolete",
-                          "detail": "power-of-attorney-request - must not be obsolete",
-                          "code": "100",
-                          "source": {
-                            "pointer": "data/attributes/power-of-attorney-request"
-                          },
-                          "status": "422"
-                        }
-                      ]
-                    }
-                  }
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail",
-                          "code",
                           "status"
                         ],
                         "properties": {
@@ -248,9 +242,6 @@
                             "type": "string"
                           },
                           "detail": {
-                            "type": "string"
-                          },
-                          "code": {
                             "type": "string"
                           },
                           "source": {
@@ -270,163 +261,6 @@
               }
             }
           },
-          "400": {
-            "description": "Malformed request body",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Bad request",
-                      "detail": "Malformed JSON in request body",
-                      "code": "400",
-                      "status": "400"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail",
-                          "code",
-                          "status"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Bad request"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Malformed JSON in request body"
-                            ]
-                          },
-                          "code": {
-                            "type": "string",
-                            "enum": [
-                              "400"
-                            ]
-                          },
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "400"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "Bad gateway",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Bad Gateway",
-                      "detail": "Bad Gateway"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Bad Gateway"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Bad Gateway"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "504": {
-            "description": "Gateway timeout",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Gateway timeout",
-                      "detail": "Did not receive a timely response from an upstream server"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Gateway timeout"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Did not receive a timely response from an upstream server"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
           "401": {
             "description": "Unauthorized",
             "content": {
@@ -435,6 +269,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -464,6 +299,12 @@
                             "type": "string",
                             "enum": [
                               "Not authorized"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "401"
                             ]
                           }
                         }
@@ -490,58 +331,33 @@
                     "type": "object",
                     "additionalProperties": false,
                     "required": [
-                      "type",
                       "attributes"
                     ],
                     "properties": {
-                      "type": {
-                        "type": "string",
-                        "enum": [
-                          "powerOfAttorneyRequestDecision"
-                        ]
-                      },
                       "attributes": {
                         "type": "object",
                         "additionalProperties": false,
                         "required": [
-                          "status",
-                          "decliningReason",
-                          "createdBy"
+                          "procId",
+                          "decision"
                         ],
                         "properties": {
-                          "status": {
+                          "procId": {
                             "type": "string",
-                            "description": "TODO",
+                            "description": "The unique identifier of a process."
+                          },
+                          "decision": {
+                            "type": "string",
+                            "description": "The decision of the request.",
                             "enum": [
-                              "accepting",
-                              "declining"
+                              "ACCEPTED",
+                              "DECLINED"
                             ]
                           },
-                          "decliningReason": {
+                          "declinedReason": {
                             "type": "string",
-                            "description": "TODO",
+                            "description": "The reason for declining the request.",
                             "nullable": true
-                          },
-                          "createdBy": {
-                            "type": "object",
-                            "description": "TODO",
-                            "additionalProperties": false,
-                            "required": [
-                              "firstName",
-                              "lastName",
-                              "email"
-                            ],
-                            "properties": {
-                              "firstName": {
-                                "type": "string"
-                              },
-                              "lastName": {
-                                "type": "string"
-                              },
-                              "email": {
-                                "type": "string"
-                              }
-                            }
                           }
                         }
                       }
@@ -550,15 +366,10 @@
                 },
                 "example": {
                   "data": {
-                    "type": "powerOfAttorneyRequestDecision",
                     "attributes": {
-                      "status": "accepting",
-                      "decliningReason": null,
-                      "createdBy": {
-                        "firstName": "BEATRICE",
-                        "lastName": "STROUD",
-                        "email": "Beatrice.Stroud44@va.gov"
-                      }
+                      "procId": "76529",
+                      "decision": "ACCEPTED",
+                      "declinedReason": null
                     }
                   }
                 }
@@ -569,8 +380,8 @@
         }
       }
     },
-    "/power-of-attorney-requests": {
-      "get": {
+    "/veterans/power-of-attorney-requests": {
+      "post": {
         "summary": "Search for Power of Attorney requests.",
         "tags": [
           "Power of Attorney"
@@ -595,589 +406,153 @@
             ]
           }
         ],
-        "description": "Faceted, paginated, and sorted search of Power of Attorney requests",
+        "description": "Search for Power of Attorney requests",
         "parameters": [
-          {
-            "name": "query",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "required": [
-                "filter"
-              ],
-              "properties": {
-                "filter": {
-                  "type": "object",
-                  "required": [
-                    "poaCodes"
-                  ],
-                  "properties": {
-                    "poaCodes": {
-                      "type": "array",
-                      "minItems": 1,
-                      "items": {
-                        "type": "string",
-                        "minLength": 1
-                      }
-                    },
-                    "decision": {
-                      "type": "object",
-                      "properties": {
-                        "statuses": {
-                          "type": "array",
-                          "items": {
-                            "type": "string",
-                            "enum": [
-                              "none",
-                              "accepting",
-                              "declining"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "page": {
-                  "type": "object",
-                  "properties": {
-                    "number": {
-                      "type": "integer",
-                      "minimum": 1
-                    },
-                    "size": {
-                      "type": "integer",
-                      "minimum": 1,
-                      "maximum": 100
-                    }
-                  }
-                },
-                "sort": {
-                  "type": "object",
-                  "required": [
-                    "field",
-                    "order"
-                  ],
-                  "properties": {
-                    "field": {
-                      "type": "string",
-                      "enum": [
-                        "createdAt"
-                      ]
-                    },
-                    "order": {
-                      "type": "string",
-                      "enum": [
-                        "asc",
-                        "desc"
-                      ]
-                    }
-                  }
-                }
-              },
-              "example": {
-                "filter": {
-                  "poaCodes": [
-                    "083",
-                    "002",
-                    "003",
-                    "065",
-                    "074",
-                    "022",
-                    "091",
-                    "070",
-                    "097",
-                    "077",
-                    "1EY",
-                    "6B6",
-                    "862",
-                    "9U7",
-                    "BQX"
-                  ],
-                  "decision": {
-                    "statuses": [
-                      "none",
-                      "accepting",
-                      "declining"
-                    ]
-                  }
-                },
-                "page": {
-                  "number": 2,
-                  "size": 3
-                },
-                "sort": {
-                  "field": "createdAt",
-                  "order": "asc"
-                }
-              }
-            },
-            "example": {
-              "filter": {
-                "poaCodes": [
-                  "083",
-                  "002",
-                  "003",
-                  "065",
-                  "074",
-                  "022",
-                  "091",
-                  "070",
-                  "097",
-                  "077",
-                  "1EY",
-                  "6B6",
-                  "862",
-                  "9U7",
-                  "BQX"
-                ],
-                "decision": {
-                  "statuses": [
-                    "none",
-                    "accepting",
-                    "declining"
-                  ]
-                }
-              },
-              "page": {
-                "number": 2,
-                "size": 3
-              },
-              "sort": {
-                "field": "createdAt",
-                "order": "asc"
-              }
-            }
-          }
+
         ],
         "responses": {
           "200": {
             "description": "Search results",
             "content": {
               "application/json": {
-                "example": {
-                  "metadata": {
-                    "totalCount": 121,
-                    "query": {
-                      "filter": {
-                        "poaCodes": [
-                          "083",
-                          "002",
-                          "003",
-                          "065",
-                          "074",
-                          "022",
-                          "091",
-                          "070",
-                          "097",
-                          "077",
-                          "1EY",
-                          "6B6",
-                          "862",
-                          "9U7",
-                          "BQX"
-                        ],
-                        "decision": {
-                          "statuses": [
-                            "none",
-                            "accepting",
-                            "declining"
-                          ]
-                        }
-                      },
-                      "page": {
-                        "number": 2,
-                        "size": 3
-                      },
-                      "sort": {
-                        "field": "createdAt",
-                        "order": "asc"
-                      }
-                    }
+                "example": [
+                  {
+                    "VSOUserEmail": null,
+                    "VSOUserFirstName": "Joe",
+                    "VSOUserLastName": "BestRep",
+                    "changeAddressAuth": "Y",
+                    "claimantCity": "Charlottesville",
+                    "claimantCountry": "USA",
+                    "claimantMilitaryPO": null,
+                    "claimantMilitaryPostalCode": null,
+                    "claimantState": null,
+                    "claimantZip": "00123",
+                    "dateRequestActioned": "2024-05-25T13:45:00-05:00",
+                    "dateRequestReceived": "2012-11-23T16:49:16-06:00",
+                    "declinedReason": null,
+                    "healthInfoAuth": "Y",
+                    "poaCode": "083",
+                    "procID": "11027",
+                    "secondaryStatus": "New",
+                    "vetFirstName": "[Vet First Name]",
+                    "vetLastName": "[Vet Last Name]",
+                    "vetMiddleName": null,
+                    "vetPtcpntID": "111"
                   },
-                  "data": [
-                    {
-                      "id": "111_10910",
-                      "type": "powerOfAttorneyRequest",
-                      "attributes": {
-                        "powerOfAttorneyCode": "002",
-                        "isAddressChangingAuthorized": true,
-                        "isTreatmentDisclosureAuthorized": true,
-                        "veteran": {
-                          "firstName": "Kent",
-                          "middleName": "David",
-                          "lastName": "Richardson"
-                        },
-                        "claimant": null,
-                        "claimantAddress": {
-                          "city": "Houston",
-                          "state": "TX",
-                          "zip": "00123",
-                          "country": "USA",
-                          "militaryPostOffice": null,
-                          "militaryPostalCode": null
-                        },
-                        "decision": {
-                          "status": "declining",
-                          "decliningReason": "Kent has an appeal in progress.",
-                          "createdAt": "2013-01-15T14:57:18Z",
-                          "createdBy": {
-                            "firstName": "Nate",
-                            "lastName": "Karev",
-                            "email": "test_evss_5@id.me"
-                          }
-                        },
-                        "createdAt": "2013-01-14T14:57:18Z"
-                      }
-                    },
-                    {
-                      "id": "111_11023",
-                      "type": "powerOfAttorneyRequest",
-                      "attributes": {
-                        "powerOfAttorneyCode": "003",
-                        "isAddressChangingAuthorized": true,
-                        "isTreatmentDisclosureAuthorized": true,
-                        "veteran": {
-                          "firstName": "Kent",
-                          "middleName": "David",
-                          "lastName": "Richardson"
-                        },
-                        "claimant": null,
-                        "claimantAddress": {
-                          "city": "Houston",
-                          "state": "TX",
-                          "zip": "00123",
-                          "country": "USA",
-                          "militaryPostOffice": null,
-                          "militaryPostalCode": null
-                        },
-                        "decision": null,
-                        "createdAt": "2013-01-17T16:54:11Z"
-                      }
-                    },
-                    {
-                      "id": "600043203_3851911",
-                      "type": "powerOfAttorneyRequest",
-                      "attributes": {
-                        "powerOfAttorneyCode": "003",
-                        "isAddressChangingAuthorized": true,
-                        "isTreatmentDisclosureAuthorized": true,
-                        "veteran": {
-                          "firstName": "Kyle",
-                          "middleName": "Michael",
-                          "lastName": "Cole"
-                        },
-                        "claimant": {
-                          "firstName": "John",
-                          "lastName": "Doe",
-                          "relationshipToVeteran": "Brother"
-                        },
-                        "claimantAddress": {
-                          "city": "Alpharetta",
-                          "state": "GA",
-                          "zip": "30022",
-                          "country": "USA",
-                          "militaryPostOffice": null,
-                          "militaryPostalCode": null
-                        },
-                        "decision": null,
-                        "createdAt": "2023-08-23T17:16:37Z"
-                      }
-                    }
-                  ]
-                },
+                  {
+                    "VSOUserEmail": null,
+                    "VSOUserFirstName": "VDC USER",
+                    "VSOUserLastName": null,
+                    "changeAddressAuth": "Y",
+                    "claimantCity": "USAG J",
+                    "claimantCountry": "USA",
+                    "claimantMilitaryPO": "APO",
+                    "claimantMilitaryPostalCode": "AP",
+                    "claimantState": null,
+                    "claimantZip": "01234",
+                    "dateRequestActioned": "2013-01-14T08:50:17-06:00",
+                    "dateRequestReceived": "2013-01-14T08:50:17-06:00",
+                    "declinedReason": null,
+                    "healthInfoAuth": "Y",
+                    "poaCode": "002",
+                    "procID": "10906",
+                    "secondaryStatus": "New",
+                    "vetFirstName": "first",
+                    "vetLastName": "last",
+                    "vetMiddleName": null,
+                    "vetPtcpntID": "111"
+                  },
+                  {
+                    "VSOUserEmail": null,
+                    "VSOUserFirstName": "VDC USER",
+                    "VSOUserLastName": null,
+                    "changeAddressAuth": "Y",
+                    "claimantCity": "Bourges",
+                    "claimantCountry": "France",
+                    "claimantMilitaryPO": null,
+                    "claimantMilitaryPostalCode": null,
+                    "claimantState": null,
+                    "claimantZip": "00123",
+                    "dateRequestActioned": "2013-01-14T08:51:25-06:00",
+                    "dateRequestReceived": "2013-01-14T08:51:25-06:00",
+                    "declinedReason": null,
+                    "healthInfoAuth": "Y",
+                    "poaCode": "002",
+                    "procID": "10907",
+                    "secondaryStatus": "New",
+                    "vetFirstName": "first",
+                    "vetLastName": "last",
+                    "vetMiddleName": null,
+                    "vetPtcpntID": "111"
+                  }
+                ],
                 "schema": {
-                  "type": "object",
-                  "required": [
-                    "metadata",
-                    "data"
-                  ],
-                  "properties": {
-                    "metadata": {
-                      "type": "object",
-                      "description": "Metadata about the search results including the number of records satisfying the filters and the query that was used after defaults were applied",
-                      "additionalProperties": false,
-                      "required": [
-                        "totalCount",
-                        "query"
-                      ],
-                      "properties": {
-                        "totalCount": {
-                          "type": "integer",
-                          "description": "The number of records that are satisified by the filters",
-                          "minimum": 0
-                        },
-                        "query": {
-                          "type": "object",
-                          "description": "The query that was used after defaults were applied",
-                          "additionalProperties": false,
-                          "required": [
-                            "filter"
-                          ],
-                          "properties": {
-                            "filter": {
-                              "type": "object",
-                              "required": [
-                                "poaCodes"
-                              ],
-                              "properties": {
-                                "poaCodes": {
-                                  "type": "array",
-                                  "minItems": 1,
-                                  "items": {
-                                    "type": "string",
-                                    "minLength": 1
-                                  }
-                                },
-                                "decision": {
-                                  "type": "object",
-                                  "properties": {
-                                    "statuses": {
-                                      "type": "array",
-                                      "items": {
-                                        "type": "string",
-                                        "enum": [
-                                          "none",
-                                          "accepting",
-                                          "declining"
-                                        ]
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            },
-                            "page": {
-                              "type": "object",
-                              "properties": {
-                                "number": {
-                                  "type": "integer",
-                                  "minimum": 1
-                                },
-                                "size": {
-                                  "type": "integer",
-                                  "minimum": 1,
-                                  "maximum": 100
-                                }
-                              }
-                            },
-                            "sort": {
-                              "type": "object",
-                              "required": [
-                                "field",
-                                "order"
-                              ],
-                              "properties": {
-                                "field": {
-                                  "type": "string",
-                                  "enum": [
-                                    "createdAt"
-                                  ]
-                                },
-                                "order": {
-                                  "type": "string",
-                                  "enum": [
-                                    "asc",
-                                    "desc"
-                                  ]
-                                }
-                              }
-                            }
-                          }
-                        }
-                      }
-                    },
-                    "data": {
-                      "type": "array",
-                      "description": "List of Power of Attorney requests satisfying the given search",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "type",
-                          "id",
-                          "attributes"
-                        ],
-                        "properties": {
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "powerOfAttorneyRequest"
-                            ]
-                          },
-                          "id": {
-                            "type": "string",
-                            "description": "The ID of this Power of Attorney request"
-                          },
-                          "attributes": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "powerOfAttorneyCode",
-                              "isTreatmentDisclosureAuthorized",
-                              "isAddressChangingAuthorized",
-                              "createdAt",
-                              "veteran",
-                              "claimant",
-                              "claimantAddress",
-                              "decision"
-                            ],
-                            "properties": {
-                              "powerOfAttorneyCode": {
-                                "type": "string",
-                                "description": "The code that indicates an individual or organization's ability to be granted Power of Attorney for a Veteran"
-                              },
-                              "isTreatmentDisclosureAuthorized": {
-                                "type": "boolean",
-                                "description": "Whether the representative is authorized to receive disclosures of the Veteran's treatment records"
-                              },
-                              "isAddressChangingAuthorized": {
-                                "type": "boolean",
-                                "description": "Whether the representative is authorized to change the claimant's address"
-                              },
-                              "createdAt": {
-                                "type": "string",
-                                "description": "UTC datetime at which the Power of Attorney request was submitted",
-                                "format": "date-time"
-                              },
-                              "veteran": {
-                                "type": "object",
-                                "description": "The Veteran for whom the Power of Attorney is being requested",
-                                "additionalProperties": false,
-                                "required": [
-                                  "firstName",
-                                  "middleName",
-                                  "lastName"
-                                ],
-                                "properties": {
-                                  "firstName": {
-                                    "type": "string"
-                                  },
-                                  "middleName": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "lastName": {
-                                    "type": "string"
-                                  }
-                                }
-                              },
-                              "claimant": {
-                                "type": "object",
-                                "description": "If applicable, the claimant acting on behalf of the Veteran",
-                                "additionalProperties": false,
-                                "nullable": true,
-                                "required": [
-                                  "firstName",
-                                  "lastName",
-                                  "relationshipToVeteran"
-                                ],
-                                "properties": {
-                                  "firstName": {
-                                    "type": "string"
-                                  },
-                                  "lastName": {
-                                    "type": "string"
-                                  },
-                                  "relationshipToVeteran": {
-                                    "type": "string"
-                                  }
-                                }
-                              },
-                              "claimantAddress": {
-                                "type": "object",
-                                "description": "The mailing address of the claimant who may or may not be the Veteran",
-                                "additionalProperties": false,
-                                "required": [
-                                  "city",
-                                  "state",
-                                  "zip",
-                                  "country",
-                                  "militaryPostOffice",
-                                  "militaryPostalCode"
-                                ],
-                                "properties": {
-                                  "city": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "state": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "zip": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "country": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "militaryPostOffice": {
-                                    "type": "string",
-                                    "nullable": true
-                                  },
-                                  "militaryPostalCode": {
-                                    "type": "string",
-                                    "nullable": true
-                                  }
-                                }
-                              },
-                              "decision": {
-                                "type": "object",
-                                "description": "The decision to accept or decline a Power of Attorney request",
-                                "additionalProperties": false,
-                                "nullable": true,
-                                "required": [
-                                  "status",
-                                  "createdAt",
-                                  "createdBy"
-                                ],
-                                "properties": {
-                                  "status": {
-                                    "type": "string",
-                                    "description": "Whether the Power of Attorney request was accepted or declined",
-                                    "enum": [
-                                      "accepting",
-                                      "declining"
-                                    ]
-                                  },
-                                  "decliningReason": {
-                                    "type": "string",
-                                    "description": "The reason given for declining the Power of Attorney request",
-                                    "nullable": true
-                                  },
-                                  "createdAt": {
-                                    "type": "string",
-                                    "description": "UTC datetime at which the Power of Attorney request was accepted or declined",
-                                    "format": "date-time"
-                                  },
-                                  "createdBy": {
-                                    "type": "object",
-                                    "description": "The individual who decided on the Power of Attorney request",
-                                    "additionalProperties": false,
-                                    "required": [
-                                      "firstName",
-                                      "lastName",
-                                      "email"
-                                    ],
-                                    "properties": {
-                                      "firstName": {
-                                        "type": "string"
-                                      },
-                                      "lastName": {
-                                        "type": "string"
-                                      },
-                                      "email": {
-                                        "type": "string"
-                                      }
-                                    }
-                                  }
-                                }
-                              }
-                            }
-                          }
-                        }
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "VSOUserEmail": {
+                        "type": "string"
+                      },
+                      "VSOUserFirstName": {
+                        "type": "string"
+                      },
+                      "VSOUserLastName": {
+                        "type": "string"
+                      },
+                      "changeAddressAuth": {
+                        "type": "string"
+                      },
+                      "claimantCity": {
+                        "type": "string"
+                      },
+                      "claimantCountry": {
+                        "type": "string"
+                      },
+                      "claimantMilitaryPO": {
+                        "type": "string"
+                      },
+                      "claimantMilitaryPostalCode": {
+                        "type": "string"
+                      },
+                      "claimantState": {
+                        "type": "string"
+                      },
+                      "claimantZip": {
+                        "type": "string"
+                      },
+                      "dateRequestActioned": {
+                        "type": "string"
+                      },
+                      "dateRequestReceived": {
+                        "type": "string"
+                      },
+                      "declinedReason": {
+                        "type": "string"
+                      },
+                      "healthInfoAuth": {
+                        "type": "string"
+                      },
+                      "poaCode": {
+                        "type": "string"
+                      },
+                      "procID": {
+                        "type": "string"
+                      },
+                      "secondaryStatus": {
+                        "type": "string"
+                      },
+                      "vetFirstName": {
+                        "type": "string"
+                      },
+                      "vetLastName": {
+                        "type": "string"
+                      },
+                      "vetMiddleName": {
+                        "type": "string"
+                      },
+                      "vetPtcpntID": {
+                        "type": "string"
                       }
                     }
                   }
@@ -1185,69 +560,17 @@
               }
             }
           },
-          "422": {
-            "description": "Invalid query",
+          "400": {
+            "description": "Invalid request",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "title": "Validation error",
-                      "detail": {
-                        "errors": {
-                          "filter": {
-                            "poaCodes": [
-                              "is missing",
-                              "must be an array"
-                            ],
-                            "decision": {
-                              "statuses": {
-                                "0": [
-                                  "must be one of: none, accepting, declining"
-                                ]
-                              }
-                            }
-                          },
-                          "page": {
-                            "number": [
-                              "must be an integer",
-                              "must be greater than or equal to 1"
-                            ],
-                            "size": [
-                              "must be an integer",
-                              "must be greater than or equal to 1",
-                              "must be less than or equal to 100"
-                            ]
-                          },
-                          "sort": {
-                            "field": [
-                              "must be one of: createdAt"
-                            ],
-                            "order": [
-                              "must be one of: asc, desc"
-                            ]
-                          }
-                        },
-                        "params": {
-                          "filter": {
-                            "decision": {
-                              "statuses": [
-                                "NotAStatus"
-                              ]
-                            }
-                          },
-                          "page": {
-                            "number": "",
-                            "size": "whoops"
-                          },
-                          "sort": {
-                            "field": "",
-                            "order": ""
-                          }
-                        }
-                      },
-                      "code": "109",
-                      "status": "422"
+                      "title": "Missing parameter",
+                      "detail": "poaCodes is required and cannot be empty",
+                      "code": "108",
+                      "status": "400"
                     }
                   ]
                 },
@@ -1269,133 +592,18 @@
                         ],
                         "properties": {
                           "title": {
-                            "type": "string",
-                            "enum": [
-                              "Validation error"
-                            ]
+                            "type": "string"
                           },
                           "detail": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "required": [
-                              "errors",
-                              "params"
-                            ],
-                            "properties": {
-                              "errors": {
-                                "type": "object",
-                                "description": "The reasons that the request params were invalid"
-                              },
-                              "params": {
-                                "type": "object",
-                                "description": "The invalid request params provided in the request"
-                              }
-                            }
+                            "type": "string"
                           },
                           "code": {
-                            "type": "string",
-                            "enum": [
-                              "109"
-                            ]
+                            "type": "string"
                           },
                           "status": {
                             "type": "string",
                             "enum": [
-                              "422"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "502": {
-            "description": "Bad gateway",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Bad Gateway",
-                      "detail": "Bad Gateway"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Bad Gateway"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Bad Gateway"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "504": {
-            "description": "Gateway timeout",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Gateway timeout",
-                      "detail": "Did not receive a timely response from an upstream server"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Gateway timeout"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Did not receive a timely response from an upstream server"
+                              "400"
                             ]
                           }
                         }
@@ -1414,6 +622,7 @@
                   "errors": [
                     {
                       "title": "Not authorized",
+                      "status": "401",
                       "detail": "Not authorized"
                     }
                   ]
@@ -1430,7 +639,8 @@
                         "additionalProperties": false,
                         "required": [
                           "title",
-                          "detail"
+                          "detail",
+                          "status"
                         ],
                         "properties": {
                           "title": {
@@ -1444,6 +654,12 @@
                             "enum": [
                               "Not authorized"
                             ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "401"
+                            ]
                           }
                         }
                       }
@@ -1453,6 +669,58 @@
               }
             }
           }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "attributes"
+                    ],
+                    "properties": {
+                      "attributes": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "poaCodes"
+                        ],
+                        "properties": {
+                          "poaCodes": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "attributes": {
+                      "poaCodes": [
+                        "002",
+                        "003",
+                        "083"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
         }
       }
     },
@@ -2113,13 +1381,13 @@
                                       "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                       "minLength": 1,
                                       "maxLength": 30,
-                                      "example": "Portland"
+                                      "example": "Schenectady"
                                     },
                                     "state": {
                                       "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR",
+                                      "example": "NY",
                                       "nullable": true
                                     },
                                     "country": {
@@ -2223,13 +1491,13 @@
                                   "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                   "minLength": 0,
                                   "maxLength": 30,
-                                  "example": "Portland"
+                                  "example": "Schenectady"
                                 },
                                 "state": {
                                   "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^[a-z,A-Z]{2}$",
-                                  "example": "OR",
+                                  "example": "NY",
                                   "nullable": true
                                 },
                                 "country": {
@@ -3497,13 +2765,13 @@
                                     "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                     "minLength": 1,
                                     "maxLength": 30,
-                                    "example": "Portland"
+                                    "example": "Schenectady"
                                   },
                                   "state": {
                                     "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR",
+                                    "example": "NY",
                                     "nullable": true
                                   },
                                   "country": {
@@ -3607,13 +2875,13 @@
                                 "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                 "minLength": 0,
                                 "maxLength": 30,
-                                "example": "Portland"
+                                "example": "Schenectady"
                               },
                               "state": {
                                 "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR",
+                                "example": "NY",
                                 "nullable": true
                               },
                               "country": {
@@ -4573,10 +3841,10 @@
                           "addressLine1": "123 Main Street",
                           "addressLine2": "Unit 1",
                           "addressLine3": "Room 2",
-                          "city": "Portland",
-                          "state": "OR",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "41726",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "1234"
                         },
                         "emailAddress": {
@@ -4590,10 +3858,10 @@
                         "addressLine1": "456 Main Street",
                         "addressLine2": "Unit 3",
                         "addressLine3": "Room 4",
-                        "city": "Atlanta",
-                        "state": "GA",
+                        "city": "Schenectady",
+                        "state": "NY",
                         "country": "USA",
-                        "zipFirstFive": "42220",
+                        "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
                           "beginDate": "2025-06-04",
@@ -4818,10 +4086,10 @@
                             "addressLine1": "1234 Couch Street",
                             "addressLine2": "Unit 4",
                             "addressLine3": "Room 1",
-                            "city": "Portland",
-                            "state": "OR",
+                            "city": "Schenectady",
+                            "state": "NY",
                             "country": "USA",
-                            "zipFirstFive": "41726",
+                            "zipFirstFive": "12345",
                             "zipLastFour": "1234"
                           },
                           "emailAddress": {
@@ -4835,10 +4103,10 @@
                           "addressLine1": "10 Peach St",
                           "addressLine2": "Unit 4",
                           "addressLine3": "Room 1",
-                          "city": "Atlanta",
-                          "state": "GA",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "42220",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "9897",
                           "dates": {
                             "beginDate": "2023-06-04",
@@ -4966,8 +4234,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -4984,10 +4251,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -5077,7 +4340,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "74d7a3b6-8164-49c2-9dfb-fdb3fa019477",
+                        "id": "04fb02bc-0b7a-4594-a6d3-e426ac64f5d7",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5093,10 +4356,10 @@
                               "addressLine1": "1234 Couch Street",
                               "addressLine2": "Unit 4",
                               "addressLine3": "Room 1",
-                              "city": "Portland",
-                              "state": "OR",
+                              "city": "Schenectady",
+                              "state": "NY",
                               "country": "USA",
-                              "zipFirstFive": "41726",
+                              "zipFirstFive": "12345",
                               "zipLastFour": "1234"
                             },
                             "emailAddress": {
@@ -5110,10 +4373,10 @@
                             "addressLine1": "10 Peach St",
                             "addressLine2": "Unit 4",
                             "addressLine3": "Room 1",
-                            "city": "Atlanta",
-                            "state": "GA",
+                            "city": "Schenectady",
+                            "state": "NY",
                             "country": "USA",
-                            "zipFirstFive": "42220",
+                            "zipFirstFive": "12345",
                             "zipLastFour": "9897",
                             "dates": {
                               "beginDate": "2023-06-04",
@@ -5262,7 +4525,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-09-21"
+                              "anticipatedSeparationDate": "2024-10-11"
                             },
                             "confinements": [
                               {
@@ -5308,7 +4571,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "3356c8ae-350b-4a23-aea1-9bb00de306e1",
+                        "id": "7451466b-22d8-4c01-a449-7eed8dcef91b",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -5324,10 +4587,10 @@
                               "addressLine1": "1234 Couch Street",
                               "addressLine2": "Unit 4",
                               "addressLine3": "Room 1",
-                              "city": "Portland",
-                              "state": "OR",
+                              "city": "Schenectady",
+                              "state": "NY",
                               "country": "USA",
-                              "zipFirstFive": "41726",
+                              "zipFirstFive": "12345",
                               "zipLastFour": "1234"
                             },
                             "emailAddress": {
@@ -5341,10 +4604,10 @@
                             "addressLine1": "10 Peach St",
                             "addressLine2": "Unit 4",
                             "addressLine3": "Room 1",
-                            "city": "Atlanta",
-                            "state": "GA",
+                            "city": "Schenectady",
+                            "state": "NY",
                             "country": "USA",
-                            "zipFirstFive": "42220",
+                            "zipFirstFive": "12345",
                             "zipLastFour": "9897",
                             "dates": {
                               "beginDate": "2023-06-04",
@@ -5656,13 +4919,13 @@
                                       "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                       "minLength": 1,
                                       "maxLength": 30,
-                                      "example": "Portland"
+                                      "example": "Schenectady"
                                     },
                                     "state": {
                                       "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                       "type": "string",
                                       "pattern": "^[a-z,A-Z]{2}$",
-                                      "example": "OR",
+                                      "example": "NY",
                                       "nullable": true
                                     },
                                     "country": {
@@ -5766,13 +5029,13 @@
                                   "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                   "minLength": 0,
                                   "maxLength": 30,
-                                  "example": "Portland"
+                                  "example": "Schenectady"
                                 },
                                 "state": {
                                   "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                   "type": "string",
                                   "pattern": "^$|^[a-z,A-Z]{2}$",
-                                  "example": "OR",
+                                  "example": "NY",
                                   "nullable": true
                                 },
                                 "country": {
@@ -7040,13 +6303,13 @@
                                     "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                     "minLength": 1,
                                     "maxLength": 30,
-                                    "example": "Portland"
+                                    "example": "Schenectady"
                                   },
                                   "state": {
                                     "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR",
+                                    "example": "NY",
                                     "nullable": true
                                   },
                                   "country": {
@@ -7150,13 +6413,13 @@
                                 "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                 "minLength": 0,
                                 "maxLength": 30,
-                                "example": "Portland"
+                                "example": "Schenectady"
                               },
                               "state": {
                                 "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR",
+                                "example": "NY",
                                 "nullable": true
                               },
                               "country": {
@@ -8116,10 +7379,10 @@
                           "addressLine1": "123 Main Street",
                           "addressLine2": "Unit 1",
                           "addressLine3": "Room 2",
-                          "city": "Portland",
-                          "state": "OR",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "41726",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "1234"
                         },
                         "emailAddress": {
@@ -8133,10 +7396,10 @@
                         "addressLine1": "456 Main Street",
                         "addressLine2": "Unit 3",
                         "addressLine3": "Room 4",
-                        "city": "Atlanta",
-                        "state": "GA",
+                        "city": "Schenectady",
+                        "state": "NY",
                         "country": "USA",
-                        "zipFirstFive": "42220",
+                        "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
                           "beginDate": "2025-06-04",
@@ -8361,10 +7624,10 @@
                             "addressLine1": "1234 Couch Street",
                             "addressLine2": "Unit 4",
                             "addressLine3": "Room 1",
-                            "city": "Portland",
-                            "state": "OR",
+                            "city": "Schenectady",
+                            "state": "NY",
                             "country": "USA",
-                            "zipFirstFive": "41726",
+                            "zipFirstFive": "12345",
                             "zipLastFour": "1234"
                           },
                           "emailAddress": {
@@ -8378,10 +7641,10 @@
                           "addressLine1": "10 Peach St",
                           "addressLine2": "Unit 4",
                           "addressLine3": "Room 1",
-                          "city": "Atlanta",
-                          "state": "GA",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "42220",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "9897",
                           "dates": {
                             "beginDate": "2023-06-04",
@@ -8509,8 +7772,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -8527,10 +7789,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -8593,10 +7851,10 @@
                             "addressLine1": "1234 Couch Street",
                             "addressLine2": "Unit 4",
                             "addressLine3": "Room 1",
-                            "city": "Portland",
-                            "state": "OR",
+                            "city": "Schenectady",
+                            "state": "NY",
                             "country": "USA",
-                            "zipFirstFive": "41726",
+                            "zipFirstFive": "12345",
                             "zipLastFour": "1234"
                           },
                           "emailAddress": {
@@ -8610,10 +7868,10 @@
                           "addressLine1": "10 Peach St",
                           "addressLine2": "Unit 4",
                           "addressLine3": "Room 1",
-                          "city": "Atlanta",
-                          "state": "GA",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "42220",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "9897",
                           "dates": {
                             "beginDate": "2023-06-04",
@@ -9201,13 +8459,13 @@
                                     "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                     "minLength": 1,
                                     "maxLength": 30,
-                                    "example": "Portland"
+                                    "example": "Schenectady"
                                   },
                                   "state": {
                                     "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
-                                    "example": "OR",
+                                    "example": "NY",
                                     "nullable": true
                                   },
                                   "country": {
@@ -9311,13 +8569,13 @@
                                 "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
                                 "minLength": 0,
                                 "maxLength": 30,
-                                "example": "Portland"
+                                "example": "Schenectady"
                               },
                               "state": {
                                 "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
                                 "type": "string",
                                 "pattern": "^$|^[a-z,A-Z]{2}$",
-                                "example": "OR",
+                                "example": "NY",
                                 "nullable": true
                               },
                               "country": {
@@ -10277,10 +9535,10 @@
                           "addressLine1": "123 Main Street",
                           "addressLine2": "Unit 1",
                           "addressLine3": "Room 2",
-                          "city": "Portland",
-                          "state": "OR",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "41726",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "1234"
                         },
                         "emailAddress": {
@@ -10294,10 +9552,10 @@
                         "addressLine1": "456 Main Street",
                         "addressLine2": "Unit 3",
                         "addressLine3": "Room 4",
-                        "city": "Atlanta",
-                        "state": "GA",
+                        "city": "Schenectady",
+                        "state": "NY",
                         "country": "USA",
-                        "zipFirstFive": "42220",
+                        "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
                           "beginDate": "2025-06-04",
@@ -10526,7 +9784,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "e788a384-ee89-4e9e-9055-b81fa61b166d",
+                    "id": "d884c174-2a35-4f18-8c5f-f3725226230e",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10541,10 +9799,10 @@
                           "addressLine1": "1234 Couch Street",
                           "addressLine2": "Unit 4",
                           "addressLine3": "Room 1",
-                          "city": "Portland",
-                          "state": "OR",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "41726",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "1234"
                         },
                         "emailAddress": {
@@ -10558,10 +9816,10 @@
                         "addressLine1": "10 Peach St",
                         "addressLine2": "Unit 4",
                         "addressLine3": "Room 1",
-                        "city": "Atlanta",
-                        "state": "GA",
+                        "city": "Schenectady",
+                        "state": "NY",
                         "country": "USA",
-                        "zipFirstFive": "42220",
+                        "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
                           "beginDate": "2023-06-04",
@@ -11702,13 +10960,13 @@
                                   "city": {
                                     "description": "City for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "example": "Portland",
+                                    "example": "Schenectady",
                                     "maxLength": 1000
                                   },
                                   "state": {
                                     "description": "State for the Veteran's current mailing address.",
                                     "type": "string",
-                                    "example": "OR",
+                                    "example": "NY",
                                     "maxLength": 1000,
                                     "nullable": true
                                   },
@@ -11805,13 +11063,13 @@
                               "city": {
                                 "description": "City for the Veteran's new address.",
                                 "type": "string",
-                                "example": "Portland",
+                                "example": "Schenectady",
                                 "maxLength": 1000
                               },
                               "state": {
                                 "description": "State for the Veteran's new address.",
                                 "type": "string",
-                                "example": "OR",
+                                "example": "NY",
                                 "maxLength": 1000,
                                 "nullable": true
                               },
@@ -12344,13 +11602,13 @@
                                     "city": {
                                       "description": "City of treatment facility.",
                                       "type": "string",
-                                      "example": "Portland",
+                                      "example": "Schenectady",
                                       "nullable": true
                                     },
                                     "state": {
                                       "description": "State of treatment facility.",
                                       "type": "string",
-                                      "example": "OR",
+                                      "example": "NY",
                                       "nullable": true
                                     }
                                   }
@@ -12751,10 +12009,10 @@
                           "addressLine1": "123 Main Street",
                           "addressLine2": "Unit 1",
                           "addressLine3": "Room 2",
-                          "city": "Portland",
-                          "state": "OR",
+                          "city": "Schenectady",
+                          "state": "NY",
                           "country": "USA",
-                          "zipFirstFive": "41726",
+                          "zipFirstFive": "12345",
                           "zipLastFour": "1234"
                         },
                         "emailAddress": {
@@ -12768,10 +12026,10 @@
                         "addressLine1": "456 Main Street",
                         "addressLine2": "Unit 3",
                         "addressLine3": "Room 4",
-                        "city": "Atlanta",
-                        "state": "GA",
+                        "city": "Schenectady",
+                        "state": "NY",
                         "country": "USA",
-                        "zipFirstFive": "42220",
+                        "zipFirstFive": "12345",
                         "zipLastFour": "9897",
                         "dates": {
                           "beginDate": "2025-06-04",
@@ -13269,127 +12527,176 @@
         ],
         "responses": {
           "200": {
-            "description": "claim response",
+            "description": "errored claim response",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "id": "555555555",
-                    "type": "claim",
-                    "attributes": {
-                      "claimTypeCode": "400PREDSCHRG",
-                      "claimDate": "2017-05-02",
-                      "claimPhaseDates": {
-                        "phaseChangeDate": "2017-10-18",
-                        "currentPhaseBack": false,
-                        "latestPhaseType": "COMPLETE",
-                        "previousPhases": {
-                          "phase7CompleteDate": "2017-10-18"
-                        }
-                      },
-                      "claimType": "Compensation",
-                      "closeDate": "2017-10-18",
-                      "contentions": [
-                        {
-                          "name": "abnormal heart (New)"
-                        },
-                        {
-                          "name": "abscess kidney (New)"
-                        },
-                        {
-                          "name": "encephalitis lethargica residuals (New)"
-                        },
-                        {
-                          "name": "dracunculiasis (New)"
-                        },
-                        {
-                          "name": "gingivitis (New)"
-                        },
-                        {
-                          "name": "abnormal weight loss (New)"
-                        },
-                        {
-                          "name": "groin condition (New)"
-                        },
-                        {
-                          "name": "metritis (New)"
-                        }
-                      ],
-                      "decisionLetterSent": false,
-                      "developmentLetterSent": false,
-                      "documentsNeeded": false,
-                      "endProductCode": "404",
-                      "evidenceWaiverSubmitted5103": false,
-                      "errors": [
+                "examples": {
+                  "returns a 200 response for established claim": {
+                    "value": {
+                      "data": {
+                        "id": "555555555",
+                        "type": "claim",
+                        "attributes": {
+                          "claimTypeCode": "400PREDSCHRG",
+                          "claimDate": "2017-05-02",
+                          "claimPhaseDates": {
+                            "phaseChangeDate": "2017-10-18",
+                            "currentPhaseBack": false,
+                            "latestPhaseType": "COMPLETE",
+                            "previousPhases": {
+                              "phase7CompleteDate": "2017-10-18"
+                            }
+                          },
+                          "claimType": "Compensation",
+                          "closeDate": "2017-10-18",
+                          "contentions": [
+                            {
+                              "name": "abnormal heart (New)"
+                            },
+                            {
+                              "name": "abscess kidney (New)"
+                            },
+                            {
+                              "name": "encephalitis lethargica residuals (New)"
+                            },
+                            {
+                              "name": "dracunculiasis (New)"
+                            },
+                            {
+                              "name": "gingivitis (New)"
+                            },
+                            {
+                              "name": "abnormal weight loss (New)"
+                            },
+                            {
+                              "name": "groin condition (New)"
+                            },
+                            {
+                              "name": "metritis (New)"
+                            }
+                          ],
+                          "decisionLetterSent": false,
+                          "developmentLetterSent": false,
+                          "documentsNeeded": false,
+                          "endProductCode": "404",
+                          "evidenceWaiverSubmitted5103": false,
+                          "errors": [
 
-                      ],
-                      "jurisdiction": "National Work Queue",
-                      "lighthouseId": null,
-                      "maxEstClaimDate": null,
-                      "minEstClaimDate": null,
-                      "status": "CANCELED",
-                      "submitterApplicationCode": "EBN",
-                      "submitterRoleCode": "VET",
-                      "supportingDocuments": [
-                        {
-                          "documentId": "{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}",
-                          "documentTypeLabel": "Medical",
-                          "originalFileName": null,
-                          "trackedItemId": null,
-                          "uploadDate": null
+                          ],
+                          "jurisdiction": "National Work Queue",
+                          "lighthouseId": null,
+                          "maxEstClaimDate": null,
+                          "minEstClaimDate": null,
+                          "status": "CANCELED",
+                          "submitterApplicationCode": "EBN",
+                          "submitterRoleCode": "VET",
+                          "supportingDocuments": [
+                            {
+                              "documentId": "{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}",
+                              "documentTypeLabel": "Medical",
+                              "originalFileName": null,
+                              "trackedItemId": null,
+                              "uploadDate": null
+                            }
+                          ],
+                          "tempJurisdiction": null,
+                          "trackedItems": [
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "21-4142a",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293440,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Employment info needed",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293443,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Accidental injury - 21-4176 needed",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293444,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Buddy mentioned - No complete address",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293446,
+                              "uploadsAllowed": false
+                            }
+                          ]
                         }
-                      ],
-                      "tempJurisdiction": null,
-                      "trackedItems": [
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "21-4142a",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293440,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Employment info needed",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293443,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Accidental injury - 21-4176 needed",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293444,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Buddy mentioned - No complete address",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293446,
-                          "uploadsAllowed": false
+                      }
+                    }
+                  },
+                  "returns a 200 response for errored claim": {
+                    "value": {
+                      "data": {
+                        "id": null,
+                        "type": "claim",
+                        "attributes": {
+                          "claimTypeCode": null,
+                          "claimDate": null,
+                          "claimPhaseDates": null,
+                          "claimType": null,
+                          "closeDate": null,
+                          "contentions": null,
+                          "decisionLetterSent": null,
+                          "developmentLetterSent": null,
+                          "documentsNeeded": null,
+                          "endProductCode": null,
+                          "evidenceWaiverSubmitted5103": null,
+                          "errors": [
+                            {
+                              "detail": "ERROR must match d{7}",
+                              "source": "form526/serviceInformation/reservesNationalGuardService/unitPhone/phoneNumber/Pattern"
+                            },
+                            {
+                              "detail": "ERROR must match d{7}",
+                              "source": "form526/veteran/homelessness/pointOfContact/primaryPhone/phoneNumber/Pattern"
+                            }
+                          ],
+                          "jurisdiction": null,
+                          "lighthouseId": "d5536c5c-0465-4038-a368-1a9d9daf65c9",
+                          "maxEstClaimDate": null,
+                          "minEstClaimDate": null,
+                          "status": "ERRORED",
+                          "submitterApplicationCode": null,
+                          "submitterRoleCode": null,
+                          "supportingDocuments": [
+
+                          ],
+                          "tempJurisdiction": null,
+                          "trackedItems": [
+
+                          ]
                         }
-                      ]
+                      }
                     }
                   }
                 },
@@ -13773,7 +13080,46 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "benefit_claim_details_dto": {
+                    "attention_needed": "No",
+                    "base_end_prdct_type_cd": "400",
+                    "benefit_claim_id": "555555555",
+                    "bnft_claim_lc_status": {
+                      "phase_chngd_dt": "2017-10-18T08:23:35.000+00:00",
+                      "phase_type": "COMPLETE",
+                      "phase_type_change_ind": "78"
+                    },
+                    "bnft_claim_type_cd": "400PREDSCHRG",
+                    "claim_complete_dt": "2017-10-18T08:23:35.000+00:00",
+                    "claim_dt": "2017-05-02",
+                    "claim_status": "CAN",
+                    "claim_status_type": "Compensation",
+                    "contentions": "abnormal heart (New), abscess kidney (New), encephalitis lethargica residuals (New), dracunculiasis (New), gingivitis (New), abnormal weight loss (New), groin condition (New), metritis (New)",
+                    "decision_notification_sent": "No",
+                    "development_letter_sent": "No",
+                    "end_prdct_type_cd": "404",
+                    "errors": [
+
+                    ],
+                    "poa": "RANDOM E PERSON",
+                    "program_type": "CPL",
+                    "ptcpnt_clmant_id": "111111111",
+                    "ptcpnt_vet_id": "111111111",
+                    "regional_office_jrsdctn": "National Work Queue",
+                    "submtr_applcn_type_cd": "EBN",
+                    "submtr_role_type_cd": "VET",
+                    "temp_regional_office_jrsdctn": null,
+                    "wsyswwn": {
+                      "address_line1": "National Work Queue",
+                      "address_line2": "810 Vermont Avenue NW",
+                      "address_line3": null,
+                      "city": "Washington",
+                      "state": "DC",
+                      "zip": "20420"
+                    }
+                  },
+                  "@xmlns:ns0": "http://claimstatus.services.ebenefits.vba.va.gov/"
                 }
               }
             }
@@ -14186,8 +13532,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-09-19",
-                      "expirationDate": "2025-09-19",
+                      "creationDate": "2024-10-09",
+                      "expirationDate": "2025-10-09",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14984,7 +14330,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:132:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:162:in `representative'"
                       }
                     }
                   ]
@@ -15075,7 +14421,7 @@
             }
           }
         ],
-        "description": "Updates current Power of Attorney for Veteran.",
+        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependent relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
         "responses": {
           "202": {
             "description": "Valid request response",
@@ -15083,7 +14429,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c97b8c40-558a-4d35-af92-57362329173a",
+                    "id": "381df74a-b05c-456d-8fe6-aab246fda7f7",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15733,7 +15079,7 @@
     "/veterans/{veteranId}/2122": {
       "post": {
         "summary": "Appoint an organization Power of Attorney for a Veteran.",
-        "description": "Updates current Power of Attorney for Veteran.",
+        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependent relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
         "tags": [
           "Power of Attorney"
         ],
@@ -15776,7 +15122,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "8d551fa6-0088-4910-bbd7-08492f1f1dfc",
+                    "id": "17df2ef1-3760-4bf3-82a9-4d804f7530bc",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16302,11 +15648,6 @@
                                 "pattern": ".@.",
                                 "maxLength": 61,
                                 "example": "veteran_representative@example.com"
-                              },
-                              "appointmentDate": {
-                                "description": "Date of appointment with Veteran.",
-                                "type": "string",
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                               }
                             }
                           },
@@ -17610,11 +16951,6 @@
                                 "pattern": ".@.",
                                 "maxLength": 61,
                                 "example": "veteran_representative@example.com"
-                              },
-                              "appointmentDate": {
-                                "description": "Date of appointment with Veteran.",
-                                "type": "string",
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                               }
                             }
                           },
@@ -17727,10 +17063,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "17c1d357-0b69-4ce1-a7e2-deb13931a6c6",
+                    "id": "79a76ea1-feb7-4499-9fd9-b607ec137024",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-09-19",
+                      "dateRequestAccepted": "2024-10-09",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
@@ -18021,7 +17357,8 @@
                         "SICKLE_CELL",
                         "HIV",
                         "ALCOHOLISM"
-                      ]
+                      ],
+                      "procId": "3857415"
                     }
                   }
                 },
@@ -18302,6 +17639,11 @@
                             "consentAddressChange": {
                               "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
                               "type": "boolean"
+                            },
+                            "procId": {
+                              "description": "The process ID of the new Power of Attorney request.",
+                              "type": "string",
+                              "example": "12345"
                             }
                           }
                         }

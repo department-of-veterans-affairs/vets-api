@@ -77,6 +77,15 @@ class Form526Submission < ApplicationRecord
   # MAX_PENDING_TIME aligns with the farthest out expectation given in the LH BI docs,
   # plus 1 week to accomodate for edge cases and our sidekiq jobs
   MAX_PENDING_TIME = 3.weeks
+  ZSF_DD_TAG_SERVICE = 'disability-application'
+
+  # used to track in APMs between systems such as Lighthouse
+  # example: can be used as a search parameter in Datadog
+  # TODO: follow-up in ticket #93563 to make this more robust, i.e. attempts of jobs, etc.
+  def system_transaction_id
+    service_provider = saved_claim.parsed_form['startedFormVersion'].present? ? 'lighthouse' : 'evss'
+    "Form526Submission_#{id}, user_uuid: #{user_uuid}, service_provider: #{service_provider}"
+  end
 
   # Called when the DisabilityCompensation form controller is ready to hand off to the backend
   # submission process. Currently this passes directly to the retryable EVSS workflow, but if any
@@ -416,7 +425,7 @@ class Form526Submission < ApplicationRecord
   end
 
   def duplicate?
-    last_remediation&.ignored_as_duplicate || false
+    last_remediation&.ignored_as_duplicate?
   end
 
   def remediated?
@@ -439,6 +448,25 @@ class Form526Submission < ApplicationRecord
     form526_submission_remediations&.order(:created_at)&.last
   end
 
+  def account
+    # first, check for an ICN on the UserAccount associated to the submission, return it if found
+    account = user_account
+    return account if account&.icn.present?
+
+    # next, check past submissions for different UserAccounts that might have ICNs
+    past_submissions = get_past_submissions
+    account = find_user_account_with_icn(past_submissions, 'past submissions')
+    return account if account.present? && account.icn.present?
+
+    # next, check for any historical UserAccounts for that user which might have an ICN
+    user_verifications = get_user_verifications
+    account = find_user_account_with_icn(user_verifications, 'user verifications')
+    return account if account.present? && account.icn.present?
+
+    # failing all the above, default to an Account lookup
+    Account.lookup_by_user_uuid(user_uuid)
+  end
+
   private
 
   def conditionally_submit_form_4142
@@ -455,8 +483,6 @@ class Form526Submission < ApplicationRecord
   # Lighthouse calls the user_account.icn the "ID of Veteran"
   #
   def lighthouse_service
-    account = user_account ||
-              Account.lookup_by_user_uuid(user_uuid)
     BenefitsClaims::Service.new(account.icn)
   end
 
@@ -556,5 +582,29 @@ class Form526Submission < ApplicationRecord
 
   def cleanup
     EVSS::DisabilityCompensationForm::SubmitForm526Cleanup.perform_async(id)
+  end
+
+  def find_user_account_with_icn(records, record_type)
+    records.pluck(:user_account_id).uniq.each do |user_account_id|
+      user_account = UserAccount.find(user_account_id)
+      next if user_account&.icn.blank?
+
+      Rails.logger.info("ICN not found on submission #{id}, " \
+                        "using ICN for user account #{user_account_id} instead (based on #{record_type})")
+      return user_account
+    end
+  end
+
+  def get_past_submissions
+    Form526Submission.where(user_uuid:).where.not(user_account_id:)
+  end
+
+  def get_user_verifications
+    UserVerification.where(idme_uuid: user_uuid)
+                    .or(UserVerification.where(backing_idme_uuid: user_uuid))
+                    .or(UserVerification.where(logingov_uuid: user_uuid))
+                    .or(UserVerification.where(mhv_uuid: user_uuid))
+                    .or(UserVerification.where(dslogon_uuid: user_uuid))
+                    .where.not(user_account_id:)
   end
 end

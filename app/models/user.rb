@@ -48,6 +48,10 @@ class User < Common::RedisStore
     @account_id ||= account&.id
   end
 
+  def initial_sign_in
+    user_account.created_at
+  end
+
   def credential_lock
     return @credential_lock unless @credential_lock.nil?
 
@@ -307,7 +311,7 @@ class User < Common::RedisStore
   # Other MPI
 
   def invalidate_mpi_cache
-    return unless mpi.mpi_response_is_cached?
+    return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response
 
     mpi.destroy
     @mpi = nil
@@ -450,6 +454,18 @@ class User < Common::RedisStore
 
   def relationships
     @relationships ||= get_relationships_array
+  end
+
+  def create_mhv_account_async
+    return unless can_create_mhv_account?
+
+    MHV::AccountCreatorJob.perform_async(user_verification_id)
+  end
+
+  def can_create_mhv_account?
+    return false unless Flipper.enabled?(:mhv_account_creation_after_login, user_account)
+
+    loa3? && va_patient? && !needs_accepted_terms_of_use
   end
 
   private

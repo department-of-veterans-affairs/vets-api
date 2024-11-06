@@ -29,7 +29,8 @@ module ClaimsApi
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
-          check_file_number_exists!
+          file_number = check_file_number_exists!
+          claimant_information = validate_dependent_claimant!(poa_code:)
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
                                                                                           source_name:)
@@ -47,7 +48,16 @@ module ClaimsApi
             unless power_of_attorney.persisted?
               power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5)
             end
+
+            if feature_enabled_and_claimant_present?
+              update_auth_headers_for_dependent(
+                power_of_attorney,
+                claimant_information
+              )
+            end
+
             power_of_attorney.auth_headers['participant_id'] = target_veteran.participant_id
+            power_of_attorney.auth_headers['file_number'] = file_number
             power_of_attorney.save!
           end
 
@@ -56,7 +66,7 @@ module ClaimsApi
           if data.dig('signatures', 'veteran').present? && data.dig('signatures', 'representative').present?
             # Autogenerate a 21-22 form from the request body and upload it to VBMS.
             # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
-            ClaimsApi::V1::PoaFormBuilderJob.perform_async(power_of_attorney.id)
+            ClaimsApi::V1::PoaFormBuilderJob.perform_async(power_of_attorney.id, 'post')
           end
 
           claims_v1_logging('poa_submit', message: "poa_submit complete, poa: #{power_of_attorney&.id}")
@@ -140,22 +150,52 @@ module ClaimsApi
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
-          if Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
-            veteran_participant_id = target_veteran.participant_id
-            claimant_first_name = form_attributes.dig('claimant', 'firstName')
-            claimant_last_name = form_attributes.dig('claimant', 'lastName')
-            service = ClaimsApi::DependentClaimantVerificationService.new(veteran_participant_id:,
-                                                                          claimant_first_name:,
-                                                                          claimant_last_name:,
-                                                                          poa_code:)
-            service.validate_poa_code_exists!
-            service.validate_dependent_by_participant_id!
-          end
+          validate_dependent_claimant!(poa_code:)
 
           render json: validation_success
         end
 
         private
+
+        def update_auth_headers_for_dependent(poa, claimant_information)
+          auth_headers = poa.auth_headers
+
+          auth_headers.merge!({
+                                dependent: {
+                                  first_name: claimant_information['claimant_first_name'],
+                                  last_name: claimant_information['claimant_last_name'],
+                                  participant_id: claimant_information['claimant_participant_id'],
+                                  ssn: claimant_information['claimant_ssn']
+                                }
+                              })
+        end
+
+        def feature_enabled_and_claimant_present?
+          Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) &&
+            form_attributes['claimant'].present?
+        end
+
+        def validate_dependent_claimant!(poa_code:)
+          return nil unless feature_enabled_and_claimant_present?
+
+          veteran_participant_id = target_veteran.participant_id
+          claimant_first_name = form_attributes.dig('claimant', 'firstName')
+          claimant_last_name = form_attributes.dig('claimant', 'lastName')
+          service = ClaimsApi::DependentClaimantVerificationService.new(veteran_participant_id:,
+                                                                        claimant_first_name:,
+                                                                        claimant_last_name:,
+                                                                        poa_code:)
+
+          service.validate_poa_code_exists!
+          service.validate_dependent_by_participant_id!
+
+          {
+            'claimant_participant_id' => service.claimant_participant_id,
+            'claimant_first_name' => claimant_first_name,
+            'claimant_last_name' => claimant_last_name,
+            'claimant_ssn' => service.claimant_ssn
+          }
+        end
 
         def current_poa_begin_date
           return nil if power_of_attorney_verifier.current_poa.try(:begin_date).blank?
@@ -252,7 +292,7 @@ module ClaimsApi
         end
 
         def check_file_number_exists!
-          ssn = target_veteran&.ssn
+          ssn = target_veteran.ssn
 
           begin
             response = find_by_ssn(ssn)
@@ -262,6 +302,8 @@ module ClaimsApi
                               'or call 1-800-MyVA411 (800-698-2411) for assistance.'
               raise ::Common::Exceptions::UnprocessableEntity.new(detail: error_message)
             end
+
+            response[:file_nbr]
           rescue BGS::ShareError
             error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
             claims_v1_logging('poa_find_by_ssn', message: error_message)

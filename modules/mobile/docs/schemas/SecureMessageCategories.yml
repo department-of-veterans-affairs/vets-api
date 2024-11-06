@@ -1,6 +1,7 @@
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - id
       - type
@@ -15,6 +16,7 @@ properties:
         example: "categories"
       attributes:
         type: object
+        additionalProperties: false
         required:
           - messageCategoryType
         properties:

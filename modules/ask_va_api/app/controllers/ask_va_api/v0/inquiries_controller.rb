@@ -22,12 +22,17 @@ module AskVAApi
       end
 
       def unauth_create
-        render json: process_inquiry(nil).to_json, status: :created
+        render json: process_inquiry.to_json, status: :created
       end
 
       def download_attachment
         entity_class = Attachments::Entity
-        att = Attachments::Retriever.new(id: params[:id], service: mock_service, entity_class:).call
+        att = Attachments::Retriever.new(
+          id: params[:id],
+          service: mock_service,
+          user_mock_data: nil,
+          entity_class:
+        ).call
 
         raise InvalidAttachmentError if att.blank?
 
@@ -53,8 +58,8 @@ module AskVAApi
 
       private
 
-      def process_inquiry(icn = current_user.icn)
-        Inquiries::Creator.new(icn:).call(inquiry_params:)
+      def process_inquiry
+        Inquiries::Creator.new(user: current_user).call(inquiry_params:)
       end
 
       def retriever(icn: current_user.icn)
@@ -67,16 +72,21 @@ module AskVAApi
       end
 
       def inquiry_params
-        params.permit(
-          *fetch_parameters('inquiry').keys,
-          profile: fetch_parameters('profile').keys,
-          school_obj: fetch_parameters('school_obj').keys,
-          attachments: fetch_parameters('attachments').keys
+        params.require(:inquiry).permit(
+          *fetch_parameters('fields'),
+          pronouns: fetch_parameters('nested_fields.pronouns'),
+          address: fetch_parameters('nested_fields.address'),
+          about_yourself: fetch_parameters('nested_fields.about_yourself'),
+          about_the_veteran: fetch_parameters('nested_fields.about_the_veteran'),
+          about_the_family_member: fetch_parameters('nested_fields.about_the_family_member'),
+          state_or_residency: fetch_parameters('nested_fields.state_or_residency'),
+          files: fetch_parameters('nested_fields.files'),
+          school_obj: fetch_parameters('nested_fields.school_obj')
         ).to_h
       end
 
       def fetch_parameters(key)
-        I18n.t("ask_va_api.parameters.#{key}")
+        I18n.t("ask_va_api.parameters.inquiry.#{key}")
       end
 
       def resource_path(options)

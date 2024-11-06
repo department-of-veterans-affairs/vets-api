@@ -323,5 +323,262 @@ RSpec.describe Representatives::Update do
       it_behaves_like 'a representative email or phone update process', 'phone_number', :phone_number, '999-999-9999',
                       '111-111-1111'
     end
+
+    context 'address validation retries' do
+      let(:id) { '123abc' }
+      let(:address_exists) { true }
+      let(:address_changed) { true }
+      let(:email_changed) { false }
+      let(:phone_number_changed) { false }
+      let!(:representative) { create_representative }
+      let(:validation_stub) { instance_double(VAProfile::AddressValidation::Service) }
+      let(:api_response_with_zero) do
+        {
+          'candidate_addresses' => [
+            {
+              'address' => {
+                'county' => {
+                  'name' => 'Kings',
+                  'county_fips_code' => '36047'
+                },
+                'state_province' => {
+                  'name' => 'New York',
+                  'code' => 'NY'
+                },
+                'country' => {
+                  'name' => 'United States',
+                  'code' => 'USA',
+                  'fips_code' => 'US',
+                  'iso2_code' => 'US',
+                  'iso3_code' => 'USA'
+                },
+                'address_line1' => '37N 1st St',
+                'city' => 'Brooklyn',
+                'zip_code5' => '11249',
+                'zip_code4' => '3939'
+              },
+              'geocode' => {
+                'calc_date' => '2020-01-23T03:15:47+00:00',
+                'location_precision' => 31.0,
+                'latitude' => 0,
+                'longitude' => 0
+              },
+              'address_meta_data' => {
+                'confidence_score' => 100.0,
+                'address_type' => 'Domestic',
+                'delivery_point_validation' => 'UNDELIVERABLE',
+                'validation_key' => -646_932_106
+              }
+            }
+          ]
+        }
+      end
+      let(:api_response1) do
+        {
+          'candidate_addresses' => [
+            {
+              'address' => {
+                'county' => {
+                  'name' => 'Kings',
+                  'county_fips_code' => '36047'
+                },
+                'state_province' => {
+                  'name' => 'New York',
+                  'code' => 'NY'
+                },
+                'country' => {
+                  'name' => 'United States',
+                  'code' => 'USA',
+                  'fips_code' => 'US',
+                  'iso2_code' => 'US',
+                  'iso3_code' => 'USA'
+                },
+                'address_line1' => '37N 1st St',
+                'city' => 'Brooklyn',
+                'zip_code5' => '11249',
+                'zip_code4' => '3939'
+              },
+              'geocode' => {
+                'calc_date' => '2020-01-23T03:15:47+00:00',
+                'location_precision' => 31.0,
+                'latitude' => 40.717029,
+                'longitude' => -73.964956
+              },
+              'address_meta_data' => {
+                'confidence_score' => 100.0,
+                'address_type' => 'Domestic',
+                'delivery_point_validation' => 'UNDELIVERABLE',
+                'validation_key' => -646_932_106
+              }
+            }
+          ]
+        }
+      end
+      let(:api_response2) do
+        {
+          'candidate_addresses' => [
+            {
+              'address' => {
+                'county' => {
+                  'name' => 'Kings',
+                  'county_fips_code' => '36047'
+                },
+                'state_province' => {
+                  'name' => 'New York',
+                  'code' => 'NY'
+                },
+                'country' => {
+                  'name' => 'United States',
+                  'code' => 'USA',
+                  'fips_code' => 'US',
+                  'iso2_code' => 'US',
+                  'iso3_code' => 'USA'
+                },
+                'address_line1' => '37N 2nd St',
+                'city' => 'Brooklyn',
+                'zip_code5' => '11249',
+                'zip_code4' => '3939'
+              },
+              'geocode' => {
+                'calc_date' => '2020-01-23T03:15:47+00:00',
+                'location_precision' => 31.0,
+                'latitude' => 40.717029,
+                'longitude' => -73.964956
+              },
+              'address_meta_data' => {
+                'confidence_score' => 100.0,
+                'address_type' => 'Domestic',
+                'delivery_point_validation' => 'UNDELIVERABLE',
+                'validation_key' => -646_932_106
+              }
+            }
+          ]
+        }
+      end
+      let(:api_response3) do
+        {
+          'candidate_addresses' => [
+            {
+              'address' => {
+                'county' => {
+                  'name' => 'Kings',
+                  'county_fips_code' => '36047'
+                },
+                'state_province' => {
+                  'name' => 'New York',
+                  'code' => 'NY'
+                },
+                'country' => {
+                  'name' => 'United States',
+                  'code' => 'USA',
+                  'fips_code' => 'US',
+                  'iso2_code' => 'US',
+                  'iso3_code' => 'USA'
+                },
+                'address_line1' => '37N 3rd St',
+                'city' => 'Brooklyn',
+                'zip_code5' => '11249',
+                'zip_code4' => '3939'
+              },
+              'geocode' => {
+                'calc_date' => '2020-01-23T03:15:47+00:00',
+                'location_precision' => 31.0,
+                'latitude' => 40.717029,
+                'longitude' => -73.964956
+              },
+              'address_meta_data' => {
+                'confidence_score' => 100.0,
+                'address_type' => 'Domestic',
+                'delivery_point_validation' => 'UNDELIVERABLE',
+                'validation_key' => -646_932_106
+              }
+            }
+          ]
+        }
+      end
+
+      context 'when the first retry has non-zero coordinates' do
+        before do
+          allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response1)
+        end
+
+        it 'does not update the representative address' do
+          expect(representative.lat).to eq(39)
+          expect(representative.long).to eq(-75)
+          expect(representative.address_line1).to eq('123 East Main St')
+
+          subject.perform(json_data)
+          representative.reload
+
+          expect(representative.lat).to eq(40.717029)
+          expect(representative.long).to eq(-73.964956)
+          expect(representative.address_line1).to eq('37N 1st St')
+        end
+      end
+
+      context 'when the second retry has non-zero coordinates' do
+        before do
+          allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
+                                                                   api_response2)
+        end
+
+        it 'does not update the representative address' do
+          expect(representative.lat).to eq(39)
+          expect(representative.long).to eq(-75)
+          expect(representative.address_line1).to eq('123 East Main St')
+
+          subject.perform(json_data)
+          representative.reload
+
+          expect(representative.lat).to eq(40.717029)
+          expect(representative.long).to eq(-73.964956)
+          expect(representative.address_line1).to eq('37N 2nd St')
+        end
+      end
+
+      context 'when the third retry has non-zero coordinates' do
+        before do
+          allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
+                                                                   api_response_with_zero, api_response3)
+        end
+
+        it 'updates the representative address' do
+          expect(representative.lat).to eq(39)
+          expect(representative.long).to eq(-75)
+          expect(representative.address_line1).to eq('123 East Main St')
+
+          subject.perform(json_data)
+          representative.reload
+
+          expect(representative.lat).to eq(40.717029)
+          expect(representative.long).to eq(-73.964956)
+          expect(representative.address_line1).to eq('37N 3rd St')
+        end
+      end
+
+      context 'when the retry coordinates are all zero' do
+        before do
+          allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
+                                                                   api_response_with_zero, api_response_with_zero)
+        end
+
+        it 'does not update the representative address' do
+          expect(representative.lat).to eq(39)
+          expect(representative.long).to eq(-75)
+          expect(representative.address_line1).to eq('123 East Main St')
+
+          subject.perform(json_data)
+          representative.reload
+
+          expect(representative.lat).to eq(39)
+          expect(representative.long).to eq(-75)
+          expect(representative.address_line1).to eq('123 East Main St')
+        end
+      end
+    end
   end
 end

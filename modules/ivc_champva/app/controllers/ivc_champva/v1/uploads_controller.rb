@@ -17,8 +17,8 @@ module IvcChampva
 
       def submit
         Datadog::Tracing.trace('Start IVC File Submission') do
-          Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
           form_id = get_form_id
+          Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
           parsed_form_data = JSON.parse(params.to_json)
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
           statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads

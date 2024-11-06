@@ -32,7 +32,10 @@ module Mobile
         'bva',
         'fiduciary',
         'other',
-        'multiple'
+        'multiple',
+        'vha',
+        'voc_rehub',
+        'voc_rehab'
       )
 
       ALERT_TYPES = Types::String.enum(
@@ -96,7 +99,12 @@ module Mobile
         'allowed',
         'denied',
         'remand',
-        'cavc_remand'
+        'cavc_remand',
+        'Granted',
+        'dismissed_matter_of_law',
+        'Dismissed',
+        'Deferred',
+        'Denied'
       )
 
       STATUS_TYPES = Types::String.enum(
@@ -133,7 +141,9 @@ module Mobile
         'hlr_dta_error',
         'hlr_decision',
         'hlr_closed',
-        'statutory_opt_in'
+        'statutory_opt_in',
+        'motion',
+        'pre_docketed'
       )
 
       APPEAL_TYPES = Types::String.enum(

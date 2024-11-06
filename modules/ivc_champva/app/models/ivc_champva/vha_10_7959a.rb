@@ -62,12 +62,12 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-7959A Email Used', email_used:)
     end
 
-    # rubocop:disable Naming/BlockForwarding,Style/HashSyntax
+    # rubocop:disable Naming/BlockForwarding
     def method_missing(method_name, *args, &block)
       super unless respond_to_missing?(method_name)
       { method: method_name, args: args }
     end
-    # rubocop:enable Naming/BlockForwarding,Style/HashSyntax
+    # rubocop:enable Naming/BlockForwarding
 
     def respond_to_missing?(_method_name, _include_private = false)
       true

@@ -14,6 +14,9 @@ class AppealSubmission < ApplicationRecord
   has_encrypted :upload_metadata, key: :kms_key, **lockbox_options
 
   has_many :appeal_submission_uploads, dependent: :destroy
+  has_many :secondary_appeal_forms, dependent: :destroy
+
+  scope :failure_not_sent, -> { where(failure_notification_sent_at: nil).order(id: :asc) }
 
   def self.submit_nod(request_body_hash:, current_user:, decision_review_service: nil)
     ActiveRecord::Base.transaction do
@@ -50,6 +53,29 @@ class AppealSubmission < ApplicationRecord
       asu = AppealSubmissionUpload.create!(decision_review_evidence_attachment_guid: upload_attrs['confirmationCode'],
                                            appeal_submission_id: id)
       DecisionReview::SubmitUpload.perform_async(asu.id)
+    end
+  end
+
+  def current_email_address
+    va_profile = ::VAProfile::ContactInformation::Service.get_person(get_mpi_profile.vet360_id.to_s)&.person
+    raise 'Failed to fetch VA profile' if va_profile.nil?
+
+    current_emails = va_profile.emails.select { |email| email.effective_end_date.nil? }
+    email = current_emails.first&.email_address
+    raise 'Failed to retrieve email address' if email.nil?
+
+    email
+  end
+
+  def get_mpi_profile
+    @mpi_profile ||= begin
+      service = ::MPI::Service.new
+      idme_profile = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile
+      logingov_profile = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'logingov')&.profile
+      response = idme_profile || logingov_profile
+      raise 'Failed to fetch MPI profile' if response.nil?
+
+      response
     end
   end
 end

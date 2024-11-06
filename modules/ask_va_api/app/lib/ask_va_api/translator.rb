@@ -4,90 +4,44 @@ module AskVAApi
   class TranslatorError < StandardError; end
 
   class Translator
-    attr_reader :inquiry_params, :optionset_entity_class, :retriever, :logger
+    MAPPINGS = {
+      'levelofauthentication' => 'level_of_authentication',
+      'veteranrelationship' => 'veteran_relationship',
+      'responsetype' => 'response_type',
+      'dependentrelationship' => 'dependent_relationship',
+      'inquiryabout' => 'inquiry_about'
+    }.freeze
 
-    def initialize(inquiry_params:, entity_class: Optionset::Entity)
-      @inquiry_params = inquiry_params
-      @translation_cache = {}
-      @optionset_entity_class = entity_class
-      @retriever = Optionset::Retriever
-      @logger = LogService.new
-    end
+    def call(key, value)
+      return if value.nil?
 
-    def call
-      payload = convert_keys_to_camel_case(inquiry_params, fetch_translation_map('inquiry'))
+      optionset = fetch_optionset
 
-      options.each do |option|
-        update_option_in_payload(payload, option)
+      if optionset[key]
+        match = optionset[key].find { |obj| value.downcase.include?(obj[:Name].downcase) }
+        match[:Id] if match
+      else
+        raise TranslatorError, "Key '#{key}' not found in optionset data"
       end
-
-      payload
     end
 
     private
 
-    def convert_keys_to_camel_case(params, translation_map)
-      params.each_with_object({}) do |(key, value), result|
-        camel_case_key = translation_map[key.to_sym]
-
-        result[camel_case_key.to_sym] = case value
-                                        when Hash
-                                          convert_keys_to_camel_case(value, fetch_translation_map(key))
-                                        when Array
-                                          value.map { |v| convert_keys_to_camel_case(v, fetch_translation_map(key)) }
-                                        else
-                                          value
-                                        end
+    def fetch_optionset
+      retrieve_option_set[:Data].each_with_object({}) do |option, hash|
+        hash[to_snake_case(option[:Name]).to_sym] = option[:ListOfOptions]
       end
-    end
-
-    def update_option_in_payload(payload, option)
-      option_set = retrieve_option_set(option)
-      option_key = options_converter_hash[option]
-
-      return unless option_key
-
-      matching_option = option_set.find { |obj| obj.name == payload[option_key] }
-      payload[option_key] = matching_option.id if matching_option
     rescue => e
-      log_error("update option #{option}", e)
-      raise TranslatorError, e if e.message.include?('Crm::CacheDataError')
+      raise TranslatorError, "Failed to retrieve optionset data: #{e.message}"
     end
 
-    def retrieve_option_set(option)
-      retriever.new(name: option, user_mock_data: nil, entity_class: optionset_entity_class).call
+    def retrieve_option_set
+      Crm::CacheData.new.call(endpoint: 'optionset', cache_key: 'optionset')
     end
 
-    def options
-      @options ||= %w[
-        inquiryabout inquirysource inquirytype levelofauthentication
-        suffix veteranrelationship dependentrelationship responsetype
-      ]
-    end
-
-    def options_converter_hash
-      {
-        'inquiryabout' => :InquiryAbout,
-        'inquirysource' => :InquirySource,
-        'inquirytype' => :InquiryType,
-        'levelofauthentication' => :LevelOfAuthentication,
-        'suffix' => :Suffix,
-        'veteranrelationship' => :VeteranRelationship,
-        'dependentrelationship' => :DependantRelationship,
-        'responsetype' => :ResponseType
-      }
-    end
-
-    def fetch_translation_map(key)
-      @translation_cache[key] ||= I18n.t("ask_va_api.parameters.#{key}")
-    end
-
-    def log_error(action, exception)
-      logger.call(action) do |span|
-        span.set_tag('error', true)
-        span.set_tag('error.msg', exception.message)
-      end
-      Rails.logger.error("Error during #{action}: #{exception.message}")
+    def to_snake_case(str)
+      data = str.gsub(/^iris_/, '').downcase
+      MAPPINGS.fetch(data.downcase, data)
     end
   end
 end

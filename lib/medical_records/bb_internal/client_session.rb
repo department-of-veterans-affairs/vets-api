@@ -6,6 +6,7 @@ module BBInternal
   class ClientSession < Common::Client::Session
     # attribute :icn, String
     attribute :patient_id, String
+    attribute :icn, String
 
     redis_store REDIS_CONFIG[:bb_internal_store][:namespace]
     redis_ttl 600

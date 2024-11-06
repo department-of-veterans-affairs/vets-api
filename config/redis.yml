@@ -84,18 +84,6 @@ development: &defaults
   saml_store:
     namespace: single-logout-request
     each_ttl: 43200
-  facility_access_satisfaction:
-    namespace: facility-access-satisfaction
-    each_ttl: 2592000
-  facility_access_wait_time:
-    namespace: facility-access-wait-time
-    each_ttl: 2592000
-  facility_dental_service:
-    namespace: facility_dental_service
-    each_ttl: 2592000
-  facility_mental_health:
-    namespace: facility_mental_health
-    each_ttl: 2592000
   financial_status_report:
     namespace: financial_status_report
     each_ttl: 1800 # 30 minutes

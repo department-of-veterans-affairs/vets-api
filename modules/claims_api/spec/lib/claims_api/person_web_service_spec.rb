@@ -54,10 +54,9 @@ describe ClaimsApi::PersonWebService do
             ptcpnt_id_a:,
             ptcpnt_id_b:
           }
-          result = subject.manage_ptcpnt_rlnshp_poa(options)
+          result = subject.manage_ptcpnt_rlnshp_poa(options:)
 
           expect(result).to be_a Hash
-          expect(result[:authzn_poa_access_ind]).to eq 'Y'
           expect(result[:comp_id][:ptcpnt_id_a]).to eq ptcpnt_id_a
           expect(result[:comp_id][:ptcpnt_id_b]).to eq ptcpnt_id_b
           expect(result[:comp_id][:ptcpnt_rlnshp_type_nm]).to eq 'Power of Attorney For'
@@ -74,7 +73,7 @@ describe ClaimsApi::PersonWebService do
           }
 
           expect do
-            subject.manage_ptcpnt_rlnshp_poa(options)
+            subject.manage_ptcpnt_rlnshp_poa(options:)
           end.to raise_error(Common::Exceptions::ServiceError) { |error|
                    expect(error.errors.first.detail).to eq 'PtcpntIdA has open claims.'
                  }

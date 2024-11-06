@@ -9,14 +9,12 @@ describe IvcChampva::S3 do
   let(:bucket) { instance_double(Aws::S3::Bucket) }
   let(:object) { instance_double(Aws::S3::Object) }
 
-  # rubocop:disable Style/HashSyntax
   let(:s3_instance) do
     IvcChampva::S3.new(
       region: region,
       bucket: bucket_name
     )
   end
-  # rubocop:enable Style/HashSyntax
 
   describe '#put_object' do
     let(:key) { 'test_file.pdf' }

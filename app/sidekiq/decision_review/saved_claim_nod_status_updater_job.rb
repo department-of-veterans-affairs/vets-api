@@ -86,11 +86,13 @@ module DecisionReview
     end
 
     def handle_form_status_metrics_and_logging(nod, status)
-      if status == ERROR_STATUS
-        # ignore logging and metrics for stale errors
-        return if JSON.parse(nod.metadata || '{}')['status'] == ERROR_STATUS
+      # Skip logging and statsd metrics when there is no status change
+      return if JSON.parse(nod.metadata || '{}')['status'] == status
 
+      if status == ERROR_STATUS
         Rails.logger.info('DecisionReview::SavedClaimNodStatusUpdaterJob form status error', guid: nod.guid)
+        tags = ['service:board-appeal', 'function: form submission to Lighthouse']
+        StatsD.increment('silent_failure', tags:)
       end
 
       StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])
@@ -103,15 +105,20 @@ module DecisionReview
 
       uploads_metadata.each do |upload|
         status = upload['status']
+        upload_id = upload['id']
         result = false unless UPLOAD_SUCCESSFUL_STATUS.include? status
 
-        upload_id = upload['id']
-        # Increment StatsD and log only for new errors
-        unless old_uploads_metadata.dig(upload_id, 'status') == ERROR_STATUS
-          StatsD.increment("#{STATSD_KEY_PREFIX}_upload.status", tags: ["status:#{status}"])
+        # Skip logging and statsd metrics when there is no status change
+        next if old_uploads_metadata.dig(upload_id, 'status') == status
+
+        if status == ERROR_STATUS
           Rails.logger.info('DecisionReview::SavedClaimNodStatusUpdaterJob evidence status error',
                             { guid: nod.guid, lighthouse_upload_id: upload_id, detail: upload['detail'] })
+          tags = ['service:board-appeal', 'function: evidence submission to Lighthouse']
+          StatsD.increment('silent_failure', tags:)
         end
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}_upload.status", tags: ["status:#{status}"])
       end
 
       result

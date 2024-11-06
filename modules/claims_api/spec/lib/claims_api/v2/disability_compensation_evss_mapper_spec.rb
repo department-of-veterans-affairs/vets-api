@@ -78,16 +78,25 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           expect(claim_process_type).to eq('BDD_PROGRAM_CLAIM')
         end
       end
+
+      context 'claimSubmissionSource' do
+        it 'maps the source to VA.gov correctly' do
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
+          source = evss_data[:claimSubmissionSource]
+          expect(source).to eq('VA.gov')
+        end
+      end
     end
 
     context '526 section 1' do
       it 'maps the mailing address' do
         addr = evss_data[:veteran][:currentMailingAddress]
         expect(addr[:addressLine1]).to eq('1234 Couch Street')
-        expect(addr[:city]).to eq('Portland')
+        expect(addr[:city]).to eq('Schenectady')
         expect(addr[:country]).to eq('USA')
-        expect(addr[:zipFirstFive]).to eq('41726')
-        expect(addr[:state]).to eq('OR')
+        expect(addr[:zipFirstFive]).to eq('12345')
+        expect(addr[:state]).to eq('NY')
       end
 
       it 'maps the other veteran info' do

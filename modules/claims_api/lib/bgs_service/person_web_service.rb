@@ -18,7 +18,7 @@ module ClaimsApi
 
     # ptcpntIdA is the veteranʼs or dependentʼs participant id
     # ptcpntIdB is the poaʼs participant id
-    def manage_ptcpnt_rlnshp_poa(options = {})
+    def manage_ptcpnt_rlnshp_poa(**options)
       builder = Nokogiri::XML::Builder.new do
         PtcpntRlnshpDTO do
           authznChangeClmantAddrsInd 'Y' if options[:authzn_change_clmant_addrs_ind].present?

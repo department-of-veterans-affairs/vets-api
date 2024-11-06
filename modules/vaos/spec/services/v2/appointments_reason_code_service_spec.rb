@@ -28,7 +28,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       appt = FactoryBot.build(:appointment_form_v2, :community_cares_valid_reason_code_text).attributes
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
-      expect(appt[:patient_comments]).to eq('test request')
+      expect(appt[:patient_comments]).to eq('colon:in:comment')
       expect(appt[:reason_for_appointment]).to be_nil
       expect(appt[:preferred_dates]).to be_nil
       expect(appt[:preferred_modality]).to be_nil
@@ -38,7 +38,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       appt = FactoryBot.build(:appointment_form_v2, :ds_cc_booked_valid_reason_code_text).attributes
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
-      expect(appt[:patient_comments]).to eq('test booked')
+      expect(appt[:patient_comments]).to eq('colon:in:comment')
       expect(appt[:reason_for_appointment]).to be_nil
       expect(appt[:preferred_dates]).to be_nil
       expect(appt[:preferred_modality]).to be_nil
@@ -48,7 +48,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       appt = FactoryBot.build(:appointment_form_v2, :va_booked_valid_reason_code_text).attributes
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
-      expect(appt[:patient_comments]).to eq('test')
+      expect(appt[:patient_comments]).to eq('colon:in:comment')
       expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
       expect(appt[:preferred_dates]).to be_nil
       expect(appt[:preferred_modality]).to be_nil
@@ -58,7 +58,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       appt = FactoryBot.build(:appointment_form_v2, :va_cancelled_valid_reason_code_text).attributes
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact]).to eq({})
-      expect(appt[:patient_comments]).to eq('test')
+      expect(appt[:patient_comments]).to eq('colon:in:comment')
       expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
       expect(appt[:preferred_dates]).to be_nil
       expect(appt[:preferred_modality]).to be_nil
@@ -69,7 +69,7 @@ describe VAOS::V2::AppointmentsReasonCodeService do
       subject.extract_reason_code_fields(appt)
       expect(appt[:contact][:telecom][0]).to eq({ type: 'phone', value: '6195551234' })
       expect(appt[:contact][:telecom][1]).to eq({ type: 'email', value: 'myemail72585885@unattended.com' })
-      expect(appt[:patient_comments]).to eq('test')
+      expect(appt[:patient_comments]).to eq('colon:in:comment')
       expect(appt[:reason_for_appointment]).to eq('Routine/Follow-up')
       expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
                                             'Wed, June 26, 2024 in the afternoon'])
@@ -87,6 +87,27 @@ describe VAOS::V2::AppointmentsReasonCodeService do
         expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
                                               'Wed, June 26, 2024 in the afternoon'])
         expect(appt[:preferred_modality]).to eq('In person')
+      end
+    end
+  end
+
+  describe '#parse_reason_code_text' do
+    [
+      ['', {}],
+      ['key', {}],
+      ['key:', {}],
+      ['key:value', { 'key' => 'value' }],
+      [' key : value ', { 'key' => 'value' }],
+      ['key:value:invalid', {}],
+      ['comments', {}],
+      ['comments:', {}],
+      ['comments:text', { 'comments' => 'text' }],
+      [' comments : text ', { 'comments' => 'text' }],
+      ['comments:key:value', { 'comments' => 'key:value' }],
+      [' comments : key : value ', { 'comments' => 'key : value' }]
+    ].each do |input, output|
+      it "#{input} returns #{output}" do
+        expect(subject.send(:parse_reason_code_text, input)).to eq(output)
       end
     end
   end

@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'va_profile/response'
-require 'va_profile/models/v2/person'
+require 'va_profile/models/v3/person'
 
 module VAProfile
   module V2
     module ContactInformation
       class PersonResponse < VAProfile::Response
-        attribute :person, VAProfile::Models::V2::Person
+        attribute :person, VAProfile::Models::V3::Person
 
         attr_reader :response_body
 
@@ -16,7 +16,7 @@ module VAProfile
 
           new(
             raw_response&.status,
-            person: VAProfile::Models::V2::Person.build_from(response_body&.dig('bio'))
+            person: VAProfile::Models::V3::Person.build_from(response_body&.dig('bio'))
           )
         end
 

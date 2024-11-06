@@ -24,4 +24,22 @@ Rspec.describe AppealsApi::V2::DecisionReviews::ContestableIssuesController, typ
       expect(error['meta']['regex']).to be_present
     end
   end
+
+  describe '#index' do
+    let(:decision_review_type) { 'higher_level_reviews' }
+    let(:base_path) { '/services/appeals/v2/decision_reviews/contestable_issues' }
+    let(:path) { "#{base_path}/#{decision_review_type}?benefit_type=compensation" }
+
+    it_behaves_like 'an endpoint requiring gateway origin headers',
+                    headers: {
+                      'X-VA-SSN': '123456789',
+                      'X-VA-Receipt-Date': '2019-12-01'
+                    } do
+      def make_request(headers)
+        VCR.use_cassette("caseflow/#{decision_review_type}/contestable_issues") do
+          get(path, headers:)
+        end
+      end
+    end
+  end
 end
