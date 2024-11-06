@@ -6,7 +6,7 @@ on:
     workflows: 
       - "Code Checks"
     types: 
-    - completed
+      - completed
 jobs:
   check-pr-status:
     runs-on: ubuntu-latest
