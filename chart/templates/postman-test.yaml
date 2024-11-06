@@ -8,7 +8,7 @@ metadata:
 spec:
   containers:
     - name: postman
-      image: "{{ $root.Values.image.value }}:{{ $root.Values.image.tag }}"
+      image: "{{ $root.Values.image.testRepository }}:{{ $root.Values.image.tag }}"
       imagePullPolicy: {{ .Values.image.pullPolicy }}
       env:
         - name: "API_URL"
