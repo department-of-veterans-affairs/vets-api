@@ -15,8 +15,7 @@ module ClaimsApi
         body.xpath("./*[local-name()='#{k}']")[0].content = v
       end
 
-      response = make_request(endpoint: bean_name, action: 'findAssignedFlashes', body:)
-      response[:return] || response.body[:find_assigned_flashes_response][:return]
+      make_request(endpoint: bean_name, action: 'findAssignedFlashes', body:, key: 'return')
     end
 
     def add_flash(file_number:, flash: {})

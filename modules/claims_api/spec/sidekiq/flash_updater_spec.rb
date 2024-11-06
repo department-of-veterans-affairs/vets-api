@@ -2,7 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::FlashUpdater, type: :job do
+RSpec.describe ClaimsApi::FlashUpdater, type: :job,
+                                        vcr: 'bgs/claimant_web_service/local_claimant_flashes' do
   subject { described_class }
 
   before do
@@ -38,10 +39,10 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
 
   it 'submits flashes to bgs successfully' do
     flashes.each do |flash_name|
-      expect_any_instance_of(BGS::ClaimantWebService)
-        .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
+      allow_any_instance_of(ClaimsApi::ClaimantService)
+        .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash: { flash_name: })
     end
-    expect_any_instance_of(BGS::ClaimantWebService)
+    expect_any_instance_of(ClaimsApi::ClaimantService)
       .to receive(:find_assigned_flashes).with(claim.auth_headers['va_eauth_pnid']).and_return(assigned_flashes)
 
     subject.new.perform(flashes, claim.id)
@@ -50,15 +51,15 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
   it 'continues submitting flashes on exception' do
     flashes.each_with_index do |flash_name, index|
       if index.zero?
-        expect_any_instance_of(BGS::ClaimantWebService).to receive(:add_flash)
-          .with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
+        allow_any_instance_of(ClaimsApi::ClaimantService).to receive(:add_flash)
+          .with(file_number: claim.auth_headers['va_eauth_pnid'], flash: { flash_name: })
           .and_raise(BGS::ShareError.new('failed', 500))
       else
-        expect_any_instance_of(BGS::ClaimantWebService)
-          .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
+        allow_any_instance_of(ClaimsApi::ClaimantService)
+          .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash: { flash_name: })
       end
     end
-    expect_any_instance_of(BGS::ClaimantWebService)
+    expect_any_instance_of(ClaimsApi::ClaimantService)
       .to receive(:find_assigned_flashes).with(claim.auth_headers['va_eauth_pnid']).and_return(assigned_flashes)
 
     subject.new.perform(flashes, claim.id)
@@ -66,11 +67,11 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
 
   it 'stores multiple bgs exceptions correctly' do
     flashes.each do |flash_name|
-      expect_any_instance_of(BGS::ClaimantWebService).to receive(:add_flash)
-        .with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
+      allow_any_instance_of(ClaimsApi::ClaimantService).to receive(:add_flash)
+        .with(file_number: claim.auth_headers['va_eauth_pnid'], flash: { flash_name: })
         .and_raise(BGS::ShareError.new('failed', 500))
     end
-    expect_any_instance_of(BGS::ClaimantWebService)
+    expect_any_instance_of(ClaimsApi::ClaimantService)
       .to receive(:find_assigned_flashes).with(claim.auth_headers['va_eauth_pnid']).and_return({ flashes: [] })
 
     subject.new.perform(flashes, claim.id)
@@ -92,26 +93,6 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
           error: error_msg
         )
       end
-    end
-  end
-
-  context 'when the claims_api_flash_updater_uses_local_bgs feature flag is enabled' do
-    let(:claimant_service) { instance_double(ClaimsApi::ClaimantService) }
-
-    before do
-      allow(Flipper).to receive(:enabled?).with(:claims_api_flash_updater_uses_local_bgs).and_return true
-      allow(ClaimsApi::ClaimantService).to receive(:new).with(external_uid: anything,
-                                                              external_key: anything)
-                                                        .and_return(claimant_service)
-      allow(claimant_service).to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'],
-                                                          flash: { flash_name: anything }).and_return(claim)
-      allow(claimant_service).to receive(:find_assigned_flashes).with(claim.auth_headers['va_eauth_pnid'])
-                                                                .and_return(claim)
-    end
-
-    it 'calls local_bgs instead of bgs-ext' do
-      subject.new.perform(flashes, claim.id)
-      expect(claimant_service).to have_received(:find_assigned_flashes)
     end
   end
 end
