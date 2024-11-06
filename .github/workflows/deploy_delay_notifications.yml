@@ -146,9 +146,9 @@ jobs:
                 "text": {
                   "type": "mrkdwn",
                   "text": ">:scared_and_sweating_smiley: GitHub Action Runner Workflow failed! :scared_and_sweating_smiley:\n \
-                          <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n \
-                          *Development Summary:*\n${{ env.dev_summary }}\n\n \
-                          *Staging Summary:*\n${{ env.staging_summary }}"
+                    <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>\n\n \
+                    *Development Summary:*\n${{ env.dev_summary }}\n\n \
+                    *Staging Summary:*\n${{ env.staging_summary }}"
                 }
               },
               { "type": "divider" }
@@ -170,8 +170,8 @@ jobs:
                 "text": {
                   "type": "mrkdwn",
                   "text": ">:scared_and_sweating_smiley: GitHub Action Runner Workflow failed! :scared_and_sweating_smiley:\n\n \
-                          Unknown error occured. See logs:\n \
-                          <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>"
+                    Unknown error occured. See logs:\n \
+                    <https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.workflow }} Run #${{ github.run_number }}>"
                 }
               },
               { "type": "divider" }
