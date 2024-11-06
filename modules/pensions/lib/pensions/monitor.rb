@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pensions/notification_email'
 require 'zero_silent_failures/monitor'
 
 module Pensions
