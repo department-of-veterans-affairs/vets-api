@@ -10,9 +10,8 @@ module DecisionReview
 
     STATSD_KEY_PREFIX = 'worker.decision_review.form4142_submit'
 
-    # 13 retries equates to roughly 1 day using exponential backoff, which should
-    # be long enough to resolve transient errors like temporary Central Mail outages.
-    sidekiq_options retry: 13
+    # Increasing to 17 retries, approximately 3 days, for ~39 hour COLA maintenance
+    sidekiq_options retry: 17
 
     sidekiq_retries_exhausted do |msg, _ex|
       error_message = msg['error_message']

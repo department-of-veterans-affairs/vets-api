@@ -399,30 +399,51 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
       context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
         include_context 'stub validation methods'
 
+        let(:claimant_information_for_headers) do
+          {
+            'claimant_participant_id' => '000000000000',
+            'claimant_first_name' => 'First',
+            'claimant_last_name' => 'Last',
+            'claimant_ssn' => '1111111111'
+          }
+        end
+
         before do
           Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
         end
 
         context 'and the request includes a dependent claimant' do
-          it 'enqueues the PoaAssignDependentClaimantJob and not the PoaFormBuilderJob' do
+          it 'enqueues the PoaFormBuilderJob' do
             mock_acg(scopes) do |auth_header|
-              expect do
-                post path, params: data_with_claimant, headers: headers.merge(auth_header)
-              end.to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size).by(1)
-
               expect do
                 post path, params: data_with_claimant, headers: headers.merge(auth_header)
               end.not_to change(ClaimsApi::V1::PoaFormBuilderJob.jobs, :size)
             end
           end
+
+          it "includes the 'dependent' object to the auth_headers" do
+            mock_acg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:validate_dependent_claimant!).and_return(claimant_information_for_headers)
+
+              post path, params: data_with_claimant, headers: headers.merge(auth_header)
+              parsed = JSON.parse(response.body)
+              poa_id = parsed['data']['id']
+              poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+              expect(poa.auth_headers).to have_key('dependent')
+            end
+          end
         end
 
         context 'and the request does not include a dependent claimant' do
-          it 'does not enqueue the PoaAssignDependentClaimantJob' do
+          it "does not include the 'dependent' object to the auth_headers" do
             mock_acg(scopes) do |auth_header|
-              expect do
-                post path, params: data, headers: headers.merge(auth_header)
-              end.not_to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size)
+              params = JSON.parse data
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              parsed = JSON.parse(response.body)
+              poa_id = parsed['data']['id']
+              poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+              expect(poa.auth_headers).not_to have_key('dependent')
             end
           end
         end
@@ -435,11 +456,13 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
           Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
         end
 
-        it 'does not enqueue the PoaAssignDependentClaimantJob' do
+        it "does not include the 'dependent object in the auth_headers" do
           mock_acg(scopes) do |auth_header|
-            expect do
-              post path, params: data_with_claimant, headers: headers.merge(auth_header)
-            end.not_to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size)
+            post path, params: data_with_claimant, headers: headers.merge(auth_header)
+            parsed = JSON.parse(response.body)
+            poa_id = parsed['data']['id']
+            poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+            expect(poa.auth_headers).not_to have_key('dependent')
           end
         end
       end
