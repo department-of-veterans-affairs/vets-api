@@ -18,9 +18,12 @@ module VANotify
       if (notification = VANotify::Notification.find_by(notification_id: notification_id))
         Rails.logger.info("va_notify callbacks - Updating notification #{notification.id}")
         notification.update(notification_params)
+        # default callback for all notifications
+        VANotify::WatchOfficerCallback.call(notification)
+        # team specific callbacks
         VANotify::StatusUpdate.new.delegate(notification_params.merge(id: notification_id))
       else
-        Rails.logger.info("va_notify callbacks - Received update for unknown notification #{notification_id}")
+        Rails.logger.error("va_notify callbacks - Received update for unknown notification #{notification_id}")
       end
 
       render json: { message: 'success' }, status: :ok
