@@ -1354,4 +1354,79 @@ RSpec.describe User, type: :model do
       end
     end
   end
+
+  describe '#can_create_mhv_account?' do
+    let(:user) { build(:user, :loa3, vha_facility_ids:, needs_accepted_terms_of_use:) }
+    let(:vha_facility_ids) { %w[450MH] }
+    let(:needs_accepted_terms_of_use) { false }
+
+    context 'when the user is loa3' do
+      context 'when the user is a va_patient' do
+        context 'when the user has accepted the terms of use' do
+          it 'returns true' do
+            expect(user.can_create_mhv_account?).to be true
+          end
+        end
+
+        context 'when the user has not accepted the terms of use' do
+          let(:needs_accepted_terms_of_use) { true }
+
+          it 'returns false' do
+            expect(user.can_create_mhv_account?).to be false
+          end
+        end
+      end
+
+      context 'when the user is not a va_patient' do
+        let(:vha_facility_ids) { [] }
+
+        it 'returns false' do
+          expect(user.can_create_mhv_account?).to be false
+        end
+      end
+    end
+
+    context 'when the user is not loa3' do
+      let(:user) { build(:user, vha_facility_ids:, needs_accepted_terms_of_use:) }
+
+      it 'returns false' do
+        expect(user.can_create_mhv_account?).to be false
+      end
+    end
+  end
+
+  describe '#create_mhv_account_async' do
+    let(:user) { build(:user) }
+    let!(:user_verification) do
+      create(:idme_user_verification, idme_uuid: user.idme_uuid)
+    end
+
+    before do
+      allow(MHV::AccountCreatorJob).to receive(:perform_async)
+    end
+
+    context 'when the user can create an MHV account' do
+      before do
+        allow(user).to receive(:can_create_mhv_account?).and_return(true)
+      end
+
+      it 'enqueues a job to create the MHV account' do
+        user.create_mhv_account_async
+
+        expect(MHV::AccountCreatorJob).to have_received(:perform_async).with(user_verification.id)
+      end
+    end
+
+    context 'when the user cannot create an MHV account' do
+      before do
+        allow(user).to receive(:can_create_mhv_account?).and_return(false)
+      end
+
+      it 'does not enqueue a job to create the MHV account' do
+        user.create_mhv_account_async
+
+        expect(MHV::AccountCreatorJob).not_to have_received(:perform_async)
+      end
+    end
+  end
 end
