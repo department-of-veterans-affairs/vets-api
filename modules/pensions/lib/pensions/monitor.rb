@@ -316,7 +316,8 @@ module Pensions
         }
       }
 
-      track_request('warn', 'Lighthouse::PensionBenefitIntakeJob send_confirmation_email failed', CLAIM_STATS_KEY,
+      track_request('warn', 'Lighthouse::PensionBenefitIntakeJob send_confirmation_email failed',
+                    "#{SUBMISSION_STATS_KEY}.send_confirmation_failed",
                     call_location: caller_locations.first, **additional_context)
     end
 
@@ -341,7 +342,8 @@ module Pensions
         }
       }
       track_request('error', 'Lighthouse::PensionBenefitIntakeJob cleanup failed',
-                    "#{SUBMISSION_STATS_KEY}.cleanup_failed", call_location: caller_locations.first, **additional_context)
+                    "#{SUBMISSION_STATS_KEY}.cleanup_failed",
+                    call_location: caller_locations.first, **additional_context)
     end
   end
 end

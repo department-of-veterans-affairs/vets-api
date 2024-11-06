@@ -12,5 +12,12 @@ RSpec.describe Logging::CallLocation do
       expect(call_location.path).to eq('fake_file')
       expect(call_location.lineno).to eq('fake_line_42')
     end
+
+    it 'returns a customized location, based on an actual location' do
+      custom_cl = described_class.customize(caller_locations.first, call_location.base_label, nil, 42)
+      expect(custom_cl.base_label).to eq('fake_func')
+      expect(custom_cl.path).to eq(caller_locations.first.path)
+      expect(custom_cl.lineno).to eq(42)
+    end
   end
 end

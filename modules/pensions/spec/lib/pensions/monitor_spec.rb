@@ -356,9 +356,6 @@ RSpec.describe Pensions::Monitor do
             **payload
           )
 
-          expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
-          expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
-
           monitor.track_submission_exhaustion(msg, nil)
         end
       end
@@ -381,7 +378,7 @@ RSpec.describe Pensions::Monitor do
         expect(monitor).to receive(:track_request).with(
           'warn',
           log,
-          claim_stats_key,
+          "#{submission_stats_key}.send_confirmation_failed",
           call_location: anything,
           **payload
         )

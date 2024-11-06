@@ -25,7 +25,7 @@ module Logging
       new(
         function || call_location.base_label,
         file || call_location.path,
-        line || call_location.lineno,
+        line || call_location.lineno
       )
     end
   end
