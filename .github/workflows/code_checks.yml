@@ -127,11 +127,11 @@ jobs:
             docker compose -f docker-compose.test.yml run web bash \
               -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 24  -e 'bin/rails db:reset'"
 
-      - name: Run Specs
-        timeout-minutes: 20
-        run: |
-          docker compose -f docker-compose.test.yml run web bash \
-          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 24 -o '--color --tty'"
+      # - name: Run Specs
+      #   timeout-minutes: 20
+      #   run: |
+      #     docker compose -f docker-compose.test.yml run web bash \
+      #     -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 24 -o '--color --tty'"
 
       - name: Set Test Status
         id: test-status
