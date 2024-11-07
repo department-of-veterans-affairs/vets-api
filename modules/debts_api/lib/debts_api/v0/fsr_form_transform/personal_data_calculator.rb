@@ -102,7 +102,7 @@ module DebtsApi
             {
               'first' => @personal_data['spouse_full_name']['first'],
               'middle' => @personal_data['spouse_full_name']['middle'] || '',
-              'last' => @personal_data['spouse_full_name']['last']
+              'last' => @personal_data['spouse_full_name']['last'] || ''
             }
           else
             {

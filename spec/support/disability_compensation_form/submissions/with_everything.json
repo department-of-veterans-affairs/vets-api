@@ -2,6 +2,7 @@
   "form526": {
     "form526": {
       "veteran": {
+        "emailAddress": "test@email.com",
         "currentMailingAddress": {
           "country": "USA",
           "addressLine1": "1234 Couch Street",

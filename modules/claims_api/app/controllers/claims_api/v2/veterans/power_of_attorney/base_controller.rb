@@ -68,23 +68,6 @@ module ClaimsApi
           Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
         end
 
-        def dependent_claimant_poa_assignment_service(poa_code:)
-          # Assign the veteranʼs file number
-          file_number_check
-
-          claimant = user_profile.profile
-
-          ClaimsApi::DependentClaimantPoaAssignmentService.new(
-            poa_code:,
-            veteran_participant_id: target_veteran.participant_id,
-            dependent_participant_id: claimant.participant_id,
-            veteran_file_number: @file_number,
-            allow_poa_access: form_attributes[:recordConsent].present? ? 'Y' : nil,
-            allow_poa_cadd: form_attributes[:consentAddressChange].present? ? 'Y' : nil,
-            claimant_ssn: claimant.ssn
-          )
-        end
-
         def validate_registration_number!(base, poa_code)
           rn = form_attributes.dig(base, 'registrationNumber')
           rep = ::Veteran::Service::Representative.where('? = ANY(poa_codes) AND representative_id = ?',
@@ -102,7 +85,7 @@ module ClaimsApi
         def attributes
           {
             status: ClaimsApi::PowerOfAttorney::PENDING,
-            auth_headers: auth_headers.merge!({ VA_NOTIFY_KEY => icn_for_vanotify }),
+            auth_headers: set_auth_headers,
             form_data: form_attributes,
             current_poa: current_poa_code,
             header_md5:
@@ -114,14 +97,8 @@ module ClaimsApi
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.create!(attributes)
 
-          unless Settings.claims_api&.poa_v2&.disable_jobs
-            if feature_enabled_and_claimant_present?
-              ClaimsApi::PoaAssignDependentClaimantJob.perform_async(
-                dependent_claimant_poa_assignment_service(poa_code:)
-              )
-            else
-              ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id)
-            end
+          unless disable_jobs?
+            ClaimsApi::V2::PoaFormBuilderJob.perform_async(power_of_attorney.id, form_number, @rep_id, 'post')
           end
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyBlueprint.render(
@@ -130,6 +107,29 @@ module ClaimsApi
           ), status: :accepted, location: url_for(
             controller: 'power_of_attorney/base', action: 'show', id: power_of_attorney.id
           )
+        end
+
+        def set_auth_headers
+          headers = auth_headers.merge!({ VA_NOTIFY_KEY => icn_for_vanotify })
+
+          if feature_enabled_and_claimant_present?
+            add_dependent_to_auth_headers(headers)
+          else
+            auth_headers
+          end
+        end
+
+        def add_dependent_to_auth_headers(headers)
+          claimant = user_profile.profile
+
+          headers.merge!({
+                           dependent: {
+                             participant_id: claimant.participant_id,
+                             ssn: claimant.ssn,
+                             first_name: claimant.given_names[0],
+                             last_name: claimant.family_name
+                           }
+                         })
         end
 
         def validation_success(form_number)
@@ -240,6 +240,10 @@ module ClaimsApi
           end
         rescue ArgumentError
           mpi_profile
+        end
+
+        def disable_jobs?
+          Settings.claims_api&.poa_v2&.disable_jobs
         end
 
         def add_claimant_data_to_form
