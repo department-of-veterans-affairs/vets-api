@@ -8,6 +8,14 @@ RSpec.describe Users::Profile do
   let!(:in_progress_form_user_uuid) { create(:in_progress_form, user_uuid: user.uuid) }
   let!(:in_progress_form_user_account) { create(:in_progress_form, user_account: user.user_account) }
 
+  before do
+    Flipper.enable(:va_profile_includes_preferred_name, user)
+  end
+
+  after do
+    Flipper.disable(:va_profile_includes_preferred_name, user)
+  end
+
   describe '.initialize' do
     let(:users_profile) { Users::Profile.new(user) }
 

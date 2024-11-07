@@ -698,7 +698,7 @@ features:
   form40_10007_confirmation_email:
     actor_type: user
     description: Enables form 40-10007 email submission error (VaNotify)
-    enable_in_development: true  
+    enable_in_development: true
   form1990meb_confirmation_email:
     actor_type: user
     description: Enables form 1990 MEB email submission confirmation (VaNotify)
@@ -1829,5 +1829,8 @@ features:
     description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
   is_DGIB_endpoint:
     actor_type: user
-    description: used to call data from DGIB endpoints for MGIB VYE application
+    description: used to call data from DGIB endpoints for MGIB VYE applications
+  va_profile_includes_preferred_name:
+      actor_type: user
+      description: Enables fetching and inserting preferred_name from VAProfile::Demographics into v0/user endpoint
 

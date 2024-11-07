@@ -94,6 +94,8 @@ module Users
     end
 
     def demographics_info
+      # TODO: @vfs-mhv-integration to remove feature toggle
+      return nil unless Flipper.enabled?(:va_profile_includes_preferred_name, user)
       return nil unless DemographicsPolicy.new(user).access? && MPIPolicy.new(user).queryable?
 
       @demographics_info ||= VAProfileRedis::Demographics.for_user(user)
