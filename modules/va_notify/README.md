@@ -122,3 +122,68 @@ A successful request to VA Notify API does not necessarily mean that your intend
 To track the delivery status of individual notifications you will need to set up service callbacks. These callbacks will allow you to determine the delivery status of each notification that you send. Here is some [documentation](https://github.com/department-of-veterans-affairs/va.gov-team/tree/master/products/va-notify#delivery-status-callbacks) regarding the callbacks that VA Notify provides (not `vets-api` specific).
 
 Please note, currently callbacks are limited to 1 per service. If you are in a shared service or need different callback webhooks by use case please contact VA Notify. We are actively working on an enhancement to support this!
+
+### VA Notify Callback Integration Guide for Vets-API
+
+To effectively track the status of individual notifications, you need to set up service callbacks that VA Notify provides. These callbacks will allow you to determine if each notification you send was successfully delivered, or if it failed. The delivery status callbacks provide real-time feedback, enabling you to monitor the delivery process and handle any issues.
+
+#### Why Teams Need to Integrate with Callback Logic
+
+A successful request to the VA Notify API does not guarantee that the recipient will receive the notification. Callbacks are crucial because they provide updates on the actual delivery status of each notification sent. Without callbacks, teams would be unaware of issues such as email hard bounces, soft bounces, or other delivery problems. Integrating callback logic allows teams to:
+
+- Monitor delivery success rates and identify issues in real time.
+
+- Improve user experience by taking timely corrective actions when notifications fail.
+
+- Maintain compliance and consistency in Veteran communications.
+
+- Ensure that alternative contact methods can be utilized in case of persistent issues.
+
+#### How Teams Can Integrate with Callbacks
+
+To integrate with our callback system, follow these simple steps:
+
+1. Create a Callback Handler Class: Define a class in your module to handle callbacks, which must implement a class-level method `.call`.
+
+2. Define Your Callback Endpoint: Your team will need to implement an endpoint to receive callbacks from VA Notify. Below is an example of how to define a simple endpoint in Ruby on Rails:
+
+3. Integrate Callback Logic in Notification Triggers: Behind a feature flag, choose one of your notification triggers and update the way you are invoking VA Notify to pass in your callback data.
+
+Here is an example:
+```
+  if Flipper.enabled?(:simple_forms_notification_callbacks)
+    VANotify::EmailJob.perform_async(
+            user.va_profile_email,
+            template_id,
+            get_personalization(first_name),
+            Settings.vanotify.services.va_gov.api_key,
+            { callback: 'SimpleFormsApi::NotificationCallbacks', metadata: 'option metadata here - maybe form number?'}
+    )
+    else 
+      # existing notification sending logic
+  end
+```
+
+4. Register the Endpoint: Share your callback endpoint URL with the VA Notify team. Make sure the endpoint supports the expected request format and that it's secure (using token-based authentication).
+
+5. Token Authentication: Your endpoint must support token-based authentication to verify requests from VA Notify. Implement this by validating the incoming token with the one you receive from our configuration settings, as shown in our example.
+
+#### Behind the Scenes: How Callbacks Work
+
+1. Here's a high-level overview of what happens behind the scenes when using VA Notify callbacks:
+
+2. Notification Sending: When a notification is sent via the VA Notify API, a notification_id is generated and returned. This ID should be saved to track the delivery status.
+
+3. Delivery Processing: VA Notify attempts to deliver the notification using its internal delivery workflow. This includes retries for temporary issues and contact lookups if an ICN is used.
+
+4. Callback Triggered: As the delivery progresses, VA Notify sends status updates to the configured callback URL. Updates may include statuses like "delivered," "failed," or "temporary failure."
+
+5. Handling Callback: Your application receives the callback and processes it to determine if further action is needed—such as notifying the user of a failed delivery, retrying, or marking the notification as successfully delivered.
+
+6. Retries and Undelivered Notifications: If the callback indicates a failure, retry logic can be implemented to attempt resending. If failures persist, the notification might end up in a "dead" state, prompting alternative communication methods.
+
+#### Contact Us
+
+If you need any further clarification or help during the integration process, feel free to reach out:
+
+- Slack Channel: #va-notify-public
