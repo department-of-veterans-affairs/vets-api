@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'logging/call_location'
 require 'va_notify/service'
 require 'zero_silent_failures/monitor'
 
@@ -59,7 +60,7 @@ module EVSS
       ensure
         StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
         cl = caller_locations.first
-        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
         user_account_id = begin
           Form526Submission.find(form526_submission_id).user_account_id
         rescue
@@ -115,7 +116,7 @@ module EVSS
         Rails.logger.info('Form4142DocumentUploadFailureEmail notification dispatched', log_info)
 
         cl = caller_locations.first
-        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
         zsf_monitor.log_silent_failure_avoided(
           log_info.merge(email_confirmation_id: email_response&.id),
           Form526Submission.find(form526_submission_id).user_account_id,

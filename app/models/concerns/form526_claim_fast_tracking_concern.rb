@@ -297,7 +297,7 @@ module Form526ClaimFastTrackingConcern
   # value outdated if using the same Form526Submission instance.
   def open_claims
     @open_claims ||= begin
-      icn = UserAccount.where(id: user_account_id).first&.icn
+      icn = account.icn
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:claims],
         provider: nil,
