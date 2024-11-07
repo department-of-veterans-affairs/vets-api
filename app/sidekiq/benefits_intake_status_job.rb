@@ -66,9 +66,7 @@ class BenefitsIntakeStatusJob
 
     response.body['data']&.each do |submission|
       uuid = submission['id']
-      form_submission_attempt = FormSubmissionAttempt
-                                .where(aasm_state: 'pending')
-                                .index_by(&:benefits_intake_uuid)[uuid]
+      form_submission_attempt = form_submission_attempts_hash[uuid]
       form_submission = form_submission_attempt&.form_submission
       form_id = form_submission&.form_type
       saved_claim_id = form_submission&.saved_claim_id
@@ -162,8 +160,8 @@ class BenefitsIntakeStatusJob
   # rubocop:enable Metrics/MethodLength
 
   def form_submission_attempts_hash
-    @form_submission_attempts_hash ||= FormSubmissionAttempt
-                                       .where(aasm_state: 'pending')
-                                       .index_by(&:benefits_intake_uuid)
+    @_form_submission_attempts_hash ||= FormSubmissionAttempt
+                                        .where(aasm_state: 'pending')
+                                        .index_by(&:benefits_intake_uuid)
   end
 end
