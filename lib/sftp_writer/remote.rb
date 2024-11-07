@@ -42,7 +42,7 @@ module SFTPWriter
       path = File.join([write_path(filename), sanitize(filename)].compact)
       @logger.info("Writing #{path}")
       mkdir_safe(path)
-      sftp.upload!(StringIO.new(contents), path) if ENV['HOSTNAME'].eql?('api.va.gov') # only sftp on production
+      sftp.upload!(StringIO.new(contents), path) if ENV['SETTINGS__HOSTNAME'].eql?('api.va.gov') # only sftp on production
     end
 
     private

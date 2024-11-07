@@ -144,7 +144,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     context 'with records in production', run_at: '2016-09-16 03:00:00 EDT' do
       before do
-        ENV['HOSTNAME'] = 'api.va.gov' # Mock how this is set in production
+        ENV['SETTINGS__HOSTNAME'] = 'api.va.gov' # Mock how this is set in production
         application_1606.saved_claim.form = {}.to_json
         FactoryBot.create(:va1990_western_region)
         FactoryBot.create(:va1995_full_form)
@@ -153,7 +153,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       after do
-        ENV['HOSTNAME'] = nil
+        ENV['SETTINGS__HOSTNAME'] = nil
       end
 
       it 'does not process the valid messages' do
@@ -307,7 +307,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     it 'writes files out over sftp' do
       # we're only pushing spool files on production, b/c of issues with staging data getting into TIMS at RPO's
       allow(Rails.env).to receive(:production?).and_return(true)
-      ENV['HOSTNAME'] = 'api.va.gov'
+      ENV['SETTINGS__HOSTNAME'] = 'api.va.gov'
       expect(EducationBenefitsClaim.unprocessed).not_to be_empty
       expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
 
