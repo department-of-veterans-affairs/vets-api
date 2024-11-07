@@ -25,16 +25,7 @@ class BenefitsIntakeStatusJob
 
   def perform
     Rails.logger.info('BenefitsIntakeStatusJob started')
-    form_submissions_and_attempts = FormSubmission.joins(:form_submission_attempts)
-    resolved_form_submission_ids = form_submissions_and_attempts
-                                   .where(form_submission_attempts: { aasm_state: %w[vbms failure] })
-                                   .pluck(:id)
-    pending_form_submission_attempts = FormSubmissionAttempt
-                                       .where(aasm_state: 'pending')
-                                       .where.not(form_submission_id: resolved_form_submission_ids)
-    # We're calculating the resolved_form_submission_ids and removing them because it is possible for a FormSubmission
-    # to have two (or more) attempts, one 'pending' and the other 'vbms'. In such cases we don't want to include
-    # that FormSubmission because it has been resolved.
+    pending_form_submission_attempts = FormSubmissionAttempt.where(aasm_state: 'pending')
     total_handled, result = batch_process(pending_form_submission_attempts)
     Rails.logger.info('BenefitsIntakeStatusJob ended', total_handled:) if result
   end
@@ -64,7 +55,7 @@ class BenefitsIntakeStatusJob
   end
 
   # rubocop:disable Metrics/MethodLength
-  def handle_response(response, pending_form_submission_attempts)
+  def handle_response(response)
     total_handled = 0
 
     # Ensure response body contains data, and log the data for debugging
@@ -75,14 +66,10 @@ class BenefitsIntakeStatusJob
 
     response.body['data']&.each do |submission|
       uuid = submission['id']
-      form_submission_attempt = pending_form_submission_attempts.find do |submission_attempt_from_db|
-        submission_attempt_from_db&.benefits_intake_uuid == uuid
-      end
-
+      form_submission_attempt = form_submission_attempts_hash[uuid]
       form_submission = form_submission_attempt&.form_submission
       form_id = form_submission&.form_type
       saved_claim_id = form_submission&.saved_claim_id
-
       time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
 
       # https://developer.va.gov/explore/api/benefits-intake/docs
@@ -171,4 +158,10 @@ class BenefitsIntakeStatusJob
     end
   end
   # rubocop:enable Metrics/MethodLength
+
+  def form_submission_attempts_hash
+    @form_submission_attempts_hash ||= FormSubmissionAttempt
+                                       .where(aasm_state: 'pending')
+                                       .index_by(&:benefits_intake_uuid)
+  end
 end
