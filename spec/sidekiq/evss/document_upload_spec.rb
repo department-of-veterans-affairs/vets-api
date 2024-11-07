@@ -34,9 +34,11 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       'failed_at' => issue_instant
     }
   end
+  let(:tags) { subject::DD_ZSF_TAGS }
 
   before do
     allow(Rails.logger).to receive(:info)
+    allow(StatsD).to receive(:increment)
   end
 
   it 'retrieves the file and uploads to EVSS' do
@@ -76,6 +78,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         expect(Rails.logger)
           .to receive(:info)
           .with('EVSS::DocumentUpload exhaustion handler email queued')
+        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
       end
     end
   end
