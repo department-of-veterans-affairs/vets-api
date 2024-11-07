@@ -19,9 +19,10 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
   subject(:saved_claim) { described_class.new(form: form_data) }
 
   let(:form_data) { { some_key: 'some_value' }.to_json }
+  let(:schema) { 'schema_content' }
 
   before do
-    allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return('schema_content')
+    allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
     allow(JSON::Validator).to receive_messages(fully_validate_schema: [], fully_validate: [])
   end
 
@@ -79,7 +80,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
         it 'logs exception and raises exception' do
           expect(Rails.logger).to receive(:error)
-            .with('Error during schema validation!', { error: exception.message, backtrace: anything })
+            .with('Error during schema validation!', { error: exception.message, backtrace: anything, schema: })
 
           expect { saved_claim.validate }.to raise_error(exception.class, exception.message)
         end
@@ -95,7 +96,15 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
         it 'logs exception and raises exception' do
           expect(Rails.logger).to receive(:error)
-            .with('Error during form validation!', { error: exception.message, backtrace: anything })
+            .with('Error during form validation!', { error: exception.message, backtrace: anything, schema:,
+                                                     clear_cache: false })
+
+          expect(PersonalInformationLog).to receive(:create).with(
+            data: { schema: schema,
+                    parsed_form: saved_claim.parsed_form,
+                    params: { errors_as_objects: true, clear_cache: false } },
+            error_class: 'SavedClaim SchemaValidationError'
+          )
 
           expect { saved_claim.validate }.to raise_error(exception.class, exception.message)
         end
