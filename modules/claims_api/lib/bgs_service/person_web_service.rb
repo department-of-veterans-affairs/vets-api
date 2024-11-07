@@ -35,5 +35,18 @@ module ClaimsApi
 
       make_request(endpoint: bean_name, action: 'managePtcpntRlnshpPoa', body:, key: 'PtcpntRlnshpDTO')
     end
+
+    # finds a PERSON row by SSN
+    def find_by_ssn(ssn)
+      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <ssn />
+      EOXML
+
+      { ssn: }.each do |k, v|
+        body.xpath("./*[local-name()='#{k}']")[0].content = v
+      end
+
+      make_request(endpoint: bean_name, action: 'findPersonBySSN', body:, key: 'PersonDTO')
+    end
   end
 end
