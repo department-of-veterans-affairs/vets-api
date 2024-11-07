@@ -539,9 +539,14 @@ describe SimpleFormsApi::NotificationEmail do
               'applicant' => {
                 'applicant_relationship_to_claimant' => 'Self'
               },
+              'claimant' => {
+                'name' => {
+                  'first' => 'Freddy'
+                }
+              }
               'veteran' => {
                 'current_name' => {
-                  'first' => 'Freddy'
+                  'first' => 'Bob'
                 }
               }
             }
@@ -558,11 +563,16 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'application' => {
               'applicant' => {
-                'applicant_relationship_to_claimant' => 'Authorized Agent/Rep'
+                'applicant_relationship_to_claimant' => 'Authorized Agent/Rep',
+                'name'=>{
+                  'first'=> 'Jason'{
+
+                  }
+                }
               },
               'claimant' => {
                 'name' => {
-                  'first' => 'Jason'
+                  'first' => 'Charles'
                 }
               }
             }
