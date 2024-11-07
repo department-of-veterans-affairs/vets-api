@@ -11,7 +11,7 @@ module BGS
 
     attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
 
-    sidekiq_options retry: 1
+    sidekiq_options retry: 14
 
     sidekiq_retries_exhausted do |msg, _error|
       user_uuid, icn, saved_claim_id, encrypted_vet_info = msg['args']
