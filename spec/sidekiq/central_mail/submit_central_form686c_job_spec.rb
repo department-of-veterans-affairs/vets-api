@@ -104,7 +104,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
       expect(FormSubmission).to receive(:create).with(
         form_type: '686C-674',
         saved_claim: claim,
-        user_account: nil,
+        user_account: nil
       ).and_return(FormSubmission.new)
       expect(FormSubmissionAttempt).to receive(:create).with(form_submission: an_instance_of(FormSubmission),
                                                              benefits_intake_uuid: 'uuid')
@@ -265,40 +265,80 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
     end
 
     it 'logs a distinct error when retries are exhausted' do
-      CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }) do
+      CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
+        { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
+      ) do
         exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
         expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg)
       end
     end
   end
 
-  # describe 'sidekiq_retries_exhausted block with flipper on' do
-  #   before do
-  #     allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
-  #     allow(Dependents::Monitor).to receive(:new).and_return(monitor)
-  #     allow(monitor).to receive :track_submission_exhaustion
-  #     Flipper.enable(:dependents_trigger_action_needed_email)
-  #   end
-  #   it 'logs the error to zsf and sends an email with the 686C template' do
-  #     CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block do
-  #       expect(Rails.logger).to receive(:error).exactly(:once)
-  #       expect(StatsD).to receive(:increment).with('worker.submit_686c_674_backup_submission.exhausted')
-  #     end
-  #   end
+  describe 'sidekiq_retries_exhausted block with flipper on' do
+    before do
+      allow(SavedClaim::DependencyClaim).to receive(:find).and_return(claim)
+      allow(Dependents::Monitor).to receive(:new).and_return(monitor)
+      allow(monitor).to receive :track_submission_exhaustion
+      Flipper.enable(:dependents_trigger_action_needed_email)
+    end
 
-  #   it 'logs the error to zsf and sends an email with the 674 template' do
-  #     CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block do
-  #       expect(Rails.logger).to receive(:error).exactly(:once)
-  #       expect(StatsD).to receive(:increment).with('worker.submit_686c_674_backup_submission.exhausted')
-  #     end
-  #   end
+    it 'logs the error to zsf and sends an email with the 686C template' do
+      CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
+        { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
+      ) do
+        exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
+        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg)
+        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
+        claim.parsed_form['view:selectable686_options']['report674'] = false
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          'vets.gov.user+228@gmail.com',
+          'form21_686c_action_needed_email_template_id',
+          {
+            'first_name' => 'MARK',
+            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => claim.confirmation_number
+          }
+        )
+      end
+    end
 
-  #   it 'logs the error to zsf and sends an email with the 686C-674 template' do
-  #     CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block do
-  #       expect(Rails.logger).to receive(:error).exactly(:once)
-  #       expect(StatsD).to receive(:increment).with('worker.submit_686c_674_backup_submission.exhausted')
-  #     end
-  #   end
-  # end
-  
+    it 'logs the error to zsf and sends an email with the 674 template' do
+      CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
+        { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
+      ) do
+        exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
+        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg)
+        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
+        claim.parsed_form['view:selectable686_options'].delete('add_child')
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          'vets.gov.user+228@gmail.com',
+          'form21_674_action_needed_email_template_id',
+          {
+            'first_name' => 'MARK',
+            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => claim.confirmation_number
+          }
+        )
+      end
+    end
+
+    it 'logs the error to zsf and sends an email with the 686C-674 template' do
+      CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
+        { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
+      ) do
+        exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
+        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg)
+        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
+        expect(VANotify::EmailJob).to receive(:perform_async).with(
+          'vets.gov.user+228@gmail.com',
+          'form21_686c_674_action_needed_email_template_id',
+          {
+            'first_name' => 'MARK',
+            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => claim.confirmation_number
+          }
+        )
+      end
+    end
+  end
 end
