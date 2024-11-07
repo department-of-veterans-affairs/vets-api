@@ -7,6 +7,7 @@ require 'sidekiq'
 module IvcChampva
   class MissingFormStatusJob
     include Sidekiq::Job
+    sidekiq_options retry: 3
 
     def perform
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
