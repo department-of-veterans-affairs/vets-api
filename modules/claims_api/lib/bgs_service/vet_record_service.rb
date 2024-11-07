@@ -12,7 +12,7 @@ module ClaimsApi
           <CLAIM_NUMBER>#{options[:file_number][:file_nbr]}</CLAIM_NUMBER>
           <SOC_SEC_NUM>#{options[:ssn]}</SOC_SEC_NUM>
           <POWER_OF_ATTY_CODE1>#{options[:poa_code]}</POWER_OF_ATTY_CODE1>
-          <PAYEE_NUMBER>?</PAYEE_NUMBER>
+          <PAYEE_NUMBER>'00'</PAYEE_NUMBER>
         </birlsUpdateInput>
       EOML
 

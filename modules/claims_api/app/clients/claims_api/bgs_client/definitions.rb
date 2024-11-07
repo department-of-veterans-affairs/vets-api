@@ -368,6 +368,28 @@ module ClaimsApi
       end
 
       ##
+      # VetRecordService
+      ##
+      module VetRecordService
+        DEFINITION =
+          Bean.new(
+            path: 'VetRecordService',
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module UpdateBirlsRecord
+        DEFINITION =
+          Action.new(
+            service: VetRecordService::DEFINITION,
+            name: 'updateBirlsRecord',
+            key: 'return'
+          )
+      end
+
       # VnpAtchmsWebServiceBean
       #
       module VnpAtchmsWebServiceBean
