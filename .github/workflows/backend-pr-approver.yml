@@ -1,13 +1,30 @@
 name: Backend PR Approver
 on:
-  workflow_run:
-    workflows: 
-      - "Backend PR Labeler"
-    types: [completed]
+  pull_request:
+    types: [labeled, unlabeled]
 jobs:
-  say-hi:
+  check-approval-labels:
+    if: github.event.label.name == 'require-backend-approval' || github.event.label.name == 'ready-for-backend-review'
     runs-on: ubuntu-latest
     steps:
-      - name: Say Hi
+      - name: Check for exemption
+        id: check_exemption
         run: |
-          echo "Hi"
+          if [ ! ${{ contains(toJSON(github.event.pull_request.requested_teams.*.name), 'backend-review-group') }} ]; then
+            echo "exempt=true" >> $GITHUB_OUTPUT
+            echo "PR is exempt from backend approval."
+          else
+            echo "exempt=false" >> $GITHUB_OUTPUT
+            echo "PR requires backend approval."
+          fi
+
+      - name: Check for backend approval
+        id: check_approval
+        if: ${{ steps.check_exemption.outputs.exempt == 'false' }}
+        run: |
+          if [ ${{ contains(toJSON(github.event.pull_request.labels.*.name), 'require-backend-approval') && contains(toJSON(github.event.pull_request.labels.*.name), 'ready-for-backend-review') }} ]; then
+            echo "Pull Request missing approval."
+            exit 1
+          else
+            echo "Pull Request approved."
+          fi
