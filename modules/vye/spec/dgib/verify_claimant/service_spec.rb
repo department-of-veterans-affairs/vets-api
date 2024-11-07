@@ -9,7 +9,9 @@ RSpec.describe Vye::DGIB::VerifyClaimant::Service do
   let(:claimant_id) { 600_010_259 }
   let(:verified_period_begin_date) { Date.new(2022, 2, 9) }
   let(:verified_period_end_date) { Date.new(2022, 3, 9) }
-  let(:verfied_through_date) { Date.new(2022, 4, 9) }
+  let(:verified_through_date) { Date.new(2022, 4, 9) }
+  let(:verification_method) { 'VYE' }
+  let(:response_type) { 'Y' }
 
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:service) { Vye::DGIB::VerifyClaimant::Service.new(user) }
@@ -20,7 +22,14 @@ RSpec.describe Vye::DGIB::VerifyClaimant::Service do
   describe '#get_verification_record' do
     before do
       allow(service).to receive(:verify_claimant)
-        .with(claimant_id, verified_period_begin_date, verified_period_end_date, verfied_through_date)
+        .with(
+          claimant_id,
+          verified_period_begin_date,
+          verified_period_end_date,
+          verified_through_date,
+          verification_method,
+          response_type
+        )
         .and_return(successful_mocked_response)
     end
 
@@ -31,7 +40,9 @@ RSpec.describe Vye::DGIB::VerifyClaimant::Service do
                      .verify_claimant(claimant_id,
                                       verified_period_begin_date,
                                       verified_period_end_date,
-                                      verfied_through_date)
+                                      verified_through_date,
+                                      verification_method,
+                                      response_type)
 
           expect(response.status).to eq(200)
           expect(response.ok?).to be(true)
