@@ -220,6 +220,10 @@ features:
     actor_type: user
     description: When enabled, sends ews forms to BD via the refactored logic
     enable_in_development: true
+  claims_api_poa_updater_enables_local_bgs:
+    actor_type: user
+    description: Uses local_bgs rather than bgs-ext
+    enable_in_development: true
   claims_api_poa_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends poa forms to BD via the refactored logic
