@@ -865,6 +865,10 @@ features:
     actor_type: user
     descriptiom: Enables access to MHV Account Creation API
     enable_in_development: true
+  mhv_accelerated_delivery_allergies_enabled:
+    actor_type: user
+    description: Control fetching OH allergies data
+    enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health

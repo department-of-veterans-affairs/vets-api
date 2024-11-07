@@ -21,17 +21,15 @@ RSpec.describe Burials::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           message: monitor_error.message,
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           claim_stats_key,
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
         monitor.track_show404(claim.confirmation_number, current_user, monitor_error)
       end
@@ -44,17 +42,15 @@ RSpec.describe Burials::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           message: monitor_error.message,
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           claim_stats_key,
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
         monitor.track_show_error(claim.confirmation_number, current_user, monitor_error)
       end
@@ -66,17 +62,15 @@ RSpec.describe Burials::Monitor do
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           "#{claim_stats_key}.attempt",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
         monitor.track_create_attempt(claim, current_user)
       end
@@ -90,17 +84,15 @@ RSpec.describe Burials::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
           errors: [],
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           "#{claim_stats_key}.validation_error",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
         monitor.track_create_validation_error(ipf, claim, current_user)
       end
@@ -114,17 +106,15 @@ RSpec.describe Burials::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
           errors: [],
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           "#{claim_stats_key}.process_attachment_error",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
         monitor.track_process_attachment_error(ipf, claim, current_user)
       end
@@ -139,17 +129,15 @@ RSpec.describe Burials::Monitor do
           in_progress_form_id: ipf.id,
           errors: [],
           message: monitor_error.message,
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           "#{claim_stats_key}.failure",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
         monitor.track_create_error(ipf, claim, current_user, monitor_error)
       end
@@ -163,17 +151,15 @@ RSpec.describe Burials::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
           errors: [],
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+        expect(monitor).to receive(:track_request).with(
           'info',
           log,
           "#{claim_stats_key}.success",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
         monitor.track_create_success(ipf, claim, current_user)
       end
@@ -181,28 +167,28 @@ RSpec.describe Burials::Monitor do
 
     describe '#track_submission_exhaustion' do
       it 'logs sidekiq job exhaustion' do
-        log = 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!'
         msg = { 'args' => [claim.id, current_user.uuid] }
-        user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
+
+        log = 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!'
         payload = {
           confirmation_number: claim.confirmation_number,
-          user_account_uuid: user_account_uuid,
+          user_account_uuid: current_user.uuid,
           form_id: claim.form_id,
-          claim_id: claim.id,
+          claim_id: claim.id, # pulled from msg.args
           message: msg,
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
         expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
-        expect_any_instance_of(Logging::Monitor).to receive(:track_request).with(
+
+        expect(monitor).to receive(:track_request).with(
           'error',
           log,
           "#{submission_stats_key}.exhausted",
-          payload,
-          anything
+          call_location: anything,
+          **payload
         )
+
         monitor.track_submission_exhaustion(msg, claim)
       end
     end
