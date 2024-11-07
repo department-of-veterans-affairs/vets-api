@@ -9,56 +9,44 @@ module Vye
   module Vye::V1
     class Vye::V1::DgibVerificationsController < Vye::V1::ApplicationController
       def verification_record
-        authorized = authorize user_info, policy_class: UserInfoPolicy
-        if authorized
-          Rails.logger.debug 'Calling verification_record'
-          response = verification_service.get_verification_record(params[:claimant_id])
-          serializer = Vye::ClaimantVerificationSerializer
-          process_response(response, serializer)
-        else
-          head :forbidden
-        end
+        head :forbidden unless authorize(user_info, policy_class: UserInfoPolicy)
+
+        response = verification_service.get_verification_record(params[:claimant_id])
+        serializer = Vye::ClaimantVerificationSerializer
+        process_response(response, serializer)
       end
 
       def verify_claimant
-        authorized = authorize user_info, policy_class: UserInfoPolicy
-        if authorized
-          response = verify_claimant_service.verify_claimant(
-            params[:claimant_id],
-            params[:verified_period_begin_date],
-            params[:verified_period_end_date],
-            params[:verified_through_date],
-            params[:verification_method],
-            params.dig(:app_communication, :response_type)
-          )
-          serializer = Vye::VerifyClaimantSerializer
-          process_response(response, serializer)
-        else
-          head :forbidden
-        end
+        head :forbidden unless authorize(user_info, policy_class: UserInfoPolicy)
+        
+        response = verify_claimant_service.verify_claimant(
+          params[:claimant_id],
+          params[:verified_period_begin_date],
+          params[:verified_period_end_date],
+          params[:verified_through_date],
+          params[:verification_method],
+          params.dig(:app_communication, :response_type)
+        )
+
+        serializer = Vye::VerifyClaimantSerializer
+        process_response(response, serializer)
       end
 
       # the serializer for this endpoint is the same as for verify_claimant
       def claimant_status
-        authorized = authorize user_info, policy_class: UserInfoPolicy
-        if authorized
-          response = claimant_status_service.get_claimant_status(params[:claimant_id])
-          serializer = Vye::VerifyClaimantSerializer
-          process_response(response, serializer)
-        else
-          head :forbidden
-        end
+        head :forbidden unless authorize(user_info, policy_class: UserInfoPolicy)
+        
+        response = claimant_status_service.get_claimant_status(params[:claimant_id])
+        serializer = Vye::VerifyClaimantSerializer
+        process_response(response, serializer)
       end
 
       def claimant_lookup
-        authorized = authorize user_info, policy_class: UserInfoPolicy
-        if authorized
-          response = claimant_lookup_service.claimant_lookup(current_user.ssn)
-          serializer = Vye::ClaimantLookupSerializer
-          process_response(response, serializer)
-        else
-          head :forbidden
-        end
+        head :forbidden unless authorize(user_info, policy_class: UserInfoPolicy)
+        
+        response = claimant_lookup_service.claimant_lookup(current_user.ssn)
+        serializer = Vye::ClaimantLookupSerializer
+        process_response(response, serializer)
       end
 
       private
