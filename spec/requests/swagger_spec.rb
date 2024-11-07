@@ -26,6 +26,7 @@ RSpec.describe 'API doc validations', type: :request do
   end
 end
 
+
 RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :defined do
   include AuthenticatedSessionHelper
 
