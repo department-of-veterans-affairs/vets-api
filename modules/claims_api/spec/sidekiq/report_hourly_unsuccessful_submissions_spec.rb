@@ -53,6 +53,7 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         subject.perform
       end
 
+      # rubocop:disable RSpec/NoExpectationExample
       it 'does not repeat an alert based on transaction id' do
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
                                                             .and_return(true)
@@ -69,6 +70,7 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         claim_four = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
                                                                                  transaction_id: 'transaction_3',
                                                                                  id: '4')
+
         expected_vagov_claims = [claim_three.id, claim_four.id]
         expected_absent_values = [claim_one.id, claim_two.id]
 
@@ -80,24 +82,79 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
           ['ews1']
         ]
 
-        # rubocop:disable RSpec/SubjectStub
-        expect(subject).to receive(:notify) do |*args|
-          args.each_with_index do |arg, idx|
-            if [5, 6, 7].include?(idx)
-              expect(arg).to be_a(String)
-            elsif idx == 1
-              expect(arg.flatten).to include(*expected_vagov_claims)
-              expect(arg.flatten).not_to include(*expected_absent_values)
-            else
-              expect(expected_present_values).to include(arg)
-              expect(expected_absent_values.flatten).not_to include(arg)
-            end
-          end
-        end
-        # rubocop:enable RSpec/SubjectStub
+        expected_results(expected_vagov_claims, expected_absent_values, expected_present_values)
 
         subject.perform
       end
+
+      it 'does not alert for claims with specific errors' do
+        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
+                                                            .and_return(true)
+
+        claim_one = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                                transaction_id: 'transaction_1',
+                                                                                id: '1')
+        claim_two = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
+                                                                                transaction_id: 'transaction_1',
+                                                                                id: '2')
+        claim_three = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                                  transaction_id: 'transaction_2',
+                                                                                  id: '3')
+        claim_four = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                                 transaction_id: 'transaction_3',
+                                                                                 id: '4')
+
+        FactoryBot.create(:auto_established_claim_va_gov,
+                          :errored,
+                          created_at: 30.seconds.ago,
+                          evss_response: "[{'status'=>'422', " \
+                                         "'title'=>'Backend Service Exception', " \
+                                         "'detail'=>'The Maximum number of EP codes have been " \
+                                         "reached for this benefit type claim code'}]",
+                          transaction_id: 'transaction_4')
+
+        FactoryBot.create(:auto_established_claim_va_gov,
+                          :errored,
+                          created_at: 120.seconds.ago,
+                          evss_response: "[{'status'=>'422', " \
+                                         "'title'=>'Backend Service Exception', " \
+                                         "'detail'=>'Claim could not be established. Retries will fail.'}]",
+                          transaction_id: 'transaction_5')
+
+        expected_vagov_claims = [claim_three.id, claim_four.id]
+        expected_absent_values = [claim_one.id, claim_two.id]
+
+        expected_present_values = [
+          [],
+          expected_vagov_claims,
+          ['poa1'],
+          ['itf1'],
+          ['ews1']
+        ]
+
+        expected_results(expected_vagov_claims, expected_absent_values, expected_present_values)
+
+        subject.perform
+      end
+    end
+    # rubocop:enable RSpec/NoExpectationExample
+
+    def expected_results(expected_vagov_claims, expected_absent_values, expected_present_values)
+      # rubocop:disable RSpec/SubjectStub
+      expect(subject).to receive(:notify) do |*args|
+        args.each_with_index do |arg, idx|
+          if [5, 6, 7].include?(idx)
+            expect(arg).to be_a(String)
+          elsif idx == 1
+            expect(arg.flatten).to include(*expected_vagov_claims)
+            expect(arg.flatten).not_to include(*expected_absent_values)
+          else
+            expect(expected_present_values).to include(arg)
+            expect(expected_absent_values.flatten).not_to include(arg)
+          end
+        end
+      end
+      # rubocop:enable RSpec/SubjectStub
     end
 
     context 'when flipper is not enabled' do
