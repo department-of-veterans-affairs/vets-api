@@ -12,6 +12,7 @@ module ClaimsApi
 
           @supporting_documents = []
           file_number = get_file_number
+          return [] if file_number.nil?
 
           docs = if benefits_documents_enabled?
                    claims_v2_logging('benefits_documents',
@@ -52,7 +53,7 @@ module ClaimsApi
             claims_v2_logging('benefits_documents',
                               message: "calling benefits documents api for claim_id: #{params[:id]} " \
                                        'returned a nil file number in claims controller v2')
-            return []
+            return nil
           end
           file_number
         end
