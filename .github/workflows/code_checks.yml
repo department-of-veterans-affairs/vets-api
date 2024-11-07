@@ -101,21 +101,21 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Remove Test Passing label
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'test-passing')
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            test-passing
+      # - name: Remove Test Passing label
+      #   if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'test-passing')
+      #   uses: actions-ecosystem/action-remove-labels@v1
+      #   with:
+      #     number: ${{ github.event.pull_request.number }}
+      #     labels: |
+      #       test-passing
 
-      - name: Remove Test Failure label
-        if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'test-passing')
-        uses: actions-ecosystem/action-remove-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            test-failure
+      # - name: Remove Test Failure label
+      #   if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'test-passing')
+      #   uses: actions-ecosystem/action-remove-labels@v1
+      #   with:
+      #     number: ${{ github.event.pull_request.number }}
+      #     labels: |
+      #       test-failure
 
       - name: Setup Database
         uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
@@ -174,21 +174,21 @@ jobs:
           echo "Event Name: ${{ github.event_name }}"
           echo '${{ toJSON(github.event.pull_request) }}' | jq .
 
-      - name: Add Test Failure label
-        if: ${{ needs.test-status.outputs.status == 'failure' }}
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            test-failure
+      # - name: Add Test Failure label
+      #   if: ${{ needs.test-status.outputs.status == 'failure' }}
+      #   uses: actions-ecosystem/action-add-labels@v1
+      #   with:
+      #     number: ${{ github.event.pull_request.number }}
+      #     labels: |
+      #       test-failure
 
-      - name: Add Test Passing label
-        if: ${{ needs.test-status.outputs.status == 'success' }}
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            test-passing
+      # - name: Add Test Passing label
+      #   if: ${{ needs.test-status.outputs.status == 'success' }}
+      #   uses: actions-ecosystem/action-add-labels@v1
+      #   with:
+      #     number: ${{ github.event.pull_request.number }}
+      #     labels: |
+      #       test-passing
 
   publish_results:
     name: Publish Test Results and Coverage
