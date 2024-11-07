@@ -60,7 +60,8 @@ RSpec.describe BenefitsClaims::Service do
             response = @service.get_claims
             # In the cassette, the status is NEEDED_FROM_YOU
             expect(response.dig('data', 0, 'attributes', 'trackedItems', 0, 'status')).to eq('NEEDED_FROM_OTHERS')
-            expect(response.dig('data', 0, 'attributes', 'trackedItems', 0, 'displayName')).to eq('Private Medical Record')
+            expect(response.dig('data', 0, 'attributes', 'trackedItems', 0, 'displayName'))
+              .to eq('Private Medical Record')
           end
         end
       end
