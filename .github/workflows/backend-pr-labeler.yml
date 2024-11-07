@@ -42,7 +42,7 @@ jobs:
       - name: Check for exemption
         id: check_exemption
         run: |
-          if [ ! ${{ contains(toJSON(steps.get_pr.pull_request.requested_teams.*.name), 'backend-review-group') }} ]; then
+          if [ ! ${{ contains(toJSON(steps.get_pr.outputs.pull_request.requested_teams.*.name), 'backend-review-group') }} ]; then
             echo "exempt=true" >> $GITHUB_OUTPUT
             echo "PR is exempt from backend approval."
           else
@@ -53,7 +53,7 @@ jobs:
       - name: Check Draft state
         id: check_draft
         run: |
-          if ${{ steps.get_pr.pull_request.draft }}; then
+          if ${{ steps.get_pr.outputs.pull_request.draft }}; then
             echo "draft=true" >> $GITHUB_OUTPUT
             echo "Draft PR detected, skipping label checks."
           else
@@ -64,16 +64,16 @@ jobs:
       - name: Check for failure labels
         id: audit_pr_labels
         run: |
-          echo ${{ contains(steps.get_pr.pull_request.labels.*.name, 'test-failure') }}
-          echo ${{ !contains(steps.get_pr.pull_request.labels.*.name, 'test-failure') }}
-          echo ${{ contains(steps.get_pr.pull_request.labels.*.name, 'test-failure') == 'true' }}
-          echo ${{ contains(steps.get_pr.pull_request.labels.*.name, 'test-failure') == 'false' }}
+          echo ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'test-failure') }}
+          echo ${{ !contains(steps.get_pr.outputs.pull_request.labels.*.name, 'test-failure') }}
+          echo ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'test-failure') == 'true' }}
+          echo ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'test-failure') == 'false' }}
           if [[ \
-            ${{ contains(steps.get_pr.pull_request.labels.*.name, 'code-health-failure') == 'true' }} || \
-            ${{ contains(steps.get_pr.pull_request.labels.*.name, 'codeowners-addition-failure') == 'true' }} || \
-            ${{ contains(steps.get_pr.pull_request.labels.*.name, 'codeowners-delete-failure') == 'true' }} || \
-            ${{ contains(steps.get_pr.pull_request.labels.*.name, 'lint-failure') == 'true' }} || \
-            ${{ contains(steps.get_pr.pull_request.labels.*.name, 'test-failure') == 'true' }} \
+            ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'code-health-failure') == 'true' }} || \
+            ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'codeowners-addition-failure') == 'true' }} || \
+            ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'codeowners-delete-failure') == 'true' }} || \
+            ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'lint-failure') == 'true' }} || \
+            ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'test-failure') == 'true' }} \
           ]]; then
             echo "failures_detected=true" >> $GITHUB_OUTPUT
             echo "Failure labels detected."
