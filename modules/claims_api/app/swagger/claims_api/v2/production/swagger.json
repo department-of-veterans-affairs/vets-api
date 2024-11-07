@@ -3,7 +3,7 @@
   "info": {
     "title": "Benefits Claims",
     "version": "v2",
-    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers: \n\n-   Retrieve existing claim information, including status, by claim ID\n-   Automatically establish an Intent To File (21-0966) in VBMS\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS\n-   Digitally submit supporting documentation for disability compensation claims\n-   Retrieve the active Power of Attorney organization of individual with power of attorney for a Veteran\n-   Automatically establish a power of attorney appointment in VBMS for an accredited organization (VA Form 21-22).\n-   Automatically establish a power of attorney appointment in VBMS for an accredited individual (VA Form 21-22a).\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if you are a consumer outside of VA and do not have the necessary VA agreements to use this API.\n    \n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nClaims are first submitted by this API and then established in Veterans Benefits Management System (VBMS). A 200 response means that the claim was successfully submitted by the API. It does not mean VA has received the claim. Use the appropriate GET endpoint and the ID returned with your submission response to confirm the status of the submission. Statuses are:\n\n-   Pending - the claim is successfully submitted for processing\n-   Errored -  the submission encountered upstream errors\n-   Canceled -  the claim was identified as a duplicate or another issue caused the claim to be canceled. For duplicate claims,  the tracking of the claim's progress happens under a different Claim ID . \n\nOther statuses this API returns align with the [VA.gov](http://va.gov/) [claim status descriptions](https://www.va.gov/resources/what-your-claim-status-means/), which are:\n\n-   Claim received\n-   Initial review\n-   Evidence gathering, review, and decision\n-   Preparation for notification\n-   Complete\n\n### Finding a Veteran's unique VA ID\n\nThis API uses a unique Veteran identifier to identify the subject of each API request. This Veteran identifier can be retrieved by passing the Veteran’s first name, last name, DOB, and SSN to the ‘/veteran-id’ endpoint. This identifier should then be used as the Veteran ID parameter in request URLs.\n\nNote: though Veteran identifiers are typically static, they may change over time. If a specific Veteran ID suddenly responds with a ‘404 not found’ error, the identifier may have changed. It’s a good idea to periodically check the identifier for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
+    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers: \n\n-   Retrieve existing claim information, including status, by claim ID.\n-   Automatically establish an Intent To File (21-0966) in VBMS.\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS.\n-   Digitally submit supporting documentation for disability compensation claims.\n-   Retrieve the active Power of Attorney organization of individual with power of attorney for a claimant.\n-   Automatically establish a power of attorney appointment in VBMS for an accredited organization (VA Form 21-22).\n-   Automatically establish a power of attorney appointment in VBMS for an accredited individual (VA Form 21-22a).\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if you are a consumer outside of VA and do not have the necessary VA agreements to use this API.\n    \n## Appointing an accredited representative for dependents\n\nDependents of Veterans, such as spouses, children (biological and step), and parents (biological and foster) may be eligible for VA benefits and can request representation by an accredited representative.\n\nTo file claims through an accredited representative, dependents must appoint their own. Once appointed, the representative will have power of attorney (POA) to assist with the dependentʼs VA claims.\n\nBefore appointing a representative, the dependentʼs relationship to the Veteran must be established. If a new representative is being appointed, the dependentʼs relationship to the Veteran will be validated first. The representative will be appointed to the dependent, not the Veteran.\n\n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nClaims are first submitted by this API and then established in Veterans Benefits Management System (VBMS). A 200 response means that the claim was successfully submitted by the API. It does not mean VA has received the claim. Use the appropriate GET endpoint and the ID returned with your submission response to confirm the status of the submission. Statuses are:\n\n-   Pending - the claim is successfully submitted for processing\n-   Errored -  the submission encountered upstream errors\n-   Canceled -  the claim was identified as a duplicate or another issue caused the claim to be canceled. For duplicate claims,  the tracking of the claim's progress happens under a different Claim ID . \n\nOther statuses this API returns align with the [VA.gov](http://va.gov/) [claim status descriptions](https://www.va.gov/resources/what-your-claim-status-means/), which are:\n\n-   Claim received\n-   Initial review\n-   Evidence gathering, review, and decision\n-   Preparation for notification\n-   Complete\n\n### Finding a Veteran's unique VA ID\n\nThis API uses a unique Veteran identifier to identify the subject of each API request. This Veteran identifier can be retrieved by passing the Veteran’s first name, last name, DOB, and SSN to the ‘/veteran-id’ endpoint. This identifier should then be used as the Veteran ID parameter in request URLs.\n\nNote: though Veteran identifiers are typically static, they may change over time. If a specific Veteran ID suddenly responds with a ‘404 not found’ error, the identifier may have changed. It’s a good idea to periodically check the identifier for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
   },
   "tags": [
     {
@@ -3579,8 +3579,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -3597,10 +3596,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -3690,7 +3685,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "c0d53d35-b874-4b02-ae95-0d0a6d7cb480",
+                        "id": "9b23d156-6ce0-4ad8-8ba2-78d2f65c422c",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3875,7 +3870,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-10-02"
+                              "anticipatedSeparationDate": "2024-10-11"
                             },
                             "confinements": [
                               {
@@ -3921,7 +3916,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "9528cc9f-0346-440f-88db-a1713957486f",
+                        "id": "efa4c6af-6058-42ca-851d-48adcdf256b4",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -7122,8 +7117,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
-                              "separationLocationCode": "98282"
+                              "activeDutyEndDate": "2023-10-30"
                             }
                           ],
                           "servedInActiveCombatSince911": "NO",
@@ -7140,10 +7134,6 @@
                               "phoneNumber": "5555555"
                             },
                             "receivingInactiveDutyTrainingPay": "YES"
-                          },
-                          "federalActivation": {
-                            "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
                           },
                           "confinements": [
                             {
@@ -9139,7 +9129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7a26e7c1-6a02-4d87-82be-73f80c6132cb",
+                    "id": "655cf458-1833-409d-8ecc-d9327d8ccfde",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -11882,127 +11872,176 @@
         ],
         "responses": {
           "200": {
-            "description": "claim response",
+            "description": "errored claim response",
             "content": {
               "application/json": {
-                "example": {
-                  "data": {
-                    "id": "555555555",
-                    "type": "claim",
-                    "attributes": {
-                      "claimTypeCode": "400PREDSCHRG",
-                      "claimDate": "2017-05-02",
-                      "claimPhaseDates": {
-                        "phaseChangeDate": "2017-10-18",
-                        "currentPhaseBack": false,
-                        "latestPhaseType": "COMPLETE",
-                        "previousPhases": {
-                          "phase7CompleteDate": "2017-10-18"
-                        }
-                      },
-                      "claimType": "Compensation",
-                      "closeDate": "2017-10-18",
-                      "contentions": [
-                        {
-                          "name": "abnormal heart (New)"
-                        },
-                        {
-                          "name": "abscess kidney (New)"
-                        },
-                        {
-                          "name": "encephalitis lethargica residuals (New)"
-                        },
-                        {
-                          "name": "dracunculiasis (New)"
-                        },
-                        {
-                          "name": "gingivitis (New)"
-                        },
-                        {
-                          "name": "abnormal weight loss (New)"
-                        },
-                        {
-                          "name": "groin condition (New)"
-                        },
-                        {
-                          "name": "metritis (New)"
-                        }
-                      ],
-                      "decisionLetterSent": false,
-                      "developmentLetterSent": false,
-                      "documentsNeeded": false,
-                      "endProductCode": "404",
-                      "evidenceWaiverSubmitted5103": false,
-                      "errors": [
+                "examples": {
+                  "returns a 200 response for established claim": {
+                    "value": {
+                      "data": {
+                        "id": "555555555",
+                        "type": "claim",
+                        "attributes": {
+                          "claimTypeCode": "400PREDSCHRG",
+                          "claimDate": "2017-05-02",
+                          "claimPhaseDates": {
+                            "phaseChangeDate": "2017-10-18",
+                            "currentPhaseBack": false,
+                            "latestPhaseType": "COMPLETE",
+                            "previousPhases": {
+                              "phase7CompleteDate": "2017-10-18"
+                            }
+                          },
+                          "claimType": "Compensation",
+                          "closeDate": "2017-10-18",
+                          "contentions": [
+                            {
+                              "name": "abnormal heart (New)"
+                            },
+                            {
+                              "name": "abscess kidney (New)"
+                            },
+                            {
+                              "name": "encephalitis lethargica residuals (New)"
+                            },
+                            {
+                              "name": "dracunculiasis (New)"
+                            },
+                            {
+                              "name": "gingivitis (New)"
+                            },
+                            {
+                              "name": "abnormal weight loss (New)"
+                            },
+                            {
+                              "name": "groin condition (New)"
+                            },
+                            {
+                              "name": "metritis (New)"
+                            }
+                          ],
+                          "decisionLetterSent": false,
+                          "developmentLetterSent": false,
+                          "documentsNeeded": false,
+                          "endProductCode": "404",
+                          "evidenceWaiverSubmitted5103": false,
+                          "errors": [
 
-                      ],
-                      "jurisdiction": "National Work Queue",
-                      "lighthouseId": null,
-                      "maxEstClaimDate": null,
-                      "minEstClaimDate": null,
-                      "status": "CANCELED",
-                      "submitterApplicationCode": "EBN",
-                      "submitterRoleCode": "VET",
-                      "supportingDocuments": [
-                        {
-                          "documentId": "{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}",
-                          "documentTypeLabel": "Medical",
-                          "originalFileName": null,
-                          "trackedItemId": null,
-                          "uploadDate": null
+                          ],
+                          "jurisdiction": "National Work Queue",
+                          "lighthouseId": null,
+                          "maxEstClaimDate": null,
+                          "minEstClaimDate": null,
+                          "status": "CANCELED",
+                          "submitterApplicationCode": "EBN",
+                          "submitterRoleCode": "VET",
+                          "supportingDocuments": [
+                            {
+                              "documentId": "{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}",
+                              "documentTypeLabel": "Medical",
+                              "originalFileName": null,
+                              "trackedItemId": null,
+                              "uploadDate": null
+                            }
+                          ],
+                          "tempJurisdiction": null,
+                          "trackedItems": [
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "21-4142a",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293440,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Employment info needed",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293443,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Accidental injury - 21-4176 needed",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293444,
+                              "uploadsAllowed": false
+                            },
+                            {
+                              "closedDate": "2021-06-04",
+                              "description": null,
+                              "displayName": "Buddy mentioned - No complete address",
+                              "overdue": false,
+                              "receivedDate": null,
+                              "requestedDate": "2021-05-05",
+                              "status": "NO_LONGER_REQUIRED",
+                              "suspenseDate": "2021-06-04",
+                              "id": 293446,
+                              "uploadsAllowed": false
+                            }
+                          ]
                         }
-                      ],
-                      "tempJurisdiction": null,
-                      "trackedItems": [
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "21-4142a",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293440,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Employment info needed",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293443,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Accidental injury - 21-4176 needed",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293444,
-                          "uploadsAllowed": false
-                        },
-                        {
-                          "closedDate": "2021-06-04",
-                          "description": null,
-                          "displayName": "Buddy mentioned - No complete address",
-                          "overdue": false,
-                          "receivedDate": null,
-                          "requestedDate": "2021-05-05",
-                          "status": "NO_LONGER_REQUIRED",
-                          "suspenseDate": "2021-06-04",
-                          "id": 293446,
-                          "uploadsAllowed": false
+                      }
+                    }
+                  },
+                  "returns a 200 response for errored claim": {
+                    "value": {
+                      "data": {
+                        "id": null,
+                        "type": "claim",
+                        "attributes": {
+                          "claimTypeCode": null,
+                          "claimDate": null,
+                          "claimPhaseDates": null,
+                          "claimType": null,
+                          "closeDate": null,
+                          "contentions": null,
+                          "decisionLetterSent": null,
+                          "developmentLetterSent": null,
+                          "documentsNeeded": null,
+                          "endProductCode": null,
+                          "evidenceWaiverSubmitted5103": null,
+                          "errors": [
+                            {
+                              "detail": "ERROR must match d{7}",
+                              "source": "form526/serviceInformation/reservesNationalGuardService/unitPhone/phoneNumber/Pattern"
+                            },
+                            {
+                              "detail": "ERROR must match d{7}",
+                              "source": "form526/veteran/homelessness/pointOfContact/primaryPhone/phoneNumber/Pattern"
+                            }
+                          ],
+                          "jurisdiction": null,
+                          "lighthouseId": "d5536c5c-0465-4038-a368-1a9d9daf65c9",
+                          "maxEstClaimDate": null,
+                          "minEstClaimDate": null,
+                          "status": "ERRORED",
+                          "submitterApplicationCode": null,
+                          "submitterRoleCode": null,
+                          "supportingDocuments": [
+
+                          ],
+                          "tempJurisdiction": null,
+                          "trackedItems": [
+
+                          ]
                         }
-                      ]
+                      }
                     }
                   }
                 },
@@ -12386,7 +12425,46 @@
                         }
                       }
                     }
-                  }
+                  },
+                  "benefit_claim_details_dto": {
+                    "attention_needed": "No",
+                    "base_end_prdct_type_cd": "400",
+                    "benefit_claim_id": "555555555",
+                    "bnft_claim_lc_status": {
+                      "phase_chngd_dt": "2017-10-18T08:23:35.000+00:00",
+                      "phase_type": "COMPLETE",
+                      "phase_type_change_ind": "78"
+                    },
+                    "bnft_claim_type_cd": "400PREDSCHRG",
+                    "claim_complete_dt": "2017-10-18T08:23:35.000+00:00",
+                    "claim_dt": "2017-05-02",
+                    "claim_status": "CAN",
+                    "claim_status_type": "Compensation",
+                    "contentions": "abnormal heart (New), abscess kidney (New), encephalitis lethargica residuals (New), dracunculiasis (New), gingivitis (New), abnormal weight loss (New), groin condition (New), metritis (New)",
+                    "decision_notification_sent": "No",
+                    "development_letter_sent": "No",
+                    "end_prdct_type_cd": "404",
+                    "errors": [
+
+                    ],
+                    "poa": "RANDOM E PERSON",
+                    "program_type": "CPL",
+                    "ptcpnt_clmant_id": "111111111",
+                    "ptcpnt_vet_id": "111111111",
+                    "regional_office_jrsdctn": "National Work Queue",
+                    "submtr_applcn_type_cd": "EBN",
+                    "submtr_role_type_cd": "VET",
+                    "temp_regional_office_jrsdctn": null,
+                    "wsyswwn": {
+                      "address_line1": "National Work Queue",
+                      "address_line2": "810 Vermont Avenue NW",
+                      "address_line3": null,
+                      "city": "Washington",
+                      "state": "DC",
+                      "zip": "20420"
+                    }
+                  },
+                  "@xmlns:ns0": "http://claimstatus.services.ebenefits.vba.va.gov/"
                 }
               }
             }
@@ -12799,8 +12877,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-09-30",
-                      "expirationDate": "2025-09-30",
+                      "creationDate": "2024-10-09",
+                      "expirationDate": "2025-10-09",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13597,7 +13675,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:134:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:162:in `representative'"
                       }
                     }
                   ]
@@ -13688,7 +13766,7 @@
             }
           }
         ],
-        "description": "Updates current Power of Attorney for Veteran.",
+        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependent relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
         "responses": {
           "202": {
             "description": "Valid request response",
@@ -13696,7 +13774,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c330c1b9-3fc0-47b3-bfb8-eb7317e96b48",
+                    "id": "a886dcd1-79ac-4677-9bfe-07a6a55f1d93",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14346,7 +14424,7 @@
     "/veterans/{veteranId}/2122": {
       "post": {
         "summary": "Appoint an organization Power of Attorney for a Veteran.",
-        "description": "Updates current Power of Attorney for Veteran.",
+        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependent relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
         "tags": [
           "Power of Attorney"
         ],
@@ -14389,7 +14467,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "440f704c-7689-4357-bab5-575d7df6bdf4",
+                    "id": "ef66475e-4358-4f79-8280-d013e4767951",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -14915,11 +14993,6 @@
                                 "pattern": ".@.",
                                 "maxLength": 61,
                                 "example": "veteran_representative@example.com"
-                              },
-                              "appointmentDate": {
-                                "description": "Date of appointment with Veteran.",
-                                "type": "string",
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                               }
                             }
                           },
@@ -16223,11 +16296,6 @@
                                 "pattern": ".@.",
                                 "maxLength": 61,
                                 "example": "veteran_representative@example.com"
-                              },
-                              "appointmentDate": {
-                                "description": "Date of appointment with Veteran.",
-                                "type": "string",
-                                "pattern": "^(\\d{4})-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[0-1])$"
                               }
                             }
                           },
@@ -16340,10 +16408,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a6a3e890-9be5-48c3-b053-e909b4f29f99",
+                    "id": "b791fbfe-9f11-4e61-850f-700c352c2663",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-09-30",
+                      "dateRequestAccepted": "2024-10-09",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {

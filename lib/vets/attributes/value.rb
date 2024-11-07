@@ -42,6 +42,14 @@ module Vets
       def coerce_to_class(value)
         return value if value.is_a?(@klass) || value.nil?
 
+        if @klass == DateTime
+          begin
+            value = DateTime.parse(value) if value.is_a?(String)
+          rescue ArgumentError
+            raise TypeError, "#{@name} could not be parsed into a DateTime"
+          end
+        end
+
         value.is_a?(Hash) ? @klass.new(value) : value
       end
 

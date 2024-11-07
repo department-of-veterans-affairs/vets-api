@@ -126,7 +126,7 @@
   :endpoints:
   - :method: :post
     :path: '/v1/usermgmt/account-service/account'
-    :file_path: 'mhv/account_creation/create_account'
+    :file_path: 'mhv/account_creation/create_account/default'
 
 - :name: 'MHV_Rx'
   :base_uri: <%= "#{URI(Settings.mhv.rx.host).host}:#{URI(Settings.mhv.rx.host).port}" %>
@@ -611,29 +611,6 @@
     :path: "/technology/searchgov/v2/results/i14y"
     :file_path: "search/default"
 
-#GIS
-- :name: 'GIS'
-  :base_uri: <%= "#{URI(Settings.locators.gis_base_path).host}:#{URI(Settings.locators.gis_base_path).port}" %>
-  :endpoints:
-    # VHA
-    - :method: :get
-      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0/query"
-      :file_path: "gis/vha/facilities"
-    - :method: :get
-      :path: "/server/rest/services/VA/FacilitySitePoint_VHA/FeatureServer/0"
-      :file_path: "gis/vha/metadata"
-
-#PSSG
-- :name: 'PSSG'
-  :base_uri: <%= "#{URI(Settings.locators.drive_time_band_base_path).host}:#{URI(Settings.locators.drive_time_band_base_path).port}" %>
-  :endpoints:
-    - :method: :get
-      :path: "/arcgis2/rest/services/Portal/MonthlyVAST_TTB/FeatureServer/0/*"
-      :file_path: "pssg/drivetime_bands"
-      :cache_multiple_responses:
-        :uid_location: query
-        :uid_locator:  resultOffset
-
 #VANotify
 - :name: 'VANotify'
   :base_uri: <%= "#{URI(Settings.vanotify.client_url).host}:#{URI(Settings.vanotify.client_url).port}" %>
@@ -870,6 +847,22 @@
       :cache_multiple_responses:
         :uid_location: "query"
         :uid_locator: "icn"
+    # Patient Health API
+    - :method: :post
+      :path: "/oauth2/health/system/v1/token"
+      :file_path: "/lighthouse/veterans_health/token"
+    - :method: :get
+      :path: "/services/fhir/v0/r4/AllergyIntolerance/*"
+      :file_path: "/lighthouse/veterans_health/AllergyIntolerance/show"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: "\/services\/fhir\/v0\/r4\/AllergyIntolerance\/(.*)"
+    - :method: :get
+      :path: "/services/fhir/v0/r4/AllergyIntolerance"
+      :file_path: "/lighthouse/veterans_health/AllergyIntolerance/index"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
@@ -943,3 +936,26 @@
     - :method: :post
       :path: "/profile-service/profile/v3/*/*"
       :file_path: "vet360/profile-service/default"
+
+# GIDS
+- :name: "GIDS"
+  :base_uri: <%= "#{URI(Settings.gids.url).host}:#{URI(Settings.gids.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/gids/v1/lce"
+      :file_path: "gids/lce"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: type
+    - :method: :get
+      :path: "/gids/v1/lce/certifications/*"
+      :file_path: "gids/lce/certifications/default"
+    - :method: :get
+      :path: "/gids/v1/lce/exams/*"
+      :file_path: "gids/lce/exams/default"
+    - :method: :get
+      :path: "/gids/v1/lce/licenses/*"
+      :file_path: "gids/lce/licenses/default"
+    - :method: :get
+      :path: "/gids/v1/lce/preps/*"
+      :file_path: "gids/lce/preps/default"

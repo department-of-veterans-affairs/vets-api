@@ -3,9 +3,12 @@
 require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pension_burial/tag_sentry'
+require 'burials/monitor'
+require 'pcpg/monitor'
 require 'benefits_intake_service/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'pdf_info'
+require 'va_notify/notification_email/burial'
 
 module Lighthouse
   class SubmitBenefitsIntakeClaim
@@ -16,9 +19,9 @@ module Lighthouse
     FOREIGN_POSTALCODE = '00000'
     STATSD_KEY_PREFIX = 'worker.lighthouse.submit_benefits_intake_claim'
 
-    # Sidekiq has built in exponential back-off functionality for retries
-    # A max retry attempt of 14 will result in a run time of ~25 hours
-    RETRY = 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    RETRY = 16
 
     sidekiq_options retry: RETRY
 
@@ -27,6 +30,16 @@ module Lighthouse
         "Failed all retries on Lighthouse::SubmitBenefitsIntakeClaim, last error: #{msg['error_message']}"
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+
+      begin
+        claim = SavedClaim.find(msg['args'].first)
+      rescue
+        claim = nil
+      end
+      if %w[21P-530V2 21P-530].include?(claim&.form_id)
+        burial_monitor = Burials::Monitor.new
+        burial_monitor.track_submission_exhaustion(msg, claim)
+      end
     end
 
     def perform(saved_claim_id) # rubocop:disable Metrics/MethodLength
@@ -70,17 +83,16 @@ module Lighthouse
       veteran_full_name = form['veteranFullName']
       address = form['claimantAddress'] || form['veteranAddress']
 
-      metadata = {
-        'veteranFirstName' => veteran_full_name['first'],
-        'veteranLastName' => veteran_full_name['last'],
-        'fileNumber' => form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
-        'zipCode' => address['postalCode'],
-        'source' => "#{@claim.class} va.gov",
-        'docType' => @claim.form_id,
-        'businessLine' => @claim.business_line
-      }
-
-      SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: check_zipcode(address))
+      # also validates/manipulates the metadata
+      BenefitsIntake::Metadata.generate(
+        veteran_full_name['first'],
+        veteran_full_name['last'],
+        form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
+        address['postalCode'],
+        "#{@claim.class} va.gov",
+        @claim.form_id,
+        @claim.business_line
+      )
     end
 
     def process_record(record, timestamp = nil, form_id = nil)
@@ -150,14 +162,16 @@ module Lighthouse
                           benefits_intake_uuid: @lighthouse_service.uuid,
                           confirmation_number: @claim.confirmation_number
                         })
-      form_submission = FormSubmission.create(
-        form_type: @claim.form_id,
-        form_data: @claim.to_json,
-        benefits_intake_uuid: @lighthouse_service.uuid,
-        saved_claim: @claim,
-        saved_claim_id: @claim.id
-      )
-      @form_submission_attempt = FormSubmissionAttempt.create(form_submission:)
+      FormSubmissionAttempt.transaction do
+        form_submission = FormSubmission.create(
+          form_type: @claim.form_id,
+          form_data: @claim.to_json,
+          saved_claim: @claim,
+          saved_claim_id: @claim.id
+        )
+        @form_submission_attempt = FormSubmissionAttempt.create(form_submission:,
+                                                                benefits_intake_uuid: @lighthouse_service.uuid)
+      end
     end
 
     def cleanup_file_paths
@@ -171,6 +185,8 @@ module Lighthouse
 
     def send_confirmation_email
       @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
+
+      Burials::NotificationEmail.new(@claim).deliver(:confirmation) if %w[21P-530V2 21P-530].include?(@claim&.form_id)
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
                         generate_log_details(e))

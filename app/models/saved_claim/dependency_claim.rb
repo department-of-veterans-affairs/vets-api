@@ -42,6 +42,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)
     uploaded_forms << form_id
     save
+  rescue => e
+    Rails.logger.debug('DependencyClaim: Issue Uploading to VBMS in upload_pdf method',
+                       { saved_claim_id: id, form_id:, error: e })
+    raise e
   end
 
   def process_pdf(pdf_path, timestamp = nil, form_id = nil)

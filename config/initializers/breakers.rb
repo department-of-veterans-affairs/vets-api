@@ -14,7 +14,6 @@ require 'evss/documents_service'
 require 'evss/letters/service'
 require 'evss/pciu_address/configuration'
 require 'evss/reference_data/configuration'
-require 'facilities/bulk_configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
 require 'hca/configuration'
@@ -30,6 +29,7 @@ require 'search_gsa/configuration'
 require 'search_typeahead/configuration'
 require 'search_click_tracking/configuration'
 require 'va_profile/address_validation/configuration'
+require 'va_profile/v3/address_validation/configuration'
 require 'va_profile/contact_information/configuration'
 require 'va_profile/v2/contact_information/configuration'
 require 'va_profile/communication/configuration'
@@ -58,8 +58,6 @@ Rails.application.reloader.to_prepare do
     EVSS::Dependents::Configuration.instance.breakers_service,
     EVSS::ReferenceData::Configuration.instance.breakers_service,
     Gibft::Configuration.instance.breakers_service,
-    Facilities::AccessWaitTimeConfiguration.instance.breakers_service,
-    Facilities::AccessSatisfactionConfiguration.instance.breakers_service,
     GI::Configuration.instance.breakers_service,
     HCA::Configuration.instance.breakers_service,
     MHVAC::Configuration.instance.breakers_service,
@@ -67,6 +65,7 @@ Rails.application.reloader.to_prepare do
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
     VAProfile::AddressValidation::Configuration.instance.breakers_service,
+    VAProfile::V3::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::Configuration.instance.breakers_service,
     VAProfile::V2::ContactInformation::Configuration.instance.breakers_service,
     VAProfile::Communication::Configuration.instance.breakers_service,

@@ -417,6 +417,12 @@ describe VBADocuments::UploadSubmission, type: :model do
       saved = upload2.save
       expect(saved).to eq(false)
     end
+
+    it 'defaults s3_deleted to false when creating new records' do
+      upload1 = VBADocuments::UploadSubmission.new
+      upload1.save
+      expect(upload1.s3_deleted).to eq(false)
+    end
   end
 
   context 'aged_processing' do

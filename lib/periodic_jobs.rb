@@ -61,7 +61,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 1 * * 1', 'BenefitsIntakeRemediationStatusJob')
 
   # Update Lighthouse526DocumentUpload statuses according to Lighthouse Benefits Documents service tracking
-  mgr.register('15 * * * *', 'Form526DocumentUploadPollingJob')
+  mgr.register('15 * * * *', 'Lighthouse::Form526DocumentUploadPollingJob')
 
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
   mgr.register('0 3 * * *', 'Form526StatusPollingJob')
@@ -117,20 +117,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Send the daily report to the call center about spool file submissions
   mgr.register('5 4 * * 1-5', 'EducationForm::CreateSpoolSubmissionsReport')
 
-  # Download and cache facility access-to-care metric data
-  mgr.register('10 4 * * *', 'Facilities::DentalServiceReloadJob')
-
-  # Download and cache facility mental health phone number data
-  mgr.register('25 4 * * *', 'Facilities::MentalHealthReloadJob')
-
   # Send the daily 10203 report to the call center about spool file submissions
   mgr.register('35 4 * * 1-5', 'EducationForm::Create10203SpoolSubmissionsReport')
-
-  # Download and cache facility access-to-care metric data
-  mgr.register('45 4 * * *', 'Facilities::AccessDataDownload')
-
-  # Download and store drive time bands
-  mgr.register('55 4 * * *', 'Facilities::PSSGDownload')
 
   # Gather account login statistics for statsd
   mgr.register('0 6 * * *', 'AccountLoginStatisticsJob')
@@ -198,10 +186,10 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('5 */2 * * *', 'VBADocuments::RunUnsuccessfulSubmissions')
 
   # Poll upload bucket for unprocessed uploads
-  mgr.register('*/2 * * * *', 'VBADocuments::UploadScanner')
+  mgr.register('*/3 * * * *', 'VBADocuments::UploadScanner')
 
   # Clean up submitted documents from S3
-  mgr.register('*/2 * * * *', 'VBADocuments::UploadRemover')
+  mgr.register('*/5 * * * *', 'VBADocuments::UploadRemover')
 
   # Daily/weekly report of unsuccessful benefits intake submissions
   mgr.register('0 0 * * 1-5', 'VBADocuments::ReportUnsuccessfulSubmissions')
@@ -219,7 +207,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::FlipperStatusAlert')
 
   # Rotates Lockbox/KMS record keys and _ciphertext fields every October 12th (when the KMS key auto-rotate)
-  mgr.register('0 3 * * *', 'KmsKeyRotation::BatchInitiatorJob')
+  mgr.register('10 5 * * *', 'KmsKeyRotation::BatchInitiatorJob')
 
   # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
   mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
@@ -240,6 +228,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Clean SavedClaim records that are past delete date
   mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
+
+  # Send Decision Review emails to Veteran for failed form/evidence submissions
+  mgr.register('5 1 * * *', 'DecisionReview::FailureNotificationEmailJob')
 
   # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
   mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')

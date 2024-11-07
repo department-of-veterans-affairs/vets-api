@@ -401,7 +401,6 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :type, :object
-              property(:validation_key, type: :integer)
 
               property(:addresses) do
                 key :type, :array
@@ -931,6 +930,13 @@ module Swagger
                       property :period_of_service_type_code, type: :string, example: 'V', description: 'Service type code'
                       property :period_of_service_type_text, type: :string, example: 'Reserve member', description: 'Service type text'
                       property :character_of_discharge_code, type: :string, example: 'DVN', description: 'The abbreviated code used to reference the status of a Servicemember upon termination of an episode'
+                    end
+                  end
+                  property :vet_status_eligibility do
+                    key :type, :object
+                    items do
+                      property :confirmed, type: :boolean
+                      property :message, type: :array
                     end
                   end
                 end

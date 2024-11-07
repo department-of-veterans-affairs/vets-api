@@ -37,6 +37,7 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
     it { expect(subject).not_to allow_value('1234A').for(:veteran_zip_code) }
     it { expect(subject).not_to allow_value('12345').for(:veteran_zip_code_suffix) }
     it { expect(subject).to allow_value('1234').for(:veteran_zip_code_suffix) }
+    it { expect(subject).to allow_value('').for(:veteran_zip_code_suffix) }
     it { expect(subject).to validate_length_of(:veteran_zip_code_suffix).is_equal_to(4) }
     it { expect(subject).to allow_value('1234567890').for(:veteran_phone) }
     it { expect(subject).not_to allow_value('123456789A').for(:veteran_phone) }
@@ -64,10 +65,59 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
     it { expect(subject_with_claimant).not_to allow_value('1234A').for(:claimant_zip_code) }
     it { expect(subject_with_claimant).not_to allow_value('12345').for(:claimant_zip_code_suffix) }
     it { expect(subject_with_claimant).to allow_value('1234').for(:claimant_zip_code_suffix) }
+    it { expect(subject_with_claimant).to allow_value('').for(:claimant_zip_code_suffix) }
     it { expect(subject_with_claimant).to validate_length_of(:claimant_zip_code_suffix).is_equal_to(4) }
     it { expect(subject_with_claimant).to allow_value('1234567890').for(:claimant_phone) }
     it { expect(subject_with_claimant).not_to allow_value('123456789A').for(:claimant_phone) }
     it { expect(subject_with_claimant).not_to allow_value('123456789').for(:claimant_phone) }
+
+    describe 'representative_phone' do
+      context 'when representative is an instance of AccreditedIndividual' do
+        it 'returns #phone of the representative' do
+          representative = create(:accredited_individual, phone: '5555555555')
+          subject.representative_id = representative.id
+          expect(subject.representative_phone).to eq(representative.phone)
+        end
+      end
+
+      context 'when representative is an instance of Veteran::Service::Representative' do
+        it 'returns #phone_number of the representative' do
+          representative = create(:representative, phone_number: '5555555555')
+          subject.representative_id = representative.representative_id
+          expect(subject.representative_phone).to eq(representative.phone_number)
+        end
+      end
+    end
+
+    describe 'representative_individual_type' do
+      context 'when representative is an instance of AccreditedIndividual' do
+        it 'returns #individual_type of the representative' do
+          representative = create(:accredited_individual, individual_type: 'attorney')
+          subject.representative_id = representative.id
+          expect(subject.representative_individual_type).to eq(representative.individual_type)
+        end
+
+        it 'returns "agent" if individual_type includes "agent"' do
+          representative = create(:accredited_individual, individual_type: 'claims_agent')
+          subject.representative_id = representative.id
+          expect(subject.representative_individual_type).to eq('agent')
+        end
+      end
+
+      context 'when representative is an instance of Veteran::Service::Representative' do
+        it 'returns the first element in the user_types array' do
+          representative = create(:representative, user_types: %w[attorney claim_agents])
+          subject.representative_id = representative.representative_id
+          expect(subject.representative_individual_type).to eq(representative.user_types.first)
+        end
+
+        it 'returns nil if user_types is empty' do
+          representative = create(:representative, user_types: [])
+          subject.representative_id = representative.representative_id
+          expect(subject.representative_individual_type).to be_nil
+        end
+      end
+    end
 
     # Custom validation tests
     context 'consent_limits_must_contain_valid_values' do

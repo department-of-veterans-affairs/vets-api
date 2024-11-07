@@ -4,7 +4,7 @@ require 'bgs'
 
 module ClaimsApi
   class PoaUpdater < ClaimsApi::ServiceBase
-    def perform(power_of_attorney_id) # rubocop:disable Metrics/MethodLength
+    def perform(power_of_attorney_id, rep = nil) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
       service = BGS::Services.new(
         external_uid: poa_form.external_uid,
@@ -28,6 +28,8 @@ module ClaimsApi
 
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
 
+        ClaimsApi::VANotifyJob.perform_async(poa_form.id, rep) if vanotify?(poa_form.auth_headers, rep)
+
         ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id) if enable_vbms_access?(poa_form:)
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
@@ -40,8 +42,12 @@ module ClaimsApi
 
     private
 
-    def enable_vbms_access?(poa_form:)
-      poa_form.form_data['recordConsent'] && poa_form.form_data['consentLimits'].blank?
+    def vanotify?(auth_headers, rep)
+      if Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify)
+        auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?
+      else
+        false
+      end
     end
   end
 end

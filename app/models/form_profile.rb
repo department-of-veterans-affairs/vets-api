@@ -358,10 +358,10 @@ class FormProfile
   # preference: vet360 mobile -> vet360 home -> pciu
   def phone_object
     mobile = vet360_contact_info&.mobile_phone
-    return mobile if mobile&.area_code && mobile&.phone_number
+    return mobile if mobile&.area_code && mobile.phone_number
 
     home = vet360_contact_info&.home_phone
-    return home if home&.area_code && home&.phone_number
+    return home if home&.area_code && home.phone_number
 
     phone_struct = Struct.new(:area_code, :phone_number)
 

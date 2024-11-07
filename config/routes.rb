@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'flipper/admin_user_constraint'
+require 'flipper/route_authorization_constraint'
 
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
@@ -99,6 +99,9 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
+      collection do
+        get 'credential_emails'
+      end
       resource :mhv_user_account, only: [:show], controller: 'user/mhv_user_accounts'
     end
 
@@ -337,7 +340,7 @@ Rails.application.routes.draw do
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
-    resources :backend_statuses, param: :service, only: %i[index show]
+    resources :backend_statuses, only: %i[index]
 
     resources :apidocs, only: [:index]
 
@@ -406,6 +409,18 @@ Rails.application.routes.draw do
       resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
+
+      resources :lce, only: :index, defaults: { format: :json }
+
+      namespace :lce do
+        resources :certifications, only: :show, defaults: { format: :json }
+
+        resources :exams, only: :show, defaults: { format: :json }
+
+        resources :licenses, only: :show, defaults: { format: :json }
+
+        resources :preps, only: :show, defaults: { format: :json }
+      end
     end
 
     resource :decision_review_evidence, only: :create
@@ -428,7 +443,7 @@ Rails.application.routes.draw do
     resources :supplemental_claims, only: %i[create show]
 
     scope format: false do
-      resources :nod_callbacks, only: [:create]
+      resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
       resources :pension_ipf_callbacks, only: [:create]
     end
   end
@@ -449,6 +464,7 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount Banners::Engine, at: '/banners'
   mount CheckIn::Engine, at: '/check_in'
   mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
@@ -464,6 +480,7 @@ Rails.application.routes.draw do
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount TravelPay::Engine, at: '/travel_pay'
+  mount VaNotify::Engine, at: '/va_notify'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
@@ -485,8 +502,9 @@ Rails.application.routes.draw do
     mount MockedAuthentication::Engine, at: '/mocked_authentication'
   end
 
-  get '/flipper/features/logout', to: 'flipper#logout'
-  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint
+  get '/flipper/logout', to: 'flipper#logout'
+  get '/flipper/login', to: 'flipper#login'
+  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::RouteAuthorizationConstraint
 
   unless Rails.env.test?
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new

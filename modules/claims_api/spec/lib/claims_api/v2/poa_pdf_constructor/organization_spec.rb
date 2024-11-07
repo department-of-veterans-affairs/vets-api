@@ -78,6 +78,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
           'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
         },
+        'appointmentDate' => power_of_attorney.created_at,
         'text_signatures' => {
           'page2' => [
             {
