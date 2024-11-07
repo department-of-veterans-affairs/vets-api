@@ -13,7 +13,6 @@ RSpec.describe 'transactions' do
     let(:user) { build(:user, :loa3, vet360_id:) }
 
     before do
-      Flipper.disable(:va_v3_contact_information_service)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
       sign_in_as(user)
@@ -95,7 +94,6 @@ RSpec.describe 'transactions' do
     let(:user) { build(:user, :loa3, vet360_id:) }
 
     before do
-      Flipper.disable(:va_v3_contact_information_service)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
       sign_in_as(user)
@@ -183,7 +181,7 @@ RSpec.describe 'transactions' do
     let(:user) { build(:user, :loa3, vet360_id:) }
 
     before do
-      Flipper.enable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
       Timecop.freeze('2024-08-28T18:51:06Z')
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vaprofile_contact_info
@@ -269,14 +267,10 @@ RSpec.describe 'transactions' do
     let(:user) { build(:user, :loa3, vet360_id: '1781151') }
 
     before do
-      Flipper.enable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vaprofile_contact_info
       sign_in_as(user)
-    end
-
-    after do
-      Flipper.disable(:va_v3_contact_information_service)
     end
 
     context 'when transaction(s) exists' do

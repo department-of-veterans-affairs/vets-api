@@ -33,7 +33,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
 
-  Flipper.disable(:va_v3_contact_information_service)
   let(:cassette_path) do
     if Flipper.enabled?(:va_v3_contact_information_service)
       'va_profile/v2/contact_information'
@@ -2238,7 +2237,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     describe 'profiles' do
-      Flipper.disable(:va_v3_contact_information_service)
       let(:mhv_user) { create(:user, :loa3) }
 
       it 'supports getting service history data' do
@@ -2736,7 +2734,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:mhv_user) { build(:user, :loa3, vet360_id:) }
 
       before do
-        Flipper.enable(:va_v3_contact_information_service)
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+                                                  instance_of(User)).and_return(true)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
         sign_in_as(mhv_user)
       end
@@ -3012,7 +3011,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:user) { build(:user, :loa3, vet360_id:) }
 
       before do
-        Flipper.enable(:va_v3_contact_information_service)
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+                                                  instance_of(User)).and_return(true)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
         sign_in_as(user)
       end
@@ -3063,7 +3063,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user_without_vet360_id, nil, true) } } }
 
       before do
-        Flipper.enable(:va_v3_contact_information_service)
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+                                                  instance_of(User)).and_return(true)
         allow_any_instance_of(User).to receive(:vet360_id).and_return('1781151')
       end
 
