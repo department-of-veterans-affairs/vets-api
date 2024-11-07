@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V1::NodCallbacksController, type: :controller do
+RSpec.describe V1::DecisionReviewNotificationCallbacksController, type: :controller do
   let(:notification_id) { SecureRandom.uuid }
   let(:reference) { "NOD-form-#{SecureRandom.uuid}" }
   let(:status) { 'delivered' }
