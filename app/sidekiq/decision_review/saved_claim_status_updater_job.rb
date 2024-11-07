@@ -2,9 +2,11 @@
 
 require 'sidekiq'
 require 'decision_review_v1/service'
+require 'common/exceptions/not_implemented'
+
 
 module DecisionReview
-  class SavedClaimNodStatusUpdaterJob
+  class SavedClaimStatusUpdaterJob
     include Sidekiq::Job
 
     # No need to retry since the schedule will run this every hour
@@ -20,15 +22,14 @@ module DecisionReview
 
     ATTRIBUTES_TO_STORE = %w[status detail createDate updateDate].freeze
 
-    STATSD_KEY_PREFIX = 'worker.decision_review.saved_claim_nod_status_updater'
-
     def perform
-      return unless enabled? && notice_of_disagreements.present?
+      return unless enabled? && records_to_update.present?
+      pp "Got in perform method"
 
-      StatsD.increment("#{STATSD_KEY_PREFIX}.processing_records", notice_of_disagreements.size)
+      StatsD.increment("#{statsd_prefix}.processing_records", records_to_update.size)
 
-      notice_of_disagreements.each do |nod|
-        guid = nod.guid
+      records_to_update.each do |record|
+        guid = record.guid
         status, attributes = get_status_and_attributes(guid)
         uploads_metadata = get_evidence_uploads_statuses(guid)
 
@@ -36,17 +37,18 @@ module DecisionReview
         params = { metadata: attributes.merge(uploads: uploads_metadata).to_json, metadata_updated_at: timestamp }
 
         # only set delete date if attachments are all successful as well
-        if check_attachments_status(nod, uploads_metadata) && SUCCESSFUL_STATUS.include?(status)
+        if check_attachments_status(record, uploads_metadata) && SUCCESSFUL_STATUS.include?(status)
           params[:delete_date] = timestamp + RETENTION_PERIOD
-          StatsD.increment("#{STATSD_KEY_PREFIX}.delete_date_update")
+          StatsD.increment("#{statsd_prefix}.delete_date_update")
         else
-          handle_form_status_metrics_and_logging(nod, status)
+          handle_form_status_metrics_and_logging(record, status)
         end
 
-        nod.update(params)
+        record.update(params)
       rescue => e
-        StatsD.increment("#{STATSD_KEY_PREFIX}.error")
-        Rails.logger.error('DecisionReview::SavedClaimNodStatusUpdaterJob error', { guid:, message: e.message })
+        pp "Got and error #{e.message}"
+        StatsD.increment("#{statsd_prefix}.error")
+        Rails.logger.error("#{log_prefix} error", { guid:, message: e.message })
       end
 
       nil
@@ -54,16 +56,36 @@ module DecisionReview
 
     private
 
+    def records_to_update
+      raise Common::Exceptions::NotImplemented
+    end
+
+    def statsd_prefix
+      raise Common::Exceptions::NotImplemented
+    end
+
+    def log_prefix
+      raise Common::Exceptions::NotImplemented
+    end
+
+    def get_record_status(guid)
+      raise Common::Exceptions::NotImplemented
+    end
+
+    def get_evidence_status(guid)
+      raise Common::Exceptions::NotImplemented
+    end
+
+    def enabled?
+      raise Common::Exceptions::NotImplemented
+    end
+    
     def decision_review_service
       @service ||= DecisionReviewV1::Service.new
     end
 
-    def notice_of_disagreements
-      @notice_of_disagreements ||= ::SavedClaim::NoticeOfDisagreement.where(delete_date: nil).order(created_at: :asc)
-    end
-
     def get_status_and_attributes(guid)
-      response = decision_review_service.get_notice_of_disagreement(guid).body
+      response = get_record_status(guid)
       attributes = response.dig('data', 'attributes')
       status = attributes['status']
 
@@ -77,7 +99,7 @@ module DecisionReview
                                        &.pluck(:lighthouse_upload_id) || []
 
       attachment_ids.each do |guid|
-        response = decision_review_service.get_notice_of_disagreement_upload(guid:).body
+        response = get_evidence_status(guid)
         attributes = response.dig('data', 'attributes').slice(*ATTRIBUTES_TO_STORE)
         result << attributes.merge('id' => guid)
       end
@@ -85,23 +107,23 @@ module DecisionReview
       result
     end
 
-    def handle_form_status_metrics_and_logging(nod, status)
+    def handle_form_status_metrics_and_logging(record, status)
       # Skip logging and statsd metrics when there is no status change
-      return if JSON.parse(nod.metadata || '{}')['status'] == status
+      return if JSON.parse(record.metadata || '{}')['status'] == status
 
       if status == ERROR_STATUS
-        Rails.logger.info('DecisionReview::SavedClaimNodStatusUpdaterJob form status error', guid: nod.guid)
+        Rails.logger.info("#{log_prefix} form status error", guid: record.guid)
         tags = ['service:board-appeal', 'function: form submission to Lighthouse']
         StatsD.increment('silent_failure', tags:)
       end
 
-      StatsD.increment("#{STATSD_KEY_PREFIX}.status", tags: ["status:#{status}"])
+      StatsD.increment("#{statsd_prefix}.status", tags: ["status:#{status}"])
     end
 
-    def check_attachments_status(nod, uploads_metadata)
+    def check_attachments_status(record, uploads_metadata)
       result = true
 
-      old_uploads_metadata = extract_uploads_metadata(nod.metadata)
+      old_uploads_metadata = extract_uploads_metadata(record.metadata)
 
       uploads_metadata.each do |upload|
         status = upload['status']
@@ -112,13 +134,13 @@ module DecisionReview
         next if old_uploads_metadata.dig(upload_id, 'status') == status
 
         if status == ERROR_STATUS
-          Rails.logger.info('DecisionReview::SavedClaimNodStatusUpdaterJob evidence status error',
-                            { guid: nod.guid, lighthouse_upload_id: upload_id, detail: upload['detail'] })
+          Rails.logger.info("#{log_prefix} evidence status error",
+                            { guid: record.guid, lighthouse_upload_id: upload_id, detail: upload['detail'] })
           tags = ['service:board-appeal', 'function: evidence submission to Lighthouse']
           StatsD.increment('silent_failure', tags:)
         end
 
-        StatsD.increment("#{STATSD_KEY_PREFIX}_upload.status", tags: ["status:#{status}"])
+        StatsD.increment("#{statsd_prefix}_upload.status", tags: ["status:#{status}"])
       end
 
       result
@@ -128,10 +150,6 @@ module DecisionReview
       return {} if metadata.nil?
 
       JSON.parse(metadata).fetch('uploads', []).index_by { |upload| upload['id'] }
-    end
-
-    def enabled?
-      Flipper.enabled? :decision_review_saved_claim_nod_status_updater_job_enabled
     end
   end
 end

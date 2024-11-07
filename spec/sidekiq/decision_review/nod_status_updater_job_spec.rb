@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'decision_review_v1/service'
 
-RSpec.describe DecisionReview::SavedClaimNodStatusUpdaterJob, type: :job do
+RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
   subject { described_class }
 
   let(:service) { instance_double(DecisionReviewV1::Service) }
