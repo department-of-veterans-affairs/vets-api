@@ -76,6 +76,24 @@ module ClaimsApi
               key: 'return'
             )
         end
+
+        module FindAssignedFlashes
+          DEFINITION =
+            Action.new(
+              service: ClaimantWebService::DEFINITION,
+              name: 'findAssignedFlashes',
+              key: 'return'
+            )
+        end
+
+        module AddFlash
+          DEFINITION =
+            Action.new(
+              service: ClaimantWebService::DEFINITION,
+              name: 'addFlash',
+              key: 'return'
+            )
+        end
       end
 
       ##
