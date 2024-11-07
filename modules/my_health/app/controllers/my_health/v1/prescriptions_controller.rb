@@ -121,6 +121,15 @@ module MyHealth
         "#{image_root_uri + folder_name}/#{file_name}"
       end
 
+      def filter_params
+        @filter_params ||= begin
+          valid_filter_params = params.require(:filter).permit(PrescriptionDetails.filterable_attributes)
+          raise Common::Exceptions::FilterNotAllowed, params[:filter] if valid_filter_params.empty?
+
+          valid_filter_params
+        end
+      end
+
       def collection_resource
         case params[:refill_status]
         when nil
