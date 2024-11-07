@@ -67,7 +67,7 @@ jobs:
           fi
 
       - name: Check deployment status for staging
-        if: always() && ${{ env.latest_sha != '' && env.staging_deployed_sha != '' }}
+        if: ${{ always() && env.latest_sha != '' && env.staging_deployed_sha != '' }}
         id: check-staging-status
         run: |
           latest_sha=${{ env.latest_sha }}
