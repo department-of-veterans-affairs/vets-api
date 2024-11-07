@@ -12,7 +12,6 @@ RSpec.describe FormProfile, type: :model do
 
   before do
     stub_evss_pciu(user)
-    user.instance_variable_set(:@ssn, user.ssn.delete('-'))
     described_class.instance_variable_set(:@mappings, nil)
     Flipper.disable(:disability_526_toxic_exposure)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
