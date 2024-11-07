@@ -19,7 +19,7 @@ module Pensions
     def initialize
       super('pension-application')
 
-      @tags = ["form_id:21P-527EZ"]
+      @tags = ['form_id:21P-527EZ']
     end
 
     ##

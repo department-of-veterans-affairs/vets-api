@@ -18,7 +18,7 @@ module Burials
     def initialize
       super('burial-application')
 
-      @tags = ["form_id:21P-530EZ"]
+      @tags = ['form_id:21P-530EZ']
     end
 
     ##
