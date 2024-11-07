@@ -23,15 +23,14 @@ module Vye
       def verify_claimant
         authorized = authorize user_info, policy_class: UserInfoPolicy
         if authorized
-          response =
-            verify_claimant_service
-            .verify_claimant(
-              params[:claimant_id],
-              params[:verified_period_begin_date],
-              params[:verified_period_end_date],
-              params[:verfied_through_date]
-            )
-
+          response = verify_claimant_service.verify_claimant(
+            params[:claimant_id],
+            params[:verified_period_begin_date],
+            params[:verified_period_end_date],
+            params[:verified_through_date],
+            params[:verification_method],
+            params.dig(:app_communication, :response_type)
+          )
           serializer = Vye::VerifyClaimantSerializer
           process_response(response, serializer)
         else

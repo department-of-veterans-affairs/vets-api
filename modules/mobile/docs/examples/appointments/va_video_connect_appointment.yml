@@ -36,4 +36,4 @@ data:
       friendly_location_name: null
 meta:
   upcomingAppointmentsCount: 1
-  upcomingDaysLimit: 7
+  upcomingDaysLimit: 30

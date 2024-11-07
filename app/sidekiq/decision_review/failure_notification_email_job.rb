@@ -27,6 +27,8 @@ module DecisionReview
       'SC' => TEMPLATE_IDS.supplemental_claim_evidence_error_email
     }.freeze
 
+    SECONDARY_FORM_TEMPLATE_ID = TEMPLATE_IDS.supplemental_claim_secondary_form_error_email
+
     APPEAL_TYPE_TO_SERVICE_MAP = {
       'HLR' => 'higher-level-review',
       'NOD' => 'board-appeal',
@@ -38,15 +40,30 @@ module DecisionReview
     STATSD_KEY_PREFIX = 'worker.decision_review.failure_notification_email'
 
     def perform
-      return unless enabled? && (submissions.present? || submission_uploads.present?)
+      return unless should_perform?
 
       send_form_emails
       send_evidence_emails
+      send_secondary_form_emails if secondary_forms_enabled?
 
       nil
     end
 
     private
+
+    def should_perform?
+      perform_form_and_evidence || perform_all
+    end
+
+    def perform_form_and_evidence
+      enabled? && (submissions.present? || submission_uploads.present?)
+    end
+
+    def perform_all
+      enabled? &&
+        (secondary_forms_enabled? &&
+        (submissions.present? || submission_uploads.present? || errored_secondary_forms.present?))
+    end
 
     def vanotify_service
       @service ||= ::VaNotify::Service.new(Settings.vanotify.services.benefits_decision_review.api_key)
@@ -76,24 +93,30 @@ module DecisionReview
       end
     end
 
-    def send_email_with_vanotify(submission, filename, created_at)
-      email_address = submission.current_email
+    def errored_secondary_forms
+      @errored_secondary_forms ||= SecondaryAppealForm.needs_failure_notification.order(id: :asc)
+    end
+
+    def send_email_with_vanotify(submission, filename, created_at, template_id, reference)
+      email_address = submission.current_email_address
       personalisation = {
         first_name: submission.get_mpi_profile.given_names[0],
         filename:,
         date_submitted: created_at.strftime('%B %d, %Y')
       }
 
-      appeal_type = submission.type_of_appeal
-      template_id = filename.nil? ? FORM_TEMPLATE_IDS[appeal_type] : EVIDENCE_TEMPLATE_IDS[appeal_type]
-      vanotify_service.send_email({ email_address:, template_id:, personalisation: })
+      vanotify_service.send_email({ email_address:, template_id:, personalisation:, reference: })
     end
 
     def send_form_emails
       StatsD.increment("#{STATSD_KEY_PREFIX}.form.processing_records", submissions.size)
 
       submissions.each do |submission|
-        response = send_email_with_vanotify(submission, nil, submission.created_at)
+        appeal_type = submission.type_of_appeal
+        reference = "#{appeal_type}-form-#{submission.submitted_appeal_uuid}"
+
+        response = send_email_with_vanotify(submission, nil, submission.created_at, FORM_TEMPLATE_IDS[appeal_type],
+                                            reference)
         submission.update(failure_notification_sent_at: DateTime.now)
 
         record_form_email_send_successful(submission, response.id)
@@ -106,14 +129,35 @@ module DecisionReview
       StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.processing_records", submission_uploads.size)
 
       submission_uploads.each do |upload|
-        response = send_email_with_vanotify(upload.appeal_submission,
-                                            upload.masked_attachment_filename,
-                                            upload.created_at)
+        submission = upload.appeal_submission
+        appeal_type = submission.type_of_appeal
+        reference = "#{appeal_type}-evidence-#{upload.lighthouse_upload_id}"
+
+        response = send_email_with_vanotify(submission, upload.masked_attachment_filename, upload.created_at,
+                                            EVIDENCE_TEMPLATE_IDS[appeal_type], reference)
         upload.update(failure_notification_sent_at: DateTime.now)
 
         record_evidence_email_send_successful(upload, response.id)
       rescue => e
         record_evidence_email_send_failure(upload, e)
+      end
+    end
+
+    def send_secondary_form_emails
+      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_forms.processing_records", errored_secondary_forms.size)
+      errored_secondary_forms.each do |form|
+        appeal_type = form.appeal_submission.type_of_appeal
+        reference = "#{appeal_type}-secondary_form-#{form.guid}"
+        response = send_email_with_vanotify(form.appeal_submission,
+                                            nil,
+                                            form.created_at,
+                                            SECONDARY_FORM_TEMPLATE_ID,
+                                            reference)
+        form.update(failure_notification_sent_at: DateTime.now)
+
+        record_secondary_form_email_send_successful(form, response.id)
+      rescue => e
+        record_secondary_form_email_send_failure(form, e)
       end
     end
 
@@ -132,6 +176,31 @@ module DecisionReview
       params = { submitted_appeal_uuid: submission.submitted_appeal_uuid, appeal_type:, message: e.message }
       Rails.logger.error('DecisionReview::FailureNotificationEmailJob form error', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.form.error", tags: ["appeal_type:#{appeal_type}"])
+    end
+
+    def record_secondary_form_email_send_successful(secondary_form, notification_id)
+      submission = secondary_form.appeal_submission
+      appeal_type = submission.type_of_appeal
+      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
+                 lighthouse_upload_id: secondary_form.guid,
+                 appeal_type:,
+                 notification_id: }
+      Rails.logger.info('DecisionReview::FailureNotificationEmailJob secondary form email queued', params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_form.email_queued", tags: ["appeal_type:#{appeal_type}"])
+
+      tags = ["service:#{APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}", 'function: secondary form submission to Lighthouse']
+      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
+    end
+
+    def record_secondary_form_email_send_failure(secondary_form, e)
+      submission = secondary_form.appeal_submission
+      appeal_type = submission.type_of_appeal
+      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
+                 lighthouse_upload_id: secondary_form.guid,
+                 appeal_type:,
+                 message: e.message }
+      Rails.logger.error('DecisionReview::FailureNotificationEmailJob secondary form error', params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_form.error", tags: ["appeal_type:#{appeal_type}"])
     end
 
     def record_evidence_email_send_successful(upload, notification_id)
@@ -165,6 +234,10 @@ module DecisionReview
 
     def enabled?
       Flipper.enabled? :decision_review_failure_notification_email_job_enabled
+    end
+
+    def secondary_forms_enabled?
+      Flipper.enabled? :decision_review_notify_4142_failures
     end
   end
 end

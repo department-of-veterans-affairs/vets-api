@@ -191,7 +191,6 @@ describe SimpleFormsApi::NotificationEmail do
               data['claimant_type'] = 'non-veteran'
 
               subject = described_class.new(config, notification_type:)
-
               subject.send
 
               expect(VANotify::EmailJob).to have_received(:perform_async).with(
@@ -426,7 +425,7 @@ describe SimpleFormsApi::NotificationEmail do
         end
       end
 
-      context 'template_id is missing', if: notification_type != :confirmation do
+      context 'template_id is missing', if: notification_type == :received do
         let(:data) do
           fixture_path = Rails.root.join(
             'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247.json'
@@ -442,6 +441,136 @@ describe SimpleFormsApi::NotificationEmail do
           subject.send
 
           expect(VANotify::EmailJob).not_to have_received(:perform_async)
+        end
+      end
+    end
+
+    describe '40_10007 email' do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
+      let(:config) do
+        { form_data: data, form_number: 'vba_40_10007',
+          confirmation_number: 'confirmation_number', date_submitted: }
+      end
+
+      context 'template_id is provided', if: notification_type == :error do
+        context 'when email is entered' do
+          let(:data) do
+            fixture_path = Rails.root.join(
+              'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_10007.json'
+            )
+            JSON.parse(fixture_path.read)
+          end
+        end
+
+        context 'when email is omitted' do
+          let(:data) do
+            fixture_path = Rails.root.join(
+              'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_10007-min.json'
+            )
+            JSON.parse(fixture_path.read)
+          end
+
+          context 'when user is signed in' do
+            let(:user) { create(:user, :loa3) }
+
+            it 'does not send the confirmation email' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+              expect(data['application']['claimant']['email']).to be_nil
+
+              subject = described_class.new(config, notification_type:)
+
+              subject.send
+
+              expect(VANotify::EmailJob).not_to have_received(:perform_async)
+            end
+          end
+
+          context 'when user is not signed in' do
+            it 'does not send the confirmation email' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+              expect(data['applicant_email']).to be_nil
+
+              subject = described_class.new(config)
+
+              subject.send
+
+              expect(VANotify::EmailJob).not_to have_received(:perform_async)
+            end
+          end
+        end
+      end
+
+      context 'template_id is missing', if: notification_type != :error do
+        let(:data) do
+          fixture_path = Rails.root.join(
+            'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_10007.json'
+          )
+          JSON.parse(fixture_path.read)
+        end
+        let(:user) { create(:user, :loa3) }
+
+        it 'sends nothing' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+          subject = described_class.new(config, notification_type:, user:)
+
+          subject.send
+
+          expect(VANotify::EmailJob).not_to have_received(:perform_async)
+        end
+      end
+    end
+
+    describe '40-10007 first name' do
+      subject { described_class.new(config) }
+
+      let(:config) do
+        {
+          form_number: 'vba_40_10007',
+          form_data: form_data,
+          confirmation_number: '8679305',
+          date_submitted: Time.zone.today.strftime('%B %d, %Y')
+        }
+      end
+
+      context 'when the applicant is the claimant ("Self")' do
+        let(:form_data) do
+          {
+            'application' => {
+              'applicant' => {
+                'applicant_relationship_to_claimant' => 'Self'
+              },
+              'veteran' => {
+                'current_name' => {
+                  'first' => 'Freddy'
+                }
+              }
+            }
+          }
+        end
+
+        it 'returns the veteran first name' do
+          expect(subject.instance_eval { form40_10007_first_name }).to eq('Freddy')
+        end
+      end
+
+      context 'when the applicant is not the claimant' do
+        let(:form_data) do
+          {
+            'application' => {
+              'applicant' => {
+                'applicant_relationship_to_claimant' => 'Authorized Agent/Rep'
+              },
+              'claimant' => {
+                'name' => {
+                  'first' => 'Jason'
+                }
+              }
+            }
+          }
+        end
+
+        it 'returns the claimant first name' do
+          expect(subject.instance_eval { form40_10007_first_name }).to eq('Jason')
         end
       end
     end
