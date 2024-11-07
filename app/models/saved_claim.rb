@@ -160,7 +160,7 @@ class SavedClaim < ApplicationRecord
     JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true, clear_cache: })
   rescue => e
     PersonalInformationLog.create(data: { schema:, parsed_form:, params: { errors_as_objects: true, clear_cache: } },
-                                  error_class: 'SavedClaim SchemaValidationError')
+                                  error_class: 'SavedClaim FormValidationError')
     Rails.logger.error('Error during form validation!',
                        { error: e.message, backtrace: e.backtrace, schema:, clear_cache: })
     raise

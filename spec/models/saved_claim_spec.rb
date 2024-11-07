@@ -103,7 +103,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
             data: { schema: schema,
                     parsed_form: saved_claim.parsed_form,
                     params: { errors_as_objects: true, clear_cache: false } },
-            error_class: 'SavedClaim SchemaValidationError'
+            error_class: 'SavedClaim FormValidationError'
           )
 
           expect { saved_claim.validate }.to raise_error(exception.class, exception.message)
