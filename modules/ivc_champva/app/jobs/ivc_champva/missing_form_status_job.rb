@@ -21,13 +21,15 @@ module IvcChampva
 
       current_time = Time.now.utc
       forms.each do |form|
-        # Check if we've been missing Pega status for > custom threshold of days:
-        elapsed_days = (current_time - form.created_at).to_i / 1.day
-        threshold = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.to_i || 7
-        if elapsed_days >= threshold && !form.email_sent
-          template_id = "#{form[:form_number]}-FAILURE"
-          send_failure_email(form, template_id)
-          StatsD.increment('ivc_champva.form_missing_status_email_sent', tags: ["id:#{form.id}"])
+        if Flipper.enabled?(:champva_failure_email_job_enabled, @current_user)
+          # Check if we've been missing Pega status for > custom threshold of days:
+          elapsed_days = (current_time - form.created_at).to_i / 1.day
+          threshold = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.to_i || 7
+          if elapsed_days >= threshold && !form.email_sent
+            template_id = "#{form[:form_number]}-FAILURE"
+            send_failure_email(form, template_id)
+            StatsD.increment('ivc_champva.form_missing_status_email_sent', tags: ["id:#{form.id}"])
+          end
         end
 
         # Send each form UUID to DataDog
