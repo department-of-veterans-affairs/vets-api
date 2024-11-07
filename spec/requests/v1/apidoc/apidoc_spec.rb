@@ -12,5 +12,4 @@ RSpec.describe 'API V1 doc validations', type: :request do
       JSON.parse(json).to_yaml
     end
   end
-
 end
