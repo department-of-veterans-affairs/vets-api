@@ -7,15 +7,15 @@ module ClaimsApi
     end
 
     def update_birls_record(**options)
-      builder = Nokogiri::XML::Builder.new(
-        birlsUpdateInput do
-          CLAIM_NUMBER options[:file_number] if options[:file_number]
-          SOC_SEC_NUM options[:ssn] if options[:ssn]
-          POWER_OF_ATTY_CODE1 options[:poa_code][0] if options[:poa_code][0]
-          POWER_OF_ATTY_CODE2 options[:poa_code][1] if options[:poa_code][1]
-        end
-      )
-      body = builder_to_xml(builder)
+      body = Nokogiri::XML::DocumentFragment.parse <<~EOML
+        <birlsUpdateInput>
+          <CLAIM_NUMBER>#{options[:file_number][:file_nbr]}</CLAIM_NUMBER>
+          <SOC_SEC_NUM>#{options[:ssn]}</SOC_SEC_NUM>
+          <POWER_OF_ATTY_CODE1>#{options[:poa_code]}</POWER_OF_ATTY_CODE1>
+          <PAYEE_NUMBER>?</PAYEE_NUMBER>
+        </birlsUpdateInput>
+      EOML
+
       make_request(endpoint: bean_name, body:, action: 'updateBirlsRecord', key: 'return')
       # 'update_birls_record_response'
     end

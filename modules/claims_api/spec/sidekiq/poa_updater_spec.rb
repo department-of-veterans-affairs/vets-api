@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::PoaUpdater, type: :job do
+RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/poa_updater' do
   subject { described_class }
 
   before do
