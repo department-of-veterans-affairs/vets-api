@@ -1,0 +1,15 @@
+name: Backend PR Labeler
+on:
+  pull_request:
+    types: [opened, reopened, review_requested, review_request_removed, ready_for_review, converted_to_draft, labeled, unlabeled]
+  workflow_run:
+    workflows: 
+      - "Code Checks"
+    types: [completed]
+jobs:
+  check-pr-status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Say Hi
+        run: |
+          echo "Hi"

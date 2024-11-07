@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../lib/pensions/monitor'
+require 'pensions/monitor'
 
 RSpec.describe Pensions::Monitor do
   let(:monitor) { described_class.new }
@@ -299,6 +299,7 @@ RSpec.describe Pensions::Monitor do
       context 'with a claim parameter' do
         it 'logs sidekiq job exhaustion' do
           notification = double(Pensions::NotificationEmail)
+
           msg = { 'args' => [claim.id, current_user.uuid] }
 
           log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
