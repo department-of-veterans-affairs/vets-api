@@ -174,13 +174,13 @@ RSpec.describe Form526StatusPollingJob, type: :job do
         end
 
         context 'when send_backup_submission_exhaustion_email_notice is disabled' do
+          let!(:pending_claim_ids) { Form526Submission.pending_backup.pluck(:backup_submitted_claim_id) }
+
           before do
             Flipper.disable(:send_backup_submission_polling_failure_email_notice)
           end
 
-          it 'enqueues a failure notification email job' do
-            pending_claim_ids = Form526Submission.pending_backup.pluck(:backup_submitted_claim_id)
-
+          it 'does not enqueue a failure notification email job' do
             response = double
             allow(response).to receive(:body).and_return(api_response)
             allow_any_instance_of(BenefitsIntakeService::Service)
@@ -189,6 +189,31 @@ RSpec.describe Form526StatusPollingJob, type: :job do
               .and_return(response)
 
             expect(Form526SubmissionFailureEmailJob).not_to receive(:perform_async)
+            Form526StatusPollingJob.new.perform
+          end
+
+          it 'logs submission failure' do
+            response = double
+            allow(response).to receive(:body).and_return(api_response)
+            allow_any_instance_of(BenefitsIntakeService::Service)
+              .to receive(:get_bulk_status_of_uploads)
+              .with(pending_claim_ids)
+              .and_return(response)
+
+            expect(Rails.logger).to receive(:warn).with(
+              'Form526StatusPollingJob submission failure',
+              {
+                result: 'failure',
+                submission_id: backup_submission_c.id
+              }
+            ).once
+            expect(Rails.logger).to receive(:warn).with(
+              'Form526StatusPollingJob submission failure',
+              {
+                result: 'failure',
+                submission_id: backup_submission_d.id
+              }
+            ).once
             Form526StatusPollingJob.new.perform
           end
         end
