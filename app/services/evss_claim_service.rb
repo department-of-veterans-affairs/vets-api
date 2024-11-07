@@ -126,14 +126,16 @@ class EVSSClaimService
 
   def record_evidence_submission(claim_id, job_id, tracked_item_id)
     user_account_id = @user.user_account_uuid
+    user_account = UserAccount.find(@user.user_account_uuid)
     job_class = self.class
     upload_status = 'pending'
-    EvidenceSubmission.create(claim_id:,
-                              tracked_item_id:,
-                              user_account_id:,
-                              job_id:,
-                              job_class:,
-                              upload_status:)
+    evidence_submission = EvidenceSubmission.build(claim_id:,
+                                tracked_item_id:,
+                                job_id:,
+                                job_class:,
+                                upload_status:)
+    evidence_submission.user_account = user_account
+    evidence_submission.save!
   end
 
   def claims_scope

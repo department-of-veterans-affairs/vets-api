@@ -48,6 +48,8 @@ RSpec.describe EVSSClaimService do
     before do
       allow(Rails.logger).to receive(:info)
       allow_any_instance_of(claim_service).to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(claim)
+      user.user_account_uuid = user_account.id
+      user.save!
     end
 
     describe '#request_decision' do
@@ -113,6 +115,10 @@ RSpec.describe EVSSClaimService do
   end
 
   describe '#upload_document' do
+    before do
+      user.user_account_uuid = user_account.id
+      user.save!
+    end
     let(:upload_file) do
       f = Tempfile.new(['file with spaces', '.txt'])
       f.write('test')
