@@ -21,9 +21,7 @@ RSpec.describe Burials::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           message: monitor_error.message,
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -44,9 +42,7 @@ RSpec.describe Burials::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           message: monitor_error.message,
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -66,9 +62,7 @@ RSpec.describe Burials::Monitor do
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -90,9 +84,7 @@ RSpec.describe Burials::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
           errors: [],
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -114,9 +106,7 @@ RSpec.describe Burials::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
           errors: [],
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -139,9 +129,7 @@ RSpec.describe Burials::Monitor do
           in_progress_form_id: ipf.id,
           errors: [],
           message: monitor_error.message,
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -163,9 +151,7 @@ RSpec.describe Burials::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
           errors: [],
-          tags: {
-            form_id: '21P-530EZ'
-          }
+          tags: monitor.tags
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -193,9 +179,7 @@ RSpec.describe Burials::Monitor do
             form_id: claim.form_id,
             claim_id: claim.id, # pulled from msg.args
             message: msg,
-            tags: {
-              form_id: '21P-530EZ'
-            }
+            tags: monitor.tags
           }
 
           expect(Burials::NotificationEmail).to receive(:new).with(claim).and_return notification
@@ -225,9 +209,7 @@ RSpec.describe Burials::Monitor do
             form_id: nil,
             claim_id: claim.id, # pulled from msg.args
             message: msg,
-            tags: {
-              form_id: '21P-530EZ'
-            }
+            tags: monitor.tags
           }
 
           expect(Burials::NotificationEmail).not_to receive(:new)

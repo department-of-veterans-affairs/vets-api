@@ -1046,6 +1046,7 @@ lighthouse:
     use_mocks: false
   veterans_health:
     url: https://sandbox-api.va.gov
+    use_mocks: false
     fast_tracker:
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
       api_scope:
