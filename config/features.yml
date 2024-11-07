@@ -626,6 +626,14 @@ features:
     actor_type: user
     description: Enables enqueuing a Form526DocumentUploadFailureEmail if a EVSS::DisabilityCompensationForm::SubmitUploads job exhausts its retries
     enable_in_development: true
+  form526_send_backup_submission_polling_failure_email_notice:
+    actor_type: user
+    description: Enables enqueuing a Form526DocumentUploadFailureEmail if a Form526Submisison is marked as rejected or expired by polling of the backup path (Benefits Intake API).
+    enable_in_development: true
+  form526_send_backup_submission_exhaustion_email_notice:
+    actor_type: user
+    description: Enables enqueuing a Form526SubmissionFailureEmailJob if a Form526Submission exhausts it's submisison retries to the backup path (Benfits Intake API).
+    enable_in_development: true
   form526_send_4142_failure_notification:
     actor_type: user
     description: Enables enqueuing a Form4142DocumentUploadFailureEmail if a SubmitForm4142Job job exhausts its retries
