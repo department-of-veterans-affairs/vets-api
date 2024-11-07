@@ -43,7 +43,7 @@ jobs:
       - name: Check for exemption
         id: check_exemption
         run: |
-          pull_request=$( fromJSON(steps.get_pr.outputs.pull_request) )
+          pull_request=${{ fromJSON(steps.get_pr.outputs.pull_request) }}
           if [ ! ${{ contains(toJSON(pull_request.requested_teams.*.name), 'backend-review-group') }} ]; then
             echo "exempt=true" >> $GITHUB_OUTPUT
             echo "PR is exempt from backend approval."
@@ -66,10 +66,6 @@ jobs:
       - name: Check for failure labels
         id: audit_pr_labels
         run: |
-          echo ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'test-failure') }}
-          echo ${{ !contains(steps.get_pr.outputs.pull_request.labels.*.name, 'test-failure') }}
-          echo ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'test-failure') == 'true' }}
-          echo ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'test-failure') == 'false' }}
           if [[ \
             ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'code-health-failure') == 'true' }} || \
             ${{ contains(steps.get_pr.outputs.pull_request.labels.*.name, 'codeowners-addition-failure') == 'true' }} || \
