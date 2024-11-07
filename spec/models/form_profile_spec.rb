@@ -12,6 +12,7 @@ RSpec.describe FormProfile, type: :model do
 
   before do
     stub_evss_pciu(user)
+    user.instance_variable_set(:@ssn, user.ssn.delete('-'))
     described_class.instance_variable_set(:@mappings, nil)
     Flipper.disable(:disability_526_toxic_exposure)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
@@ -100,7 +101,7 @@ RSpec.describe FormProfile, type: :model do
           'address' => address,
           'dateOfBirth' => user.birth_date,
           'name' => full_name,
-          'ssn' => FormIdentityInformation.new(ssn: user.ssn).hyphenated_ssn,
+          'ssn' => user.ssn,
           'email' => user.pciu_email,
           'phoneNumber' => us_phone
         }
