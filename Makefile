@@ -44,9 +44,9 @@ bash:  ## Starts a bash shell inside the docker container
 .PHONY: build
 build:  ## Builds the api
 ifeq ($(ENV_ARG), dev)
-	$(COMPOSE_DEV) build
+	$(COMPOSE_DEV) build --no-cache
 else
-	$(COMPOSE_TEST) build
+	$(COMPOSE_TEST) build --no-cache
 endif
 
 .PHONY: db
@@ -95,7 +95,7 @@ migrate:  ## Runs the database migrations
 
 .PHONY: rebuild
 rebuild: down  ## Stops the docker services and builds the api
-	@$(COMPOSE_DEV) build
+	@$(COMPOSE_DEV) build --no-cache
 
 .PHONY: security
 security:  ## Runs security scans
