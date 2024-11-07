@@ -21,7 +21,7 @@ module IvcChampva
       current_time = Time.now.utc
       forms.each do |form|
         # Check if we've been missing Pega status for > custom threshold of days:
-        elapsed_days = (current_time.to_i - form.created_at.to_i) / (60 * 60 * 24)
+        elapsed_days = (current_time - form.created_at).to_i / 1.day
         threshold = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.to_i || 7
         if elapsed_days >= threshold && !form.email_sent
           template_id = "#{form[:form_number]}-FAILURE"

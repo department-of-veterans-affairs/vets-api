@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
-  let!(:one_week_ago) { Time.now.utc - 60 * 60 * 24 * 7 }
+  let!(:one_week_ago) { 1.week.ago.utc }
   let!(:forms) { create_list(:ivc_champva_form, 3, pega_status: nil, created_at: one_week_ago) }
 
   before do
@@ -38,7 +38,8 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     IvcChampva::MissingFormStatusJob.new.perform
 
     forms.each do |form|
-      expect(StatsD).to have_received(:increment).with('ivc_champva.form_missing_status_email_sent', tags: ["id:#{form.id}"])
+      expect(StatsD).to have_received(:increment)
+      .with('ivc_champva.form_missing_status_email_sent', tags: ["id:#{form.id}"])
     end
   end
 end
