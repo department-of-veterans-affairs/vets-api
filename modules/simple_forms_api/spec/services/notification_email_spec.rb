@@ -543,7 +543,7 @@ describe SimpleFormsApi::NotificationEmail do
                 'name' => {
                   'first' => 'Freddy'
                 }
-              }
+              },
               'veteran' => {
                 'current_name' => {
                   'first' => 'Bob'
@@ -564,10 +564,8 @@ describe SimpleFormsApi::NotificationEmail do
             'application' => {
               'applicant' => {
                 'applicant_relationship_to_claimant' => 'Authorized Agent/Rep',
-                'name'=>{
-                  'first'=> 'Jason'{
-
-                  }
+                'name' => {
+                  'first' => 'Jason'
                 }
               },
               'claimant' => {
