@@ -15,7 +15,7 @@ module ClaimsApi
           poa_codes = form_attributes['poaCodes']
           page_size = form_attributes['pageSize']
           page_index = form_attributes['pageIndex']
-          filter = form_attributes['filter']
+          filter = form_attributes['filter'] || {}
 
           unless poa_codes.is_a?(Array) && poa_codes.size.positive?
             raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
@@ -32,7 +32,7 @@ module ClaimsApi
           service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
                                                     external_key: 'power_of_attorney_request_key')
 
-          res = service.read_poa_request(poa_codes:, page_size:, page_index:)
+          res = service.read_poa_request(poa_codes:, page_size:, page_index:, filter:)
 
           poa_list = res['poaRequestRespondReturnVOList']
 
@@ -136,7 +136,7 @@ module ClaimsApi
         def validate_filter!(filter)
           return nil if filter.blank?
 
-          valid_filters = %w[status state city country sensitivityLevel]
+          valid_filters = %w[status state city country]
 
           invalid_filters = filter.keys - valid_filters
 
@@ -158,9 +158,9 @@ module ClaimsApi
             )
           end
 
-          valid_statuses = %w[new accepted declined]
+          valid_statuses = ManageRepresentativeService::ALL_STATUSES
 
-          if statuses.any? { |status| valid_statuses.exclude?(status.downcase) }
+          if statuses.any? { |status| valid_statuses.exclude?(status.upcase) }
             raise ::Common::Exceptions::UnprocessableEntity.new(
               detail: "Status(es) must be one of: #{valid_statuses.join(', ')}"
             )
