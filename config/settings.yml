@@ -280,6 +280,7 @@ vet360:
     timeout: 30
     mock: false
   address_validation:
+    url: "https://sandbox-api.va.gov"
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
   profile_information:
@@ -1045,6 +1046,7 @@ lighthouse:
     use_mocks: false
   veterans_health:
     url: https://sandbox-api.va.gov
+    use_mocks: false
     fast_tracker:
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
       api_scope:
