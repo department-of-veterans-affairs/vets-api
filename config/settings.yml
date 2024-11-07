@@ -280,6 +280,7 @@ vet360:
     timeout: 30
     mock: false
   address_validation:
+    url: "https://sandbox-api.va.gov"
     hostname: "sandbox-api.va.gov"
     api_key: "<AV_KEY>"
   profile_information:
