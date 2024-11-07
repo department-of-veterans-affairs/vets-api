@@ -6,18 +6,10 @@ require 'sidekiq/testing'
 
 RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :worker do
   describe '#perform' do
-    let(:form_submission) { build(:debts_api_form5655_submission) }
+    let(:form_submission) { create(:debts_api_form5655_submission) }
 
     before do
       allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission)
-    end
-
-    context 'when all retries are exhausted' do
-      it 'sets submission to failure' do
-        described_class.within_sidekiq_retries_exhausted_block({ 'jid' => 123 }) do
-          expect(form_submission).to receive(:register_failure)
-        end
-      end
     end
 
     context 'with retries exhausted' do
@@ -25,7 +17,7 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
       let(:msg) do
         {
           'class' => 'YourJobClassName',
-          'args' => %w[123],
+          'args' => [form_submission.id],
           'jid' => '12345abcde',
           'retry_count' => 5
         }
@@ -45,6 +37,30 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
         end
 
         config.sidekiq_retries_exhausted_block.call(msg, standard_exception)
+      end
+
+      it 'logs error information' do
+        expect(Rails.logger).to receive(:error).with(
+          "Form5655Submission id: #{form_submission.id} failed", 'SharePoint Submission Failed: .'
+        )
+        expect(Rails.logger).to receive(:error).with(
+          a_string_matching(
+            /
+              V0::Form5655::VHA::SharepointSubmissionJob\ retries\ exhausted:\n
+              submission_id:\ #{form_submission.id}\n
+              Exception:\ .*\n
+              Backtrace:.*
+            /x
+          )
+        )
+
+        config.sidekiq_retries_exhausted_block.call(msg, standard_exception)
+      end
+
+      it 'puts the form status into error' do
+        described_class.within_sidekiq_retries_exhausted_block(msg, standard_exception) do
+          expect(form_submission).to receive(:register_failure)
+        end
       end
     end
   end
