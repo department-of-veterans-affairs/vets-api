@@ -1,3 +1,4 @@
+hostname: www.example.com # possible fallback for unsafe request.host
 virtual_hosts: ["www.example.com", "localhost", "127.0.0.1", "example.org"] # Safe host names
 vsp_environment: test
 
