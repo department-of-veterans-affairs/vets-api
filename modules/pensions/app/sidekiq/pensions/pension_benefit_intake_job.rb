@@ -27,8 +27,9 @@ module Pensions
     # `source` attribute for upload metadata
     PENSION_SOURCE = __FILE__
 
-    # retry for one day
-    sidekiq_options retry: 14, queue: 'low'
+    # retry for 2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 16, queue: 'low'
 
     # retry exhaustion
     sidekiq_retries_exhausted do |msg|
