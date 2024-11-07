@@ -1443,13 +1443,13 @@ genisis:
 dgi:
   # add med_api here? Will need to reach out to that team
   jwt:
-    public_key_path: ~
-    private_key_path: ~
+    public_key_path: ""
+    private_key_path: ""
   vye:
     jwt:
       # May not need the public path
-      public_key_path: ~
-      private_key_path: ~
+      public_key_path: ""
+      private_key_path: ""
     vets:
       url: ~
       mock: false
