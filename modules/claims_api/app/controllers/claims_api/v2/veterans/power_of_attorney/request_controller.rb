@@ -29,8 +29,8 @@ module ClaimsApi
 
           validate_filter!(filter)
 
-          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
-                                                    external_key: 'power_of_attorney_request_key')
+          service = ClaimsApi::ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
+                                                               external_key: 'power_of_attorney_request_key')
 
           res = service.read_poa_request(poa_codes:, page_size:, page_index:, filter:)
 
