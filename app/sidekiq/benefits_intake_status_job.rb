@@ -45,7 +45,7 @@ class BenefitsIntakeStatusJob
 
       raise response.body unless response.success?
 
-      total_handled += handle_response(response, batch)
+      total_handled += handle_response(response)
     end
 
     [total_handled, true]
