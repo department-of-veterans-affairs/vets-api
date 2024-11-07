@@ -7,9 +7,9 @@ RSpec.describe Vye::DGIB::VerifyClaimant::Service do
   include ActiveSupport::Testing::TimeHelpers
 
   let(:claimant_id) { 600_010_259 }
-  let (:verified_period_begin_date) { Date.new(2022, 2, 9) }
-  let (:verified_period_end_date) { Date.new(2022, 3, 9) }
-  let (:verfied_through_date) { Date.new(2022, 4, 9) }
+  let(:verified_period_begin_date) { Date.new(2022, 2, 9) }
+  let(:verified_period_end_date) { Date.new(2022, 3, 9) }
+  let(:verfied_through_date) { Date.new(2022, 4, 9) }
 
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:service) { Vye::DGIB::VerifyClaimant::Service.new(user) }

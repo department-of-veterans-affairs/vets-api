@@ -4,7 +4,6 @@ module Vye
   module DGIB
     class Configuration < Common::Client::Configuration::REST
       def connection
-
         @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
           faraday.use :breakers
           faraday.ssl[:ca_file] = 'modules/vye/spec/fixtures/ICA11-RCA2-combined-cert.pem'

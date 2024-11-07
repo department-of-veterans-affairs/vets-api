@@ -13,7 +13,7 @@ module Vye
         # Nothing with the routing seemed to work but subject.claimant_lookup works. However
         # it gives this error:
         # Module::DelegationError:
-        #  ActionController::Metal#media_type delegated to @_response.media_type, but @_response is nil: 
+        #  ActionController::Metal#media_type delegated to @_response.media_type, but @_response is nil:
         # #<Vye::V1::DgibVerificationsController:0x0000000003b150>
         # What makes this work is to set the @_response instance variable.
         subject.instance_variable_set(:@_response, ActionDispatch::Response.new)

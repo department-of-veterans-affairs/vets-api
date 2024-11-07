@@ -13,6 +13,7 @@ module Vye
         configuration Vye::DGIB::VerifyClaimant::Configuration
         STATSD_KEY_PREFIX = 'api.dgi.verify_claimant_service'
 
+        # rubocop:disable Metrics/ParameterLists
         def verify_claimant(
           claimant_id,
           verified_period_begin_date,
@@ -38,6 +39,7 @@ module Vye
             Vye::DGIB::VerifyClaimant::Response.new(response.status, response)
           end
         end
+        # rubocop:enable Metrics/ParameterLists
 
         private
 

@@ -18,7 +18,7 @@ module Vye
 
       def verify_claimant
         head :forbidden unless authorize(user_info, policy_class: UserInfoPolicy)
-        
+
         response = verify_claimant_service.verify_claimant(
           params[:claimant_id],
           params[:verified_period_begin_date],
@@ -35,7 +35,7 @@ module Vye
       # the serializer for this endpoint is the same as for verify_claimant
       def claimant_status
         head :forbidden unless authorize(user_info, policy_class: UserInfoPolicy)
-        
+
         response = claimant_status_service.get_claimant_status(params[:claimant_id])
         serializer = Vye::VerifyClaimantSerializer
         process_response(response, serializer)
@@ -43,7 +43,7 @@ module Vye
 
       def claimant_lookup
         head :forbidden unless authorize(user_info, policy_class: UserInfoPolicy)
-        
+
         response = claimant_lookup_service.claimant_lookup(current_user.ssn)
         serializer = Vye::ClaimantLookupSerializer
         process_response(response, serializer)
