@@ -401,7 +401,6 @@ module Swagger
             key :description, 'Response is OK'
             schema do
               key :type, :object
-              property(:validation_key, type: :integer)
 
               property(:addresses) do
                 key :type, :array
