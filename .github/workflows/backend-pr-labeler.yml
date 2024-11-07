@@ -65,14 +65,14 @@ jobs:
       - name: Check for failure labels
         id: audit_pr_labels
         env:
-          LABELS: ${{ toJSON(fromJSON(steps.get_pr.outputs.pull_request).labels.*.name) }}
+          labels: ${{ toJSON(fromJSON(steps.get_pr.outputs.pull_request).labels.*.name) }}
         run: |
           if [[ \
-            ${{ contains($LABELS, 'code-health-failure') == 'true' }} || \
-            ${{ contains($LABELS, 'codeowners-addition-failure') == 'true' }} || \
-            ${{ contains($LABELS, 'codeowners-delete-failure') == 'true' }} || \
-            ${{ contains($LABELS, 'lint-failure') == 'true' }} || \
-            ${{ contains($LABELS, 'test-failure') == 'true' }} \
+            ${{ contains(env.labels, 'code-health-failure') == 'true' }} || \
+            ${{ contains(env.labels, 'codeowners-addition-failure') == 'true' }} || \
+            ${{ contains(env.labels, 'codeowners-delete-failure') == 'true' }} || \
+            ${{ contains(env.labels, 'lint-failure') == 'true' }} || \
+            ${{ contains(env.labels, 'test-failure') == 'true' }} \
           ]]; then
             echo "failures_detected=true" >> $GITHUB_OUTPUT
             echo "Failure labels detected."
