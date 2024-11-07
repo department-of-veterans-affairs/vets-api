@@ -35,8 +35,8 @@ module Burials
           form_id: '21P-530EZ'
         }
       }
-      track_request('error', '21P-530EZ submission not found', CLAIM_STATS_KEY, additional_context,
-                    call_location: caller_locations.first)
+      track_request('error', '21P-530EZ submission not found', CLAIM_STATS_KEY,
+                    call_location: caller_locations.first, **additional_context)
     end
 
     ##
@@ -56,8 +56,8 @@ module Burials
           form_id: '21P-530EZ'
         }
       }
-      track_request('error', '21P-530EZ fetching submission failed', CLAIM_STATS_KEY, additional_context,
-                    call_location: caller_locations.first)
+      track_request('error', '21P-530EZ fetching submission failed', CLAIM_STATS_KEY,
+                    call_location: caller_locations.first, **additional_context)
     end
 
     ##
@@ -75,8 +75,8 @@ module Burials
           form_id: '21P-530EZ'
         }
       }
-      track_request('error', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt", additional_context,
-                    call_location: caller_locations.first)
+      track_request('error', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt",
+                    call_location: caller_locations.first, **additional_context)
     end
 
     ##
@@ -99,7 +99,7 @@ module Burials
         }
       }
       track_request('error', '21P-530EZ submission validation error', "#{CLAIM_STATS_KEY}.validation_error",
-                    additional_context, call_location: caller_locations.first)
+                    call_location: caller_locations.first, **additional_context)
     end
 
     ##
@@ -123,7 +123,7 @@ module Burials
         }
       }
       track_request('error', '21P-530EZ submission to Sidekiq failed', "#{CLAIM_STATS_KEY}.failure",
-                    additional_context, call_location: caller_locations.first)
+                    call_location: caller_locations.first, **additional_context)
     end
 
     ##
@@ -145,7 +145,7 @@ module Burials
         }
       }
       track_request('info', '21P-530EZ submission to Sidekiq success', "#{CLAIM_STATS_KEY}.success",
-                    additional_context, call_location: caller_locations.first)
+                    call_location: caller_locations.first, **additional_context)
     end
 
     ##
@@ -167,7 +167,7 @@ module Burials
         }
       }
       track_request('error', '21P-530EZ process attachment error', "#{CLAIM_STATS_KEY}.process_attachment_error",
-                    additional_context, call_location: caller_locations.first)
+                    call_location: caller_locations.first, **additional_context)
     end
 
     ##
@@ -199,7 +199,7 @@ module Burials
       end
 
       track_request('error', 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!',
-                    "#{SUBMISSION_STATS_KEY}.exhausted", additional_context, call_location: caller_locations.first)
+                    "#{SUBMISSION_STATS_KEY}.exhausted", call_location:, **additional_context)
     end
   end
 end
