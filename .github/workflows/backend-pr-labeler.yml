@@ -25,16 +25,17 @@ jobs:
         id: get_pr
         run: |
           if ${{ github.event_name == 'pull_request'}}; then
-            echo "pull_request=${{ github.event.pull_request }}" >> $GITHUB_OUTPUT
+            echo "pull_request=${{ toJSON(github.event.pull_request) }}" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'pull_request_review' }}; then
-            echo "pull_request=${{ github.event.pull_request_review.pull_request }}" >> $GITHUB_OUTPUT
+            echo "pull_request=${{ toJSON(github.event.pull_request_review.pull_request) }}" >> $GITHUB_OUTPUT
           else
-            echo "pull_request=${{ github.event.workflow_run.pull_requests[0] }}" >> $GITHUB_OUTPUT
+            echo "pull_request=${{ toJSON(github.event.workflow_run.pull_requests[0]) }}" >> $GITHUB_OUTPUT
           fi
 
       - name: Get Code Checks conclusion
         if: github.event_name == 'workflow_run'
         run: |
+          echo "pull_request_json=${{ steps.get_pr.outputs.pull_request }}"
           echo "workflow_run: ${{ toJSON(github.event.workflow_run) }}"
           echo "test_status=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
           echo "test_status: ${{ github.event.workflow_run.conclusion }}"
@@ -42,7 +43,8 @@ jobs:
       - name: Check for exemption
         id: check_exemption
         run: |
-          if [ ! ${{ contains(toJSON(steps.get_pr.outputs.pull_request.requested_teams.*.name), 'backend-review-group') }} ]; then
+          pull_request=$( fromJSON(steps.get_pr.outputs.pull_request) )
+          if [ ! ${{ contains(toJSON(pull_request.requested_teams.*.name), 'backend-review-group') }} ]; then
             echo "exempt=true" >> $GITHUB_OUTPUT
             echo "PR is exempt from backend approval."
           else
