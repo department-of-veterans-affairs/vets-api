@@ -762,9 +762,6 @@ features:
   form107959a:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959a (IVC CHAMPVA claim form)
-  form107959f1:
-    actor_type: user
-    description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program register form)
   form107959f2:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-2 (Foreign Medical Program claim form)
@@ -1580,6 +1577,9 @@ features:
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
+  disability_compensation_email_veteran_on_polled_lighthouse_doc_failure:
+    actor_type: user
+    description: Sends document upload failure emails when polled doc uploaded to Lighthouse has failed to process at Lighthouse
   disability_compensation_lighthouse_rated_disabilities_provider_foreground:
     actor_type: user
     description: If enabled uses the lighthouse rated disabilities endpoint for foreground requests
@@ -1839,3 +1839,7 @@ features:
   va_notify_notification_creation:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
+  is_DGIB_endpoint:
+    actor_type: user
+    description: used to call data from DGIB endpoints for MGIB VYE application
+
