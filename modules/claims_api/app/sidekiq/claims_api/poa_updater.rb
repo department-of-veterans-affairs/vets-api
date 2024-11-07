@@ -4,22 +4,14 @@ require 'bgs'
 
 module ClaimsApi
   class PoaUpdater < ClaimsApi::ServiceBase
-    def perform(power_of_attorney_id, rep = nil) # rubocop:disable Metrics/MethodLength
-      poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
-      service = BGS::Services.new(
-        external_uid: poa_form.external_uid,
-        external_key: poa_form.external_key
-      )
+    def perform(power_of_attorney_id, rep = nil)
+      @poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
 
       ssn = poa_form.auth_headers['va_eauth_pnid']
-      file_number = service.people.find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
-      poa_code = extract_poa_code(poa_form.form_data)
+      file_number = get_file_number(ssn)
+      poa_code = extract_poa_code(@poa_form.form_data)
 
-      response = service.vet_record.update_birls_record(
-        file_number:,
-        ssn:,
-        poa_code:
-      )
+      response = get_response(file_number, ssn, poa_code)
 
       if response[:return_code] == 'BMOD0001'
         poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
@@ -47,6 +39,51 @@ module ClaimsApi
         auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?
       else
         false
+      end
+    end
+
+    def bgs_ext_service
+      BGS::Services.new(
+        external_uid: @poa_form.external_uid,
+        external_key: @poa_form.external_key
+      )
+    end
+
+    def person_web_service
+      ClaimsApi::PersonWebService.new(
+        external_uid: @poa_form.external_uid,
+        external_key: @poa_form.external_key
+      )
+    end
+
+    def vet_record_service
+      ClaimsApi::VetRecordService.new(
+        external_uid: @poa_form.external_uid,
+        external_key: @poa_form.external_key
+      )
+    end
+
+    def get_file_number(ssn)
+      if Flipper.enabled? :claims_api_poa_updater_enables_local_bgs
+        person_web_service.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+      else
+        bgs_service.people.find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
+      end
+    end
+
+    def get_response(file_number, ssn, poa_code)
+      if Flipper.enabled? :claims_api_poa_updater_enables_local_bgs
+        vet_record_service.update_birls_record(
+          file_number:,
+          ssn:,
+          poa_code:
+        )
+      else
+        bgs_service.vet_record.update_birls_record(
+          file_number:,
+          ssn:,
+          poa_code:
+        )
       end
     end
   end
