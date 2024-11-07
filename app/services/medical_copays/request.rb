@@ -51,6 +51,12 @@ module MedicalCopays
       end
     end
 
+    def with_monitoring_and_error_handling(&)
+      with_monitoring(2, &)
+    rescue => e
+      handle_error(e)
+    end
+
     ##
     # Make a HTTP GET call to the VBS service in order to obtain copays or PDFs by id
     #
