@@ -212,13 +212,17 @@ RSpec.describe 'V0::User', type: :request do
     end
 
     context 'with a 503 response from VAProfile::Demographics' do
-      let(:mhv_user) { build(:user, :mhv) }
       let(:body) { JSON.parse(response.body) }
 
       before do
-        sign_in_as(mhv_user)
-        VCR.use_cassette('va_profile/demographics/demographics_error_503', allow_playback_repeats: true) do
-          get v0_user_url, params: nil
+        user = new_user(:loa3)
+        sign_in_as(user)
+        create(:user_verification, idme_uuid: user.idme_uuid)
+        allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
+        VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
+          VCR.use_cassette('va_profile/demographics/demographics_error_503', allow_playback_repeats: true) do
+            get v0_user_url, params: nil
+          end
         end
       end
 
@@ -227,7 +231,8 @@ RSpec.describe 'V0::User', type: :request do
       end
 
       it 'returns meta.errors information' do
-        error = body.dig('meta', 'errors').first
+        error = body.dig('meta', 'errors').find { |err| err['external_service'] == 'VAProfile::Demographics' }
+        expect(error).not_to be_nil
         expect(error['external_service']).to eq 'VAProfile::Demographics'
         expect(error['description']).to be_present
       end
