@@ -22,7 +22,9 @@ RSpec.describe Pensions::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           message: monitor_error.message,
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -44,7 +46,9 @@ RSpec.describe Pensions::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           message: monitor_error.message,
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -65,7 +69,9 @@ RSpec.describe Pensions::Monitor do
         payload = {
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -88,7 +94,9 @@ RSpec.describe Pensions::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
           errors: [], # mock claim does not have `errors`
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -111,7 +119,9 @@ RSpec.describe Pensions::Monitor do
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
           errors: [], # mock claim does not have `errors`
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -135,7 +145,9 @@ RSpec.describe Pensions::Monitor do
           in_progress_form_id: ipf.id,
           errors: [], # mock claim does not have `errors`
           message: monitor_error.message,
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -157,7 +169,9 @@ RSpec.describe Pensions::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.user_account_uuid,
           in_progress_form_id: ipf.id,
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
         claim.form_start_date = Time.zone.now
 
@@ -181,7 +195,9 @@ RSpec.describe Pensions::Monitor do
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -211,7 +227,9 @@ RSpec.describe Pensions::Monitor do
           user_account_uuid: current_user.uuid,
           file: upload[:file],
           attachments: upload[:attachments],
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -234,7 +252,9 @@ RSpec.describe Pensions::Monitor do
           benefits_intake_uuid: lh_service.uuid,
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -258,7 +278,9 @@ RSpec.describe Pensions::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
           message: monitor_error.message,
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -274,30 +296,34 @@ RSpec.describe Pensions::Monitor do
     end
 
     describe '#track_submission_exhaustion' do
-      it 'logs sidekiq job exhaustion' do
-        msg = { 'args' => [claim.id, current_user.uuid] }
+      context 'with a claim parameter' do
+        it 'logs sidekiq job exhaustion' do
+          msg = { 'args' => [claim.id, current_user.uuid] }
 
-        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
-        payload = {
-          form_id: claim.form_id,
-          claim_id: claim.id,
-          user_account_uuid: current_user.uuid,
-          confirmation_number: claim.confirmation_number,
-          message: msg,
-          tags: monitor.tags
-        }
+          log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
+          payload = {
+            form_id: claim.form_id,
+            claim_id: claim.id,
+            user_account_uuid: current_user.uuid,
+            confirmation_number: claim.confirmation_number,
+            message: msg,
+            tags: {
+              form_id: '21P-527EZ'
+            }
+          }
 
-        expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+          expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
 
-        expect(monitor).to receive(:track_request).with(
-          'error',
-          log,
-          "#{submission_stats_key}.exhausted",
-          call_location: anything,
-          **payload
-        )
+          expect(monitor).to receive(:track_request).with(
+            'error',
+            log,
+            "#{submission_stats_key}.exhausted",
+            call_location: anything,
+            **payload
+          )
 
-        monitor.track_submission_exhaustion(msg, claim)
+          monitor.track_submission_exhaustion(msg, claim)
+        end
       end
     end
 
@@ -310,7 +336,9 @@ RSpec.describe Pensions::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
           message: monitor_error.message,
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(
@@ -334,7 +362,9 @@ RSpec.describe Pensions::Monitor do
           confirmation_number: claim.confirmation_number,
           user_account_uuid: current_user.uuid,
           error: monitor_error.message,
-          tags: monitor.tags
+          tags: {
+            form_id: '21P-527EZ'
+          }
         }
 
         expect(monitor).to receive(:track_request).with(

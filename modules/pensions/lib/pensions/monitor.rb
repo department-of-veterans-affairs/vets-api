@@ -14,12 +14,8 @@ module Pensions
     # statsd key for sidekiq
     SUBMISSION_STATS_KEY = 'worker.lighthouse.pension_benefit_intake_job'
 
-    attr_reader :tags
-
     def initialize
       super('pension-application')
-
-      @tags = ['form_id:21P-527EZ']
     end
 
     ##
@@ -35,7 +31,9 @@ module Pensions
         confirmation_number:,
         user_account_uuid: current_user&.user_account_uuid,
         message: e&.message,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', '21P-527EZ submission not found', CLAIM_STATS_KEY,
                     call_location: caller_locations.first, **additional_context)
@@ -54,7 +52,9 @@ module Pensions
         confirmation_number:,
         user_account_uuid: current_user&.user_account_uuid,
         message: e&.message,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', '21P-527EZ fetching submission failed', CLAIM_STATS_KEY,
                     call_location: caller_locations.first, **additional_context)
@@ -71,7 +71,9 @@ module Pensions
       additional_context = {
         confirmation_number: claim&.confirmation_number,
         user_account_uuid: current_user&.user_account_uuid,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('info', '21P-527EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt",
                     call_location: caller_locations.first, **additional_context)
@@ -92,7 +94,9 @@ module Pensions
         user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
         errors: claim&.errors&.errors,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', '21P-527EZ submission validation error', "#{CLAIM_STATS_KEY}.validation_error",
                     call_location: caller_locations.first, **additional_context)
@@ -114,7 +118,9 @@ module Pensions
         in_progress_form_id: in_progress_form&.id,
         errors: claim&.errors&.errors,
         message: e&.message,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', '21P-527EZ submission to Sidekiq failed', "#{CLAIM_STATS_KEY}.failure",
                     call_location: caller_locations.first, **additional_context)
@@ -133,7 +139,9 @@ module Pensions
         confirmation_number: claim&.confirmation_number,
         user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('info', '21P-527EZ submission to Sidekiq success', "#{CLAIM_STATS_KEY}.success",
                     call_location: caller_locations.first, **additional_context)
@@ -153,7 +161,9 @@ module Pensions
         user_account_uuid: current_user&.user_account_uuid,
         in_progress_form_id: in_progress_form&.id,
         errors: claim&.errors&.errors,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', '21P-527EZ process attachment error', "#{CLAIM_STATS_KEY}.process_attachment_error",
                     call_location: caller_locations.first, **additional_context)
@@ -173,7 +183,9 @@ module Pensions
         user_account_uuid:,
         claim_id: claim&.id,
         benefits_intake_uuid: lighthouse_service&.uuid,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('info', 'Lighthouse::PensionBenefitIntakeJob submission to LH begun',
                     "#{SUBMISSION_STATS_KEY}.begun", call_location: caller_locations.first, **additional_context)
@@ -196,7 +208,9 @@ module Pensions
         benefits_intake_uuid: lighthouse_service&.uuid,
         file: upload[:file],
         attachments: upload[:attachments],
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('info', 'Lighthouse::PensionBenefitIntakeJob submission to LH attempted',
                     "#{SUBMISSION_STATS_KEY}.attempt", call_location: caller_locations.first, **additional_context)
@@ -216,7 +230,9 @@ module Pensions
         user_account_uuid:,
         claim_id: claim&.id,
         benefits_intake_uuid: lighthouse_service&.uuid,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('info', 'Lighthouse::PensionBenefitIntakeJob submission to LH succeeded',
                     "#{SUBMISSION_STATS_KEY}.success", call_location: caller_locations.first, **additional_context)
@@ -238,7 +254,9 @@ module Pensions
         claim_id: claim&.id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         message: e&.message,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('warn', 'Lighthouse::PensionBenefitIntakeJob submission to LH failed, retrying',
                     "#{SUBMISSION_STATS_KEY}.failure", call_location: caller_locations.first, **additional_context)
@@ -259,7 +277,9 @@ module Pensions
         claim_id: msg['args'].first,
         form_id: claim&.form_id,
         message: msg,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       call_location = caller_locations.first
 
@@ -285,7 +305,9 @@ module Pensions
         claim_id: claim&.id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         message: e&.message,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
 
       track_request('warn', 'Lighthouse::PensionBenefitIntakeJob send_confirmation_email failed',
@@ -309,7 +331,9 @@ module Pensions
         claim_id: claim&.id,
         benefits_intake_uuid: lighthouse_service&.uuid,
         error: e&.message,
-        tags:
+        tags: {
+          form_id: '21P-527EZ'
+        }
       }
       track_request('error', 'Lighthouse::PensionBenefitIntakeJob cleanup failed',
                     "#{SUBMISSION_STATS_KEY}.cleanup_failed",
