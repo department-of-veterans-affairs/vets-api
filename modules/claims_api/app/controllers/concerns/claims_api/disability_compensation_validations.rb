@@ -143,11 +143,12 @@ module ClaimsApi
     end
 
     def transform_form_526_unit_name!
-      return if form_attributes&.dig('serviceInformation', 'reservesNationalGuardService').nil?
+      reserves = form_attributes&.dig('serviceInformation', 'reservesNationalGuardService')
+      return if reserves.nil?
 
-      unit_name = form_attributes&.dig('serviceInformation', 'reservesNationalGuardService', 'unitName')
-      unit_name = ' ' if unit_name&.blank? || unit_name&.empty?
-      form_attributes['serviceInformation']['reservesNationalGuardService']['unitName'] = unit_name
+      unit_name = reserves['unitName']
+      unit_name = unit_name.presence || ' '
+      reserves['unit_name'] = unit_name
     end
 
     def validate_form_526_submission_claim_date!
