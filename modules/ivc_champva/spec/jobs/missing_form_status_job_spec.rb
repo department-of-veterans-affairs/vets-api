@@ -34,10 +34,11 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     IvcChampva::MissingFormStatusJob.new.perform
   end
 
-  context "Feature champva_failure_email_job_enabled=true" do
+  context 'Feature champva_failure_email_job_enabled=true' do
     before do
       Flipper.enable(:champva_failure_email_job_enabled)
     end
+
     it 'sends count of forms missing Pega status for >= 7 days to DataDog' do
       IvcChampva::MissingFormStatusJob.new.perform
       forms.each do |form|
