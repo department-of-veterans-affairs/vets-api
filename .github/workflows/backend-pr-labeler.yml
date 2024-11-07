@@ -43,13 +43,12 @@ jobs:
       - name: Check for exemption
         id: check_exemption
         run: |
-          pull_request=${{ fromJSON(steps.get_pr.outputs.pull_request) }}
-          if [ ! ${{ contains(fromJSON(steps.get_pr.outputs.pull_request).requested_teams.*.name), 'backend-review-group') }} ]; then
-            echo "exempt=true" >> $GITHUB_OUTPUT
-            echo "PR is exempt from backend approval."
-          else
+          if ${{ contains(fromJSON(steps.get_pr.outputs.pull_request).requested_teams.*.name, 'backend-review-group') }}; then
             echo "exempt=false" >> $GITHUB_OUTPUT
             echo "PR requires backend approval."
+          else
+            echo "exempt=true" >> $GITHUB_OUTPUT
+            echo "PR is exempt from backend approval."
           fi
 
       - name: Check Draft state
@@ -65,14 +64,15 @@ jobs:
 
       - name: Check for failure labels
         id: audit_pr_labels
+        env:
+          LABELS: ${{ toJSON(fromJSON(steps.get_pr.outputs.pull_request).labels.*.name) }}
         run: |
-          labels = '${{ fromJSON(steps.get_pr.outputs.pull_request).labels.*.name }}'
           if [[ \
-            ${{ contains(labels, 'code-health-failure') == 'true' }} || \
-            ${{ contains(labels, 'codeowners-addition-failure') == 'true' }} || \
-            ${{ contains(labels, 'codeowners-delete-failure') == 'true' }} || \
-            ${{ contains(labels, 'lint-failure') == 'true' }} || \
-            ${{ contains(labels, 'test-failure') == 'true' }} \
+            ${{ contains($LABELS, 'code-health-failure') == 'true' }} || \
+            ${{ contains($LABELS, 'codeowners-addition-failure') == 'true' }} || \
+            ${{ contains($LABELS, 'codeowners-delete-failure') == 'true' }} || \
+            ${{ contains($LABELS, 'lint-failure') == 'true' }} || \
+            ${{ contains($LABELS, 'test-failure') == 'true' }} \
           ]]; then
             echo "failures_detected=true" >> $GITHUB_OUTPUT
             echo "Failure labels detected."
@@ -93,11 +93,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: check-pr-status
     if: ${{ needs.check-pr-status.outputs.exempt == 'false' && needs.check-pr-status.outputs.draft == 'false' }}
+    env:
+      pull_request_number: ${{ fromJSON(needs.check-pr-status.outputs.pull_request).number }}
     outputs:
       approval_status: ${{ steps.verify_approval.outputs.approval_status }}
     steps:
       # - uses: actions/checkout@v4
-      - name: Print vars
+      - name: Print vars (DELETE ME)
         run: |
           echo "exempt=${{ needs.check-pr-status.outputs.exempt }}"
           echo "draft=${{ needs.check-pr-status.outputs.draft }}"
@@ -121,7 +123,7 @@ jobs:
         id: get_pr_reviews
         uses: octokit/request-action@v2.x
         with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ fromJSON(needs.check-pr-status.outputs.pull_request).number }}/reviews
+          route: GET /repos/${{ github.repository }}/pulls/${{ env.pull_request_number }}/reviews
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -161,26 +163,24 @@ jobs:
     runs-on: ubuntu-latest
     needs: [check-pr-status, check-approvals]
     if: ${{ always() }}
+    env:
+      pull_request: ${{ needs.check-pr-status.outputs.pull_request }}
+      pull_request_number: ${{ fromJSON(needs.check-pr-status.outputs.pull_request).number }}
+      pull_request_labels: ${{ toJSON(fromJSON(needs.check-pr-status.outputs.pull_request).labels.*.name) }}
+      test_status: ${{ needs.check-pr-status.outputs.test_status }}
+      exempt: ${{ needs.check-pr-status.outputs.exempt }}
+      draft: ${{ needs.check-pr-status.outputs.draft }}
+      failures_detected: ${{ needs.check-pr-status.outputs.failures_detected }}
+      approval_status: ${{ needs.check-approvals.outputs.approval_status }}
     steps:
-      - name: Set vars from outputs
-        id: set-vars
-        run: |
-          echo "pull_request=${{ needs.check-pr-status.outputs.pull_request }}" >> $GITHUB_ENV
-          echo "pull_reques_number=${{ fromJSON(needs.check-pr-status.outputs.pull_request).number }}" >> $GITHUB_ENV
-          echo "pull_request_labels=${{ fromJSON(needs.check-pr-status.outputs.pull_request).labels.*.name }}" >> $GITHUB_ENV
-          echo "test_status=${{ needs.check-pr-status.outputs.test_status }}" >> $GITHUB_ENV
-          echo "exempt=${{ needs.check-pr-status.outputs.exempt }}" >> $GITHUB_ENV
-          echo "draft=${{ needs.check-pr-status.outputs.draft }}" >> $GITHUB_ENV
-          echo "failures_detected=${{ needs.check-pr-status.outputs.failures_detected }}" >> $GITHUB_ENV
-          echo "approval_status=${{ needs.check-approvals.outputs.approval_status }}" >> $GITHUB_ENV
-
-      - name: print vars
+      - name: print vars (DELETE ME)
         id: print-vars
         run: |
           echo ${{ env.exempt }}
           echo ${{ env.draft }}
           echo ${{ env.failures_detected }}
           echo ${{ env.approval_status }}
+          echo ${{ env.test_status }}
 
       # Remove labels if required
       - name: Remove require-backend-approval label
@@ -196,7 +196,7 @@ jobs:
         if: |
           env.draft ||
           (
-            contains(env.pull_request_labels, 'ready-for-backend-review') &&
+            contains(fromJSON(env.pull_request_labels), 'ready-for-backend-review') &&
             ( 
               env.failures_detected == 'true' ||
               env.approval_status == 'confirmed'
@@ -208,7 +208,7 @@ jobs:
             ready-for-backend-review
 
       - name: Remove Test Passing label
-        if: ${{ env.test_status == 'failure' && contains(env.pull_request_labels, 'test-passing') }}
+        if: ${{ env.test_status == 'failure' && contains(fromJSON(env.pull_request_labels), 'test-passing') }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pull_request_number }}
@@ -216,7 +216,7 @@ jobs:
             test-passing
 
       - name: Remove Test Failure label
-        if: ${{ env.test_status == 'success' && contains(env.pull_request_labels, 'test-passing') }}
+        if: ${{ env.test_status == 'success' && contains(fromJSON(env.pull_request_labels), 'test-passing') }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pull_request_number }}
