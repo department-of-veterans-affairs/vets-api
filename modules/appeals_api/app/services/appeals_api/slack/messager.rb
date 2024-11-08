@@ -46,11 +46,11 @@ module AppealsApi
       end
 
       def slack_channel_id
-        Settings.modules_appeals_api.slack.appeals_channel_id
+        Settings.appeals_api.modules_appeals_api.slack.appeals_channel_id
       end
 
       def slack_api_token
-        Settings.modules_appeals_api.slack.api_key
+        Settings.appeals_api.modules_appeals_api.slack.api_key
       end
     end
 

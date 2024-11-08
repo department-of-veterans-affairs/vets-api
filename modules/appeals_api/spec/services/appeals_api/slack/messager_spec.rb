@@ -18,7 +18,7 @@ describe AppealsApi::Slack::Messager do
 
     it 'sends a network request' do
       with_settings(Settings, vsp_environment: 'production') do
-        with_settings(Settings.modules_appeals_api.slack, api_key: 'api token',
+        with_settings(Settings.appeals_api.modules_appeals_api.slack, api_key: 'api token',
                                                           appeals_channel_id: 'slack channel id') do
           body = {
             text: AppealsApi::Slack::ErrorRetryNotification.new(params).message_text,
