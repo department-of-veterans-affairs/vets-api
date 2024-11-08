@@ -66,6 +66,7 @@ module MedicalCopays
     end
 
     def handle_error(error)
+      binding.pry
       Rails.logger.error("MedicalCopays::Request error: #{error.message}")
       raise error
     end
