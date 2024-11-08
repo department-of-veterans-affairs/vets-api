@@ -8,12 +8,8 @@ module ClaimsApi
 
     def find_assigned_flashes(file_number)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <fileNumber />
+        <fileNumber>#{file_number}</fileNumber>
       EOXML
-
-      { fileNumber: file_number }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
 
       make_request(endpoint: bean_name, action: 'findAssignedFlashes', body:, key: 'return')
     end

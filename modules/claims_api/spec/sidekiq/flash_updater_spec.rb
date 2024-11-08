@@ -2,8 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::FlashUpdater, type: :job,
-                                        vcr: 'bgs/claimant_web_service/local_claimant_flashes' do
+RSpec.describe ClaimsApi::FlashUpdater, type: :job do
   subject { described_class }
 
   before do
