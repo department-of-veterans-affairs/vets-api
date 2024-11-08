@@ -22,9 +22,10 @@ module Lighthouse
       '21P-527EZ' => 'pension'
     }.freeze
 
-    # retry for one day
+    # retry for 2d 1h 47m 12s
     # exhausted attempts will be logged in intent_to_file_queue_exhaustions table
-    sidekiq_options retry: 14, queue: 'low'
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 16, queue: 'low'
     sidekiq_retries_exhausted do |msg, error|
       ::Rails.logger.info("Create Intent to File Job exhausted all retries for in_progress_form_id: #{msg['args'][0]}")
 

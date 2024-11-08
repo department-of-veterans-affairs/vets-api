@@ -13,7 +13,7 @@ module V0
       skip_before_action :authenticate, only: [:create]
 
       def create
-        address = if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+        address = if Flipper.enabled?(:va_v3_contact_information_service)
                     VAProfile::Models::V3::ValidationAddress.new(address_params)
                   else
                     VAProfile::Models::ValidationAddress.new(address_params)
@@ -47,7 +47,7 @@ module V0
       end
 
       def service
-        @service ||= if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+        @service ||= if Flipper.enabled?(:va_v3_contact_information_service)
                        VAProfile::V3::AddressValidation::Service.new
                      else
                        VAProfile::AddressValidation::Service.new

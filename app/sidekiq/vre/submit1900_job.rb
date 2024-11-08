@@ -8,7 +8,9 @@ module VRE
     include SentryLogging
 
     STATSD_KEY_PREFIX = 'worker.vre.submit_1900_job'
-    RETRY = 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    RETRY = 16
 
     sidekiq_options retry: RETRY
 
@@ -38,7 +40,7 @@ module VRE
         Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
         {
           'first_name' => claim.parsed_form.dig('veteranInformation', 'fullName', 'first'),
-          'date' => Time.zone.today.strftime('%B %d, %Y'),
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
           'confirmation_number' => claim.confirmation_number
         }
       )

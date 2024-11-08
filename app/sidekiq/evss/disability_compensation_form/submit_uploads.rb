@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'logging/call_location'
 require 'zero_silent_failures/monitor'
 
 module EVSS
@@ -8,8 +9,9 @@ module EVSS
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_upload'
       ZSF_DD_TAG_FUNCTION = '526_evidence_upload_failure_email_queuing'
 
-      # retry for one day
-      sidekiq_options retry: 14
+      # retry for  2d 1h 47m 12s
+      # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+      sidekiq_options retry: 16
 
       sidekiq_retries_exhausted do |msg, _ex|
         job_id = msg['jid']
@@ -56,7 +58,7 @@ module EVSS
         end
       rescue => e
         cl = caller_locations.first
-        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
         zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
         user_account_id = begin
           Form526Submission.find(form526_submission_id).user_account_id
