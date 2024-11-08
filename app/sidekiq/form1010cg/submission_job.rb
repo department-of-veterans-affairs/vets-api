@@ -22,7 +22,7 @@ module Form1010cg
       claim = SavedClaim::CaregiversAssistanceClaim.find(msg['args'][0])
 
       if claim.parsed_form.dig('veteran',
-                               'email') && Flipper.enabled?(:caregiver1010_use_va_notify_on_submission_failure)
+                               'email') && Flipper.enabled?(:caregiver_use_va_notify_on_submission_failure)
         send_failure_email(claim.parsed_form)
       end
     end
