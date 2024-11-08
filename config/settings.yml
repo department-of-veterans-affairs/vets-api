@@ -1,3 +1,20 @@
+# Start: Tmp Settings for Transition to New Settings Convention
+# also see claims_api/evss/s3 for additional tmp settings 
+appeals_api:
+  modules_appeals_api:
+    slack:
+      api_key: ""
+      appeals_channel_id: ""
+
+mocked_authentication: 
+  mvi:
+    url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
+
+faciliates_api:
+  ppms:
+    url: https://some.fakesite.com
+# End: Tmp Settings for Transition to New Settings Convention
+
 hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
 
 vsp_environment: localhost
@@ -641,6 +658,14 @@ ask_va_api:
 
 #Settings for Claims Api Module
 claims_api:
+  # evss/s3 is needed for transition to new settings convention
+  evss: 
+    s3:
+    uploads_enabled: false
+    aws_access_key_id: EVSS_S3_AWS_ACCESS_KEY_ID_XYZ
+    aws_secret_access_key: EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ
+    bucket: evss_s3_bucket
+    region: evss_s3_region
   pdf_generator_526:
     url: ~
     path: '/form-526ez-pdf-generator/v1/forms/'
