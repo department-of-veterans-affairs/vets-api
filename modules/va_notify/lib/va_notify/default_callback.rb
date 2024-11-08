@@ -2,10 +2,26 @@
 
 module VANotify
   class DefaultCallback
-    def self.call(notification_record)
-      metadata = JSON.parse(notification_record.metadata)
+    attr_reader :notification_record, :metadata
+
+    def initialize(notification_record)
+      @notification_record = notification_record
+      raw_metadata = notification_record.metadata
+      @metadata = JSON.parse(raw_metadata) if raw_metadata
+    end
+
+    def call
+      if metadata
+        call_with_metadata
+      else
+        call_without_metadata
+      end
+    end
+
+    private
+
+    def call_with_metadata
       notification_type = metadata['notification_type']
-      form_number = metadata['form_number']
       statsd_tags = metadata['statsd_tags']
       service = statsd_tags['service']
       function = statsd_tags['function']
@@ -13,28 +29,41 @@ module VANotify
 
       case notification_record.status
       when 'delivered'
-        delivered(notification_record, notification_type, tags, form_number)
+        delivered(tags) if notification_type == 'error'
       when 'permanent-failure'
-        permanent_failure(notification_record, notification_type, tags, form_number)
+        permanent_failure(tags) if notification_type == 'error'
       end
     end
 
-    def self.delivered(notification_record, notification_type, tags, form_number)
-      if notification_type == 'error'
-        StatsD.increment('silent_failure_avoided', tags:)
-        Rails.logger.info('Error notification to user delivered',
-                          { notification_record_id: notification_record.id,
-                            form_number: })
+    def call_without_metadata
+      case notification_record.status
+      when 'delivered'
+        delivered_without_metadata
+      when 'permanent-failure'
+        permanent_failure_without_metadata
       end
     end
 
-    def self.permanent_failure(notification_record, notification_type, tags, form_number)
-      if notification_type == 'error'
-        StatsD.increment('silent_failure', tags:)
-        Rails.logger.error('Error notification to user failed to deliver',
-                           { notification_record_id: notification_record.id,
-                             form_number: })
-      end
+    def delivered(tags)
+      StatsD.increment('silent_failure_avoided', tags:)
+      Rails.logger.info('Error notification to user delivered',
+                        { notification_record_id: notification_record.id,
+                          form_number: metadata['form_number'] })
+    end
+
+    def permanent_failure(tags)
+      StatsD.increment('silent_failure', tags:)
+      Rails.logger.error('Error notification to user failed to deliver',
+                         { notification_record_id: notification_record.id,
+                           form_number: metadata['form_number'] })
+    end
+
+    def delivered_without_metadata
+      StatsD.increment('silent_failure_avoided', tags: ['service:none-provided', 'function:none-provided'])
+    end
+
+    def permanent_failure_without_metadata
+      StatsD.increment('silent_failure', tags: ['service:none-provided', 'function:none-provided'])
     end
   end
 end

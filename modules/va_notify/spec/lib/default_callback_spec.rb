@@ -1,64 +1,111 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'va_notify/default_callback'
 
 describe VANotify::DefaultCallback do
-  describe '.call' do
-    context 'notification of error delivered' do
-      let(:notification_record) do
-        build(:notification, status: 'delivered', metadata: { notification_type: :error, statsd_tags: {} }.to_json)
-      end
+  describe '#call' do
+    context 'notification of error' do
+      let(:notification_type) { :error }
 
-      it 'increments StatsD' do
-        allow(StatsD).to receive(:increment)
+      context 'metadata is provided' do
+        let(:metadata) { { notification_type:, statsd_tags: {} }.to_json }
 
-        VANotify::DefaultCallback.call(notification_record)
+        context 'delivered' do
+          let(:notification_record) do
+            build(:notification, status: 'delivered', metadata:)
+          end
 
-        expect(StatsD).to have_received(:increment).with('silent_failure_avoided', anything)
-      end
-    end
+          it 'increments StatsD' do
+            allow(StatsD).to receive(:increment)
 
-    context 'notification of vbms delivered' do
-      let(:notification_record) do
-        build(:notification, status: 'delivered', metadata: { notification_type: :received, statsd_tags: {} }.to_json)
-      end
+            VANotify::DefaultCallback.new(notification_record).call
 
-      it 'does not increment StatsD' do
-        allow(StatsD).to receive(:increment)
+            expect(StatsD).to have_received(:increment).with('silent_failure_avoided', anything)
+          end
+        end
 
-        VANotify::DefaultCallback.call(notification_record)
+        context 'permanently failed' do
+          let(:notification_record) do
+            build(:notification, status: 'permanent-failure', metadata:)
+          end
 
-        expect(StatsD).not_to have_received(:increment)
-      end
-    end
+          it 'increments StatsD' do
+            allow(StatsD).to receive(:increment)
 
-    context 'notification of error permanently failed' do
-      let(:notification_record) do
-        build(:notification, status: 'permanent-failure',
-                             metadata: { notification_type: :error, statsd_tags: {} }.to_json)
-      end
+            VANotify::DefaultCallback.new(notification_record).call
 
-      it 'increments StatsD' do
-        allow(StatsD).to receive(:increment)
-
-        VANotify::DefaultCallback.call(notification_record)
-
-        expect(StatsD).to have_received(:increment).with('silent_failure', anything)
+            expect(StatsD).to have_received(:increment).with('silent_failure', anything)
+          end
+        end
       end
     end
 
-    context 'notification of vbms permanently failed' do
-      let(:notification_record) do
-        build(:notification, status: 'permanent-failure',
-                             metadata: { notification_type: :received, statsd_tags: {} }.to_json)
+    context 'notification of receipt' do
+      let(:notification_type) { :received }
+
+      context 'metadata is provided' do
+        let(:metadata) { { notification_type:, statsd_tags: {} }.to_json }
+
+        context 'delivered' do
+          let(:notification_record) do
+            build(:notification, status: 'delivered', metadata:)
+          end
+
+          it 'does not increment StatsD' do
+            allow(StatsD).to receive(:increment)
+
+            VANotify::DefaultCallback.new(notification_record).call
+
+            expect(StatsD).not_to have_received(:increment)
+          end
+        end
+
+        context 'permanent-failure' do
+          let(:notification_record) do
+            build(:notification, status: 'permanent-failure', metadata:)
+          end
+
+          it 'does not increment StatsD' do
+            allow(StatsD).to receive(:increment)
+
+            VANotify::DefaultCallback.new(notification_record).call
+
+            expect(StatsD).not_to have_received(:increment)
+          end
+        end
+      end
+    end
+
+    context 'metadata is not provided' do
+      context 'delivered' do
+        let(:notification_record) do
+          build(:notification, status: 'delivered')
+        end
+
+        it 'increments StatsD' do
+          allow(StatsD).to receive(:increment)
+
+          VANotify::DefaultCallback.new(notification_record).call
+
+          expect(StatsD).to have_received(:increment).with('silent_failure_avoided',
+                                                           tags: ['service:none-provided', 'function:none-provided'])
+        end
       end
 
-      it 'increments StatsD' do
-        allow(StatsD).to receive(:increment)
+      context 'permanently failed' do
+        let(:notification_record) do
+          build(:notification, status: 'permanent-failure')
+        end
 
-        VANotify::DefaultCallback.call(notification_record)
+        it 'increments StatsD' do
+          allow(StatsD).to receive(:increment)
 
-        expect(StatsD).not_to have_received(:increment)
+          VANotify::DefaultCallback.new(notification_record).call
+
+          expect(StatsD).to have_received(:increment).with('silent_failure',
+                                                           tags: ['service:none-provided', 'function:none-provided'])
+        end
       end
     end
   end
