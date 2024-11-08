@@ -114,7 +114,7 @@ module BenefitsDocuments
       user_account = UserAccount.find(@user.user_account_uuid)
       job_class = self.class
       upload_status = 'pending'
-      evidence_submission = EvidenceSubmission.build(claim_id:,
+      evidence_submission = EvidenceSubmission.new(claim_id:,
                                 tracked_item_id:,
                                 job_id:,
                                 job_class:,
