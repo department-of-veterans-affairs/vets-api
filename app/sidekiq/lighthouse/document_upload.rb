@@ -15,8 +15,9 @@ class Lighthouse::DocumentUpload
   NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
   MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
 
-  # retry for one day
-  sidekiq_options retry: 14, queue: 'low'
+  # retry for  2d 1h 47m 12s
+  # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+  sidekiq_options retry: 16, queue: 'low'
   # Set minimum retry time to ~1 hour
   sidekiq_retry_in do |count, _exception|
     rand(3600..3660) if count < 9
