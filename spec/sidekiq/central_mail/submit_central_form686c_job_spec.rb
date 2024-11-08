@@ -295,7 +295,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
           'form21_686c_action_needed_email_template_id',
           {
             'first_name' => 'MARK',
-            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => claim.confirmation_number
           }
         )
@@ -315,7 +315,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
           'form21_674_action_needed_email_template_id',
           {
             'first_name' => 'MARK',
-            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => claim.confirmation_number
           }
         )
