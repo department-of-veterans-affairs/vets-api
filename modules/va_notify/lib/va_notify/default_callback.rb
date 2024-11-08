@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-module SimpleFormsApi
-  class NotificationCallbacks
+module VANotify
+  class DefaultCallback
     def self.call(notification_record)
       metadata = JSON.parse(notification_record.metadata)
       notification_type = metadata['notification_type']
