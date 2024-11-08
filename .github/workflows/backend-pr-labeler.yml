@@ -46,6 +46,13 @@ jobs:
             exit 1
           fi
 
+      - name: Echo PR data
+        run: |
+          echo "pr_number: ${{ steps.get_pr_data.outputs.pr_number }}"
+          echo "pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}"
+          echo "pr_labels: ${{ steps.get_pr_data.outputs.pr_labels }}"
+          echo "pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}"
+
       - name: Get Code Checks conclusion
         if: github.event_name == 'workflow_run'
         run: |
