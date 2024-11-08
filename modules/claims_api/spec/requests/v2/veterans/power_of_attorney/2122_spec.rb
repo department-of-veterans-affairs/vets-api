@@ -95,20 +95,6 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 }
               end
 
-              let(:claimant_data_as_self) do
-                {
-                  claimantId: '456', # dependentʼs ICN
-                  address: {
-                    addressLine1: '123 anystreet',
-                    city: 'anytown',
-                    stateCode: 'OR',
-                    country: 'USA',
-                    zipCode: '12345'
-                  },
-                  relationship: 'Self'
-                }
-              end
-
               before do
                 allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
                   .to receive(:user_profile).and_return(user_profile)
@@ -161,7 +147,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
                         json = JSON.parse(request_body)
-                        json['data']['attributes']['claimant'] = claimant_data_as_self
+                        json['data']['attributes']['claimant'] = claimant_data
+                        json['data']['attributes']['claimant']['relationship'] = 'Self'
                         request_body = json.to_json
 
                         post appoint_organization_path, params: request_body, headers: auth_header
