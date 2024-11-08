@@ -140,11 +140,11 @@ RSpec.describe Form526StatusPollingJob, type: :job do
       end
 
       context 'when a failure type response is returned from the API' do
-        context 'when send_backup_submission_exhaustion_email_notice is enabled' do
+        context 'when form526_send_backup_submission_polling_failure_email_notice is enabled' do
           let(:timestamp) { Time.now.utc }
 
           before do
-            Flipper.enable(:send_backup_submission_polling_failure_email_notice)
+            Flipper.enable(:form526_send_backup_submission_polling_failure_email_notice)
           end
 
           it 'enqueues a failure notification email job' do
@@ -173,11 +173,11 @@ RSpec.describe Form526StatusPollingJob, type: :job do
           end
         end
 
-        context 'when send_backup_submission_exhaustion_email_notice is disabled' do
+        context 'when form526_send_backup_submission_polling_failure_email_notice is disabled' do
           let!(:pending_claim_ids) { Form526Submission.pending_backup.pluck(:backup_submitted_claim_id) }
 
           before do
-            Flipper.disable(:send_backup_submission_polling_failure_email_notice)
+            Flipper.disable(:form526_send_backup_submission_polling_failure_email_notice)
           end
 
           it 'does not enqueue a failure notification email job' do

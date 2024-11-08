@@ -6,7 +6,7 @@ module MHV
   class AccountCreatorJob
     include Sidekiq::Job
 
-    sidekiq_options retry: false
+    sidekiq_options retry: false, unique_for: 5.minutes
 
     def perform(user_verification_id)
       user_verification = UserVerification.find(user_verification_id)
