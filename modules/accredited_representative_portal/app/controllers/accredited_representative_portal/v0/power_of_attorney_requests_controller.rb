@@ -3,8 +3,8 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
-      #TODO: address authorization
-      
+      # TODO: address authorization
+
       def show
         poa_request_details_id = params[:id]
         poa_request_details_service = PoaRequestDetailsService.new(poa_request_details_id)

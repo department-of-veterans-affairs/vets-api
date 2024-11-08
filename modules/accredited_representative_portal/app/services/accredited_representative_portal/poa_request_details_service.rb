@@ -15,42 +15,40 @@ module AccreditedRepresentativePortal
       POA_REQUEST_DETAILS_MOCK_DATA
     end
 
-    private
-
     # first implementation uses mock data, but this will be replaced with a call to the database
     POA_REQUEST_DETAILS_MOCK_DATA = {
-      "status": "Pending",
-      "declinedReason": nil,
-      "powerOfAttorneyCode": "091",
-      "submittedAt": "2024-04-30T11:03:17Z",
-      "acceptedOrDeclinedAt": nil,
-      "isAddressChangingAuthorized": false,
-      "isTreatmentDisclosureAuthorized": true,
-      "veteran": {
-        "firstName": "Jon",
-        "middleName": nil,
-        "lastName": "Smith",
-        "participantId": "6666666666666"
+      status: 'Pending',
+      declinedReason: nil,
+      powerOfAttorneyCode: '091',
+      submittedAt: '2024-04-30T11:03:17Z',
+      acceptedOrDeclinedAt: nil,
+      isAddressChangingAuthorized: false,
+      isTreatmentDisclosureAuthorized: true,
+      veteran: {
+        firstName: 'Jon',
+        middleName: nil,
+        lastName: 'Smith',
+        participantId: '6666666666666'
       },
-      "representative": {
-        "email": "j2@example.com",
-        "firstName": "Jane",
-        "lastName": "Doe"
+      representative: {
+        email: 'j2@example.com',
+        firstName: 'Jane',
+        lastName: 'Doe'
       },
-      "claimant": {
-        "firstName": "Sam",
-        "lastName": "Smith",
-        "participantId": "777777777777777",
-        "relationshipToVeteran": "Child"
+      claimant: {
+        firstName: 'Sam',
+        lastName: 'Smith',
+        participantId: '777777777777777',
+        relationshipToVeteran: 'Child'
       },
-      "claimantAddress": {
-        "city": "Hartford",
-        "state": "CT",
-        "zip": "06107",
-        "country": "GU",
-        "militaryPostOffice": nil,
-        "militaryPostalCode": nil
+      claimantAddress: {
+        city: 'Hartford',
+        state: 'CT',
+        zip: '06107',
+        country: 'GU',
+        militaryPostOffice: nil,
+        militaryPostalCode: nil
       }
-    }
+    }.freeze
   end
 end
