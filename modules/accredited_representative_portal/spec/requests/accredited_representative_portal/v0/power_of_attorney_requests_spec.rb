@@ -17,9 +17,10 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     login_as(test_user)
 
     # stub the service call, sending in the id and returning the mock data
-    allow(AccreditedRepresentativePortal::PoaRequestDetailsService).to receive(:new).with(poa_request_details_id).and_return(
-      instance_double(AccreditedRepresentativePortal::PoaRequestDetailsService, call: poa_details_mock_data)
-    )
+    allow(AccreditedRepresentativePortal::PoaRequestDetailsService).to receive(:new)
+      .with(poa_request_details_id).and_return(
+        instance_double(AccreditedRepresentativePortal::PoaRequestDetailsService, call: poa_details_mock_data)
+      )
   end
 
   it 'returns the details of a power of attorney request' do
