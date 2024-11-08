@@ -55,7 +55,7 @@ jobs:
           echo "pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}"
           echo "pr_requested_teams: ${{ fromJSON(steps.get_pr_data.outputs.pr_requested_teams)[0] }}"
 
-      - name: Get Code Checks conclusion
+      - name: Get Code Checks result
         if: github.event_name == 'workflow_run'
         run: |
           echo "workflow_run: ${{ toJSON(github.event.workflow_run) }}"
@@ -193,30 +193,25 @@ jobs:
 
       # Remove labels if required
       - name: Remove require-backend-approval label
-        if: ${{ (env.pr_draft == 'true' || env.exempt == 'true') && contains(env.pr_labels, 'require-backend-approval') }}
+        if: ${{ env.exempt == 'true' && contains(env.pr_labels, 'require-backend-approval') }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
           labels: |
             require-backend-approval
 
-      - name: Remove Review label
+      - name: Remove ready-for-backend-review label
         uses: actions-ecosystem/action-remove-labels@v1
         if: |
-          env.pr_draft ||
-          (
-            contains(fromJSON(env.pr_labels), 'ready-for-backend-review') &&
-            ( 
-              env.failures_detected == 'true' ||
-              env.approval_status == 'confirmed'
-            )
-          )
+          (env.pr_draft || env.failures_detected == 'true' || env.approval_status == 'confirmed') &&
+          contains(env.pr_labels, 'ready-for-backend-review')
+
         with:
           number: ${{ env.pr_number }}
           labels: |
             ready-for-backend-review
 
-      - name: Remove Test Passing label
+      - name: Remove test-passing label
         if: ${{ env.test_status == 'failure' && contains(fromJSON(env.pr_labels), 'test-passing') }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
@@ -224,7 +219,7 @@ jobs:
           labels: |
             test-passing
 
-      - name: Remove Test Failure label
+      - name: Remove test-failure label
         if: ${{ env.test_status == 'success' && contains(fromJSON(env.pr_labels), 'test-passing') }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
@@ -241,7 +236,7 @@ jobs:
           labels: |
             require-backend-approval
 
-      - name: Add Review label
+      - name: Add ready-for-backend-review label
         uses: actions-ecosystem/action-add-labels@v1
         if: |
           env.failures_detected == 'false' &&
@@ -251,7 +246,7 @@ jobs:
           labels: |
             ready-for-backend-review
 
-      - name: Add Test Failure label
+      - name: Add test-failure label
         if: ${{ env.test_status == 'failure' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
@@ -259,7 +254,7 @@ jobs:
           labels: |
             test-failure
 
-      - name: Add Test Passing label
+      - name: Add test-passing label
         if: ${{ env.test_status == 'success' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
