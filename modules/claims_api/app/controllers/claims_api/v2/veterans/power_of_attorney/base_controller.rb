@@ -5,6 +5,7 @@ require 'claims_api/v2/params_validation/power_of_attorney'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
 require 'claims_api/v2/power_of_attorney_validation'
+require 'claims_api/dependent_claimant_validation'
 
 module ClaimsApi
   module V2
@@ -14,6 +15,7 @@ module ClaimsApi
         include ClaimsApi::PoaVerification
         include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
+        include ClaimsApi::DependentClaimantValidation
         FORM_NUMBER_INDIVIDUAL = '2122A'
         VA_NOTIFY_KEY = 'va_notify_recipient_identifier'
 
@@ -64,18 +66,13 @@ module ClaimsApi
           end
         end
 
-        def feature_enabled_and_claimant_present_and_not_self?
-          if Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) &&
-             form_attributes['claimant'].present?
+        def allow_dependent_claimant?
+          return false unless Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants)
 
-            relationship = form_attributes['claimant']['relationship']&.downcase
-            # even with both conditions being met
-            # this is the veteran if sent w/ relationship of 'Self'
-            # so we need to verify this is also true
-            relationship != 'self'
-          else
-            false
-          end
+          claimant = form_attributes['claimant']
+          return false unless claimant
+
+          claimant.present? && claimant['relationship']&.downcase != 'self'
         end
 
         def validate_registration_number!(base, poa_code)
@@ -122,7 +119,7 @@ module ClaimsApi
         def set_auth_headers
           headers = auth_headers.merge!({ VA_NOTIFY_KEY => icn_for_vanotify })
 
-          if feature_enabled_and_claimant_present_and_not_self?
+          if allow_dependent_claimant?
             add_dependent_to_auth_headers(headers)
           else
             auth_headers

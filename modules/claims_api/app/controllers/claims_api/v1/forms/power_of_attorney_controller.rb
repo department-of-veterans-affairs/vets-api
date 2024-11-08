@@ -2,6 +2,7 @@
 
 require 'bgs/power_of_attorney_verifier'
 require 'bgs_service/local_bgs'
+require 'claims_api/dependent_claimant_validation'
 
 module ClaimsApi
   module V1
@@ -10,6 +11,7 @@ module ClaimsApi
         include ClaimsApi::DocumentValidations
         include ClaimsApi::EndpointDeprecation
         include ClaimsApi::PoaVerification
+        include ClaimsApi::DependentClaimantValidation
 
         before_action except: %i[schema] do
           permit_scopes %w[claim.read] if request.get?
@@ -49,7 +51,7 @@ module ClaimsApi
               power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5)
             end
 
-            if feature_enabled_and_claimant_present_and_not_self?
+            if allow_dependent_claimant?
               update_auth_headers_for_dependent(
                 power_of_attorney,
                 claimant_information
@@ -170,16 +172,16 @@ module ClaimsApi
                               })
         end
 
-        def allow_dependent_claimant?
-          return false unless Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants)
+        # def allow_dependent_claimant?
+        #   return false unless Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants)
 
-          claimant = form_attributes['claimant']
-          
-          claimant.present? && claimant['relationship']&.downcase != 'self'
-        end
+        #   claimant = form_attributes['claimant']
+
+        #   claimant.present? && claimant['relationship']&.downcase != 'self'
+        # end
 
         def validate_dependent_claimant!(poa_code:)
-          return nil unless feature_enabled_and_claimant_present_and_not_self?
+          return nil unless allow_dependent_claimant?
 
           veteran_participant_id = target_veteran.participant_id
           claimant_first_name = form_attributes.dig('claimant', 'firstName')

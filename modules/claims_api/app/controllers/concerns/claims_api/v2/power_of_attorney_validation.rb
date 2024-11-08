@@ -1,10 +1,13 @@
 # frozen_string_literal: false
 
 # rubocop:disable Metrics/ModuleLength
+require 'claims_api/dependent_claimant_validation'
 
 module ClaimsApi
   module V2
     module PowerOfAttorneyValidation
+      include ClaimsApi::DependentClaimantValidation
+
       def validate_form_2122_and_2122a_submission_values(user_profile:, veteran_participant_id: nil, poa_code: nil,
                                                          base: nil)
         validate_claimant_fields(user_profile)
@@ -18,22 +21,16 @@ module ClaimsApi
 
       private
 
-      def feature_enabled_and_claimant_present_and_not_self?
-        if Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) &&
-           form_attributes['claimant'].present?
+      # def allow_dependent_claimant?
+      #   return false unless Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants)
 
-          relationship = form_attributes['claimant']['relationship']&.downcase
-          # even with both conditions being met
-          # this is the veteran if sent w/ relationship of 'Self'
-          # so we need to verify this is also true
-          relationship != 'self'
-        else
-          false
-        end
-      end
+      #   claimant = form_attributes['claimant']
+
+      #   claimant.present? && claimant['relationship']&.downcase != 'self'
+      # end
 
       def validate_dependent_claimant(veteran_participant_id:, user_profile:, poa_code:, base:)
-        return nil unless feature_enabled_and_claimant_present_and_not_self?
+        return nil unless allow_dependent_claimant?
 
         service = build_dependent_claimant_verification_service(veteran_participant_id:, user_profile:,
                                                                 poa_code:)
