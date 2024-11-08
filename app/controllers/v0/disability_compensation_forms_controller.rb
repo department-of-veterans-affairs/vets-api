@@ -140,7 +140,6 @@ module V0
     end
 
     def log_failure(claim)
-      # debugger
       StatsD.increment("#{stats_key}.failure")
       raise Common::Exceptions::ValidationErrors, claim
     end
