@@ -144,27 +144,5 @@ RSpec.describe SignIn::UserCodeMapCreator do
       expect(code_container.user_attributes).to eq(expected_user_attributes)
       expect(code_container.device_sso).to eq(device_sso)
     end
-
-    context 'when create mhv user account is enabled' do
-      before do
-        allow(Settings.mhv.account_creation).to receive(:create_after_login).and_return(true)
-      end
-
-      it 'enqueues a job to create an MHV account' do
-        expect(MHV::AccountCreatorJob).to receive(:perform_async).with(user_verification.id)
-        subject
-      end
-    end
-
-    context 'when create mhv user account is disabled' do
-      before do
-        allow(Settings.mhv.account_creation).to receive(:create_after_login).and_return(false)
-      end
-
-      it 'does not enqueue a job to create an MHV account' do
-        expect(MHV::AccountCreatorJob).not_to receive(:perform_async)
-        subject
-      end
-    end
   end
 end

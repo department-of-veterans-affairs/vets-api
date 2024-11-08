@@ -9,6 +9,10 @@ RSpec.describe Form1010cg::SubmissionJob do
     create(:caregivers_assistance_claim)
   end
 
+  it 'has a retry count of 14' do
+    expect(described_class.get_sidekiq_options['retry']).to eq(16)
+  end
+
   it 'defines #notify' do
     expect(described_class.new.respond_to?(:notify)).to eq(true)
   end

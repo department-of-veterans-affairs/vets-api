@@ -17,10 +17,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122a', type: :request do
 
   describe 'PowerOfAttorney' do
     before do
-      Veteran::Service::Representative.create!(representative_id: '12345', poa_codes: [individual_poa_code],
-                                               first_name: 'Abraham', last_name: 'Lincoln')
-      Veteran::Service::Representative.create!(representative_id: '999999999999', poa_codes: [organization_poa_code],
-                                               first_name: 'George', last_name: 'Washington')
+      FactoryBot.create(:veteran_representative, representative_id: '12345', poa_codes: [individual_poa_code])
+      FactoryBot.create(:veteran_representative, representative_id: '999999999999', poa_codes: [organization_poa_code])
 
       Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
     end
@@ -125,6 +123,11 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122a', type: :request do
             end
 
             describe 'lighthouse_claims_api_poa_dependent_claimants feature' do
+              let(:request_body) do
+                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                'power_of_attorney', '2122a', 'valid.json').read
+              end
+
               let(:user_profile) do
                 MPI::Responses::FindProfileResponse.new(
                   status: :ok,
@@ -137,9 +140,25 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122a', type: :request do
                 )
               end
 
+              let(:claimant_data) do
+                {
+                  claimantId: '456', # dependentʼs ICN
+                  address: {
+                    addressLine1: '123 anystreet',
+                    city: 'anytown',
+                    stateCode: 'OR',
+                    country: 'USA',
+                    zipCode: '12345'
+                  },
+                  relationship: 'Child'
+                }
+              end
+
               before do
                 allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
                   .to receive(:user_profile).and_return(user_profile)
+                allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
+                  .to receive(:current_poa).and_return('123')
                 allow_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
                   .to receive(:validate_poa_code_exists!).and_return(nil)
                 allow_any_instance_of(ClaimsApi::DependentClaimantVerificationService)
@@ -148,17 +167,39 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122a', type: :request do
 
               context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
                 before do
+                  allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
+                    .to receive(:disable_jobs?).and_return(false)
                   Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
                 end
 
                 context 'and the request includes a claimant' do
-                  it 'calls assign_poa_to_dependent!' do
+                  it 'enqueues the PoaFormBuilderJob' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
-                        expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-                          .to receive(:assign_poa_to_dependent!)
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['claimant'] = claimant_data
+                        request_body = json.to_json
 
-                        post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                        expect do
+                          post appoint_individual_path, params: request_body, headers: auth_header
+                        end.to change(ClaimsApi::V2::PoaFormBuilderJob.jobs, :size).by(1)
+                      end
+                    end
+                  end
+
+                  it 'adds dependent values to the auth_headers when flipper enabled' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(scopes) do |auth_header|
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['claimant'] = claimant_data
+                        request_body = json.to_json
+
+                        post appoint_individual_path, params: request_body, headers: auth_header
+
+                        poa_id = JSON.parse(response.body)['data']['id']
+                        poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+                        auth_headers = poa.auth_headers
+                        expect(auth_headers).to have_key('dependent')
                       end
                     end
                   end
@@ -170,13 +211,19 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122a', type: :request do
                   Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
                 end
 
-                it 'does not call assign_poa_to_dependent!' do
+                it 'does not add the dependent object to the auth_headers' do
                   VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     mock_ccg(scopes) do |auth_header|
-                      expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-                        .not_to receive(:assign_poa_to_dependent!)
+                      json = JSON.parse(request_body)
+                      json['data']['attributes']['claimant'] = claimant_data
+                      request_body = json.to_json
 
-                      post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                      post appoint_individual_path, params: request_body, headers: auth_header
+
+                      poa_id = JSON.parse(response.body)['data']['id']
+                      poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+                      auth_headers = poa.auth_headers
+                      expect(auth_headers).not_to have_key('dependent')
                     end
                   end
                 end

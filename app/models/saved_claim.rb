@@ -16,7 +16,6 @@ require 'pdf_fill/filler'
 #    files to the submitted claim, and to begin processing them.
 
 class SavedClaim < ApplicationRecord
-  self.ignored_columns += %w[itf_datetime]
   include SetGuid
 
   validates(:form, presence: true)
@@ -28,6 +27,7 @@ class SavedClaim < ApplicationRecord
 
   has_many :persistent_attachments, inverse_of: :saved_claim, dependent: :destroy
   has_many :form_submissions, dependent: :nullify
+  has_many :claim_va_notifications, dependent: :destroy
 
   after_create :after_create_metrics
   after_destroy :after_destroy_metrics
@@ -114,6 +114,36 @@ class SavedClaim < ApplicationRecord
 
   def business_line
     ''
+  end
+
+  def email
+    nil
+  end
+
+  ##
+  # insert notifcation after VANotify email send
+  #
+  # @see ClaimVANotification
+  #
+  def insert_notification(email_template_id)
+    claim_va_notifications.create!(
+      form_type: form_id,
+      email_sent: true,
+      email_template_id: email_template_id
+    )
+  end
+
+  ##
+  # Find notifcation by args*
+  #
+  # @param email_template_id
+  # @see ClaimVANotification
+  #
+  def va_notification?(email_template_id)
+    claim_va_notifications.find_by(
+      form_type: form_id,
+      email_template_id: email_template_id
+    )
   end
 
   private

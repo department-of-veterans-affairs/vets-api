@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
   - meta
@@ -7,6 +8,7 @@ properties:
     type: array
     items:
       type: object
+      additionalProperties: false
       properties:
         id:
           type: string
@@ -19,6 +21,7 @@ properties:
             - claim
         attributes:
           type: object
+          additionalProperties: false
           required:
             - subtype
             - completed
@@ -46,12 +49,14 @@ properties:
               example: "disability compensation appeal"
   meta:
     type: object
+    additionalProperties: false
     properties:
       errors:
         type: array
         description: Array of objects of failing upstream services. Used for debugging only.
         items:
           type: object
+          additionalProperties: false
           required:
             - service
             - errorDetails
@@ -67,6 +72,7 @@ properties:
               example: "Received a 500 response from the upstream server"
       pagination:
         type: object
+        additionalProperties: false
         required:
           - currentPage
           - perPage

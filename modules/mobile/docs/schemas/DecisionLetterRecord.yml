@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -13,6 +14,7 @@ properties:
     example: "decisionLetter"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - seriesId
       - version
@@ -28,40 +30,50 @@ properties:
       - uploadDate
     properties:
       seriesId:
-        type: string, null
+        type: string
+        nullable: true
         example: "{EC1B5F0C-E3FB-4A41-B93F-E1A88D549CDF}"
       version:
-        type: string, null
+        type: string
+        nullable: true
         example: "1"
       typeDescription:
-        type: string, null
+        type: string
+        nullable: true
         example: "Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)"
       typeId:
-        type: string, null
+        type: string
+        nullable: true
         example: "184"
       docType:
-        type: string, null
+        type: string
+        nullable: true
         example: "184"
       subject:
-        type: string, null
+        type: string
+        nullable: true
         example: null
       receivedAt:
         type: date
         example: "2022-09-22"
       source:
-        type: string, null
+        type: string
+        nullable: true
         example: "VBMS"
       mimeType:
-        type: string, null
+        type: string
+        nullable: true
         example: "application/pdf"
       altDocTypes:
-        type: string, null
+        type: string
+        nullable: true
         example: ""
       restricted:
         type: boolean
         example: false
       uploadDate:
-        type: date, null
+        type: date
+        nullable: true
         example: "2022-09-23"
 
 

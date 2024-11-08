@@ -45,13 +45,17 @@ module RepresentationManagement
       claimant_email
     ]
 
+    representative_attrs = %i[
+      representative_id
+    ]
+
     consent_attrs = %i[
       record_consent
       consent_address_change
       consent_limits
     ]
 
-    attr_accessor(*[veteran_attrs, claimant_attrs, consent_attrs].flatten)
+    attr_accessor(*[veteran_attrs, claimant_attrs, representative_attrs, consent_attrs].flatten)
 
     validates :veteran_first_name, presence: true, length: { maximum: 12 }
     validates :veteran_middle_initial, length: { maximum: 1 }
@@ -77,6 +81,7 @@ module RepresentationManagement
               if: -> { veteran_service_number.present? }
 
     validate :consent_limits_must_contain_valid_values
+    validate :representative_exists?, if: -> { representative_id.present? }
 
     with_options if: -> { claimant_first_name.present? } do
       validates :claimant_first_name, presence: true, length: { maximum: 12 }
@@ -95,6 +100,29 @@ module RepresentationManagement
       validates :claimant_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
     end
 
+    def representative
+      @representative ||= find_representative
+    end
+
+    def representative_individual_type
+      type = if representative.is_a?(AccreditedIndividual)
+               representative.individual_type
+             else
+               representative.user_types.first
+             end
+      # We're converting 'claims_agent' and 'claim_agents' to 'agent'
+      # here because the PDF checkbox responds to 'agent'.
+      %w[claims_agent claim_agents].include?(type) ? 'agent' : type
+    end
+
+    def representative_phone
+      if representative.is_a?(AccreditedIndividual)
+        representative.phone
+      else
+        representative.phone_number
+      end
+    end
+
     private
 
     def consent_limits_must_contain_valid_values
@@ -106,6 +134,17 @@ module RepresentationManagement
                      "#{limit} is not a valid limitation of consent")
         end
       end
+    end
+
+    def find_representative
+      AccreditedIndividual.find_by(id: representative_id) ||
+        Veteran::Service::Representative.find_by(representative_id:)
+    end
+
+    def representative_exists?
+      return unless representative.nil?
+
+      errors.add(:representative_id, 'Representative not found')
     end
   end
 end

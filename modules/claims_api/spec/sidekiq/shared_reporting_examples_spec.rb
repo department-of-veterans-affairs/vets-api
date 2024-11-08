@@ -58,21 +58,21 @@ RSpec.shared_examples 'shared reporting behavior' do
     end
   end
 
-  it 'includes 526EZ claims from VaGov', skip: 'pending changes in API-41029' do
+  it 'includes 526EZ claims from VaGov' do
     with_settings(Settings.claims_api, report_enabled: true) do
-      FactoryBot.create(:auto_established_claim_va_gov, :errored)
-      FactoryBot.create(:auto_established_claim_va_gov, :errored)
-      FactoryBot.create(:auto_established_claim_va_gov, :errored)
-      FactoryBot.create(:auto_established_claim_va_gov, :errored)
+      FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 2.seconds.ago,
+                                                                  transaction_id: '467384632187')
+      FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 3.seconds.ago,
+                                                                  transaction_id: '467384632186')
 
       job = described_class.new
       job.perform
       va_gov_groups = job.unsuccessful_va_gov_claims_submissions
+      first_group = va_gov_groups[1]
+      second_group = va_gov_groups[2]
 
-      expect(va_gov_groups).to include('A')
-      expect(va_gov_groups).to include('B')
-      expect(va_gov_groups['A'][0][:transaction_id]).to be_a(String)
-      expect(va_gov_groups['A'][0][:id]).to be_a(String)
+      expect(second_group.count).to eq(1)
+      expect(first_group.count).to eq(1)
     end
   end
 end

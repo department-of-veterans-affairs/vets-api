@@ -4,6 +4,8 @@ In hybrid mode, you'll run vets-api natively, but run Postgres and Redis in Dock
 
 ## Base Setup
 
+Follow these steps, or alternatively use [binstubs](binstubs.md).
+
 1. Install Docker as referenced in the [Docker setup instructions](docker.md).
 
 1. Follow the [Native setup instructions](native.md), but skip any steps related to installing Postgres, Postgis, Redis or ClamAV. You *will* need to install the other dependencies such as pdftk.

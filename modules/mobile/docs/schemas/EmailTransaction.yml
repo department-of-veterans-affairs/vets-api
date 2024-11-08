@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - id
       - string
@@ -17,6 +19,7 @@ properties:
         example: "asyncTransactionVet360EmailTransactions"
       attributes:
         type: object
+        additionalProperties: false
         required:
           - transactionId
           - transactionStatus

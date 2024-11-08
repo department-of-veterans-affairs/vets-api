@@ -1,20 +1,16 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require AskVAApi::Engine.root.join('spec', 'support', 'shared_contexts.rb')
 
 RSpec.describe AskVAApi::Translator do
-  subject(:translator) { AskVAApi::Translator.new(inquiry_params:) }
-
-  # allow to have access to inquiry_params and optionset_set_cached_data
-  include_context 'shared data'
+  subject(:translator) { AskVAApi::Translator.new }
 
   let(:cache_data_service) { instance_double(Crm::CacheData) }
-  let(:option_keys) do
-    %w[inquiryabout inquirysource inquirytype levelofauthentication suffix veteranrelationship
-       dependentrelationship responsetype]
+  let(:cached_data) do
+    data = File.read('modules/ask_va_api/config/locales/get_optionset_mock_data.json')
+    JSON.parse(data, symbolize_names: true)
   end
-  let(:result) { subject.call }
+  let(:result) { subject.call(:veteran_relationship, 'On-the-job training or apprenticeship supervisor') }
 
   context 'when succesful' do
     before do
@@ -23,29 +19,65 @@ RSpec.describe AskVAApi::Translator do
       allow(cache_data_service).to receive(:call).with(
         endpoint: 'optionset',
         cache_key: 'optionset'
-      ).and_return(optionset_cached_data)
-      # optionset_cached_data is in include_context 'shared data'
+      ).and_return(cached_data)
     end
 
-    it 'translates the keys from snake_case to camel_case' do
-      expect(result.keys).to eq(translated_payload.keys)
+    context 'when translating veteran_relationship' do
+      it 'translates all the option keys from name to id' do
+        # Map each word to its expected ID
+
+        expected_results = {
+          'ACCREDITED_REP' => 722_310_017,
+          'FIDUCIARY' => 722_310_020,
+          'FUNERAL_DIR' => 722_310_006,
+          'TRAINING_OR_APPRENTICESHIP_SUP' => 722_310_016,
+          'SCO' => 722_310_013,
+          'VA_EMPLOYEE' => 722_310_019,
+          'WORK_STUDY_SUP' => 722_310_014,
+          'Other' => 722_310_011,
+          'SPOUSE' => 722_310_015,
+          'CHILD' => 722_310_007,
+          # "STEPCHILD" => '',
+          'PARENT' => 722_310_005,
+          'NOT_LISTED' => 722_310_018
+        }
+
+        # Iterate over each word and check if it translates to the expected ID
+        expected_results.each do |word, expected_id|
+          result = subject.call(:veteran_relationship, word)
+          expect(result).to eq(expected_id)
+        end
+      end
     end
 
-    it 'translates all the option keys from name to id' do
-      expect(result[:InquiryAbout]).to eq(translated_payload[:InquiryAbout])
-      expect(result[:LevelOfAuthentication]).to eq(translated_payload[:LevelOfAuthentication])
-      expect(result[:Suffix]).to eq(translated_payload[:Suffix])
-      expect(result[:VeteranRelationship]).to eq(translated_payload[:VeteranRelationship])
-      expect(result[:DependantRelationship]).to eq(translated_payload[:DependantRelationship])
-      expect(result[:ResponseType]).to eq(translated_payload[:ResponseType])
+    context 'when translating dependent_relationship' do
+      it 'translates all the option keys from name to id' do
+        # Map each word to its expected ID
+
+        expected_results = {
+          'SPOUSE' => 722_310_008,
+          'CHILD' => 722_310_006,
+          'STEPCHILD' => 722_310_010,
+          'PARENT' => 722_310_009,
+          'NOT_LISTED' => 722_310_005
+        }
+
+        # Iterate over each word and check if it translates to the expected ID
+        expected_results.each do |word, expected_id|
+          result = subject.call(:dependent_relationship, word)
+          expect(result).to eq(expected_id)
+        end
+      end
     end
 
-    it 'translates inquiry_params to translated payload' do
-      expect(result).to eq(translated_payload)
+    context 'when key is not found' do
+      it 'raise TranslatorError' do
+        expect { subject.call(:fail, 'fail') }.to raise_error(AskVAApi::TranslatorError)
+      end
     end
   end
 
-  context 'when an error occurs' do
+  context 'when CRM error occurs' do
     let(:body) do
       '{"Data":null,"Message":"Data Validation: Invalid OptionSet Name iris_inquiryabou, valid' \
         ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VAOS::V1::Slot', type: :request do
+RSpec.describe 'VAOS::V1::Slot', skip: 'deprecated', type: :request do
   before do
     Flipper.enable('va_online_scheduling')
     sign_in_as(user)

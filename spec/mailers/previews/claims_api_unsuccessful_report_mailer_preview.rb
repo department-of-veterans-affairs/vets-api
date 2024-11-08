@@ -70,40 +70,51 @@ class ClaimsApiUnsuccessfulReportMailerPreview < ActionMailer::Preview
   end
 
   def make_claims
-    FactoryBot.build(:auto_established_claim_v2, :errored)
-    FactoryBot.build(:auto_established_claim, :errored)
+    # ClaimsApi::AutoEstablishedClaim.where(created_at: @from..@to).destroy_all
+    FactoryBot.create(:auto_established_claim_v2, :errored)
+    FactoryBot.create(:auto_established_claim, :errored)
 
-    FactoryBot.build(:auto_established_claim_va_gov, created_at: Time.zone.now)
-    FactoryBot.build(:auto_established_claim_va_gov, created_at: Time.zone.now)
-    FactoryBot.build(:auto_established_claim_va_gov, created_at: Time.zone.now)
-    FactoryBot.build(:auto_established_claim_va_gov, created_at: Time.zone.now)
+    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                transaction_id: '467384632184')
+    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                transaction_id: '467384632185')
+    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                transaction_id: '467384632186')
+    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                transaction_id: '467384632187')
+    FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                transaction_id: '467384632187')
+    FactoryBot.create(:auto_established_claim_va_gov, created_at: Time.zone.now)
 
-    FactoryBot.build(:auto_established_claim_v2, :errored)
-    FactoryBot.build(:auto_established_claim_v2, :pending)
-    FactoryBot.build(:auto_established_claim_without_flashes_or_special_issues)
-    FactoryBot.build(:auto_established_claim_without_flashes_or_special_issues)
-    FactoryBot.build(:auto_established_claim_with_supporting_documents)
-    FactoryBot.build(:auto_established_claim)
+    FactoryBot.create(:auto_established_claim_v2, :errored)
+    FactoryBot.create(:auto_established_claim_v2, :pending)
+    FactoryBot.create(:auto_established_claim, :pending)
+    FactoryBot.create(:auto_established_claim, :pending)
+    FactoryBot.create(:auto_established_claim_with_supporting_documents, :pending)
+    FactoryBot.create(:auto_established_claim, :pending)
   end
 
   def make_poas
-    FactoryBot.build(:power_of_attorney, :errored)
-    FactoryBot.build(:power_of_attorney, :errored)
-    FactoryBot.build(:power_of_attorney)
-    FactoryBot.build(:power_of_attorney)
+    # ClaimsApi::PowerOfAttorney.where(created_at: @from..@to).destroy_all
+    FactoryBot.create(:power_of_attorney, :errored)
+    FactoryBot.create(:power_of_attorney, :errored)
+    FactoryBot.create(:power_of_attorney)
+    FactoryBot.create(:power_of_attorney)
   end
 
   def make_ews_submissions
-    FactoryBot.build(:claims_api_evidence_waiver_submission, :errored)
-    FactoryBot.build(:claims_api_evidence_waiver_submission)
-    FactoryBot.build(:claims_api_evidence_waiver_submission, :errored)
-    FactoryBot.build(:claims_api_evidence_waiver_submission)
+    # ClaimsApi::EvidenceWaiverSubmission.where(created_at: @from..@to).destroy_all
+    FactoryBot.create(:evidence_waiver_submission, :errored)
+    FactoryBot.create(:evidence_waiver_submission)
+    FactoryBot.create(:evidence_waiver_submission, :errored)
+    FactoryBot.create(:evidence_waiver_submission)
   end
 
   def make_itfs
-    FactoryBot.build(:intent_to_file, :itf_errored)
-    FactoryBot.build(:intent_to_file, :itf_errored)
-    FactoryBot.build(:intent_to_file)
+    # ClaimsApi::IntentToFile.where(created_at: @from..@to).destroy_all
+    FactoryBot.create(:intent_to_file, :itf_errored)
+    FactoryBot.create(:intent_to_file, :itf_errored)
+    FactoryBot.create(:intent_to_file)
   end
 
   def gather_consumers

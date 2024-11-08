@@ -11,6 +11,7 @@ path 'modules' do
   gem 'apps_api'
   gem 'ask_va_api'
   gem 'avs'
+  gem 'banners'
   gem 'burials'
   gem 'check_in'
   gem 'claims_api'
@@ -182,6 +183,7 @@ end
 
 group :test do
   gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.1.0.vsp'
+  gem 'committee-rails'
   gem 'mock_redis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
