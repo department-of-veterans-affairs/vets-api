@@ -77,6 +77,15 @@ RSpec.describe MedicalCopays::Request do
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(path).and_return(response)
         subject.post(path, params)
       end
+
+      it 'logs the error message' do
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(path).and_raise(StandardError.new('Something went wrong'))
+        expect(Rails.logger).to receive(:error).with('MedicalCopays::Request error: Something went wrong')
+
+        expect {
+          subject.post(path, params)
+        }.to raise_error(StandardError, 'Something went wrong')
+      end
     end
 
     context 'with debt_copay_logging Flipper not enabled' do
