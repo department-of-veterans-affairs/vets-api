@@ -1,4 +1,4 @@
-# db/seeds/banner_seeds.rb
+# frozen_string_literal: true
 
 # Create sample Banner records
 puts 'Creating sample banners...'
