@@ -73,8 +73,9 @@ RSpec.describe MedicalCopays::Request do
       end
 
       it 'calls the with_monitoring_and_error_handling method' do
+        # rubocop:disable RSpec/SubjectStub
         expect(subject).to receive(:with_monitoring_and_error_handling)
-        allow_any_instance_of(Faraday::Connection).to receive(:post).with(path).and_return(response)
+        # rubocop:enable RSpec/SubjectStub
         subject.post(path, params)
       end
 
@@ -99,7 +100,9 @@ RSpec.describe MedicalCopays::Request do
       end
 
       it 'calls the with_monitoring_and_error_handling method' do
+        # rubocop:disable RSpec/SubjectStub
         expect(subject).to receive(:with_monitoring)
+        # rubocop:enable RSpec/SubjectStub
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(path).and_return(response)
         subject.post(path, params)
       end

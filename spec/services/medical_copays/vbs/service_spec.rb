@@ -161,10 +161,15 @@ RSpec.describe MedicalCopays::VBS::Service do
 
       it 'logs that a response was cached' do
         allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:valid?).and_return(true)
-        allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:to_hash).and_return({ edipi: '123456789', vistaAccountNumbers: [36_546] })
-        allow_any_instance_of(MedicalCopays::Request).to receive(:post).and_return(Faraday::Response.new(status: 200, body: []))
+        allow_any_instance_of(MedicalCopays::VBS::RequestData).to receive(:to_hash).and_return(
+          { edipi: '123456789', vistaAccountNumbers: [36_546] }
+        )
+        allow_any_instance_of(MedicalCopays::Request).to receive(:post)
+          .and_return(Faraday::Response.new(status: 200, body: []))
 
-        expect(Rails.logger).to receive(:info).with(a_string_including('MedicalCopays::VBS::Service#get_copay_response request data: '))
+        expect(Rails.logger).to receive(:info).with(
+          a_string_including('MedicalCopays::VBS::Service#get_copay_response request data: ')
+        )
         VCR.use_cassette('user/get_facilities_empty', match_requests_on: %i[method uri]) do
           subject.get_copays
         end
