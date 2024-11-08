@@ -123,9 +123,7 @@ jobs:
       # - uses: actions/checkout@v4
       - name: Print vars (DELETE ME)
         run: |
-          echo "exempt=${{ needs.check-pr-status.outputs.exempt }}"
-          echo "pr_draft=${{ needs.check-pr-status.outputs.pr_draft }}"
-          echo "failures_detected=${{ needs.check-pr-status.outputs.failures_detected }}"
+          echo "pr_number=${{ env.pr_number }}"
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
@@ -186,11 +184,11 @@ jobs:
     needs: [check-pr-status, check-approvals]
     if: ${{ always() }}
     env:
+      exempt: ${{ needs.check-pr-status.outputs.exempt }}
       pr_number: ${{ needs.check-pr-status.outputs.pr_number }}
       pr_draft: ${{ needs.check-pr-status.outputs.pr_draft }}
       pr_labels: ${{ needs.check-pr-status.outputs.pr_labels }}
       test_status: ${{ needs.check-pr-status.outputs.test_status }}
-      exempt: ${{ needs.check-pr-status.outputs.exempt }}
       failures_detected: ${{ needs.check-pr-status.outputs.failures_detected }}
       approval_status: ${{ needs.check-approvals.outputs.approval_status }}
     steps:
@@ -198,10 +196,12 @@ jobs:
         id: print-vars
         run: |
           echo ${{ env.exempt }}
+          echo ${{ env.pr_number }}
           echo ${{ env.pr_draft }}
+          echo ${{ env.pr_labels }}
+          echo ${{ env.test_status }}
           echo ${{ env.failures_detected }}
           echo ${{ env.approval_status }}
-          echo ${{ env.test_status }}
 
       # Remove labels if required
       - name: Remove require-backend-approval label
