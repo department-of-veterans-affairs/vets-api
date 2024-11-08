@@ -232,34 +232,29 @@ module CentralMail
       )
     end
 
-    # rubocop:disable Metrics/MethodLength
     def self.trigger_failure_events(saved_claim_id, encrypted_user_struct)
       claim = SavedClaim.find(saved_claim_id)
       user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct))
       email = claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
               user_struct.va_profile_email
-      template_id = if claim.submittable_686?
-                      if claim.submittable_674?
-                        Settings.vanotify.services.va_gov.template_id.form21_686c_674_action_needed_email
-                      else
-                        Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email
-                      end
-                    elsif claim.submittable_674?
-                      Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email
-                    end
-      if claim.present? && email.present? && template_id.present?
-        VANotify::EmailJob.perform_async(
-          email,
-          template_id,
-          {
-            'first_name' => claim.parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
-            'date' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => claim.confirmation_number
-          }
-        )
+      template_ids = []
+      template_ids << Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email if claim.submittable_686? # rubocop:disable Layout/LineLength
+      template_ids << Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email if claim.submittable_674? # rubocop:disable Layout/LineLength
+
+      template_ids.each do |template_id|
+        if claim.present? && email.present?
+          VANotify::EmailJob.perform_async(
+            email,
+            template_id,
+            {
+              'first_name' => claim.parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+              'date' => Time.zone.today.strftime('%B %d, %Y'),
+              'confirmation_number' => claim.confirmation_number
+            }
+          )
+        end
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
