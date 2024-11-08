@@ -81,6 +81,7 @@ module ClaimsApi
       resolve_homelessness_risk_situation_type_mappings!
       transform_homelessness_point_of_contact_primary_phone!
       transform_address_lines_length!
+      transform_empty_unit_name!
 
       {
         form526: form_data
@@ -509,6 +510,15 @@ module ClaimsApi
       addr['addressLine2'] = overflow
 
       form_data['veteran']['currentMailingAddress'] = addr
+    end
+
+    def transform_empty_unit_name!
+      reserves = form_data&.dig('serviceInformation', 'reservesNationalGuardService')
+      return if reserves.nil?
+
+      unit_name = reserves['unitName']
+      unit_name = unit_name.presence || ' '
+      reserves['unitName'] = unit_name
     end
   end
 end
