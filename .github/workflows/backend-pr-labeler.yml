@@ -29,18 +29,18 @@ jobs:
           if ${{ github.event_name == 'pull_request'}}; then
             echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
             echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
-            echo "pr_labels=${{ toJSON(github.event.pull_request.labels.*.name) }}" >> $GITHUB_OUTPUT
-            echo "pr_requested_teams=${{ toJSON(github.event.pull_request.requested_teams.*.name) }}" >> $GITHUB_OUTPUT
+            echo "pr_labels='${{ toJSON(github.event.pull_request.labels.*.name) }}'" >> $GITHUB_OUTPUT
+            echo "pr_requested_teams='${{ toJSON(github.event.pull_request.requested_teams.*.name) }}'" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'pull_request_review' }}; then
             echo "pr_number=${{ github.event.pull_request_review.pull_request.number }}" >> $GITHUB_OUTPUT
             echo "pr_draft=${{ github.event.pull_request_review.pull_request.draft }}" >> $GITHUB_OUTPUT
-            echo "pr_labels=${{ toJSON(github.event.pull_request_review.pull_request.labels.*.name) }}" >> $GITHUB_OUTPUT
-            echo "pr_requested_teams=${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}" >> $GITHUB_OUTPUT
+            echo "pr_labels='${{ toJSON(github.event.pull_request_review.pull_request.labels.*.name) }}'" >> $GITHUB_OUTPUT
+            echo "pr_requested_teams='${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}'" >> $GITHUB_OUTPUT
           elif [[ "${{ github.event_name }}" == "workflow_run" ]] && [[ "${{ toJSON(github.event.workflow_run.pull_requests) }}" != "[]" ]]; then
             echo "pr_number=${{ github.event.workflow_run.pull_requests[0].number }}" >> $GITHUB_OUTPUT
             echo "pr_draft=${{ github.event.workflow_run.pull_requests[0].draft }}" >> $GITHUB_OUTPUT
-            echo "pr_labels=${{ toJSON(github.event.workflow_run.pull_requests[0].labels.*.name) }}" >> $GITHUB_OUTPUT
-            echo "pr_requested_teams=${{ toJSON(github.event.workflow_run.pull_requests[0].requested_teams.*.name) }}" >> $GITHUB_OUTPUT
+            echo "pr_labels='${{ toJSON(github.event.workflow_run.pull_requests[0].labels.*.name) }}'" >> $GITHUB_OUTPUT
+            echo "pr_requested_teams='${{ toJSON(github.event.workflow_run.pull_requests[0].requested_teams.*.name) }}'" >> $GITHUB_OUTPUT
           else
             echo "Pull Request not successfully retrieved."
             exit 1
