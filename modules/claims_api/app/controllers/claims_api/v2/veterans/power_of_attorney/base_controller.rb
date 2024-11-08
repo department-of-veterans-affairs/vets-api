@@ -69,7 +69,9 @@ module ClaimsApi
              form_attributes['claimant'].present?
 
             relationship = form_attributes['claimant']['relationship']&.downcase
-            # even with both conditions being met, this is the veteran if sent w/ relationship of 'Self'
+            # even with both conditions being met
+            # this is the veteran if sent w/ relationship of 'Self'
+            # so we need to verify this is also true
             relationship != 'self'
           else
             false
