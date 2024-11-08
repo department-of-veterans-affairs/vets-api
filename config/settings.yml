@@ -1389,6 +1389,7 @@ vanotify:
     health_apps_1010:
       api_key: fake_secret
       template_id:
+        form1010_cg_failure_email: fake_template_id
         form1010_ez_failure_email: fake_template_id
         form1010_ezr_failure_email: fake_template_id
     # https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/
