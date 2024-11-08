@@ -70,11 +70,11 @@ jobs:
           labels: ${{ steps.get_pr_data.outputs.pr_labels }}
         run: |
           if [[ \
-            ${{ contains(env.labels, 'code-health-failure') == 'true' }} || \
-            ${{ contains(env.labels, 'codeowners-addition-failure') == 'true' }} || \
-            ${{ contains(env.labels, 'codeowners-delete-failure') == 'true' }} || \
-            ${{ contains(env.labels, 'lint-failure') == 'true' }} || \
-            ${{ contains(env.labels, 'test-failure') == 'true' }} \
+            ${{ contains(env.labels, 'code-health-failure') }} || \
+            ${{ contains(env.labels, 'codeowners-addition-failure') }} || \
+            ${{ contains(env.labels, 'codeowners-delete-failure') }} || \
+            ${{ contains(env.labels, 'lint-failure') }} || \
+            ${{ contains(env.labels, 'test-failure') }} \
           ]]; then
             echo "failures_detected=true" >> $GITHUB_OUTPUT
             echo "Failure labels detected."
