@@ -33,14 +33,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
 
-  let(:cassette_path) do
-    if Flipper.enabled?(:va_v3_contact_information_service)
-      'va_profile/v2/contact_information'
-    else
-      'va_profile/contact_information'
-    end
-  end
-
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
@@ -2734,8 +2726,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:mhv_user) { build(:user, :loa3, vet360_id:) }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
-                                                  instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
         sign_in_as(mhv_user)
       end
