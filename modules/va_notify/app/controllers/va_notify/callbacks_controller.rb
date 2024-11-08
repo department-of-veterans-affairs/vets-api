@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'va_notify/default_callback'
+
 module VANotify
   class CallbacksController < VANotify::ApplicationController
     include ActionController::HttpAuthentication::Token::ControllerMethods
