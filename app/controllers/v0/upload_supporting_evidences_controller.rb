@@ -16,7 +16,7 @@ module V0
         form: '526ez supporting evidence attachment',
         action: "upload: #{FORM_ATTACHMENT_MODEL}",
         upstream: 'User provided file',
-        downstream: "S3 bucket: #{Settings.evss.s3.bucket}"
+        downstream: "S3 bucket: #{Settings.claims_api.evss.s3.bucket}"
       },
       additional_instance_logs: {
         user_uuid: %i[current_user account_uuid]

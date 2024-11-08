@@ -25,7 +25,7 @@ class EVSS::DocumentUpload
     :clean_up!,
     additional_class_logs: {
       form: '526ez Document Upload to EVSS API',
-      upstream: "S3 bucket: #{Settings.evss.s3.bucket}",
+      upstream: "S3 bucket: #{Settings.claims_api.evss.s3.bucket}",
       downstream: "EVSS API: #{EVSS::DocumentsService::BASE_URL}"
     }
   )
