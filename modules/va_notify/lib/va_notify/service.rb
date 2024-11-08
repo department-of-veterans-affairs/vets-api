@@ -18,7 +18,7 @@ module VaNotify
     def initialize(api_key, callback_options = {})
       overwrite_client_networking
       @notify_client ||= Notifications::Client.new(api_key, client_url)
-      @callback_options = callback_options
+      @callback_options = callback_options || {}
     rescue => e
       handle_error(e)
     end
