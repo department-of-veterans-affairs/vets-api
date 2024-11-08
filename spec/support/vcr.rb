@@ -30,7 +30,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<MHV_X_API_KEY>') { Settings.mhv.medical_records.mhv_x_api_key }
   c.filter_sensitive_data('<MHV_SM_APP_TOKEN>') { Settings.mhv.sm.app_token }
   c.filter_sensitive_data('<MHV_SM_HOST>') { Settings.mhv.sm.host }
-  c.filter_sensitive_data('<MPI_URL>') { Settings.mvi.url }
+  c.filter_sensitive_data('<MPI_URL>') { Settings.mocked_authentication.mvi.url }
   c.filter_sensitive_data('<PD_TOKEN>') { Settings.maintenance.pagerduty_api_token }
   c.filter_sensitive_data('<CENTRAL_MAIL_TOKEN>') { Settings.central_mail.upload.token }
   c.filter_sensitive_data('<PPMS_API_KEY>') { Settings.ppms.api_keys }

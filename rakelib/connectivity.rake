@@ -83,7 +83,7 @@ namespace :connectivity do
 
   desc 'Check MVI'
   task mvi: :environment do
-    check 'MVI', Settings.mvi.url do
+    check 'MVI', Settings.mocked_authentication.mvi.url do
       user = User.new(
         first_name: 'John',
         last_name: 'Smith',

@@ -22,7 +22,7 @@ module MPI
     end
 
     def base_path
-      Settings.mvi.url
+      Settings.mocked_authentication.mvi.url
     end
 
     def service_name

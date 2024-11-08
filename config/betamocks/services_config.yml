@@ -459,10 +459,10 @@
 
 # MVI
 - :name: 'MVI'
-  :base_uri: <%= "#{URI(Settings.mvi.url).host}:#{URI(Settings.mvi.url).port}" %>
+  :base_uri: <%= "#{URI(Settings.mocked_authentication.mvi.url).host}:#{URI(Settings.mocked_authentication.mvi.url).port}" %>
   :endpoints:
   - :method: :post
-    :path: <%= URI(Settings.mvi.url).path %>
+    :path: <%= URI(Settings.mocked_authentication.mvi.url).path %>
     :file_path: "mvi/profile"
     :cache_multiple_responses:
       :uid_location: body

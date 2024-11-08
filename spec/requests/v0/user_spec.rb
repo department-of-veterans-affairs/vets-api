@@ -404,7 +404,7 @@ RSpec.describe 'V0::User', type: :request do
   end
 
   def stub_mpi_external_request(file)
-    stub_request(:post, Settings.mvi.url)
+    stub_request(:post, Settings.mocked_authentication.mvi.url)
       .to_return(status: 200, headers: { 'Content-Type' => 'text/xml' }, body: file)
   end
 end
