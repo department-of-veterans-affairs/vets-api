@@ -5,8 +5,8 @@ require 'common/client/errors'
 require 'json'
 
 module VAOS
-  module V2
-    class EPSProviderService < VAOS::SessionService
+  module Eps
+    class EpsProviderService < VAOS::SessionService
       def get_appointment(appointment_id)
         with_monitoring do
           response = perform(:get, appointment_url(appointment_id), headers)
@@ -87,36 +87,40 @@ module VAOS
 
       private
 
+      def base_url
+        'https://api.wellhive.comcare-navigation/v1'
+      end
+
       def appointment_url(appointment_id)
-        "/care-navigation/v1/appointments/#{appointment_id}"
+        "#{base_url}/appointments/#{appointment_id}"
       end
 
       def create_appointment_url
-        '/care-navigation/v1/appointments'
+        "#{base_url}/appointments"
       end
 
       def submit_appointment_url
-        '/care-navigation/v1/appointments/submit'
+        "#{base_url}/appointments/submit"
       end
 
       def drive_times_url
-        '/care-navigation/v1/drive-times'
+        "#{base_url}/drive-times"
       end
 
       def provider_services_url
-        '/care-navigations/v1/provider-services'
+        "#{base_url}/provider-services"
       end
 
       def provider_service_url(provider_service_id)
-        "/care-navigations/v1/provider-services/#{provider_service_id}"
+        "#{base_url}/provider-services/#{provider_service_id}"
       end
 
       def provider_service_slots_url(provider_service_id)
-        "/care-navigations/v1/provider-services/#{provider_service_id}/slots"
+        "#{base_url}/provider-services/#{provider_service_id}/slots"
       end
 
       def provider_service_slot_url(provider_service_id, slot_id)
-        "/care-navigations/v1/provider-services/#{provider_service_id}/slots/#{slot_id}"
+        "#{base_url}/provider-services/#{provider_service_id}/slots/#{slot_id}"
       end
     end
   end
