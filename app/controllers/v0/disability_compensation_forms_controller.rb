@@ -54,12 +54,11 @@ module V0
     def submit_all_claim
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
 
-      if saved_claim.form['updatedRatedDisabilities'].blank? && saved_claim.form['newPrimaryDisabilities'].blank?
-        StatsD.increment("#{stats_key}.failure")
-        Rails.logger.error(
-          'Creating 526 submission: no new or increased disabilities were submitted', user_uuid: @current_user&.uuid
+      if missing_new_and_increase_disabilities?(saved_claim)
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'no new or increased disabilities were submitted',
+          source: 'DisabilityCompensationFormsController'
         )
-        raise 'no new or increased disabilities were submitted'
       end
 
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
@@ -164,6 +163,17 @@ module V0
     def includes_toxic_exposure?
       # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
       form_content['form526']['startedFormVersion']
+    end
+
+    def missing_new_and_increase_disabilities?(saved_claim)
+      if saved_claim.form['updatedRatedDisabilities'].blank? # && saved_claim.form['newPrimaryDisabilities'].blank?
+        StatsD.increment("#{stats_key}.failure")
+        Rails.logger.error(
+          'Creating 526 submission: no new or increased disabilities were submitted', user_uuid: @current_user&.uuid
+        )
+        return true
+      end
+      false
     end
   end
 end
