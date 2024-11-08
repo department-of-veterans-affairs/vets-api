@@ -15,8 +15,8 @@ module MebApi
           STATSD_KEY_PREFIX = 'api.dgi.submission'
 
           def submit_claim(params, response_data)
-            form_type = params.key?('@type') ? params['@type'] : 'ToeSubmission'
             unmasked_params = update_dd_params(params, response_data)
+            form_type = params['@type']
             with_monitoring do
               headers = request_headers
               options = { timeout: 60 }
@@ -29,10 +29,14 @@ module MebApi
           private
 
           def end_point(form_type)
-            if form_type == 'ToeSubmission'
-              'claimType/toe/claimsubmission'.dup
+            "claimType/#{dgi_url(form_type)}/claimsubmission".dup
+          end
+
+          def dgi_url(form_type)
+            if form_type == 'Chapter35Submission'
+              'Chapter35'
             else
-              "claimType/#{form_type.capitalize}/claimsubmission".dup
+              'toe'
             end
           end
 
@@ -45,10 +49,17 @@ module MebApi
 
           def format_params(params)
             camelized_keys = camelize_keys_for_java_service(params.except(:form_id))
-            modified_keys = camelized_keys['toeClaimant']&.merge(
-              personCriteria: { ssn: @user.ssn }.stringify_keys)
+            if params['@type'] == 'ToeSubmission'
+              modified_keys = camelized_keys['toeClaimant']&.merge(
+                personCriteria: { ssn: @user.ssn }.stringify_keys)
 
-            camelized_keys['toeClaimant'] = modified_keys
+              camelized_keys['toeClaimant'] = modified_keys
+            else
+              modified_keys = camelized_keys['claimant']&.merge(
+                personCriteria: { ssn: @user.ssn }.stringify_keys)
+
+              camelized_keys['claimant'] = modified_keys
+            end
             camelized_keys
           end
 

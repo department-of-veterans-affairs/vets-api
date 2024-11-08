@@ -4,116 +4,75 @@ module AskVAApi
   class TranslatorError < StandardError; end
 
   class Translator
-    attr_reader :inquiry_params, :optionset_entity_class, :retriever, :logger
+    MAPPINGS = {
+      'levelofauthentication' => 'level_of_authentication',
+      'veteranrelationship' => 'veteran_relationship',
+      'responsetype' => 'response_type',
+      'dependentrelationship' => 'dependent_relationship',
+      'inquiryabout' => 'inquiry_about'
+    }.freeze
 
-    def initialize(inquiry_params:, entity_class: Optionset::Entity)
-      @inquiry_params = inquiry_params
-      @translation_cache = {}
-      @optionset_entity_class = entity_class
-      @retriever = Optionset::Retriever
-      @logger = LogService.new
-    end
+    EXACT_MATCH_KEYS = %i[veteran_relationship dependent_relationship].freeze
 
-    def call
-      payload = convert_keys_to_pascal_case(inquiry_params, fetch_translation_map('inquiry'))
+    def call(key, value)
+      return if value.nil?
 
-      options.each do |option|
-        update_option_in_payload(payload, option)
-      end
-
-      payload
+      optionset = fetch_optionset
+      translated_value = translate_value(key, value)
+      find_option_id(optionset, key, translated_value)
     end
 
     private
 
-    def convert_keys_to_pascal_case(params, translation_map)
-      params.each_with_object({}) do |(key, value), result|
-        pascal_case_key = translation_map[key.to_sym]
-        next unless pascal_case_key
-
-        result[pascal_case_key.to_sym] = case value
-                                         when Hash
-                                           convert_keys_to_pascal_case(value, fetch_translation_map(key))
-                                         when Array
-                                           value.map { |v| convert_keys_to_pascal_case(v, fetch_translation_map(key)) }
-                                         else
-                                           value
-                                         end
-      end
+    # Translates the value based on key if translation is required
+    def translate_value(key, value)
+      EXACT_MATCH_KEYS.include?(key) ? I18n.t("ask_va_api.#{key}.#{value}") : value
     end
 
-    def update_option_in_payload(payload, option)
-      option_key = options_converter_hash[option]
-      return unless option_key
+    # Finds the corresponding option ID in the optionset based on translated value
+    def find_option_id(optionset, key, value)
+      raise TranslatorError, "Key '#{key}' not found in optionset data" unless optionset[key]
 
-      option_set = retrieve_option_set(option)
+      optionset[key].each do |obj|
+        return obj[:Id] if exact_match?(key, obj[:Name], value) || normalized_match?(obj[:Name], value)
+      end
+      nil
+    end
 
-      if option == 'suffix'
-        update_suffix(payload, option_set)
-      else
-        update_option(payload, option_key, option_set)
+    # Checks for an exact match if the key requires it
+    def exact_match?(key, name, value)
+      EXACT_MATCH_KEYS.include?(key) && name == value
+    end
+
+    # Normalizes and matches inputs for non-exact match keys
+    def normalized_match?(name, value)
+      normalize_text(name) == normalize_text(value)
+    end
+
+    # Fetches and formats optionset data into a hash with snake_case keys
+    def fetch_optionset
+      retrieve_option_set[:Data].each_with_object({}) do |option, hash|
+        key = convert_to_snake_case(option[:Name])
+        hash[key.to_sym] = option[:ListOfOptions]
       end
     rescue => e
-      log_and_raise_error("update option #{option}", e)
+      raise TranslatorError, "Failed to retrieve optionset data: #{e.message}"
     end
 
-    def update_suffix(payload, option_set)
-      %i[Suffix VeteranSuffix Profile].each do |suffix_key|
-        suffix_value = suffix_key == :Profile ? payload.dig(:Profile, :suffix) : payload[suffix_key]
-        matching_option = option_set.find { |obj| obj.name == suffix_value }
-
-        if suffix_key == :Profile
-          payload[:Profile][:suffix] = matching_option.id if matching_option
-        elsif matching_option
-          payload[suffix_key] = matching_option.id
-        end
-      end
+    # Retrieves optionset data from cache
+    def retrieve_option_set
+      Crm::CacheData.new.call(endpoint: 'optionset', cache_key: 'optionset')
     end
 
-    def update_option(payload, option_key, option_set)
-      matching_option = option_set.find { |obj| obj.name == payload[option_key] }
-      payload[option_key] = matching_option.id if matching_option
+    # Converts a string to snake_case and applies mappings if necessary
+    def convert_to_snake_case(str)
+      cleaned_str = str.gsub(/^iris_/, '').downcase
+      MAPPINGS.fetch(cleaned_str, cleaned_str)
     end
 
-    def retrieve_option_set(option)
-      retriever.new(name: option, user_mock_data: nil, entity_class: optionset_entity_class).call
-    end
-
-    def options
-      @options ||= %w[
-        inquiryabout inquirysource inquirytype levelofauthentication
-        suffix veteranrelationship dependentrelationship responsetype
-      ]
-    end
-
-    def options_converter_hash
-      {
-        'inquiryabout' => :InquiryAbout,
-        'inquirysource' => :InquirySource,
-        'inquirytype' => :InquiryType,
-        'levelofauthentication' => :LevelOfAuthentication,
-        'suffix' => :Suffix,
-        'veteranrelationship' => :VeteranRelationship,
-        'dependentrelationship' => :DependantRelationship,
-        'responsetype' => :ResponseType
-      }
-    end
-
-    def fetch_translation_map(key)
-      @translation_cache[key] ||= I18n.t("ask_va_api.parameters.#{key}", default: {})
-    end
-
-    def log_and_raise_error(action, exception)
-      log_error(action, exception)
-      raise TranslatorError, exception if exception.message.include?('Crm::CacheDataError')
-    end
-
-    def log_error(action, exception)
-      logger.call(action) do |span|
-        span.set_tag('error', true)
-        span.set_tag('error.msg', exception.message)
-      end
-      Rails.logger.error("Error during #{action}: #{exception.message}")
+    # Normalizes text by removing non-alphanumeric characters and downcasing
+    def normalize_text(text)
+      text.gsub(/[^a-z0-9]/i, '').downcase
     end
   end
 end

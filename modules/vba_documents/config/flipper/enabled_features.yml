@@ -1,4 +1,5 @@
 common:
+  - benefits_require_gateway_origin
 development:
 staging:
 sandbox:

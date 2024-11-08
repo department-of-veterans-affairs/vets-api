@@ -23,12 +23,31 @@ module ClaimsApi
     end
     # rubocop:enable Metrics/ParameterLists
 
-    def compact_veteran_name(first_name, last_name)
+    def compact_name_for_file(first_name, last_name)
       [first_name, last_name].compact_blank.join('_')
     end
 
-    def build_file_name(veteran_name:, identifier:, suffix:)
-      "#{[veteran_name, identifier, suffix].compact_blank.join('_')}.pdf"
+    def build_file_name(veteran_name:, identifier:, suffix:, dependent: nil)
+      prefix = dependent ? 'dependent_' : ''
+
+      "#{prefix}#{[veteran_name, identifier, suffix].compact_blank.join('_')}.pdf"
+    end
+
+    def find_ptcpnt_vet_id(auth_headers, ptcpnt_vet_id)
+      ptcpnt_vet_id.presence || auth_headers['va_eauth_pid']
+    end
+
+    def file_name(record, veteran_name, form_suffix)
+      build_file_name(
+        veteran_name:,
+        identifier: record.id,
+        suffix: form_suffix,
+        dependent: dependent_filing?(record)
+      )
+    end
+
+    def dependent_filing?(record)
+      record.auth_headers['dependent']
     end
 
     private

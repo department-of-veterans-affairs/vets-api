@@ -18,12 +18,6 @@ describe TravelPay::ExpensesClient do
   end
 
   context '/expenses/mileage' do
-    before do
-      allow_any_instance_of(TravelPay::TokenService)
-        .to receive(:get_tokens)
-        .and_return('veis_token', 'btsss_token')
-    end
-
     # POST add_expense
     it 'returns an expenseId from the /expenses/mileage endpoint' do
       expense_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'

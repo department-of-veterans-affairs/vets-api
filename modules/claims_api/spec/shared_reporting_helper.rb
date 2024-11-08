@@ -52,24 +52,24 @@ RSpec.shared_context 'shared reporting defaults' do
   end
   let(:evidence_waiver_submissions) do
     evidence_waiver_submissions = []
-    evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
+    evidence_waiver_submissions.push(FactoryBot.create(:evidence_waiver_submission,
                                                        cid: '0oa9uf05lgXYk6ZXn297'))
-    evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
+    evidence_waiver_submissions.push(FactoryBot.create(:evidence_waiver_submission,
                                                        cid: '0oa9uf05lgXYk6ZXn297'))
-    evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
+    evidence_waiver_submissions.push(FactoryBot.create(:evidence_waiver_submission,
                                                        cid: '0oa9uf05lgXYk6ZXn297'))
   end
   let(:errored_evidence_waiver_submissions) do
     errored_evidence_waiver_submissions = []
-    errored_evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission, :errored,
+    errored_evidence_waiver_submissions.push(FactoryBot.create(:evidence_waiver_submission, :errored,
                                                                cid: '0oa9uf05lgXYk6ZXn297'))
     errored_evidence_waiver_submissions.push(FactoryBot.create(
-                                               :claims_api_evidence_waiver_submission,
+                                               :evidence_waiver_submission,
                                                :errored,
                                                vbms_error_message: 'File could not be retrieved from AWS',
                                                cid: '0oa9uf05lgXYk6ZXn297'
                                              ))
-    errored_evidence_waiver_submissions.push(FactoryBot.create(:claims_api_evidence_waiver_submission,
+    errored_evidence_waiver_submissions.push(FactoryBot.create(:evidence_waiver_submission,
                                                                cid: '0oa9uf05lgXYk6ZXn297'))
   end
 end

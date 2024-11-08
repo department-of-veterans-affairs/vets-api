@@ -6,12 +6,11 @@
     </tr>
   </thead>
   <tbody>
-    <% claims&.each_with_index do |grps, idx| %>
-      <% grps[1]&.each do |arr| %>
+    <% claims&.each do |grp_transaction_alias_and_guid| %>
           <tr>
-            <td><%= grps[0] %></td><td><%= arr[:id] %></td>
+            <td><%= grp_transaction_alias_and_guid[0] %></td>
+            <td><%= grp_transaction_alias_and_guid[1].pluck(:id) %></td>
           </tr>
-      <% end %>
     <% end %>
   </tbody>
 </table>

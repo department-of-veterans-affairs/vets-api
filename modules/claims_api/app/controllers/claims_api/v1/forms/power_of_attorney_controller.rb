@@ -30,8 +30,7 @@ module ClaimsApi
           validate_poa_code!(poa_code)
           validate_poa_code_for_current_user!(poa_code) if header_request? && !token.client_credentials_token?
           file_number = check_file_number_exists!
-          dependent_participant_id, claimant_ssn = validate_dependent_claimant!(poa_code:)
-          assign_poa_to_dependent_claimant!(poa_code:, file_number:, dependent_participant_id:, claimant_ssn:)
+          claimant_information = validate_dependent_claimant!(poa_code:)
 
           power_of_attorney = ClaimsApi::PowerOfAttorney.find_using_identifier_and_source(header_md5:,
                                                                                           source_name:)
@@ -49,7 +48,16 @@ module ClaimsApi
             unless power_of_attorney.persisted?
               power_of_attorney = ClaimsApi::PowerOfAttorney.find_by(md5: power_of_attorney.md5)
             end
+
+            if feature_enabled_and_claimant_present?
+              update_auth_headers_for_dependent(
+                power_of_attorney,
+                claimant_information
+              )
+            end
+
             power_of_attorney.auth_headers['participant_id'] = target_veteran.participant_id
+            power_of_attorney.auth_headers['file_number'] = file_number
             power_of_attorney.save!
           end
 
@@ -58,7 +66,7 @@ module ClaimsApi
           if data.dig('signatures', 'veteran').present? && data.dig('signatures', 'representative').present?
             # Autogenerate a 21-22 form from the request body and upload it to VBMS.
             # If upload is successful, then the PoaUpater job is also called to update the code in BGS.
-            ClaimsApi::V1::PoaFormBuilderJob.perform_async(power_of_attorney.id)
+            ClaimsApi::V1::PoaFormBuilderJob.perform_async(power_of_attorney.id, 'post')
           end
 
           claims_v1_logging('poa_submit', message: "poa_submit complete, poa: #{power_of_attorney&.id}")
@@ -149,6 +157,19 @@ module ClaimsApi
 
         private
 
+        def update_auth_headers_for_dependent(poa, claimant_information)
+          auth_headers = poa.auth_headers
+
+          auth_headers.merge!({
+                                dependent: {
+                                  first_name: claimant_information['claimant_first_name'],
+                                  last_name: claimant_information['claimant_last_name'],
+                                  participant_id: claimant_information['claimant_participant_id'],
+                                  ssn: claimant_information['claimant_ssn']
+                                }
+                              })
+        end
+
         def feature_enabled_and_claimant_present?
           Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) &&
             form_attributes['claimant'].present?
@@ -168,23 +189,12 @@ module ClaimsApi
           service.validate_poa_code_exists!
           service.validate_dependent_by_participant_id!
 
-          [service.claimant_participant_id, service.claimant_ssn]
-        end
-
-        def assign_poa_to_dependent_claimant!(poa_code:, file_number:, dependent_participant_id:, claimant_ssn:)
-          return nil unless feature_enabled_and_claimant_present?
-
-          service = ClaimsApi::DependentClaimantPoaAssignmentService.new(
-            poa_code:,
-            veteran_participant_id: target_veteran.participant_id,
-            dependent_participant_id:,
-            veteran_file_number: file_number,
-            allow_poa_access: form_attributes[:recordConsent].present? ? 'Y' : nil,
-            allow_poa_cadd: form_attributes[:consentAddressChange].present? ? 'Y' : nil,
-            claimant_ssn:
-          )
-
-          service.assign_poa_to_dependent!
+          {
+            'claimant_participant_id' => service.claimant_participant_id,
+            'claimant_first_name' => claimant_first_name,
+            'claimant_last_name' => claimant_last_name,
+            'claimant_ssn' => service.claimant_ssn
+          }
         end
 
         def current_poa_begin_date

@@ -14,8 +14,8 @@ module RepresentationManagement
           :record_consent,
           :consent_address_change,
           { consent_limits: [],
-            conditions_of_appointment: [],
             claimant: claimant_params_permitted,
+            representative: representative_params_permitted,
             veteran: veteran_params_permitted }
         ]
       end
@@ -24,6 +24,18 @@ module RepresentationManagement
         [
           :date_of_birth,
           :relationship,
+          :phone,
+          :email,
+          { name: name_params_permitted,
+            address: address_params_permitted }
+        ]
+      end
+
+      def representative_params_permitted
+        [
+          :organization_id,
+          :id,
+          :type,
           :phone,
           :email,
           { name: name_params_permitted,
@@ -49,11 +61,13 @@ module RepresentationManagement
 
       def flatten_claimant_params(claimant_params)
         claimant = claimant_params[:claimant]
+        return {} if claimant.nil?
+
         address = claimant[:address]
         country_code = normalize_country_code_to_alpha2(address[:country])
         {
           claimant_first_name: claimant.dig(:name, :first),
-          claimant_middle_initial: claimant.dig(:name, :middle),
+          claimant_middle_initial: claimant.dig(:name, :middle)&.chr,
           claimant_last_name: claimant.dig(:name, :last),
           claimant_date_of_birth: claimant[:date_of_birth],
           claimant_relationship: claimant[:relationship],
@@ -74,7 +88,7 @@ module RepresentationManagement
         address = veteran[:address]
         country_code = normalize_country_code_to_alpha2(address[:country])
         { veteran_first_name: veteran.dig(:name, :first),
-          veteran_middle_initial: veteran.dig(:name, :middle),
+          veteran_middle_initial: veteran.dig(:name, :middle)&.chr,
           veteran_last_name: veteran.dig(:name, :last),
           veteran_social_security_number: veteran[:ssn],
           veteran_va_file_number: veteran[:va_file_number],
