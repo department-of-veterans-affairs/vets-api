@@ -13,6 +13,7 @@ module ClaimsApi
         # schema endpoint should be wide open
         skip_before_action :authenticate, only: %i[schema]
         skip_before_action :validate_veteran_identifiers, only: %i[schema]
+        before_action :verify_email_for_poa
         include ClaimsApi::EndpointDeprecation
 
         def schema
@@ -21,6 +22,17 @@ module ClaimsApi
         end
 
         private
+
+        def verify_email_for_poa
+          form = @json_body.dig('data', 'type') || {}
+          return true unless form == "form/21-22"
+
+          email = @json_body.dig('data', 'attributes', 'veteran', 'email')
+          return true unless email == ""
+
+          @json_body.dig('data', 'attributes', 'veteran').delete('email') if email == ""
+          return true
+        end
 
         def validate_json_schema
           validator = ClaimsApi::FormSchemas.new
