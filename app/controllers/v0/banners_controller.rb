@@ -7,6 +7,7 @@ module V0
 
     def by_path
       path = params[:path]
+      # Default to 'full_width_banner_alert' banner (bundle) type.
       banner_type = params.fetch(:type, 'full_width_banner_alert')
       banners = []
       banners = Banner.by_path_and_type(path, banner_type) if path && banner_type

@@ -18,17 +18,40 @@ class Banner < ApplicationRecord
 
   # Returns banners for a given path and banner bundle type.
   scope :by_path_and_type, lambda { |path, type|
-    # Filter by entity_bundle
-    bundle_condition = arel_table[:entity_bundle].eq(type)
+    normalized_path = path.sub(%r{^/?}, '')
 
-    # JSONB containment conditions using @>.
-    operating_system_condition = 'context @> ?'
-    home_condition = 'context @> ?'
+    # Direct path matches.
+    exact_path_conditions = where('banners.context @> ?',
+                                  [
+                                    { entity:
+                                     { entityUrl:
+                                      { path: path } } }
+                                  ].to_json)
+                            .or(where('banners.context @> ?',
+                                      [
+                                        { entity:
+                                          { fieldOffice:
+                                            { entity:
+                                              { entityUrl:
+                                                { path: path } } } } }
+                                      ].to_json))
 
-    # Use ActiveRecord's `where` with an OR clause for the JSONB paths.
-    where(bundle_condition)
-      .where("#{operating_system_condition} OR #{home_condition}",
-             [{ entity: { entityUrl: { path: path } } }].to_json,
-             [{ entity: { fieldOffice: { entity: { entityUrl: { path: path } } } } }].to_json)
+    # Subpage inheritance check: Matches on any `fieldOffice` entity path where `limit_subpage_inheritance` is false.
+    subpage_pattern = "#{normalized_path.split('/').first}/%"
+    subpage_condition = where('banners.context @> ?',
+                              [
+                                { entity:
+                                  { fieldOffice:
+                                    { entity:
+                                      { entityUrl:
+                                        { path: subpage_pattern } } } } }
+                              ].to_json)
+                        .where(limit_subpage_inheritance: false)
+
+    # Bundle type match
+    type_condition = where(entity_bundle: type)
+
+    # Combine conditions with the "AND" for type, and "OR" between exact paths and subpage matches
+    type_condition.and(exact_path_conditions.or(subpage_condition))
   }
 end
