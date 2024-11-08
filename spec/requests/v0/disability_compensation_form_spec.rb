@@ -118,6 +118,15 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
             expect(response).to match_camelized_response_schema('evss_errors', strict: false)
           end
         end
+
+        it 'returns a 500 when no new or increase disabilities are submitted' do
+          all_claims_form = File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json'
+          json_object = JSON.parse(all_claims_form)
+          json_object['form526'].delete('newPrimaryDisabilities')
+          updated_form = JSON.generate(json_object)
+          post('/v0/disability_compensation_form/submit_all_claim', params: updated_form, headers:)
+          expect(response).to have_http_status(:internal_server_error)
+        end
       end
 
       context 'with a 401 response' do

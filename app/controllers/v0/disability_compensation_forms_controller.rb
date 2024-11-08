@@ -53,6 +53,15 @@ module V0
 
     def submit_all_claim
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
+
+      if saved_claim.form['updatedRatedDisabilities'].blank? && saved_claim.form['newPrimaryDisabilities'].blank?
+        StatsD.increment("#{stats_key}.failure")
+        Rails.logger.error(
+          'Creating 526 submission: no new or increased disabilities were submitted', user_uuid: @current_user&.uuid
+        )
+        raise 'no new or increased disabilities were submitted'
+      end
+
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
       # if jid = 0 then the submission was prevented from going any further in the process
@@ -131,6 +140,7 @@ module V0
     end
 
     def log_failure(claim)
+      # debugger
       StatsD.increment("#{stats_key}.failure")
       raise Common::Exceptions::ValidationErrors, claim
     end
