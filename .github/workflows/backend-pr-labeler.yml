@@ -12,32 +12,43 @@ jobs:
   check-pr-status:
     runs-on: ubuntu-latest
     outputs:
-      pull_request: ${{ steps.get_pr.outputs.pull_request }}
+      pr_number: ${{ steps.get_pr_data.outputs.pr_number }}
+      pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}
+      pr_labels: ${{ steps.get_pr_data.outputs.pr_labels }}
+      pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
       test_status: ${{ steps.get_code_checks_conclusion.outputs.test_status }}
       exempt: ${{ steps.check_exemption.outputs.exempt }}
-      draft: ${{ steps.check_draft.outputs.draft }}
       failures_detected: ${{ steps.audit_pr_labels.outputs.failures_detected }}
     steps:
       # - name: Checkout code
       #   uses: actions/checkout@v4
 
-      - name: Get pull_request
-        id: get_pr
+      - name: Get pull_request data
+        id: get_pr_data
         run: |
           if ${{ github.event_name == 'pull_request'}}; then
-            echo "pull_request=${{ toJSON(github.event.pull_request) }}" >> $GITHUB_OUTPUT
+            echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
+            echo "pr_labels=${{ toJSON(github.event.pull_request.labels.*.name) }}" >> $GITHUB_OUTPUT
+            echo "pr_requested_teams=${{ toJSON(github.event.pull_request.requested_teams.*.name) }}" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'pull_request_review' }}; then
-            echo "pull_request=${{ toJSON(github.event.pull_request_review.pull_request) }}" >> $GITHUB_OUTPUT
+            echo "pr_number=${{ github.event.pull_request_review.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "pr_draft=${{ github.event.pull_request_review.pull_request.draft }}" >> $GITHUB_OUTPUT
+            echo "pr_labels=${{ toJSON(github.event.pull_request_review.pull_request.labels.*.name) }}" >> $GITHUB_OUTPUT
+            echo "pr_requested_teams=${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}" >> $GITHUB_OUTPUT
           elif [[ "${{ github.event_name }}" == "workflow_run" ]] && [[ "${{ toJSON(github.event.workflow_run.pull_requests) }}" != "[]" ]]; then
-            echo "pull_request=${{ toJSON(github.event.workflow_run.pull_requests[0]) }}" >> $GITHUB_OUTPUT
+            echo "pr_number=${{ github.event.workflow_run.pull_requests[0].number }}" >> $GITHUB_OUTPUT
+            echo "pr_draft=${{ github.event.workflow_run.pull_requests[0].draft }}" >> $GITHUB_OUTPUT
+            echo "pr_labels=${{ toJSON(github.event.workflow_run.pull_requests[0].labels.*.name) }}" >> $GITHUB_OUTPUT
+            echo "pr_requested_teams=${{ toJSON(github.event.workflow_run.pull_requests[0].requested_teams.*.name) }}" >> $GITHUB_OUTPUT
           else
             echo "Pull Request not successfully retrieved."
             exit 1
           fi
+
       - name: Get Code Checks conclusion
         if: github.event_name == 'workflow_run'
         run: |
-          echo "pull_request_json=${{ steps.get_pr.outputs.pull_request }}"
           echo "workflow_run: ${{ toJSON(github.event.workflow_run) }}"
           echo "test_status=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
           echo "test_status: ${{ github.event.workflow_run.conclusion }}"
@@ -45,7 +56,7 @@ jobs:
       - name: Check for exemption
         id: check_exemption
         run: |
-          if ${{ contains(fromJSON(steps.get_pr.outputs.pull_request).requested_teams.*.name, 'backend-review-group') }}; then
+          if ${{ contains(fromJSON(steps.get_pr_data.outputs.pr_requested_teams), 'backend-review-group') }}; then
             echo "exempt=false" >> $GITHUB_OUTPUT
             echo "PR requires backend approval."
           else
@@ -53,21 +64,10 @@ jobs:
             echo "PR is exempt from backend approval."
           fi
 
-      - name: Check Draft state
-        id: check_draft
-        run: |
-          if ${{ fromJSON(steps.get_pr.outputs.pull_request).draft }}; then
-            echo "draft=true" >> $GITHUB_OUTPUT
-            echo "Draft PR detected, skipping label checks."
-          else
-            echo "draft=false" >> $GITHUB_OUTPUT
-            echo "PR is ready for review."
-          fi
-
       - name: Check for failure labels
         id: audit_pr_labels
         env:
-          labels: ${{ toJSON(fromJSON(steps.get_pr.outputs.pull_request).labels.*.name) }}
+          labels: ${{ steps.get_pr_data.outputs.pr_labels }}
         run: |
           if [[ \
             ${{ contains(env.labels, 'code-health-failure') == 'true' }} || \
@@ -96,7 +96,7 @@ jobs:
     needs: check-pr-status
     if: ${{ needs.check-pr-status.outputs.exempt == 'false' && needs.check-pr-status.outputs.draft == 'false' }}
     env:
-      pull_request_number: ${{ fromJSON(needs.check-pr-status.outputs.pull_request).number }}
+      pr_number: ${{ needs.check-pr-status.outputs.pr_number }}
     outputs:
       approval_status: ${{ steps.verify_approval.outputs.approval_status }}
     steps:
@@ -125,7 +125,7 @@ jobs:
         id: get_pr_reviews
         uses: octokit/request-action@v2.x
         with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ env.pull_request_number }}/reviews
+          route: GET /repos/${{ github.repository }}/pulls/${{ env.pr_number }}/reviews
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -166,8 +166,8 @@ jobs:
     needs: [check-pr-status, check-approvals]
     if: ${{ always() }}
     env:
-      pull_request_number: ${{ fromJSON(needs.check-pr-status.outputs.pull_request).number }}
-      pull_request_labels: ${{ toJSON(fromJSON(needs.check-pr-status.outputs.pull_request).labels.*.name) }}
+      pr_number: ${{ needs.check-pr-status.outputs.pr_number }}
+      pr_labels: ${{ needs.check-pr-status.outputs.pr_labels }}
       test_status: ${{ needs.check-pr-status.outputs.test_status }}
       exempt: ${{ needs.check-pr-status.outputs.exempt }}
       draft: ${{ needs.check-pr-status.outputs.draft }}
@@ -185,10 +185,10 @@ jobs:
 
       # Remove labels if required
       - name: Remove require-backend-approval label
-        if: ${{ (env.draft == 'true' || env.exempt == 'true') && contains(env.pull_request_labels, 'require-backend-approval') }}
+        if: ${{ (env.draft == 'true' || env.exempt == 'true') && contains(env.pr_labels, 'require-backend-approval') }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ env.pull_request_number }}
+          number: ${{ env.pr_number }}
           labels: |
             require-backend-approval
 
@@ -197,30 +197,30 @@ jobs:
         if: |
           env.draft ||
           (
-            contains(fromJSON(env.pull_request_labels), 'ready-for-backend-review') &&
+            contains(fromJSON(env.pr_labels), 'ready-for-backend-review') &&
             ( 
               env.failures_detected == 'true' ||
               env.approval_status == 'confirmed'
             )
           )
         with:
-          number: ${{ env.pull_request_number }}
+          number: ${{ env.pr_number }}
           labels: |
             ready-for-backend-review
 
       - name: Remove Test Passing label
-        if: ${{ env.test_status == 'failure' && contains(fromJSON(env.pull_request_labels), 'test-passing') }}
+        if: ${{ env.test_status == 'failure' && contains(fromJSON(env.pr_labels), 'test-passing') }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ env.pull_request_number }}
+          number: ${{ env.pr_number }}
           labels: |
             test-passing
 
       - name: Remove Test Failure label
-        if: ${{ env.test_status == 'success' && contains(fromJSON(env.pull_request_labels), 'test-passing') }}
+        if: ${{ env.test_status == 'success' && contains(fromJSON(env.pr_labels), 'test-passing') }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
-          number: ${{ env.pull_request_number }}
+          number: ${{ env.pr_number }}
           labels: |
             test-failure
 
@@ -229,7 +229,7 @@ jobs:
         if: ${{ env.draft == 'false' && env.exempt == 'false'}}
         uses: actions-ecosystem/action-add-labels@v1
         with:
-          number: ${{ env.pull_request_number }}
+          number: ${{ env.pr_number }}
           labels: |
             require-backend-approval
 
@@ -239,7 +239,7 @@ jobs:
           env.failures_detected == 'false' &&
           env.approval_status == 'required'
         with:
-          number: ${{ env.pull_request_number }}
+          number: ${{ env.pr_number }}
           labels: |
             ready-for-backend-review
 
@@ -247,7 +247,7 @@ jobs:
         if: ${{ env.test_status == 'failure' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
-          number: ${{ env.pull_request_number }}
+          number: ${{ env.pr_number }}
           labels: |
             test-failure
 
@@ -255,7 +255,7 @@ jobs:
         if: ${{ env.test_status == 'success' }}
         uses: actions-ecosystem/action-add-labels@v1
         with:
-          number: ${{ env.pull_request_number }}
+          number: ${{ env.pr_number }}
           labels: |
             test-passing
       
@@ -264,6 +264,6 @@ jobs:
         run: |
           echo "github_eventname: ${{ github.event_name }}"
           echo "github_event: ${{ toJSON(github.event) }}"
-          echo "labels: ${{ toJSON(env.pull_request_labels) }}"
-          echo "labels: ${{ env.pull_request_labels[0] }}"
+          echo "labels: ${{ toJSON(env.pr_labels) }}"
+          echo "labels: ${{ env.pr_labels[0] }}"
           echo '${{ toJSON(github.event.workflow) }}' | jq .
