@@ -248,7 +248,7 @@ module CentralMail
             template_id,
             {
               'first_name' => claim.parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
-              'date' => Time.zone.today.strftime('%B %d, %Y'),
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
               'confirmation_number' => claim.confirmation_number
             }
           )
