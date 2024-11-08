@@ -1046,6 +1046,7 @@ lighthouse:
     use_mocks: false
   veterans_health:
     url: https://sandbox-api.va.gov
+    use_mocks: false
     fast_tracker:
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
       api_scope:
@@ -1397,8 +1398,12 @@ vanotify:
         confirmation:
           template_id: form527ez_confirmation_email_template_id
           flipper_id: false
-        error: null
-        received: null
+        error:
+          template_id: form527ez_error_email_template_id
+          flipper_id: pension_error_email_notification
+        received:
+          template_id: null
+          flipper_id: pension_received_email_notification
     pensions: *vanotify_services_pension
     21p_530ez: &vanotify_services_burial
       api_key: fake_secret
@@ -1406,8 +1411,12 @@ vanotify:
         confirmation:
           template_id: burial_claim_confirmation_email_template_id
           flipper_id: false
-        error: null
-        received: null
+        error:
+          template_id: burial_claim_error_email_template_id
+          flipper_id: burial_error_email_notification
+        received:
+          template_id: null
+          flipper_id: burial_received_email_notification
     burials: *vanotify_services_burial
     21p_530: *vanotify_services_burial
     21p_530v2: *vanotify_services_burial
