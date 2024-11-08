@@ -3,8 +3,8 @@
 require 'rails_helper'
 require 'claims_api/common/exceptions/lighthouse/resource_not_found'
 
-describe ClaimsApi::VANotifyJob, type: :job do
-  subject { described_class.new  }
+describe ClaimsApi::VANotifyAcceptedJob, type: :job do
+  subject { described_class.new }
 
   let(:va_notify_org) do
     create(:organization, address_line1: '345 Sixth St.', address_line2: 'Suite 3',
