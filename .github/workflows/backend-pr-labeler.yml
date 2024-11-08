@@ -262,8 +262,10 @@ jobs:
       - name: Debugging
         if: ${{ always() }}
         run: |
-          echo "github_eventname: ${{ github.event_name }}"
-          echo "github_event: ${{ toJSON(github.event) }}"
-          echo "labels: ${{ toJSON(env.pr_labels) }}"
-          echo "labels: ${{ env.pr_labels[0] }}"
-          echo '${{ toJSON(github.event.workflow) }}' | jq .
+          echo "pr_number: ${{ env.pr_number }}"
+          echo "pr_labels: ${{ toJSON(env.pr_labels) }}"
+          echo  "test_status: ${{ env.test_status }}"
+          echo "exempt: ${{ env.exempt }}"
+          echo "draft: ${{ env.draft }}"
+          echo "failures_detected: ${{ env.failures_detected }}"
+          echo "approval_status: ${{ env.approval_status }}"
