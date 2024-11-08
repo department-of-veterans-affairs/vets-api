@@ -155,7 +155,8 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
           'LighthouseSupplementalDocumentUploadProvider upload attempted',
           {
             class: 'LighthouseSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526'
@@ -185,7 +186,8 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
           'LighthouseSupplementalDocumentUploadProvider upload successful',
           {
             class: 'LighthouseSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526',
@@ -236,7 +238,8 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
           'LighthouseSupplementalDocumentUploadProvider upload failed',
           {
             class: 'LighthouseSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526',
@@ -266,7 +269,8 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
           "#{uploading_job_class} LighthouseSupplementalDocumentUploadProvider Failure",
           {
             class: 'LighthouseSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526',

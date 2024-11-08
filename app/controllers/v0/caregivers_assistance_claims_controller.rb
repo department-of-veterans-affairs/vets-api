@@ -33,7 +33,7 @@ module V0
       end
     rescue => e
       unless e.is_a?(Common::Exceptions::ValidationErrors) || e.is_a?(::Form1010cg::Service::InvalidVeteranStatus)
-        Rails.logger.debug('CaregiverAssistanceClaim: error submitting claim',
+        Rails.logger.error('CaregiverAssistanceClaim: error submitting claim',
                            { saved_claim_guid: @claim.guid, error: e })
       end
       raise e
@@ -42,10 +42,15 @@ module V0
     # If we were unable to submit the user's claim digitally, we allow them to the download
     # the 10-10CG PDF, pre-filled with their data, for them to mail in.
     def download_pdf
-      # Brakeman will raise a warning if we use a claim's method or attribute in the source file name.
-      # Use an arbitrary uuid for the source file name and don't use the return value of claim#to_pdf
-      # as the source_file_path (to prevent changes in the the filename creating a vunerability in the future).
-      source_file_path = PdfFill::Filler.fill_form(@claim, SecureRandom.uuid, sign: false)
+      source_file_path = if Flipper.enabled?(:caregiver1010)
+                           @claim.to_pdf(SecureRandom.uuid,
+                                         sign: false)
+                         else
+                           PdfFill::Filler.fill_form(
+                             @claim, SecureRandom.uuid, sign: false
+                           )
+                         end
+
       client_file_name = file_name_for_pdf(@claim.veteran_data)
       file_contents    = File.read(source_file_path)
 
