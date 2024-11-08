@@ -69,7 +69,7 @@ describe VRE::Submit1900Job do
           'form1900_action_needed_email_template_id',
           {
             'first_name' => 'Homer',
-            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => claim.confirmation_number
           }
         )
