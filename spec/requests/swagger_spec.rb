@@ -2721,12 +2721,12 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profiles v2', :skip_vet360, :initiate_vaprofile do
-      let(:vet360_id) { '1781151' }
-      let(:mhv_user) { build(:user, :loa3, vet360_id:) }
+    describe 'profiles military services v2', :skip_vet360, :initiate_vaprofile do
+      let(:mhv_user) { build(:user, :loa3) }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:profile_show_military_academy_attendance,
+                                                  instance_of(User)).and_return(true)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
         sign_in_as(mhv_user)
       end
@@ -2745,6 +2745,17 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             expect(subject).to validate(:get, '/v0/profile/personal_information', 200, headers)
           end
         end
+      end
+    end
+
+    describe 'profiles v2', :skip_vet360, :initiate_vaprofile do
+      let(:mhv_user) { build(:user, :loa3) }
+
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+                                                  instance_of(User)).and_return(true)
+        allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+        sign_in_as(mhv_user)
       end
 
       it 'supports getting full name data' do
