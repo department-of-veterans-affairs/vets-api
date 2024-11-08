@@ -73,18 +73,21 @@ RSpec.describe MedicalCopays::Request do
       end
 
       it 'calls the with_monitoring_and_error_handling method' do
-        expect(subject).to receive(:with_monitoring_and_error_handling).and_call_original
+        expect(subject).to receive(:with_monitoring_and_error_handling)
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(path).and_return(response)
         subject.post(path, params)
       end
 
       it 'logs the error message' do
-        allow_any_instance_of(Faraday::Connection).to receive(:post).with(path).and_raise(StandardError.new('Something went wrong'))
-        expect(Rails.logger).to receive(:error).with('MedicalCopays::Request error: Something went wrong')
+        allow_any_instance_of(Faraday::Connection)
+          .to receive(:post).with(path).and_raise(StandardError.new('Something went wrong'))
+        expect(Rails.logger).to receive(:error).with(
+          'MedicalCopays::Request error: Something went wrong'
+        )
 
-        expect {
+        expect do
           subject.post(path, params)
-        }.to raise_error(StandardError, 'Something went wrong')
+        end.to raise_error(StandardError, 'Something went wrong')
       end
     end
 
@@ -96,7 +99,7 @@ RSpec.describe MedicalCopays::Request do
       end
 
       it 'calls the with_monitoring_and_error_handling method' do
-        expect(subject).to receive(:with_monitoring).and_call_original
+        expect(subject).to receive(:with_monitoring)
         allow_any_instance_of(Faraday::Connection).to receive(:post).with(path).and_return(response)
         subject.post(path, params)
       end
