@@ -308,6 +308,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
         all_claims_form = File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json'
         json_object = JSON.parse(all_claims_form)
         json_object['form526'].delete('newPrimaryDisabilities')
+        json_object['form526'].delete('newSecondaryDisabilities')
         updated_form = JSON.generate(json_object)
         post('/v0/disability_compensation_form/submit_all_claim', params: updated_form, headers:)
         expect(response).to have_http_status(:unprocessable_entity)
