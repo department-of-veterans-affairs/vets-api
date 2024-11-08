@@ -40,7 +40,7 @@ module VRE
         Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
         {
           'first_name' => claim.parsed_form.dig('veteranInformation', 'fullName', 'first'),
-          'date' => Time.zone.today.strftime('%B %d, %Y'),
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
           'confirmation_number' => claim.confirmation_number
         }
       )
