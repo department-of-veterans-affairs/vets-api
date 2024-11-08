@@ -4,6 +4,7 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
+require 'concerns/claims_api/v2/claims_requests/supporting_documents'
 
 RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
   let(:veteran_id) { '1013062086V794840' }
@@ -1234,6 +1235,9 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
             mock_ccg(scopes) do |auth_header|
               VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
+                  allow_any_instance_of(ClaimsApi::V2::ClaimsRequests::SupportingDocuments).to receive(
+                    :get_file_number
+                  ).and_return('123456789')
                   expect_any_instance_of(bcs)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
                   expect(ClaimsApi::AutoEstablishedClaim)
@@ -1415,6 +1419,9 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
               VCR.use_cassette('claims_api/bgs/tracked_item_service/get_claim_documents_with_tracked_item_ids') do
                 VCR.use_cassette('claims_api/bgs/tracked_item_service/claims_v2_show_tracked_items') do
                   allow(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn)
+                  allow_any_instance_of(ClaimsApi::V2::ClaimsRequests::SupportingDocuments).to receive(
+                    :get_file_number
+                  ).and_return('123456789')
 
                   get claim_by_id_with_items_path, headers: auth_header
 
