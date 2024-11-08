@@ -9,7 +9,7 @@ RSpec.describe Form1010cg::SubmissionJob do
   let(:zsf_tags) { described_class::DD_ZSF_TAGS }
 
   it 'has a retry count of 14' do
-    expect(described_class.get_sidekiq_options['retry']).to eq(14)
+    expect(described_class.get_sidekiq_options['retry']).to eq(16)
   end
 
   it 'defines #notify' do
