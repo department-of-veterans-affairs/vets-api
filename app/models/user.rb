@@ -52,6 +52,13 @@ class User < Common::RedisStore
     user_account.created_at
   end
 
+  def linked_user_accounts
+    {
+      verified_user_accounts: user_account.verified_account_ids,
+      delegated_user_accounts: user_account.delegated_account_ids
+    }
+  end
+
   def credential_lock
     return @credential_lock unless @credential_lock.nil?
 
