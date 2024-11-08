@@ -274,30 +274,65 @@ RSpec.describe Pensions::Monitor do
     end
 
     describe '#track_submission_exhaustion' do
-      it 'logs sidekiq job exhaustion' do
-        msg = { 'args' => [claim.id, current_user.uuid] }
+      context 'with a claim parameter' do
+        it 'logs sidekiq job exhaustion' do
+          notification = double(Pensions::NotificationEmail)
 
-        log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
-        payload = {
-          form_id: claim.form_id,
-          claim_id: claim.id,
-          user_account_uuid: current_user.uuid,
-          confirmation_number: claim.confirmation_number,
-          message: msg,
-          tags: monitor.tags
-        }
+          msg = { 'args' => [claim.id, current_user.uuid] }
 
-        expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+          log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
+          payload = {
+            form_id: claim.form_id,
+            claim_id: claim.id,
+            user_account_uuid: current_user.uuid,
+            confirmation_number: claim.confirmation_number,
+            message: msg,
+            tags: monitor.tags
+          }
 
-        expect(monitor).to receive(:track_request).with(
-          'error',
-          log,
-          "#{submission_stats_key}.exhausted",
-          call_location: anything,
-          **payload
-        )
+          expect(Pensions::NotificationEmail).to receive(:new).with(claim).and_return notification
+          expect(notification).to receive(:deliver).with(:error)
+          expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
 
-        monitor.track_submission_exhaustion(msg, claim)
+          expect(monitor).to receive(:track_request).with(
+            'error',
+            log,
+            "#{submission_stats_key}.exhausted",
+            call_location: anything,
+            **payload
+          )
+
+          monitor.track_submission_exhaustion(msg, claim)
+        end
+      end
+
+      context 'without a claim parameter' do
+        it 'logs sidekiq job exhaustion' do
+          msg = { 'args' => [claim.id, current_user.uuid] }
+
+          log = 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!'
+          payload = {
+            form_id: nil,
+            claim_id: claim.id, # pulled from msg.args
+            user_account_uuid: current_user.uuid,
+            confirmation_number: nil,
+            message: msg,
+            tags: monitor.tags
+          }
+
+          expect(Pensions::NotificationEmail).not_to receive(:new)
+          expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+
+          expect(monitor).to receive(:track_request).with(
+            'error',
+            log,
+            "#{submission_stats_key}.exhausted",
+            call_location: anything,
+            **payload
+          )
+
+          monitor.track_submission_exhaustion(msg, nil)
+        end
       end
     end
 
