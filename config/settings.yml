@@ -1451,7 +1451,7 @@ dgi:
       public_key_path: ""
       private_key_path: ""
     vets:
-      url: ~
+      url: "https://dgi-uat001-vaapi.np.afsp.io/vets-service/v1"
       mock: false
   vets:
     url: "https://jenkins.ld.afsp.io:32512/vets-service/v1/" # Docker setup for microservice
