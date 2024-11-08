@@ -51,7 +51,9 @@ jobs:
           echo "pr_number: ${{ steps.get_pr_data.outputs.pr_number }}"
           echo "pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}"
           echo "pr_labels: ${{ steps.get_pr_data.outputs.pr_labels }}"
+          echo "pr_labels: ${{ fromJson(steps.get_pr_data.outputs.pr_labels)[0] }}"
           echo "pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}"
+          echo "pr_requested_teams: ${{ fromJSON(steps.get_pr_data.outputs.pr_requested_teams)[0] }}"
 
       - name: Get Code Checks conclusion
         if: github.event_name == 'workflow_run'
@@ -77,10 +79,10 @@ jobs:
           labels: ${{ steps.get_pr_data.outputs.pr_labels }}
         run: |
           if [[ \
-            ${{ contains(env.labels, 'code-health-failure') }} || \
-            ${{ contains(env.labels, 'codeowners-addition-failure') }} || \
-            ${{ contains(env.labels, 'codeowners-delete-failure') }} || \
-            ${{ contains(env.labels, 'lint-failure') }} || \
+            ${{ contains(env.labels, 'code-health-failure') }} ||\
+            ${{ contains(env.labels, 'codeowners-addition-failure') }} ||\
+            ${{ contains(env.labels, 'codeowners-delete-failure') }} ||\
+            ${{ contains(env.labels, 'lint-failure') }} ||\
             ${{ contains(env.labels, 'test-failure') }} \
           ]]; then
             echo "failures_detected=true" >> $GITHUB_OUTPUT
