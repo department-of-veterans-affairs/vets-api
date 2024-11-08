@@ -17,7 +17,7 @@ class ChangeClaimVANotificationEmailTemplateIdType < ActiveRecord::Migration[7.1
         end
       end
 
-      remove_column :claim_va_notifications, :email_template_id_int
+      remove_column :claim_va_notifications, :email_template_id_int, if_exists: true
     end
   end
 
