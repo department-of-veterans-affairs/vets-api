@@ -12,7 +12,7 @@ module EVSS
       # Sidekiq has built in exponential back-off functionality for retries
       # A max retry attempt of 10 will result in a run time of ~8 hours
       # This job is invoked from 526 background job
-      RETRY = 10
+      RETRY = 16
 
       sidekiq_options retry: RETRY
 
