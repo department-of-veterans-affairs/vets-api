@@ -1025,7 +1025,13 @@ features:
       [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pension_military_prefill:
     actor_type: user
-    description: "When enabled, 21P-527EZ will prefill military information."
+    description: When enabled, 21P-527EZ will prefill military information.
+  pension_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  pension_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1697,6 +1703,12 @@ features:
     actor_type: user
     description: Enable Burial form v2 re-design
     enable_in_development: true
+  burial_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  burial_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form

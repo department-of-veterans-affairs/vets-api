@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'pensions/notification_email'
 require 'zero_silent_failures/monitor'
 
 module Pensions
@@ -263,7 +264,12 @@ module Pensions
       }
       call_location = caller_locations.first
 
-      log_silent_failure(additional_context, user_account_uuid, call_location:)
+      if claim
+        Pensions::NotificationEmail.new(claim).deliver(:error)
+        log_silent_failure_avoided(additional_context, user_account_uuid, call_location:)
+      else
+        log_silent_failure(additional_context, user_account_uuid, call_location:)
+      end
 
       track_request('error', 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
                     "#{SUBMISSION_STATS_KEY}.exhausted", call_location: caller_locations.first, **additional_context)
