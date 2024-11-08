@@ -89,6 +89,7 @@ RSpec.describe Form1010cg::SubmissionJob do
               "#{statsd_key_prefix}failed_no_retries_left",
               tags: ["claim_id:#{claim.id}"]
             )
+            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: zsf_tags)
             expect(described_class).not_to receive(:send_failure_email)
           end
         end
@@ -106,6 +107,7 @@ RSpec.describe Form1010cg::SubmissionJob do
               "#{statsd_key_prefix}failed_no_retries_left",
               tags: ["claim_id:#{claim.id}"]
             )
+            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: zsf_tags)
             expect(described_class).not_to receive(:send_failure_email)
           end
         end
@@ -152,7 +154,6 @@ RSpec.describe Form1010cg::SubmissionJob do
             expect(StatsD).to receive(:increment).with(
               "#{statsd_key_prefix}submission_failure_email_sent"
             )
-            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: zsf_tags)
           end
         end
       end
