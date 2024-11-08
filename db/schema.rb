@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_10_29_143650) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_08_144805) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -351,9 +351,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_29_143650) do
     t.string "form_type"
     t.bigint "saved_claim_id", null: false
     t.boolean "email_sent"
-    t.integer "email_template_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "email_template_id"
     t.index ["saved_claim_id"], name: "index_claim_va_notifications_on_saved_claim_id"
   end
 
