@@ -5,17 +5,46 @@ require 'rails_helper'
 RSpec.describe BenefitsIntakeStatusJob, type: :job do
   describe '#perform' do
     describe 'submission to the bulk status report endpoint' do
-      it 'submits only pending form submissions' do
-        pending_form_submission_attempts_ids = create_list(:form_submission_attempt, 2,
-                                                           :pending).map(&:benefits_intake_uuid)
-        create_list(:form_submission, 2, :success)
-        create_list(:form_submission, 2, :failure)
-        response = double(body: { 'data' => [] }, success?: true)
+      context 'multiple attempts and multiple form submissions' do
+        before do
+          create_list(:form_submission, 2, :success)
+          create_list(:form_submission, 2, :failure)
+        end
 
-        expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
-          .with(uuids: pending_form_submission_attempts_ids).and_return(response)
+        let(:pending_form_submission_attempts_ids) do
+          create_list(:form_submission_attempt, 2,
+                      :pending).map(&:benefits_intake_uuid)
+        end
 
-        BenefitsIntakeStatusJob.new.perform
+        it 'submits only pending form submissions' do
+          response = double(body: { 'data' => [] }, success?: true)
+
+          expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
+            .with(uuids: pending_form_submission_attempts_ids).and_return(response)
+
+          BenefitsIntakeStatusJob.new.perform
+        end
+      end
+
+      context 'multiple attempts on one form submission' do
+        before do
+          create(:form_submission_attempt, :success, form_submission:)
+        end
+
+        let(:form_submission) { create(:form_submission) }
+        let(:pending_form_submission_attempts_ids) do
+          create_list(:form_submission_attempt, 2,
+                      :pending, form_submission:).map(&:benefits_intake_uuid)
+        end
+
+        it 'submits only pending form submissions' do
+          response = double(body: { 'data' => [] }, success?: true)
+
+          expect_any_instance_of(BenefitsIntake::Service).to receive(:bulk_status)
+            .with(uuids: pending_form_submission_attempts_ids).and_return(response)
+
+          BenefitsIntakeStatusJob.new.perform
+        end
       end
     end
 
