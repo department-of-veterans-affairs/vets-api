@@ -26,11 +26,17 @@ RSpec.describe Logging::Monitor do
       it 'logs a request with call location' do
         payload[:statsd] = 'api.monitor.404'
 
-        expect(StatsD).to receive(:increment).with('api.monitor.404',
-                                                   { tags: ['form_id:21P-50EZ'] })
+        expect(StatsD).to receive(:increment).with(metric, { tags: ['form_id:21P-50EZ'] })
         expect(Rails.logger).to receive(:error).with('404 Not Found!', payload)
 
-        monitor.track_request('error', '404 Not Found!', metric, additional_context, call_location:)
+        monitor.track_request('error', '404 Not Found!', metric, call_location:, **additional_context)
+      end
+
+      it 'logs an invalid log level' do
+        error_level = 'BAD_LEVEL'
+        expect(StatsD).to receive(:increment).with(metric, { tags: ['form_id:21P-50EZ'] })
+        expect(Rails.logger).to receive(:error).with("Invalid log error_level: #{error_level}")
+        monitor.track_request(error_level, 'TEST', metric, call_location:, **additional_context)
       end
     end
   end

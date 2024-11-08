@@ -8,7 +8,9 @@ module VRE
     include SentryLogging
 
     STATSD_KEY_PREFIX = 'worker.vre.submit_1900_job'
-    RETRY = 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    RETRY = 16
 
     sidekiq_options retry: RETRY
 

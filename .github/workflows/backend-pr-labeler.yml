@@ -20,9 +20,6 @@ jobs:
       exempt: ${{ steps.check_exemption.outputs.exempt }}
       failures_detected: ${{ steps.audit_pr_labels.outputs.failures_detected }}
     steps:
-      # - name: Checkout code
-      #   uses: actions/checkout@v4
-
       - name: Get pull_request data
         id: get_pr_data
         run: |
@@ -58,7 +55,6 @@ jobs:
       - name: Get Code Checks result
         if: github.event_name == 'workflow_run'
         run: |
-          echo "workflow_run: ${{ toJSON(github.event.workflow_run) }}"
           echo "test_status=${{ github.event.workflow_run.conclusion }}" >> $GITHUB_OUTPUT
           echo "test_status: ${{ github.event.workflow_run.conclusion }}"
 
