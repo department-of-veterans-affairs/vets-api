@@ -3,11 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Form1010cg::SubmissionJob do
-  let(:claim) do
-    require 'saved_claim/caregivers_assistance_claim'
-
-    create(:caregivers_assistance_claim)
-  end
+  let(:claim) { create(:caregivers_assistance_claim, form:) }
+  let(:form) { VetsJsonSchema::EXAMPLES['10-10CG'].clone.to_json }
+  let(:statsd_key_prefix) { described_class::STATSD_KEY_PREFIX }
+  let(:zsf_tags) { described_class::DD_ZSF_TAGS }
 
   it 'has a retry count of 14' do
     expect(described_class.get_sidekiq_options['retry']).to eq(14)
@@ -66,17 +65,114 @@ RSpec.describe Form1010cg::SubmissionJob do
     end
   end
 
-  describe 'when job has failed' do
+  describe 'when retries are exhausted' do
+    after do
+      Flipper.disable(:caregiver1010_use_va_notify_on_submission_failure)
+    end
+
     let(:msg) do
       {
         'args' => [claim.id]
       }
     end
 
-    it 'increments statsd' do
-      expect do
-        described_class.new.sidekiq_retries_exhausted_block.call(msg)
-      end.to trigger_statsd_increment('api.form1010cg.async.failed_no_retries_left', tags: ["claim_id:#{claim.id}"])
+    context 'when the parsed form does not have an email' do
+      context 'the send failure email flipper is enabled' do
+        before do
+          Flipper.enable(:caregiver1010_use_va_notify_on_submission_failure)
+        end
+
+        it 'only increments StatsD' do
+          described_class.within_sidekiq_retries_exhausted_block(msg) do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}failed_no_retries_left",
+              tags: ["claim_id:#{claim.id}"]
+            )
+            expect(described_class).not_to receive(:send_failure_email)
+          end
+        end
+      end
+
+      context 'the send failure email flipper is disabled' do
+        before do
+          Flipper.disable(:caregiver1010_use_va_notify_on_submission_failure)
+        end
+
+        it 'only increments StatsD' do
+          described_class.within_sidekiq_retries_exhausted_block(msg) do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}failed_no_retries_left",
+              tags: ["claim_id:#{claim.id}"]
+            )
+            expect(described_class).not_to receive(:send_failure_email)
+          end
+        end
+      end
+    end
+
+    context 'when the parsed form has an email' do
+      let(:email_address) { 'jane.doe@example.com' }
+      let(:form) do
+        data = JSON.parse(VetsJsonSchema::EXAMPLES['10-10CG'].clone.to_json)
+        data['veteran']['email'] = email_address
+        data.to_json
+      end
+
+      let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
+      let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_cg_failure_email }
+      let(:template_params) do
+        [
+          email_address,
+          template_id,
+          {
+            'salutation' => "Dear #{claim.parsed_form.dig('veteran', 'fullName', 'first')},"
+          },
+          api_key
+        ]
+      end
+
+      context 'the send failure email flipper is enabled' do
+        before do
+          Flipper.enable(:caregiver1010_use_va_notify_on_submission_failure)
+        end
+
+        it 'increments StatsD and sends the failure email' do
+          described_class.within_sidekiq_retries_exhausted_block(msg) do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}failed_no_retries_left",
+              tags: ["claim_id:#{claim.id}"]
+            )
+
+            allow(VANotify::EmailJob).to receive(:perform_async)
+            expect(VANotify::EmailJob).to receive(:perform_async).with(*template_params)
+
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}submission_failure_email_sent"
+            )
+            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: zsf_tags)
+          end
+        end
+      end
+
+      context 'the send failure email flipper is disabled' do
+        before do
+          Flipper.disable(:caregiver1010_use_va_notify_on_submission_failure)
+        end
+
+        it 'only increments StatsD' do
+          described_class.within_sidekiq_retries_exhausted_block(msg) do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}failed_no_retries_left",
+              tags: ["claim_id:#{claim.id}"]
+            )
+            expect(described_class).not_to receive(:send_failure_email)
+          end
+        end
+      end
     end
   end
 
