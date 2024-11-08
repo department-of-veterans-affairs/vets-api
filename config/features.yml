@@ -366,6 +366,9 @@ features:
   debts_cache_vbs_copays_empty_response:
     actor_type: user
     description: Enables caching of empty VBS medical copay response
+  debts_copay_logging:
+    actor_type: user
+    description: Logs copay request data
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission

@@ -117,7 +117,7 @@ module MedicalCopays
       end
 
       def get_copay_response
-        if Flipper.enabled?(:debts_team_copay_logging)
+        if Flipper.enabled?(:debts_copay_logging)
           Rails.logger.info("MedicalCopays::VBS::Service#get_copay_response request data: #{@user.uuid}")
         end
 

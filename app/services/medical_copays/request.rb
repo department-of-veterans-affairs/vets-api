@@ -44,7 +44,7 @@ module MedicalCopays
     # @return [Faraday::Response]
     #
     def post(path, params)
-      if Flipper.enabled?(:debts_team_copay_logging) && !Rails.env.development?
+      if Flipper.enabled?(:debts_copay_logging) && !Rails.env.development?
         with_monitoring_and_error_handling do
           connection.post(path) do |req|
             req.body = Oj.dump(params)
