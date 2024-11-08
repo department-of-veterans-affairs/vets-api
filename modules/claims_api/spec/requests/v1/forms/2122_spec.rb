@@ -30,7 +30,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     let(:data) { Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json').read }
     let(:data_with_claimant) do
       parsed_data = JSON.parse(data)
-      parsed_data['data']['attributes']['claimant'] = { firstName: 'Jane', lastName: 'Doe' }
+      parsed_data['data']['attributes']['claimant'] = { firstName: 'Jane', lastName: 'Doe', relationship: 'Spouse' }
       parsed_data.to_json
     end
     let(:path) { '/services/claims/v1/forms/2122' }
@@ -396,7 +396,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
       end
 
-      context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
+      context "when the lighthouse_claims_api_poa_dependent_claimants feature is enabled and rel is not 'Self'" do
         include_context 'stub validation methods'
 
         let(:claimant_information_for_headers) do

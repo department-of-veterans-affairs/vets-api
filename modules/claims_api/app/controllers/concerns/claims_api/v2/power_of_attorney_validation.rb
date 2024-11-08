@@ -18,12 +18,20 @@ module ClaimsApi
 
       private
 
-      def feature_enabled_and_claimant_present?
-        Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
+      def feature_enabled_and_claimant_present_and_not_self?
+        if Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) &&
+           form_attributes['claimant'].present?
+
+          relationship = form_attributes['claimant']['relationship']&.downcase
+          # even with both conditions being met, this is the veteran if sent w/ relationship of 'Self'
+          relationship != 'self'
+        else
+          false
+        end
       end
 
       def validate_dependent_claimant(veteran_participant_id:, user_profile:, poa_code:, base:)
-        return nil unless feature_enabled_and_claimant_present?
+        return nil unless feature_enabled_and_claimant_present_and_not_self?
 
         service = build_dependent_claimant_verification_service(veteran_participant_id:, user_profile:,
                                                                 poa_code:)

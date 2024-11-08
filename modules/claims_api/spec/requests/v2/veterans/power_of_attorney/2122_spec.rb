@@ -95,6 +95,20 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 }
               end
 
+              let(:claimant_data_as_self) do
+                {
+                  claimantId: '456', # dependentʼs ICN
+                  address: {
+                    addressLine1: '123 anystreet',
+                    city: 'anytown',
+                    stateCode: 'OR',
+                    country: 'USA',
+                    zipCode: '12345'
+                  },
+                  relationship: 'Self'
+                }
+              end
+
               before do
                 allow_any_instance_of(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController)
                   .to receive(:user_profile).and_return(user_profile)
@@ -139,6 +153,23 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                         poa = ClaimsApi::PowerOfAttorney.find(poa_id)
                         auth_headers = poa.auth_headers
                         expect(auth_headers).to have_key('dependent')
+                      end
+                    end
+                  end
+
+                  it "does not add dependent values to the auth_headers if relationship is 'Self'" do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(scopes) do |auth_header|
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['claimant'] = claimant_data_as_self
+                        request_body = json.to_json
+
+                        post appoint_organization_path, params: request_body, headers: auth_header
+
+                        poa_id = JSON.parse(response.body)['data']['id']
+                        poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+                        auth_headers = poa.auth_headers
+                        expect(auth_headers).not_to have_key('dependent')
                       end
                     end
                   end
@@ -263,7 +294,6 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 .and_return({ person_poa_history: nil })
 
               post appoint_organization_path, params: data.to_json, headers: auth_header
-
               expect(response).to have_http_status(:accepted)
             end
           end
