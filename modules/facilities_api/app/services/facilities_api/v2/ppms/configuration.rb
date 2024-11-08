@@ -11,7 +11,7 @@ module FacilitiesApi
         self.open_timeout = Settings.ppms.open_timeout
         self.read_timeout = Settings.ppms.read_timeout
         def base_path
-          Settings.ppms.url
+          Settings.faciliates_api.ppms.url
         end
 
         def service_name

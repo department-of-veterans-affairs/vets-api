@@ -10,7 +10,7 @@ vcr_options = {
 
 RSpec.describe FacilitiesApi::V2::PPMS::Client, team: :facilities, vcr: vcr_options do
   let(:client) { FacilitiesApi::V2::PPMS::Client.new }
-  let(:url) { Settings.ppms.url }
+  let(:url) { Settings.faciliates_api.ppms.url }
   let(:path) { '/dws/v1.0/ProviderLocator' }
   let(:params) do
     {
