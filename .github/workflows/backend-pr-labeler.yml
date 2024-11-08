@@ -25,16 +25,11 @@ jobs:
       - name: Get pull_request data
         id: get_pr_data
         run: |
-          if ${{ github.event_name == 'pull_request'}}; then
+          if ${{ github.event_name == 'pull_request' || github.event_name == 'pull_request_review'}}; then
             echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
             echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
             echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
             echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
-          elif ${{ github.event_name == 'pull_request_review' }}; then
-            echo "pr_number=${{ github.event.pull_request_review.pull_request.number }}" >> $GITHUB_OUTPUT
-            echo "pr_draft=${{ github.event.pull_request_review.pull_request.draft }}" >> $GITHUB_OUTPUT
-            echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request_review.pull_request.labels.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
-            echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request_review.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
           elif ${{ github.event_name == 'workflow_run' }}; then
             if ${{ github.event.workflow_run.event == 'push' }}; then
               echo "Workflow was triggered by push to ${{ github.event.workflow_run.head_branch }}. Labeling not required."
@@ -107,3 +102,95 @@ jobs:
             echo "failures_detected=false" >> $GITHUB_OUTPUT
             echo "No failure labels detected."
           fi
+
+  check-approvals:
+    runs-on: ubuntu-latest
+    needs: check-pr-status
+    if: ${{ needs.check-pr-status.outputs.exempt == 'false' && needs.check-pr-status.outputs.pr_draft == 'false' }}
+    env:
+      pr_number: ${{ needs.check-pr-status.outputs.pr_number }}
+    outputs:
+      approval_status: ${{ steps.verify_approval.outputs.approval_status }}
+    steps:
+      - name: Print vars (DELETE ME)
+        run: |
+          echo "pr_number=${{ env.pr_number }}"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4.0.2
+        with:
+          aws-access-key-id: ${{ secrets.aws_access_key_id }}
+          aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
+          aws-region: "us-gov-west-1"
+
+      - name: Get bot token from Parameter Store
+        uses: marvinpinto/action-inject-ssm-secrets@latest
+        with:
+          ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
+          env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
+
+      # If backend-review-group approval is required, get reviews
+      - name: Get PR Reviews
+        id: get_pr_reviews
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ env.pr_number }}/reviews
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # If backend-review-group approval is required, get team members
+      - name: Get backend-review-group members
+        id: get_team_members
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /orgs/department-of-veterans-affairs/teams/backend-review-group/members
+        env:
+          GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
+      # If backend-review-group approval is required, confirm an approval exists from at least one BE team member
+      - name: Verify backend-review-group approval
+        id: verify_approval
+        run: |
+          BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
+          ${{ steps.get_team_members.outputs.data }}
+          EOF
+          )
+
+          APPROVALS=$(cat <<'EOF' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l
+          ${{ steps.get_pr_reviews.outputs.data }}
+          EOF
+          )
+
+          echo "Number of backend-review-group approvals: $APPROVALS"
+          if [ "$APPROVALS" -eq 0 ]; then
+            echo "approval_status=required" >> $GITHUB_OUTPUT
+            echo "Backend-review-group approval required."
+          else
+            echo "approval_status=confirmed" >> $GITHUB_OUTPUT
+            echo "Backend-review-group approval confirmed."
+          fi
+
+  apply-labels:
+    runs-on: ubuntu-latest
+    needs: [check-pr-status, check-approvals]
+    if: ${{ always() }}
+    env:
+      exempt: ${{ needs.check-pr-status.outputs.exempt }}
+      pr_number: ${{ needs.check-pr-status.outputs.pr_number }}
+      pr_draft: ${{ needs.check-pr-status.outputs.pr_draft }}
+      pr_labels: ${{ needs.check-pr-status.outputs.pr_labels }}
+      test_status: ${{ needs.check-pr-status.outputs.test_status }}
+      failures_detected: ${{ needs.check-pr-status.outputs.failures_detected }}
+      approval_status: ${{ needs.check-approvals.outputs.approval_status }}
+    steps:
+      - name: print vars (DELETE ME)
+        id: print-vars
+        run: |
+          echo ${{ env.exempt }}
+          echo ${{ env.pr_number }}
+          echo ${{ env.pr_draft }}
+          echo ${{ env.pr_labels }}
+          echo ${{ env.test_status }}
+          echo ${{ env.failures_detected }}
+          echo ${{ env.approval_status }}
+
