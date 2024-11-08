@@ -166,7 +166,7 @@ module V0
     end
 
     def missing_new_and_increase_disabilities?(saved_claim)
-      if saved_claim.form['updatedRatedDisabilities'].blank? # && saved_claim.form['newPrimaryDisabilities'].blank?
+      if saved_claim.form['updatedRatedDisabilities'].blank? && saved_claim.form['newPrimaryDisabilities'].blank?
         StatsD.increment("#{stats_key}.failure")
         Rails.logger.error(
           'Creating 526 submission: no new or increased disabilities were submitted', user_uuid: @current_user&.uuid
