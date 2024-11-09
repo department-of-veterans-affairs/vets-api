@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module EPS
+module Eps
   class JwtWrapper
     SIGNING_ALGORITHM = 'RS512'
 
@@ -15,7 +15,6 @@ module EPS
     def sign_assertion
       JWT.encode(claims, rsa_key, SIGNING_ALGORITHM, jwt_headers)
     end
-
 
     def rsa_key
       @rsa_key ||= OpenSSL::PKey::RSA.new(File.read(key_path))
