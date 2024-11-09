@@ -13,7 +13,7 @@
         "lastName": "Doé",
         "birthDate": "1969-12-31",
         "fileNumber": "987654321",
-        "insurancePolicyNumber": "987654321123456999",
+        "insurancePolicyNumber": "987654321123456789",
         "address": {
           "addressLine1": "123 Main St",
           "addressLine2": "Suite #1200",

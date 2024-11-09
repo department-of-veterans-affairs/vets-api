@@ -152,7 +152,9 @@ module AppealsApi
               fill_text pdf, :claimant_number_and_street
               fill_text pdf, :claimant_city
               fill_text pdf, :claimant_zip_code
-              fill_text pdf, :claimant_email
+              fill_text pdf, :claimant_email,
+                        long_text_override: 'See attached page for claimant email',
+                        length_for_override: FormData::LONG_EMAIL_THRESHOLD
 
               fill_text pdf, :international_phone
 

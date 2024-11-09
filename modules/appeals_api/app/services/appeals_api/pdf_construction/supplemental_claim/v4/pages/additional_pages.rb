@@ -21,6 +21,13 @@ module AppealsApi
                 )
               end
 
+              if form_data.veteran_long_email?
+                pdf.text(
+                  "\n<b>Claimant Email:</b>\n#{form_data.claimant_email}\n",
+                  inline_format: true
+                )
+              end
+
               if (table_data = extra_issues_table_data).present?
                 pdf.text("\n<b>Additional Issues</b>\n", inline_format: true)
                 pdf.table(table_data, width: 540, header: true)

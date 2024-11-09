@@ -15,11 +15,22 @@ module AppealsApi
         start_yyyy_mm = hash['startDate'].split('-').take(2).reverse.join('-')
         end_yyyy_mm = hash['endDate'].split('-').take(2).reverse.join('-')
 
-        if hash['startDate'] == hash['endDate']
-          month_format ? start_yyyy_mm : hash['startDate']
+        if (hash['startDate'] == hash['endDate']) && !month_format
+          hash['startDate']
+        elsif !month_format
+          "#{hash['startDate']} to #{hash['endDate']}"
         else
-          month_format ? "#{start_yyyy_mm} to #{end_yyyy_mm}" : "#{hash['startDate']} to #{hash['endDate']}"
+          "#{start_yyyy_mm} to #{end_yyyy_mm}"
         end
+
+
+
+
+        # if hash['startDate'] == hash['endDate']
+        #   month_format ? start_yyyy_mm : hash['startDate']
+        # else
+        #   month_format ? "#{start_yyyy_mm} to #{end_yyyy_mm}" : "#{hash['startDate']} to #{hash['endDate']}"
+        # end
       end
     end
   end
