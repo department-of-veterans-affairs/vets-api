@@ -410,7 +410,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             form526_submission_id: submission.id
           },
           nil,
-          call_location: instance_of(ZeroSilentFailures::Monitor::CallLocation)
+          call_location: instance_of(Logging::CallLocation)
         )
 
         args = { 'jid' => form526_job_status.job_id, 'args' => [submission.id, upload_data] }

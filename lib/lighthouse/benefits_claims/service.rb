@@ -24,6 +24,10 @@ module BenefitsClaims
     def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
       claims['data'] = filter_by_status(claims['data'])
+      # Manual status override for PMR Pending items
+      # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
+      # This should be removed when the items are re-categorized by BGS
+      claims['data'].each { |claim| override_pmr_pending(claim) }
       claims
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -32,7 +36,12 @@ module BenefitsClaims
     end
 
     def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+      claim = config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+      # Manual status override for PMR Pending items
+      # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
+      # This should be removed when the items are re-categorized by BGS
+      override_pmr_pending(claim['data'])
+      claim
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
@@ -251,6 +260,14 @@ module BenefitsClaims
 
     def filter_by_status(items)
       items.reject { |item| FILTERED_STATUSES.include?(item.dig('attributes', 'status')) }
+    end
+
+    def override_pmr_pending(claim)
+      tracked_items = claim['attributes']['trackedItems']
+      return unless tracked_items
+
+      tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each { |i| i['status'] = 'NEEDED_FROM_OTHERS' }
+      tracked_items
     end
 
     def handle_error(error, lighthouse_client_id, endpoint)

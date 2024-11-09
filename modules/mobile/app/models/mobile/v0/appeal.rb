@@ -34,7 +34,8 @@ module Mobile
         'other',
         'multiple',
         'vha',
-        'voc_rehub'
+        'voc_rehub',
+        'voc_rehab'
       )
 
       ALERT_TYPES = Types::String.enum(
@@ -102,7 +103,8 @@ module Mobile
         'Granted',
         'dismissed_matter_of_law',
         'Dismissed',
-        'Deferred'
+        'Deferred',
+        'Denied'
       )
 
       STATUS_TYPES = Types::String.enum(
