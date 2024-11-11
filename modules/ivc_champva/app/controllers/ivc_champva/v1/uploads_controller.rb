@@ -31,14 +31,14 @@ module IvcChampva
             end
 
             render json: response[:json], status: response[:status]
-          rescue Prawn::Errors::IncompatibleStringEncoding
-            raise
-          rescue => e
-            raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
-            Rails.logger.error "Error: #{e.message}"
-            Rails.logger.error e.backtrace.join("\n")
-            render json: { error_message: "Error: #{e.message}" },
-                   status: :internal_server_error
+          end
+        rescue Prawn::Errors::IncompatibleStringEncoding
+          raise
+        rescue => e
+          Rails.logger.error "Error: #{e.message}"
+          Rails.logger.error e.backtrace.join("\n")
+
+          raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
         end
       else
         def submit
