@@ -1,6 +1,9 @@
 name: Build And Publish Preview Environment
 run-name: Build And Publish Preview Environment
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - master
 permissions: write-all
 jobs:
   build-and-publish:
