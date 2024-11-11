@@ -34,15 +34,10 @@
         "Name": "iris_veteranrelationship",
         "ListOfOptions": [
           { "Id": 722310007, "Name": "Child" },
-          { "Id": 722310008, "Name": "Guardian" },
           { "Id": 722310005, "Name": "Parent" },
-          { "Id": 722310012, "Name": "Sibling" },
           { "Id": 722310015, "Name": "Spouse/Surviving Spouse" },
-          { "Id": 722310004, "Name": "Ex-spouse" },
-          { "Id": 722310010, "Name": "GI Bill Beneficiary" },
           { "Id": 722310018, "Name": "Other (Personal)" },
           { "Id": 722310000, "Name": "Attorney" },
-          { "Id": 722310001, "Name": "Authorized 3rd Party" },
           { "Id": 722310020, "Name": "Fiduciary" },
           { "Id": 722310006, "Name": "Funeral Director" },
           { "Id": 722310016, "Name": "OJT/Apprenticeship Supervisor" },
@@ -51,7 +46,6 @@
           { "Id": 722310017, "Name": "VSO" },
           { "Id": 722310014, "Name": "Work Study Site Supervisor" },
           { "Id": 722310011, "Name": "Other (Business)" },
-          { "Id": 722310002, "Name": "School Official (DO NOT USE)" },
           { "Id": 722310009, "Name": "Helpless Child" },
           { "Id": 722310003, "Name": "Dependent Child" }
         ]

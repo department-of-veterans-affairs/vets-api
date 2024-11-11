@@ -15,10 +15,9 @@ module EVSS
       attr_accessor :submission_id
 
       # Sidekiq has built in exponential back-off functionality for retries
-      # A max retry attempt of 15 will result in a run time of ~36 hours
-      # Changed from 15 -> 14 ~ Jan 19, 2023
-      # This change reduces the run-time from ~36 hours to ~24 hours
-      RETRY = 14
+      # retry for  2d 1h 47m 12s
+      # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+      RETRY = 16
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
 
       wrap_with_logging(

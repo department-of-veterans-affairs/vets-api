@@ -5,7 +5,9 @@ require 'pcpg/monitor'
 module Lighthouse
   class SubmitCareerCounselingJob
     include Sidekiq::Job
-    RETRY = 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    RETRY = 16
 
     STATSD_KEY_PREFIX = 'worker.lighthouse.submit_career_counseling_job'
 
@@ -66,7 +68,7 @@ module Lighthouse
           Settings.vanotify.services.va_gov.template_id.form27_8832_action_needed_email,
           {
             'first_name' => claim.parsed_form.dig('claimantInformation', 'fullName', 'first')&.upcase.presence,
-            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => claim.confirmation_number
           }
         )
