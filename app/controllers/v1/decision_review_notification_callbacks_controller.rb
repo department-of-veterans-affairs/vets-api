@@ -3,7 +3,7 @@
 require 'decision_review_v1/utilities/logging_utils'
 
 module V1
-  class NodCallbacksController < ApplicationController
+  class DecisionReviewNotificationCallbacksController < ApplicationController
     include ActionController::HttpAuthentication::Token::ControllerMethods
     include DecisionReviewV1::Appeals::LoggingUtils
 
@@ -24,7 +24,7 @@ module V1
       'SC' => 'supplemental-claims'
     }.freeze
 
-    VALID_FUNCTION_TYPES = %w[form evidence].freeze
+    VALID_FUNCTION_TYPES = %w[form evidence secondary_form].freeze
 
     def create
       return render json: nil, status: :not_found unless enabled?
@@ -84,7 +84,7 @@ module V1
     def authenticate_user_with_token
       authenticate_with_http_token do |token|
         is_authenticated = token == bearer_token_secret
-        Rails.logger.info('NodCallbacksController callback received', is_authenticated:)
+        Rails.logger.info('DecisionReviewNotificationCallbacksController callback received', is_authenticated:)
 
         is_authenticated
       end

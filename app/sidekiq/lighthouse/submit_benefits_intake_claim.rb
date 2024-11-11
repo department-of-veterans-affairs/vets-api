@@ -4,6 +4,7 @@ require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pension_burial/tag_sentry'
 require 'burials/monitor'
+require 'pcpg/monitor'
 require 'benefits_intake_service/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'pdf_info'
@@ -18,9 +19,9 @@ module Lighthouse
     FOREIGN_POSTALCODE = '00000'
     STATSD_KEY_PREFIX = 'worker.lighthouse.submit_benefits_intake_claim'
 
-    # Sidekiq has built in exponential back-off functionality for retries
-    # A max retry attempt of 14 will result in a run time of ~25 hours
-    RETRY = 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    RETRY = 16
 
     sidekiq_options retry: RETRY
 

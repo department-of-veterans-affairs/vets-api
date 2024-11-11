@@ -20,7 +20,9 @@ class Form526SubmissionFailureEmailJob
     'form8940' => 'VA Form 21-8940'
   }.freeze
 
-  sidekiq_options retry: 14
+  # retry for  2d 1h 47m 12s
+  # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+  sidekiq_options retry: 16
 
   sidekiq_retries_exhausted do |msg, _ex|
     job_id = msg['jid']
