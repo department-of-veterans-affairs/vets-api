@@ -127,6 +127,15 @@ module BBInternal
       response.body
     end
 
+    # Retrieves the BBMI notification setting for the user.
+    # @return [Hash] containing:
+    #   - flag [Boolean]: Indicates whether the BBMI notification setting is enabled (true) or disabled (false)
+    #
+    def get_bbmi_notification_setting
+      response = perform(:get, 'usermgmt/notification/bbmi', nil, token_headers)
+      response.body
+    end
+
     private
 
     ##
