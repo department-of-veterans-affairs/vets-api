@@ -31,20 +31,13 @@ module SignIn
       current_user.session_handle = access_token.session_handle
       current_user.save && user_identity.save
       current_user.invalidate_mpi_cache
-      create_mhv_account
+      current_user.create_mhv_account_async
 
       current_user
     end
 
     def validate_account_and_session
       raise Errors::SessionNotFoundError.new message: 'Invalid Session Handle' unless session
-    end
-
-    def create_mhv_account
-      return unless current_user.loa3?
-      return unless Flipper.enabled?(:mhv_account_creation_after_login, user_account)
-
-      MHV::AccountCreatorJob.perform_async(user_verification.id)
     end
 
     def user_attributes

@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'logging/call_location'
+require 'zero_silent_failures/monitor'
+
 class FormSubmissionAttempt < ApplicationRecord
   include AASM
 
@@ -16,6 +19,11 @@ class FormSubmissionAttempt < ApplicationRecord
   self.ignored_columns += %w[error_message response]
 
   HOUR_TO_SEND_NOTIFICATIONS = 9
+
+  def self.latest_attempts
+    select('DISTINCT ON (form_submission_id) form_submission_id, benefits_intake_uuid')
+      .order('form_submission_id, created_at DESC')
+  end
 
   aasm do
     after_all_transitions :log_status_change
@@ -116,7 +124,7 @@ class FormSubmissionAttempt < ApplicationRecord
     end
   rescue => e
     cl = caller_locations.first
-    call_location = ZeroSilentFailures::Monitor::CallLocation.new(
+    call_location = Logging::CallLocation.new(
       CentralMail::SubmitForm4142Job::ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno
     )
     ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(
