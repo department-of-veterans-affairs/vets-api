@@ -133,17 +133,17 @@ jobs:
       #     docker compose -f docker-compose.test.yml run web bash \
       #     -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 24 -o '--color --tty'"
 
-      - name: Set Test Status
-        id: test-status
-        if: always()
-        run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            echo "status=success" >> $GITHUB_OUTPUT
-          else
-            echo "status=failure" >> $GITHUB_OUTPUT
-          fi
+      # - name: Set Test Status
+      #   id: test-status
+      #   if: always()
+      #   run: |
+      #     if [ "${{ job.status }}" == "success" ]; then
+      #       echo "status=success" >> $GITHUB_OUTPUT
+      #     else
+      #       echo "status=failure" >> $GITHUB_OUTPUT
+      #     fi
 
-          echo "event_name=${{ github.event_name }}"
+      #     echo "event_name=${{ github.event_name }}"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
@@ -161,18 +161,18 @@ jobs:
           path: log/*.xml
           if-no-files-found: ignore
 
-  update_labels:
-    name: Update Test Status Labels
-    needs: [tests]
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    permissions: write-all
-    steps:
-      - name: Debugging
-        run: |
-          echo "Test Status: ${{ needs.tests.outputs.test_status }}"
-          echo "Event Name: ${{ github.event_name }}"
-          echo '${{ toJSON(github.event.pull_request) }}' | jq .
+  # update_labels:
+  #   name: Update Test Status Labels
+  #   needs: [tests]
+  #   if: github.event_name == 'pull_request'
+  #   runs-on: ubuntu-latest
+  #   permissions: write-all
+  #   steps:
+  #     - name: Debugging
+  #       run: |
+  #         echo "Test Status: ${{ needs.tests.outputs.test_status }}"
+  #         echo "Event Name: ${{ github.event_name }}"
+  #         echo '${{ toJSON(github.event.pull_request) }}' | jq .
 
       # - name: Add Test Failure label
       #   if: ${{ needs.test-status.outputs.status == 'failure' }}
