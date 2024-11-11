@@ -454,6 +454,9 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
+  dependents_trigger_action_needed_email:
+    actor_type: user
+    description: Set whether to enable VANotify email to Veteran for Dependents Backup Path failure exhaustion
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -629,9 +632,17 @@ features:
     actor_type: user
     description: Enables enqueuing a Form526DocumentUploadFailureEmail if a EVSS::DisabilityCompensationForm::SubmitUploads job exhausts its retries
     enable_in_development: true
+  form526_send_backup_submission_polling_failure_email_notice:
+    actor_type: user
+    description: Enables enqueuing a Form526SubmissionFailureEmailJob if a submission is marked as unprocessable through polling of the Benefits Intake API.
+    enable_in_development: true
+  form526_send_backup_submission_exhaustion_email_notice:
+    actor_type: user
+    description: Enables enqueuing of a Form526SubmissionFailureEmailJob if a submission exhausts it's attempts to upload to the Benefits Intake API.
+    enable_in_development: true
   form526_send_4142_failure_notification:
     actor_type: user
-    description: Enables enqueuing a Form4142DocumentUploadFailureEmail if a SubmitForm4142Job job exhausts its retries
+    description: Enables enqueuing of a Form4142DocumentUploadFailureEmail if a SubmitForm4142Job job exhausts its retries
     enable_in_development: true
   form526_send_0781_failure_notification:
     actor_type: user
@@ -862,6 +873,10 @@ features:
     actor_type: user
     descriptiom: Enables access to MHV Account Creation API
     enable_in_development: true
+  mhv_accelerated_delivery_allergies_enabled:
+    actor_type: user
+    description: Control fetching OH allergies data
+    enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
@@ -1013,7 +1028,13 @@ features:
       [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pension_military_prefill:
     actor_type: user
-    description: "When enabled, 21P-527EZ will prefill military information."
+    description: When enabled, 21P-527EZ will prefill military information.
+  pension_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  pension_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1565,6 +1586,9 @@ features:
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
+  disability_compensation_email_veteran_on_polled_lighthouse_doc_failure:
+    actor_type: user
+    description: Sends document upload failure emails when polled doc uploaded to Lighthouse has failed to process at Lighthouse
   disability_compensation_lighthouse_rated_disabilities_provider_foreground:
     actor_type: user
     description: If enabled uses the lighthouse rated disabilities endpoint for foreground requests
@@ -1682,6 +1706,12 @@ features:
     actor_type: user
     description: Enable Burial form v2 re-design
     enable_in_development: true
+  burial_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  burial_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form

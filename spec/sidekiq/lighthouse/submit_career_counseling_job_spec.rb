@@ -84,7 +84,7 @@ RSpec.describe Lighthouse::SubmitCareerCounselingJob do
           'form27_8832_action_needed_email_template_id',
           {
             'first_name' => 'DERRICK',
-            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => claim.confirmation_number
           }
         )
