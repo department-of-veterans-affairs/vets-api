@@ -1292,6 +1292,9 @@ vanotify:
         form1990emeb_offramp_confirmation_email: form1990emeb_offramp_confirmation_email_template_id
         form1990emeb_denied_confirmation_email: form1990emeb_denied_confirmation_email_template_id
         form1995_confirmation_email: form1995_confirmation_email_template_id
+        form21_686c_action_needed_email: form21_686c_action_needed_email_template_id
+        form21_686c_674_action_needed_email: form21_686c_674_action_needed_email_template_id
+        form21_674_action_needed_email: form21_674_action_needed_email_template_id
         form21_0966_confirmation_email: form21_0966_confirmation_email_template_id
         form21_0966_error_email: form21_0966_error_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
