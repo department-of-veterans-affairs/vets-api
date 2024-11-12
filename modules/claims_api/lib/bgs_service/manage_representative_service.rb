@@ -6,7 +6,7 @@ module ClaimsApi
       'VDC/ManageRepresentativeService'
     end
 
-    def read_poa_request(poa_codes: [])
+    def read_poa_request(poa_codes: [], page_size: nil, page_index: nil) # rubocop:disable Metrics/MethodLength
       # Workaround to allow multiple roots in the Nokogiri XML builder
       # https://stackoverflow.com/a/4907450
       doc = Nokogiri::XML::DocumentFragment.parse ''
@@ -20,6 +20,12 @@ module ClaimsApi
         xml.send('data:SecondaryStatusList') do
           %w[New Pending Accepted Declined].each do |status|
             xml.SecondaryStatus status
+          end
+        end
+        if page_size || page_index
+          xml.send('data:POARequestParameter') do
+            xml.pageSize page_size if page_size
+            xml.pageIndex page_index if page_index
           end
         end
       end
