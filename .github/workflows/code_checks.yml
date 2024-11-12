@@ -1,4 +1,4 @@
-name: "Code Checks"
+name: Code Checks
 on:
   push:
     branches: [master]
@@ -56,8 +56,6 @@ jobs:
       COMPOSE_DOCKER_CLI_BUILD: 1
     permissions: write-all
     runs-on: ubuntu-32-cores-latest
-    outputs:
-      test_status: ${{ steps.test-status.outputs.status }}
     steps:
       - uses: actions/checkout@v4
 
