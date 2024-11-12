@@ -22,22 +22,14 @@ module VANotify
 
       if only_one_supported_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch(in_progress_form.form_id)
-        if Flipper.enabled?(:va_notify_user_account_job)
-          UserAccountJob.perform_async(in_progress_form.user_account_id,
-                                       template_id,
-                                       personalisation_details_single)
-        else
-          IcnJob.perform_async(veteran.icn, template_id, personalisation_details_single)
-        end
+        UserAccountJob.perform_async(in_progress_form.user_account_id,
+                                      template_id,
+                                      personalisation_details_single)
       elsif oldest_in_progress_form?
         template_id = VANotify::InProgressFormHelper::TEMPLATE_ID.fetch('generic')
-        if Flipper.enabled?(:va_notify_user_account_job)
-          UserAccountJob.perform_async(in_progress_form.user_account_id,
-                                       template_id,
-                                       personalisation_details_multiple)
-        else
-          IcnJob.perform_async(veteran.icn, template_id, personalisation_details_single)
-        end
+        UserAccountJob.perform_async(in_progress_form.user_account_id,
+                                      template_id,
+                                      personalisation_details_multiple)
       end
     rescue VANotify::Veteran::MPINameError, VANotify::Veteran::MPIError
       nil

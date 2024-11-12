@@ -826,10 +826,6 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
-  va_notify_user_account_job:
-    actor_type: user
-    description: Enable/disable UserAccountJob in VANotify (replacement for IcnJob)
-    enable_in_development: true
   letters_check_discrepancies:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse

@@ -72,9 +72,6 @@ RSpec.describe VANotify::UserAccountJob, type: :worker do
                 template_id:,
                 personalisation: nil
               }
-            },
-            {
-              error: :va_notify_user_account_job
             }
           )
 
