@@ -97,7 +97,7 @@ spec:
           {{- end }}
           envFrom:
             - secretRef:
-                name: common-environment-vars
+                name: common-environment-ssm-vars
         {{- if $root.Values.clamav.enabled  }}
         - name: clamav
           image: "{{ $root.Values.clamav.image.value }}:{{ $root.Values.clamav.image.tag }}"
