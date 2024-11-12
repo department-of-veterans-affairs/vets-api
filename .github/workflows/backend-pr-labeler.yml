@@ -229,7 +229,7 @@ jobs:
           labels: test-passing
 
       - name: Remove test-failure label
-        if: ${{ env.test_result == 'success' && contains(fromJSON(env.pr_labels), 'test-passing') }}
+        if: ${{ env.test_result == 'success' && contains(fromJSON(env.pr_labels), 'test-failure') }}
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ env.pr_number }}
@@ -237,7 +237,7 @@ jobs:
 
       # Add labels if required
       - name: Add require-backend-approval label
-        if: ${{ env.pr_draft == 'false' && env.exempt == 'false'}}
+        if: ${{ env.exempt == 'false'}}
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ env.pr_number }}
