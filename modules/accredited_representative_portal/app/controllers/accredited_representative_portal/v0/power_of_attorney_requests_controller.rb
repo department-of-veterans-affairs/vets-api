@@ -3,12 +3,44 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
-      # TODO: address authorization
+      POA_REQUEST_ITEM_MOCK_DATA = {
+        status: 'Pending',
+        declinedReason: nil,
+        powerOfAttorneyCode: '091',
+        submittedAt: '2024-04-30T11:03:17Z',
+        acceptedOrDeclinedAt: nil,
+        isAddressChangingAuthorized: false,
+        isTreatmentDisclosureAuthorized: true,
+        veteran: {
+          firstName: 'Jon',
+          middleName: nil,
+          lastName: 'Smith',
+          participantId: '6666666666666'
+        },
+        representative: {
+          email: 'j2@example.com',
+          firstName: 'Jane',
+          lastName: 'Doe'
+        },
+        claimant: {
+          firstName: 'Sam',
+          lastName: 'Smith',
+          participantId: '777777777777777',
+          relationshipToVeteran: 'Child'
+        },
+        claimantAddress: {
+          city: 'Hartford',
+          state: 'CT',
+          zip: '06107',
+          country: 'GU',
+          militaryPostOffice: nil,
+          militaryPostalCode: nil
+        }
+      }.freeze
 
       def show
-        poa_request_details_id = params[:id]
-        poa_request_details_service = PoaRequestDetailsService.new(poa_request_details_id)
-        render json: poa_request_details_service.call
+        params[:id]
+        render json: POA_REQUEST_ITEM_MOCK_DATA
       end
     end
   end
