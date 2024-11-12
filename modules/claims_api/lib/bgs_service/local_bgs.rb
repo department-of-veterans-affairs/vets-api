@@ -89,6 +89,19 @@ module ClaimsApi
                    key: 'return')
     end
 
+    def find_by_ssn(ssn)
+      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <ssn />
+      EOXML
+
+      { ssn: }.each do |k, v|
+        body.xpath("./*[local-name()='#{k}']")[0].content = v
+      end
+
+      make_request(endpoint: 'PersonWebServiceBean/PersonWebService', action: 'findPersonBySSN', body:,
+                   key: 'PersonDTO')
+    end
+
     def find_poa_history_by_ptcpnt_id(id)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <ptcpntId />

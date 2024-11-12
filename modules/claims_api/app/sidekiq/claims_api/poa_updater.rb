@@ -10,10 +10,10 @@ module ClaimsApi
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
 
       ssn = poa_form.auth_headers['va_eauth_pnid']
-      file_number = get_file_number(ssn, poa_form)
+      file_number = find_by_ssn(ssn, poa_form)
       poa_code = extract_poa_code(poa_form.form_data)
 
-      response = get_response(file_number, ssn, poa_code, poa_form)
+      response = update_birls_record(file_number, ssn, poa_code, poa_form)
 
       if response[:return_code] == 'BMOD0001'
         poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
@@ -65,15 +65,15 @@ module ClaimsApi
       )
     end
 
-    def get_file_number(ssn, poa_form)
+    def find_by_ssn(ssn, poa_form)
       if Flipper.enabled? :claims_api_poa_updater_enables_local_bgs
-        person_web_service(poa_form).find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+        person_web_service(poa_form).find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
       else
         bgs_service.people.find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
       end
     end
 
-    def get_response(file_number, ssn, poa_code, poa_form)
+    def update_birls_record(file_number, ssn, poa_code, poa_form)
       if Flipper.enabled? :claims_api_poa_updater_enables_local_bgs
         vet_record_service(poa_form).update_birls_record(
           file_number:,
