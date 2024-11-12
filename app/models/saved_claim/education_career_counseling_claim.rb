@@ -35,15 +35,15 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
   end
 
   def send_failure_email
-    email = self.parsed_form.dig('claimantInformation', 'emailAddress')
+    email = parsed_form.dig('claimantInformation', 'emailAddress')
     if email.present?
       VANotify::EmailJob.perform_async(
         email,
         Settings.vanotify.services.va_gov.template_id.form27_8832_action_needed_email,
         {
-          'first_name' => self.parsed_form.dig('claimantInformation', 'fullName', 'first')&.upcase.presence,
+          'first_name' => parsed_form.dig('claimantInformation', 'fullName', 'first')&.upcase.presence,
           'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => self.confirmation_number
+          'confirmation_number' => confirmation_number
         }
       )
     end

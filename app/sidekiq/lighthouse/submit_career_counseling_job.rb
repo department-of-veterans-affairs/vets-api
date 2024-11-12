@@ -23,7 +23,7 @@ module Lighthouse
       pcpg_monitor = PCPG::Monitor.new
       pcpg_monitor.track_submission_exhaustion(msg, claim)
 
-      Lighthouse::SubmitCareerCounselingJob.trigger_failure_events(claim) if Flipper.enabled?(:pcpg_trigger_action_needed_email)
+      Lighthouse::SubmitCareerCounselingJob.trigger_failure_events(claim) if Flipper.enabled?(:pcpg_trigger_action_needed_email) # rubocop:disable Layout/LineLength
     end
 
     def perform(claim_id, user_uuid = nil)
