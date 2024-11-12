@@ -38,10 +38,8 @@ module HCA
     end
 
     def log_different_email(in_progress_form_id, user_uuid)
-      in_progress_email_match_log = InProgressEmailMatchLog.where(user_uuid:, in_progress_form_id:)
-      return if in_progress_email_match_log.present?
+      return if InProgressEmailMatchLog.exists?(user_uuid:, in_progress_form_id:)
 
-      # This is all duplicated from the original logic to minimize changes
       in_progress_form = InProgressForm.find_by(id: in_progress_form_id)
       return if in_progress_form.nil?
 
