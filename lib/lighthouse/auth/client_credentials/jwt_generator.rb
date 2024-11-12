@@ -5,6 +5,7 @@ module Auth
     class JWTGenerator
       TTL = 300
 
+      # comment
       def self.iat
         Time.now.to_i
       end
