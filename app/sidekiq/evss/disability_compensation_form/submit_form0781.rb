@@ -2,6 +2,7 @@
 
 require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/filler'
+require 'logging/call_location'
 require 'logging/third_party_transaction'
 require 'zero_silent_failures/monitor'
 
@@ -77,7 +78,7 @@ module EVSS
         end
       rescue => e
         cl = caller_locations.first
-        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
         zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
         user_account_id = begin
           Form526Submission.find(form526_submission_id).user_account_id
@@ -100,6 +101,21 @@ module EVSS
           }
         )
         raise e
+      end
+
+      def self.api_upload_provider(submission, form_id)
+        user = User.find(submission.user_uuid)
+
+        ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
+          options: {
+            form526_submission: submission,
+            document_type: FORMS_METADATA[form_id][:docType],
+            statsd_metric_prefix: STATSD_KEY_PREFIX
+          },
+          current_user: user,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781
+        )
       end
 
       # This method generates the PDF documents but does NOT send them anywhere.
@@ -212,22 +228,20 @@ module EVSS
 
         # thin wrapper to isolate upload for logging
         file_body = File.open(pdf_path).read
-        perform_client_upload(file_body, document_data)
+        perform_client_upload(file_body, document_data, form_id)
       ensure
         # Delete the temporary PDF file
         File.delete(pdf_path) if pdf_path.present?
       end
 
-      def perform_client_upload(file_body, document_data)
-        client.upload(file_body, document_data)
-      end
-
-      def client
-        @client ||= if Flipper.enabled?(:disability_compensation_lighthouse_document_service_provider)
-                      # TODO: create client from lighthouse document service
-                    else
-                      EVSS::DocumentsService.new(submission.auth_headers)
-                    end
+      def perform_client_upload(file_body, document_data, form_id)
+        if Flipper.enabled?(:disability_compensation_use_api_provider_for_0781_uploads)
+          provider = self.class.api_upload_provider(submission, form_id)
+          upload_document = provider.generate_upload_document(document_data.file_name)
+          provider.submit_upload_document(upload_document, file_body)
+        else
+          EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
+        end
       end
     end
   end

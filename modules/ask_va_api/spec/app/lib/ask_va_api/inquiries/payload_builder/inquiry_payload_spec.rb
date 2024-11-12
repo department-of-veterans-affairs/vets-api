@@ -37,7 +37,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::InquiryPayload do
       let(:authorized_user) { nil }
 
       it 'set LevelOfAuthentication to Unauthenticated' do
-        expect(builder.call[:LevelOfAuthentication]).to eq('Unauthenticated')
+        expect(builder.call[:LevelOfAuthentication]).to eq('722310000')
       end
     end
 

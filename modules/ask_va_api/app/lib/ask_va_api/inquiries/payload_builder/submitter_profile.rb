@@ -73,10 +73,10 @@ module AskVAApi
         def service_info
           {
             BranchOfService: submitter_info[:branch_of_service],
-            SSN: submitter_info[:ssn],
+            SSN: submitter_info.dig(:social_or_service_num, :ssn),
             EDIPI: user&.edipi,
             ICN: user&.icn,
-            ServiceNumber: nil,
+            ServiceNumber: submitter_info.dig(:social_or_service_num, :service_number),
             ClaimNumber: nil,
             VeteranServiceStateDate: nil,
             VeteranServiceEndDate: nil

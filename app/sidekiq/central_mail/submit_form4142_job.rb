@@ -4,6 +4,7 @@ require 'central_mail/service'
 require 'common/exceptions'
 require 'evss/disability_compensation_form/metrics'
 require 'evss/disability_compensation_form/form4142_processor'
+require 'logging/call_location'
 require 'logging/third_party_transaction'
 require 'zero_silent_failures/monitor'
 
@@ -77,7 +78,7 @@ module CentralMail
       end
     rescue => e
       cl = caller_locations.first
-      call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+      call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
       zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
       user_account_id = begin
         Form526Submission.find(form526_submission_id).user_account_id
@@ -244,7 +245,6 @@ module CentralMail
       if form_submission.blank?
         form_submission = FormSubmission.create(
           form_type: FORM4142_FORMSUBMISSION_TYPE, # form526_form4142
-          benefits_intake_uuid: lighthouse_service.uuid,
           form_data: '{}', # we have this already in the Form526Submission.form['form4142']
           user_account: form526_submission.user_account,
           saved_claim: form526_submission.saved_claim

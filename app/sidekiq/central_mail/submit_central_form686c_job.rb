@@ -15,7 +15,9 @@ module CentralMail
     FORM_ID = '686C-674'
     FORM_ID_674 = '21-674'
     STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
-    RETRY = 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    RETRY = 16
 
     attr_reader :claim, :form_path, :attachment_paths
 
@@ -80,7 +82,6 @@ module CentralMail
       FormSubmissionAttempt.transaction do
         form_submission = FormSubmission.create(
           form_type: claim.submittable_686? ? FORM_ID : FORM_ID_674,
-          benefits_intake_uuid: intake_uuid,
           saved_claim: claim,
           user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
         )
