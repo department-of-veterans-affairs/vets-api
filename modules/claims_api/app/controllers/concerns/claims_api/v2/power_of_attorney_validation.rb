@@ -21,14 +21,6 @@ module ClaimsApi
 
       private
 
-      # def allow_dependent_claimant?
-      #   return false unless Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants)
-
-      #   claimant = form_attributes['claimant']
-
-      #   claimant.present? && claimant['relationship']&.downcase != 'self'
-      # end
-
       def validate_dependent_claimant(veteran_participant_id:, user_profile:, poa_code:, base:)
         return nil unless allow_dependent_claimant?
 
