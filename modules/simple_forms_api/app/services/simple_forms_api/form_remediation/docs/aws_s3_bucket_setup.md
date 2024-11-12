@@ -31,7 +31,7 @@ This guide provides step-by-step instructions for requesting, reviewing, and app
 
 ### Review Process
 
-1. **Request Review**: After submitting the PR, request a review from the DevOps/Platform team.
+1. **Request Review**: After submitting the PR, the DevOps/Platform team (`vsp-operations`) review is automatically required because they are codeowners of the files in the `devops` repo.
 2. **DevOps Review**: A Platform team member will perform an initial review of the PR for consistency and compliance.
 3. **Sanity Check**: Ask for a **sanity check** to verify provisioning details, security settings, and overall configuration consistency.
 
