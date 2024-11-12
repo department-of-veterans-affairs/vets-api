@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_08_144805) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_12_143658) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -864,6 +864,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_08_144805) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_id_card_announcement_subscriptions_on_email", unique: true
+  end
+
+  create_table "in_progress_email_match_logs", force: :cascade do |t|
+    t.string "user_uuid", null: false
+    t.integer "in_progress_form_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_uuid", "in_progress_form_id"], name: "idx_on_user_uuid_in_progress_form_id_0040cedec5", unique: true
   end
 
   create_table "in_progress_forms", id: :serial, force: :cascade do |t|
