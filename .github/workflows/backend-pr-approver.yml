@@ -4,6 +4,7 @@ on:
     types: [labeled, unlabeled]
 jobs:
   check-approval-labels:
+    name: Confirm Backend Approval
     if: github.event.label.name == 'require-backend-approval' || github.event.label.name == 'ready-for-backend-review'
     runs-on: ubuntu-latest
     steps:
