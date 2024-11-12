@@ -6,7 +6,7 @@ require 'pdf_utilities/datestamp_pdf'
 require 'pdf_info'
 require 'simple_forms_api_submission/metadata_validator'
 
-module CentralMail
+module BenefitsIntake
   class SubmitCentralForm686cJob
     include Sidekiq::Job
     include SentryLogging
@@ -19,7 +19,8 @@ module CentralMail
 
     attr_reader :claim, :form_path, :attachment_paths
 
-    class CentralMailResponseError < StandardError; end
+    # BenefitsIntakeResponseError
+    class BenefitsIntakeResponseError < StandardError; end
 
     def extract_uuid_from_central_mail_message(data)
       data.body[/(?<=\[).*?(?=\])/].split(': ').last if data.body.present?
@@ -29,7 +30,7 @@ module CentralMail
 
     sidekiq_retries_exhausted do |msg, _ex|
       Rails.logger.error(
-        "Failed all retries on CentralMail::SubmitCentralForm686cJob, last error: #{msg['error_message']}"
+        "Failed all retries on BenefitsIntake::SubmitCentralForm686cJob, last error: #{msg['error_message']}"
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
     end
@@ -39,7 +40,7 @@ module CentralMail
       user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct))
       # if the 686c-674 has failed we want to call this central mail job (credit to submit_saved_claim_job.rb)
       # have to re-find the claim and add the relevant veteran info
-      Rails.logger.info('CentralMail::SubmitCentralForm686cJob running!',
+      Rails.logger.info('BenefitsIntake::SubmitCentralForm686cJob running!',
                         { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
       @claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       claim.add_veteran_info(vet_info)
@@ -49,7 +50,7 @@ module CentralMail
       check_success(result, saved_claim_id, user_struct)
     rescue => e
       # if we fail, update the associated central mail record to failed and send the user the failure email
-      Rails.logger.warn('CentralMail::SubmitCentralForm686cJob failed!',
+      Rails.logger.warn('BenefitsIntake::SubmitCentralForm686cJob failed!',
                         { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'], error: e.message })
       update_submission('failed')
       raise
@@ -105,14 +106,14 @@ module CentralMail
 
     def check_success(response, saved_claim_id, user_struct)
       if response.success?
-        Rails.logger.info('CentralMail::SubmitCentralForm686cJob succeeded!',
+        Rails.logger.info('BenefitsIntake::SubmitCentralForm686cJob succeeded!',
                           { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'] })
         update_submission('success')
         send_confirmation_email(OpenStruct.new(user_struct))
       else
-        Rails.logger.info('CentralMail::SubmitCentralForm686cJob Unsuccessful',
+        Rails.logger.info('BenefitsIntake::SubmitCentralForm686cJob Unsuccessful',
                           { response: response['message'].presence || response['errors'] })
-        raise CentralMailResponseError
+        raise BenefitsIntakeResponseError
       end
     end
 

@@ -2,7 +2,7 @@
 
 require 'pension_burial/tag_sentry'
 
-module CentralMail
+module BenefitsIntake
   class DeleteOldClaims
     include Sidekiq::Job
 
