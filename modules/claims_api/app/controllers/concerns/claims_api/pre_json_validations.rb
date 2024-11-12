@@ -2,8 +2,9 @@
 
 module ClaimsApi
   module PreJsonValidations
-    # V1 JSON Schema enforces a regex pattern if the email is included it
-    # must  have '.@.' in it.  This handles submissions with an empty str
+    # V1 JSON Schema enforces a regex pattern if the email is included
+    # it must  have '.@.' in it.
+    # This allows for submissions with an empty str for email to move past that validation
     def pre_json_verification_of_email_for_poa
       form = @json_body.dig('data', 'type') || {}
       return @json_body unless form == 'form/21-22'
