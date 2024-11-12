@@ -120,13 +120,9 @@ spec:
                   key: {{ $secret.name }}
           {{- end }}
           {{- end }}
-          {{- range $varName := $root.Values.parameters }}
-            - name: {{ $varName }}
-              valueFrom:
-                secretKeyRef:
-                  name: common-environment-vars
-                  key: {{ $varName }}
-          {{- end }}
+          envFrom:
+            - secretRef:
+                name: common-environment-vars
         {{- if $root.Values.clamav.enabled  }}
         - name: clamav
           image: "{{ $root.Values.clamav.image.value }}:{{ $root.Values.clamav.image.tag }}"

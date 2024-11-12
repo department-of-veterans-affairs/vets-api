@@ -39,13 +39,9 @@ spec:
                       key: {{ $secret.name }}
               {{- end }}
               {{- end }}
-              {{- range $varName := $root.Values.parameters }}
-                - name: {{ $varName }}
-                  valueFrom:
-                    secretKeyRef:
-                      name: common-environment-vars
-                      key: {{ $varName }}
-              {{- end }}
+              envFrom:
+                - secretRef:
+                    name: common-environment-vars
           restartPolicy: OnFailure
           securityContext:
             fsGroup: {{ $root.Values.fsGroup }}

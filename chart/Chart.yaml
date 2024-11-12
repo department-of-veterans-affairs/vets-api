@@ -105,7 +105,8 @@ type: application
 # 0.15.1  - Debug version for testing common external secret
 # 0.15.2  - adjust env var method to create relative path base3d on var name - add all 477 SSM environment vars
 # 0.15.3  - adjust postman domain to be a direct URL pass in & removed SSM variables not in all environments
-version: 0.15.3
+# 0.15.4  - adjust common env variables to utilize the external-secrets.io CRD instead of the kuberentes version.
+version: 0.15.4
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
