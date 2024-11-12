@@ -45,7 +45,7 @@ RSpec.describe 'NextStepsEmailController', type: :request do
             'first_name' => 'First',
             'form name' => 'Form Name',
             'form number' => 'Form Number',
-            'representative type' => 'Attorney', # We enqueue this as a humanized and titleized string
+            'representative type' => 'attorney', # We enqueue this as a humanized and titleized string
             'representative name' => 'Bob Law',
             'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
           }
