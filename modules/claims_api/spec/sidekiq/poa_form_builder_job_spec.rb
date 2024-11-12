@@ -17,7 +17,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       .to receive(:get_auth_token).and_return('some-value-here')
     b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
     power_of_attorney.form_data = {
-      recordConcent: true,
+      recordConsent: true,
       consentAddressChange: true,
       consentLimits: ['DRUG ABUSE', 'SICKLE CELL'],
       signatures: {

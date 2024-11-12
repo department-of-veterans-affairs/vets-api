@@ -64,4 +64,39 @@ RSpec.describe SavedClaim::Burial do
       expect(instance.email).to eq('foo@foo.com')
     end
   end
+
+  describe '#benefits_claimed' do
+    it 'returns a full array of values' do
+      benefits_claimed = instance_v2.benefits_claimed
+      expected = ['Burial Allowance', 'Plot Allowance', 'Transportation']
+
+      expect(benefits_claimed.length).to eq(3)
+      expect(benefits_claimed).to eq(expected)
+    end
+
+    it 'returns at least an empty array' do
+      form = instance_v2.parsed_form
+
+      form = form.merge({ 'transportation' => false })
+      claim = FactoryBot.build(:burial_claim_v2, form: form.to_json)
+      benefits_claimed = claim.benefits_claimed
+      expected = ['Burial Allowance', 'Plot Allowance']
+      expect(benefits_claimed.length).to eq(2)
+      expect(benefits_claimed).to eq(expected)
+
+      form = form.merge({ 'plotAllowance' => false })
+      claim = FactoryBot.build(:burial_claim_v2, form: form.to_json)
+      benefits_claimed = claim.benefits_claimed
+      expected = ['Burial Allowance']
+      expect(benefits_claimed.length).to eq(1)
+      expect(benefits_claimed).to eq(expected)
+
+      form = form.merge({ 'burialAllowance' => false })
+      claim = FactoryBot.build(:burial_claim_v2, form: form.to_json)
+      benefits_claimed = claim.benefits_claimed
+      expected = []
+      expect(benefits_claimed.length).to eq(0)
+      expect(benefits_claimed).to eq(expected)
+    end
+  end
 end
