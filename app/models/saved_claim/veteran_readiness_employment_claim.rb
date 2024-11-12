@@ -276,6 +276,22 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     'VRE'
   end
 
+  def send_failure_email(encrypted_user = nil)
+    user = encrypted_user.present? ? OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) : nil
+    email = self.parsed_form['email'] || user.try(:va_profile_email)
+    if email.present?
+      VANotify::EmailJob.perform_async(
+        email,
+        Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
+        {
+          'first_name' => self.parsed_form.dig('veteranInformation', 'fullName', 'first'),
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => self.confirmation_number
+        }
+      )
+    end
+  end
+
   private
 
   def check_office_location

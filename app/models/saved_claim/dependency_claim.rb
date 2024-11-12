@@ -134,6 +134,29 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     PdfFill::Filler.fill_form(self, nil, { created_at: })
   end
 
+  def send_failure_email(encrypted_user_struct = nil)
+    user_struct = encrypted_user_struct.present? ? JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)) : nil
+    email = self.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
+            user_struct.try(:va_profile_email)
+    template_ids = []
+    template_ids << Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email if self.submittable_686? # rubocop:disable Layout/LineLength
+    template_ids << Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email if self.submittable_674? # rubocop:disable Layout/LineLength
+
+    template_ids.each do |template_id|
+      if email.present?
+        VANotify::EmailJob.perform_async(
+          email,
+          template_id,
+          {
+            'first_name' => self.parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => self.confirmation_number
+          }
+        )
+      end
+    end
+  end
+
   private
 
   def partitioned_686_674_params
