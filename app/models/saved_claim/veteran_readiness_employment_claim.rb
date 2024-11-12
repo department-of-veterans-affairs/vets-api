@@ -276,6 +276,10 @@ class SavedClaim::VeteranReadinessEmploymentClaim < SavedClaim
     'VRE'
   end
 
+  # this failure email is not the ideal way to handle the Notification Emails as
+  # part of the ZSF work, but with the initial timeline it handles the email as intended.
+  # Future work will be integrating into the Va Notify common lib:
+  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/va_notify/notification_email.rb
   def send_failure_email(encrypted_user = nil)
     user = encrypted_user.present? ? OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) : nil
     email = parsed_form['email'] || user.try(:va_profile_email)

@@ -172,6 +172,7 @@ class BenefitsIntakeStatusJob
       end
     end
 
+    # Dependents
     if %w[686C-674].include?(form_id)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       if claim
@@ -182,6 +183,7 @@ class BenefitsIntakeStatusJob
       end
     end
 
+    # PCPG
     if %w[28-8832].include?(form_id)
       claim = SavedClaim::EducationCareerCounselingClaim.find(saved_claim_id)
       if claim
@@ -192,6 +194,7 @@ class BenefitsIntakeStatusJob
       end
     end
 
+    # VRE
     if %w[28-1900].include?(form_id)
       claim = SavedClaim::VeteranReadinessEmploymentClaim.find(saved_claim_id)
       if claim

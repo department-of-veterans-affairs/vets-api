@@ -134,6 +134,11 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     PdfFill::Filler.fill_form(self, nil, { created_at: })
   end
 
+  # this failure email is not the ideal way to handle the Notification Emails as
+  # part of the ZSF work, but with the initial timeline it handles the email as intended.
+  # Future work will be integrating into the Va Notify common lib:
+  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/va_notify/notification_email.rb
+
   def send_failure_email(encrypted_user_struct = nil)
     user_struct = encrypted_user_struct.present? ? JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)) : nil # rubocop:disable Layout/LineLength
     email = parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
