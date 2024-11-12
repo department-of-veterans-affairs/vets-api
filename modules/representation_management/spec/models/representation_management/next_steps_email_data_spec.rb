@@ -60,9 +60,9 @@ RSpec.describe RepresentationManagement::NextStepsEmailData, type: :model do
                                            .new(entity_type: 'individual', entity_id: claims_agent.id)
       next_steps_email_data_representative = described_class
                                              .new(entity_type: 'individual', entity_id: representative.id)
-      expect(next_steps_email_data_attorney.entity_display_type).to eq('Attorney')
-      expect(next_steps_email_data_claims_agent.entity_display_type).to eq('Claims Agent')
-      expect(next_steps_email_data_representative.entity_display_type).to eq('Representative')
+      expect(next_steps_email_data_attorney.entity_display_type).to eq('attorney')
+      expect(next_steps_email_data_claims_agent.entity_display_type).to eq('claims agent')
+      expect(next_steps_email_data_representative.entity_display_type).to eq('VSO representative')
     end
 
     it 'returns the entity display types for Veteran::Service::Representative' do
@@ -77,9 +77,9 @@ RSpec.describe RepresentationManagement::NextStepsEmailData, type: :model do
                                                                entity_id: claim_agents.representative_id)
       next_steps_email_data_vso = described_class.new(entity_type: 'individual',
                                                       entity_id: veteran_service_officer.representative_id)
-      expect(next_steps_email_data_attorney.entity_display_type).to eq('Attorney')
-      expect(next_steps_email_data_claim_agents.entity_display_type).to eq('Claims Agent')
-      expect(next_steps_email_data_vso.entity_display_type).to eq('Representative')
+      expect(next_steps_email_data_attorney.entity_display_type).to eq('attorney')
+      expect(next_steps_email_data_claim_agents.entity_display_type).to eq('claims agent')
+      expect(next_steps_email_data_vso.entity_display_type).to eq('VSO representative')
     end
 
     it 'returns the entity display types for Veteran Service Organization' do
@@ -89,8 +89,8 @@ RSpec.describe RepresentationManagement::NextStepsEmailData, type: :model do
                                                                entity_id: organization.poa)
       next_steps_email_data_accredited_organization = described_class.new(entity_type: 'organization',
                                                                           entity_id: accredited_organization.id)
-      expect(next_steps_email_data_organization.entity_display_type).to eq('Veteran Service Organization')
-      expect(next_steps_email_data_accredited_organization.entity_display_type).to eq('Veteran Service Organization')
+      expect(next_steps_email_data_organization.entity_display_type).to eq('Veterans Service Organization')
+      expect(next_steps_email_data_accredited_organization.entity_display_type).to eq('Veterans Service Organization')
     end
   end
 
