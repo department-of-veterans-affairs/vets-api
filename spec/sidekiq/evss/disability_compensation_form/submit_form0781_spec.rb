@@ -171,6 +171,44 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
           end
         end
       end
+
+      context 'when the API Provider uploads are enabled' do
+        before do
+          Flipper.enable(:disability_compensation_use_api_provider_for_0781_uploads)
+        end
+
+        let(:sidekiq_job_exhaustion_errors) do
+          {
+            'jid' => form526_job_status.job_id,
+            'error_class' => 'Broken Job Error',
+            'error_message' => 'Your Job Broke',
+            'args' => [form526_submission.id]
+          }
+        end
+
+        context 'for a Lighthouse upload' do
+          it 'logs the job failure' do
+            Flipper.enable(:disability_compensation_upload_0781_to_lighthouse)
+
+            subject.within_sidekiq_retries_exhausted_block(sidekiq_job_exhaustion_errors) do
+              expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
+                .to receive(:log_uploading_job_failure)
+                .with(EVSS::DisabilityCompensationForm::SubmitForm0781, 'Broken Job Error', 'Your Job Broke')
+            end
+          end
+        end
+
+        context 'for an EVSS Upload' do
+          it 'logs the job failure' do
+            Flipper.disable(:disability_compensation_upload_0781_to_lighthouse)
+
+            subject.within_sidekiq_retries_exhausted_block(sidekiq_job_exhaustion_errors) do
+              expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_uploading_job_failure)
+                .with(EVSS::DisabilityCompensationForm::SubmitForm0781, 'Broken Job Error', 'Your Job Broke')
+            end
+          end
+        end
+      end
     end
   end
 
