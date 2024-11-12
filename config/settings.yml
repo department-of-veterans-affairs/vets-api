@@ -1387,6 +1387,7 @@ vanotify:
         evidence_submission_failure_email: fake_template_id
     ivc_champva:
       api_key: fake_secret
+      failure_email_threshold_days: 7
       template_id:
         form_10_10d_email: form_10_10d_email
         form_10_10d_failure_email: form_10_10d_failure_email
