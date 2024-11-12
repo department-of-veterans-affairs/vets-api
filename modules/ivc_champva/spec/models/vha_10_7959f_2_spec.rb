@@ -64,7 +64,7 @@ RSpec.describe IvcChampva::VHA107959f2 do
   describe '#handle_attachments' do
     context 'Feature champva_unique_temp_file_names=true' do
       before do
-        Flipper.enable(:champva_unique_temp_file_names)
+        allow(Flipper).to receive(:enabled?).with(:champva_unique_temp_file_names, nil).and_return(true)
       end
 
       let(:file_path) { "#{uuid}_vha_10_7959f_2-tmp.pdf" }
@@ -78,7 +78,7 @@ RSpec.describe IvcChampva::VHA107959f2 do
 
     context 'Feature champva_unique_temp_file_names=false' do
       before do
-        Flipper.disable(:champva_unique_temp_file_names)
+        allow(Flipper).to receive(:enabled?).with(:champva_unique_temp_file_names, nil).and_return(false)
       end
 
       let(:file_path) { 'vha_10_7959f_2-tmp.pdf' }
