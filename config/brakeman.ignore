@@ -47,6 +47,52 @@
       "note": "User input is sanitized in the parent class bin/lib/vets-api/commands/command.rb"
     },
     {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "a2a6a79fee3f3e114953b1622f01008143e0cd194d7249a7d88c694848456cd1",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
+      "line": 53,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.read((SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false) or PdfFill::Filler.fill_form(SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission), SecureRandom.uuid, :sign => false)))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "V0::CaregiversAssistanceClaimsController",
+        "method": "download_pdf"
+      },
+      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
+      "confidence": "Medium",
+      "cwe_id": [
+        22
+      ],
+      "note": "Using SecureRandom.uuid to generate file name."
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "bd1dcae69af104817261af3cf80157547d705f02403a6f357b6517d3da09f483",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
+      "line": 57,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.delete((SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false) or PdfFill::Filler.fill_form(SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission), SecureRandom.uuid, :sign => false)))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "V0::CaregiversAssistanceClaimsController",
+        "method": "download_pdf"
+      },
+      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
+      "confidence": "Medium",
+      "cwe_id": [
+        22
+      ],
+      "note": "Using SecureRandom.uuid to generate file name."
+    },
+    {
       "warning_type": "Remote Code Execution",
       "warning_code": 110,
       "fingerprint": "d882f63ce96c28fb6c6e0982f2a171460e4b933bfd9b9a5421dca21eef3f76da",
@@ -109,6 +155,6 @@
       "note": "Explicitly configured years ago in https://github.com/department-of-veterans-affairs/vets-api/commit/c73c8fc5cc23262e8f708fad0f7c1052f9c88a7b"
     }
   ],
-  "updated": "2024-08-02 08:13:59 -0400",
-  "brakeman_version": "6.1.2"
+  "updated": "2024-11-01 09:35:40 -0400",
+  "brakeman_version": "6.2.2"
 }

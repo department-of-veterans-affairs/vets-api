@@ -48,7 +48,12 @@ module SimpleFormsApi
       },
       'vba_40_0247' => {
         confirmation: Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email,
-        error: nil,
+        error: Settings.vanotify.services.va_gov.template_id.form40_0247_error_email,
+        received: nil
+      },
+      'vba_40_10007' => {
+        confirmation: nil,
+        error: Settings.vanotify.services.va_gov.template_id.form40_10007_error_email,
         received: nil
       }
     }.freeze
@@ -160,9 +165,12 @@ module SimpleFormsApi
         form20_10207_contact_info[0]
       when 'vba_40_0247'
         form_data['applicant_email']
+      when 'vba_40_10007'
+        form_data.dig('application', 'claimant', 'email')
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def get_first_name_from_form_data
       case @form_number
       when 'vba_21_0845'
@@ -183,8 +191,11 @@ module SimpleFormsApi
         form20_10207_contact_info[1]
       when 'vba_40_0247'
         form_data.dig('applicant_full_name', 'first')
+      when 'vba_40_10007'
+        form40_10007_first_name
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def get_first_name_from_user_account
       mpi_response = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
@@ -330,6 +341,16 @@ module SimpleFormsApi
                                     ' (VA Form 21P-534 or VA Form 21P-534EZ)'
                                 end
       { 'intent_to_file_benefits' => intent_to_file_benefits }
+    end
+
+    def form40_10007_first_name
+      applicant_relationship = form_data.dig('application', 'applicant', 'applicant_relationship_to_claimant')
+
+      if applicant_relationship == 'Self'
+        form_data.dig('application', 'claimant', 'name', 'first')
+      else
+        form_data.dig('application', 'applicant', 'name', 'first')
+      end
     end
   end
 end

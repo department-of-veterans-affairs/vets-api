@@ -37,12 +37,13 @@ module SimpleFormsApi
       end
 
       def fetch_submission(id)
-        @submission = config.submission_type.find_by(config.id_type => id)
+        form_submission_attempt = FormSubmissionAttempt.find_by(benefits_intake_uuid: id)
+        @submission = form_submission_attempt&.form_submission
         validate_submission
       end
 
       def validate_submission
-        raise 'Submission was not found or invalid' unless submission&.send(config.id_type)
+        raise 'Submission was not found or invalid' unless submission&.latest_attempt&.send(config.id_type)
         raise "#{self.class} cannot be built: Only VFF forms are supported" unless valid_form?
       end
 

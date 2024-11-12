@@ -112,9 +112,9 @@ module BBInternal
     # @return - Continuity of Care Document in XML format
     #
     def get_download_ccd(date)
-      token_headers['Accept'] = 'application/xml'
-
-      response = perform(:get, "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML", nil, token_headers)
+      modified_headers = token_headers.dup
+      modified_headers['Accept'] = 'application/xml'
+      response = perform(:get, "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML", nil, modified_headers)
       response.body
     end
 
@@ -124,6 +124,15 @@ module BBInternal
     #
     def get_study_status
       response = perform(:get, "bluebutton/studyjob/#{session.patient_id}", nil, token_headers)
+      response.body
+    end
+
+    # Retrieves the BBMI notification setting for the user.
+    # @return [Hash] containing:
+    #   - flag [Boolean]: Indicates whether the BBMI notification setting is enabled (true) or disabled (false)
+    #
+    def get_bbmi_notification_setting
+      response = perform(:get, 'usermgmt/notification/bbmi', nil, token_headers)
       response.body
     end
 

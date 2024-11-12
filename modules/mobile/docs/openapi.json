@@ -465,7 +465,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -523,7 +523,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -581,7 +581,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -630,7 +630,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -704,7 +704,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   },
@@ -780,7 +780,7 @@
                       ],
                       "meta": {
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   }
@@ -856,7 +856,7 @@
                           }
                         ],
                         "upcomingAppointmentsCount": 1,
-                        "upcomingDaysLimit": 7
+                        "upcomingDaysLimit": 30
                       }
                     }
                   }
@@ -8809,11 +8809,13 @@
             "type": "string"
           },
           "diagnosticCode": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": 8100
           },
           "lastAction": {
             "type": "string",
+            "nullable": true,
             "enum": [
               "field_grant",
               "withdrawn",
@@ -8828,7 +8830,8 @@
             ]
           },
           "date": {
-            "type": "string"
+            "type": "string",
+            "nullable": true
           }
         }
       },
@@ -8877,7 +8880,7 @@
                   "updated"
                 ],
                 "properties": {
-                  "appealsIds": {
+                  "appealIds": {
                     "type": "array",
                     "items": {
                       "type": "string"
@@ -8908,7 +8911,8 @@
                     "type": "string"
                   },
                   "docket": {
-                    "type": "object"
+                    "type": "object",
+                    "nullable": true
                   },
                   "events": {
                     "type": "array",
@@ -9409,7 +9413,7 @@
               },
               "upcomingDaysLimit": {
                 "type": "number",
-                "description": "The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 7."
+                "description": "The number of days into the future used for calculating upcomingAppointmentsCount. The current value is 30."
               },
               "pagination": {
                 "type": "object",
@@ -9490,17 +9494,52 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "code",
-          "message"
+          "data"
         ],
         "properties": {
-          "code": {
-            "type": "string",
-            "example": "check-in-success"
-          },
-          "message": {
-            "type": "string",
-            "example": "Check-In successful"
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id",
+              "attributes"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "example": "check_in"
+              },
+              "id": {
+                "type": "string",
+                "example": "75db6a5c-84ae-4ca4-bba2-ef4c41d563ab",
+                "description": "user uuid"
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "code",
+                  "message"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "example": "75db6a5c-84ae-4ca4-bba2-ef4c41d563ab",
+                    "description": "user uuid"
+                  },
+                  "code": {
+                    "type": "string",
+                    "example": "check-in-success"
+                  },
+                  "message": {
+                    "type": "string",
+                    "example": "Check-In successful"
+                  }
+                }
+              }
+            }
           }
         }
       },
@@ -9528,7 +9567,10 @@
                   "example": "Unsuccessful Operation"
                 },
                 "detail": {
-                  "type": "array",
+                  "type": [
+                    "array",
+                    "string"
+                  ],
                   "items": {
                     "type": "object",
                     "additionalProperties": false,
@@ -11670,11 +11712,13 @@
                     "example": "2017-12-08"
                   },
                   "minEstDate": {
-                    "type": "string, null",
+                    "type": "string",
+                    "nullable": true,
                     "example": "2017-12-08"
                   },
                   "maxEstDate": {
-                    "type": "string, null",
+                    "type": "string",
+                    "nullable": true,
                     "example": "2017-12-08"
                   },
                   "open": {
@@ -11700,7 +11744,8 @@
                     }
                   },
                   "phaseChangeDate": {
-                    "type": "string, null",
+                    "type": "string",
+                    "nullable": true,
                     "example": "2017-12-08"
                   },
                   "vaRepresentative": {
@@ -11835,27 +11880,33 @@
             ],
             "properties": {
               "seriesId": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "{EC1B5F0C-E3FB-4A41-B93F-E1A88D549CDF}"
               },
               "version": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "1"
               },
               "typeDescription": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)"
               },
               "typeId": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "184"
               },
               "docType": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "184"
               },
               "subject": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": null
               },
               "receivedAt": {
@@ -11863,15 +11914,18 @@
                 "example": "2022-09-22"
               },
               "source": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "VBMS"
               },
               "mimeType": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "application/pdf"
               },
               "altDocTypes": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": ""
               },
               "restricted": {
@@ -11879,7 +11933,8 @@
                 "example": false
               },
               "uploadDate": {
-                "type": "date, null",
+                "type": "date",
+                "nullable": true,
                 "example": "2022-09-23"
               }
             }
@@ -13257,17 +13312,20 @@
                 "example": "true"
               },
               "phase": {
-                "type": "integer, null",
+                "type": "integer",
+                "nullable": true,
                 "description": "The phase of processing the claim is in. This does not apply to appeals. The integers used map to the phases as `1 => CLAIM_RECEIVED, 2 => UNDER_REVIEW, 3 => GATHERING_OF_EVIDENCE, 4 => REVIEW_OF_EVIDENCE, 5 => PREPARATION_FOR_DECISION, 6 => PENDING_DECISION_APPROVAL, 7 => PREPARATION_FOR_NOTIFICATION, 8 => COMPLETE`",
                 "example": 1
               },
               "documentsNeeded": {
-                "type": "boolean, null",
+                "type": "boolean",
+                "nullable": true,
                 "description": "Documents are still needed.",
                 "example": "true"
               },
               "developmentLetterSent": {
-                "type": "boolean, null",
+                "type": "boolean",
+                "nullable": true,
                 "description": "Development letter has been sent.",
                 "example": "true"
               },
@@ -19173,7 +19231,8 @@
             ],
             "properties": {
               "refillStatus": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "refillinprocess",
                 "enum": [
                   "active",
@@ -19195,63 +19254,78 @@
                 ]
               },
               "refillSubmitDate": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "2022-10-28T04:00:00.000Z"
               },
               "refillDate": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "2022-10-28T04:00:00.000Z"
               },
               "refillRemaining": {
-                "type": "integer, null",
+                "type": "integer",
+                "nullable": true,
                 "example": 5
               },
               "facilityName": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "DAYT29"
               },
               "isRefillable": {
-                "type": "bool, null",
+                "type": "bool",
+                "nullable": true,
                 "example": false
               },
               "isTrackable": {
-                "type": "bool, null",
+                "type": "bool",
+                "nullable": true,
                 "example": false
               },
               "orderedDate": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "2022-10-28T04:00:00.000Z"
               },
               "quantity": {
-                "type": "integer, null",
+                "type": "integer",
+                "nullable": true,
                 "example": 10
               },
               "expirationDate": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "2022-10-28T04:00:00.000Z"
               },
               "prescriptionNumber": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "2719536"
               },
               "prescriptionName": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "SOMATROPIN 5MG INJ (VI)"
               },
               "instructions": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "INJECT 1MG INTO THE MUSCLE WEEKLY FOR 30 DAYS"
               },
               "dispensedDate": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "2022-10-28T04:00:00.000Z"
               },
               "stationNumber": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "989"
               },
               "facilityPhoneNumber": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "(217) 636-6712"
               }
             }
@@ -19352,19 +19426,23 @@
             ],
             "properties": {
               "failedStationList": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "DAYT29, DAYT29"
               },
               "successfulStationList": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "SLC4, VAMCSLC-OUTPTRX"
               },
               "lastUpdatedTime": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Thu, 08 Dec 2022 12:11:33 EST"
               },
               "prescriptionList": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": null
               },
               "failedPrescriptionIds": {
@@ -19426,11 +19504,13 @@
             ],
             "properties": {
               "prescriptionName": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "Ibuprofen 200mg"
               },
               "prescriptionNumber": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "2719551"
               },
               "prescriptionId": {
@@ -19438,23 +19518,28 @@
                 "example": "13650541"
               },
               "trackingNumber": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "657068347565"
               },
               "ndcNumber": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "00781171601"
               },
               "shippedDate": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "2022-10-28T04:00:00.000Z"
               },
               "deliveryService": {
-                "type": "integer, null",
+                "type": "string",
+                "nullable": true,
                 "example": "USPS"
               },
               "otherPrescriptions": {
-                "type": "array, null",
+                "type": "array",
+                "nullable": true,
                 "example": [
                   {
                     "prescriptionName": "ETHAMBUTOL HCL 100MG TAB",
@@ -21582,11 +21667,13 @@
                       "example": "Compensation & Pension - Recurring"
                     },
                     "bank": {
-                      "type": "string, null",
+                      "type": "string",
+                      "nullable": true,
                       "example": "PACIFIC PREMIER BANK"
                     },
                     "account": {
-                      "type": "string, null",
+                      "type": "string",
+                      "nullable": true,
                       "example": "************6464"
                     }
                   }
@@ -22099,10 +22186,12 @@
             "example": "1493 Martin Luther King Rd"
           },
           "addressLine2": {
-            "type": "string, null"
+            "type": "string",
+            "nullable": true
           },
           "addressLine3": {
-            "type": "string, null"
+            "type": "string",
+            "nullable": true
           },
           "addressPou": {
             "type": "string",
@@ -22130,11 +22219,13 @@
             "example": "US"
           },
           "internationalPostalCode": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": null
           },
           "province": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": null
           },
           "stateCode": {
@@ -22146,7 +22237,8 @@
             "example": "97062"
           },
           "zipCodeSuffix": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": "1234"
           }
         }
@@ -22417,10 +22509,12 @@
             "example": "1493 Martin Luther King Rd"
           },
           "addressLine2": {
-            "type": "string, null"
+            "type": "string",
+            "nullable": true
           },
           "addressLine3": {
-            "type": "string, null"
+            "type": "string",
+            "nullable": true
           },
           "addressPou": {
             "type": "string",
@@ -22448,15 +22542,18 @@
             "example": "US"
           },
           "countryCodeIso3": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": "USA"
           },
           "internationalPostalCode": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": null
           },
           "province": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": null
           },
           "stateCode": {
@@ -22468,7 +22565,8 @@
             "example": "97062"
           },
           "zipCodeSuffix": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": "1234"
           }
         }
@@ -22512,7 +22610,8 @@
             "example": "HOME"
           },
           "extension": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": "4567"
           }
         }
@@ -22849,10 +22948,12 @@
             "example": "1493 Martin Luther King Rd"
           },
           "addressLine2": {
-            "type": "string, null"
+            "type": "string",
+            "nullable": true
           },
           "addressLine3": {
-            "type": "string, null"
+            "type": "string",
+            "nullable": true
           },
           "addressPou": {
             "type": "string",
@@ -22880,11 +22981,13 @@
             "example": "US"
           },
           "internationalPostalCode": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": null
           },
           "province": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": null
           },
           "stateCode": {
@@ -22896,7 +22999,8 @@
             "example": "97062"
           },
           "zipCodeSuffix": {
-            "type": "string, null",
+            "type": "string",
+            "nullable": true,
             "example": "1234"
           }
         }
@@ -23008,10 +23112,12 @@
                 "example": "1493 Martin Luther King Rd"
               },
               "addressLine2": {
-                "type": "string, null"
+                "type": "string",
+                "nullable": true
               },
               "addressLine3": {
-                "type": "string, null"
+                "type": "string",
+                "nullable": true
               },
               "addressPou": {
                 "type": "string",
@@ -23039,23 +23145,28 @@
                 "example": "USA"
               },
               "internationalPostalCode": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": null
               },
               "province": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": null
               },
               "stateCode": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "NY"
               },
               "zipCode": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "97062"
               },
               "zipCodeSuffix": {
-                "type": "string, null",
+                "type": "string",
+                "nullable": true,
                 "example": "1234"
               }
             }

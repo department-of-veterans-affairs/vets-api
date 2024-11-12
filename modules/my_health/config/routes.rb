@@ -23,6 +23,10 @@ MyHealth::Engine.routes.draw do
           get :download, to: 'ccd#download'
         end
       end
+      resources :bbmi_notification, only: [] do
+        get :status, on: :collection
+      end
+      resources :military_service, only: %i[index]
       resources :imaging, only: %i[index], defaults: { format: :json } do
         get 'request', on: :member, action: :request_download
         get :status, on: :collection, action: :request_status

@@ -22,4 +22,10 @@ module DecisionReviewV1
 
   GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA =
     VetsJsonSchema::SCHEMAS.fetch 'DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1'
+
+  APPEAL_TYPE_TO_SERVICE_MAP = {
+    'HLR' => 'higher-level-review',
+    'NOD' => 'board-appeal',
+    'SC' => 'supplemental-claims'
+  }.freeze
 end
