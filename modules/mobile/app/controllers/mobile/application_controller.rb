@@ -17,7 +17,6 @@ module Mobile
     attr_reader :current_user
 
     def authenticate
-      # DELETE THIS COMMENT
       return super if sis_authentication?
 
       StatsD.increment('iam_ssoe_oauth.auth.total')
