@@ -39,7 +39,6 @@ module AccreditedRepresentativePortal
       }.freeze
 
       def show
-        params[:id]
         render json: POA_REQUEST_ITEM_MOCK_DATA
       end
     end
