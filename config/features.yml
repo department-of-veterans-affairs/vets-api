@@ -491,6 +491,10 @@ features:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
     enable_in_development: true
+  disability_526_expanded_contention_classification:
+    actor_type: user
+    description: Enables the expanded contention classification service maintained by the Conditions Team.
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -712,7 +716,7 @@ features:
   form40_10007_confirmation_email:
     actor_type: user
     description: Enables form 40-10007 email submission error (VaNotify)
-    enable_in_development: true  
+    enable_in_development: true
   form1990meb_confirmation_email:
     actor_type: user
     description: Enables form 1990 MEB email submission confirmation (VaNotify)
@@ -1668,6 +1672,10 @@ features:
     description: Enables Decision Review endpoint to process VANotify notification callbacks
     enable_in_development: true
   nod_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
+  hlr_confirmation_update:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true

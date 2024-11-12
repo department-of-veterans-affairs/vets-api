@@ -791,14 +791,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_143658) do
 
   create_table "form_submissions", force: :cascade do |t|
     t.string "form_type", null: false
-    t.uuid "benefits_intake_uuid"
     t.uuid "user_account_id"
     t.bigint "saved_claim_id"
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "form_data_ciphertext"
-    t.index ["benefits_intake_uuid"], name: "index_form_submissions_on_benefits_intake_uuid"
     t.index ["saved_claim_id"], name: "index_form_submissions_on_saved_claim_id"
     t.index ["user_account_id"], name: "index_form_submissions_on_user_account_id"
   end
