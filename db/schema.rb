@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_12_161300) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1074,7 +1074,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
     t.string "uploaded_forms", default: [], array: true
-    t.datetime "itf_datetime"
     t.datetime "form_start_date"
     t.datetime "delete_date"
     t.text "metadata"
