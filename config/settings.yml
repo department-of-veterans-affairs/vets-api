@@ -674,8 +674,10 @@ claims_api:
   poa_v2:
     disable_jobs: false
   vanotify:
-    representative_template_id: ~
-    service_organization_template_id: ~
+    accepted_representative_template_id: ~
+    accepted_service_organization_template_id: ~
+    declined_representative_template_id: ~
+    declined_service_organization_template_id: ~
     services:
       lighthouse:
         api_key: ~

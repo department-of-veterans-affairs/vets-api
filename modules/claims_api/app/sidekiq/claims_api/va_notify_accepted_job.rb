@@ -64,7 +64,7 @@ module ClaimsApi
           email: value_or_default_for_field(rep.email),
           phone: rep_phone(rep)
         },
-        template_id: Settings.claims_api.vanotify.representative_template_id
+        template_id: Settings.claims_api.vanotify.accepted_representative_template_id
       }
     end
 
@@ -78,7 +78,7 @@ module ClaimsApi
           location: value_or_default_for_field(org_location(org)),
           phone: value_or_default_for_field(org.phone)
         },
-        template_id: Settings.claims_api.vanotify.service_organization_template_id
+        template_id: Settings.claims_api.vanotify.accepted_service_organization_template_id
       }
     end
 
