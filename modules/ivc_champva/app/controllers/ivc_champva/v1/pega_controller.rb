@@ -10,19 +10,28 @@ module IvcChampva
         Datadog::Tracing.trace('Start PEGA Status Update') do
           data = JSON.parse(params.to_json)
 
+          tags = ['service:veteran-facing-forms', 'function:form submission to Lighthouse']
+
           unless data.is_a?(Hash)
+            # Log the failure due to invalid JSON format
+            StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
             render json: JSON.generate({ status: 500, error: 'Invalid JSON format: Expected a JSON object' })
+            return
           end
 
           response =
             if valid_keys?(data)
               update_data(data['form_uuid'], data['file_names'], data['status'], data['case_id'])
             else
+              # Log the failure due to invalid keys
+              StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
               { json: { error_message: 'Invalid JSON keys' }, status: :bad_request }
             end
 
           render json: response[:json], status: response[:status]
         rescue JSON::ParserError => e
+          # Log the JSON parsing error
+          StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
           render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
         end
       end
