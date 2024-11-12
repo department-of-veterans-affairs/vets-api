@@ -67,11 +67,11 @@ module DecisionReview
       raise Common::Exceptions::NotImplemented
     end
 
-    def get_record_status(guid)
+    def get_record_status(_guid)
       raise Common::Exceptions::NotImplemented
     end
 
-    def get_evidence_status(guid)
+    def get_evidence_status(_guid)
       raise Common::Exceptions::NotImplemented
     end
 
