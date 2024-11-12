@@ -335,6 +335,7 @@ FactoryBot.define do
 
     factory :in_progress_686c_form do
       user_uuid { SecureRandom.uuid }
+      user_account_id { nil }
       form_id { '686C-674' }
       metadata do
         {

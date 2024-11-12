@@ -27,8 +27,9 @@ module Pensions
     # `source` attribute for upload metadata
     PENSION_SOURCE = __FILE__
 
-    # retry for one day
-    sidekiq_options retry: 14, queue: 'low'
+    # retry for 2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 16, queue: 'low'
 
     # retry exhaustion
     sidekiq_retries_exhausted do |msg|
@@ -187,7 +188,6 @@ module Pensions
       form_submission = {
         form_type: @claim.form_id,
         form_data: @claim.to_json,
-        benefits_intake_uuid: @intake_service.uuid,
         saved_claim: @claim,
         saved_claim_id: @claim.id
       }

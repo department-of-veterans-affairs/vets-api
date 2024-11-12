@@ -52,7 +52,7 @@ module SimpleFormsApi
       end
 
       def fetch_id(options)
-        options[:submission]&.send(config.id_type) || options[:id]
+        options[:submission]&.latest_attempt&.send(config.id_type) || options[:id]
       end
 
       def data_hydrated?
@@ -67,7 +67,7 @@ module SimpleFormsApi
         initialize_data(
           attachments: built_submission.attachments,
           file_path: built_submission.file_path,
-          id: built_submission.submission&.send(config.id_type),
+          id: built_submission.submission&.latest_attempt&.send(config.id_type),
           metadata: built_submission.metadata,
           submission: built_submission.submission,
           type: archive_type

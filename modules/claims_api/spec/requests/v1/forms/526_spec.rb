@@ -549,6 +549,108 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 end
               end
             end
+
+            context 'when the endingDate is not provided' do
+              let(:json_data) { JSON.parse data }
+              let(:change_of_address) do
+                {
+                  beginningDate: 1.month.from_now.to_date.to_s,
+                  addressChangeType: value,
+                  addressLine1: '1234 Couch Street',
+                  city: 'New York City',
+                  state: 'NY',
+                  type: 'DOMESTIC',
+                  zipFirstFive: '12345',
+                  country: 'USA'
+                }
+              end
+
+              it 'raises an exception that endingDate is not valid' do
+                mock_acg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/brd/intake_sites') do
+                    VCR.use_cassette('claims_api/brd/countries') do
+                      par = json_data
+                      par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
+                      par['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                        '2007-08-01'
+
+                      post path, params: par.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:bad_request)
+                    end
+                  end
+                end
+              end
+            end
+
+            context 'when the beginningDate is after the endingDate' do
+              let(:json_data) { JSON.parse data }
+              let(:change_of_address) do
+                {
+                  beginningDate: 1.month.from_now.to_date.to_s,
+                  endingDate: 1.month.ago.to_date.to_s,
+                  addressChangeType: value,
+                  addressLine1: '1234 Couch Street',
+                  city: 'New York City',
+                  state: 'NY',
+                  type: 'DOMESTIC',
+                  zipFirstFive: '12345',
+                  country: 'USA'
+                }
+              end
+
+              it 'raises an exception that endingDate is not valid' do
+                mock_acg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/brd/intake_sites') do
+                    VCR.use_cassette('claims_api/brd/countries') do
+                      par = json_data
+                      par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
+                      par['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                        '2007-08-01'
+
+                      post path, params: par.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:bad_request)
+                    end
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        context 'when addressChangeType is PERMANENT' do
+          let(:value) { 'PERMANENT' }
+
+          context 'when the endingDate is provided' do
+            let(:json_data) { JSON.parse data }
+            let(:change_of_address) do
+              {
+                beginningDate: 1.month.from_now.to_date.to_s,
+                endingDate: 2.months.from_now.to_date.to_s,
+                addressChangeType: value,
+                addressLine1: '1234 Couch Street',
+                city: 'New York City',
+                state: 'NY',
+                type: 'DOMESTIC',
+                zipFirstFive: '12345',
+                country: 'USA'
+              }
+            end
+
+            it 'raises an exception that endingDate is not valid' do
+              mock_acg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/brd/intake_sites') do
+                  VCR.use_cassette('claims_api/brd/countries') do
+                    par = json_data
+                    par['data']['attributes']['veteran']['changeOfAddress'] = change_of_address
+                    par['data']['attributes']['serviceInformation']['servicePeriods'][0]['activeDutyEndDate'] =
+                      '2007-08-01'
+
+                    post path, params: par.to_json, headers: headers.merge(auth_header)
+                    expect(response).to have_http_status(:bad_request)
+                  end
+                end
+              end
+            end
           end
         end
 
@@ -2791,6 +2893,30 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
                 expect(claim.form_data['directDeposit']['accountType']).to eq('CHECKING')
               end
+            end
+          end
+        end
+      end
+    end
+
+    describe "'directDeposit.bankName" do
+      it 'is required if any other directDeposit values are present' do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/bgs/claims/claims') do
+            VCR.use_cassette('claims_api/brd/countries') do
+              direct_deposit_info = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
+                                                    'form_526_direct_deposit.json').read
+              json_data = JSON.parse data
+              params = json_data
+              params['data']['attributes']['directDeposit'] = JSON.parse direct_deposit_info
+              params['data']['attributes']['directDeposit']['bankName'] = ''
+
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+
+              expect(response).to have_http_status(:bad_request)
+              errors = JSON.parse(response.body)['errors']
+              expected_verbiage = '"" is not a valid value for "directDeposit.bankName"'
+              expect(errors.any? { |error| error['detail'].include?(expected_verbiage) }).to be true
             end
           end
         end

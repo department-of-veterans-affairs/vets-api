@@ -13,22 +13,29 @@ module ClaimsApi
 
         def index
           poa_codes = form_attributes['poaCodes']
+          page_size = form_attributes['pageSize']
+          page_index = form_attributes['pageIndex']
 
           unless poa_codes.is_a?(Array) && poa_codes.size.positive?
             raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
                                                              detail: 'poaCodes is required and cannot be empty')
           end
 
+          if page_index.present? && page_size.blank?
+            raise ::Common::Exceptions::ParameterMissing.new('pageSize',
+                                                             detail: 'pageSize is required when pageIndex is present')
+          end
+
           service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
                                                     external_key: 'power_of_attorney_request_key')
 
-          res = service.read_poa_request(poa_codes:)
+          res = service.read_poa_request(poa_codes:, page_size:, page_index:)
 
           poa_list = res['poaRequestRespondReturnVOList']
 
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
-          render json: poa_list, status: :ok
+          render json: Array.wrap(poa_list), status: :ok
         end
 
         def decide
@@ -44,7 +51,7 @@ module ClaimsApi
           unless decision && %w[accepted declined].include?(normalize(decision))
             raise ::Common::Exceptions::ParameterMissing.new(
               'decision',
-              detail: 'decision is required and must be either "accepted" or "declined"'
+              detail: 'decision is required and must be either "ACCEPTED" or "DECLINED"'
             )
           end
 
@@ -59,7 +66,7 @@ module ClaimsApi
           render json: res, status: :ok
         end
 
-        def request_representative
+        def create
           # validate target veteran exists
           target_veteran
 
@@ -81,10 +88,11 @@ module ClaimsApi
 
           # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
           unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
-            ClaimsApi::PowerOfAttorneyRequestService::Orchestrator.new(target_veteran.participant_id,
-                                                                       bgs_form_attributes.deep_symbolize_keys,
-                                                                       user_profile&.profile&.participant_id,
-                                                                       :poa).submit_request
+            res = ClaimsApi::PowerOfAttorneyRequestService::Orchestrator.new(target_veteran.participant_id,
+                                                                             bgs_form_attributes.deep_symbolize_keys,
+                                                                             user_profile&.profile&.participant_id,
+                                                                             :poa).submit_request
+            form_attributes['procId'] = res['procId']
           end
 
           # return only the form information consumers provided
