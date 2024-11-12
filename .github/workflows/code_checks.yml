@@ -101,22 +101,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # - name: Remove Test Passing label
-      #   if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'test-passing')
-      #   uses: actions-ecosystem/action-remove-labels@v1
-      #   with:
-      #     number: ${{ github.event.pull_request.number }}
-      #     labels: |
-      #       test-passing
-
-      # - name: Remove Test Failure label
-      #   if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'test-passing')
-      #   uses: actions-ecosystem/action-remove-labels@v1
-      #   with:
-      #     number: ${{ github.event.pull_request.number }}
-      #     labels: |
-      #       test-failure
-
       - name: Setup Database
         uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
         with:
@@ -127,23 +111,11 @@ jobs:
             docker compose -f docker-compose.test.yml run web bash \
               -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 24  -e 'bin/rails db:reset'"
 
-      # - name: Run Specs
-      #   timeout-minutes: 20
-      #   run: |
-      #     docker compose -f docker-compose.test.yml run web bash \
-      #     -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 24 -o '--color --tty'"
-
-      # - name: Set Test Status
-      #   id: test-status
-      #   if: always()
-      #   run: |
-      #     if [ "${{ job.status }}" == "success" ]; then
-      #       echo "status=success" >> $GITHUB_OUTPUT
-      #     else
-      #       echo "status=failure" >> $GITHUB_OUTPUT
-      #     fi
-
-      #     echo "event_name=${{ github.event_name }}"
+      - name: Run Specs
+        timeout-minutes: 20
+        run: |
+          docker compose -f docker-compose.test.yml run web bash \
+          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 24 -o '--color --tty'"
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
@@ -160,35 +132,6 @@ jobs:
           name: Test Results
           path: log/*.xml
           if-no-files-found: ignore
-
-  # update_labels:
-  #   name: Update Test Status Labels
-  #   needs: [tests]
-  #   if: github.event_name == 'pull_request'
-  #   runs-on: ubuntu-latest
-  #   permissions: write-all
-  #   steps:
-  #     - name: Debugging
-  #       run: |
-  #         echo "Test Status: ${{ needs.tests.outputs.test_status }}"
-  #         echo "Event Name: ${{ github.event_name }}"
-  #         echo '${{ toJSON(github.event.pull_request) }}' | jq .
-
-      # - name: Add Test Failure label
-      #   if: ${{ needs.test-status.outputs.status == 'failure' }}
-      #   uses: actions-ecosystem/action-add-labels@v1
-      #   with:
-      #     number: ${{ github.event.pull_request.number }}
-      #     labels: |
-      #       test-failure
-
-      # - name: Add Test Passing label
-      #   if: ${{ needs.test-status.outputs.status == 'success' }}
-      #   uses: actions-ecosystem/action-add-labels@v1
-      #   with:
-      #     number: ${{ github.event.pull_request.number }}
-      #     labels: |
-      #       test-passing
 
   publish_results:
     name: Publish Test Results and Coverage
@@ -209,14 +152,14 @@ jobs:
           files: Test Results/*.xml
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Fix up coverage report to work with coverage-check-action
-      #   run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
+      - name: Fix up coverage report to work with coverage-check-action
+        run: sed -i 's/"line"/"covered_percent"/g' 'Coverage Report/.last_run.json'
 
-      # - name: Publish Coverage Report
-      #   uses: devmasx/coverage-check-action@v1.2.0
-      #   if: hashFiles('Coverage Report/.last_run.json') != ''
-      #   with:
-      #     type: simplecov
-      #     result_path: Coverage Report/.last_run.json
-      #     min_coverage: 90
-      #     token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish Coverage Report
+        uses: devmasx/coverage-check-action@v1.2.0
+        if: hashFiles('Coverage Report/.last_run.json') != ''
+        with:
+          type: simplecov
+          result_path: Coverage Report/.last_run.json
+          min_coverage: 90
+          token: ${{ secrets.GITHUB_TOKEN }}
