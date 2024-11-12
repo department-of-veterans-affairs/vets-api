@@ -29,10 +29,9 @@ module DecisionReview
       StatsD.increment("#{statsd_prefix}.processing_records", records_to_update.size)
 
       records_to_update.each do |record|
-        guid = record.guid
-        status, attributes = get_status_and_attributes(guid)
-        uploads_metadata = get_evidence_uploads_statuses(guid)
-        secondary_forms_complete = get_and_update_secondary_form_statuses(guid)
+        status, attributes = get_status_and_attributes(record)
+        uploads_metadata = get_evidence_uploads_statuses(record)
+        secondary_forms_complete = get_and_update_secondary_form_statuses(record)
 
         timestamp = DateTime.now
         params = { metadata: attributes.merge(uploads: uploads_metadata).to_json, metadata_updated_at: timestamp }
@@ -48,7 +47,7 @@ module DecisionReview
         record.update(params)
       rescue => e
         StatsD.increment("#{statsd_prefix}.error")
-        Rails.logger.error("#{log_prefix} error", { guid:, message: e.message })
+        Rails.logger.error("#{log_prefix} error", { guid: record.guid, message: e.message })
       end
 
       nil
@@ -92,21 +91,21 @@ module DecisionReview
       @service ||= DecisionReviewV1::Service.new
     end
 
-    def get_status_and_attributes(guid)
-      response = get_record_status(guid)
+    def get_status_and_attributes(record)
+      response = get_record_status(record.guid)
       attributes = response.dig('data', 'attributes')
       status = attributes['status']
 
       [status, attributes]
     end
 
-    def get_evidence_uploads_statuses(submitted_appeal_uuid)
+    def get_evidence_uploads_statuses(record)
       return [] unless evidence?
 
       result = []
 
-      attachment_ids = AppealSubmission.find_by(submitted_appeal_uuid:)&.appeal_submission_uploads
-                                       &.pluck(:lighthouse_upload_id) || []
+      attachment_ids = record.appeal_submission&.appeal_submission_uploads
+                             &.pluck(:lighthouse_upload_id) || []
 
       attachment_ids.each do |guid|
         response = get_evidence_status(guid)
@@ -117,13 +116,13 @@ module DecisionReview
       result
     end
 
-    def get_and_update_secondary_form_statuses(submitted_appeal_uuid)
+    def get_and_update_secondary_form_statuses(record)
       return true unless secondary_forms?
 
       all_complete = true
       return all_complete unless Flipper.enabled?(:decision_review_track_4142_submissions)
 
-      secondary_forms = AppealSubmission.find_by(submitted_appeal_uuid:)&.secondary_appeal_forms
+      secondary_forms = record.appeal_submission&.secondary_appeal_forms
       secondary_forms = secondary_forms&.filter { |form| form.delete_date.nil? } || []
 
       secondary_forms.each do |form|
