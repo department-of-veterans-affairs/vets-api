@@ -66,15 +66,6 @@ module ClaimsApi
           end
         end
 
-        def allow_dependent_claimant?
-          return false unless Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants)
-
-          claimant = form_attributes['claimant']
-          return false unless claimant
-
-          claimant.present? && claimant['relationship']&.downcase != 'self'
-        end
-
         def validate_registration_number!(base, poa_code)
           rn = form_attributes.dig(base, 'registrationNumber')
           rep = ::Veteran::Service::Representative.where('? = ANY(poa_codes) AND representative_id = ?',
