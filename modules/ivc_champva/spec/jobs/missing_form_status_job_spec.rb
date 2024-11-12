@@ -36,7 +36,9 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
   context 'Feature champva_failure_email_job_enabled=true' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:champva_failure_email_job_enabled, nil).and_return(true)
+      allow(Flipper).to receive(:enabled?)
+        .with(:champva_failure_email_job_enabled, @current_user)
+        .and_return(true)
     end
 
     it 'sends count of forms missing Pega status for >= 7 days to DataDog' do
