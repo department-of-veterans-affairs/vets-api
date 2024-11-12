@@ -5,8 +5,5 @@ class CreateInProgressEmailMatchLogs < ActiveRecord::Migration[7.1]
       t.integer :in_progress_form_id, null: false
       t.timestamps
     end
-
-    # Add a unique index to enforce uniqueness on the user/form combination
-    add_index :in_progress_email_match_logs, [:user_uuid, :in_progress_form_id], unique: true
   end
 end
