@@ -16,6 +16,11 @@ module IvcChampva
       @form_id = 'vha_10_7959f_1'
     end
 
+    def words_to_remove
+      veteran_ssn + veteran_date_of_birth + veteran_mailing_address + veteran_email +
+        veteran_physical_address + veteran_home_phone
+    end
+
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
@@ -55,6 +60,44 @@ module IvcChampva
 
     def respond_to_missing?(_)
       true
+    end
+
+    private
+
+    def veteran_ssn
+      [
+        data.dig('veteran', 'ssn')
+      ]
+    end
+
+    def veteran_date_of_birth
+      [
+        data.dig('veteran', 'date_of_birth')
+      ]
+    end
+
+    def veteran_mailing_address
+      [
+        data.dig('veteran', 'mailing_address_string')
+      ]
+    end
+
+    def veteran_email
+      [
+        data.dig('veteran', 'email_address')
+      ]
+    end
+
+    def veteran_physical_address
+      [
+        data.dig('veteran', 'physical_address_string')
+      ]
+    end
+
+    def veteran_home_phone
+      [
+        data.dig('veteran', 'phone_number')
+      ]
     end
   end
 end
