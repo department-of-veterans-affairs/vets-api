@@ -67,7 +67,7 @@ RSpec.describe Form1010cg::SubmissionJob do
 
   describe 'when retries are exhausted' do
     after do
-      Flipper.disable(:caregiver_use_va_notify_on_submission_failure)
+      Flipper.enable(:caregiver_use_va_notify_on_submission_failure)
     end
 
     let(:msg) do
