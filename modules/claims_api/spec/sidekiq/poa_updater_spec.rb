@@ -119,15 +119,12 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     let(:poa) { create_poa }
 
     context 'when the dependent header key is present' do
-      let(:header_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY }
-
       it 'does not call PoaVBMSUpdater' do
-        poa.auth_headers.merge!({
-                                  header_key => 'this_value'
-                                })
-        poa.save!
-
         expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
+
+        poa.auth_headers.merge!({ dependent: { first_name: 'Test' } })
+        poa.form_data.merge!({ recordConsent: true, consentLimits: [] })
+        poa.save!
 
         subject.new.perform(poa.id, 'Rep Data')
       end
