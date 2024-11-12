@@ -31,8 +31,8 @@ module DecisionReview
 
       supplemental_claims.each do |sc|
         status, attributes = get_status_and_attributes(sc.guid)
-        uploads_metadata = get_evidence_uploads_statuses(sc.guid)
-        secondary_forms_complete = get_and_update_secondary_form_statuses(sc.guid)
+        uploads_metadata = get_evidence_uploads_statuses(sc)
+        secondary_forms_complete = get_and_update_secondary_form_statuses(sc)
 
         timestamp = DateTime.now
         params = { metadata: attributes.merge(uploads: uploads_metadata).to_json, metadata_updated_at: timestamp }
@@ -75,11 +75,11 @@ module DecisionReview
       [status, attributes]
     end
 
-    def get_evidence_uploads_statuses(submitted_appeal_uuid)
+    def get_evidence_uploads_statuses(saved_claim)
       result = []
 
-      attachment_ids = AppealSubmission.find_by(submitted_appeal_uuid:)&.appeal_submission_uploads
-                                       &.pluck(:lighthouse_upload_id) || []
+      attachment_ids = saved_claim.appeal_submission&.appeal_submission_uploads
+                                  &.pluck(:lighthouse_upload_id) || []
 
       attachment_ids.each do |uuid|
         response = decision_review_service.get_supplemental_claim_upload(uuid:).body
@@ -90,12 +90,11 @@ module DecisionReview
       result
     end
 
-    def get_and_update_secondary_form_statuses(submitted_appeal_uuid)
+    def get_and_update_secondary_form_statuses(saved_claim)
       all_complete = true
       return all_complete unless Flipper.enabled?(:decision_review_track_4142_submissions)
 
-      secondary_forms = AppealSubmission.find_by(submitted_appeal_uuid:)&.secondary_appeal_forms
-      secondary_forms = secondary_forms&.filter { |form| form.delete_date.nil? } || []
+      secondary_forms = saved_claim.appeal_submission&.incomplete_secondary_appeal_forms || []
 
       secondary_forms.each do |form|
         response = benefits_intake_service.get_status(uuid: form.guid).body
