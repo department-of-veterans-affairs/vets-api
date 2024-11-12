@@ -71,6 +71,7 @@ module ClaimsApi
       form_data['disabilities'] = transform_disability_approximate_begin_dates
       form_data['disabilities'] = massage_invalid_disability_names
       form_data['disabilities'] = remove_special_issues_from_secondary_disabilities
+      form_data['disabilities'] = remove_empty_disability_elements
       form_data['treatments'] = transform_treatment_dates if treatments?
       form_data['treatments'] = transform_treatment_center_names if treatments?
       form_data['serviceInformation'] = transform_service_branch
@@ -476,6 +477,28 @@ module ClaimsApi
 
           secondary
         end
+      end
+      disabilities
+    end
+
+    # remove any empty disability objects to prevent further processing errors
+    def remove_empty_disability_elements
+      disabilities = form_data['disabilities']
+      return if disabilities.blank?
+
+      disabilities.each_with_index do |disability, index|
+        if disability['specialIssues'].presence ||
+           disability['ratedDisabilityId'].presence ||
+           disability['diagnosticCode'].presence ||
+           disability['classificationCode'].presence ||
+           disability['approximateBeginDate'].presence ||
+           disability['serviceRelevance'].presence ||
+           disability['secondaryDisabilities'].presence
+          next
+        end
+
+        disability_name = disability['name']
+        disabilities.delete_at(index) if disability_name == '' && disability['disabilityActionType'].presence
       end
       disabilities
     end
