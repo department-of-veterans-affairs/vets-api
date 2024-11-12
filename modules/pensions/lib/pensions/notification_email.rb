@@ -15,6 +15,7 @@ module Pensions
     def personalization
       default = super
 
+      # confirmation, error
       pensions = { 'first_name' => claim.first_name&.titleize }
 
       default.merge(pensions)

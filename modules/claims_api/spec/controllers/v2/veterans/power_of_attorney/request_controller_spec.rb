@@ -159,12 +159,12 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       end
     end
 
-    context 'when decision is not accepted or declined' do
+    context 'when decision is not ACCEPTED or DECLINED' do
       before do
         allow(subject).to receive(:form_attributes).and_return({ 'procId' => '76529', 'decision' => 'invalid' })
       end
 
-      it 'raises a ParameterMissing error if decision is not accepted or declined' do
+      it 'raises a ParameterMissing error' do
         expect do
           subject.decide
         end.to raise_error(Common::Exceptions::ParameterMissing)
@@ -173,7 +173,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
     context 'when procId is present and valid and decision is accepted' do
       let(:proc_id) { '76529' }
-      let(:decision) { 'accepted' }
+      let(:decision) { 'ACCEPTED' }
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
         mock_ccg(scopes) do |auth_header|
@@ -191,7 +191,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
     context 'when procId is present but invalid' do
       let(:proc_id) { '1' }
-      let(:decision) { 'accepted' }
+      let(:decision) { 'ACCEPTED' }
 
       it 'raises an error' do
         mock_ccg(scopes) do |auth_header|
