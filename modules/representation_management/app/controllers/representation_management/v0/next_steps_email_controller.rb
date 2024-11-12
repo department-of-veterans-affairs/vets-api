@@ -25,9 +25,9 @@ module RepresentationManagement
               'first_name' => data.first_name,
               'form name' => data.form_name,
               'form number' => data.form_number,
-              'representative type' => data.representative_type_humanized,
-              'representative name' => data.representative_name,
-              'representative address' => data.representative_address
+              'representative type' => data.entity_display_type,
+              'representative name' => data.entity_name,
+              'representative address' => data.entity_address
             }
           )
           render json: { message: 'Email enqueued' }, status: :ok
@@ -51,9 +51,8 @@ module RepresentationManagement
           :first_name,
           :form_name,
           :form_number,
-          :representative_type,
-          :representative_name,
-          :representative_address
+          :entity_type,
+          :entity_id
         )
       end
     end
