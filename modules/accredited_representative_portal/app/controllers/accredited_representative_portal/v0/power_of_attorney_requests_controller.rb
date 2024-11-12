@@ -38,8 +38,14 @@ module AccreditedRepresentativePortal
         }
       }.freeze
 
-      def show
-        render json: POA_REQUEST_ITEM_MOCK_DATA
+      POA_REQUEST_LIST_MOCK_DATA = [
+        POA_REQUEST_ITEM_MOCK_DATA,
+        POA_REQUEST_ITEM_MOCK_DATA,
+        POA_REQUEST_ITEM_MOCK_DATA
+      ].freeze
+
+      def index
+        render json: POA_REQUEST_LIST_MOCK_DATA
       end
     end
   end
