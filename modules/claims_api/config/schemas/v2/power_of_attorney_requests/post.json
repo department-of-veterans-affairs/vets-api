@@ -25,6 +25,12 @@
                 "type": "string",
                 "minLength": 1
               }
+            },
+            "pageSize": {
+              "type": "string"
+            },
+            "pageIndex": {
+              "type": "string"
             }
           }
         }

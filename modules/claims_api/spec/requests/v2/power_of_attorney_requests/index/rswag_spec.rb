@@ -40,7 +40,9 @@ describe 'PowerOfAttorney', metadata do
       body_example = {
         'data' => {
           'attributes' => {
-            'poaCodes' => %w[002 003 083]
+            'poaCodes' => %w[002 003 083],
+            'pageSize' => '3',
+            'pageIndex' => '1'
           }
         }
       }
