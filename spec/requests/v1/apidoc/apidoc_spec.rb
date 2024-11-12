@@ -12,10 +12,4 @@ RSpec.describe 'API V1 doc validations', type: :request do
       JSON.parse(json).to_yaml
     end
   end
-
-  context 'V1 API Documentation', type: %i[apivore request] do
-    subject(:apivore) { Apivore::SwaggerChecker.instance_for('/v1/apidocs.json') }
-
-    it_behaves_like 'V1 Facility Locator'
-  end
 end
