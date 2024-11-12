@@ -15,10 +15,10 @@ module VaNotify
 
     attr_reader :notify_client, :callback_options
 
-    def initialize(api_key, callback_options = nil)
+    def initialize(api_key, callback_options = {})
       overwrite_client_networking
       @notify_client ||= Notifications::Client.new(api_key, client_url)
-      @callback_options = callback_options
+      @callback_options = callback_options || {}
     rescue => e
       handle_error(e)
     end
@@ -107,26 +107,40 @@ module VaNotify
 
       notification = VANotify::Notification.new(
         notification_id: response.id,
-        source_location: find_caller_locations
+        source_location: find_caller_locations,
+        callback: callback_options[:callback],
+        metadata: callback_options[:metadata]
       )
 
       if notification.save
         notification
       else
-        Rails.logger.error(
-          'VANotify notification record failed to save',
-          {
-            error_messages: notification.errors
-          }
-        )
+        log_notification_failed_to_save(notification)
       end
     rescue => e
       Rails.logger.error(e)
     end
 
+    def log_notification_failed_to_save(notification)
+      Rails.logger.error(
+        'VANotify notification record failed to save',
+        {
+          error_messages: notification.errors
+        }
+      )
+    end
+
     def find_caller_locations
-      caller_locations(1, 1).map do |location|
-        "#{location.path}:#{location.lineno} in #{location.label}"
+      va_notify_classes = [
+        'modules/va_notify/lib/va_notify/service.rb',
+        'va_notify/app/sidekiq/va_notify/email_job.rb',
+        'va_notify/app/sidekiq/va_notify/user_account_job.rb'
+      ]
+
+      caller_locations.each do |location|
+        next if va_notify_classes.any? { |path| location.path.include?(path) }
+
+        return "#{location.path}:#{location.lineno} in #{location.label}"
       end
     end
   end

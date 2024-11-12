@@ -8,7 +8,8 @@ RSpec.describe SignIn::UserLoader do
 
     let(:access_token) { create(:access_token, user_uuid: user.uuid, session_handle:) }
     let!(:user) do
-      create(:user, :loa3, uuid: user_uuid, loa: user_loa, icn: user_icn, session_handle: user_session_handle)
+      create(:user, :loa3, uuid: user_uuid, loa: user_loa, icn: user_icn, session_handle: user_session_handle,
+                           needs_accepted_terms_of_use:)
     end
     let(:user_uuid) { user_account.id }
     let(:user_account) { create(:user_account) }
@@ -19,6 +20,12 @@ RSpec.describe SignIn::UserLoader do
     let(:session_handle) { session.handle }
     let(:user_session_handle) { session_handle }
     let(:request_ip) { '123.456.78.90' }
+    let(:vha_facility_ids) { %w[450MH] }
+    let(:needs_accepted_terms_of_use) { false }
+    let!(:terms_of_use_agreement) do
+      create(:terms_of_use_agreement, user_account:, response: tou_response)
+    end
+    let(:tou_response) { 'accepted' }
 
     shared_examples 'reloaded user' do
       context 'and associated session cannot be found' do
@@ -52,7 +59,7 @@ RSpec.describe SignIn::UserLoader do
         end
 
         before do
-          stub_mpi(build(:mpi_profile, edipi:, icn: user_icn))
+          stub_mpi(build(:mpi_profile, edipi:, icn: user_icn, vha_facility_ids:))
         end
 
         context 'and user is authenticated with dslogon' do
@@ -90,7 +97,7 @@ RSpec.describe SignIn::UserLoader do
           expect(subject.edipi).to be edipi
         end
 
-        context 'when an MHV account is created' do
+        context 'when the user can create MHV account' do
           let(:enabled) { true }
 
           before do
@@ -99,20 +106,9 @@ RSpec.describe SignIn::UserLoader do
                                                       user_account).and_return(enabled)
           end
 
-          context 'when :mhv_account_creation_after_login is enabled' do
-            it 'enqueues an MHV::AccountCreatorJob' do
-              subject
-              expect(MHV::AccountCreatorJob).to have_received(:perform_async).with(user_verification.id)
-            end
-          end
-
-          context 'when :mhv_account_creation_after_login is disabled' do
-            let(:enabled) { false }
-
-            it 'does not enqueue an MHV::AccountCreatorJob' do
-              subject
-              expect(MHV::AccountCreatorJob).not_to have_received(:perform_async)
-            end
+          it 'enqueues an MHV::AccountCreatorJob' do
+            subject
+            expect(MHV::AccountCreatorJob).to have_received(:perform_async).with(user_verification.id)
           end
         end
       end

@@ -73,6 +73,9 @@ features:
   caregiver_carma_submitted_at:
     actor_type: user
     description: Enables sending CARMA the creation timestamp of a claim as a metadata submitted_at value
+  caregiver1010:
+    actor_type: user
+    description: Enables new features while investigating 1010CG errors
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -150,6 +153,9 @@ features:
   champva_unique_temp_file_names:
     actor_type: user
     description: Enables unique temp file names for CHAMPVA PDF files
+  champva_file_recreate:
+    actor_type: user
+    description: Enhances file creation reliability by adding retry functionality in the vets-api tmp folder
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -205,6 +211,10 @@ features:
   claims_api_bd_refactor:
     actor_type: user
     description: Diverts codepath to use refactored BD methods
+    enable_in_development: true
+  claims_api_ews_updater_enables_local_bgs:
+    actor_type: user
+    description: Uses local_bgs rather than bgs-ext
     enable_in_development: true
   claims_api_ews_uploads_bd_refactor:
     actor_type: user
@@ -444,6 +454,9 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
+  dependents_trigger_action_needed_email:
+    actor_type: user
+    description: Set whether to enable VANotify email to Veteran for Dependents Backup Path failure exhaustion
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -456,14 +469,6 @@ features:
     actor_type: user
     description: enables sending 526 claim id and vbms submitted claim id to Contention Classification service for linking/monitoring.
     enable_in_development: true
-  disability_526_maximum_rating:
-    actor_type: user
-    description: enables displaying a short education blurb alongside rated disabilities already at maximum rating.
-    enable_in_development: true
-  disability_526_maximum_rating_api_all_conditions:
-    actor_type: user
-    description: enables calls to VRO Max CFI API for all conditions, otherwise only calls for select conditions are made
-    enable_in_development: false
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
@@ -482,6 +487,10 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
+    enable_in_development: true
+  disability_526_expanded_contention_classification:
+    actor_type: user
+    description: Enables the expanded contention classification service maintained by the Conditions Team.
     enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
@@ -627,9 +636,17 @@ features:
     actor_type: user
     description: Enables enqueuing a Form526DocumentUploadFailureEmail if a EVSS::DisabilityCompensationForm::SubmitUploads job exhausts its retries
     enable_in_development: true
+  form526_send_backup_submission_polling_failure_email_notice:
+    actor_type: user
+    description: Enables enqueuing a Form526SubmissionFailureEmailJob if a submission is marked as unprocessable through polling of the Benefits Intake API.
+    enable_in_development: true
+  form526_send_backup_submission_exhaustion_email_notice:
+    actor_type: user
+    description: Enables enqueuing of a Form526SubmissionFailureEmailJob if a submission exhausts it's attempts to upload to the Benefits Intake API.
+    enable_in_development: true
   form526_send_4142_failure_notification:
     actor_type: user
-    description: Enables enqueuing a Form4142DocumentUploadFailureEmail if a SubmitForm4142Job job exhausts its retries
+    description: Enables enqueuing of a Form4142DocumentUploadFailureEmail if a SubmitForm4142Job job exhausts its retries
     enable_in_development: true
   form526_send_0781_failure_notification:
     actor_type: user
@@ -692,6 +709,10 @@ features:
   form40_0247_confirmation_email:
     actor_type: user
     description: Enables form 40-0247 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form40_10007_confirmation_email:
+    actor_type: user
+    description: Enables form 40-10007 email submission error (VaNotify)
     enable_in_development: true
   form1990meb_confirmation_email:
     actor_type: user
@@ -756,9 +777,6 @@ features:
   form107959a:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959a (IVC CHAMPVA claim form)
-  form107959f1:
-    actor_type: user
-    description: If enabled shows the digital form experience for form 10-7959f-1 (Foreign Medical Program register form)
   form107959f2:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959f-2 (Foreign Medical Program claim form)
@@ -859,6 +877,10 @@ features:
     actor_type: user
     descriptiom: Enables access to MHV Account Creation API
     enable_in_development: true
+  mhv_accelerated_delivery_allergies_enabled:
+    actor_type: user
+    description: Control fetching OH allergies data
+    enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
     description: Enables the VA Health Chat link at /my-health
@@ -997,6 +1019,9 @@ features:
   organic_conversion_experiment:
     actor_type: user
     description: Toggle to enable login.gov create account experiment
+  pcpg_trigger_action_needed_email:
+    actor_type: user
+    description: Set whether to enable VANotify email to Veteran for PCPG failure exhaustion
   pension_income_and_assets_clarification:
     actor_type: user
     description: >
@@ -1007,7 +1032,13 @@ features:
       [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
   pension_military_prefill:
     actor_type: user
-    description: "When enabled, 21P-527EZ will prefill military information."
+    description: When enabled, 21P-527EZ will prefill military information.
+  pension_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  pension_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
   pre_entry_covid19_screener:
     actor_type: user
     description: >
@@ -1559,6 +1590,9 @@ features:
   virtual_agent_show_floating_chatbot:
     actor_type: user
     description: Enables a floating chatbot on the chatbot page - managed by virtual agent team
+  disability_compensation_email_veteran_on_polled_lighthouse_doc_failure:
+    actor_type: user
+    description: Sends document upload failure emails when polled doc uploaded to Lighthouse has failed to process at Lighthouse
   disability_compensation_lighthouse_rated_disabilities_provider_foreground:
     actor_type: user
     description: If enabled uses the lighthouse rated disabilities endpoint for foreground requests
@@ -1595,6 +1629,18 @@ features:
   disability_compensation_upload_bdd_instructions_to_lighthouse:
     actor_type: user
     description: If enabled uploads BDD instructions to Lighthouse Benefits Documents API instead of EVSS
+  disability_compensation_use_api_provider_for_0781_uploads:
+    actor_type: user
+    description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading 0781/a forms
+  disability_compensation_upload_0781_to_lighthouse:
+    actor_type: user
+    description: If enabled uploads 0781/a forms to Lighthouse Benefits Documents API instead of EVSS
+  disability_compensation_use_api_provider_for_submit_veteran_upload:
+    actor_type: user
+    description: Provide a temporary killswitch for using the ApiProviderFactory to select an API for uploading Veteran Evidence
+  disability_compensation_upload_veteran_evidence_to_lighthouse:
+    actor_type: user
+    description: If enabled uploads Veteran Evidence to Lighthouse Benefits Documents API instead of EVSS
   disablity_benefits_browser_monitoring_enabled:
     actor_type: user
     description: Datadog RUM monitoring for disability benefits applications
@@ -1623,6 +1669,10 @@ features:
     description: Enables Decision Review endpoint to process VANotify notification callbacks
     enable_in_development: true
   nod_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
+  hlr_confirmation_update:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true
@@ -1664,6 +1714,12 @@ features:
     actor_type: user
     description: Enable Burial form v2 re-design
     enable_in_development: true
+  burial_error_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Action Needed email notification
+  burial_received_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Received email notification
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
@@ -1806,3 +1862,7 @@ features:
   va_notify_notification_creation:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
+  is_DGIB_endpoint:
+    actor_type: user
+    description: used to call data from DGIB endpoints for MGIB VYE application
+

@@ -28,6 +28,8 @@ module Lighthouse
           # faraday.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?
 
           faraday.response :json
+
+          faraday.response :betamocks if Settings.lighthouse.veterans_health.use_mocks
           faraday.adapter Faraday.default_adapter
         end
       end
