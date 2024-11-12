@@ -111,6 +111,40 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     end
   end
 
+  context 'deciding to call PoaVBMSUpdater' do
+    before do
+      create_mock_lighthouse_service
+    end
+
+    let(:poa) { create_poa }
+
+    context 'when the dependent header key is present' do
+      let(:header_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY }
+
+      it 'does not call PoaVBMSUpdater' do
+        poa.auth_headers.merge!({
+                                  header_key => 'this_value'
+                                })
+        poa.save!
+
+        expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
+
+        subject.new.perform(poa.id, 'Rep Data')
+      end
+    end
+
+    context 'when the dependent header key is not present' do
+      it 'does call PoaVBMSUpdater' do
+        expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
+
+        poa.form_data.merge!({ recordConsent: true, consentLimits: [] })
+        poa.save!
+
+        subject.new.perform(poa.id, 'Rep Data')
+      end
+    end
+  end
+
   context 'deciding to send a VA Notify email' do
     before do
       create_mock_lighthouse_service
@@ -119,7 +153,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     let(:poa) { create_poa }
     let(:header_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY }
 
-    context 'when the header key and rep are present' do
+    context 'when the dependent header key and rep are present' do
       it 'sends the vanotify job' do
         poa.auth_headers.merge!({
                                   header_key => 'this_value'

@@ -30,7 +30,9 @@ module ClaimsApi
 
         ClaimsApi::VANotifyJob.perform_async(poa_form.id, rep) if vanotify?(poa_form.auth_headers, rep)
 
-        ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id) if enable_vbms_access?(poa_form:)
+        if enable_vbms_access?(poa_form:) && update_poa_access?(poa_form.auth_headers)
+          ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id)
+        end
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
         poa_form.vbms_error_message = "BGS Error: update_birls_record failed with code #{response[:return_code]}"
@@ -42,12 +44,21 @@ module ClaimsApi
 
     private
 
+    # If we are in the dependent workflow we do not want this job to run
+    def update_poa_access?(auth_headers)
+      !depedent_auth_headers_present?(auth_headers)
+    end
+
     def vanotify?(auth_headers, rep)
       if Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify)
-        auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?
+        depedent_auth_headers_present?(auth_headers) && rep.present?
       else
         false
       end
+    end
+
+    def depedent_auth_headers_present?(auth_headers)
+      auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY)
     end
   end
 end
