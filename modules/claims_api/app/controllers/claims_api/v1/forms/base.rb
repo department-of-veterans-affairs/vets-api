@@ -5,6 +5,7 @@ require 'claims_api/form_schemas'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 require 'claims_api/special_issue_mappers/bgs'
+require 'claims_api/pre_json_validations'
 
 module ClaimsApi
   module V1
@@ -14,6 +15,7 @@ module ClaimsApi
         skip_before_action :authenticate, only: %i[schema]
         skip_before_action :validate_veteran_identifiers, only: %i[schema]
         include ClaimsApi::EndpointDeprecation
+        include ClaimsApi::PreJsonValidations
 
         def schema
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
@@ -22,23 +24,14 @@ module ClaimsApi
 
         private
 
-        def verify_email_for_poa
-          form = @json_body.dig('data', 'type') || {}
-          return @json_body unless form == 'form/21-22'
-
-          email = @json_body.dig('data', 'attributes', 'veteran', 'email')
-          return @json_body unless email == ''
-
-          @json_body.dig('data', 'attributes', 'veteran').delete('email') if email == ''
-        end
-
         def validate_json_schema
           validator = ClaimsApi::FormSchemas.new
           validator.validate!(self.class::FORM_NUMBER, form_attributes)
         end
 
         def form_attributes
-          verify_email_for_poa
+          pre_json_verification_of_email_for_poa # must be done before returning attributes
+
           @json_body.dig('data', 'attributes') || {}
         end
 
