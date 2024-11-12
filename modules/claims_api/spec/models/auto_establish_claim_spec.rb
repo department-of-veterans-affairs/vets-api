@@ -530,6 +530,27 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         expect(phone_number).to eq('555')
       end
     end
+
+    context 'removes empty disabilities having only empty string name and disabilityActionType' do
+      let(:temp_form_data) do
+        pending_record.form_data.tap do |data|
+          data['disabilities'] = [{
+            'disabilityActionType' => 'NEW',
+            'name' => ''
+          }]
+        end
+      end
+      let(:payload) { JSON.parse(pending_record.to_internal) }
+      let(:disabilities) { payload['form526']['disabilities'] }
+
+      before do
+        pending_record.form_data = temp_form_data
+      end
+
+      it 'removes the disability' do
+        expect(disabilities).to eq([])
+      end
+    end
   end
 
   describe '#transform_empty_unit_name!' do

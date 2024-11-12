@@ -2,6 +2,9 @@
 
 module TravelPay
   class ClaimAssociationService
+    def initialize(user)
+      @user = user
+    end
     # We need to associate an existing claim to a VAOS appointment, matching on date-time
     #
     # There will be a 1:1 claimID > appt association
@@ -32,11 +35,11 @@ module TravelPay
           'end_date' => params['end_date'] }
       )
       if raw_claims
-        append_claims(params['appointments']['data'], raw_claims[:data], raw_claims[:metadata])
+        append_claims(params['appointments'], raw_claims[:data], raw_claims[:metadata])
       else
-        append_error(params['appointments']['data'], { 'status' => 503,
-                                                       'success' => false,
-                                                       'message' => 'Travel Pay service unavailable.' })
+        append_error(params['appointments'], { 'status' => 503,
+                                               'success' => false,
+                                               'message' => 'Travel Pay service unavailable.' })
       end
     end
 
@@ -110,7 +113,7 @@ module TravelPay
     end
 
     def service
-      auth_manager = TravelPay::AuthManager.new(Settings.travel_pay.client_number, @current_user)
+      auth_manager = TravelPay::AuthManager.new(Settings.travel_pay.client_number, @user)
       TravelPay::ClaimsService.new(auth_manager)
     end
   end
