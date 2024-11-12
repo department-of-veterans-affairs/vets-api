@@ -4,7 +4,6 @@ require_relative 'saved_claim_status_updater_job'
 
 module DecisionReview
   class HlrStatusUpdaterJob < SavedClaimStatusUpdaterJob
-    
     private
 
     def records_to_update
@@ -23,8 +22,12 @@ module DecisionReview
       decision_review_service.get_higher_level_review(guid).body
     end
 
-    def get_evidence_uploads_statuses(_)
-      []
+    def evidence?
+      false
+    end
+
+    def secondary_forms?
+      false
     end
 
     def enabled?

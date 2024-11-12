@@ -4,7 +4,6 @@ require_relative 'saved_claim_status_updater_job'
 
 module DecisionReview
   class NodStatusUpdaterJob < SavedClaimStatusUpdaterJob
-    
     private
 
     def records_to_update
@@ -25,6 +24,14 @@ module DecisionReview
 
     def get_evidence_status(guid)
       decision_review_service.get_notice_of_disagreement_upload(guid:).body
+    end
+
+    def evidence?
+      true
+    end
+
+    def secondary_forms?
+      false
     end
 
     def enabled?
