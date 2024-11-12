@@ -68,7 +68,7 @@ module Lighthouse
           Settings.vanotify.services.va_gov.template_id.form27_8832_action_needed_email,
           {
             'first_name' => claim.parsed_form.dig('claimantInformation', 'fullName', 'first')&.upcase.presence,
-            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => claim.confirmation_number
           }
         )
