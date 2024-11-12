@@ -388,6 +388,10 @@ Rails.application.routes.draw do
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
     end
 
+    namespace :facilities, module: 'facilities' do
+      resources :va, only: %i[index show]
+    end
+
     namespace :gi, module: 'gids' do
       resources :institutions, only: :show, defaults: { format: :json } do
         get :search, on: :collection
