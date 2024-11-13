@@ -47,7 +47,7 @@ module AccreditedRepresentativePortal
       def index
         render json: POA_REQUEST_LIST_MOCK_DATA
       end
-      
+
       def show
         render json: POA_REQUEST_ITEM_MOCK_DATA
       end
