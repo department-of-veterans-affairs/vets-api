@@ -129,6 +129,8 @@ module MebApi
       def determine_response_and_serializer(claim_status_response, claimant_response)
         if claim_status_response.status == valid_claimant_response?(claimant_response)
           [claim_status_response, ClaimStatusSerializer]
+        else
+          [claimant_response, ToeClaimantInfoSerializer]
         end
       end
 
