@@ -21,31 +21,37 @@ module TravelPay
       }
     end
 
-    def get_claims_by_date_range(params = {})
-      validate_date_params(params['start_date'], params['end_date'])
+    def get_claims_by_date_range(params = {}) # rubocop:disable Metrics/MethodLength
+      DateTime.parse(params['start_date'].to_s) && DateTime.parse(params['end_date'].to_s)
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, params)
 
-      if faraday_response.body['data']
+      if faraday_response.status == 200
         raw_claims = faraday_response.body['data'].deep_dup
 
-        {
-          metadata: {
-            'status' => faraday_response.body['statusCode'],
-            'success' => faraday_response.body['success'],
-            'message' => faraday_response.body['message']
-          },
-          data: raw_claims&.map do |sc|
-            sc['claimStatus'] = sc['claimStatus'].underscore.titleize
-            sc
-          end
-        }
+        data = raw_claims&.map do |sc|
+          sc['claimStatus'] = sc['claimStatus'].underscore.titleize
+          sc
+        end
+
+        Faraday::Response.new(
+          response_body: { 'statusCode' => faraday_response.body['statusCode'], 'success' => true,
+                           'message' => faraday_response.body['message'], 'data' => data }, 'status' => 200
+        )
+
       end
       # Because we're appending this to the Appointments object, we need to not just throw an exception
-      # TODO: Integrate error handling from the token client through every subsequent client/service
-    rescue Faraday::Error
-      nil
+    rescue Date::Error => e
+      Rails.logger.debug(message: "#{e}. (given: #{params['start_date']} & #{params['end_date']}).")
+      Faraday::Response.new(response_body: {
+                              'statusCode' => 400,
+                              'message' => "#{e}. (given: #{params['start_date']} & #{params['end_date']}).",
+                              'success' => false
+                            }, status: 400)
+    rescue => e
+      Rails.logger.debug(message: "#{e}, #{e.original_body}")
+      Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
     def get_claim_by_id(claim_id)
@@ -107,19 +113,19 @@ module TravelPay
       claims
     end
 
-    def validate_date_params(start_date, end_date)
-      if start_date && end_date
-        DateTime.parse(start_date.to_s) && DateTime.parse(end_date.to_s)
-      else
-        raise ArgumentError,
-              message: "Both start and end dates are required, got #{start_date}-#{end_date}."
-      end
-    rescue Date::Error => e
-      Rails.logger.debug(message:
-      "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date}).")
-      raise ArgumentError,
-            message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
-    end
+    # def validate_date_params(start_date, end_date)
+    #   if start_date && end_date
+    #     DateTime.parse(start_date.to_s) && DateTime.parse(end_date.to_s)
+    #   else
+    #     raise ArgumentError,
+    #           message: "Both start and end dates are required, got #{start_date}-#{end_date}."
+    #   end
+    # rescue Date::Error => e
+    #   Rails.logger.debug(message:
+    #   "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date}).")
+    #   raise ArgumentError,
+    #         message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
+    # end
 
     def client
       TravelPay::ClaimsClient.new

@@ -30,33 +30,37 @@ module TravelPay
     # appointments: [VAOS::Appointment + travelPayClaim]
 
     def associate_appointments_to_claims(params = {})
-      raw_claims = service.get_claims_by_date_range(
+      faraday_response = service.get_claims_by_date_range(
         { 'start_date' => params['start_date'],
           'end_date' => params['end_date'] }
       )
-      if raw_claims
-        append_claims(params['appointments'], raw_claims[:data], raw_claims[:metadata])
+      metadata = { 'status' => faraday_response.body['statusCode'],
+                   'success' => faraday_response.body['success'],
+                   'message' => faraday_response.body['message'] }
+      if faraday_response.status == 200
+        append_claims(params['appointments'],
+                      faraday_response.body['data'],
+                      metadata)
       else
-        append_error(params['appointments'], { 'status' => 503,
-                                               'success' => false,
-                                               'message' => 'Travel Pay service unavailable.' })
+        append_error(params['appointments'],
+                     metadata)
       end
     end
 
     def associate_single_appointment_to_claim(params = {})
       appt = params['appointment']
 
-      raw_claim = service.get_claims_by_date_range(
+      faraday_response = service.get_claims_by_date_range(
         { 'start_date' => appt['start'],
           'end_date' => appt['start'] }
       )
-      if raw_claim
-        append_single_claim(appt, raw_claim)
+      if faraday_response.status == 200
+        append_single_claim(appt, faraday_response.body)
       else
         appt['travelPayClaim'] = {
-          'metadata' => { 'status' => 503,
-                          'success' => false,
-                          'message' => 'Travel Pay service unavailable.' }
+          'metadata' => { 'status' => faraday_response.body['statusCode'],
+                          'success' => faraday_response.body['success'],
+                          'message' => faraday_response.body['message'] }
         }
         appt
       end
@@ -65,14 +69,17 @@ module TravelPay
     private
 
     def append_single_claim(appt, claim_response)
-      appt['travelPayClaim'] = if claim_response[:data].count
+      metadata = { 'status' => claim_response['statusCode'],
+                   'success' => claim_response['success'],
+                   'message' => claim_response['message'] }
+      appt['travelPayClaim'] = if claim_response['data'].count
                                  {
-                                   'metadata' => claim_response[:metadata],
-                                   'claim' => claim_response[:data][0]
+                                   'metadata' => metadata,
+                                   'claim' => claim_response['data'][0]
                                  }
                                else
                                  {
-                                   'metadata' => claim_response[:metadata]
+                                   'metadata' => metadata
                                  }
                                end
       appt

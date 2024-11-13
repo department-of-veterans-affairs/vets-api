@@ -170,13 +170,14 @@ describe TravelPay::ClaimsService do
     end
     let(:claims_by_date_response) do
       Faraday::Response.new(
-        body: claims_by_date_data
+        response_body: claims_by_date_data,
+        status: 200
       )
     end
 
     let(:single_claim_by_date_response) do
       Faraday::Response.new(
-        body: {
+        response_body: {
           'statusCode' => 200,
           'message' => 'Data retrieved successfully.',
           'success' => true,
@@ -191,26 +192,20 @@ describe TravelPay::ClaimsService do
               'modifiedOn' => '2024-01-01T16:44:34.465Z'
             }
           ]
-        }
+        },
+        status: 200
       )
     end
 
     let(:claims_no_data_response) do
       Faraday::Response.new(
-        body: {
+        response_body: {
           'statusCode' => 200,
           'message' => 'No claims found.',
           'success' => true,
           'data' => []
-        }
-      )
-    end
-
-    let(:claims_error_response) do
-      Faraday::Response.new(
-        body: {
-          error: 'Generic error.'
-        }
+        },
+        status: 200
       )
     end
 
@@ -230,15 +225,14 @@ describe TravelPay::ClaimsService do
               })
         .and_return(claims_by_date_response)
 
-      claims_by_date = @service.get_claims_by_date_range({
-                                                           'start_date' => '2024-01-01T16:45:34Z',
-                                                           'end_date' => '2024-03-01T16:45:34Z'
-                                                         })
+      claims_by_date = @service.get_claims_by_date_range({ 'start_date' => '2024-01-01T16:45:34Z',
+                                                           'end_date' => '2024-03-01T16:45:34Z' })
 
-      expect(claims_by_date[:data].count).to equal(3)
-      expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to eq(true)
-      expect(claims_by_date[:metadata]['message']).to eq('Data retrieved successfully.')
+      expect(claims_by_date.status).to equal(200)
+      expect(claims_by_date.body['data'].count).to equal(3)
+      expect(claims_by_date.body['statusCode']).to equal(200)
+      expect(claims_by_date.body['success']).to eq(true)
+      expect(claims_by_date.body['message']).to eq('Data retrieved successfully.')
     end
 
     it 'returns a single claim if dates are the same' do
@@ -255,24 +249,28 @@ describe TravelPay::ClaimsService do
                                                            'end_date' => '2024-01-01T16:45:34Z'
                                                          })
 
-      expect(claims_by_date[:data].count).to equal(1)
-      expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to eq(true)
-      expect(claims_by_date[:metadata]['message']).to eq('Data retrieved successfully.')
+      expect(claims_by_date.body['data'].count).to equal(1)
+      expect(claims_by_date.body['statusCode']).to equal(200)
+      expect(claims_by_date.body['success']).to eq(true)
+      expect(claims_by_date.body['message']).to eq('Data retrieved successfully.')
     end
 
-    it 'throws an Argument exception if both start and end dates are not provided' do
-      expect { @service.get_claims_by_date_range({ 'start_date' => '2024-01-01T16:45:34.465Z' }) }
-        .to raise_error(ArgumentError, /Both start and end/i)
-    end
+    it 'returns 400 with error message if dates are invalid' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token], {
+                'start_date' => '2024-01-01T16:45:34Z',
+                'end_date' => '2024-03-01T16:45:34Z'
+              })
+        .and_raise(Date::Error.new(message: 'invalid date.'))
 
-    it 'throws an exception if dates are invalid' do
-      expect do
-        @service.get_claims_by_date_range(
-          { 'start_date' => '2024-01-01T16:45:34.465Z', 'end_date' => 'banana' }
-        )
-      end
-        .to raise_error(ArgumentError, /Invalid date/i)
+      bad_claims_call = @service.get_claims_by_date_range(
+        { 'start_date' => '2024-01-01T16:45:34.465Z', 'end_date' => 'banana' }
+      )
+      expect(bad_claims_call.status).to equal(400)
+      expect(bad_claims_call.body['statusCode']).to equal(400)
+      expect(bad_claims_call.body['success']).to eq(false)
+      expect(bad_claims_call.body['message']).to include(/invalid date/i)
     end
 
     it 'returns success but empty array if no claims found' do
@@ -289,26 +287,39 @@ describe TravelPay::ClaimsService do
                                                            'end_date' => '2024-03-01T16:45:34Z'
                                                          })
 
-      expect(claims_by_date[:data].count).to equal(0)
-      expect(claims_by_date[:metadata]['status']).to equal(200)
-      expect(claims_by_date[:metadata]['success']).to eq(true)
-      expect(claims_by_date[:metadata]['message']).to eq('No claims found.')
+      expect(claims_by_date.body['data'].count).to equal(0)
+      expect(claims_by_date.body['statusCode']).to equal(200)
+      expect(claims_by_date.body['success']).to eq(true)
+      expect(claims_by_date.body['message']).to eq('No claims found.')
     end
 
-    it 'returns nil if error' do
+    it 'returns original error' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token], {
                 'start_date' => '2024-01-01T16:45:34Z',
                 'end_date' => '2024-03-01T16:45:34Z'
               })
-        .and_return(claims_error_response)
+        .and_raise(Common::Exceptions::BackendServiceException.new(
+                     'VA900',
+                     { source: 'test' },
+                     401,
+                     {
+                       'statusCode' => 401,
+                       'message' => 'A contact with the specified ICN was not found.',
+                       'success' => false,
+                       'data' => nil
+                     }
+                   ))
 
       claims_by_date = @service.get_claims_by_date_range({
                                                            'start_date' => '2024-01-01T16:45:34Z',
                                                            'end_date' => '2024-03-01T16:45:34Z'
                                                          })
-      expect(claims_by_date).to be_nil
+
+      expect(claims_by_date.body['statusCode']).to equal(401)
+      expect(claims_by_date.body['success']).to eq(false)
+      expect(claims_by_date.body['message']).to eq('A contact with the specified ICN was not found.')
     end
   end
 
