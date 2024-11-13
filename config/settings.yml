@@ -2,7 +2,7 @@ hostname: 127.0.0.1:3000 # possible fallback for unsafe request.host
 
 vsp_environment: localhost
 
-virtual_hosts: ["127.0.0.1", "localhost"] # Safe host names
+virtual_hosts: [ "127.0.0.1", "localhost" ] # Safe host names
 
 # For CORS requests; separate multiple origins with a comma
 web_origin: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,null
@@ -377,9 +377,9 @@ modules_appeals_api:
   documentation:
     path_enabled_flag: false
     wip_docs:
-      # List of flags to indicate parts of documentation that are still WIP and not ready for production.
-      # See the rswag:appeals_api:dev rake task, spec_helper, and DocHelpers#wip_doc_enabled? for usage info to opt-in.
-      # NOTE: Do not remove this key even if it's empty.
+    # List of flags to indicate parts of documentation that are still WIP and not ready for production.
+    # See the rswag:appeals_api:dev rake task, spec_helper, and DocHelpers#wip_doc_enabled? for usage info to opt-in.
+    # NOTE: Do not remove this key even if it's empty.
   legacy_appeals_enabled: true
   reports:
     daily_decision_review:
@@ -527,8 +527,8 @@ ppms:
 # Settings for MyHealthEVet
 mhv:
   # include ranges first, then individual exceptions to the ranges last.
-  facility_range: [[358, 718], [720, 740], [742, 758]]
-  facility_specific: [["741MM"]] # 741 is excluded, but 741MM is included
+  facility_range: [ [ 358, 718 ], [ 720, 740 ], [ 742, 758 ] ]
+  facility_specific: [ [ "741MM" ] ] # 741 is excluded, but 741MM is included
   rx:
     host: https://mhv-api.example.com
     app_token: fake-app-token
@@ -1853,6 +1853,8 @@ vaos:
     mock: false
     client_id: "fake_client_id"
     kid: "fake_kid"
+    grant_type: "client_credentials"
+    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
     access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
     api_url: "https://api.wellhive.com/care-navigation/v1"
