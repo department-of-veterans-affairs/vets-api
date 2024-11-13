@@ -72,8 +72,7 @@ module SimpleFormsApi
         temp_dir = Rails.root.join("tmp/#{SecureRandom.hex}-manifest/").to_s
         create_directory!(temp_dir)
         begin
-          form_number = manifest_row[1]
-          s3_path = build_s3_manifest_path(form_number)
+          s3_path = build_s3_manifest_path
           local_path = download_manifest(temp_dir, s3_path)
           write_and_upload_manifest(local_path) if config.include_manifest
         ensure
@@ -83,8 +82,8 @@ module SimpleFormsApi
         config.handle_error('Failed to update manifest', e)
       end
 
-      def build_s3_manifest_path(form_number)
-        path = build_path(:file, s3_directory_path, "manifest_#{dated_directory_name(form_number)}", ext: '.csv')
+      def build_s3_manifest_path
+        path = build_path(:file, s3_directory_path, "manifest_#{container_directory}", ext: '.csv')
         path.sub(%r{^/}, '')
       end
 
@@ -105,7 +104,13 @@ module SimpleFormsApi
       end
 
       def s3_directory_path
-        @s3_directory_path ||= build_path(:dir, parent_dir, upload_type.to_s, dated_directory_name(manifest_row[1]))
+        @s3_directory_path ||= build_path(:dir, parent_dir, upload_type.to_s, container_directory)
+      end
+
+      # /path/to/parent_dir/<UPLOAD_TYPE>/<SUBMISSION_DATE>-Form<FORM_NUMBER>
+      def container_directory
+        date = upload_type == :submission ? manifest_row[0] : Time.zone.today
+        dated_directory_name(manifest_row[1], date)
       end
 
       def generate_presigned_url(type: upload_type)
