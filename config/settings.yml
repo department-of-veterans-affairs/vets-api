@@ -1792,9 +1792,6 @@ brd:
 nod_vanotify_status_callback:
   bearer_token: bearer_token_secret
 
-pension_ipf_vanotify_status_callback:
-  bearer_token: bearer_token_secret
-
 travel_pay:
   sts:
     service_account_id: ~
