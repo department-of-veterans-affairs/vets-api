@@ -41,6 +41,12 @@ module SimpleFormsApi
         config.handle_error("Failed #{upload_type} upload: #{id}", e)
       end
 
+      def retrieve_presigned_url
+        archive = config.submission_archive_class.new(config:, id:, type: upload_type)
+        @archive_path, @manifest_row = archive.retrieval_data
+        generate_presigned_url(type: upload_type)
+      end
+
       private
 
       attr_reader :archive_path, :config, :id, :manifest_row, :parent_dir, :temp_directory_path, :upload_type
@@ -115,12 +121,6 @@ module SimpleFormsApi
 
       def generate_presigned_url(type: upload_type)
         s3_uploader.get_s3_link(s3_upload_file_path(type))
-      end
-
-      def retrieve_presigned_url
-        archive = config.submission_archive_class.new(config:, id:, type: upload_type)
-        @archive_path, @manifest_row = archive.retrieval_data
-        generate_presigned_url(type: upload_type)
       end
 
       def s3_upload_file_path(type)
