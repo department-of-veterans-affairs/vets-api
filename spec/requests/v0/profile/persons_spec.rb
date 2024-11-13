@@ -13,6 +13,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     before do
       Timecop.freeze('2018-04-09T17:52:03Z')
       sign_in_as(user)
+      Flipper.disable(:va_v3_contact_information_service)
       allow_any_instance_of(User).to receive(:vet360_id).and_return(nil)
     end
 
@@ -89,6 +90,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     before do
       Timecop.freeze('2018-04-09T17:52:03Z')
       sign_in_as(user)
+      Flipper.disable(:va_v3_contact_information_service)
     end
 
     context 'with an ok response' do
@@ -150,7 +152,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     before do
       Timecop.freeze('2024-09-16T16:09:37Z')
       sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+      Flipper.enable(:va_v3_contact_information_service)
       allow_any_instance_of(User).to receive(:vet360_id).and_return(nil)
     end
 
@@ -232,7 +234,7 @@ RSpec.describe 'V0::Profile::Persons', type: :request do
     before do
       Timecop.freeze('2024-07-09T17:16:55Z')
       sign_in_as(user)
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+      Flipper.enable(:va_v3_contact_information_service)
     end
 
     context 'with an ok response' do

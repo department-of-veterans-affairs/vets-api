@@ -13,6 +13,7 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { true }
 
     before do
+      Flipper.disable(:va_v3_contact_information_service)
       create_flagged_records(flag_type)
       allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
     end
@@ -48,6 +49,7 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { false }
 
     before do
+      Flipper.disable(:va_v3_contact_information_service)
       create_flagged_records(flag_type)
     end
 
@@ -76,9 +78,13 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { true }
 
     before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+      Flipper.enable(:va_v3_contact_information_service)
       create_flagged_records(flag_type)
       allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::V3::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
+    end
+
+    after do
+      Flipper.disable(:va_v3_contact_information_service)
     end
 
     it "updates the #{flag_type} and the associated flagged records" do
@@ -217,6 +223,7 @@ RSpec.describe Representatives::Update do
     end
 
     before do
+      Flipper.disable(:va_v3_contact_information_service)
       allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response)
     end
 
@@ -257,6 +264,7 @@ RSpec.describe Representatives::Update do
       let!(:representative) { create_representative }
 
       before do
+        Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end
 
@@ -290,6 +298,7 @@ RSpec.describe Representatives::Update do
       let!(:representative) { create_representative }
 
       before do
+        Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end
 
@@ -323,6 +332,7 @@ RSpec.describe Representatives::Update do
       let!(:representative) { create_representative }
 
       before do
+        Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end
 
@@ -534,6 +544,7 @@ RSpec.describe Representatives::Update do
 
       context 'when the first retry has non-zero coordinates' do
         before do
+          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response1)
         end
@@ -554,6 +565,7 @@ RSpec.describe Representatives::Update do
 
       context 'when the second retry has non-zero coordinates' do
         before do
+          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
                                                                    api_response2)
@@ -575,6 +587,7 @@ RSpec.describe Representatives::Update do
 
       context 'when the third retry has non-zero coordinates' do
         before do
+          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
                                                                    api_response_with_zero, api_response3)
@@ -596,6 +609,7 @@ RSpec.describe Representatives::Update do
 
       context 'when the retry coordinates are all zero' do
         before do
+          Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
                                                                    api_response_with_zero, api_response_with_zero)
@@ -717,7 +731,7 @@ RSpec.describe Representatives::Update do
       end
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+        Flipper.enable(:va_v3_contact_information_service)
         allow_any_instance_of(VAProfile::V3::AddressValidation::Service).to receive(:candidate).and_return(api_response)
       end
 
@@ -824,6 +838,7 @@ RSpec.describe Representatives::Update do
         let!(:representative) { create_representative }
 
         before do
+          Flipper.enable(:va_v3_contact_information_service)
           create_flagged_records('address')
         end
 
@@ -1011,6 +1026,7 @@ RSpec.describe Representatives::Update do
 
         context 'when the first retry has non-zero coordinates' do
           before do
+            Flipper.enable(:va_v3_contact_information_service)
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
             allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response1)
           end
@@ -1031,6 +1047,7 @@ RSpec.describe Representatives::Update do
 
         context 'when the second retry has non-zero coordinates' do
           before do
+            Flipper.enable(:va_v3_contact_information_service)
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
             allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
                                                                      api_response2)
@@ -1052,6 +1069,7 @@ RSpec.describe Representatives::Update do
 
         context 'when the third retry has non-zero coordinates' do
           before do
+            Flipper.enable(:va_v3_contact_information_service)
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
             allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
                                                                      api_response_with_zero, api_response3)
@@ -1073,6 +1091,7 @@ RSpec.describe Representatives::Update do
 
         context 'when the retry coordinates are all zero' do
           before do
+            Flipper.enable(:va_v3_contact_information_service)
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
             allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
                                                                      api_response_with_zero, api_response_with_zero)

@@ -90,7 +90,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
   # Correct in another PR
   # describe '#v2_save_and_await_response' do
   #   before do
-  #     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+  #     Flipper.enable(:va_v3_contact_information_service)
   #   end
 
   #   after do

@@ -194,7 +194,7 @@ RSpec.describe 'Mobile::V0::User::Phones', type: :request do
 
   # describe 'POST /mobile/v0/user/phones v2' do
   #   before do
-  #     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+  #     Flipper.enable(:va_v3_contact_information_service)
   #   end
 
   #   after do
