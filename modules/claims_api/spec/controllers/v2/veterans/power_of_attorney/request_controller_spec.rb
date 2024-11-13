@@ -55,6 +55,87 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
       end
     end
+
+    context 'when pageIndex is present but pageSize is not' do
+      before do
+        allow(subject).to receive(:form_attributes).and_return({ 'poaCodes' => %w[002 003 083], 'pageIndex' => '2' })
+      end
+
+      it 'raises a ParameterMissing error' do
+        expect do
+          subject.index
+        end.to raise_error(Common::Exceptions::ParameterMissing)
+      end
+    end
+
+    context 'when valid filters are present' do
+      let(:filter) do
+        { 'status' => %w[New Accepted Declined], 'state' => 'CA', 'city' => 'Cambria', 'country' => 'USA' }
+      end
+      let(:poa_codes) { %w[002 003 083] }
+      let(:mock_bgs_response) do
+        {
+          'poaRequestRespondReturnVOList' => [
+            { 'some_filtered_key' => 'some_filtered_value' }
+          ]
+        }
+      end
+
+      before do
+        service_double = instance_double(ClaimsApi::ManageRepresentativeService)
+        allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(any_args)
+                                                                      .and_return(service_double)
+        allow(service_double).to receive(:read_poa_request).with(any_args)
+                                                           .and_return(mock_bgs_response)
+      end
+
+      it 'returns a successful response' do
+        mock_ccg(scopes) do |auth_header|
+          index_request_with(poa_codes:, filter:, auth_header:)
+
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+
+    context 'when an invalid filter is present' do
+      let(:filter) { { 'invalid' => 'invalid' } }
+      let(:poa_codes) { %w[002 003 083] }
+
+      it 'raises an UnprocessableEntity error' do
+        mock_ccg(scopes) do |auth_header|
+          index_request_with(poa_codes:, filter:, auth_header:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+    end
+
+    context 'when the status filter is not a list' do
+      let(:filter) { { 'status' => 'New' } }
+      let(:poa_codes) { %w[002 003 083] }
+
+      it 'raises an UnprocessableEntity error' do
+        mock_ccg(scopes) do |auth_header|
+          index_request_with(poa_codes:, filter:, auth_header:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+    end
+
+    context 'when a filter status is invalid' do
+      let(:filter) { { 'status' => %w[New Accepted Declined SomeInvalidStatus] } }
+      let(:poa_codes) { %w[002 003 083] }
+
+      it 'raises an UnprocessableEntity error' do
+        mock_ccg(scopes) do |auth_header|
+          index_request_with(poa_codes:, filter:, auth_header:)
+
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+      end
+    end
   end
 
   describe '#decide' do
@@ -254,9 +335,9 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     end
   end
 
-  def index_request_with(poa_codes:, auth_header:)
+  def index_request_with(poa_codes:, auth_header:, filter: {})
     post v2_veterans_power_of_attorney_requests_path,
-         params: { data: { attributes: { poaCodes: poa_codes } } }.to_json,
+         params: { data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
          headers: auth_header
   end
 
