@@ -136,7 +136,6 @@ class BenefitsIntakeStatusJob
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
     if result == 'failure'
       Rails.logger.error('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:, error_message:)
-      monitor_failure(form_id, uuid)
     else
       Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:)
     end
