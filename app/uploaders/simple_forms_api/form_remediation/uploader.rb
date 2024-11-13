@@ -78,16 +78,14 @@ module SimpleFormsApi
         settings = config.s3_settings
 
         self.aws_credentials = {
-          region: settings.region
-          # retry_mode: 'standard', # Use 'standard' or 'adaptive' for better retry handling
-          # retry_limit: 3 # Maximum retry attempts
+          region: settings.region,
+          retry_mode: 'standard' # Use 'standard' or 'adaptive' for better retry handling
         }
         self.aws_acl = 'private'
         self.aws_bucket = settings.bucket
         self.aws_attributes = {
           server_side_encryption: 'AES256',
-          retry_mode: 'standard', # Use 'standard' or 'adaptive' for better retry handling
-          retry_limit: 3 # Maximum retry attempts
+          retry_mode: 'standard' # Use 'standard' or 'adaptive' for better retry handling
         }
         self.class.storage = :aws
       end
