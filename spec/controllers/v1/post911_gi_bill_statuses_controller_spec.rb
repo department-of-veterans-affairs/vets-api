@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'lighthouse/benefits_education/service'
-require 'lighthouse/benefits_education/outside_working_hours'
 
 RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
   let(:user) { FactoryBot.create(:user, :loa3, icn: '1000000000V100000') }
@@ -12,11 +11,7 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
 
   before { sign_in_as(user) }
 
-  context 'inside working hours' do
-    before do
-      allow(BenefitsEducation::Service).to receive(:within_scheduled_uptime?).and_return(true)
-    end
-
+  context 'service is available' do
     it 'returns a 200 success' do
       # valid icn retrieved from
       # https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/benefits_test_accounts.md
@@ -60,27 +55,6 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       error = json_response['errors'][0]
       expect(error['title']).to eq('Not Found')
       expect(error['detail']).to eq('Icn not found.')
-    end
-  end
-
-  context 'outside working hours' do
-    # midnight
-    before { Timecop.freeze(tz.parse('2nd Feb 1993 00:00:00')) }
-    after { Timecop.return }
-
-    it 'returns 503' do
-      get :show
-      expect(response).to have_http_status(:service_unavailable)
-    end
-
-    it 'includes a Retry-After header' do
-      get :show
-      expect(response.headers).to include('Retry-After')
-    end
-
-    it 'ignores OutsideWorkingHours exception' do
-      expect(Sentry).not_to receive(:capture_message)
-      get :show
     end
   end
 

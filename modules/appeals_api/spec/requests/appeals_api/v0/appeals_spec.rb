@@ -121,5 +121,20 @@ Rspec.describe 'AppealsApi::V0::Appeals', type: :request do
         end
       end
     end
+
+    it_behaves_like 'an endpoint requiring gateway origin headers',
+                    headers: {
+                      'X-VA-First-Name' => 'Jane',
+                      'X-VA-Last-Name' => 'Doe',
+                      'X-VA-SSN' => '123456789',
+                      'X-VA-Birth-Date' => '1969-12-31',
+                      'X-VA-User' => 'test.user@test.com'
+                    } do
+      def make_request(headers)
+        VCR.use_cassette('caseflow/appeals') do
+          get(path, params: nil, headers: headers)
+        end
+      end
+    end
   end
 end

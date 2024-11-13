@@ -7,7 +7,6 @@ module V0
     class SubmissionStatusesController < ApplicationController
       service_tag 'form-submission-statuses'
       before_action :controller_enabled?
-      before_action { authorize :lighthouse, :access? }
 
       def show
         report = Forms::SubmissionStatuses::Report.new(
@@ -29,7 +28,7 @@ module V0
       end
 
       def allowed_forms
-        %w[20-10206 20-10207 21-0845 21-0966 21-0972 21-10210 21-4142 21-4142a 21P-0847]
+        %w[20-10206 20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847]
       end
 
       def serializable_from(result)

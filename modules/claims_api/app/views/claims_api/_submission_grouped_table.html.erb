@@ -1,0 +1,16 @@
+<table>
+  <thead>
+    <tr>
+      <th>Transaction Group</th>
+      <th>GUID</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% claims&.each do |grp_transaction_alias_and_guid| %>
+          <tr>
+            <td><%= grp_transaction_alias_and_guid[0] %></td>
+            <td><%= grp_transaction_alias_and_guid[1].pluck(:id) %></td>
+          </tr>
+    <% end %>
+  </tbody>
+</table>

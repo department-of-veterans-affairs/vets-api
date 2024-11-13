@@ -1,5 +1,6 @@
 description: Direct schedule new appointment
 type: object
+additionalProperties: false
 required:
   - kind
   - clinic
@@ -25,13 +26,16 @@ properties:
     example: 'booked'
   reasonCode:
     type: object
+    additionalProperties: false
     "$ref": ./ReasonCode.yml
   slot:
     type: object
+    additionalProperties: false
     description: Id of direct schedule time slot
     example: { "id": "3230323230383032313833303A323032323038303231393030" }
   extension:
     type: object
+    additionalProperties: false
     description: date of direct schedule time slot
     example: { "desiredDate": "2022-08-02T00:00:00+00:00" }
   locationId:

@@ -58,3 +58,8 @@ properties:
   filename:
     type: string
     example: '7B434B58-477C-4379-816F-05E6D3A10487.pdf'
+  document_id:
+    type: string
+    description: 'Only used for other_documents_list type event for untracked documents'
+    nullable: true
+    example: '{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}'

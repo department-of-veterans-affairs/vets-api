@@ -89,6 +89,7 @@ module BenefitsDocuments
       password = file_params[:password]
 
       LighthouseDocument.new(
+        first_name: @user.first_name,
         participant_id: @user.participant_id,
         claim_id:,
         file_obj: file,

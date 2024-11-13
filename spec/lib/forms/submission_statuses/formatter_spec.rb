@@ -4,7 +4,8 @@ require 'rails_helper'
 require 'forms/submission_statuses/dataset'
 require 'forms/submission_statuses/formatter'
 
-describe Forms::SubmissionStatuses::Formatter do
+describe Forms::SubmissionStatuses::Formatter, feature: :form_submission,
+                                               team_owner: :vfs_authenticated_experience_backend do
   subject { described_class.new }
 
   context 'when no submission data' do

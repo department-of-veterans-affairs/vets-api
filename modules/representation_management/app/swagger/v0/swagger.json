@@ -1,0 +1,532 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "va.gov Representation Management API",
+    "version": "0.1.0",
+    "termsOfService": "https://developer.va.gov/terms-of-service",
+    "description": "A set of APIs powering the POA Widget, Find a Representative, and Appoint a Representative."
+  },
+  "tags": [
+    {
+      "name": "PDF Generation",
+      "description": "Generate a PDF form from user input"
+    },
+    {
+      "name": "Power of Attorney",
+      "description": "Retrieves the Power of Attorney for a veteran, if any."
+    }
+  ],
+  "components": {
+    "schemas": {
+      "ErrorModel": {
+        "type": "object",
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "title"
+              ],
+              "properties": {
+                "title": {
+                  "type": "string",
+                  "example": "Unprocessable Entity"
+                },
+                "detail": {
+                  "type": "string",
+                  "example": "Your request could not be processed"
+                },
+                "code": {
+                  "type": "string",
+                  "example": "422"
+                },
+                "status": {
+                  "type": "string",
+                  "example": "422"
+                },
+                "meta": {
+                  "type": "object",
+                  "properties": {
+                    "exception": {
+                      "type": "string",
+                      "example": "UnprocessableEntity"
+                    },
+                    "backtrace": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "example": "stack trace line"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Errors": {
+        "type": "object",
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "Error": {
+        "type": "string"
+      },
+      "PowerOfAttorneyResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "123456"
+              },
+              "type": {
+                "type": "string",
+                "description": "Specifies the category of Power of Attorney (POA) representation.",
+                "enum": [
+                  "veteran_service_representatives",
+                  "veteran_service_organizations"
+                ]
+              },
+              "attributes": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "example": "organization",
+                    "description": "Type of Power of Attorney representation",
+                    "enum": [
+                      "organization",
+                      "representative"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Veterans Association"
+                  },
+                  "address_line1": {
+                    "type": "string",
+                    "example": "1234 Freedom Blvd"
+                  },
+                  "address_line2": {
+                    "type": "string",
+                    "example": "Suite 200"
+                  },
+                  "address_line3": {
+                    "type": "string",
+                    "example": "Building 3"
+                  },
+                  "address_type": {
+                    "type": "string",
+                    "example": "DOMESTIC"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Arlington"
+                  },
+                  "country_name": {
+                    "type": "string",
+                    "example": "United States"
+                  },
+                  "country_code_iso3": {
+                    "type": "string",
+                    "example": "USA"
+                  },
+                  "province": {
+                    "type": "string",
+                    "example": "VA"
+                  },
+                  "international_postal_code": {
+                    "type": "string",
+                    "example": "22204"
+                  },
+                  "state_code": {
+                    "type": "string",
+                    "example": "VA"
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "example": "22204"
+                  },
+                  "zip_suffix": {
+                    "type": "string",
+                    "example": "1234"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "555-1234"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "contact@example.org"
+                  }
+                },
+                "required": [
+                  "type",
+                  "name",
+                  "address_line1",
+                  "city",
+                  "state_code",
+                  "zip_code"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/representation_management/v0/pdf_generator2122": {
+      "post": {
+        "summary": "Generate a PDF for form 21-22",
+        "tags": [
+          "PDF Generation"
+        ],
+        "operationId": "createPdfForm2122",
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF generated successfully"
+          },
+          "422": {
+            "description": "unprocessable entity response",
+            "content": {
+              "application/pdf": {
+                "schema": {
+                  "$ref": "#/components/schemas/Errors"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "record_consent": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "consent_address_change": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "consent_limits": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "ALCOHOLISM",
+                      "DRUG_ABUSE",
+                      "HIV",
+                      "SICKLE_CELL"
+                    ]
+                  },
+                  "claimant": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "object",
+                        "properties": {
+                          "first": {
+                            "type": "string",
+                            "example": "John"
+                          },
+                          "middle": {
+                            "type": "string",
+                            "example": "Middle"
+                          },
+                          "last": {
+                            "type": "string",
+                            "example": "Doe"
+                          }
+                        }
+                      },
+                      "address": {
+                        "type": "object",
+                        "properties": {
+                          "address_line1": {
+                            "type": "string",
+                            "example": "123 Main St"
+                          },
+                          "address_line2": {
+                            "type": "string",
+                            "example": "Apt 1"
+                          },
+                          "city": {
+                            "type": "string",
+                            "example": "Springfield"
+                          },
+                          "state_code": {
+                            "type": "string",
+                            "example": "IL"
+                          },
+                          "country": {
+                            "type": "string",
+                            "example": "US"
+                          },
+                          "zip_code": {
+                            "type": "string",
+                            "example": "62704"
+                          },
+                          "zip_code_suffix": {
+                            "type": "string",
+                            "example": "6789"
+                          }
+                        }
+                      },
+                      "date_of_birth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-12-31"
+                      },
+                      "relationship": {
+                        "type": "string",
+                        "example": "Spouse"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "1234567890"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "veteran@example.com"
+                      }
+                    }
+                  },
+                  "representative": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "8c3b3b53-02a1-4dbd-bd23-2b556f5ef635"
+                      },
+                      "organization_id": {
+                        "type": "string",
+                        "example": "6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943"
+                      }
+                    }
+                  },
+                  "veteran": {
+                    "type": "object",
+                    "properties": {
+                      "insurance_numbers": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        },
+                        "example": [
+                          "123456789",
+                          "987654321"
+                        ]
+                      },
+                      "name": {
+                        "type": "object",
+                        "properties": {
+                          "first": {
+                            "type": "string",
+                            "example": "John"
+                          },
+                          "middle": {
+                            "type": "string",
+                            "example": "Middle"
+                          },
+                          "last": {
+                            "type": "string",
+                            "example": "Doe"
+                          }
+                        }
+                      },
+                      "address": {
+                        "type": "object",
+                        "properties": {
+                          "address_line1": {
+                            "type": "string",
+                            "example": "123 Main St"
+                          },
+                          "address_line2": {
+                            "type": "string",
+                            "example": "Apt 1"
+                          },
+                          "city": {
+                            "type": "string",
+                            "example": "Springfield"
+                          },
+                          "state_code": {
+                            "type": "string",
+                            "example": "IL"
+                          },
+                          "country": {
+                            "type": "string",
+                            "example": "US"
+                          },
+                          "zip_code": {
+                            "type": "string",
+                            "example": "62704"
+                          },
+                          "zip_code_suffix": {
+                            "type": "string",
+                            "example": "6789"
+                          }
+                        }
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "example": "123456789"
+                      },
+                      "va_file_number": {
+                        "type": "string",
+                        "example": "123456789"
+                      },
+                      "date_of_birth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-12-31"
+                      },
+                      "service_number": {
+                        "type": "string",
+                        "example": "123456789"
+                      },
+                      "service_branch": {
+                        "type": "string",
+                        "example": "Army"
+                      },
+                      "service_branch_other": {
+                        "type": "string",
+                        "example": "Other Branch"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "1234567890"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "veteran@example.com"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "record_consent",
+                  "veteran"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/representation_management/v0/power_of_attorney": {
+      "get": {
+        "summary": "Get Power of Attorney",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "description": "Retrieves the Power of Attorney for a veteran, if any.",
+        "operationId": "getPowerOfAttorney",
+        "responses": {
+          "200": {
+            "description": "Successfully checked for Power of Attorney information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/PowerOfAttorneyResponse"
+                    },
+                    {
+                      "type": "object",
+                      "description": "An empty JSON object indicating no Power of Attorney exists.",
+                      "example": {
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorModel"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local server",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    },
+    {
+      "url": "https://sandbox-api.va.gov",
+      "description": "VA.gov API sandbox environment",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    },
+    {
+      "url": "https://staging-api.va.gov",
+      "description": "VA.gov API staging environment",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    },
+    {
+      "url": "https://api.va.gov",
+      "description": "VA.gov API production environment",
+      "variables": {
+        "version": {
+          "default": "v0"
+        }
+      }
+    }
+  ]
+}

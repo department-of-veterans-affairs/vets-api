@@ -101,6 +101,7 @@
                 "gender",
                 "zip",
                 "lastSignedIn",
+                "initialSignIn",
                 "loa",
                 "multifactor",
                 "verified",
@@ -155,6 +156,12 @@
                   ]
                 },
                 "lastSignedIn": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
+                "initialSignIn": {
                   "type": [
                     "string",
                     null
@@ -345,7 +352,10 @@
             },
             "onboarding": {
               "show": {
-                "type": ["boolean", "null"]
+                "type": [
+                  "boolean",
+                  "null"
+                ]
               }
             }
           }

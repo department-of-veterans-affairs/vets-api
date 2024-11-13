@@ -122,6 +122,7 @@ module Mobile
 
           Mobile::V0::Appointment.new(adapted_appointment)
         end
+
         # rubocop:enable Metrics/MethodLength
 
         private
@@ -268,26 +269,32 @@ module Mobile
         end
 
         def appointment_type
-          case appointment[:kind]
-          when 'phone', 'clinic'
-            APPOINTMENT_TYPES[:va]
-          when 'cc'
+          case appointment[:type]
+          when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:cc_appointment],
+            VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:cc_request]
             APPOINTMENT_TYPES[:cc]
-          when 'telehealth'
-            return APPOINTMENT_TYPES[:va_video_connect_atlas] if appointment.dig(:telehealth, :atlas)
+          when VAOS::V2::AppointmentsService::APPOINTMENT_TYPES[:va]
+            convert_va_appointment_type
+          else
+            appointment[:type]
+          end
+        end
 
-            vvs_kind = appointment.dig(:telehealth, :vvs_kind)
-            if VIDEO_CODE.include?(vvs_kind)
-              if appointment.dig(:extension, :patient_has_mobile_gfe)
-                APPOINTMENT_TYPES[:va_video_connect_gfe]
-              else
-                APPOINTMENT_TYPES[:va_video_connect_home]
-              end
-            elsif VIDEO_CONNECT_AT_VA.include?(vvs_kind)
-              APPOINTMENT_TYPES[:va_video_connect_onsite]
+        def convert_va_appointment_type
+          return appointment[:type] unless appointment[:kind] == 'telehealth'
+          return APPOINTMENT_TYPES[:va_video_connect_atlas] if appointment.dig(:telehealth, :atlas)
+
+          vvs_kind = appointment.dig(:telehealth, :vvs_kind)
+          if VIDEO_CODE.include?(vvs_kind)
+            if appointment.dig(:extension, :patient_has_mobile_gfe)
+              APPOINTMENT_TYPES[:va_video_connect_gfe]
             else
-              APPOINTMENT_TYPES[:va]
+              APPOINTMENT_TYPES[:va_video_connect_home]
             end
+          elsif VIDEO_CONNECT_AT_VA.include?(vvs_kind)
+            APPOINTMENT_TYPES[:va_video_connect_onsite]
+          else
+            APPOINTMENT_TYPES[:va]
           end
         end
 

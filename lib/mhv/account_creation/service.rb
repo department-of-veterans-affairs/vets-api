@@ -11,12 +11,13 @@ module MHV
         params = build_create_account_params(icn:, email:, tou_occurred_at:)
 
         create_account_with_cache(icn:, force: break_cache, expires_in: 1.day) do
+          Rails.logger.info("#{config.logging_prefix} create_account request", { icn: })
           response = perform(:post, config.account_creation_path, params, authenticated_header(icn:))
           normalize_response_body(response.body)
         end
       rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError => e
         Rails.logger.error("#{config.logging_prefix} create_account #{e.class.name.demodulize.underscore}",
-                           { error_message: e.message, body: e.body, icn: })
+                           { error_message: e.message, body: e.body, status: e.status, icn: })
         raise
       end
 
