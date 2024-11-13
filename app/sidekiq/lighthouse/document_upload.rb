@@ -6,6 +6,7 @@ require 'lighthouse/benefits_documents/worker_service'
 
 class Lighthouse::DocumentUpload
   include Sidekiq::Job
+  extend SentryLogging
 
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
   OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
@@ -48,6 +49,7 @@ class Lighthouse::DocumentUpload
     ::Rails.logger.error('Lighthouse::DocumentUpload exhaustion handler email error',
                          { message: e.message })
     StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
+    log_exception_to_sentry(e)
   end
 
   def self.obscured_filename(original_filename)
