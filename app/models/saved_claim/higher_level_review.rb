@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class SavedClaim::HigherLevelReview < SavedClaim
+  has_one :appeal_submission, class_name: 'AppealSubmission', foreign_key: :submitted_appeal_uuid, primary_key: :guid,
+                              dependent: nil, inverse_of: :saved_claim_hlr, required: false
   FORM = '20-0996'
 
   def form_matches_schema

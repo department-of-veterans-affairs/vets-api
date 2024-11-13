@@ -2,6 +2,7 @@
 
 require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/filler'
+require 'logging/call_location'
 require 'logging/third_party_transaction'
 require 'zero_silent_failures/monitor'
 
@@ -38,9 +39,9 @@ module EVSS
       STATSD_KEY_PREFIX = 'worker.evss.submit_form0781'
 
       # Sidekiq has built in exponential back-off functionality for retries
-      # A max retry attempt of 10 will result in a run time of ~8 hours
+      # A max retry attempt of 16 will result in a run time of ~48 hours
       # This job is invoked from 526 background job
-      RETRY = 10
+      RETRY = 16
 
       sidekiq_options retry: RETRY
 
@@ -75,9 +76,14 @@ module EVSS
         if Flipper.enabled?(:form526_send_0781_failure_notification)
           EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail.perform_async(form526_submission_id)
         end
+        # NOTE: do NOT add any additional code here between the failure email being enqueued and the rescue block.
+        # The mailer prevents an upload from failing silently, since we notify the veteran and provide a workaround.
+        # The rescue will catch any errors in the sidekiq_retries_exhausted block and mark a "silent failure".
+        # This shouldn't happen if an email was sent; there should be no code here to throw an additional exception.
+        # The mailer should be the last thing that can fail.
       rescue => e
         cl = caller_locations.first
-        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
         zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
         user_account_id = begin
           Form526Submission.find(form526_submission_id).user_account_id
