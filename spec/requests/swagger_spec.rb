@@ -33,6 +33,15 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
 
+  Flipper.disable(:va_v3_contact_information_service)
+  let(:cassette_path) do
+    if Flipper.enabled?(:va_v3_contact_information_service)
+      'va_profile/v2/contact_information'
+    else
+      'va_profile/contact_information'
+    end
+  end
+
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
@@ -2229,6 +2238,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     describe 'profiles' do
+      Flipper.disable(:va_v3_contact_information_service)
       let(:mhv_user) { create(:user, :loa3) }
 
       it 'supports getting service history data' do
@@ -2721,12 +2731,12 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profiles military services v2', :skip_vet360, :initiate_vaprofile do
-      let(:mhv_user) { build(:user, :loa3) }
+    describe 'profiles v2', :skip_vet360, :initiate_vaprofile do
+      let(:vet360_id) { '1781151' }
+      let(:mhv_user) { build(:user, :loa3, vet360_id:) }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:profile_show_military_academy_attendance,
-                                                  instance_of(User)).and_return(true)
+        Flipper.enable(:va_v3_contact_information_service)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
         sign_in_as(mhv_user)
       end
@@ -2745,17 +2755,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             expect(subject).to validate(:get, '/v0/profile/personal_information', 200, headers)
           end
         end
-      end
-    end
-
-    describe 'profiles v2', :skip_vet360, :initiate_vaprofile do
-      let(:mhv_user) { build(:user, :loa3) }
-
-      before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
-                                                  instance_of(User)).and_return(true)
-        allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-        sign_in_as(mhv_user)
       end
 
       it 'supports getting full name data' do
@@ -3013,8 +3012,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:user) { build(:user, :loa3, vet360_id:) }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
-                                                  instance_of(User)).and_return(true)
+        Flipper.enable(:va_v3_contact_information_service)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
         sign_in_as(user)
       end
@@ -3065,8 +3063,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user_without_vet360_id, nil, true) } } }
 
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
-                                                  instance_of(User)).and_return(true)
+        Flipper.enable(:va_v3_contact_information_service)
         allow_any_instance_of(User).to receive(:vet360_id).and_return('1781151')
       end
 

@@ -31,7 +31,7 @@ module VAProfile
 
           response = perform(:post, identity_path, VAProfile::Models::ServiceHistory.in_json)
 
-          ServiceHistoryResponse.from(@user, response)
+          ServiceHistoryResponse.from(@current_user, response)
         end
       rescue Common::Client::Errors::ClientError => e
         error_status = e.status

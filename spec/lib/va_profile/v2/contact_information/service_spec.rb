@@ -10,8 +10,12 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   let(:vet360_id) { '1781151' }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
     allow(user).to receive_messages(vet360_id:, icn: '1234')
+    Flipper.enable(:va_v3_contact_information_service)
+  end
+
+  after do
+    Flipper.disable(:va_v3_contact_information_service)
   end
 
   describe '#get_person' do
@@ -56,6 +60,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     let(:user) { build(:user, :loa3) }
 
     before do
+      Flipper.enable(:va_v3_contact_information_service)
       allow_any_instance_of(User).to receive(:vet360_id).and_return('6767671')
       allow_any_instance_of(User).to receive(:idme_uuid).and_return(nil)
     end

@@ -5,7 +5,11 @@ require 'va_profile/v2/contact_information/transaction_response'
 
 describe VAProfile::V2::ContactInformation::TransactionResponse do
   before do
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+    Flipper.enable(:va_v3_contact_information_service)
+  end
+
+  after do
+    Flipper.disable(:va_v3_contact_information_service)
   end
 
   describe '.from' do
