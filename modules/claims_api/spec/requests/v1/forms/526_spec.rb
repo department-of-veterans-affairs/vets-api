@@ -1684,8 +1684,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             post path, params: params.to_json, headers: headers.merge(auth_header)
             expect(response).to have_http_status(:unprocessable_entity)
             response_error_details = JSON.parse(response.body)['errors'].first['detail']
-            expect(response_error_details).to include('Code must match the values returned by the /intake-sites endpoint' \
-                                                      ' on the [Benefits reference Data API]')
+            expect(response_error_details).to include('Code must match the values returned by the /intake-sites' \
+                                                      ' endpoint on the [Benefits reference Data API]')
           end
         end
       end
