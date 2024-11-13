@@ -17,7 +17,7 @@ module MebApi
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         claim_letter_response = letter_service.get_claim_letter(claimant_id, @form_type)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
-        response = claimant_response.status == 200 ? claim_letter_response : claimant_response
+        response = claimant_response.status == valid_claimant_response?(claimant_response) ? claim_letter_response : claimant_response
 
         date = Time.now.getlocal
         timestamp = date.strftime('%m/%d/%Y %I:%M:%S %p')
@@ -123,10 +123,8 @@ module MebApi
       end
 
       def determine_response_and_serializer(claim_status_response, claimant_response)
-        if claim_status_response.status == 200
+        if claim_status_response.status == valid_claimant_response?(claimant_response)
           [claim_status_response, ClaimStatusSerializer]
-        else
-          [claimant_response, ToeClaimantInfoSerializer]
         end
       end
 
