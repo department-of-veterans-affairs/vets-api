@@ -2,10 +2,6 @@
 
 This documentation covers the setup and usage of the PDF upload/download solution, designed to handle individual form submissions as PDF files within an AWS S3 bucket.
 
-The following image depicts how this solution is architected:
-
-![Error Remediation Architecture](./error_remediation_architecture.png)
-
 ---
 
 ## Table of Contents
@@ -82,15 +78,7 @@ By default, the solution uses the `:benefits_intake_uuid` identifier to query `F
 
 ### Individual Processing
 
-To handle a single PDF upload for a form submission, instantiate the `S3Client` directly with the appropriate configuration and submission ID:
-
-```ruby
-config = YourTeamsConfig.new
-client = SimpleFormsApi::FormRemediation::S3Client.new(config:, id: <YOUR_SUBMISSION_ID>)
-client.upload
-```
-
-For backup purposes, specify `type: :submission` during initialization. This ensures that only the original form PDF is uploaded and a presigned URL is generated:
+To handle a single PDF upload for a form submission, instantiate the `S3Client` directly with the appropriate configuration and submission ID. For backup purposes, specify `type: :submission` during initialization. This ensures that only the original form PDF is uploaded and a presigned URL is generated:
 
 ```ruby
 config = YourTeamsConfig.new
@@ -108,10 +96,11 @@ Each component of this solution can be extended or customized to meet team requi
 2. Create subclasses for required functionality.
 3. Register the subclass in your configuration:
 
+Extending the uploader:
 ```ruby
 # frozen_string_literal: true
 
-require 'simple_forms_api/form_remediation/configuration/base'
+require 'simple_forms_api/form_remediation/uploader'
 
 class NewUploader < SimpleFormsApi::FormRemediation::Uploader
   def size_range
@@ -120,6 +109,7 @@ class NewUploader < SimpleFormsApi::FormRemediation::Uploader
 end
 ```
 
+Using the new uploader within your own team's configuration:
 ```ruby
 # frozen_string_literal: true
 
@@ -136,6 +126,7 @@ class NewConfig < SimpleFormsApi::FormRemediation::Configuration::Base
 end
 ```
 
+Instantiate the client with your team's configuration:
 ```ruby
 config = NewConfig.new
 client = SimpleFormsApi::FormRemediation::S3Client.new(config:, id: <YOUR_SUBMISSION_ID>, type: :submission)
