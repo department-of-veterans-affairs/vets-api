@@ -15,11 +15,13 @@ RSpec.describe EPS::BaseService do
   before do
     allow(Flipper).to receive(:enabled?).with(:STS_OAUTH_TOKEN, user).and_return(false)
     allow(RequestStore.store).to receive(:[]).with('request_id').and_return('request-id')
+    skip('EPS::TokenService is not implemented yet') unless defined?(EPS::TokenService)
+    allow(EPS::TokenService).to receive(:token).and_return(access_token)
   end
 
   describe '#perform' do
     it 'extends the session if STS_OAUTH_TOKEN is not enabled' do
-      expect(service).to receive(:super).with(:get, path, params, headers, options).and_return('response')
+      expect(service).to receive(:super).with(:get, path, params, headers, options).and.return('response')
       expect(service.user_service).to receive(:extend_session).with(user.account_uuid)
       response = service.send(:perform, :get, path, params, headers, options)
       expect(response).to eq('response')
