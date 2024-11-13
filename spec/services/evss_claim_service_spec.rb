@@ -6,6 +6,7 @@ RSpec.describe EVSSClaimService do
   subject { service }
 
   let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user_account) { create(:user_account) }
   let(:client_stub) { instance_double('EVSS::ClaimsService') }
   let(:service) { described_class.new(user) }
 
@@ -47,6 +48,8 @@ RSpec.describe EVSSClaimService do
     before do
       allow(Rails.logger).to receive(:info)
       allow_any_instance_of(claim_service).to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(claim)
+      user.user_account_uuid = user_account.id
+      user.save!
     end
 
     describe '#request_decision' do
@@ -112,6 +115,11 @@ RSpec.describe EVSSClaimService do
   end
 
   describe '#upload_document' do
+    before do
+      user.user_account_uuid = user_account.id
+      user.save!
+    end
+
     let(:upload_file) do
       f = Tempfile.new(['file with spaces', '.txt'])
       f.write('test')
@@ -130,6 +138,11 @@ RSpec.describe EVSSClaimService do
       expect do
         subject.upload_document(document)
       end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
+    end
+
+    it 'records evidence submission' do
+      subject.upload_document(document)
+      expect(EvidenceSubmission.count).to eq(1)
     end
 
     it 'updates document with sanitized filename' do
