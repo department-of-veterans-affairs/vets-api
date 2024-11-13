@@ -18,6 +18,10 @@ module DecisionReview
       'DecisionReview::SavedClaimHlrStatusUpdaterJob'
     end
 
+    def service_tag
+      'service:higher-level-review'
+    end
+
     def get_record_status(guid)
       decision_review_service.get_higher_level_review(guid).body
     end

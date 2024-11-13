@@ -18,6 +18,10 @@ module DecisionReview
       'DecisionReview::SavedClaimNodStatusUpdaterJob'
     end
 
+    def service_tag
+      'service:board-appeal'
+    end
+
     def get_record_status(guid)
       decision_review_service.get_notice_of_disagreement(guid).body
     end

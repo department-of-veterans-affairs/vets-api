@@ -18,6 +18,10 @@ module DecisionReview
       'DecisionReview::SavedClaimScStatusUpdaterJob'
     end
 
+    def service_tag
+      'service:supplemental-claims'
+    end
+
     def get_record_status(guid)
       decision_review_service.get_supplemental_claim(guid).body
     end

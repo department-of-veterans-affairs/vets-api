@@ -250,6 +250,10 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
             .with('DecisionReview::SavedClaimNodStatusUpdaterJob form status error', guid: guid1)
           expect(Rails.logger).to have_received(:info)
             .with('DecisionReview::SavedClaimNodStatusUpdaterJob form status error', guid: guid2)
+          expect(StatsD).to have_received(:increment)
+            .with('silent_failure', tags: ['service:board-appeal',
+                                           'function: form submission to Lighthouse'])
+            .exactly(1).time
         end
 
         it 'does not increment metrics for unchanged evidence status' do
@@ -285,6 +289,10 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
           expect(Rails.logger).to have_received(:info)
             .with('DecisionReview::SavedClaimNodStatusUpdaterJob evidence status error',
                   guid: guid2, lighthouse_upload_id: upload_id2, detail: 'Invalid PDF')
+          expect(StatsD).to have_received(:increment)
+            .with('silent_failure', tags: ['service:board-appeal',
+                                           'function: evidence submission to Lighthouse'])
+            .exactly(1).time
         end
       end
 

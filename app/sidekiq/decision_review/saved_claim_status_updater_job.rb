@@ -67,6 +67,10 @@ module DecisionReview
       raise Common::Exceptions::NotImplemented
     end
 
+    def service_tag
+      raise Common::Exceptions::NotImplemented
+    end
+
     def get_record_status(_guid)
       raise Common::Exceptions::NotImplemented
     end
@@ -142,7 +146,7 @@ module DecisionReview
 
       if status == ERROR_STATUS
         Rails.logger.info("#{log_prefix} form status error", guid: record.guid)
-        tags = ['service:board-appeal', 'function: form submission to Lighthouse']
+        tags = [service_tag, 'function: form submission to Lighthouse']
         StatsD.increment('silent_failure', tags:)
       end
 
@@ -189,7 +193,7 @@ module DecisionReview
         if status == ERROR_STATUS
           Rails.logger.info("#{log_prefix} evidence status error",
                             { guid: record.guid, lighthouse_upload_id: upload_id, detail: upload['detail'] })
-          tags = ['service:board-appeal', 'function: evidence submission to Lighthouse']
+          tags = [service_tag, 'function: evidence submission to Lighthouse']
           StatsD.increment('silent_failure', tags:)
         end
 
