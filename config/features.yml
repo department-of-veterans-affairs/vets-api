@@ -160,6 +160,9 @@ features:
   champva_file_recreate:
     actor_type: user
     description: Enhances file creation reliability by adding retry functionality in the vets-api tmp folder
+  champva_failure_email_job_enabled:
+    actor_type: user
+    description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -491,6 +494,10 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
+    enable_in_development: true
+  disability_526_expanded_contention_classification:
+    actor_type: user
+    description: Enables the expanded contention classification service maintained by the Conditions Team.
     enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
@@ -1669,6 +1676,10 @@ features:
     description: Enables Decision Review endpoint to process VANotify notification callbacks
     enable_in_development: true
   nod_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
+  hlr_confirmation_update:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true

@@ -1075,6 +1075,12 @@ lighthouse:
       access_token:
         client_id: ~
         rsa_key: ~
+      use_mocks: true
+    status:
+      host: https://staging-api.va.gov
+      access_token:
+        client_id: ~
+        rsa_key: ~
       use_mocks: false
   s3:
     uploads_enabled: false
@@ -1381,6 +1387,7 @@ vanotify:
         evidence_submission_failure_email: fake_template_id
     ivc_champva:
       api_key: fake_secret
+      failure_email_threshold_days: 7
       template_id:
         form_10_10d_email: form_10_10d_email
         form_10_10d_failure_email: form_10_10d_failure_email
