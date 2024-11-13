@@ -156,6 +156,9 @@ features:
   champva_file_recreate:
     actor_type: user
     description: Enhances file creation reliability by adding retry functionality in the vets-api tmp folder
+  champva_failure_email_job_enabled:
+    actor_type: user
+    description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -458,6 +461,9 @@ features:
     actor_type: user
     description: Manage dependent removal from view dependent page
     enable_in_development: true
+  dependents_trigger_action_needed_email:
+    actor_type: user
+    description: Set whether to enable VANotify email to Veteran for Dependents Backup Path failure exhaustion
   disability_526_form4142_polling_records:
     actor_type: user
     description: enables creation of, and tracking of, sent form 4142 documents, from the 526 flow, to the Lighthouse Benefits Intake API
@@ -488,6 +494,10 @@ features:
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
+    enable_in_development: true
+  disability_526_expanded_contention_classification:
+    actor_type: user
+    description: Enables the expanded contention classification service maintained by the Conditions Team.
     enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
@@ -710,7 +720,7 @@ features:
   form40_10007_confirmation_email:
     actor_type: user
     description: Enables form 40-10007 email submission error (VaNotify)
-    enable_in_development: true  
+    enable_in_development: true
   form1990meb_confirmation_email:
     actor_type: user
     description: Enables form 1990 MEB email submission confirmation (VaNotify)
@@ -1666,6 +1676,10 @@ features:
     description: Enables Decision Review endpoint to process VANotify notification callbacks
     enable_in_development: true
   nod_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
+  hlr_confirmation_update:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true

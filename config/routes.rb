@@ -297,6 +297,7 @@ Rails.application.routes.draw do
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
+      resource :vet_verification_status, only: :show
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do
@@ -386,10 +387,6 @@ Rails.application.routes.draw do
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
-    end
-
-    namespace :facilities, module: 'facilities' do
-      resources :va, only: %i[index show]
     end
 
     namespace :gi, module: 'gids' do

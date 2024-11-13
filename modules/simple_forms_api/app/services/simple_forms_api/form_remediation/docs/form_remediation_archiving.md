@@ -1,4 +1,4 @@
-# Form Remediation
+# Form Remediation Archiving
 
 This solution is designed to remediate form submissions older than two weeks, which have failed processing. It includes Ruby on Rails service objects, a Rake task, and a Sidekiq job, utilizing S3 for secure storage.
 
@@ -19,29 +19,20 @@ The following image depicts how this solution is architected:
 
 ## Table of Contents
 
-- [Form Remediation](#form-remediation)
+- [Form Remediation Archiving](#form-remediation-archiving)
   - [Table of Contents](#table-of-contents)
   - [Getting Started](#getting-started)
     - [Settings](#settings)
     - [Configuration](#configuration)
   - [Usage](#usage)
-    - [Batch Processing](#batch-processing)
-      - [Rake Task Example](#rake-task-example)
-      - [Batch Processing Job](#batch-processing-job)
-    - [Individual Processing](#individual-processing)
+    - [Rake Task Example](#rake-task-example)
+    - [Batch Processing Job](#batch-processing-job)
   - [Extending Functionality](#extending-functionality)
     - [Overrideable Classes](#overrideable-classes)
     - [Directory and File Structure](#directory-and-file-structure)
       - [Structure Overview](#structure-overview)
     - [Naming Conventions](#naming-conventions)
   - [AWS S3 Bucket Setup](#aws-s3-bucket-setup)
-    - [Requesting an S3 Bucket](#requesting-an-s3-bucket)
-      - [Submit a PR](#submit-a-pr)
-      - [Review Process](#review-process)
-      - [Applying Changes](#applying-changes)
-      - [Access and Credentials](#access-and-credentials)
-    - [S3 Bucket Naming Convention](#s3-bucket-naming-convention)
-    - [Future Infrastructure Requests](#future-infrastructure-requests)
 
 ---
 
@@ -99,9 +90,7 @@ This solution uses the `:benefits_intake_uuid` identifier by default for queryin
 
 ## Usage
 
-### Batch Processing
-
-#### Rake Task Example
+### Rake Task Example
 
 A Rake task for batch processing is available for reference, using `ArchiveBatchProcessingJob` to archive multiple form submissions and retrieve presigned URLs:
 
@@ -117,7 +106,7 @@ In `archive_forms_by_uuid`, `benefits_intake_uuids` specifies a collection of su
 
 Note: **THIS RAKE TASK IS FOR REFERENCE ONLY!!** This rake task is specifically configured to interact with the Veteran Facing Forms team's S3 bucket, so please don't use it for your team.
 
-#### Batch Processing Job
+### Batch Processing Job
 
 The `ArchiveBatchProcessingJob` handles batch processing of form submissions, iterating through each submission identifier to archive and upload it to S3. This job will initiate the archiving and uploading process directly through the `perform` method.
 
@@ -141,24 +130,6 @@ job = YourTeamsUniqueJob.perform(ids: your_teams_ids, config:)
 ```
 
 In both cases, presigned URLs are not directly returned from `perform`. If your team needs to access presigned URLs programmatically after job completion, consider modifying the job’s output or handling the URLs as part of the logging or post-upload configuration.
-
-### Individual Processing
-
-To process a single ID, instantiate the `S3Client` directly:
-
-```ruby
-config = YourTeamsConfig.new
-client = SimpleFormsApi::FormRemediation::S3Client.new(config:, id: your_teams_id)
-client.upload
-```
-
-For PDF backups, specify `type: :submission` during initialization. This uploads the original form PDF and optionally returns a presigned URL:
-
-```ruby
-config = YourTeamsConfig.new
-client = SimpleFormsApi::FormRemediation::S3Client.new(config:, id: your_teams_id, type: :submission)
-client.upload
-```
 
 ---
 
@@ -235,20 +206,15 @@ The following example illustrates the folder structure:
 
 ```bash
 <parent_dir>/
-├── remediation/
-│   ├── 10.28.24-Form21-10210/
-│   │   ├── 10.28.24_form_21-10210_vagov_abc123.zip  # Archive of PDF, metadata, and attachments
-│   │   ├── 10.28.24_form_21-10210_vagov_bcd234.zip
-│   │   └── manifest_10.28.24-Form21-10210.csv  # Manifest file for tracking
-│   ├── 10.28.24-Form20-10207/
-│   │   ├── 10.28.24_form_20-10207_vagov_ghi123.zip
-│   │   ├── 10.28.24_form_20-10207_vagov_jkl456.zip
-│   │   └── manifest_10.28.24-Form20-10207.csv
-└── submission/
-    ├── 10.28.24-Form21-4142/
-    │   └── 10.28.24_form_21-4142_vagov_abc123.pdf  # Original form PDF only
-    ├── 10.28.24-Form40-10007/
-    │   └── 10.28.24_form_40-10007_vagov_abc123.pdf
+└── remediation/
+   ├── 10.28.24-Form21-10210/
+   │   ├── 10.28.24_form_21-10210_vagov_abc123.zip  # Archive of PDF, metadata, and attachments
+   │   ├── 10.28.24_form_21-10210_vagov_bcd234.zip
+   │   └── manifest_10.28.24-Form21-10210.csv  # Manifest file for tracking
+   └── 10.28.24-Form20-10207/
+       ├── 10.28.24_form_20-10207_vagov_ghi123.zip
+       ├── 10.28.24_form_20-10207_vagov_jkl456.zip
+       └── manifest_10.28.24-Form20-10207.csv
 ```
 
 ### Naming Conventions
@@ -264,50 +230,4 @@ This structure and naming convention provides clear organization, helping locate
 
 ## AWS S3 Bucket Setup
 
-If your team does not have an S3 bucket, follow these steps.
-
-### Requesting an S3 Bucket
-
-#### Submit a PR
-
-- **Recommended Approach**: Submit a configuration PR for new S3 bucket(s). Refer to [Sample PR #1](https://github.com/department-of-veterans-affairs/devops/pull/14735) and [Sample PR #2](https://github.com/department-of-veterans-affairs/devops/pull/14742) (these changes can be done in a single PR).
-- Include staging and production configurations.
-- Adhere to team naming conventions for the bucket(s).
-
-#### Review Process
-
-- Once the PR is submitted, request a review from the DevOps/Platform team.
-- A team member should review the PR before DevOps approval.
-- Request a **sanity check** for provisioning, security, and consistency.
-
-#### Applying Changes
-
-- After merging, DevOps will manually apply the changes in staging and production environments.
-- Upon successful provisioning, DevOps will confirm bucket creation.
-
-#### Access and Credentials
-
-**Production/Staging**:
-
-- `vets-api` automatically accesses S3 in production and staging environments through the **vets-api pod service account**.
-
-**Local Development**:
-
-- Use your own AWS credentials locally, either via environment variables or the AWS CLI.
-
-**Testing Credentials**:
-
-- Ensure the `vets-api` role can write to the S3 bucket in both environments. Test using the `vets-api` role and report any errors.
-
-**Documentation**:
-
-- Consult internal documentation on using `vets-api` role with AWS clients. For local development, ensure proper AWS credential setup.
-
-### S3 Bucket Naming Convention
-
-- **Staging**: `dsva-vagov-staging-[team-project-name]`
-- **Production**: `dsva-vagov-prod-[team-project-name]`
-
-### Future Infrastructure Requests
-
-For future infrastructure needs, continue using PR requests in the DevOps repository. Seek Platform/DevOps assistance if unfamiliar with Terraform or infrastructure technologies, and verify permissions in staging and production environments.
+- [Please refer to the AWS S3 Bucket Setup Documentation here.](aws_s3_bucket_setup.md)
