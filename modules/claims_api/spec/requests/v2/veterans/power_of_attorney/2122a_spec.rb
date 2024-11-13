@@ -5,7 +5,7 @@ require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 
-RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122a', type: :request do
+RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:appoint_individual_path) { "/services/claims/v2/veterans/#{veteran_id}/2122a" }
   let(:validate2122a_path) { "/services/claims/v2/veterans/#{veteran_id}/2122a/validate" }
@@ -200,6 +200,23 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122a', type: :request do
                         poa = ClaimsApi::PowerOfAttorney.find(poa_id)
                         auth_headers = poa.auth_headers
                         expect(auth_headers).to have_key('dependent')
+                      end
+                    end
+                  end
+
+                  it "does not add dependent values to the auth_headers if relationship is 'Self'" do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(scopes) do |auth_header|
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['claimant'] = claimant_data
+                        json['data']['attributes']['claimant']['relationship'] = 'Self'
+                        request_body = json.to_json
+
+                        post appoint_individual_path, params: request_body, headers: auth_header
+                        poa_id = JSON.parse(response.body)['data']['id']
+                        poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+                        auth_headers = poa.auth_headers
+                        expect(auth_headers).not_to have_key('dependent')
                       end
                     end
                   end
