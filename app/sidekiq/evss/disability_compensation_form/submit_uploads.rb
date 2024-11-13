@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'logging/call_location'
 require 'zero_silent_failures/monitor'
 
 module EVSS
@@ -8,8 +9,9 @@ module EVSS
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526_upload'
       ZSF_DD_TAG_FUNCTION = '526_evidence_upload_failure_email_queuing'
 
-      # retry for one day
-      sidekiq_options retry: 14
+      # retry for  2d 1h 47m 12s
+      # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+      sidekiq_options retry: 16
 
       sidekiq_retries_exhausted do |msg, _ex|
         job_id = msg['jid']
@@ -43,20 +45,25 @@ module EVSS
 
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
-        if Flipper.enabled?(:form526_send_document_upload_failure_notification)
-          guid = upload_data['confirmationCode']
-          Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
-        end
-
         if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
           submission = Form526Submission.find(form526_submission_id)
 
           provider = api_upload_provider(submission, upload_data['attachmentId'], nil)
           provider.log_uploading_job_failure(self, error_class, error_message)
         end
+
+        if Flipper.enabled?(:form526_send_document_upload_failure_notification)
+          guid = upload_data['confirmationCode']
+          Form526DocumentUploadFailureEmail.perform_async(form526_submission_id, guid)
+        end
+        # NOTE: do NOT add any additional code here between the failure email being enqueued and the rescue block.
+        # The mailer prevents an upload from failing silently, since we notify the veteran and provide a workaround.
+        # The rescue will catch any errors in the sidekiq_retries_exhausted block and mark a "silent failure".
+        # This shouldn't happen if an email was sent; there should be no code here to throw an additional exception.
+        # The mailer should be the last thing that can fail.
       rescue => e
         cl = caller_locations.first
-        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
         zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
         user_account_id = begin
           Form526Submission.find(form526_submission_id).user_account_id

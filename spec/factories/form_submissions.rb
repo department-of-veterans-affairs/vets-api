@@ -4,11 +4,8 @@ FactoryBot.define do
   factory :form_submission do
     form_type { '21-4142' }
     form_data { '{}' }
-    benefits_intake_uuid { nil }
 
     trait :pending do
-      benefits_intake_uuid { nil }
-
       form_submission_attempts { create_list(:form_submission_attempt, 1, :pending) }
     end
 
@@ -30,7 +27,7 @@ FactoryBot.define do
       user_account_id { '' }
       form_type { '21-4142' }
       form_submission_attempts do
-        create_list(:form_submission_attempt, 1, benefits_intake_uuid: 'eff61cbc-f379-421d-977e-d7fd1a06bca3')
+        create_list(:form_submission_attempt, 1, benefits_intake_uuid: '4b846069-e496-4f83-8587-42b570f24483')
       end
       created_at { '2024-03-08' }
     end
@@ -39,7 +36,7 @@ FactoryBot.define do
       user_account_id { '' }
       form_type { '21-0845' }
       form_submission_attempts do
-        create_list(:form_submission_attempt, 1, benefits_intake_uuid: '6d353dee-a0e0-40e3-a25c-9b652247a0d9')
+        create_list(:form_submission_attempt, 1, benefits_intake_uuid: 'd0c6cea6-9885-4e2f-8e0c-708d5933833a')
       end
       created_at { '2024-03-12' }
     end

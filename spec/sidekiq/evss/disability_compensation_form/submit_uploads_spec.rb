@@ -259,7 +259,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
               'LighthouseSupplementalDocumentUploadProvider upload failed',
               {
                 class: 'LighthouseSupplementalDocumentUploadProvider',
-                submission_id: submission.submitted_claim_id,
+                submitted_claim_id: submission.submitted_claim_id,
+                submission_id: submission.id,
                 user_uuid: submission.user_uuid,
                 va_document_type_code: 'L451',
                 primary_form: 'Form526',
@@ -409,7 +410,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             form526_submission_id: submission.id
           },
           nil,
-          call_location: instance_of(ZeroSilentFailures::Monitor::CallLocation)
+          call_location: instance_of(Logging::CallLocation)
         )
 
         args = { 'jid' => form526_job_status.job_id, 'args' => [submission.id, upload_data] }

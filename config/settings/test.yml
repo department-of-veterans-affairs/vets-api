@@ -165,6 +165,7 @@ vanotify:
         notice_of_disagreement_form_error_email: fake_nod_template_id
         supplemental_claim_evidence_error_email: fake_sc_evidence_template_id
         supplemental_claim_form_error_email: fake_sc_template_id
+        supplemental_claim_secondary_form_error_email: fake_sc_secondary_form_template_id
     benefits_management_tools:
       api_key: fake_secret
       template_id:
@@ -227,11 +228,14 @@ lighthouse:
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
       api_scope:
         - "launch"
+        - "patient/AllergyIntolerance.read"
+        - "patient/DiagnosticReport.read"
         - "patient/Patient.read"
         - "system/Patient.read"
         - "patient/Observation.read"
         - "patient/Practitioner.read"
         - "patient/MedicationRequest.read"
+        - "patient/Condition.read"
       aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token"
       client_id: "fake_client_id"
       grant_type: "client_credentials"
@@ -244,6 +248,12 @@ lighthouse:
       access_token:
         client_id: abc123456
         rsa_key: path/to/key
+      use_mocks: false
+    status:
+      host: https://sandbox-api.va.gov
+      access_token:
+        client_id: ~
+        rsa_key: ~
       use_mocks: false
   benefits_claims:
     host: https://sandbox-api.va.gov

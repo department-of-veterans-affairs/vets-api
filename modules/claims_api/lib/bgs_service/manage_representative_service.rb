@@ -2,14 +2,21 @@
 
 module ClaimsApi
   class ManageRepresentativeService < ClaimsApi::LocalBGS
+    ALL_STATUSES = %w[NEW ACCEPTED DECLINED].freeze
+
     def bean_name
       'VDC/ManageRepresentativeService'
     end
 
-    def read_poa_request(poa_codes: [])
+    def read_poa_request(poa_codes: [], page_size: nil, page_index: nil, filter: {}) # rubocop:disable Metrics/MethodLength
       # Workaround to allow multiple roots in the Nokogiri XML builder
       # https://stackoverflow.com/a/4907450
       doc = Nokogiri::XML::DocumentFragment.parse ''
+
+      status_list = filter['status'].presence || ALL_STATUSES
+      state = filter['state']
+      city = filter['city']
+      country = filter['country']
 
       Nokogiri::XML::Builder.with(doc) do |xml|
         xml.send('data:POACodeList') do
@@ -18,8 +25,29 @@ module ClaimsApi
           end
         end
         xml.send('data:SecondaryStatusList') do
-          %w[New Pending Accepted Declined].each do |status|
+          status_list.each do |status|
             xml.SecondaryStatus status
+          end
+        end
+        if state
+          xml.send('data:StateList') do
+            xml.State state
+          end
+        end
+        if city
+          xml.send('data:CityList') do
+            xml.City city
+          end
+        end
+        if country
+          xml.send('data:CountryList') do
+            xml.Country country
+          end
+        end
+        if page_size || page_index
+          xml.send('data:POARequestParameter') do
+            xml.pageSize page_size if page_size
+            xml.pageIndex page_index if page_index
           end
         end
       end

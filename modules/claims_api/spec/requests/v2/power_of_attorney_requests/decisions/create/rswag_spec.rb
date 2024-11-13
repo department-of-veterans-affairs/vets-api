@@ -44,7 +44,7 @@ describe 'PowerOfAttorney', metadata do
         'data' => {
           'attributes' => {
             'procId' => '76529',
-            'decision' => 'accepted',
+            'decision' => 'ACCEPTED',
             'declinedReason' => nil
           }
         }

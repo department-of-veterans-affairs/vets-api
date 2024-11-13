@@ -14,7 +14,9 @@ module VANotify
     #         confirmation:
     #           template_id: form527ez_confirmation_email_template_id
     #           flipper_id: false
-    #         error: null
+    #         error:
+    #           template_id: form527ez_error_email_template_id,
+    #           flipper_id: form527ez_error_email_flipper_id
     #         received: null
     #     pensions: *vanotify_services_pension
     #
@@ -40,24 +42,25 @@ module VANotify
       #
       # @return [ClaimVANotification] db record of notification sent
       def deliver(email_type, at: nil)
-        email_template_id = valid_attempt?(email_type)
+        @email_type = email_type
+        @email_template_id = valid_attempt?
         return unless email_template_id
 
         at ? enqueue_email(email_template_id, at) : send_email(email_template_id)
 
         db_record = claim.insert_notification(email_template_id)
-        tags, context = monitoring(email_type)
+        tags, context = monitoring
         VANotify::NotificationEmail.monitor_deliver_success(tags:, context:)
 
         db_record
       rescue => e
-        tags, context = monitoring(email_type)
+        tags, context = monitoring
         VANotify::NotificationEmail.monitor_send_failure(e&.message, tags:, context:)
       end
 
       private
 
-      attr_reader :claim, :email_template_id
+      attr_reader :claim, :email_type, :email_template_id
 
       # return or default the service_name to be used
       def vanotify_service
@@ -71,8 +74,7 @@ module VANotify
       end
 
       # check prerequisites before attempting to send the email
-      # @param email_type [Symbol] one of VANotify::NotificationEmail::Type and defined in Settings
-      def valid_attempt?(email_type)
+      def valid_attempt?
         config = Settings.vanotify.services[vanotify_service]
         raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless config
 
@@ -86,7 +88,7 @@ module VANotify
         is_enabled = flipper_enabled?(email_config.flipper_id)
         already_sent = claim.va_notification?(email_config.template_id)
         if already_sent
-          tags, context = monitoring(email_type)
+          tags, context = monitoring
           VANotify::NotificationEmail.monitor_duplicate_attempt(tags:, context:)
         end
 
@@ -94,8 +96,7 @@ module VANotify
       end
 
       # create the tags and context for monitoring
-      # @param email_type [Symbol] one of VANotify::NotificationEmail::Type and defined in Settings
-      def monitoring(email_type)
+      def monitoring
         tags = ["service_name:#{vanotify_service}",
                 "form_id:#{claim.form_id}",
                 "email_template_id:#{email_template_id}"]

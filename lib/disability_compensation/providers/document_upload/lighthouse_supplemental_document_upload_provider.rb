@@ -8,6 +8,13 @@ class LighthouseSupplementalDocumentUploadProvider
 
   STATSD_PROVIDER_METRIC = 'lighthouse_supplemental_document_upload_provider'
 
+  # Maps VA's internal Document Types to the correct document_type attribute for a Lighthouse526DocumentUpload polling
+  # record. We need this to create a valid polling record
+  POLLING_DOCUMENT_TYPES = {
+    'L023' => Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE,
+    'L228' => Lighthouse526DocumentUpload::FORM_0781_DOCUMENT_TYPE,
+    'L229' => Lighthouse526DocumentUpload::FORM_0781A_DOCUMENT_TYPE
+  }.freeze
   # @param form526_submission [Form526Submission]
   #
   # @param va_document_type [String] VA document code, see LighthouseDocument::DOCUMENT_TYPES
@@ -82,7 +89,8 @@ class LighthouseSupplementalDocumentUploadProvider
   def base_logging_info
     {
       class: 'LighthouseSupplementalDocumentUploadProvider',
-      submission_id: @form526_submission.submitted_claim_id,
+      submitted_claim_id: @form526_submission.submitted_claim_id,
+      submission_id: @form526_submission.id,
       user_uuid: @form526_submission.user_uuid,
       va_document_type_code: @va_document_type,
       primary_form: 'Form526'
@@ -173,9 +181,6 @@ class LighthouseSupplementalDocumentUploadProvider
     # Veteran-uploaded documents can be numerous VA document types
     return Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE if @supporting_evidence_attachment
 
-    case @va_document_type
-    when 'L023'
-      Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE
-    end
+    POLLING_DOCUMENT_TYPES[@va_document_type]
   end
 end

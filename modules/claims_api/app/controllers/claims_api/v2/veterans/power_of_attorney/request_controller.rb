@@ -13,22 +13,32 @@ module ClaimsApi
 
         def index
           poa_codes = form_attributes['poaCodes']
+          page_size = form_attributes['pageSize']
+          page_index = form_attributes['pageIndex']
+          filter = form_attributes['filter'] || {}
 
           unless poa_codes.is_a?(Array) && poa_codes.size.positive?
             raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
                                                              detail: 'poaCodes is required and cannot be empty')
           end
 
-          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
-                                                    external_key: 'power_of_attorney_request_key')
+          if page_index.present? && page_size.blank?
+            raise ::Common::Exceptions::ParameterMissing.new('pageSize',
+                                                             detail: 'pageSize is required when pageIndex is present')
+          end
 
-          res = service.read_poa_request(poa_codes:)
+          validate_filter!(filter)
+
+          service = ClaimsApi::ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
+                                                               external_key: 'power_of_attorney_request_key')
+
+          res = service.read_poa_request(poa_codes:, page_size:, page_index:, filter:)
 
           poa_list = res['poaRequestRespondReturnVOList']
 
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
-          render json: poa_list, status: :ok
+          render json: Array.wrap(poa_list), status: :ok
         end
 
         def decide
@@ -44,7 +54,7 @@ module ClaimsApi
           unless decision && %w[accepted declined].include?(normalize(decision))
             raise ::Common::Exceptions::ParameterMissing.new(
               'decision',
-              detail: 'decision is required and must be either "accepted" or "declined"'
+              detail: 'decision is required and must be either "ACCEPTED" or "DECLINED"'
             )
           end
 
@@ -59,7 +69,7 @@ module ClaimsApi
           render json: res, status: :ok
         end
 
-        def request_representative
+        def create
           # validate target veteran exists
           target_veteran
 
@@ -81,10 +91,11 @@ module ClaimsApi
 
           # skip the BGS API calls in lower environments to prevent 3rd parties from creating data in external systems
           unless Flipper.enabled?(:lighthouse_claims_v2_poa_requests_skip_bgs)
-            ClaimsApi::PowerOfAttorneyRequestService::Orchestrator.new(target_veteran.participant_id,
-                                                                       bgs_form_attributes.deep_symbolize_keys,
-                                                                       user_profile&.profile&.participant_id,
-                                                                       :poa).submit_request
+            res = ClaimsApi::PowerOfAttorneyRequestService::Orchestrator.new(target_veteran.participant_id,
+                                                                             bgs_form_attributes.deep_symbolize_keys,
+                                                                             user_profile&.profile&.participant_id,
+                                                                             :poa).submit_request
+            form_attributes['procId'] = res['procId']
           end
 
           # return only the form information consumers provided
@@ -120,6 +131,40 @@ module ClaimsApi
           bgs_form_attributes.deep_merge!(organization_data) if @organization
 
           bgs_form_attributes
+        end
+
+        def validate_filter!(filter)
+          return nil if filter.blank?
+
+          valid_filters = %w[status state city country]
+
+          invalid_filters = filter.keys - valid_filters
+
+          if invalid_filters.any?
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: "Invalid filter(s): #{invalid_filters.join(', ')}"
+            )
+          end
+
+          validate_statuses!(filter['status'])
+        end
+
+        def validate_statuses!(statuses)
+          return nil if statuses.blank?
+
+          unless statuses.is_a?(Array)
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: 'filter status must be an array'
+            )
+          end
+
+          valid_statuses = ManageRepresentativeService::ALL_STATUSES
+
+          if statuses.any? { |status| valid_statuses.exclude?(status.upcase) }
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: "Status(es) must be one of: #{valid_statuses.join(', ')}"
+            )
+          end
         end
 
         def normalize(item)
