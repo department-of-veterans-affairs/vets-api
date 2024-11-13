@@ -15,6 +15,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     let(:current_user) { build(:ch33_dd_user) }
 
     before do
+      Flipper.disable(:hca_disable_bgs_service)
       sign_in_as(current_user)
     end
 
@@ -26,6 +27,22 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       expect(JSON.parse(response.body)['data']['attributes']).to eq(
         { 'user_percent_of_disability' => 100 }
       )
+    end
+
+    context 'hca_disable_bgs_service enabled' do
+      before do
+        Flipper.enable(:hca_disable_bgs_service)
+      end
+
+      it 'returns the rating info as 0' do
+        VCR.use_cassette('bgs/service/find_rating_data', VCR::MATCH_EVERYTHING) do
+          get(rating_info_v0_health_care_applications_path)
+        end
+
+        expect(JSON.parse(response.body)['data']['attributes']).to eq(
+          { 'user_percent_of_disability' => 0 }
+        )
+      end
     end
 
     context 'User not found' do
