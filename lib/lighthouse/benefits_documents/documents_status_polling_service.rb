@@ -4,7 +4,7 @@ require 'common/client/base'
 require 'lighthouse/benefits_documents/configuration'
 
 module BenefitsDocuments
-  class PollingService < Common::Client::Base
+  class DocumentsStatusPollingService < Common::Client::Base
     configuration BenefitsDocuments::Configuration
 
     def self.call(args)
