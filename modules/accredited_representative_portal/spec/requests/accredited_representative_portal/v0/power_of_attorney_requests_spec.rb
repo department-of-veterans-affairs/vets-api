@@ -38,4 +38,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       expect(JSON.parse(response.body)).to eq(poa_request_list_mock_data)
     end
   end
+  
+  describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests/:id' do
+    it 'returns the details of a power of attorney request' do
+      get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request_details_id}")
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to include(poa_request_details_mock_data)
+    end
+  end
 end
