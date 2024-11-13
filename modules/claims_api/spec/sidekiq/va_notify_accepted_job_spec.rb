@@ -90,7 +90,7 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
               email: va_notify_rep.email,
               phone: va_notify_rep.phone_number
             },
-            template_id: Settings.claims_api.vanotify.representative_template_id
+            template_id: Settings.claims_api.vanotify.accepted_representative_template_id
           }
         end
 
@@ -119,7 +119,7 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
               email: va_notify_rep.email,
               phone: va_notify_rep.phone_number
             },
-            template_id: Settings.claims_api.vanotify.representative_template_id
+            template_id: Settings.claims_api.vanotify.accepted_representative_template_id
           }
         end
 
@@ -145,7 +145,7 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
               location: 'Pensacola, FL 12345-9876',
               phone: ''
             },
-            template_id: Settings.claims_api.vanotify.service_organization_template_id
+            template_id: Settings.claims_api.vanotify.accepted_service_organization_template_id
           }
         end
 

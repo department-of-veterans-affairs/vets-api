@@ -5,8 +5,6 @@ module ClaimsApi
     LOG_TAG = 'va_notify_declined_job'
 
     def perform(poa_id)
-      return if Rails.env.test?
-
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
 
       unless poa
@@ -45,7 +43,7 @@ module ClaimsApi
         recipient_identifier: recipient_identifier(poa),
         personalisation: {
           first_name: poa.auth_headers['va_eauth_firstName'] || '',
-          form_type: "Appointment of Veterans Service Organization as Claimant's Representative (VA Form 21-22)"
+          form_type: 'Appointment of Veterans Service Organization as Claimantʼs Representative (VA Form 21-22)'
         },
         template_id: Settings.claims_api.vanotify.declined_service_organization_template_id
       }
@@ -62,7 +60,7 @@ module ClaimsApi
           first_name: poa.auth_headers['va_eauth_firstName'] || '',
           representative_type: representative_type || '',
           representative_type_abbreviated: representative_type_abbreviated(representative_type),
-          form_type: "Appointment of Individual as Claimant's Representative (VA Form 21-22a)"
+          form_type: 'Appointment of Individual as Claimantʼs Representative (VA Form 21-22a)'
         },
         template_id: Settings.claims_api.vanotify.declined_representative_template_id
       }
