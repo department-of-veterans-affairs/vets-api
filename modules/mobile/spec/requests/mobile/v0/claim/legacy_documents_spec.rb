@@ -5,13 +5,8 @@ require_relative '../../../../support/helpers/rails_helper'
 RSpec.describe 'legacy Mobile::V0::Claim::Document', :skip_json_api_validation, type: :request do
   include JsonSchemaMatchers
 
-  before do
-    Flipper.disable(:mobile_lighthouse_document_upload)
-    Flipper.disable(:mobile_lighthouse_document_upload, user)
-    FileUtils.rm_rf(Rails.root.join('tmp', 'uploads', 'cache', '*'))
-  end
-
   let!(:user) { sis_user(icn: '1008596379V859838') }
+  let(:user_account) { create(:user_account) }
   let(:file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
   let(:tracked_item_id) { 33 }
   let(:document_type) { 'L023' }
@@ -19,6 +14,14 @@ RSpec.describe 'legacy Mobile::V0::Claim::Document', :skip_json_api_validation, 
     FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
   end
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
+
+  before do
+    Flipper.disable(:mobile_lighthouse_document_upload)
+    Flipper.disable(:mobile_lighthouse_document_upload, user)
+    FileUtils.rm_rf(Rails.root.join('tmp', 'uploads', 'cache', '*'))
+    user.user_account_uuid = user_account.id
+    user.save!
+  end
 
   it 'uploads a file' do
     params = { file:, trackedItemId: tracked_item_id, documentType: document_type }
