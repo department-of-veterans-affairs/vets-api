@@ -7,13 +7,13 @@ module HCA
 
     def perform(in_progress_form_id, user_uuid)
       if Flipper.enabled?(:hca_log_email_diff_in_progress_form)
-        log_different_email(in_progress_form_id, user_uuid)
+        log_email_difference(in_progress_form_id, user_uuid)
       else
-        log_different_email_redis(in_progress_form_id, user_uuid)
+        log_email_difference_redis(in_progress_form_id, user_uuid)
       end
     end
 
-    def log_different_email_redis(in_progress_form_id, user_uuid)
+    def log_email_difference_redis(in_progress_form_id, user_uuid)
       redis_key = "HCA::LogEmailDiffJob:#{user_uuid}"
       return if $redis.get(redis_key).present?
 
@@ -37,7 +37,7 @@ module HCA
       $redis.set(redis_key, 't')
     end
 
-    def log_different_email(in_progress_form_id, user_uuid)
+    def log_email_difference(in_progress_form_id, user_uuid)
       return if InProgressEmailMatchLog.exists?(user_uuid:, in_progress_form_id:)
 
       in_progress_form = InProgressForm.find_by(id: in_progress_form_id)
