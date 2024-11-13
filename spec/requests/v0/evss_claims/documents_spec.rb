@@ -11,8 +11,13 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
                                    user_uuid: user.uuid, data: {})
   end
   let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user_account) { create(:user_account) }
 
-  before { sign_in_as(user) }
+  before do
+    sign_in_as(user)
+    user.user_account_uuid = user_account.id
+    user.save!
+  end
 
   it 'uploads a file' do
     params = { file:, tracked_item_id:, document_type: }

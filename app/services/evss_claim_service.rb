@@ -66,6 +66,7 @@ class EVSSClaimService
     job_id = EVSS::DocumentUpload.perform_async(headers, @user.user_account_uuid,
                                                 evss_claim_document.to_serializable_hash)
 
+    record_evidence_submission(evss_claim_document.evss_claim_id, job_id, evss_claim_document.tracked_item_id)
     record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
 
     job_id
@@ -122,6 +123,19 @@ class EVSSClaimService
                           job_id:,
                           revision: 2
                         })
+  end
+
+  def record_evidence_submission(claim_id, job_id, tracked_item_id)
+    user_account = UserAccount.find(@user.user_account_uuid)
+    job_class = self.class
+    upload_status = 'pending'
+    evidence_submission = EvidenceSubmission.new(claim_id:,
+                                                 tracked_item_id:,
+                                                 job_id:,
+                                                 job_class:,
+                                                 upload_status:)
+    evidence_submission.user_account = user_account
+    evidence_submission.save!
   end
 
   def claims_scope
