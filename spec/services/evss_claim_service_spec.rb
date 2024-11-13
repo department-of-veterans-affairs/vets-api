@@ -119,6 +119,7 @@ RSpec.describe EVSSClaimService do
       user.user_account_uuid = user_account.id
       user.save!
     end
+
     let(:upload_file) do
       f = Tempfile.new(['file with spaces', '.txt'])
       f.write('test')
