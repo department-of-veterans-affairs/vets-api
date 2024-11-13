@@ -34,10 +34,10 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         Flipper.enable(:hca_disable_bgs_service)
       end
 
-      it 'returns the rating info as 0' do
-        VCR.use_cassette('bgs/service/find_rating_data', VCR::MATCH_EVERYTHING) do
-          get(rating_info_v0_health_care_applications_path)
-        end
+      it 'does not call the BGS Service and returns the rating info as 0' do
+        expect_any_instance_of(BGS::Service).not_to receive(:find_rating_data)
+
+        get(rating_info_v0_health_care_applications_path)
 
         expect(JSON.parse(response.body)['data']['attributes']).to eq(
           { 'user_percent_of_disability' => 0 }
