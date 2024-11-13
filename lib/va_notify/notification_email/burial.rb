@@ -22,12 +22,14 @@ module Burials
       benefits_claimed = " - #{claim.benefits_claimed.join(" \n - ")}"
 
       burials = {
+        # confirmation
         'form_name' => 'Burial Benefit Claim (Form 21P-530)',
         'deceased_veteran_first_name_last_initial' => veteran_name,
         'benefits_claimed' => benefits_claimed,
         'facility_name' => facility_name,
         'street_address' => street_address,
         'city_state_zip' => city_state_zip,
+        # confirmation, error
         'first_name' => claim.claimaint_first_name&.upcase
       }
 

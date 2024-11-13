@@ -157,4 +157,16 @@ describe BBInternal::Client do
       end
     end
   end
+
+  describe '#get_bbmi_notification_setting' do
+    it 'retrieves the BBMI notification setting' do
+      VCR.use_cassette 'mr_client/bb_internal/get_bbmi_notification_setting' do
+        notification_setting = client.get_bbmi_notification_setting
+
+        expect(notification_setting).to be_a(Hash)
+        expect(notification_setting).to have_key('flag')
+        expect(notification_setting['flag']).to eq(true)
+      end
+    end
+  end
 end

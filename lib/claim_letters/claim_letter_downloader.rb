@@ -6,6 +6,20 @@ module ClaimStatusTool
   class ClaimLetterDownloader
     FILENAME = 'ClaimLetter'
     DEFAULT_ALLOWED_DOCTYPES = %w[184].freeze
+    DOCTYPE_TO_TYPE_DESCRIPTION = {
+      '27' => 'Board decision',
+      '34' => 'Request for specific evidence or information',
+      '184' => 'Claim decision (or other notification, like Intent to File)',
+      '408' => 'Notification: Exam with VHA has been scheduled',
+      '700' => 'Request for specific evidence or information',
+      '704' => 'List of evidence we may need ("5103 notice")',
+      '706' => 'List of evidence we may need ("5103 notice")',
+      '858' => 'List of evidence we may need ("5103 notice")',
+      '859' => 'Request for specific evidence or information',
+      '864' => 'Copy of request for medical records sent to a non-VA provider',
+      '942' => 'Final notification: Request for specific evidence or information',
+      '1605' => 'Copy of request for non-medical records sent to a non-VA organization'
+    }.freeze
 
     def initialize(user, allowed_doctypes = DEFAULT_ALLOWED_DOCTYPES)
       @user = user
@@ -79,6 +93,8 @@ module ClaimStatusTool
       # using marshal_dump here because each document is an OpenStruct
       letters = docs.map { |d| filter_letters(d.marshal_dump) }.compact
       letters = letters.select { |d| filter_boa_letters(d) }
+      # Issue 96224, consolidating letters' display names upstream
+      letters.each { |d| d[:type_description] = DOCTYPE_TO_TYPE_DESCRIPTION[d[:doc_type]] }
       # TODO: (rare) Handle nil received_at
       letters.sort_by { |d| d[:received_at] }.reverse
     end
