@@ -10,7 +10,7 @@ module IvcChampva
         Datadog::Tracing.trace('Start PEGA Status Update') do
           data = JSON.parse(params.to_json)
 
-          tags = ['service:ivc_champva', 'function:form submission to Pega']
+          tags = ['service:ivc_champva', "function:#{form_type} form submission to PEGA"]
 
           unless data.is_a?(Hash)
             # Log the failure due to invalid JSON format
@@ -23,7 +23,6 @@ module IvcChampva
             if valid_keys?(data)
               update_data(data['form_uuid'], data['file_names'], data['status'], data['case_id'])
             else
-              # Log the failure due to invalid keys
               StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
               { json: { error_message: 'Invalid JSON keys' }, status: :bad_request }
             end
