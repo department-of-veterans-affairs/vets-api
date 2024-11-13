@@ -33,17 +33,7 @@ module VRE
     def self.trigger_failure_events(msg)
       claim_id, encrypted_user = msg['args']
       claim = SavedClaim.find(claim_id)
-      user = OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user)))
-      email = claim.parsed_form['email'] || user['va_profile_email']
-      VANotify::EmailJob.perform_async(
-        email,
-        Settings.vanotify.services.va_gov.template_id.form1900_action_needed_email,
-        {
-          'first_name' => claim.parsed_form.dig('veteranInformation', 'fullName', 'first'),
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => claim.confirmation_number
-        }
-      )
+      claim.send_failure_email(encrypted_user) if claim.present?
     end
   end
 end
