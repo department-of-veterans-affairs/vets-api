@@ -10,7 +10,7 @@ module IvcChampva
         Datadog::Tracing.trace('Start PEGA Status Update') do
           data = JSON.parse(params.to_json)
 
-          tags = ['service:ivc_champva', "function:#{form_type} form submission to PEGA"]
+          tags = ['service:ivc_champva', 'function:form submission to Pega']
 
           unless data.is_a?(Hash)
             # Log the failure due to invalid JSON format
