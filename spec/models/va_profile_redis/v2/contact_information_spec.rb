@@ -22,7 +22,7 @@ describe VAProfileRedis::V2::ContactInformation do
   end
 
   before do
-    Flipper.enable(:va_v3_contact_information_service)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
   end
 
