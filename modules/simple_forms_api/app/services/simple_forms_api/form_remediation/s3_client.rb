@@ -10,8 +10,8 @@ module SimpleFormsApi
       include FileUtilities
 
       class << self
-        def fetch_presigned_url(id, type: :submission)
-          new(id:).generate_presigned_url(type:)
+        def fetch_presigned_url(id, config:, type: :submission)
+          new(id:, config:, type:).retrieve_presigned_url
         end
       end
 
@@ -115,6 +115,12 @@ module SimpleFormsApi
 
       def generate_presigned_url(type: upload_type)
         s3_uploader.get_s3_link(s3_upload_file_path(type))
+      end
+
+      def retrieve_presigned_url
+        archive = config.submission_archive_class.new(config:, id:, type: upload_type)
+        @archive_path, @manifest_row = archive.retrieval_data
+        generate_presigned_url(type: upload_type)
       end
 
       def s3_upload_file_path(type)
