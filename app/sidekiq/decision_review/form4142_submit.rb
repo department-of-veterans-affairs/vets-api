@@ -18,7 +18,7 @@ module DecisionReview
       appeal_submission_id, _encrypted_payload, submitted_appeal_uuid = msg['args']
       job_id = msg['jid']
 
-      tags = ['service:supplemental-claims-4142', 'function: 21-4142 PDF submission to Lighthouse']
+      tags = ['service:supplemental-claims', 'function: secondary form submission to Lighthouse']
       StatsD.increment('silent_failure', tags:)
 
       ::Rails.logger.error(
@@ -33,6 +33,15 @@ module DecisionReview
         }
       )
       StatsD.increment("#{STATSD_KEY_PREFIX}.permanent_error")
+
+      begin
+        submission = AppealSubmission.find(appeal_submission_id)
+        response = send_notification_email(submission)
+
+        record_email_send_successful(submission, response.id)
+      rescue => e
+        record_email_send_failure(submission, e)
+      end
     end
 
     def decrypt_form(encrypted_payload)
@@ -64,5 +73,46 @@ module DecisionReview
     def decision_review_service
       DecisionReviewV1::Service.new
     end
+
+    def self.send_notification_email(submission)
+      appeal_type = submission.type_of_appeal
+      created_at = submission.created_at
+      reference = "#{appeal_type}-secondary_form-#{submission.submitted_appeal_uuid}"
+
+      email_address = submission.current_email_address
+      template_id = DecisionReviewV1::SECONDARY_FORM_TEMPLATE_ID
+      personalisation = {
+        first_name: submission.get_mpi_profile.given_names[0],
+        date_submitted: created_at.strftime('%B %d, %Y')
+      }
+
+      service = ::VaNotify::Service.new(Settings.vanotify.services.benefits_decision_review.api_key)
+      service.send_email({ email_address:, template_id:, personalisation:, reference: })
+    end
+    private_class_method :send_notification_email
+
+    def self.record_email_send_successful(submission, notification_id)
+      appeal_type = submission.type_of_appeal
+      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
+                 appeal_type:,
+                 notification_id: }
+      Rails.logger.info('DecisionReview::Form4142Submit retries exhausted email queued', params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted.email_queued")
+
+      tags = ["service:#{DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
+              'function: secondary form submission to Lighthouse']
+      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
+    end
+    private_class_method :record_email_send_successful
+
+    def self.record_email_send_failure(submission, e)
+      appeal_type = submission.type_of_appeal
+      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
+                 appeal_type:,
+                 message: e.message }
+      Rails.logger.error('DecisionReview::Form4142Submit retries exhausted email error', params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted.email_error", tags: ["appeal_type:#{appeal_type}"])
+    end
+    private_class_method :record_email_send_failure
   end
 end
