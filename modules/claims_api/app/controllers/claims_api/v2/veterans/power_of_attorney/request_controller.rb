@@ -15,6 +15,7 @@ module ClaimsApi
           poa_codes = form_attributes['poaCodes']
           page_size = form_attributes['pageSize']
           page_index = form_attributes['pageIndex']
+          filter = form_attributes['filter'] || {}
 
           unless poa_codes.is_a?(Array) && poa_codes.size.positive?
             raise ::Common::Exceptions::ParameterMissing.new('poaCodes',
@@ -26,10 +27,12 @@ module ClaimsApi
                                                              detail: 'pageSize is required when pageIndex is present')
           end
 
-          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
-                                                    external_key: 'power_of_attorney_request_key')
+          validate_filter!(filter)
 
-          res = service.read_poa_request(poa_codes:, page_size:, page_index:)
+          service = ClaimsApi::ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
+                                                               external_key: 'power_of_attorney_request_key')
+
+          res = service.read_poa_request(poa_codes:, page_size:, page_index:, filter:)
 
           poa_list = res['poaRequestRespondReturnVOList']
 
@@ -128,6 +131,40 @@ module ClaimsApi
           bgs_form_attributes.deep_merge!(organization_data) if @organization
 
           bgs_form_attributes
+        end
+
+        def validate_filter!(filter)
+          return nil if filter.blank?
+
+          valid_filters = %w[status state city country]
+
+          invalid_filters = filter.keys - valid_filters
+
+          if invalid_filters.any?
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: "Invalid filter(s): #{invalid_filters.join(', ')}"
+            )
+          end
+
+          validate_statuses!(filter['status'])
+        end
+
+        def validate_statuses!(statuses)
+          return nil if statuses.blank?
+
+          unless statuses.is_a?(Array)
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: 'filter status must be an array'
+            )
+          end
+
+          valid_statuses = ManageRepresentativeService::ALL_STATUSES
+
+          if statuses.any? { |status| valid_statuses.exclude?(status.upcase) }
+            raise ::Common::Exceptions::UnprocessableEntity.new(
+              detail: "Status(es) must be one of: #{valid_statuses.join(', ')}"
+            )
+          end
         end
 
         def normalize(item)
