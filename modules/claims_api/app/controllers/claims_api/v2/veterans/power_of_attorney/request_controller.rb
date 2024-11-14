@@ -44,7 +44,8 @@ module ClaimsApi
           poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, service:) if decision == 'declined'
 
           if poa_request
-            first_name = poa_request['vetFirstName'].presence || poa_request['VSOUserFirstName'].presence
+            first_name = poa_request['claimantFirstName'] || poa_request['vetFirstName'].presence ||
+                         poa_request['VSOUserFirstName'].presence
             poa_code = poa_request['poaCode']
           end
 
