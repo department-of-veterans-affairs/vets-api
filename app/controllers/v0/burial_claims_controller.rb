@@ -4,26 +4,28 @@ require 'pension_burial/tag_sentry'
 require 'burials/monitor'
 
 module V0
-  class BurialClaimsController < ClaimsBaseController
+  class BurialClaimsController < ApplicationController
     service_tag 'burial-application'
 
+    # an identifier that matches the parameter that the form will be set as in the JSON submission.
+    def short_name
+      'burial_claim'
+    end
+
+    # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
+    def claim_class
+      SavedClaim::Burial
+    end
+
     def show
-      # TODO: update FE to no longer poll for submission, @see Pensions::ClaimsController
       claim = claim_class.find_by!(guid: params[:id])
-      form_submission = claim&.form_submissions&.last
-      submission_attempt = form_submission&.form_submission_attempts&.last
-      if submission_attempt
-        state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
-        render(json: { data: { attributes: { state: } } })
-      elsif central_mail_submission
-        render json: CentralMailSubmissionSerializer.new(central_mail_submission)
-      end
+      render json: SavedClaimSerializer.new(claim)
     rescue ActiveRecord::RecordNotFound => e
       monitor.track_show404(params[:id], current_user, e)
-      render(json: { data: { attributes: { state: 'not found' } } }, status: :not_found)
+      render(json: { error: e.to_s }, status: :not_found)
     rescue => e
       monitor.track_show_error(params[:id], current_user, e)
-      render(json: { data: { attributes: { state: 'error processing request' } } }, status: :unprocessable_entity)
+      raise e
     end
 
     def create
@@ -64,20 +66,6 @@ module V0
 
     private
 
-    # an identifier that matches the parameter that the form will be set as in the JSON submission.
-    def short_name
-      'burial_claim'
-    end
-
-    # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
-    def claim_class
-      SavedClaim::Burial
-    end
-
-    def central_mail_submission
-      CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
-    end
-
     def process_and_upload_to_lighthouse(in_progress_form, claim)
       claim.process_attachments!
 
@@ -85,6 +73,11 @@ module V0
     rescue => e
       monitor.track_process_attachment_error(in_progress_form, claim, current_user)
       raise e
+    end
+
+    # Filters out the parameters to form access.
+    def filtered_params
+      params.require(short_name.to_sym).permit(:form)
     end
 
     ##
