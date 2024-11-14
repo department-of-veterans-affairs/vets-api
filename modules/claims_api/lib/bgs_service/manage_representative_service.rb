@@ -30,6 +30,17 @@ module ClaimsApi
                    namespaces: { 'data' => '/data' }, transform_response: false)
     end
 
+    def read_poa_request_by_ptcpnt_id(ptcpnt_id:)
+      builder = Nokogiri::XML::Builder.new do
+        PtcpntId ptcpnt_id
+      end
+
+      body = builder_to_xml(builder)
+
+      make_request(endpoint: bean_name, action: 'readPOARequestByPtcpntId', body:, key: 'POARequestRespondReturnVO',
+                   namespaces: { 'data' => '/data' }, transform_response: false)
+    end
+
     def update_poa_request(proc_id:, representative: {}, secondary_status: 'obsolete', declined_reason: nil)
       first_name = representative[:first_name].presence || 'vets-api'
       last_name = representative[:last_name].presence || 'vets-api'

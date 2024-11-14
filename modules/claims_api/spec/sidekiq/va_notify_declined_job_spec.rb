@@ -6,58 +6,57 @@ describe ClaimsApi::VANotifyDeclinedJob, type: :job do
   subject { described_class.new }
 
   let(:va_notify_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY.to_s }
+  let(:lockbox) { Lockbox.new(key: Settings.lockbox.master_key) }
 
   context 'when the poa is a service organization' do
     let(:vanotify_service) { instance_double(VaNotify::Service) }
-    let(:poa) do
-      create(:power_of_attorney,
-             form_data: { serviceOrganization: 'some organization' },
-             auth_headers: {
-               'va_eauth_firstName' => 'Jane',
-               va_notify_key => '1234567890'
-             })
-    end
+    let(:ptcpnt_id) { '123456789' }
+    let(:first_name) { 'Jane' }
+    let(:encrypted_ptcpnt_id) { lockbox.encrypt(ptcpnt_id) }
+    let(:encrypted_first_name) { lockbox.encrypt(first_name) }
+    let(:poa_code) { '123' }
 
     before do
       allow(VaNotify::Service).to receive(:new).with(anything).and_return(vanotify_service)
+      create(:power_of_attorney, form_data: { serviceOrganization: { poaCode: poa_code } },
+                                 auth_headers: {})
     end
 
     it 'sends a declined service organization notification' do
       expect(vanotify_service).to receive(:send_email)
         .with({
-                recipient_identifier: poa.auth_headers[va_notify_key],
+                recipient_identifier: ptcpnt_id,
                 personalisation: {
-                  first_name: poa.auth_headers['va_eauth_firstName'],
+                  first_name:,
                   form_type: 'Appointment of Veterans Service Organization as Claimantʼs Representative (VA Form 21-22)'
                 },
                 template_id: Settings.claims_api.vanotify.declined_service_organization_template_id
               })
 
-      subject.perform(poa.id)
+      subject.perform(encrypted_ptcpnt_id:, encrypted_first_name:, poa_code:)
     end
   end
 
   context 'when the poa is an individual/representative' do
     let(:vanotify_service) { instance_double(VaNotify::Service) }
-    let(:poa) do
-      create(:power_of_attorney,
-             form_data: { representative: { type: 'attorney' } },
-             auth_headers: {
-               'va_eauth_firstName' => 'Jane',
-               va_notify_key => '1234567890'
-             })
-    end
+    let(:ptcpnt_id) { '123456789' }
+    let(:first_name) { 'Jane' }
+    let(:encrypted_ptcpnt_id) { lockbox.encrypt(ptcpnt_id) }
+    let(:encrypted_first_name) { lockbox.encrypt(first_name) }
+    let(:poa_code) { '456' }
 
     before do
       allow(VaNotify::Service).to receive(:new).with(anything).and_return(vanotify_service)
+      create(:power_of_attorney, form_data: { representative: { type: 'attorney', poaCode: poa_code } },
+                                 auth_headers: {})
     end
 
     it 'sends a declined individual/representative notification' do
       expect(vanotify_service).to receive(:send_email)
         .with({
-                recipient_identifier: poa.auth_headers[va_notify_key],
+                recipient_identifier: ptcpnt_id,
                 personalisation: {
-                  first_name: poa.auth_headers['va_eauth_firstName'],
+                  first_name: first_name,
                   representative_type: 'attorney',
                   representative_type_abbreviated: 'attorney',
                   form_type: 'Appointment of Individual as Claimantʼs Representative (VA Form 21-22a)'
@@ -65,7 +64,7 @@ describe ClaimsApi::VANotifyDeclinedJob, type: :job do
                 template_id: Settings.claims_api.vanotify.declined_service_organization_template_id
               })
 
-      subject.perform(poa.id)
+      subject.perform(encrypted_ptcpnt_id:, encrypted_first_name:, poa_code:)
     end
   end
 end
