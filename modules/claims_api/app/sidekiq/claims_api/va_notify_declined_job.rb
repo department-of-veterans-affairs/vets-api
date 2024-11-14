@@ -4,19 +4,19 @@ module ClaimsApi
   class VANotifyDeclinedJob < ClaimsApi::ServiceBase
     LOG_TAG = 'va_notify_declined_job'
 
-    def perform(encrypted_ptcpnt_id:, encrypted_first_name:, poa_code:)
+    def perform(encrypted_ptcpnt_id:, encrypted_first_name:, representative_id:)
       lockbox = Lockbox.new(key: Settings.lockbox.master_key)
       ptcpnt_id = lockbox.decrypt(encrypted_ptcpnt_id)
       first_name = lockbox.decrypt(encrypted_first_name)
-      poa = find_poa(poa_code:)
+      representative = ::Veteran::Service::Representative.find_by(representative_id:)
 
-      if poa.blank?
+      if representative.blank?
         raise ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
-          detail: "Could not find Power of Attorney with POA code: #{poa_code}"
+          detail: "Could not find veteran representative with id: #{representative_id}"
         )
       end
 
-      res = send_declined_notification(ptcpnt_id:, first_name:, poa:)
+      res = send_declined_notification(ptcpnt_id:, first_name:, representative:)
 
       ClaimsApi::VANotifyFollowUpJob.perform_async(res.id) if res.present?
     rescue => e
@@ -40,10 +40,11 @@ module ClaimsApi
       end
     end
 
-    def send_declined_notification(ptcpnt_id:, first_name:, poa:)
-      return send_organization_notification(ptcpnt_id:, first_name:) if poa.form_data['serviceOrganization'].present?
+    def send_declined_notification(ptcpnt_id:, first_name:, representative:)
+      representative_type = representative.user_type
+      return send_organization_notification(ptcpnt_id:, first_name:) if representative_type == 'veteran_service_officer'
 
-      send_representative_notification(ptcpnt_id:, first_name:, poa:)
+      send_representative_notification(ptcpnt_id:, first_name:, representative_type:)
     end
 
     def send_organization_notification(ptcpnt_id:, first_name:)
@@ -59,15 +60,15 @@ module ClaimsApi
       vanotify_service.send_email(content)
     end
 
-    def send_representative_notification(ptcpnt_id:, first_name:, poa:)
-      representative_type = poa.form_data.dig('representative', 'type')
+    def send_representative_notification(ptcpnt_id:, first_name:, representative_type:)
+      representative_type_text = get_representative_type_text(representative_type:)
 
       content = {
         recipient_identifier: ptcpnt_id,
         personalisation: {
           first_name: first_name || '',
-          representative_type: representative_type || '',
-          representative_type_abbreviated: representative_type_abbreviated(representative_type),
+          representative_type: representative_type_text,
+          representative_type_abbreviated: representative_type_text,
           form_type: 'Appointment of Individual as Claimantʼs Representative (VA Form 21-22a)'
         },
         template_id: Settings.claims_api.vanotify.declined_representative_template_id
@@ -76,8 +77,13 @@ module ClaimsApi
       vanotify_service.send_email(content)
     end
 
-    def representative_type_abbreviated(representative_type)
-      representative_type == 'Veteran Service Organization (VSO)' ? 'VSO' : representative_type
+    def get_representative_type_text(representative_type:)
+      case representative_type
+      when 'attorney'
+        'attorney'
+      when 'claim_agents'
+        'claims agent'
+      end
     end
 
     def vanotify_service

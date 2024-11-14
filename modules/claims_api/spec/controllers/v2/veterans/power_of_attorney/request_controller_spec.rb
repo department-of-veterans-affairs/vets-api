@@ -134,7 +134,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       it 'enqueues the VANotifyDeclinedJob' do
         mock_ccg(scopes) do |auth_header|
           expect do
-            decide_request_with(proc_id: '76529', decision: 'DECLINED', auth_header:, ptcpnt_id: '123456789')
+            decide_request_with(proc_id: '76529', decision: 'DECLINED', auth_header:, ptcpnt_id: '123456789',
+                                representative_id: '456')
           end.to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size).by(1)
         end
       end
@@ -292,9 +293,10 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
          headers: auth_header
   end
 
-  def decide_request_with(proc_id:, decision:, auth_header:, ptcpnt_id: nil)
+  def decide_request_with(proc_id:, decision:, auth_header:, ptcpnt_id: nil, representative_id: nil)
     post v2_veterans_power_of_attorney_requests_decide_path,
-         params: { data: { attributes: { procId: proc_id, decision:, ptcpntId: ptcpnt_id } } }.to_json,
+         params: { data: { attributes: { procId: proc_id, decision:, ptcpntId: ptcpnt_id,
+                                         representativeId: representative_id } } }.to_json,
          headers: auth_header
   end
 
