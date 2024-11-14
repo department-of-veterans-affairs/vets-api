@@ -54,6 +54,7 @@ module TravelPay
       Rails.logger.error(message: "#{e}, #{e.original_body}")
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     rescue => e
+      Rails.logger.error(message: "An unknown error occored: #{e}")
       Faraday::Response.new(response_body: {
                               'statusCode' => 520, # Unknown error code
                               'message' => "An unknown error occored: #{e}",
