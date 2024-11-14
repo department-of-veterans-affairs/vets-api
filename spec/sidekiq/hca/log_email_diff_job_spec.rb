@@ -19,7 +19,7 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
 
         subject
 
-        expect(InProgressEmailMatchLog).not_to receive(:create).with(
+        expect(FormEmailMatchesProfileLog).not_to receive(:create).with(
           user_uuid: user.uuid, in_progress_form_id: in_progress_form.id
         )
       end
@@ -68,9 +68,9 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
 
           expect_email_tag('same')
 
-          context 'when InProgressEmailMatchLog already exists' do
+          context 'when FormEmailMatchesProfileLog already exists' do
             before do
-              InProgressEmailMatchLog.create(user_uuid: user.uuid, in_progress_form_id: in_progress_form.id)
+              FormEmailMatchesProfileLog.create(user_uuid: user.uuid, in_progress_form_id: in_progress_form.id)
             end
 
             expect_does_nothing

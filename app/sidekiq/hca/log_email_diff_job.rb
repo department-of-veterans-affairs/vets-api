@@ -38,7 +38,7 @@ module HCA
     end
 
     def log_email_difference(in_progress_form_id, user_uuid)
-      return if InProgressEmailMatchLog.exists?(user_uuid:, in_progress_form_id:)
+      return if FormEmailMatchesProfileLog.exists?(user_uuid:, in_progress_form_id:)
 
       in_progress_form = InProgressForm.find_by(id: in_progress_form_id)
       return if in_progress_form.nil?
@@ -58,7 +58,7 @@ module HCA
         "api.1010ez.in_progress_form_email.#{tag_text}"
       )
 
-      InProgressEmailMatchLog.create(user_uuid:, in_progress_form_id:)
+      FormEmailMatchesProfileLog.create(user_uuid:, in_progress_form_id:)
     end
   end
 end
