@@ -21,8 +21,9 @@ module TravelPay
       }
     end
 
+    # For use only with the ClaimAssociationService due to specific error handling
     def get_claims_by_date_range(params = {}) # rubocop:disable Metrics/MethodLength
-      DateTime.parse(params['start_date'].to_s) && DateTime.parse(params['end_date'].to_s)
+      validate_date_params(params['start_date'], params['end_date'])
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, params)
@@ -41,16 +42,16 @@ module TravelPay
         )
 
       end
-      # Because we're appending this to the Appointments object, we need to not just throw an exception
-    rescue Date::Error => e
-      Rails.logger.debug(message: "#{e}. (given: #{params['start_date']} & #{params['end_date']}).")
+    # Because we're appending this to the Appointments object, we need to not just throw an exception
+    rescue ArgumentError => e
+      Rails.logger.error(message: e.message.to_s)
       Faraday::Response.new(response_body: {
                               'statusCode' => 400,
-                              'message' => "#{e}. (given: #{params['start_date']} & #{params['end_date']}).",
+                              'message' => e.message,
                               'success' => false
                             }, status: 400)
     rescue => e
-      Rails.logger.debug(message: "#{e}, #{e.original_body}")
+      Rails.logger.error(message: "#{e}, #{e.original_body}")
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
     end
 
@@ -113,19 +114,17 @@ module TravelPay
       claims
     end
 
-    # def validate_date_params(start_date, end_date)
-    #   if start_date && end_date
-    #     DateTime.parse(start_date.to_s) && DateTime.parse(end_date.to_s)
-    #   else
-    #     raise ArgumentError,
-    #           message: "Both start and end dates are required, got #{start_date}-#{end_date}."
-    #   end
-    # rescue Date::Error => e
-    #   Rails.logger.debug(message:
-    #   "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date}).")
-    #   raise ArgumentError,
-    #         message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
-    # end
+    def validate_date_params(start_date, end_date)
+      if start_date && end_date
+        DateTime.parse(start_date.to_s) && DateTime.parse(end_date.to_s)
+      else
+        raise ArgumentError,
+              message: "Both start and end dates are required, got #{start_date}-#{end_date}."
+      end
+    rescue Date::Error => e
+      raise ArgumentError,
+            message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
+    end
 
     def client
       TravelPay::ClaimsClient.new

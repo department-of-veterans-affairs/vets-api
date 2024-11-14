@@ -255,17 +255,33 @@ describe TravelPay::ClaimsService do
       expect(claims_by_date.body['message']).to eq('Data retrieved successfully.')
     end
 
+    it 'returns 400 with message if both start and end dates are not provided' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token], {
+                'start_date' => '2024-01-01T16:45:34Z'
+              })
+        .and_raise(ArgumentError.new(message: 'Both start and end dates are required.'))
+
+      bad_claims_call = @service.get_claims_by_date_range({ 'start_date' => '2024-01-01T16:45:34Z' })
+
+      expect(bad_claims_call.status).to equal(400)
+      expect(bad_claims_call.body['statusCode']).to equal(400)
+      expect(bad_claims_call.body['success']).to eq(false)
+      expect(bad_claims_call.body['message']).to include(/Both start and end/i)
+    end
+
     it 'returns 400 with error message if dates are invalid' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
         .with(tokens[:veis_token], tokens[:btsss_token], {
                 'start_date' => '2024-01-01T16:45:34Z',
-                'end_date' => '2024-03-01T16:45:34Z'
+                'end_date' => 'banana'
               })
-        .and_raise(Date::Error.new(message: 'invalid date.'))
+        .and_raise(ArgumentError.new(message: 'invalid date.'))
 
       bad_claims_call = @service.get_claims_by_date_range(
-        { 'start_date' => '2024-01-01T16:45:34.465Z', 'end_date' => 'banana' }
+        { 'start_date' => '2024-01-01T16:45:34Z', 'end_date' => 'banana' }
       )
       expect(bad_claims_call.status).to equal(400)
       expect(bad_claims_call.body['statusCode']).to equal(400)
