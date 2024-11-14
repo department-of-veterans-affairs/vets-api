@@ -201,6 +201,18 @@ describe TravelPay::ClaimAssociationService do
       )
     end
 
+    let(:claims_error_response) do
+      Faraday::Response.new(
+        response_body: {
+          'statusCode' => 401,
+          'message' => 'Unauthorized.',
+          'success' => false,
+          'data' => nil
+        },
+        status: 401
+      )
+    end
+
     let(:single_appointment) do
       {
         'id' => '32066',
@@ -256,26 +268,25 @@ describe TravelPay::ClaimAssociationService do
       expect(appt_with_claim['travelPayClaim']['claim']).to be_nil
     end
 
-    # TODO: needs work
-    # it 'returns appointment with error metadata if claims call fails' do
-    #   allow_any_instance_of(TravelPay::ClaimsService)
-    #     .to receive(:get_claims_by_date_range)
-    #     .with(
-    #       { 'start_date' => '2024-01-01T16:45:34Z',
-    #         'end_date' => '2024-01-01T16:45:34Z' }
-    #     )
-    #     .and_return(nil)
+    it 'returns appointment with error metadata if claims call fails' do
+      allow_any_instance_of(TravelPay::ClaimsService)
+        .to receive(:get_claims_by_date_range)
+        .with(
+          { 'start_date' => '2024-01-01T16:45:34Z',
+            'end_date' => '2024-01-01T16:45:34Z' }
+        )
+        .and_return(claims_error_response)
 
-    #   association_service = TravelPay::ClaimAssociationService.new(user)
-    #   appt_with_claim = association_service.associate_single_appointment_to_claim(
-    #     { 'appointment' => single_appointment }
-    #   )
+      association_service = TravelPay::ClaimAssociationService.new(user)
+      appt_with_claim = association_service.associate_single_appointment_to_claim(
+        { 'appointment' => single_appointment }
+      )
 
-    #   expect(appt_with_claim['travelPayClaim']['claim']).to be_nil
-    #   expect(appt_with_claim['travelPayClaim']['metadata']['status']).to equal(503)
-    #   expect(appt_with_claim['travelPayClaim']['metadata']['message'])
-    #     .to eq('Travel Pay service unavailable.')
-    #   expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(false)
-    # end
+      expect(appt_with_claim['travelPayClaim']['claim']).to be_nil
+      expect(appt_with_claim['travelPayClaim']['metadata']['status']).to equal(401)
+      expect(appt_with_claim['travelPayClaim']['metadata']['message'])
+        .to eq('Unauthorized.')
+      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(false)
+    end
   end
 end
