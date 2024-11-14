@@ -67,7 +67,7 @@ RSpec.describe Form1010cg::SubmissionJob do
 
   describe 'when retries are exhausted' do
     after do
-      Flipper.enable(:caregiver_use_va_notify_on_submission_failure)
+      allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(true)
     end
 
     let(:msg) do
@@ -79,7 +79,7 @@ RSpec.describe Form1010cg::SubmissionJob do
     context 'when the parsed form does not have an email' do
       context 'the send failure email flipper is enabled' do
         before do
-          Flipper.enable(:caregiver_use_va_notify_on_submission_failure)
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(true)
         end
 
         it 'only increments StatsD' do
@@ -97,7 +97,7 @@ RSpec.describe Form1010cg::SubmissionJob do
 
       context 'the send failure email flipper is disabled' do
         before do
-          Flipper.disable(:caregiver_use_va_notify_on_submission_failure)
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(false)
         end
 
         it 'only increments StatsD' do
@@ -137,7 +137,7 @@ RSpec.describe Form1010cg::SubmissionJob do
 
       context 'the send failure email flipper is enabled' do
         before do
-          Flipper.enable(:caregiver_use_va_notify_on_submission_failure)
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(true)
         end
 
         it 'increments StatsD and sends the failure email' do
@@ -160,7 +160,7 @@ RSpec.describe Form1010cg::SubmissionJob do
 
       context 'the send failure email flipper is disabled' do
         before do
-          Flipper.disable(:caregiver_use_va_notify_on_submission_failure)
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(false)
         end
 
         it 'only increments StatsD' do
