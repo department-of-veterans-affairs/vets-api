@@ -113,14 +113,14 @@ module SimpleFormsApi
       PersistentAttachment.where(guid: attachment_guids).map(&:to_pdf)
     end
 
+    private
+
     def attachment_guids
       doc_types = %w[als_documents financial_hardship_documents medal_award_documents pow_documents
                      terminal_illness_documents vsi_documents]
 
       doc_types.flat_map { |type| @data[type]&.pluck('confirmation_code') }.compact
     end
-
-    private
 
     def veteran_ssn
       [
