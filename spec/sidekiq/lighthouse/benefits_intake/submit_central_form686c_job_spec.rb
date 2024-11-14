@@ -292,7 +292,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       ) do
         exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
         expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg)
-        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
         claim.parsed_form['view:selectable686_options']['report674'] = false
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           'vets.gov.user+228@gmail.com',
@@ -312,7 +312,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       ) do
         exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
         expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg)
-        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
         claim.parsed_form['view:selectable686_options'].delete('add_child')
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           'vets.gov.user+228@gmail.com',
@@ -332,7 +332,7 @@ RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_h
       ) do
         exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
         expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg)
-        expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
+        expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           'vets.gov.user+228@gmail.com',
           'form21_686c_action_needed_email_template_id',

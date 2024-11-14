@@ -44,7 +44,7 @@ module Lighthouse
         end
       end
 
-      def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
+      def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct) # rubocop:disable Metrics/MethodLength
         vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
         user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct))
         # if the 686c-674 has failed we want to call this central mail job (credit to submit_saved_claim_job.rb)
@@ -61,7 +61,12 @@ module Lighthouse
         # if we fail, update the associated central mail record to failed and send the user the failure email
         Rails.logger.warn(
           'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob failed!',
-          { user_uuid: user_struct['uuid'], saved_claim_id:, icn: user_struct['icn'], error: e.message }
+          {
+            user_uuid: user_struct['uuid'],
+            saved_claim_id: saved_claim_id,
+            icn: user_struct['icn'],
+            error: e.message
+          }
         )
         update_submission('failed')
         raise
@@ -102,9 +107,7 @@ module Lighthouse
       def get_files_from_claim
         # process the main pdf record and the attachments as we would for a vbms submission
         form_674_path = process_pdf(claim.to_pdf(form_id: FORM_ID_674), claim.created_at, FORM_ID_674) if claim.submittable_674? # rubocop:disable Layout/LineLength
-        if claim.submittable_686?
-          form_686c_path = process_pdf(claim.to_pdf(form_id: FORM_ID), claim.created_at, FORM_ID)
-        end
+        form_686c_path = process_pdf(claim.to_pdf(form_id: FORM_ID), claim.created_at, FORM_ID) if claim.submittable_686? # rubocop:disable Layout/LineLength
         @form_path = form_686c_path || form_674_path
         @attachment_paths = claim.persistent_attachments.map { |pa| process_pdf(pa.to_pdf, claim.created_at) }
         # Treat 674 as first attachment
@@ -196,8 +199,12 @@ module Lighthouse
           'docType' => claim.form_id,
           'numberPages' => form_pdf_metadata[:pages]
         }
-        validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata,
-                                                                                  zip_code_is_us_based: is_usa)
+
+        validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(
+          metadata,
+          zip_code_is_us_based: is_usa
+        )
+
         validated_metadata.merge(generate_attachment_metadata(attachment_paths))
       end
 
@@ -240,27 +247,8 @@ module Lighthouse
       end
 
       def self.trigger_failure_events(saved_claim_id, encrypted_user_struct)
-        claim = SavedClaim.find(saved_claim_id)
-        user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct))
-        email = claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
-                user_struct.va_profile_email
-        template_ids = []
-        template_ids << Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email if claim.submittable_686? # rubocop:disable Layout/LineLength
-        template_ids << Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email if claim.submittable_674? # rubocop:disable Layout/LineLength
-
-        template_ids.each do |template_id|
-          if claim.present? && email.present?
-            VANotify::EmailJob.perform_async(
-              email,
-              template_id,
-              {
-                'first_name' => claim.parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
-                'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-                'confirmation_number' => claim.confirmation_number
-              }
-            )
-          end
-        end
+        claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+        claim.send_failure_email(encrypted_user_struct)
       end
 
       private

@@ -5,6 +5,9 @@ require 'lighthouse/benefits_intake/service'
 require 'pensions/monitor'
 require 'pensions/notification_email'
 require 'va_notify/notification_email/burial'
+require 'pcpg/monitor'
+require 'dependents/monitor'
+require 'vre/monitor'
 
 # Datadog Dashboard:
 # https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking?fromUser=false&refresh_mode=sliding&view=spans&from_ts=1717772535566&to_ts=1718377335566&live=true
@@ -133,7 +136,6 @@ class BenefitsIntakeStatusJob
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
     if result == 'failure'
       Rails.logger.error('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:, error_message:)
-      monitor_failure(form_id, uuid)
     else
       Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:)
     end
@@ -166,6 +168,39 @@ class BenefitsIntakeStatusJob
         Pensions::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         Pensions::Monitor.new.log_silent_failure(context, nil, call_location:)
+      end
+    end
+
+    # Dependents
+    if %w[686C-674].include?(form_id)
+      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+      if claim
+        claim.send_failure_email
+        Dependents::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
+      else
+        Dependents::Monitor.new.log_silent_failure(context, nil, call_location:)
+      end
+    end
+
+    # PCPG
+    if %w[28-8832].include?(form_id)
+      claim = SavedClaim::EducationCareerCounselingClaim.find(saved_claim_id)
+      if claim
+        claim.send_failure_email
+        PCPG::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
+      else
+        PCPG::Monitor.new.log_silent_failure(ocntext, nil, call_location:)
+      end
+    end
+
+    # VRE
+    if %w[28-1900].include?(form_id)
+      claim = SavedClaim::VeteranReadinessEmploymentClaim.find(saved_claim_id)
+      if claim
+        claim.submit_failure_email
+        VRE::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
+      else
+        VRE::Monitor.new.log_silent_failure(context, nil, call_location:)
       end
     end
   end
