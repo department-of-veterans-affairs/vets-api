@@ -99,16 +99,22 @@ describe TravelPay::ClaimAssociationService do
       )
     end
 
-    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
     let(:expected_uuids) { %w[uuid1] }
 
+    let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
+
+    before do
+      allow_any_instance_of(TravelPay::AuthManager)
+        .to receive(:authorize)
+        .and_return(tokens)
+    end
+
     it 'returns appointments with matched claims' do
-      allow_any_instance_of(TravelPay::ClaimsService)
-        .to receive(:get_claims_by_date_range)
-        .with(
-          { 'start_date' => '2024-10-17T09:00:00Z',
-            'end_date' => '2024-12-15T16:45:00Z' }
-        )
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token],
+              { 'start_date' => '2024-10-17T09:00:00Z',
+                'end_date' => '2024-12-15T16:45:00Z' })
         .and_return(claims_success_response)
 
       association_service = TravelPay::ClaimAssociationService.new(user)
@@ -131,18 +137,22 @@ describe TravelPay::ClaimAssociationService do
     end
 
     it 'returns appointments with error metadata if claims call fails' do
-      allow_any_instance_of(TravelPay::ClaimsService)
-        .to receive(:get_claims_by_date_range)
-        .with(
-          { 'start_date' => '2024-10-17T09:00:00Z',
-            'end_date' => '2024-12-15T16:45:00Z' }
-        )
-        .and_return(Faraday::Response.new(response_body: {
-                                            'statusCode' => 401,
-                                            'message' => 'Unauthorized.',
-                                            'success' => false,
-                                            'data' => nil
-                                          }, status: 401))
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token],
+              { 'start_date' => '2024-10-17T09:00:00Z',
+                'end_date' => '2024-12-15T16:45:00Z' })
+        .and_raise(Common::Exceptions::BackendServiceException.new(
+                     'VA900',
+                     { source: 'test' },
+                     401,
+                     {
+                       'statusCode' => 401,
+                       'message' => 'Unauthorized.',
+                       'success' => false,
+                       'data' => nil
+                     }
+                   ))
 
       association_service = TravelPay::ClaimAssociationService.new(user)
       appts_with_claims = association_service.associate_appointments_to_claims({ 'appointments' => appointments,
@@ -157,6 +167,47 @@ describe TravelPay::ClaimAssociationService do
         expect(appt['travelPayClaim']['metadata']['status']).to equal(401)
         expect(appt['travelPayClaim']['metadata']['message']).to eq('Unauthorized.')
         expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+      end
+    end
+
+    it 'handles random, unknown errors' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_raise(NameError.new('Uninitialized constant.', 'new_constant'))
+
+      association_service = TravelPay::ClaimAssociationService.new(user)
+      appts_with_claims = association_service.associate_appointments_to_claims({ 'appointments' => appointments,
+                                                                                 'start_date' => '2024-10-17T09:00:00Z',
+                                                                                 'end_date' => '2024-12-15T16:45:00Z' })
+      appts_with_claims.each do |appt|
+        expect(appt['travelPayClaim']['metadata']['status']).to equal(520)
+        expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+        expect(appt['travelPayClaim']['metadata']['message']).to include(/Uninitialized constant/i)
+      end
+    end
+
+    it 'returns 400 with message if both start and end dates are not provided' do
+      association_service = TravelPay::ClaimAssociationService.new(user)
+      appts = association_service.associate_appointments_to_claims({ 'appointments' => appointments,
+                                                                     'start_date' => '2024-10-17T09:00:00Z' })
+
+      appts.each do |appt|
+        expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
+        expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+        expect(appt['travelPayClaim']['metadata']['message']).to include(/Both start and end/i)
+      end
+    end
+
+    it 'returns 400 with error message if dates are invalid' do
+      association_service = TravelPay::ClaimAssociationService.new(user)
+      appts = association_service.associate_appointments_to_claims({ 'appointments' => appointments,
+                                                                     'start_date' => '2024-10-17T09:00:00Z',
+                                                                     'end_date' => 'banana' })
+
+      appts.each do |appt|
+        expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
+        expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+        expect(appt['travelPayClaim']['metadata']['message']).to include(/invalid date/i)
       end
     end
   end
@@ -201,18 +252,6 @@ describe TravelPay::ClaimAssociationService do
       )
     end
 
-    let(:claims_error_response) do
-      Faraday::Response.new(
-        response_body: {
-          'statusCode' => 401,
-          'message' => 'Unauthorized.',
-          'success' => false,
-          'data' => nil
-        },
-        status: 401
-      )
-    end
-
     let(:single_appointment) do
       {
         'id' => '32066',
@@ -226,15 +265,33 @@ describe TravelPay::ClaimAssociationService do
       }
     end
 
+    let(:single_appt_invalid) do
+      {
+        'id' => '32066',
+        'kind' => 'clinic',
+        'status' => 'cancelled',
+        'patientIcn' => '1012845331V153043',
+        'locationId' => '983',
+        'clinic' => '1081',
+        'start' => 'banana',
+        'cancellable' => false
+      }
+    end
+
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
+    before do
+      allow_any_instance_of(TravelPay::AuthManager)
+        .to receive(:authorize)
+        .and_return(tokens)
+    end
+
     it 'returns an appointment with a claim' do
-      allow_any_instance_of(TravelPay::ClaimsService)
-        .to receive(:get_claims_by_date_range)
-        .with(
-          { 'start_date' => '2024-01-01T16:45:34Z',
-            'end_date' => '2024-01-01T16:45:34Z' }
-        )
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token],
+              { 'start_date' => '2024-01-01T16:45:34Z',
+                'end_date' => '2024-01-01T16:45:34Z' })
         .and_return(single_claim_success_response)
 
       association_service = TravelPay::ClaimAssociationService.new(user)
@@ -245,16 +302,15 @@ describe TravelPay::ClaimAssociationService do
       expect(appt_with_claim['travelPayClaim']['metadata']['status']).to eq(200)
       expect(appt_with_claim['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
       expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(true)
-      expect(appt_with_claim['travelPayClaim']['claim']).to eq(single_claim_data_success['data'][0])
+      expect(appt_with_claim['travelPayClaim']['claim']['id']).to eq(single_claim_data_success['data'][0]['id'])
     end
 
     it 'returns an appointment with success metadata but no claim' do
-      allow_any_instance_of(TravelPay::ClaimsService)
-        .to receive(:get_claims_by_date_range)
-        .with(
-          { 'start_date' => '2024-01-01T16:45:34Z',
-            'end_date' => '2024-01-01T16:45:34Z' }
-        )
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token],
+              { 'start_date' => '2024-01-01T16:45:34Z',
+                'end_date' => '2024-01-01T16:45:34Z' })
         .and_return(no_claim_data_success)
 
       association_service = TravelPay::ClaimAssociationService.new(user)
@@ -269,13 +325,22 @@ describe TravelPay::ClaimAssociationService do
     end
 
     it 'returns appointment with error metadata if claims call fails' do
-      allow_any_instance_of(TravelPay::ClaimsService)
-        .to receive(:get_claims_by_date_range)
-        .with(
-          { 'start_date' => '2024-01-01T16:45:34Z',
-            'end_date' => '2024-01-01T16:45:34Z' }
-        )
-        .and_return(claims_error_response)
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .with(tokens[:veis_token], tokens[:btsss_token],
+              { 'start_date' => '2024-01-01T16:45:34Z',
+                'end_date' => '2024-01-01T16:45:34Z' })
+        .and_raise(Common::Exceptions::BackendServiceException.new(
+                     'VA900',
+                     { source: 'test' },
+                     401,
+                     {
+                       'statusCode' => 401,
+                       'message' => 'A contact with the specified ICN was not found.',
+                       'success' => false,
+                       'data' => nil
+                     }
+                   ))
 
       association_service = TravelPay::ClaimAssociationService.new(user)
       appt_with_claim = association_service.associate_single_appointment_to_claim(
@@ -285,8 +350,33 @@ describe TravelPay::ClaimAssociationService do
       expect(appt_with_claim['travelPayClaim']['claim']).to be_nil
       expect(appt_with_claim['travelPayClaim']['metadata']['status']).to equal(401)
       expect(appt_with_claim['travelPayClaim']['metadata']['message'])
-        .to eq('Unauthorized.')
+        .to eq('A contact with the specified ICN was not found.')
       expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(false)
+    end
+
+    it 'handles random, unknown errors' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_raise(NameError.new('Uninitialized constant.', 'new_constant'))
+
+      association_service = TravelPay::ClaimAssociationService.new(user)
+      appt_with_claim = association_service.associate_single_appointment_to_claim({
+                                                                                    'appointment' => single_appointment
+                                                                                  })
+      expect(appt_with_claim['travelPayClaim']['metadata']['status']).to equal(520)
+      expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(false)
+      expect(appt_with_claim['travelPayClaim']['metadata']['message']).to include(/Uninitialized constant/i)
+    end
+
+    it 'returns 400 with error message if dates are invalid' do
+      association_service = TravelPay::ClaimAssociationService.new(user)
+      appt = association_service.associate_single_appointment_to_claim({
+                                                                         'appointment' => single_appt_invalid
+                                                                       })
+
+      expect(appt['travelPayClaim']['metadata']['status']).to equal(400)
+      expect(appt['travelPayClaim']['metadata']['success']).to eq(false)
+      expect(appt['travelPayClaim']['metadata']['message']).to include(/invalid date/i)
     end
   end
 end

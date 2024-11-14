@@ -21,47 +21,6 @@ module TravelPay
       }
     end
 
-    # For use only with the ClaimAssociationService due to specific error handling
-    def get_claims_by_date_range(params = {}) # rubocop:disable Metrics/MethodLength
-      validate_date_params(params['start_date'], params['end_date'])
-
-      @auth_manager.authorize => { veis_token:, btsss_token: }
-      faraday_response = client.get_claims_by_date(veis_token, btsss_token, params)
-
-      if faraday_response.status == 200
-        raw_claims = faraday_response.body['data'].deep_dup
-
-        data = raw_claims&.map do |sc|
-          sc['claimStatus'] = sc['claimStatus'].underscore.titleize
-          sc
-        end
-
-        Faraday::Response.new(
-          response_body: { 'statusCode' => faraday_response.body['statusCode'], 'success' => true,
-                           'message' => faraday_response.body['message'], 'data' => data }, 'status' => 200
-        )
-
-      end
-    # Because we're appending this to the Appointments object, we need to not just throw an exception
-    rescue ArgumentError => e
-      Rails.logger.error(message: e.message.to_s)
-      Faraday::Response.new(response_body: {
-                              'statusCode' => 400,
-                              'message' => e.message,
-                              'success' => false
-                            }, status: 400)
-    rescue Common::Exceptions::BackendServiceException => e
-      Rails.logger.error(message: "#{e}, #{e.original_body}")
-      Faraday::Response.new(response_body: e.original_body, status: e.original_status)
-    rescue => e
-      Rails.logger.error(message: "An unknown error occored: #{e}")
-      Faraday::Response.new(response_body: {
-                              'statusCode' => 520, # Unknown error code
-                              'message' => "An unknown error occored: #{e}",
-                              'success' => false
-                            }, status: 520)
-    end
-
     def get_claim_by_id(claim_id)
       # ensure claim ID is the right format, allowing any version
       uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
@@ -119,18 +78,6 @@ module TravelPay
     rescue Date::Error => e
       Rails.logger.debug(message: "#{e}. Not filtering claims by date (given: #{date_string}).")
       claims
-    end
-
-    def validate_date_params(start_date, end_date)
-      if start_date && end_date
-        DateTime.parse(start_date.to_s) && DateTime.parse(end_date.to_s)
-      else
-        raise ArgumentError,
-              message: "Both start and end dates are required, got #{start_date}-#{end_date}."
-      end
-    rescue Date::Error => e
-      raise ArgumentError,
-            message: "#{e}. Invalid date(s) provided (given: #{start_date} & #{end_date})."
     end
 
     def client
