@@ -53,9 +53,10 @@ module RepresentationManagement
           :service_branch_other,
           :phone,
           :email,
-          { insurance_numbers: [],
+          {
             name: name_params_permitted,
-            address: address_params_permitted }
+            address: address_params_permitted
+          }
         ]
       end
 

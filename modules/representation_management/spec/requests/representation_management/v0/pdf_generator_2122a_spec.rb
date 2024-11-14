@@ -51,7 +51,6 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
             service_number: '123456789',
             phone: '5555555555',
             email: 'veteran@example.com',
-            insurance_numbers: [],
             name: {
               first: 'John',
               middle: 'M',

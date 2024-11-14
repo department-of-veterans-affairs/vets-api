@@ -47,7 +47,6 @@ module SwaggerSharedComponents
         service_branch: 'ARMY',
         phone: '5555555555',
         email: 'veteran@example.com',
-        insurance_numbers: [],
         name:,
         address:
       }
@@ -109,11 +108,6 @@ module SwaggerSharedComponents
       {
         type: :object,
         properties: {
-          insurance_numbers: {
-            type: :array,
-            items: { type: :string },
-            example: %w[123456789 987654321]
-          },
           name: name_parameters,
           address: address_parameters,
           ssn: { type: :string, example: '123456789' },
