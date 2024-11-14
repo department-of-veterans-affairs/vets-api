@@ -44,14 +44,14 @@ module ClaimsApi
           poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, service:) if decision == 'declined'
 
           if poa_request
-            first_name = poa_request['VSOUserFirstName'].presence || poa_request['claimantFirstName'].presence
+            first_name = poa_request['claimantFirstName'].presence || poa_request['VSOUserFirstName'].presence
             poa_code = poa_request['poaCode']
           end
 
           res = service.update_poa_request(proc_id:, secondary_status: decision,
                                            declined_reason: form_attributes['declinedReason'])
 
-          raise ::Common::Exceptions::Lighthouse::BadGateway if res.blank?
+          raise Common::Exceptions::Lighthouse::BadGateway if res.blank?
 
           send_declined_notification(ptcpnt_id:, first_name:, poa_code:) if decision == 'declined'
 
@@ -112,7 +112,7 @@ module ClaimsApi
           encrypted_ptcpnt_id = lockbox.encrypt(ptcpnt_id)
           encrypted_first_name = lockbox.encrypt(first_name)
 
-          ClaimsApi::VaNotifyDeclinedJob.perform_async(encrypted_ptcpnt_id:, encrypted_first_name:, poa_code:)
+          ClaimsApi::VANotifyDeclinedJob.perform_async(encrypted_ptcpnt_id:, encrypted_first_name:, poa_code:)
         end
 
         def validate_ptcpnt_id!(ptcpnt_id:, proc_id:, service:)
