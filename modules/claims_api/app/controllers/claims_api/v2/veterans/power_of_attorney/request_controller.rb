@@ -33,7 +33,7 @@ module ClaimsApi
 
         def decide
           proc_id = form_attributes['procId']
-          ptcpnt_id = form_attributes['ptcpntId']
+          ptcpnt_id = form_attributes['participantId']
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
 

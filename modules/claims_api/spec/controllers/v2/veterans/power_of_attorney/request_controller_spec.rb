@@ -295,7 +295,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
   def decide_request_with(proc_id:, decision:, auth_header:, ptcpnt_id: nil, representative_id: nil)
     post v2_veterans_power_of_attorney_requests_decide_path,
-         params: { data: { attributes: { procId: proc_id, decision:, ptcpntId: ptcpnt_id,
+         params: { data: { attributes: { procId: proc_id, decision:, participantId: ptcpnt_id,
                                          representativeId: representative_id } } }.to_json,
          headers: auth_header
   end
