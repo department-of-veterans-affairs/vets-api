@@ -1847,3 +1847,14 @@ schema_contract:
 
 form_mock_ae_design_patterns:
   prefill: true
+
+vaos:
+  eps:
+    key_path: /fake/client/key/path
+    mock: false
+    client_id: "fake_client_id"
+    kid: "fake_kid"
+    audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
+    access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
+    api_url: "https://api.wellhive.com/care-navigation/v1"
+    scopes: "care-nav"

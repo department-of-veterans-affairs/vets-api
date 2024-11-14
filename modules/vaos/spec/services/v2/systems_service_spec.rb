@@ -7,7 +7,10 @@ describe VAOS::V2::SystemsService do
 
   let(:user) { build(:user, :vaos) }
 
-  before { allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token') }
+  before do
+    allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+  end
 
   describe '#get_facility_clinics' do
     context 'using VAOS' do
