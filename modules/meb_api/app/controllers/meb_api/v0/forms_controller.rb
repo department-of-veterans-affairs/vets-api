@@ -42,7 +42,8 @@ module MebApi
         return render_claimant_id_error if claimant_id.blank?
 
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
-        response, serializer = determine_response_and_serializer(claim_status_response, claimant_response)
+        response = valid_claimant_response?(claimant_response) ? claim_status_response : claimant_response
+        serializer = valid_claimant_response?(claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
 
         render json: serializer.new(response)
       end
