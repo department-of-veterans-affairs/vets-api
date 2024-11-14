@@ -59,6 +59,23 @@ module ClaimsApi
               data: nil
             )
           )
+        module FindAssignedFlashes
+          DEFINITION =
+            Action.new(
+              service: ClaimantService::DEFINITION,
+              name: 'findAssignedFlashes',
+              key: 'return'
+            )
+
+          module AddFlash
+            DEFINITION =
+              Action.new(
+                service: ClaimantService::DEFINITION,
+                name: 'addFlash',
+                key: 'return'
+              )
+          end
+        end
       end
 
       module ClaimantWebService
@@ -73,38 +90,6 @@ module ClaimsApi
             Action.new(
               service: ClaimantWebService::DEFINITION,
               name: 'findPOAByPtcpntId',
-              key: 'return'
-            )
-        end
-      end
-
-      ##
-      # ClaimantServiceBean
-      #
-      module ClaimantServiceBean
-        DEFINITION =
-          Bean.new(
-            path: 'ClaimantServiceBean',
-            namespaces: Namespaces.new(
-              target: 'http://services.share.benefits.vba.va.gov/',
-              data: nil
-            )
-          )
-      end
-
-      module FindAssignedFlashes
-        DEFINITION =
-          Action.new(
-            service: ClaimantService::DEFINITION,
-            name: 'findAssignedFlashes',
-            key: 'return'
-          )
-
-        module AddFlash
-          DEFINITION =
-            Action.new(
-              service: ClaimantService::DEFINITION,
-              name: 'addFlash',
               key: 'return'
             )
         end
