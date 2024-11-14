@@ -1151,6 +1151,9 @@ features:
   my_va_form_submission_statuses:
     actor_type: user
     description: Enables users to view the status of submitted forms.
+  my_va_form_submission_pdf_link:
+    actor_type: user
+    description: Enables users to view PDF link within submitted forms cards
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
