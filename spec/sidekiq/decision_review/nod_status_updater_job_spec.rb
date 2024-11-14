@@ -2,31 +2,12 @@
 
 require 'rails_helper'
 require 'decision_review_v1/service'
+require 'sidekiq/decision_review/shared_examples_for_status_updater_jobs'
 
 RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
   subject { described_class }
 
-  let(:service) { instance_double(DecisionReviewV1::Service) }
-
-  let(:guid1) { SecureRandom.uuid }
-  let(:guid2) { SecureRandom.uuid }
-  let(:guid3) { SecureRandom.uuid }
-
-  let(:response_complete) do
-    response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('NOD-SHOW-RESPONSE-200_V2').to_json) # deep copy
-    response['data']['attributes']['status'] = 'complete'
-    instance_double(Faraday::Response, body: response)
-  end
-
-  let(:response_pending) do
-    instance_double(Faraday::Response, body: VetsJsonSchema::EXAMPLES.fetch('NOD-SHOW-RESPONSE-200_V2'))
-  end
-
-  let(:response_error) do
-    response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-SHOW-RESPONSE-200_V2').to_json) # deep copy
-    response['data']['attributes']['status'] = 'error'
-    instance_double(Faraday::Response, body: response)
-  end
+  include_context 'status updater job context', SavedClaim::NoticeOfDisagreement
 
   let(:upload_response_vbms) do
     response = JSON.parse(File.read('spec/fixtures/notice_of_disagreements/NOD_upload_show_response_200.json'))
@@ -46,59 +27,13 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
     instance_double(Faraday::Response, body: response)
   end
 
-  before do
-    allow(DecisionReviewV1::Service).to receive(:new).and_return(service)
-  end
-
   describe 'perform' do
     context 'with flag enabled', :aggregate_failures do
       before do
         Flipper.enable :decision_review_saved_claim_nod_status_updater_job_enabled
-        allow(StatsD).to receive(:increment)
       end
 
-      context 'SavedClaim records are present and there are no evidence uploads' do
-        before do
-          SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}')
-          SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}')
-          SavedClaim::NoticeOfDisagreement.create(guid: guid3, form: '{}', delete_date: DateTime.new(2024, 2, 1).utc)
-          SavedClaim::HigherLevelReview.create(form: '{}')
-          SavedClaim::SupplementalClaim.create(form: '{}')
-        end
-
-        it 'updates SavedClaim::NoticeOfDisagreement delete_date for completed records without a delete_date' do
-          expect(service).to receive(:get_notice_of_disagreement).with(guid1).and_return(response_complete)
-          expect(service).to receive(:get_notice_of_disagreement).with(guid2).and_return(response_pending)
-          expect(service).not_to receive(:get_notice_of_disagreement).with(guid3)
-
-          expect(service).not_to receive(:get_higher_level_review)
-          expect(service).not_to receive(:get_supplemental_claim)
-
-          frozen_time = DateTime.new(2024, 1, 1).utc
-
-          Timecop.freeze(frozen_time) do
-            subject.new.perform
-
-            claim1 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid1)
-            expect(claim1.delete_date).to eq frozen_time + 59.days
-            expect(claim1.metadata).to include 'complete'
-            expect(claim1.metadata_updated_at).to eq frozen_time
-
-            claim2 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid2)
-            expect(claim2.delete_date).to be_nil
-            expect(claim2.metadata).to include 'pending'
-            expect(claim2.metadata_updated_at).to eq frozen_time
-          end
-
-          expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.saved_claim_nod_status_updater.processing_records', 2).exactly(1).time
-          expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.saved_claim_nod_status_updater.delete_date_update').exactly(1).time
-          expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.saved_claim_nod_status_updater.status', tags: ['status:pending'])
-            .exactly(1).time
-        end
-      end
+      include_examples 'status updater job with base forms', SavedClaim::NoticeOfDisagreement
 
       context 'SavedClaim records are present with completed status in LH and have associated evidence uploads' do
         let(:upload_id) { SecureRandom.uuid }
@@ -181,150 +116,6 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
             .exactly(2).times
           expect(Rails.logger).not_to have_received(:info)
             .with('DecisionReview::SavedClaimNodStatusUpdaterJob evidence status error', anything)
-        end
-      end
-
-      context 'SavedClaim record with previous metadata' do
-        before do
-          allow(Rails.logger).to receive(:info)
-        end
-
-        let(:upload_id) { SecureRandom.uuid }
-        let(:upload_id2) { SecureRandom.uuid }
-        let(:upload_id3) { SecureRandom.uuid }
-
-        let(:metadata1) do
-          {
-            'status' => 'submitted',
-            'uploads' => [
-              {
-                'status' => 'error',
-                'detail' => 'Invalid PDF',
-                'id' => upload_id
-              }
-            ]
-          }
-        end
-
-        let(:metadata2) do
-          {
-            'status' => 'submitted',
-            'uploads' => [
-              {
-                'status' => 'pending',
-                'detail' => nil,
-                'id' => upload_id2
-              },
-              {
-                'status' => 'processing',
-                'detail' => nil,
-                'id' => upload_id3
-              }
-            ]
-          }
-        end
-
-        it 'does not increment metrics for unchanged form status' do
-          SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}', metadata: '{"status":"error","uploads":[]}')
-          SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}',
-                                                  metadata: '{"status":"submitted","uploads":[]}')
-
-          expect(service).to receive(:get_notice_of_disagreement).with(guid1).and_return(response_error)
-          expect(service).to receive(:get_notice_of_disagreement).with(guid2).and_return(response_error)
-
-          subject.new.perform
-
-          claim1 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid1)
-          expect(claim1.delete_date).to be_nil
-          expect(claim1.metadata).to include 'error'
-
-          claim2 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid2)
-          expect(claim2.delete_date).to be_nil
-          expect(claim2.metadata).to include 'error'
-
-          expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.saved_claim_nod_status_updater.status', tags: ['status:error'])
-            .exactly(1).time
-
-          expect(Rails.logger).not_to have_received(:info)
-            .with('DecisionReview::SavedClaimNodStatusUpdaterJob form status error', guid: guid1)
-          expect(Rails.logger).to have_received(:info)
-            .with('DecisionReview::SavedClaimNodStatusUpdaterJob form status error', guid: guid2)
-          expect(StatsD).to have_received(:increment)
-            .with('silent_failure', tags: ['service:board-appeal',
-                                           'function: form submission to Lighthouse'])
-            .exactly(1).time
-        end
-
-        it 'does not increment metrics for unchanged evidence status' do
-          SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}', metadata: metadata1.to_json)
-          appeal_submission = create(:appeal_submission, submitted_appeal_uuid: guid1)
-          create(:appeal_submission_upload, appeal_submission:, lighthouse_upload_id: upload_id)
-
-          SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}', metadata: metadata2.to_json)
-          appeal_submission2 = create(:appeal_submission, submitted_appeal_uuid: guid2)
-          create(:appeal_submission_upload, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id2)
-          create(:appeal_submission_upload, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id3)
-
-          expect(service).to receive(:get_notice_of_disagreement).with(guid1).and_return(response_pending)
-          expect(service).to receive(:get_notice_of_disagreement).with(guid2).and_return(response_error)
-          expect(service).to receive(:get_notice_of_disagreement_upload).with(guid: upload_id)
-                                                                        .and_return(upload_response_error)
-          expect(service).to receive(:get_notice_of_disagreement_upload).with(guid: upload_id2)
-                                                                        .and_return(upload_response_error)
-          expect(service).to receive(:get_notice_of_disagreement_upload).with(guid: upload_id3)
-                                                                        .and_return(upload_response_processing)
-
-          subject.new.perform
-
-          expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.saved_claim_nod_status_updater_upload.status', tags: ['status:error'])
-            .exactly(1).times
-          expect(StatsD).not_to have_received(:increment)
-            .with('worker.decision_review.saved_claim_nod_status_updater_upload.status', tags: ['status:processing'])
-
-          expect(Rails.logger).not_to have_received(:info)
-            .with('DecisionReview::SavedClaimNodStatusUpdaterJob evidence status error',
-                  guid: anything, lighthouse_upload_id: upload_id, detail: anything)
-          expect(Rails.logger).to have_received(:info)
-            .with('DecisionReview::SavedClaimNodStatusUpdaterJob evidence status error',
-                  guid: guid2, lighthouse_upload_id: upload_id2, detail: 'Invalid PDF')
-          expect(StatsD).to have_received(:increment)
-            .with('silent_failure', tags: ['service:board-appeal',
-                                           'function: evidence submission to Lighthouse'])
-            .exactly(1).time
-        end
-      end
-
-      context 'Retrieving SavedClaim records fails' do
-        before do
-          allow(SavedClaim::NoticeOfDisagreement).to receive(:where).and_raise(ActiveRecord::ConnectionTimeoutError)
-          allow(Rails.logger).to receive(:error)
-        end
-
-        it 'rescues the error and logs' do
-          subject.new.perform
-
-          expect(Rails.logger).to have_received(:error)
-            .with('DecisionReview::SavedClaimNodStatusUpdaterJob error', anything)
-          expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.saved_claim_nod_status_updater.error').once
-        end
-      end
-
-      context 'an error occurs while processing' do
-        before do
-          SavedClaim::NoticeOfDisagreement.create(guid: SecureRandom.uuid, form: '{}')
-          SavedClaim::NoticeOfDisagreement.create(guid: SecureRandom.uuid, form: '{}')
-        end
-
-        it 'handles request errors and increments the statsd metric' do
-          allow(service).to receive(:get_notice_of_disagreement).and_raise(DecisionReviewV1::ServiceException)
-
-          subject.new.perform
-
-          expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.saved_claim_nod_status_updater.error').exactly(2).times
         end
       end
     end
