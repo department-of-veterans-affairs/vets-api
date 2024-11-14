@@ -1451,7 +1451,7 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
-  vaos_online_scheduling_remove_podiatry:
+  va_online_scheduling_remove_podiatry:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
