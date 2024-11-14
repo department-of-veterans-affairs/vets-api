@@ -207,55 +207,50 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
       end
     end
 
-    context 'when we get a non-200 response from Lighthouse' do
-      let(:error_response_body) do
-        # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
-        {
-          'errors' => [
-            {
-              'detail' => 'Something broke',
-              'status' => 400,
-              'title' => 'Bad Request',
-              'instance' => Faker::Internet.uuid
-            }
-          ]
-        }
-      end
-
+    # See lib/lighthouse/service_exception.rb
+    context 'when a Lighthouse::ServiceException error is raised' do
       before do
         # Skip upload attempt logging
         allow(provider).to receive(:log_upload_attempt)
-
-        allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-          .with(file_body, lighthouse_document)
-          .and_return(faraday_response)
-
-        allow(faraday_response).to receive(:body).and_return(error_response_body)
       end
 
-      it 'logs to the Rails logger' do
-        expect(Rails.logger).to receive(:error).with(
-          'LighthouseSupplementalDocumentUploadProvider upload failed',
-          {
-            class: 'LighthouseSupplementalDocumentUploadProvider',
-            submitted_claim_id: submission.submitted_claim_id,
-            submission_id: submission.id,
-            user_uuid: submission.user_uuid,
-            va_document_type_code: va_document_type,
-            primary_form: 'Form526',
-            lighthouse_error_response: error_response_body
-          }
-        )
+      RSpec.shared_examples 'log Lighthouse response exception' do |exception_class|
+        it 'increments a StatsD failure metric, logs the error metadata and re-raises the error' do
+          error_info = { title: 'error title', detail: 'error message' }
+          exception = exception_class.new(error_info)
 
-        provider.submit_upload_document(lighthouse_document, file_body)
+          allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+            .and_raise(exception)
+
+          expect(StatsD).to receive(:increment).with(
+            'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.upload_failure'
+          )
+          expect(Rails.logger).to receive(:error).with(
+            'LighthouseSupplementalDocumentUploadProvider upload failed',
+            {
+              class: 'LighthouseSupplementalDocumentUploadProvider',
+              submitted_claim_id: submission.submitted_claim_id,
+              submission_id: submission.id,
+              user_uuid: submission.user_uuid,
+              va_document_type_code: va_document_type,
+              primary_form: 'Form526',
+              error_info: error_info.to_s
+            }
+          )
+
+          expect { provider.submit_upload_document(lighthouse_document, file_body) }.to raise_error(exception)
+        end
       end
 
-      it 'increments a StatsD metric' do
-        expect(StatsD).to receive(:increment).with(
-          'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.upload_failure'
-        )
+      describe 'service exceptions' do
+        error_values = Lighthouse::ServiceException::ERROR_MAP.values
 
-        provider.submit_upload_document(lighthouse_document, file_body)
+        error_values.each do |exception|
+          it_behaves_like 'log Lighthouse response exception', exception
+        end
+
+        it_behaves_like 'log Lighthouse response exception', Common::Exceptions::Timeout
+        it_behaves_like 'log Lighthouse response exception', Common::Exceptions::ServiceError
       end
     end
 

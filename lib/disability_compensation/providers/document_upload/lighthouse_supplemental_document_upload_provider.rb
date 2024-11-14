@@ -8,6 +8,14 @@ class LighthouseSupplementalDocumentUploadProvider
 
   STATSD_PROVIDER_METRIC = 'lighthouse_supplemental_document_upload_provider'
 
+  # Custom exceptions for Lighthouse API non-200 responses
+  # thrown in lib/lighthouse/service_exception.rb
+  LIGHTHOUSE_RESPONSE_EXCEPTION_CLASSES = [
+    *Lighthouse::ServiceException::ERROR_MAP.values,
+    Common::Exceptions::Timeout,
+    Common::Exceptions::ServiceError
+  ].freeze
+
   # Maps VA's internal Document Types to the correct document_type attribute for a Lighthouse526DocumentUpload polling
   # record. We need this to create a valid polling record
   POLLING_DOCUMENT_TYPES = {
@@ -61,7 +69,14 @@ class LighthouseSupplementalDocumentUploadProvider
   # @param file_body [String]
   def submit_upload_document(lighthouse_document, file_body)
     log_upload_attempt
-    api_response = BenefitsDocuments::Form526::UploadSupplementalDocumentService.call(file_body, lighthouse_document)
+
+    begin
+      api_response = BenefitsDocuments::Form526::UploadSupplementalDocumentService.call(file_body, lighthouse_document)
+    rescue *LIGHTHOUSE_RESPONSE_EXCEPTION_CLASSES => e
+      log_upload_failure(e)
+      raise e
+    end
+
     handle_lighthouse_response(api_response)
   end
 
@@ -114,20 +129,16 @@ class LighthouseSupplementalDocumentUploadProvider
     StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_SUCCESS_METRIC}")
   end
 
-  # For logging an error response from the Lighthouse Benefits Document API
-  #
-  # @param lighthouse_error_response [Hash] parsed JSON response from the Lighthouse API
-  # this will be an array of errors
-  def log_upload_failure(lighthouse_error_response)
+  def log_upload_failure(exception)
+    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
+
     Rails.logger.error(
       'LighthouseSupplementalDocumentUploadProvider upload failed',
       {
         **base_logging_info,
-        lighthouse_error_response:
+        error_info: exception.to_s
       }
     )
-
-    StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
   end
 
   # Processes the response from Lighthouse and logs accordingly. If the upload is successful, creates
@@ -141,8 +152,6 @@ class LighthouseSupplementalDocumentUploadProvider
       lighthouse_request_id = response_body.dig('data', 'requestId')
       create_lighthouse_polling_record(lighthouse_request_id)
       log_upload_success(lighthouse_request_id)
-    else
-      log_upload_failure(response_body)
     end
   end
 
