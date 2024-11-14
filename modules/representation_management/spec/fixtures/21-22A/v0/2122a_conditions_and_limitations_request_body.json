@@ -2,6 +2,9 @@
   "record_consent": true,
   "consent_address_change": true,
   "consent_limits": [],
+  "consent_inside_access": true,
+  "consent_outside_access": true,
+  "consent_team_members": [],
   "claimant": {
     "date_of_birth": "1980-12-31",
     "relationship": "Spouse",

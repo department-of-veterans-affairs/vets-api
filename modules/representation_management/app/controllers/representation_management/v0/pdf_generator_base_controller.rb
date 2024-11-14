@@ -13,7 +13,10 @@ module RepresentationManagement
         [
           :record_consent,
           :consent_address_change,
+          :consent_inside_access,
+          :consent_outside_access,
           { consent_limits: [],
+            consent_team_members: [],
             claimant: claimant_params_permitted,
             representative: representative_params_permitted,
             veteran: veteran_params_permitted }

@@ -193,7 +193,11 @@ module RepresentationManagement
             # Consent Limits
             "#{PAGE2_KEY}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits),
             # Consent Address Change
-            "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0
+            "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0,
+            # 19a Consent Inside Access
+            "#{PAGE2_KEY}.Checkbox_I_Authorize_VA_To_Disclose_All_My_Records_Other_Than_As_Provided_In_Items_20_And_21[0]": data.consent_inside_access == true ? 1 : 0,
+            # 19b Consent Outside Access
+            "#{PAGE2_KEY}.Checkbox_I_Authorize_VA_To_Disclose_All_My_Records_Other_Than_As_Provided_In_Items_20_And_21[1]": data.consent_outside_access == true ? 1 : 0
           }
         end
 
