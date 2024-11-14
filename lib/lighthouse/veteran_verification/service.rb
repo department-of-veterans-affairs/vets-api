@@ -60,14 +60,14 @@ module VeteranVerification
 
     def transform_response(response)
       attributes = response['data']['attributes']
-      return response if attributes['veteran_status'] != 'not confirmed' || !attributes.include?('not_confirmed_reason')
+      return response if attributes['veteran_status'] != 'not confirmed' || attributes.exclude?('not_confirmed_reason')
 
-      if attributes['not_confirmed_reason'] == 'NOT_TITLE_38'
-        response['data']['message'] = VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
-      else
-        response['data']['message'] = VeteranVerification::Constants::NOT_FOUND_MESSAGE
-      end
-
+      response['data']['message'] =
+        if attributes['not_confirmed_reason'] == 'NOT_TITLE_38'
+          VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
+        else
+          VeteranVerification::Constants::NOT_FOUND_MESSAGE
+        end
       response
     end
   end
