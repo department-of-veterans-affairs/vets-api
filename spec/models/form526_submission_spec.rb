@@ -1288,6 +1288,19 @@ RSpec.describe Form526Submission do
           end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
         end
       end
+
+      context 'with disability_526_call_received_email_from_polling enabled' do
+        before do
+          Flipper.enable(:disability_526_call_received_email_from_polling)
+        end
+        subject { create(:form526_submission, :with_multiple_succesful_jobs) }
+
+        it 'does not trigger confirmation email' do
+          expect do
+            subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
+          end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
+        end
+      end
     end
 
     describe 'failure' do

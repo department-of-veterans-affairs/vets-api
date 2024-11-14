@@ -85,5 +85,18 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
         expect(form526_job_status.status).to eq 'pdf_not_found'
       end
     end
+
+    context 'with disability_526_call_received_email_from_polling enabled' do
+      before do
+        Flipper.enable(:disability_526_call_received_email_from_polling)
+      end
+      let(:form526_submission) { create(:form526_submission, submitted_claim_id: 1) }
+
+      it 'triggers confirmation email' do
+        expect do
+          subject.perform_async(form526_submission.id)
+        end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
+      end
+    end
   end
 end

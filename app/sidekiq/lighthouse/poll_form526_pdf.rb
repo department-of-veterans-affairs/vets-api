@@ -96,12 +96,13 @@ module Lighthouse
         form526_pdf = get_form526_pdf(submission)
         if form526_pdf.present?
           Rails.logger.info('Poll for form 526 PDF: PDF found')
-          if Flipper.enabled?(:disability_526_call_received_email_from_polling,
-                              OpenStruct.new({ flipper_id: user_uuid }))
-            # submission = Form526Submission.find(options['submission_id'])
-            Rails.logger.info("Form526ConfirmationEmailJob called for user: #{user_uuid},
-                                                    submission: #{submission.id} from poll_form526_pdf")
-            params = submission.personalization_parameters(options['first_name'])
+          if Flipper.enabled?(:disability_526_call_received_email_from_polling)
+            user_uuid = submission.user_uuid
+            user = User.find(user_uuid)
+            first_name = user&.first_name&.upcase.presence || auth_headers&.dig('va_eauth_firstName')&.upcase
+            Rails.logger.info("Form526ConfirmationEmailJob called for user #{user_uuid}, 
+                                                              submission: #{submission_id} from poll_form526_pdf")
+            params = submission.personalization_parameters(first_name)
             Form526ConfirmationEmailJob.perform_async(params)
           end
           return
