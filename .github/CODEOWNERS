@@ -1056,7 +1056,7 @@ modules/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-af
 modules/vaos/app/services/vaos/v2 @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/vba_documents @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/veteran @department-of-veterans-affairs/lighthouse-dash @department-of-veterans-affairs/lighthouse-pivot @department-of-veterans-affairs/accredited-representation-management
-modules/pensions @department-of-veterans-affairs/pension-and-burials
+modules/pensions @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 modules/veteran_confirmation @department-of-veterans-affairs/lighthouse-ninjapigs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/travel_pay @department-of-veterans-affairs/travel-pay-integration @department-of-veterans-affairs/backend-review-group
 modules/vye @department-of-veterans-affairs/backend-review-group #@department-of-veterans-affairs/govcio-vye-codereviewers
