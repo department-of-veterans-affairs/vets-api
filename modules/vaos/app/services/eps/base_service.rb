@@ -1,7 +1,16 @@
 # frozen_string_literal: true
 
 module EPS
-  class BaseService < VAOS::SessionService
+  class BaseService < VAOS::BaseService
+    STS_OAUTH_TOKEN = :va_online_scheduling_sts_oauth_token
+
+    attr_accessor :user
+
+    def initialize(user)
+      super(user)
+      @user = user
+    end
+
     private
 
     def perform(method, path, params, headers = nil, options = nil)
