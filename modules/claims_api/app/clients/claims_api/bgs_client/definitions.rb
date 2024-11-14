@@ -59,6 +59,15 @@ module ClaimsApi
               data: nil
             )
           )
+      end
+
+      module ClaimantService
+        DEFINITION =
+          Service.new(
+            bean: ClaimantServiceBean::DEFINITION,
+            path: 'ClaimantServiceBean'
+          )
+
         module FindAssignedFlashes
           DEFINITION =
             Action.new(
@@ -66,15 +75,15 @@ module ClaimsApi
               name: 'findAssignedFlashes',
               key: 'return'
             )
+        end
 
-          module AddFlash
-            DEFINITION =
-              Action.new(
-                service: ClaimantService::DEFINITION,
-                name: 'addFlash',
-                key: 'return'
-              )
-          end
+        module AddFlash
+          DEFINITION =
+            Action.new(
+              service: ClaimantService::DEFINITION,
+              name: 'addFlash',
+              key: 'return'
+            )
         end
       end
 
@@ -84,7 +93,14 @@ module ClaimsApi
             bean: ClaimantServiceBean::DEFINITION,
             path: 'ClaimantWebService'
           )
+      end
 
+      module ClaimantWebService
+        DEFINITION =
+          Service.new(
+            bean: ClaimantServiceBean::DEFINITION,
+            path: 'ClaimantServiceBean'
+          )
         module FindPoaByParticipantId
           DEFINITION =
             Action.new(
