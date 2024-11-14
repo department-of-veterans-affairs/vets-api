@@ -196,8 +196,12 @@ module RepresentationManagement
             "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0,
             # 19a Consent Inside Access
             "#{PAGE2_KEY}.Checkbox_I_Authorize_VA_To_Disclose_All_My_Records_Other_Than_As_Provided_In_Items_20_And_21[0]": data.consent_inside_access == true ? 1 : 0,
+            # 19a text box
+            "#{PAGE2_KEY}.Provide_The_Name_Of_The_Firm_Or_Organization_Here[0]": data.consent_team_members.to_sentence,
             # 19b Consent Outside Access
-            "#{PAGE2_KEY}.Checkbox_I_Authorize_VA_To_Disclose_All_My_Records_Other_Than_As_Provided_In_Items_20_And_21[1]": data.consent_outside_access == true ? 1 : 0
+            "#{PAGE2_KEY}.Checkbox_I_Authorize_VA_To_Disclose_All_My_Records_Other_Than_As_Provided_In_Items_20_And_21[1]": data.consent_outside_access == true ? 1 : 0,
+            # 19b text box
+            "#{PAGE2_KEY}.Provide_The_Names_Of_The_Individuals_Here[0]": data.consent_team_members.to_sentence
           }
         end
 
