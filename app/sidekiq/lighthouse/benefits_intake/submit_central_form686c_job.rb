@@ -177,7 +177,7 @@ module Lighthouse
         }
       end
 
-      def generate_metadata
+      def generate_metadata # rubocop:disable Metrics/MethodLength
         form = claim.parsed_form['dependents_application']
         form_pdf_metadata = get_hash_and_pages(form_path)
         address = form['veteran_contact_information']['veteran_address']
@@ -196,10 +196,8 @@ module Lighthouse
           'docType' => claim.form_id,
           'numberPages' => form_pdf_metadata[:pages]
         }
-        validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(
-          metadata,
-          zip_code_is_us_based: is_usa
-        )
+        validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata,
+                                                                                  zip_code_is_us_based: is_usa)
         validated_metadata.merge(generate_attachment_metadata(attachment_paths))
       end
 
