@@ -40,6 +40,10 @@ module IvcChampva
       Rails.logger.error e.backtrace.join("\n")
     end
 
+    def fetch_forms_by_uuid(form_uuid)
+      @fetch_forms_by_uuid ||= IvcChampvaForm.where(form_uuid:)
+    end
+
     def send_failure_email(form, template_id)
       form_data =
         {
