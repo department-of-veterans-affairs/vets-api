@@ -50,9 +50,15 @@ module TravelPay
                               'message' => e.message,
                               'success' => false
                             }, status: 400)
-    rescue => e
+    rescue Common::Exceptions::BackendServiceException => e
       Rails.logger.error(message: "#{e}, #{e.original_body}")
       Faraday::Response.new(response_body: e.original_body, status: e.original_status)
+    rescue => e
+      Faraday::Response.new(response_body: {
+                              'statusCode' => 520, # Unknown error code
+                              'message' => "An unknown error occored: #{e}",
+                              'success' => false
+                            }, status: 520)
     end
 
     def get_claim_by_id(claim_id)

@@ -271,6 +271,20 @@ describe TravelPay::ClaimsService do
       expect(bad_claims_call.body['message']).to include(/Both start and end/i)
     end
 
+    it 'handles random, unknown errors' do
+      allow_any_instance_of(TravelPay::ClaimsClient)
+        .to receive(:get_claims_by_date)
+        .and_raise(NameError.new('Uninitialized constant.', 'new_constant'))
+
+      bad_claims_call = @service.get_claims_by_date_range(
+        { 'start_date' => '2024-01-01T16:45:34Z', 'end_date' => '2024-01-01T16:45:34Z' }
+      )
+      expect(bad_claims_call.status).to equal(520)
+      expect(bad_claims_call.body['statusCode']).to equal(520)
+      expect(bad_claims_call.body['success']).to eq(false)
+      expect(bad_claims_call.body['message']).to include(/Uninitialized constant/i)
+    end
+
     it 'returns 400 with error message if dates are invalid' do
       allow_any_instance_of(TravelPay::ClaimsClient)
         .to receive(:get_claims_by_date)
