@@ -15,7 +15,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     let(:current_user) { build(:ch33_dd_user) }
 
     before do
-      Flipper.disable(:hca_disable_bgs_service)
+      allow(Flipper).to receive(:enabled?).with(:hca_disable_bgs_service).and_return(false)
       sign_in_as(current_user)
     end
 
@@ -31,7 +31,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
     context 'hca_disable_bgs_service enabled' do
       before do
-        Flipper.enable(:hca_disable_bgs_service)
+        allow(Flipper).to receive(:enabled?).with(:hca_disable_bgs_service).and_return(true)
       end
 
       it 'does not call the BGS Service and returns the rating info as 0' do
