@@ -76,20 +76,34 @@ module ClaimsApi
               key: 'return'
             )
         end
+      end
 
-        module FindAssignedFlashes
-          DEFINITION =
-            Action.new(
-              service: ClaimantWebService::DEFINITION,
-              name: 'findAssignedFlashes',
-              key: 'return'
+      ##
+      # ClaimantServiceBean
+      #
+      module ClaimantServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'ClaimantServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
+              data: nil
             )
-        end
+          )
+      end
+
+      module FindAssignedFlashes
+        DEFINITION =
+          Action.new(
+            service: ClaimantService::DEFINITION,
+            name: 'findAssignedFlashes',
+            key: 'return'
+          )
 
         module AddFlash
           DEFINITION =
             Action.new(
-              service: ClaimantWebService::DEFINITION,
+              service: ClaimantService::DEFINITION,
               name: 'addFlash',
               key: 'return'
             )
