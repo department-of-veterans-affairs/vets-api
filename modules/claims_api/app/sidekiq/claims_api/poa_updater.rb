@@ -9,8 +9,11 @@ module ClaimsApi
     def perform(power_of_attorney_id, rep = nil)
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
 
+      # first_name = poa_form.auth_headers['va_eauth_firstName']
+      # last_name = poa_form.auth_headers['va_eauth_lastName']
       ssn = poa_form.auth_headers['va_eauth_pnid']
-      file_number = find_by_ssn(ssn, poa_form)
+
+      file_number = find_by_ssn(ssn, poa_form) # , first_name, last_name)
       poa_code = extract_poa_code(poa_form.form_data)
 
       response = update_birls_record(file_number, ssn, poa_code, poa_form)
@@ -65,9 +68,10 @@ module ClaimsApi
       )
     end
 
-    def find_by_ssn(ssn, poa_form)
+    def find_by_ssn(ssn, poa_form) # , first_name, last_name)
       if Flipper.enabled? :claims_api_poa_updater_enables_local_bgs
         person_web_service(poa_form).find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
+        # vet_record_service(poa_form).find_birls_record(ssn:, first_name:, last_name:)
       else
         bgs_service.people.find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
       end
