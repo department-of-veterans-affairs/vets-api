@@ -96,12 +96,14 @@ module Lighthouse
         form526_pdf = get_form526_pdf(submission)
         if form526_pdf.present?
           Rails.logger.info('Poll for form 526 PDF: PDF found')
-          if Flipper.enabled?(:disability_526_call_received_email_from_polling, OpenStruct.new({ flipper_id: user_uuid })) {
+          if Flipper.enabled?(:disability_526_call_received_email_from_polling,
+                              OpenStruct.new({ flipper_id: user_uuid }))
             # submission = Form526Submission.find(options['submission_id'])
-            Rails.logger.info("Form526ConfirmationEmailJob called for user: #{user_uuid}, submission: #{submission.id} from poll_form526_pdf")
+            Rails.logger.info("Form526ConfirmationEmailJob called for user: #{user_uuid},
+                                                    submission: #{submission.id} from poll_form526_pdf")
             params = submission.personalization_parameters(options['first_name'])
             Form526ConfirmationEmailJob.perform_async(params)
-          }
+          end
           return
         else
           # Check the submission.created_at date, if it's more than 2 days old

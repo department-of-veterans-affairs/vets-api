@@ -345,11 +345,12 @@ class Form526Submission < ApplicationRecord
     params = submission.personalization_parameters(options['first_name'])
     if submission.jobs_succeeded?
       # If the received_email_from_polling feature enabled, skip this call
-      if !Flipper.enabled?(:disability_526_call_received_email_from_polling,
-                                           OpenStruct.new({ flipper_id: user_uuid })) {
-        Rails.logger.info("Form526ConfirmationEmailJob called for user: #{user_uuid}, submission: #{submission.id} from form526_submission")
+      unless Flipper.enabled?(:disability_526_call_received_email_from_polling,
+                              OpenStruct.new({ flipper_id: user_uuid }))
+        Rails.logger.info("Form526ConfirmationEmailJob called for user: #{user_uuid},
+                                              submission: #{submission.id} from form526_submission")
         Form526ConfirmationEmailJob.perform_async(params)
-      }
+      end
       submission.workflow_complete = true
       submission.save
     else
