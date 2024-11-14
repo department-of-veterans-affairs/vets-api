@@ -231,6 +231,30 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           expect(Lighthouse526DocumentUpload.where(**upload_attributes).count).to eq(1)
         end
 
+        # This is a possibility accounted for in the existing EVSS submission code
+        context 'when the SupportingEvidenceAttachment returns nil when converted_filename is called' do
+          before do
+            allow(attachment).to receive(:converted_filename).and_return(nil)
+          end
+
+          let(:expected_lighthouse_document_with_name_from_metadata) do
+            LighthouseDocument.new(
+              claim_id: submission.submitted_claim_id,
+              participant_id: user.participant_id,
+              document_type: upload_data.first['attachmentId'],
+              file_name: upload_data.first['name'],
+              supporting_evidence_attachment: attachment
+            )
+          end
+
+          it 'falls back to the filename in the metadata' do
+            expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+              .with(file.read, expected_lighthouse_document_with_name_from_metadata)
+
+            perform_upload
+          end
+        end
+
         context 'when Lighthouse returns an error response' do
           let(:error_response_body) do
             # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
