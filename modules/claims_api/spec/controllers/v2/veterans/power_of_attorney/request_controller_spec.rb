@@ -114,7 +114,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         {
           'poaRequestRespondReturnVOList' => [
             {
-              'procId' => '76529',
+              'procID' => '76529',
               'claimantFirstName' => 'John',
               'poaCode' => '123'
             }

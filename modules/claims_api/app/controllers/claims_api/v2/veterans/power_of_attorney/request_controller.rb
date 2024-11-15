@@ -133,7 +133,7 @@ module ClaimsApi
 
           poa_requests = Array.wrap(res['poaRequestRespondReturnVOList'])
 
-          matching_request = poa_requests.find { |poa_request| poa_request['procId'] == proc_id }
+          matching_request = poa_requests.find { |poa_request| poa_request['procID'] == proc_id }
 
           detail = 'Participant ID/Process ID combination not found'
           raise ::Common::Exceptions::ResourceNotFound.new(detail:) if matching_request.nil?
