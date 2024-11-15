@@ -64,8 +64,8 @@ module ClaimsApi
         recipient_identifier: ptcpnt_id,
         personalisation: {
           first_name: first_name || '',
-          representative_type: representative_type_text || '',
-          representative_type_abbreviated: representative_type_text || '',
+          representative_type: representative_type_text || 'representative',
+          representative_type_abbreviated: representative_type_text || 'representative',
           form_type: 'Appointment of Individual as Claimantʼs Representative (VA Form 21-22a)'
         },
         template_id: Settings.claims_api.vanotify.declined_representative_template_id
