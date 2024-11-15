@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module EPS
-  class BaseService < VAOS::BaseService
+  class BaseService < Common::Client::Base
     STS_OAUTH_TOKEN = :va_online_scheduling_sts_oauth_token
 
     attr_accessor :user
