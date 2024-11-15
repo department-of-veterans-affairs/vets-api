@@ -4,7 +4,7 @@ module ClaimsApi
   class VANotifyDeclinedJob < ClaimsApi::ServiceBase
     LOG_TAG = 'va_notify_declined_job'
 
-    def perform(encrypted_ptcpnt_id:, encrypted_first_name:, representative_id:)
+    def perform(encrypted_ptcpnt_id, encrypted_first_name, representative_id)
       lockbox = Lockbox.new(key: Settings.lockbox.master_key)
       ptcpnt_id = lockbox.decrypt(Base64.strict_decode64(encrypted_ptcpnt_id))
       first_name = lockbox.decrypt(Base64.strict_decode64(encrypted_first_name))

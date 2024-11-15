@@ -32,7 +32,7 @@ describe ClaimsApi::VANotifyDeclinedJob, type: :job do
                 template_id: Settings.claims_api.vanotify.declined_service_organization_template_id
               })
 
-      subject.perform(encrypted_ptcpnt_id:, encrypted_first_name:, representative_id:)
+      subject.perform(encrypted_ptcpnt_id, encrypted_first_name, representative_id)
     end
   end
 
@@ -62,7 +62,7 @@ describe ClaimsApi::VANotifyDeclinedJob, type: :job do
                 template_id: Settings.claims_api.vanotify.declined_service_organization_template_id
               })
 
-      subject.perform(encrypted_ptcpnt_id:, encrypted_first_name:, representative_id:)
+      subject.perform(encrypted_ptcpnt_id, encrypted_first_name, representative_id)
     end
   end
 end

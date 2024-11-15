@@ -112,8 +112,7 @@ module ClaimsApi
           encrypted_ptcpnt_id = Base64.strict_encode64(lockbox.encrypt(ptcpnt_id))
           encrypted_first_name = Base64.strict_encode64(lockbox.encrypt(first_name))
 
-          ClaimsApi::VANotifyDeclinedJob.perform_async(encrypted_ptcpnt_id:, encrypted_first_name:,
-                                                       representative_id:)
+          ClaimsApi::VANotifyDeclinedJob.perform_async(encrypted_ptcpnt_id, encrypted_first_name, representative_id)
         end
 
         def validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
