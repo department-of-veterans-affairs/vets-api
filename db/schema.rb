@@ -1383,7 +1383,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_14_213556) do
     t.datetime "updated_at", null: false
     t.string "metadata"
     t.jsonb "callback_metadata"
-    t.uuid "template_id"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
