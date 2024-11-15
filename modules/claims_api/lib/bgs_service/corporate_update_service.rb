@@ -1,0 +1,19 @@
+module ClaimsApi
+  class CorporateUpdateService < ClaimsApi::LocalBGS
+    def bean_name
+      'CorporateUpdateServiceBean/CorporateUpdateWebService'
+    end
+
+    def update_poa_access(participant_id:, poa_code:, allow_poa_access: 'y', allow_poa_c_add: 'y')
+      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <ptcpntId>#{participant_id}</ptcpntId>
+        <poa>#{poa_code}</poa>
+        <allowPoaAccess>#{allow_poa_access}</allowPoaAccess>
+        <allowPoaCadd>#{allow_poa_c_add}</allowPoaCadd>
+      EOXML
+
+      response = make_request(endpoint: bean_name, action: 'update_poa_access', body:, key: 'return')
+      response&.dig(:body, :update_poa_access_response) || response
+    end
+  end
+end
