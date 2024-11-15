@@ -2,6 +2,8 @@
 
 require 'sidekiq'
 
+# TODO: Simlify this job, move the logic for fetching and updating banners into a lib/service module
+#       and have this Banner Job just call that service module
 module Banners
   class PullAndUpdateDb
     include Sidekiq::Job
@@ -20,14 +22,7 @@ module Banners
 
       message = "#{job_class} retries exhausted"
       Rails.logger.error(message, { job_id:, error_class:, error_message: })
-      # VAForms::Slack::Messenger.new(
-      #   {
-      #     class: job_class.to_s,
-      #     exception: error_class,
-      #     exception_message: error_message,
-      #     detail: message
-      #   }
-      # ).notify!
+      # TODO: Consider adding Slack notification (or DD monitor that captures these errors for slack announcing)
     rescue => e
       message = "Failure in #{job_class}#sidekiq_retries_exhausted"
       Rails.logger.error(
@@ -41,14 +36,7 @@ module Banners
           }
         }
       )
-      # VAForms::Slack::Messenger.new(
-      #   {
-      #     class: job_class.to_s,
-      #     exception: e.class.to_s,
-      #     exception_message: e.message,
-      #     detail: message
-      #   }
-      # ).notify!
+      # TODO: Consider adding Slack notification (or DD monitor that captures these errors for slack announcing)
 
       raise e
     end
@@ -56,15 +44,13 @@ module Banners
     def perform
       return unless enabled?
 
-      # all_forms_data.each { |form| VAForms::FormBuilder.perform_async(form) }
-
-      # # append new tags for pg_search
-      # VAForms::UpdateFormTagsService.run
+      all_sites_banner_data.each { |banner_data| Banners::Builder.perform_async(banner_data) }
     end
 
     def all_sites_banner_data
-      query = File.read(Rails.root.join('modules', 'banners', 'config', 'graphql_query.txt'))
-      body = { query: }
+      banner_graphql_query = Rails.root.join('modules', 'banners', 'config', 'graphql_query.txt')
+      body = { query: File.read(banner_graphql_query)}
+
       response = connection.post do |req|
         req.path = 'graphql'
         req.body = body.to_json
