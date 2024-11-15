@@ -395,15 +395,6 @@ module ClaimsApi
               key: 'return'
             )
         end
-
-        module FindBirlsRecord
-          DEFINITION =
-            Action.new(
-              service: VetRecordWebService::DEFINITION,
-              name: 'findBirlsRecord',
-              key: 'return'
-            )
-        end
       end
 
       # VnpAtchmsWebServiceBean
