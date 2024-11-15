@@ -13,6 +13,7 @@ This documentation covers the setup and usage of the PDF upload/download solutio
     - [Configuration](#configuration)
   - [Usage](#usage)
     - [Individual Processing](#individual-processing)
+    - [S3 Pre-Signed URL Retrieval](#s3-pre-signed-url-retrieval)
   - [Extending Functionality](#extending-functionality)
     - [Overrideable Classes](#overrideable-classes)
     - [Directory and File Structure](#directory-and-file-structure)
@@ -86,6 +87,15 @@ client = SimpleFormsApi::FormRemediation::S3Client.new(config:, id: <YOUR_SUBMIS
 client.upload
 ```
 
+### S3 Pre-Signed URL Retrieval
+
+To handle a single PDF download for an already archived form submission, call the `fetch_presigned_url` class method on the `S3Client` class with the appropriate configuration and submission ID:
+
+```ruby
+config = YourTeamsConfig.new
+SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(<YOUR_SUBMISSION_ID>, config:)
+```
+
 ---
 
 ## Extending Functionality
@@ -97,6 +107,7 @@ Each component of this solution can be extended or customized to meet team requi
 3. Register the subclass in your configuration:
 
 Extending the uploader:
+
 ```ruby
 # frozen_string_literal: true
 
@@ -110,6 +121,7 @@ end
 ```
 
 Using the new uploader within your own team's configuration:
+
 ```ruby
 # frozen_string_literal: true
 
@@ -127,6 +139,7 @@ end
 ```
 
 Instantiate the client with your team's configuration:
+
 ```ruby
 config = NewConfig.new
 client = SimpleFormsApi::FormRemediation::S3Client.new(config:, id: <YOUR_SUBMISSION_ID>, type: :submission)
