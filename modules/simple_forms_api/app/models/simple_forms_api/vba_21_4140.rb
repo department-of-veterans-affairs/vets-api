@@ -1,15 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA214140
-    include Virtus.model(nullify_blank: true)
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
-
+  class VBA214140 < BaseForm
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran', 'full_name', 'first'),
