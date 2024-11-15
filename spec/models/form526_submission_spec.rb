@@ -1290,10 +1290,11 @@ RSpec.describe Form526Submission do
       end
 
       context 'with disability_526_call_received_email_from_polling enabled' do
+        subject { create(:form526_submission, :with_multiple_succesful_jobs) }
+
         before do
           Flipper.enable(:disability_526_call_received_email_from_polling)
         end
-        subject { create(:form526_submission, :with_multiple_succesful_jobs) }
 
         it 'does not trigger confirmation email' do
           expect do

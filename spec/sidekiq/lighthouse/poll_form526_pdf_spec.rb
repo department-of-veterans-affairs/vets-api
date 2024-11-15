@@ -90,6 +90,7 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
       before do
         Flipper.enable(:disability_526_call_received_email_from_polling)
       end
+
       let(:form526_submission) { create(:form526_submission, submitted_claim_id: 1) }
 
       it 'triggers confirmation email' do
