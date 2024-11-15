@@ -174,7 +174,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             claim_id: submission.submitted_claim_id,
             participant_id: user.participant_id,
             document_type: upload_data.first['attachmentId'],
-            file_name: attachment.converted_filename,
+            file_name: upload_data.first['name'],
             supporting_evidence_attachment: attachment
           )
         end
@@ -231,25 +231,27 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           expect(Lighthouse526DocumentUpload.where(**upload_attributes).count).to eq(1)
         end
 
-        # This is a possibility accounted for in the existing EVSS submission code
-        context 'when the SupportingEvidenceAttachment returns nil when converted_filename is called' do
+        # This is a possibility accounted for in the existing EVSS submission code.
+        # The original attachment object does not have a converted_filename.
+        context 'when the SupportingEvidenceAttachment returns a converted_filename' do
           before do
-            allow(attachment).to receive(:converted_filename).and_return(nil)
+            attachment.update!(file_data: JSON.parse(attachment.file_data)
+                      .merge('converted_filename' => 'converted_filename.pdf').to_json)
           end
 
-          let(:expected_lighthouse_document_with_name_from_metadata) do
+          let(:expected_lighthouse_document_with_converted_file_name) do
             LighthouseDocument.new(
               claim_id: submission.submitted_claim_id,
               participant_id: user.participant_id,
               document_type: upload_data.first['attachmentId'],
-              file_name: upload_data.first['name'],
+              file_name: 'converted_filename.pdf',
               supporting_evidence_attachment: attachment
             )
           end
 
-          it 'falls back to the filename in the metadata' do
+          it 'uses the converted_filename instead of the metadata in upload_data["name"]' do
             expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-              .with(file.read, expected_lighthouse_document_with_name_from_metadata)
+              .with(file.read, expected_lighthouse_document_with_converted_file_name)
 
             perform_upload
           end
@@ -316,7 +318,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           EVSSClaimDocument.new(
             evss_claim_id: submission.submitted_claim_id,
             document_type: upload_data.first['attachmentId'],
-            file_name: attachment.converted_filename
+            file_name: upload_data.first['name']
           )
         end
 
