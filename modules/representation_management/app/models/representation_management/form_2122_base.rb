@@ -79,9 +79,6 @@ module RepresentationManagement
               format: { with: NINE_DIGIT_NUMBER },
               if: -> { veteran_service_number.present? }
 
-    # validates :record_consent, presence: true, inclusion: { in: [true, false] }
-    # validates :consent_address_change, presence: true, inclusion: { in: [true, false] }
-    # validates :consent_limits, presence: true
     validate :consent_limits_must_contain_valid_values
     validate :representative_exists?, if: -> { representative_id.present? }
 

@@ -19,9 +19,6 @@ module RepresentationManagement
     attr_accessor(*[veteran_attrs, consent_attrs].flatten)
 
     validates :representative_id, presence: true
-    # validates :consent_inside_access, presence: true, inclusion: { in: [true, false] }
-    # validates :consent_outside_access, presence: true, inclusion: { in: [true, false] }
-    # validates :consent_team_members, presence: true, if: -> { consent_inside_access || consent_outside_access }
 
     validates :veteran_service_branch,
               inclusion: { in: VETERAN_SERVICE_BRANCHES },
