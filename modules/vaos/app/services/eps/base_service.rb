@@ -1,17 +1,15 @@
 # frozen_string_literal: true
 
-module EPS
+module Eps
   class BaseService < Common::Client::Base
     STS_OAUTH_TOKEN = :va_online_scheduling_sts_oauth_token
 
     attr_accessor :user
 
     def initialize(user = nil)
-      super()
+      super() if defined?(super)
       @user = user
     end
-
-    private
 
     def perform(method, path, params, headers = nil, options = nil)
       response = super(method, path, params, headers, options)
@@ -19,16 +17,22 @@ module EPS
       response
     end
 
+    private
+
+    def user_service
+      @user_service ||= VAOS::UserService.new
+    end
+
     def headers
       {
-        'Authorization' => "Bearer #{EPS::TokenService.token}",
+        'Authorization' => 'Bearer 1234',
         'Content-Type' => 'application/json',
         'X-Request-ID' => RequestStore.store['request_id']
       }
     end
 
     def config
-      EPS::Configuration.instance
+      Eps::Configuration.instance
     end
   end
 end
