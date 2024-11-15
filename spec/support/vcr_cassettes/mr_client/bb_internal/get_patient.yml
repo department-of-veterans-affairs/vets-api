@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<MHV_HOST>/mhvapi/v1/usermgmt/patient/uid/11375034"
+    uri: "<MHV_MR_HOST>/mhvapi/v1/usermgmt/patient/uid/11375034"
     body:
       encoding: US-ASCII
       string: ''
