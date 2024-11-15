@@ -197,7 +197,7 @@ class BenefitsIntakeStatusJob
     if %w[28-1900].include?(form_id)
       claim = SavedClaim::VeteranReadinessEmploymentClaim.find(saved_claim_id)
       if claim
-        claim.submit_failure_email
+        claim.send_failure_email
         VRE::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         VRE::Monitor.new.log_silent_failure(context, nil, call_location:)
