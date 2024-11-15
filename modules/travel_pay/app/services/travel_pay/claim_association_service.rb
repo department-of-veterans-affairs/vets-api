@@ -52,9 +52,8 @@ module TravelPay
 
       end
     rescue => e
-      error_response = rescue_errors(e)
       append_error(params['appointments'],
-                   build_metadata(error_response.body))
+                   rescue_errors(e))
     end
 
     def associate_single_appointment_to_claim(params = {}) # rubocop:disable Metrics/MethodLength
@@ -77,33 +76,36 @@ module TravelPay
                                end
       appt
     rescue => e
-      error_response = rescue_errors(e)
       appt['travelPayClaim'] = {
-        'metadata' => build_metadata(error_response.body)
+        'metadata' => rescue_errors(e)
       }
       appt
     end
 
     private
 
-    def rescue_errors(e)
+    def rescue_errors(e) # rubocop:disable Metrics/MethodLength
       if e.is_a?(ArgumentError)
         Rails.logger.error(message: e.message.to_s)
-        Faraday::Response.new(response_body: {
-                                'statusCode' => 400,
-                                'message' => e.message,
-                                'success' => false
-                              }, status: 400)
+        {
+          'status' => 400,
+          'message' => e.message.to_s,
+          'success' => false
+        }
       elsif e.is_a?(Common::Exceptions::BackendServiceException)
         Rails.logger.error(message: "#{e}, #{e.original_body}")
-        Faraday::Response.new(response_body: e.original_body, status: e.original_status)
+        {
+          'status' => e.original_status,
+          'message' => e.original_body['message'],
+          'success' => false
+        }
       else
         Rails.logger.error(message: "An unknown error occored: #{e}")
-        Faraday::Response.new(response_body: {
-                                'statusCode' => 520, # Unknown error code
-                                'message' => "An unknown error occored: #{e}",
-                                'success' => false
-                              }, status: 520)
+        {
+          'status' => 520, # Unknown error code
+          'message' => "An unknown error occored: #{e}",
+          'success' => false
+        }
       end
     end
 
