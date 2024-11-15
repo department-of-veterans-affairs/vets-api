@@ -79,6 +79,9 @@ features:
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
+  hca_disable_bgs_service:
+    actor_type: user
+    description: Do not call the BGS Service when this is turned on. Instead return 0 for rating.
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
@@ -1151,6 +1154,9 @@ features:
   my_va_form_submission_statuses:
     actor_type: user
     description: Enables users to view the status of submitted forms.
+  my_va_form_submission_pdf_link:
+    actor_type: user
+    description: Enables users to view PDF link within submitted forms cards
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
@@ -1692,10 +1698,6 @@ features:
   sc_new_form:
     actor_type: user
     description: Supplemental Claim new form updates
-    enable_in_development: true
-  pension_ipf_callbacks_endpoint:
-    actor_type: user
-    description: Pension IPF VANotify notification callbacks endpoint
     enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
