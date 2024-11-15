@@ -74,9 +74,6 @@ describe TravelPay::ClaimAssociationService do
           'start' => '2021-05-20T14:10:00Z',
           'end' => '2021-05-20T14:20:00Z',
           'minutesDuration' => 10,
-          'slot' => { 'id' => '3230323130353230313431303A323032313035323031343230',
-                      'start' => '2021-05-20T14:10:00Z',
-                      'end' => '2021-05-20T14:20:00Z' },
           'cancellable' => true
         },
         {
@@ -98,8 +95,6 @@ describe TravelPay::ClaimAssociationService do
         status: 200
       )
     end
-
-    let(:expected_uuids) { %w[uuid1] }
 
     let(:tokens) { { veis_token: 'veis_token', btsss_token: 'btsss_token' } }
 
@@ -133,7 +128,7 @@ describe TravelPay::ClaimAssociationService do
         expect(appt['travelPayClaim']['metadata']['success']).to eq(true)
       end
       expect(actual_appts_with_claims.count).to equal(1)
-      expect(actual_appts_with_claims[0]['travelPayClaim']['claim']['id']).to eq(expected_uuids[0])
+      expect(actual_appts_with_claims[0]['travelPayClaim']['claim']['id']).to eq('uuid1')
     end
 
     it 'returns appointments with error metadata if claims call fails' do
@@ -142,17 +137,13 @@ describe TravelPay::ClaimAssociationService do
         .with(tokens[:veis_token], tokens[:btsss_token],
               { 'start_date' => '2024-10-17T09:00:00Z',
                 'end_date' => '2024-12-15T16:45:00Z' })
-        .and_raise(Common::Exceptions::BackendServiceException.new(
-                     'VA900',
-                     { source: 'test' },
-                     401,
-                     {
-                       'statusCode' => 401,
-                       'message' => 'Unauthorized.',
-                       'success' => false,
-                       'data' => nil
-                     }
-                   ))
+        .and_raise(Common::Exceptions::BackendServiceException.new('VA900', {}, 401,
+                                                                   {
+                                                                     'statusCode' => 401,
+                                                                     'message' => 'Unauthorized.',
+                                                                     'success' => false,
+                                                                     'data' => nil
+                                                                   }))
 
       association_service = TravelPay::ClaimAssociationService.new(user)
       appts_with_claims = association_service.associate_appointments_to_claims({ 'appointments' => appointments,
@@ -214,28 +205,25 @@ describe TravelPay::ClaimAssociationService do
 
   context 'associate_single_appointment_to_claim' do
     let(:user) { build(:user) }
-    let(:single_claim_data_success) do
-      {
-        'statusCode' => 200,
-        'message' => 'Data retrieved successfully.',
-        'success' => true,
-        'data' => [
-          {
-            'id' => 'uuid1',
-            'claimNumber' => 'TC0000000000001',
-            'claimStatus' => 'InProgress',
-            'appointmentDateTime' => '2024-01-01T16:45:34Z',
-            'facilityName' => 'Cheyenne VA Medical Center',
-            'createdOn' => '2024-03-22T21:22:34.465Z',
-            'modifiedOn' => '2024-01-01T16:44:34.465Z'
-          }
-        ]
-      }
-    end
 
     let(:single_claim_success_response) do
       Faraday::Response.new(
-        response_body: single_claim_data_success,
+        response_body: {
+          'statusCode' => 200,
+          'message' => 'Data retrieved successfully.',
+          'success' => true,
+          'data' => [
+            {
+              'id' => 'uuid1',
+              'claimNumber' => 'TC0000000000001',
+              'claimStatus' => 'InProgress',
+              'appointmentDateTime' => '2024-01-01T16:45:34Z',
+              'facilityName' => 'Cheyenne VA Medical Center',
+              'createdOn' => '2024-03-22T21:22:34.465Z',
+              'modifiedOn' => '2024-01-01T16:44:34.465Z'
+            }
+          ]
+        },
         status: 200
       )
     end
@@ -255,11 +243,6 @@ describe TravelPay::ClaimAssociationService do
     let(:single_appointment) do
       {
         'id' => '32066',
-        'kind' => 'clinic',
-        'status' => 'cancelled',
-        'patientIcn' => '1012845331V153043',
-        'locationId' => '983',
-        'clinic' => '1081',
         'start' => '2024-01-01T16:45:34Z',
         'cancellable' => false
       }
@@ -268,11 +251,6 @@ describe TravelPay::ClaimAssociationService do
     let(:single_appt_invalid) do
       {
         'id' => '32066',
-        'kind' => 'clinic',
-        'status' => 'cancelled',
-        'patientIcn' => '1012845331V153043',
-        'locationId' => '983',
-        'clinic' => '1081',
         'start' => 'banana',
         'cancellable' => false
       }
@@ -302,7 +280,7 @@ describe TravelPay::ClaimAssociationService do
       expect(appt_with_claim['travelPayClaim']['metadata']['status']).to eq(200)
       expect(appt_with_claim['travelPayClaim']['metadata']['message']).to eq('Data retrieved successfully.')
       expect(appt_with_claim['travelPayClaim']['metadata']['success']).to eq(true)
-      expect(appt_with_claim['travelPayClaim']['claim']['id']).to eq(single_claim_data_success['data'][0]['id'])
+      expect(appt_with_claim['travelPayClaim']['claim']['id']).to eq('uuid1')
     end
 
     it 'returns an appointment with success metadata but no claim' do
