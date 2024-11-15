@@ -28,15 +28,11 @@ module RepresentationManagement
     end
 
     def entity_display_type
-      display_type =
-        if entity.is_a?(Veteran::Service::Representative)
-          veteran_service_representative_type
-        elsif entity.is_a?(AccreditedIndividual)
-          entity.individual_type
-        else
-          'Veteran Service Organization'
-        end
-      display_type.humanize.titleize
+      if entity.is_a?(Veteran::Service::Representative) || entity.is_a?(AccreditedIndividual)
+        representative_type
+      else
+        'Veterans Service Organization'
+      end
     end
 
     def entity_name
@@ -83,15 +79,19 @@ module RepresentationManagement
         Veteran::Service::Organization.find_by(poa: entity_id)
     end
 
-    def veteran_service_representative_type
-      representative_type = entity.user_types.first
-      return '' if representative_type.blank?
+    def representative_type
+      if entity.is_a?(Veteran::Service::Representative)
+        type_string = entity.user_types.first
+      elsif entity.is_a?(AccreditedIndividual)
+        type_string = entity.individual_type
+      end
+      return '' if type_string.blank?
 
-      case representative_type
+      case type_string
       when 'claims_agent', 'claim_agents'
-        'claims_agent'
-      when 'veteran_service_officer'
-        'representative'
+        'claims agent'
+      when 'representative', 'veteran_service_officer'
+        'VSO representative'
       when 'attorney'
         'attorney'
       else

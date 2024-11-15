@@ -79,6 +79,9 @@ features:
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
+  hca_disable_bgs_service:
+    actor_type: user
+    description: Do not call the BGS Service when this is turned on. Instead return 0 for rating.
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
@@ -156,6 +159,9 @@ features:
   champva_file_recreate:
     actor_type: user
     description: Enhances file creation reliability by adding retry functionality in the vets-api tmp folder
+  champva_failure_email_job_enabled:
+    actor_type: user
+    description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -366,6 +372,9 @@ features:
   debts_cache_vbs_copays_empty_response:
     actor_type: user
     description: Enables caching of empty VBS medical copay response
+  debts_copay_logging:
+    actor_type: user
+    description: Logs copay request data
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
@@ -1145,6 +1154,9 @@ features:
   my_va_form_submission_statuses:
     actor_type: user
     description: Enables users to view the status of submitted forms.
+  my_va_form_submission_pdf_link:
+    actor_type: user
+    description: Enables users to view PDF link within submitted forms cards
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
