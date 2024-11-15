@@ -169,4 +169,21 @@ describe BBInternal::Client do
       end
     end
   end
+
+  describe '#get_treatment_facilities' do
+    it "retrieves the user's preferred treatment facilities" do
+      VCR.use_cassette 'mr_client/bb_internal/get_treatment_facilities' do
+        facilities = client.get_treatment_facilities
+
+        expect(facilities).to be_an(Array)
+        expect(facilities).not_to be_empty
+
+        first_facility = facilities.first
+        facility = first_facility['facility']
+        expect(facility).to be_a(Hash)
+        expect(facility).to have_key('typeCode')
+        expect(facility['facilityInfo']).to have_key('name')
+      end
+    end
+  end
 end

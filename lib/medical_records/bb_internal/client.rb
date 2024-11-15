@@ -136,6 +136,20 @@ module BBInternal
       response.body
     end
 
+    # Retrieves the user's preferred treatment facilities.
+    #
+    # This method sends a request to the 'usermgmt/getPreferredTreatmentFacilities' endpoint
+    # to retrieve a list of treatment facilities associated with the user.
+    #
+    # @return [Array<Hash>] An array of hashes, each representing a treatment facility
+    # as well as information about the patient
+    #
+    def get_treatment_facilities
+      body = { id: @session.user_id }.to_json
+      response = perform(:post, 'usermgmt/getPreferredTreatmentFacilities', body, token_headers)
+      response.body
+    end
+
     private
 
     ##
