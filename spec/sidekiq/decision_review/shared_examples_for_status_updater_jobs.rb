@@ -205,7 +205,7 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
     instance_double(Faraday::Response, body: response)
   end
 
-  let(:evidence_service_method) { SUBCLASS_INFO[subclass][:evidence_service_method].to_sym}
+  let(:evidence_service_method) { SUBCLASS_INFO[subclass][:evidence_service_method].to_sym }
 
   context 'SavedClaim records are present with completed status in LH and have associated evidence uploads' do
     let(:upload_id) { SecureRandom.uuid }
@@ -234,13 +234,13 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
 
     it 'only sets delete_date for subclass with all attachments in vbms status' do
       expect(service).to receive(evidence_service_method).with(guid: upload_id)
-                                                                    .and_return(upload_response_vbms)
+                                                         .and_return(upload_response_vbms)
       expect(service).to receive(evidence_service_method).with(guid: upload_id2)
-                                                                    .and_return(upload_response_processing)
+                                                         .and_return(upload_response_processing)
       expect(service).to receive(evidence_service_method).with(guid: upload_id3)
-                                                                    .and_return(upload_response_vbms)
+                                                         .and_return(upload_response_vbms)
       expect(service).to receive(evidence_service_method).with(guid: upload_id4)
-                                                                    .and_return(upload_response_processing)
+                                                         .and_return(upload_response_processing)
 
       expect(service).to receive(service_method).with(guid1).and_return(response_complete)
       expect(service).to receive(service_method).with(guid2).and_return(response_complete)

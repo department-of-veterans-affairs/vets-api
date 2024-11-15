@@ -9,24 +9,6 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
 
   include_context 'status updater job context', SavedClaim::SupplementalClaim
 
-  let(:upload_response_vbms) do
-    response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_upload_show_response_200.json'))
-    instance_double(Faraday::Response, body: response)
-  end
-
-  let(:upload_response_processing) do
-    response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_upload_show_response_200.json'))
-    response['data']['attributes']['status'] = 'processing'
-    instance_double(Faraday::Response, body: response)
-  end
-
-  let(:upload_response_error) do
-    response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_upload_show_response_200.json'))
-    response['data']['attributes']['status'] = 'error'
-    response['data']['attributes']['detail'] = 'Invalid PDF'
-    instance_double(Faraday::Response, body: response)
-  end
-
   describe 'perform' do
     context 'with flag enabled', :aggregate_failures do
       before do
