@@ -120,17 +120,6 @@ module MebApi
         }, status: response.status
       end
 
-      def render_claimant_id_error
-        render json: {
-          errors: [{
-            title: 'Claimant not found',
-            detail: 'Claimant ID is missing',
-            code: '200',
-            status: '200'
-          }]
-        }, status: :ok
-      end
-
       def determine_response_and_serializer(claim_status_response, claimant_response)
         if claim_status_response.status == valid_claimant_response?(claimant_response)
           [claim_status_response, ClaimStatusSerializer]
