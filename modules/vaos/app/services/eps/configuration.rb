@@ -1,6 +1,7 @@
+# frozen_string_literal: true
+
 module EPS
   class Configuration < Common::Client::Configuration::REST
-
     def self.login_url
       Settings.vaos.eps.access_token_url
     end
