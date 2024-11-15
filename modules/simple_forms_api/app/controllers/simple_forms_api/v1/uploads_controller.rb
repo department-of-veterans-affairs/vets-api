@@ -221,7 +221,7 @@ module SimpleFormsApi
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
-        attachments = get_form_id == 'vba_20_10207' ? form.attachment_guids : []
+        attachments = get_form_id == 'vba_20_10207' ? form.get_attachments : []
         s3_client = config.s3_client.new(
           config:, type: :submission, id:, submission:, attachments:, file_path:, metadata:
         )
