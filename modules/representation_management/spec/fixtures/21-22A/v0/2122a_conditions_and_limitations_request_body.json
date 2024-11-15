@@ -1,7 +1,10 @@
 {
   "record_consent": true,
   "consent_address_change": true,
-  "consent_limits": [],
+  "consent_limits": [
+    "ALCOHOLISM",
+    "DRUG_ABUSE"
+  ],
   "consent_inside_access": true,
   "consent_outside_access": true,
   "consent_team_members": [
