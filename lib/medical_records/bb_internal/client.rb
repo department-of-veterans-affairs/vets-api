@@ -136,18 +136,16 @@ module BBInternal
       response.body
     end
 
-    # Retrieves the user's preferred treatment facilities.
+    # Retrieves the patient information by user ID.
+    # @return [Hash] A hash containing the patient's details
     #
-    # This method sends a request to the 'usermgmt/getPreferredTreatmentFacilities' endpoint
-    # to retrieve a list of treatment facilities associated with the user.
-    #
-    # @return [Array<Hash>] An array of hashes, each representing a treatment facility
-    # as well as information about the patient
-    #
-    def get_treatment_facilities
-      body = { id: @session.user_id }.to_json
-      response = perform(:post, 'usermgmt/getPreferredTreatmentFacilities', body, token_headers)
-      response.body
+    def get_patient
+      response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
+      patient = response.body
+
+      raise Common::Exceptions::ServiceError.new(detail: 'Patient not found') if patient.blank?
+
+      patient
     end
 
     private
@@ -170,22 +168,13 @@ module BBInternal
       @session = super
 
       # Supplement session with patientId
-      session.patient_id = get_patient_id
+      patient = get_patient
+      session.patient_id = patient['ipas']&.first&.dig('patientId')
       # Put ICN back into the session
       session.icn = icn
 
       session.save
       session
-    end
-
-    def get_patient_id
-      response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
-
-      patient_id = response.body['ipas']&.first&.dig('patientId')
-
-      raise Common::Exceptions::ServiceError.new(detail: 'Patient ID not found for user') if patient_id.blank?
-
-      patient_id
     end
 
     ##
