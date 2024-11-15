@@ -65,7 +65,7 @@ class User < Common::RedisStore
   end
 
   def user_verification
-    @user_verification ||= get_user_verification
+    @user_verification ||= UserVerification.find_by(id: user_verification_id)
   end
 
   def user_account
@@ -73,7 +73,7 @@ class User < Common::RedisStore
   end
 
   def user_verification_id
-    @user_verification_id ||= user_verification&.id
+    @user_verification_id ||= get_user_verification&.id
   end
 
   def user_account_uuid
