@@ -42,7 +42,7 @@ module MebApi
         if claimant_id.blank?
           form_type = @form_type || 'toe'
           forms_claimant_response = claimant_service.get_claimant_info(form_type)
-          claimant_id = claimant_response['claimant']&.dig('claimant_id')
+          claimant_id = forms_claimant_response['claimant_id']
         end
 
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
