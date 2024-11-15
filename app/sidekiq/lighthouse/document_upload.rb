@@ -7,6 +7,8 @@ require 'lighthouse/benefits_documents/worker_service'
 class Lighthouse::DocumentUpload
   include Sidekiq::Job
 
+  attr_accessor :user_icn, :document_hash
+
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
   OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
 
@@ -78,27 +80,71 @@ class Lighthouse::DocumentUpload
   end
 
   def perform(user_icn, document_hash)
-    client = BenefitsDocuments::WorkerService.new
-    document, file_body, uploader = nil
+    @user_icn = user_icn
+    @document_hash = document_hash
+    # client = BenefitsDocuments::WorkerService.new
+    # document, file_body, uploader = nil
 
     Datadog::Tracing.trace('Config/Initialize Upload Document') do
       Sentry.set_tags(source: 'documents-upload')
-      document = LighthouseDocument.new document_hash
+      # document = LighthouseDocument.new document_hash
 
-      raise Common::Exceptions::ValidationErrors, document_data unless document.valid?
+      validate_document!
 
-      uploader = LighthouseDocumentUploader.new(user_icn, document.uploader_ids)
+      # uploader = LighthouseDocumentUploader.new(user_icn, document.uploader_ids)
       uploader.retrieve_from_store!(document.file_name)
     end
-    Datadog::Tracing.trace('Sidekiq read_for_upload') do
-      file_body = uploader.read_for_upload
-    end
+    # Datadog::Tracing.trace('Sidekiq read_for_upload') do
+      # file_body = uploader.read_for_upload
+    # end
     Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
       span.set_tag('Document File Size', file_body.size)
-      client.upload_document(file_body, document)
+      response = client.upload_document(file_body, document) # returns upload response which includes requestId
+      request_successful = response.dig(:data, :success)
+      if request_successful
+        request_id = response.dig(:data, :requestId)
+        # update evidence submission record to include request_id
+        es = EvidenceSubmission.find_by(job_id: Sidekiq::Context.current["jid"])
+        es.request_id = request_id
+        es.save!
+      else
+        raise StandardError
+      end
     end
     Datadog::Tracing.trace('Remove Upload Document') do
       uploader.remove!
     end
+  end
+
+  private
+
+  # def perform_document_upload_to_lighthouse(file_body)
+  #   client.upload_document(file_body, document)
+  # end
+
+  def validate_document!
+    raise Common::Exceptions::ValidationErrors, document unless document.valid?
+  end
+
+  def client
+    @client = BenefitsDocuments::WorkerService.new
+  end
+
+  def document
+    @document ||= LighthouseDocument.new(document_hash)
+  end
+
+  def uploader
+    @uploader ||= LighthouseDocumentUploader.new(user_icn, document.uploader_ids)
+  end
+
+  def perform_initial_file_read
+    Datadog::Tracing.trace('Sidekiq read_for_upload') do
+      uploader.read_for_upload
+    end
+  end
+
+  def file_body
+    @file_body ||= perform_initial_file_read
   end
 end

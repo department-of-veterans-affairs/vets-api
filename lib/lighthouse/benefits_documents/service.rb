@@ -75,7 +75,7 @@ module BenefitsDocuments
       if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
         Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_data.to_serializable_hash)
       else
-        Lighthouse::DocumentUpload.perform_async(user_icn, document_data.to_serializable_hash)
+        Lighthouse::DocumentUpload.perform_in(1.minute, user_icn, document_data.to_serializable_hash)
       end
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'sidekiq/testing'
 
 require 'lighthouse/document_upload'
 require 'va_notify/service'
@@ -8,10 +9,30 @@ require 'va_notify/service'
 RSpec.describe Lighthouse::DocumentUpload, type: :job do
   subject { described_class }
 
+  let(:client_stub) { instance_double(BenefitsDocuments::WorkerService) }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
+  let(:uploader_stub) { instance_double(LighthouseDocumentUploader) }
+  # let(:document_stub) { instance_double(LighthouseDocument)}
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }
   let(:filename) { 'doctors-note.pdf' }
+  let(:file) { File.read("#{::Rails.root}/spec/fixtures/files/#{filename}") }
+  let(:user_icn) { user_account.icn }
+  let(:tracked_item_ids) { '1234' }
+  let(:document_type) { 'L029' }
+  let(:password) { 'Password_123' }
+  let(:document_data) do
+    LighthouseDocument.new(
+      first_name: 'First Name',
+      participant_id: '1111',
+      claim_id: '4567',
+      # file_obj: file,
+      uuid: SecureRandom.uuid,
+      file_name: filename,
+      tracked_item_id: tracked_item_ids,
+      document_type:
+    )
+  end
 
   let(:issue_instant) { Time.now.to_i }
   let(:args) do
@@ -63,6 +84,18 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
           .with('Lighthouse::DocumentUpload exhaustion handler email sent')
         expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
       end
+    end
+
+    it 'retrieves the file and uploads to Lighthouse' do
+      allow(LighthouseDocumentUploader).to receive(:new) { uploader_stub }
+      # allow(LighthouseDocument).to receive(:valid?)
+      allow(BenefitsDocuments::WorkerService).to receive(:new) { client_stub }
+      allow(uploader_stub).to receive(:retrieve_from_store!).with(filename) { file }
+      allow(uploader_stub).to receive(:read_for_upload) { file }
+      # allow(described_class).to receive(:validate_document!).and_return(nil)
+      expect(uploader_stub).to receive(:remove!).once
+      expect(client_stub).to receive(:upload_document).with(file, document_data)
+      described_class.new.perform(user_icn, document_data.to_serializable_hash)
     end
   end
 
