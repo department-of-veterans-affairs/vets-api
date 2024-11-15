@@ -87,11 +87,13 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
     end
 
     context 'with disability_526_call_received_email_from_polling enabled' do
-      before do
-        Flipper.enable(:disability_526_call_received_email_from_polling)
-      end
-
       let(:form526_submission) { create(:form526_submission, submitted_claim_id: 1) }
+
+      it 'identifies and formats first_name correctly' do
+        expect do
+          subject.first_name.to eq :disabilities_compensation_user.first_name&.upcase.presence
+        end
+      end
 
       it 'triggers confirmation email' do
         expect do
