@@ -82,6 +82,38 @@ describe PagerDuty::MaintenanceClient do
     end
   end
 
+  context 'with bad requests' do
+    before { allow(Settings.maintenance).to receive(:services).and_return({ evss: 'XBADXX' }) }
+
+    it 'returns empty results and error with bad service IDs' do
+      stub_request(:get, 'https://api.pagerduty.com/maintenance_windows')
+        .with(query: hash_including('service_ids' => %w[XBADXX], 'offset' => '0'))
+        .to_return(
+          status: 400
+        )
+
+      expect(Rails.logger).to receive(:error)
+        .with('Invalid arguments sent to PagerDuty. One of the following Service IDs: ["XBADXX"] is bad.')
+
+      windows = subject.get_all
+      expect(windows).to be_empty
+    end
+
+    it 'returns empty results and custom error message on 429 error' do
+      stub_request(:get, 'https://api.pagerduty.com/maintenance_windows')
+        .with(query: hash_including('service_ids' => %w[XBADXX], 'offset' => '0'))
+        .to_return(
+          status: 429
+        )
+
+      expect(Rails.logger).to receive(:error)
+        .with('Querying PagerDuty for maintenance windows failed with the error: PagerDuty::ServiceException')
+
+      windows = subject.get_all
+      expect(windows).to be_empty
+    end
+  end
+
   context 'with options specified' do
     let(:body) { File.read('spec/support/pagerduty/maintenance_windows_simple.json') }
 
