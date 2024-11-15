@@ -3,7 +3,6 @@ on:
   pull_request_review:
     types: [submitted]
 
-
 jobs:
   check-approval-requirements:
     permissions: write-all
