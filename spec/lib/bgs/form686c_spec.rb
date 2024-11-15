@@ -8,6 +8,10 @@ RSpec.describe BGS::Form686c do
   let(:user_struct) { FactoryBot.build(:user_struct) }
   let(:saved_claim) { create(:dependency_claim_no_vet_information) }
 
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+  end
+
   describe '#submit' do
     subject { form686c.submit(payload) }
 
@@ -86,7 +90,6 @@ RSpec.describe BGS::Form686c do
           VCR.use_cassette('bgs/form686c/submit') do
             VCR.use_cassette('bid/awards/get_awards_pension') do
               VCR.use_cassette('bgs/service/create_note') do
-                expect(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(true)
                 expect(Flipper).to receive(:enabled?).with(:dependents_removal_check).and_return(true)
                 expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
                 expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
@@ -196,7 +199,6 @@ RSpec.describe BGS::Form686c do
           VCR.use_cassette('bgs/form686c/submit') do
             VCR.use_cassette('bid/awards/get_awards_pension') do
               VCR.use_cassette('bgs/service/create_note') do
-                expect(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(true)
                 expect(Flipper).to receive(:enabled?).with(:dependents_removal_check).and_return(true)
                 expect(Flipper).to receive(:enabled?).with(:dependents_pension_check).and_return(true)
                 expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
