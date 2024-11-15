@@ -91,14 +91,6 @@ module ClaimsApi
         DEFINITION =
           Service.new(
             bean: ClaimantServiceBean::DEFINITION,
-            path: 'ClaimantWebService'
-          )
-      end
-
-      module ClaimantWebService
-        DEFINITION =
-          Service.new(
-            bean: ClaimantServiceBean::DEFINITION,
             path: 'ClaimantServiceBean'
           )
         module FindPoaByParticipantId
