@@ -21,11 +21,8 @@ module ClaimsApi
       ClaimsApi::VANotifyFollowUpJob.perform_async(res.id) if res.present?
     rescue => e
       msg = "VA Notify email notification failed to send with error #{e}"
-      slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                             channel: '#api-benefits-claims-alerts',
-                                             username: 'Failed ClaimsApi::VANotifyDeclinedJob')
+      slack_alert_on_failure('ClaimsApi::VANotifyDeclinedJob', msg)
 
-      slack_client.notify(msg)
       ClaimsApi::Logger.log(LOG_TAG, detail: msg)
 
       raise e
