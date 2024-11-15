@@ -47,9 +47,9 @@ module MebApi
 
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
-        serializer = valid_claimant_response?(forms_claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
+        srlzer = valid_claimant_response?(forms_claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
 
-        render json: serializer.new(response)
+        render json: srlzer.new(response)
       end
 
       def claimant_info
