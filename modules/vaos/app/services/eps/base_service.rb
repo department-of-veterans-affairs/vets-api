@@ -6,8 +6,8 @@ module EPS
 
     attr_accessor :user
 
-    def initialize(user)
-      super(user)
+    def initialize(user = nil)
+      super()
       @user = user
     end
 
