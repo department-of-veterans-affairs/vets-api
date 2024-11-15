@@ -12,7 +12,7 @@ module MebApi
       before_action :set_type, only: %i[claim_letter claim_status claimant_info]
 
       def claim_letter
-        claimant_response = claimant_service.get_claimant_info(@form_type)
+        claimant_response = form_claimant_service.get_claimant_info(@form_type)
         claimant_id = claimant_response['claimant']['claimant_id']
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         claim_letter_response = letter_service.get_claim_letter(claimant_id, @form_type)
@@ -33,23 +33,27 @@ module MebApi
       end
 
       def claim_status
-        claimant_response = claimant_service.get_claimant_info(@form_type)
+        forms_claimant_response = form_claimant_service.get_claimant_info(@form_type)
 
-        return render_claimant_error(claimant_response) unless valid_claimant_response?(claimant_response)
+        return render_claimant_error(forms_claimant_response) unless valid_claimant_response?(forms_claimant_response)
 
-        claimant_id = claimant_response['claimant']&.dig('claimant_id')
+        claimant_id = forms_claimant_response['claimant']&.dig('claimant_id')
 
-        return render_claimant_id_error if claimant_id.blank?
+        if claimant_id.blank?
+          form_type = @form_type || 'toe'
+          forms_claimant_response = claimant_service.get_claimant_info(form_type)
+          claimant_id = claimant_response['claimant']&.dig('claimant_id')
+        end
 
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
-        response = valid_claimant_response?(claimant_response) ? claim_status_response : claimant_response
-        serializer = valid_claimant_response?(claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
+        response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
+        serializer = valid_claimant_response?(forms_claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
 
         render json: serializer.new(response)
       end
 
       def claimant_info
-        response = claimant_service.get_claimant_info(@form_type)
+        response = form_claimant_service.get_claimant_info(@form_type)
 
         render json: ToeClaimantInfoSerializer.new(response)
       end
@@ -121,10 +125,10 @@ module MebApi
           errors: [{
             title: 'Claimant not found',
             detail: 'Claimant ID is missing',
-            code: '404',
-            status: '404'
+            code: '200',
+            status: '200'
           }]
-        }, status: :not_found
+        }, status: :ok
       end
 
       def determine_response_and_serializer(claim_status_response, claimant_response)
@@ -135,7 +139,7 @@ module MebApi
         end
       end
 
-      def claimant_service
+      def form_claimant_service
         MebApi::DGI::Forms::Claimant::Service.new(@current_user)
       end
 
