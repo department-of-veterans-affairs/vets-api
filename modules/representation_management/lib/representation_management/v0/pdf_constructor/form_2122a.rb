@@ -186,12 +186,15 @@ module RepresentationManagement
           }
         end
 
+        # rubocop:disable Metrics/LineLength
+        # Disabled due to two extremely long keys.
         def appointment_options(data)
           {
             # Record Consent
             "#{PAGE2_KEY}.AuthorizationForRepAccessToRecords[0]": data.record_consent == true ? 1 : 0,
             # Consent Limits
-            "#{PAGE2_KEY}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits),
+            "#{PAGE2_KEY}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits,
+                                                                                 data.record_consent),
             # Consent Address Change
             "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0,
             # 19a Consent Inside Access
@@ -204,6 +207,7 @@ module RepresentationManagement
             "#{PAGE2_KEY}.Provide_The_Names_Of_The_Individuals_Here[0]": data.consent_team_members.to_sentence
           }
         end
+        # rubocop:enable Metrics/LineLength
 
         def header_options(data)
           {
@@ -244,15 +248,16 @@ module RepresentationManagement
           representative_type_map[representative_type]
         end
 
-        def limitations_of_consent_text(consent_limits)
+        def limitations_of_consent_text(consent_limits, record_consent)
+          return '' unless record_consent
+
           limitations = {
             'ALCOHOLISM' => 'Alcoholism and alcohol abuse records',
             'DRUG_ABUSE' => 'Drug abuse records',
             'HIV' => 'HIV records',
             'SICKLE_CELL' => 'Sickle cell anemia records'
           }
-          consent_text = consent_limits.filter_map { |limit| limitations[limit] }.to_sentence
-          consent_text.presence || "No, they can't access any of these types of records."
+          consent_limits.filter_map { |limit| limitations[limit] }.to_sentence
         end
 
         def normalize_country_code_to_alpha2(country_code)
