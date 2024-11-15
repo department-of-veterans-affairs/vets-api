@@ -12,8 +12,8 @@ describe ClaimsApi::VANotifyDeclinedJob, type: :job do
     let(:vanotify_service) { instance_double(VaNotify::Service) }
     let(:ptcpnt_id) { '123456789' }
     let(:first_name) { 'Jane' }
-    let(:encrypted_ptcpnt_id) { lockbox.encrypt(ptcpnt_id) }
-    let(:encrypted_first_name) { lockbox.encrypt(first_name) }
+    let(:encrypted_ptcpnt_id) { Base64.strict_encode64(lockbox.encrypt(ptcpnt_id)) }
+    let(:encrypted_first_name) { Base64.strict_encode64(lockbox.encrypt(first_name)) }
     let(:representative_id) { '123' }
 
     before do
@@ -40,8 +40,8 @@ describe ClaimsApi::VANotifyDeclinedJob, type: :job do
     let(:vanotify_service) { instance_double(VaNotify::Service) }
     let(:ptcpnt_id) { '123456789' }
     let(:first_name) { 'Jane' }
-    let(:encrypted_ptcpnt_id) { lockbox.encrypt(ptcpnt_id) }
-    let(:encrypted_first_name) { lockbox.encrypt(first_name) }
+    let(:encrypted_ptcpnt_id) { Base64.strict_encode64(lockbox.encrypt(ptcpnt_id)) }
+    let(:encrypted_first_name) { Base64.strict_encode64(lockbox.encrypt(first_name)) }
     let(:representative_id) { '456' }
 
     before do

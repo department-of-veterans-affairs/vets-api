@@ -109,8 +109,8 @@ module ClaimsApi
 
         def send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
           lockbox = Lockbox.new(key: Settings.lockbox.master_key)
-          encrypted_ptcpnt_id = lockbox.encrypt(ptcpnt_id)
-          encrypted_first_name = lockbox.encrypt(first_name)
+          encrypted_ptcpnt_id = Base64.strict_encode64(lockbox.encrypt(ptcpnt_id))
+          encrypted_first_name = Base64.strict_encode64(lockbox.encrypt(first_name))
 
           ClaimsApi::VANotifyDeclinedJob.perform_async(encrypted_ptcpnt_id:, encrypted_first_name:,
                                                        representative_id:)

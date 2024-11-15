@@ -6,8 +6,8 @@ module ClaimsApi
 
     def perform(encrypted_ptcpnt_id:, encrypted_first_name:, representative_id:)
       lockbox = Lockbox.new(key: Settings.lockbox.master_key)
-      ptcpnt_id = lockbox.decrypt(encrypted_ptcpnt_id)
-      first_name = lockbox.decrypt(encrypted_first_name)
+      ptcpnt_id = lockbox.decrypt(Base64.strict_decode64(encrypted_ptcpnt_id))
+      first_name = lockbox.decrypt(Base64.strict_decode64(encrypted_first_name))
       representative = ::Veteran::Service::Representative.find_by(representative_id:)
 
       if representative.blank?
