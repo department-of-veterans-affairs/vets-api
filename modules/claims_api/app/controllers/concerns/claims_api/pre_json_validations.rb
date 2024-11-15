@@ -10,27 +10,19 @@ module ClaimsApi
       return @json_body unless form == 'form/21-22'
 
       veteran_email = @json_body.dig('data', 'attributes', 'veteran', 'email')
-      validate_veteran_form_email(veteran_email) if veteran_email
+      validate_form_email(veteran_email, 'veteran') if veteran_email
 
       claimant_email = @json_body.dig('data', 'attributes', 'claimant', 'email')
-      validate_claimant_form_email(claimant_email) if claimant_email
+      validate_form_email(claimant_email, 'claimant') if claimant_email
 
       org_email = @json_body.dig('data', 'attributes', 'serviceOrganization', 'email')
-      validate_service_organization_form_email(org_email) if org_email
+      validate_form_email(org_email, 'serviceOrganization') if org_email
 
       @json_body
     end
 
-    def validate_veteran_form_email(veteran_email)
-      @json_body.dig('data', 'attributes', 'veteran').delete('email') if veteran_email.blank?
-    end
-
-    def validate_claimant_form_email(claimant_email)
-      @json_body.dig('data', 'attributes', 'claimant').delete('email') if claimant_email.blank?
-    end
-
-    def validate_service_organization_form_email(org_email)
-      @json_body.dig('data', 'attributes', 'serviceOrganization').delete('email') if org_email.blank?
+    def validate_form_email(email, field)
+      @json_body.dig('data', 'attributes', field).delete('email') if email.blank?
     end
   end
 end
