@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_12_172605) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_14_213556) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1010,13 +1010,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_172605) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
-  create_table "pension_ipf_notifications", force: :cascade do |t|
-    t.text "payload_ciphertext"
-    t.text "encrypted_kms_key"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
     t.uuid "guid"
     t.string "type"
@@ -1390,6 +1383,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_172605) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "metadata"
+    t.jsonb "callback_metadata"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
