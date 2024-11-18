@@ -214,6 +214,10 @@ features:
     actor_type: user
     description: Enables users to access the claim letters page
     enable_in_development: true
+  claims_api_special_issues_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables special issues updater to use local_bgs
+    enable_in_development: true
   claims_api_local_bgs_refactor:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
@@ -1171,9 +1175,6 @@ features:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
     enable_in_development: true
-  saved_claim_schema_validation_disable:
-    actor_type: user
-    description: Disables validating a saved_claim schema before validating the form data with the schema.
   schema_contract_appointments_index:
     actor_type: user
     description: Enables schema validation for the appointments service index fetch.
