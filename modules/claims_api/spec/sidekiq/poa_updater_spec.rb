@@ -19,7 +19,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
   context "when call to BGS 'update_birls_record' is successful" do
     context 'and the poaCode is retrieved successfully from the V2 2122a form data' do
       it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
-        create_mock_lighthouse_service
+        mock_service_by_flipper
         expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
 
         poa = create_poa
@@ -49,7 +49,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
 
     context 'and record consent is granted' do
       it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
-        create_mock_lighthouse_service
+        mock_service_by_flipper
         expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
 
         poa = create_poa
@@ -65,7 +65,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
     context 'and record consent is not granted' do
       context "because 'recordConsent' is false" do
         it "updates the form's status but does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-          create_mock_lighthouse_service
+          mock_service_by_flipper
           expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
 
           poa = create_poa
@@ -80,7 +80,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
 
       context "because a limitation exists in 'consentLimits'" do
         it "updates the form's status but does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-          create_mock_lighthouse_service
+          mock_service_by_flipper
           expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
 
           poa = create_poa
@@ -97,8 +97,8 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
 
   context "when call to BGS 'update_birls_record' fails" do
     it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-      create_mock_lighthouse_service
-      allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record).and_return(
+      mock_service_by_flipper
+      allow_any_instance_of(ClaimsApi::VetRecordService).to receive(:update_birls_record).and_return(
         return_code: 'some error code'
       )
       expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
@@ -113,7 +113,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
 
   context 'deciding to send a VA Notify email' do
     before do
-      create_mock_lighthouse_service
+      mock_service_by_flipper
     end
 
     let(:poa) { create_poa }
@@ -195,9 +195,23 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
     poa
   end
 
-  def create_mock_lighthouse_service
+  def mock_service_by_flipper
+    if Flipper.enabled? :claims_api_poa_updater_enables_local_bgs
+      create_mock_local_bgs_service
+    else
+      create_mock_bgs_ext_service
+    end
+  end
+
+  def create_mock_bgs_ext_service
     allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
     allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
+      .and_return({ return_code: 'BMOD0001' })
+  end
+
+  def create_mock_local_bgs_service
+    allow_any_instance_of(ClaimsApi::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+    allow_any_instance_of(ClaimsApi::VetRecordService).to receive(:update_birls_record)
       .and_return({ return_code: 'BMOD0001' })
   end
 end

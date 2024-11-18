@@ -7,14 +7,14 @@ module ClaimsApi
     end
 
     def update_birls_record(**options)
-      poa_code_two = options[:poa_code].is_a?(Array) ? options[:poa_code][1] : '00'
+      poa_code = options[:poa_code]
       body = Nokogiri::XML::DocumentFragment.parse <<~EOML
         <birlsUpdateInput>
           <CLAIM_NUMBER>#{options[:file_number]}</CLAIM_NUMBER>
           <SOC_SEC_NUM>#{options[:ssn]}</SOC_SEC_NUM>
-          <POWER_OF_ATTY_CODE1>#{options[:poa_code]}</POWER_OF_ATTY_CODE1>
-          <POWER_OF_ATTY_CODE2>#{poa_code_two}</POWER_OF_ATTY_CODE2>
-          <PAYEE_NUMBER>'00'</PAYEE_NUMBER>
+          <POWER_OF_ATTY_CODE1>#{poa_code[0]}</POWER_OF_ATTY_CODE1>
+          <POWER_OF_ATTY_CODE2>#{poa_code[1]}#{poa_code[2]}</POWER_OF_ATTY_CODE2>
+          <PAYEE_NUMBER>00</PAYEE_NUMBER>
         </birlsUpdateInput>
       EOML
 
