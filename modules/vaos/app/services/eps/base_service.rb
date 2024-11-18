@@ -6,8 +6,7 @@ module Eps
 
     attr_accessor :user
 
-    def initialize(user = nil)
-      super() if defined?(super)
+    def initialize(user)
       @user = user
     end
 
