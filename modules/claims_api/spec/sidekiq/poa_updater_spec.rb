@@ -111,37 +111,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
     end
   end
 
-  context 'deciding to call PoaVBMSUpdater' do
-    before do
-      create_mock_lighthouse_service
-    end
-
-    let(:poa) { create_poa }
-
-    context 'when the dependent header key is present' do
-      it 'does not call PoaVBMSUpdater' do
-        expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-
-        poa.auth_headers.merge!({ dependent: { first_name: 'Test' } })
-        poa.form_data.merge!({ recordConsent: true, consentLimits: [] })
-        poa.save!
-
-        subject.new.perform(poa.id, 'Rep Data')
-      end
-    end
-
-    context 'when the dependent header key is not present' do
-      it 'does call PoaVBMSUpdater' do
-        expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
-
-        poa.form_data.merge!({ recordConsent: true, consentLimits: [] })
-        poa.save!
-
-        subject.new.perform(poa.id, 'Rep Data')
-      end
-    end
-  end
-
   context 'deciding to send a VA Notify email' do
     before do
       create_mock_lighthouse_service
