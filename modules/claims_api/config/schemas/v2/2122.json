@@ -96,7 +96,7 @@
         "email": {
           "description": "Email address of the veteran.",
           "type": "string",
-          "pattern": ".@.",
+          "pattern": "^(?!.*\\s).+@.+\\..+|^$",
           "maxLength": 61,
           "example": "veteran@example.com"
         },
@@ -194,7 +194,7 @@
         "email": {
           "description": "Email address of the claimant.",
           "type": "string",
-          "pattern": ".@.",
+          "pattern": "^(?!.*\\s).+@.+\\..+|^$",
           "maxLength": 61,
           "example": "claimant@example.com"
         },
@@ -232,7 +232,7 @@
         "email": {
           "description": "Email address of the service organization or representative.",
           "type": "string",
-          "pattern": ".@.",
+          "pattern": "^(?!.*\\s).+@.+\\..+|^$",
           "maxLength": 61,
           "example": "veteran_representative@example.com"
         }
