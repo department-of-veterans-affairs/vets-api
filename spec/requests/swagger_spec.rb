@@ -3270,10 +3270,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     describe 'contact us' do
-      before do
-        allow(Flipper).to receive(:enabled?).and_call_original
-      end
-
       describe 'POST v0/contact_us/inquiries' do
         let(:post_body) do
           {

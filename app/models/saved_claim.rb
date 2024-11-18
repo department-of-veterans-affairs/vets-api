@@ -82,15 +82,13 @@ class SavedClaim < ApplicationRecord
     return unless form_is_string
 
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
+
+    schema_errors = validate_schema(schema)
+
     clear_cache = false
-
-    unless Flipper.enabled?(:saved_claim_schema_validation_disable)
-      schema_errors = validate_schema(schema)
-
-      unless schema_errors.empty?
-        Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
-        clear_cache = true
-      end
+    unless schema_errors.empty?
+      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
+      clear_cache = true
     end
 
     validation_errors = validate_form(schema, clear_cache)

@@ -9,13 +9,9 @@ RSpec.describe BGS::Form674 do
   let(:user_struct) { FactoryBot.build(:user_struct) }
   let(:saved_claim) { create(:dependency_claim_no_vet_information) }
 
-  before do
-    allow(Flipper).to receive(:enabled?).and_call_original
-  end
-
   context 'The flipper is turned on' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:dependents_enqueue_with_user_struct).and_return(true)
+      Flipper.enable(:dependents_enqueue_with_user_struct)
     end
 
     # @TODO: may want to return something else
@@ -86,7 +82,7 @@ RSpec.describe BGS::Form674 do
 
   context 'The flipper is turned off' do
     before do
-      allow(Flipper).to receive(:enabled?).with(:dependents_enqueue_with_user_struct).and_return(false)
+      Flipper.disable(:dependents_enqueue_with_user_struct)
     end
 
     # @TODO: may want to return something else

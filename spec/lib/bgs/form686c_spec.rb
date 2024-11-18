@@ -8,10 +8,6 @@ RSpec.describe BGS::Form686c do
   let(:user_struct) { FactoryBot.build(:user_struct) }
   let(:saved_claim) { create(:dependency_claim_no_vet_information) }
 
-  before do
-    allow(Flipper).to receive(:enabled?).and_call_original
-  end
-
   describe '#submit' do
     subject { form686c.submit(payload) }
 

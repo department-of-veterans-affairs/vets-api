@@ -16,10 +16,6 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
   let(:no_edipi_user) { create(:user, participant_id: nil) }
   let(:evss_response_with_poa) { OpenStruct.new(body: get_fixture('json/evss_with_poa')) }
 
-  before do
-    allow(Flipper).to receive(:enabled?).and_call_original
-  end
-
   describe 'scheduling' do
     before do
       allow(Rails.env).to receive('development?').and_return(true)
