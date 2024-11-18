@@ -774,6 +774,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_215714) do
     t.index ["id", "type"], name: "index_form_attachments_on_id_and_type"
   end
 
+  create_table "form_email_matches_profile_logs", force: :cascade do |t|
+    t.string "user_uuid", null: false
+    t.integer "in_progress_form_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_uuid", "in_progress_form_id"], name: "idx_on_user_uuid_in_progress_form_id_f21f47b9c8", unique: true
+  end
+
   create_table "form_submission_attempts", force: :cascade do |t|
     t.bigint "form_submission_id", null: false
     t.jsonb "response"
