@@ -73,7 +73,9 @@ RSpec.describe VANotify::UserAccountJob, type: :worker do
                 personalisation: nil
               }
             },
-            { error: :va_notify_user_account_job }
+            {
+              error: :va_notify_user_account_job
+            }
           )
 
           job.perform(user_account.id, template_id)
