@@ -1181,10 +1181,6 @@ features:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
     enable_in_development: true
-  search_dropdown_component_enabled:
-    actor_type: user
-    description: Enables typeahead 2.0 functionality
-    enable_in_development: true
   search_gov_maintenance:
     actor_type: user
     description: Use when Search.gov system maintenance impacts sitewide search
