@@ -1,3 +1,20 @@
+# Start: Tmp Settings for Transition to New Settings Convention
+# also see claims_api/evss/s3 for additional tmp settings 
+appeals_api:
+  modules_appeals_api:
+    slack:
+      api_key: ""
+      appeals_channel_id: ""
+
+mocked_authentication: 
+  mvi:
+    url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
+
+faciliates_api:
+  ppms:
+    url: https://some.fakesite.com
+# End: Tmp Settings for Transition to New Settings Convention
+
 hostname: www.example.com # possible fallback for unsafe request.host
 virtual_hosts: ["www.example.com", "localhost", "127.0.0.1", "example.org"] # Safe host names
 vsp_environment: test
@@ -400,6 +417,14 @@ evss:
     url: https://fakedomainandsubdomain.com
 
 claims_api:
+  # evss/s3 is needed for transition to new settings convention
+  evss: 
+    s3:
+    uploads_enabled: false
+    aws_access_key_id: EVSS_S3_AWS_ACCESS_KEY_ID_XYZ
+    aws_secret_access_key: EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ
+    bucket: evss_s3_bucket
+    region: evss_s3_region
   evss_container:
     auth_base_name: staging-api.va.gov
     client_key: fakekeyvaluehere
