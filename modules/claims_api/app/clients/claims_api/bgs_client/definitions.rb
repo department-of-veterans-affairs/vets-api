@@ -65,7 +65,7 @@ module ClaimsApi
         DEFINITION =
           Service.new(
             bean: ClaimantServiceBean::DEFINITION,
-            path: 'ClaimantServiceBean'
+            path: 'ClaimantWebService'
           )
 
         module FindAssignedFlashes
@@ -91,7 +91,7 @@ module ClaimsApi
         DEFINITION =
           Service.new(
             bean: ClaimantServiceBean::DEFINITION,
-            path: 'ClaimantServiceBean'
+            path: 'ClaimantWebService'
           )
         module FindPoaByParticipantId
           DEFINITION =

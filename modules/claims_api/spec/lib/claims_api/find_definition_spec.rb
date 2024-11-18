@@ -16,7 +16,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
       end
 
-      context 'ClaimantServiceBean' do
+      context 'ClaimantWebService' do
         let(:endpoint) { 'ClaimantServiceBean/ClaimantWebService' }
         let(:action) { 'findPOAByPtcpntId' }
         let(:key) { 'return' }
@@ -238,7 +238,7 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
       end
 
-      context 'ClaimantWebService' do
+      context 'ClaimantService' do
         let(:endpoint) { 'ClaimantServiceBean/ClaimantWebService' }
 
         it 'response with the correct namespace' do
