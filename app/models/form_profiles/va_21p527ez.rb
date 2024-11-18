@@ -12,7 +12,7 @@ class FormProfiles::VA21p527ez < FormProfile
     }
   end
 
-  # overrides FormProfile#initialize_military_information 
+  # overrides FormProfile#initialize_military_information
   # to use Pension21p527ez::PensionFormMilitaryInformation instead of
   # FormProfile::FormMilitaryInformation in order to add additional military information fields.
   # @see lib/pension_21p527ez/pension_military_information.rb PensionFormMilitaryInformation
