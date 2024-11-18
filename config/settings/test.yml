@@ -420,11 +420,11 @@ claims_api:
   # evss/s3 is needed for transition to new settings convention
   evss: 
     s3:
-    uploads_enabled: false
-    aws_access_key_id: EVSS_S3_AWS_ACCESS_KEY_ID_XYZ
-    aws_secret_access_key: EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ
-    bucket: evss_s3_bucket
-    region: evss_s3_region
+      uploads_enabled: false
+      aws_access_key_id: EVSS_S3_AWS_ACCESS_KEY_ID_XYZ
+      aws_secret_access_key: EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ
+      bucket: evss_s3_bucket
+      region: evss_s3_region
   evss_container:
     auth_base_name: staging-api.va.gov
     client_key: fakekeyvaluehere
