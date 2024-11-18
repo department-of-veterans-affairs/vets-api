@@ -224,7 +224,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Hourly jobs that update DR SavedClaims with delete_date
   mgr.register('20 * * * *', 'DecisionReview::HlrStatusUpdaterJob')
   mgr.register('30 * * * *', 'DecisionReview::NodStatusUpdaterJob')
-  mgr.register('40 * * * *', 'DecisionReview::ScStatusUpdaterJob')
+  mgr.register('50 * * * *', 'DecisionReview::ScStatusUpdaterJob')
 
   # Clean SavedClaim records that are past delete date
   mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
