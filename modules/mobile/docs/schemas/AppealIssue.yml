@@ -22,6 +22,7 @@ properties:
       - dismissed_matter_of_law
       - Dismissed
       - Deferred
+      - Denied
   date:
     type: string
     nullable: true

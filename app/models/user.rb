@@ -65,7 +65,7 @@ class User < Common::RedisStore
   end
 
   def user_verification
-    @user_verification ||= get_user_verification
+    @user_verification ||= UserVerification.find_by(id: user_verification_id)
   end
 
   def user_account
@@ -73,7 +73,7 @@ class User < Common::RedisStore
   end
 
   def user_verification_id
-    @user_verification_id ||= user_verification&.id
+    @user_verification_id ||= get_user_verification&.id
   end
 
   def user_account_uuid
@@ -454,6 +454,18 @@ class User < Common::RedisStore
 
   def relationships
     @relationships ||= get_relationships_array
+  end
+
+  def create_mhv_account_async
+    return unless can_create_mhv_account?
+
+    MHV::AccountCreatorJob.perform_async(user_verification_id)
+  end
+
+  def can_create_mhv_account?
+    return false unless Flipper.enabled?(:mhv_account_creation_after_login, user_account)
+
+    loa3? && va_patient? && !needs_accepted_terms_of_use
   end
 
   private

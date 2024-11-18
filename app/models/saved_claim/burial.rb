@@ -84,5 +84,6 @@ class SavedClaim::Burial < CentralMailClaim
     claimed << 'Burial Allowance' if parsed_form['burialAllowance']
     claimed << 'Plot Allowance' if parsed_form['plotAllowance']
     claimed << 'Transportation' if parsed_form['transportation']
+    claimed
   end
 end

@@ -50,14 +50,30 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
       consumes 'application/json'
       produces 'application/json'
       post_description = <<~VERBIAGE
-        The endpoint establishes POA for a representative.
-        Once ID.me authorizes the Veteran or VSO via OpenID, this endpoint requests the:
-        \n - poaCode\n - Signature, which can be a:
-        \n   - Base64-encoded image or signature block, allowing the API to auto-populate
-        and attach the VA 21-22 form to the request without requiring a PDF upload, or
-        \n   - PDF documentation of VA 21-22 form with an ink signature, attached using the PUT /forms/2122/{id} endpoint
-        \n\nA 200 response means the submission was successful, but does not mean the POA is effective.
-        Check the status of a POA submission by using the GET /forms/2122/{id} endpoint.\n
+        Signature images\n\n
+
+        If the request includes signature images for both the Veteran and the representative, the API will:\n
+           - Generate VA Form 21-22 PDF for organizations or VA Form 21-22a PDF for individual representatives.\n
+           - Automatically establish POA for the representative.\n\n
+
+        The signature can be provided in either of these formats:\n
+           - Base64-encoded image or signature block. This allows the API to auto-populate and attach the VA Form
+           21-22 without requiring a manual PDF upload.\n
+           - PDF of VA Form 21-22 with an ink signature. This should be attached using the PUT /forms/2122/{id}
+           endpoint.\n\n
+
+           If signature images are not included in the initial request, the response will return an id which must be
+           used to submit the signed PDF via the PUT /forms/2122/{id} endpoint.\n\n
+
+        Dependent claimant information:\n
+           - If dependent claimant information is included in the request, the dependent relationship to the Veteran
+           will be validated.\n
+           - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n
+
+        Response information:\n
+           - A successful submission returns a 200 response, indicating that the request was successfully processed.\n
+           - A 200 response does not confirm that the POA has been appointed.\n
+           - To check the status of a POA submission, use the GET /forms/2122/{id} endpoint.\n
       VERBIAGE
       description post_description
 

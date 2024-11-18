@@ -37,6 +37,12 @@ module SimpleFormsApi
         config.handle_error("Failed building submission: #{id}", e)
       end
 
+      def retrieval_data
+        extension = archive_type == :submission ? 'pdf' : 'zip'
+        final_path = "#{temp_directory_path}#{submission_file_name}.#{extension}"
+        [final_path, manifest_entry]
+      end
+
       private
 
       attr_reader :archive_type, :attachments, :config, :file_path, :id, :metadata, :pdf_already_exists, :submission,
@@ -52,7 +58,7 @@ module SimpleFormsApi
       end
 
       def fetch_id(options)
-        options[:submission]&.send(config.id_type) || options[:id]
+        options[:submission]&.latest_attempt&.send(config.id_type) || options[:id]
       end
 
       def data_hydrated?
@@ -107,6 +113,8 @@ module SimpleFormsApi
 
       def process_attachment(attachment_number, file_path)
         config.log_info("Processing attachment ##{attachment_number}: #{file_path}")
+        raise "Attachment file not found: #{file_path}" unless File.exist?(file_path)
+
         create_file("attachment_#{attachment_number}__#{submission_file_name}.pdf", File.read(file_path), 'attachment')
       end
 
