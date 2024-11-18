@@ -8,6 +8,10 @@ RSpec.describe Form1010cg::SubmissionJob do
   let(:statsd_key_prefix) { described_class::STATSD_KEY_PREFIX }
   let(:zsf_tags) { described_class::DD_ZSF_TAGS }
 
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+  end
+
   it 'has a retry count of 16' do
     expect(described_class.get_sidekiq_options['retry']).to eq(16)
   end
