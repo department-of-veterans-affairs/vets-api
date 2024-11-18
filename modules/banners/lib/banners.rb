@@ -1,8 +1,15 @@
 # frozen_string_literal: true
 
 require 'banners/engine'
+require 'banners/updater'
+require 'banners/builder'
 
 module Banners
-  # TODO: Take fetching and updating logic from PullAndUpdateDb job and move it here, possibly 
-  #       adjust the name of this module to reflect the new functionality.
+  def self.build
+    Builder.perform
+  end
+
+  def self.update
+    Updater.perform
+  end
 end
