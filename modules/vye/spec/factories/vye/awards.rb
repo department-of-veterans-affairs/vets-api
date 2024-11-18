@@ -23,5 +23,32 @@ FactoryBot.define do
         create(:vye_verification, user_profile:, user_info:, award:)
       end
     end
+
+    trait :aug_award do
+      award_begin_date { Date.new(2024, 7, 23) }
+      award_end_date { Date.new(2024, 8, 10) }
+    end
+
+    trait :oct_award do
+      award_begin_date { Date.new(2024, 8, 11) }
+      award_end_date { Date.new(2024, 10, 15) }
+    end
+
+    trait :dec_award do
+      award_begin_date { Date.new(2024, 10, 16) }
+      award_end_date { Date.new(2024, 12, 15) }
+    end
+
+    trait :with_specific_verification do
+      after(:create) do |award|
+        create(
+          :vye_verification,
+          user_profile: award.user_info.user_profile,
+          user_info: award.user_info,
+          award: award,
+          act_end: award.award_end_date.to_time
+        )
+      end
+    end
   end
 end
