@@ -136,7 +136,6 @@ class BenefitsIntakeStatusJob
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
     if result == 'failure'
       Rails.logger.error('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:, error_message:)
-      monitor_failure(form_id, uuid)
     else
       Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:)
     end
@@ -198,7 +197,7 @@ class BenefitsIntakeStatusJob
     if %w[28-1900].include?(form_id)
       claim = SavedClaim::VeteranReadinessEmploymentClaim.find(saved_claim_id)
       if claim
-        claim.submit_failure_email
+        claim.send_failure_email
         VRE::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         VRE::Monitor.new.log_silent_failure(context, nil, call_location:)
