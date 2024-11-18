@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe Form1010cg::SubmissionJob do
-  let(:claim) { create(:caregivers_assistance_claim, form:) }
   let(:form) { VetsJsonSchema::EXAMPLES['10-10CG'].clone.to_json }
+  let(:claim) { create(:caregivers_assistance_claim, form:) }
   let(:statsd_key_prefix) { described_class::STATSD_KEY_PREFIX }
   let(:zsf_tags) { described_class::DD_ZSF_TAGS }
 
