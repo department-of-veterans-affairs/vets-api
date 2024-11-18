@@ -45,6 +45,7 @@ app/controllers/concerns/traceable.rb @department-of-veterans-affairs/va-api-eng
 app/controllers/concerns/vet360 @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/flipper_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/gids_controller.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/controllers/v0/banners_controller.rb @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/v0/income_and_assets_claims_controller.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 app/controllers/preneeds_controller.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/controllers/rx_controller.rb @department-of-veterans-affairs/vfs-mhv-medications @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group

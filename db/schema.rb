@@ -1010,13 +1010,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_14_213556) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
-  create_table "pension_ipf_notifications", force: :cascade do |t|
-    t.text "payload_ciphertext"
-    t.text "encrypted_kms_key"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
     t.uuid "guid"
     t.string "type"
