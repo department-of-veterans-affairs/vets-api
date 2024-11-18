@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'holidays'
-
 # @see https://crontab.guru/
 # @see https://en.wikipedia.org/wiki/Cron
 PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
