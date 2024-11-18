@@ -4,20 +4,21 @@ require 'banners/engine'
 require 'banners/builder'
 module Banners
   class Updater 
-    # If banners are to be added in the future, 
+    # If banners are to be added in the future, include them here by adding
+    # another #update_{type_of}_banners method for #perform to call
     def self.perform
       banner_updater = new
       banner_updater.update_vacms_banners
     end
 
     def update_vacms_banners
-      all_vacms_banner_data.each do |banner_data|
+      vacms_banner_data.each do |banner_data|
         Builder.perform_async(banner_data)
       end
     end
 
-    def all_vacms_banner_data
-      banner_graphql_query = Rails.root.join('modules', 'banners', 'config', 'graphql_query.txt')
+    def vacms_banner_data
+      banner_graphql_query = Rails.root.join('modules', 'banners', 'config', 'vacms_graphql_query.txt')
       body = { query: File.read(banner_graphql_query)}
 
       response = connection.post do |req|

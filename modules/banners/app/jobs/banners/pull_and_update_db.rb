@@ -42,7 +42,7 @@ module Banners
     end
 
     def perform
-      Banners::Update.perform
+      Banners.update_all
     end
   end
 end

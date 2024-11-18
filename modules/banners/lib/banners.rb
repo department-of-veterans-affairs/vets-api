@@ -9,7 +9,7 @@ module Banners
     Builder.perform
   end
 
-  def self.update
+  def self.update_all
     Updater.perform
   end
 end

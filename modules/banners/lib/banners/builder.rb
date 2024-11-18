@@ -5,5 +5,9 @@ module Banners
         def self.perform(banner_data)
             puts "got banner data: #{banner_data}"
         end
+
+        def self.perform_async(banner_data)
+            puts "got banner data: #{banner_data}"
+        end
     end
 end
