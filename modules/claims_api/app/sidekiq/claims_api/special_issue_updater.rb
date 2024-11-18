@@ -13,7 +13,12 @@ module ClaimsApi
 
       contention_id.symbolize_keys!
       validate_contention_id_structure(contention_id)
-      service = bgs_service(user).contention
+
+      if 1 == 1
+        service = contention_service(user)
+      else
+        service = bgs_ext_service(user).contention
+      end
 
       claims = service.find_contentions_by_ptcpnt_id(user['participant_id'])[:benefit_claims] || []
       claim = claim_from_contention_id(claims, contention_id)
@@ -58,8 +63,15 @@ module ClaimsApi
     #
     # @param user [OpenStruct] Veteran to attach special issues to
     # @return [BGS::Services] Service object
-    def bgs_service(user)
+    def bgs_ext_service(user)
       BGS::Services.new(
+        external_uid: user['ssn'],
+        external_key: user['ssn']
+      )
+    end
+
+    def contention_service(user)
+      ClaimsApi::ContentionService.new(
         external_uid: user['ssn'],
         external_key: user['ssn']
       )
