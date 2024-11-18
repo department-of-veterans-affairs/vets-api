@@ -44,7 +44,7 @@ module VANotify
           e,
           {
             args: { recipient_identifier: { id_value: user_account.id, id_type: 'UserAccountId' },
-                    template_id:, personalisation: },
+                    template_id:, personalisation: }
           },
           { error: :va_notify_user_account_job }
         )
