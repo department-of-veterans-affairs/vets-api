@@ -1688,6 +1688,10 @@ features:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true
+  sc_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
   hlr_updateed_contnet:
     actor_type: user
     description: HLR show form content updates
