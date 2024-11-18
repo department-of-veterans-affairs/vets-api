@@ -76,9 +76,16 @@ features:
   caregiver1010:
     actor_type: user
     description: Enables new features while investigating 1010CG errors
+  caregiver_use_va_notify_on_submission_failure:
+    actor_type: user
+    description: Send 10-10CG submission failure email to Veteran using VANotify.
+    enable_in_development: true
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
+  hca_disable_bgs_service:
+    actor_type: user
+    description: Do not call the BGS Service when this is turned on. Instead return 0 for rating.
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
@@ -369,6 +376,9 @@ features:
   debts_cache_vbs_copays_empty_response:
     actor_type: user
     description: Enables caching of empty VBS medical copay response
+  debts_copay_logging:
+    actor_type: user
+    description: Logs copay request data
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
@@ -1033,9 +1043,6 @@ features:
     actor_type: user
     description: >
       [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
-  pension_military_prefill:
-    actor_type: user
-    description: When enabled, 21P-527EZ will prefill military information.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -1148,6 +1155,9 @@ features:
   my_va_form_submission_statuses:
     actor_type: user
     description: Enables users to view the status of submitted forms.
+  my_va_form_submission_pdf_link:
+    actor_type: user
+    description: Enables users to view PDF link within submitted forms cards
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
@@ -1687,10 +1697,6 @@ features:
     actor_type: user
     description: Supplemental Claim new form updates
     enable_in_development: true
-  pension_ipf_callbacks_endpoint:
-    actor_type: user
-    description: Pension IPF VANotify notification callbacks endpoint
-    enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
     description: HLR Datadog RUM monitoring
@@ -1868,4 +1874,3 @@ features:
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
-
