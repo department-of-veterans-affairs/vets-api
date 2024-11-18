@@ -1075,7 +1075,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_14_213556) do
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
     t.string "uploaded_forms", default: [], array: true
-    t.datetime "itf_datetime"
     t.datetime "form_start_date"
     t.datetime "delete_date"
     t.text "metadata"
