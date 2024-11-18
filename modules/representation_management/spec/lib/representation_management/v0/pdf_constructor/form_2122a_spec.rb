@@ -14,7 +14,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
            state_code: 'OR',
            country_code_iso3: 'USA',
            zip_code: '12345',
-           phone: '5555555555',
+           phone: '555-555-5555', # We're adding dashes here to make sure they aren't present in the pdf output.
            email: 'representative@example.com',
            individual_type: 'attorney')
   end
