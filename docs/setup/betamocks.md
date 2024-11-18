@@ -58,16 +58,6 @@ Each service description has a `base_uri` (pulled from Settings)
 - `method:` a symbol of the http verb `:get`, `:post`, `:put`...
 - `path:` the path that combined with the base_uri makes a full URI
 - `file_path:` where to save the file (relative to betamocks' cache dir)
-```yaml
-:services:
-
-# EVSS::PCIUAddress
-- :base_uri: <%= URI(Settings.evss.url).host %>
-  :endpoints:
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
-    :file_path: "evss/pciu_address"
-```
 
 3. In config/settings.yml set betamocks recording to true:
 ```yaml
