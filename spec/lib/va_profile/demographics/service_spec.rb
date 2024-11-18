@@ -3,7 +3,9 @@
 require 'rails_helper'
 require 'va_profile/demographics/service'
 
-describe VAProfile::Demographics::Service, :skip_vet360 do
+describe VAProfile::Demographics::Service,  feature: :personal_info,
+                                            team_owner: :vfs_authenticated_experience_backend,
+                                            type: :service do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
