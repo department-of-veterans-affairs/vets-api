@@ -16,7 +16,9 @@ module AccreditedRepresentativePortal
 
       FORM_ID = '21a'
 
-      before_action :parse_request_body, :validate_schema, only: [:submit]
+      # Parses the request body and validates the schema before submitting the form.
+      # NOTE: The order of before_action calls is important here.
+      before_action :parse_request_body, :validate_form, only: [:submit]
 
       # Parses the request body and submits the form.
       # Renders the appropriate response based on the service's outcome.
@@ -34,6 +36,9 @@ module AccreditedRepresentativePortal
       def schema
         # NOTE: This doesn't reject any extra attributes not found in the schema. If
         # we want that the schema needs to have { "additionalProperties" => false }
+        # ALSO: the 21a schema isn't requiring properties such that '{}' is valid when it is
+        # submitted to this endpoint. That behavior is incorrect and it should be updated in
+        # the schema
         VetsJsonSchema::SCHEMAS[FORM_ID.upcase]
       end
 
@@ -45,7 +50,7 @@ module AccreditedRepresentativePortal
         handle_json_error
       end
 
-      def validate_schema
+      def validate_form
         errors = JSON::Validator.fully_validate(schema, parsed_request_body)
         raise SchemaValidationError, errors if errors.any?
       rescue SchemaValidationError => e

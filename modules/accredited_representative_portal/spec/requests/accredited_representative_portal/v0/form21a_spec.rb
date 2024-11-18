@@ -5,7 +5,7 @@ require_relative '../../../rails_helper'
 RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
   let(:valid_json) { { field: 'value' }.to_json }
   let(:invalid_json) { 'invalid json' }
-  let(:schema) do
+  let(:mock_schema) do
     {
       '$schema' => 'http://json-schema.org/draft-04/schema#',
       'title' => 'Apply to become a VA-accredited attorney or claims agent',
@@ -17,7 +17,7 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
       }
     }
   end
-  let(:wrong_schema) { { 'firstName' => 1234 }.to_json }
+  let(:invalid_form) { { 'firstName' => 1234 }.to_json }
   let(:representative_user) { create(:representative_user) }
 
   before do
@@ -69,11 +69,9 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
       end
     end
 
-    context 'with mismatching schema' do
+    context 'form doestn match schema' do
       it 'logs the error and returns a bad request status' do
-        allow_any_instance_of(AccreditedRepresentativePortal::V0::Form21aController)
-          .to receive(:schema)
-          .and_return(schema)
+        allow(VetsJsonSchema::SCHEMAS).to receive(:[]).with('21A').and_return(mock_schema)
 
         expect(Rails.logger).to receive(:error).with(
           matching(
@@ -84,7 +82,7 @@ Errors: The property '#/firstName' of type integer did not match the following t
         )
 
         headers = { 'Content-Type' => 'application/json' }
-        post('/accredited_representative_portal/v0/form21a', params: wrong_schema, headers:)
+        post('/accredited_representative_portal/v0/form21a', params: invalid_form, headers:)
 
         expect(response).to have_http_status(:bad_request)
         expect(parsed_response).to eq('errors' => 'Invalid JSON')
