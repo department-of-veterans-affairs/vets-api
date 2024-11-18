@@ -21,10 +21,9 @@ module Form1010cg
       StatsD.increment("#{STATSD_KEY_PREFIX}failed_no_retries_left", tags: ["claim_id:#{msg['args'][0]}"])
       StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
 
-      claim = SavedClaim::CaregiversAssistanceClaim.find(msg['args'][0])
-      if claim.parsed_form.dig('veteran',
-                               'email') && Flipper.enabled?(:caregiver_use_va_notify_on_submission_failure)
-        send_failure_email(claim.parsed_form)
+      if Flipper.enabled?(:caregiver_use_va_notify_on_submission_failure)
+        claim = SavedClaim::CaregiversAssistanceClaim.find(msg['args'][0])
+        send_failure_email(claim.parsed_form) if claim.parsed_form.dig('veteran', 'email')
       end
     end
 
