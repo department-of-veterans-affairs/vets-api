@@ -21,7 +21,7 @@ RSpec.describe EVSSClaimDocumentUploader do
   describe 'initialize' do
     context 'when uploads are disabled' do
       it 'sets storage to file' do
-        with_settings(Settings.evss.s3, uploads_enabled: false) do
+        with_settings(Settings.claims_api.evss.s3, uploads_enabled: false) do
           expect(subject.class.storage).to eq(CarrierWave::Storage::File)
         end
       end
@@ -29,7 +29,7 @@ RSpec.describe EVSSClaimDocumentUploader do
 
     context 'when uploads are set to nil' do
       it 'sets storage to file' do
-        with_settings(Settings.evss.s3, uploads_enabled: nil) do
+        with_settings(Settings.claims_api.evss.s3, uploads_enabled: nil) do
           expect(subject.class.storage).to eq(CarrierWave::Storage::File)
         end
       end
@@ -37,7 +37,7 @@ RSpec.describe EVSSClaimDocumentUploader do
 
     context 'when uploads are enabled' do
       it 'sets storage to fog' do
-        with_settings(Settings.evss.s3, uploads_enabled: true) do
+        with_settings(Settings.claims_api.evss.s3, uploads_enabled: true) do
           expect(subject.class.storage).to eq(CarrierWave::Storage::AWS)
           expect(subject.aws_credentials).to eq(access_key_id: 'EVSS_S3_AWS_ACCESS_KEY_ID_XYZ',
                                                 secret_access_key: 'EVSS_S3_AWS_SECRET_ACCESS_KEY_XYZ',
