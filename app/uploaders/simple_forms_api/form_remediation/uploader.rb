@@ -31,6 +31,18 @@ module SimpleFormsApi
         @directory
       end
 
+      def store!(file)
+        if file.nil? || !file.respond_to?(:filename)
+          config.handle_error('Invalid file object provided for upload. Skipping.')
+          return
+        end
+
+        super(file)
+      rescue Aws::S3::Errors::ServiceError => e
+        config.handle_error("Upload failed for #{file.filename}. Enqueuing for retry.", e)
+        UploadRetryJob.perform_async(file, @directory, config)
+      end
+
       def get_s3_link(file_path, filename = nil)
         filename ||= File.basename(file_path)
         s3_obj(file_path).presigned_url(
@@ -45,7 +57,7 @@ module SimpleFormsApi
       rescue Aws::S3::Errors::NoSuchKey
         nil
       rescue => e
-        config.handle_error('An error occured while downloading the file.', e)
+        config.handle_error('An error occurred while downloading the file.', e)
       end
 
       private
