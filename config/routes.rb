@@ -297,6 +297,7 @@ Rails.application.routes.draw do
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
+      resource :vet_verification_status, only: :show
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do
@@ -440,7 +441,6 @@ Rails.application.routes.draw do
 
     scope format: false do
       resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
-      resources :pension_ipf_callbacks, only: [:create]
     end
   end
 
