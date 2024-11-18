@@ -441,7 +441,6 @@ Rails.application.routes.draw do
 
     scope format: false do
       resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
-      resources :pension_ipf_callbacks, only: [:create]
     end
   end
 
