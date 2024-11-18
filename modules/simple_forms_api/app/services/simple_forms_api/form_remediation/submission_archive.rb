@@ -52,7 +52,7 @@ module SimpleFormsApi
       end
 
       def fetch_id(options)
-        options[:submission]&.send(config.id_type) || options[:id]
+        options[:submission]&.latest_attempt&.send(config.id_type) || options[:id]
       end
 
       def data_hydrated?
@@ -107,6 +107,8 @@ module SimpleFormsApi
 
       def process_attachment(attachment_number, file_path)
         config.log_info("Processing attachment ##{attachment_number}: #{file_path}")
+        raise "Attachment file not found: #{file_path}" unless File.exist?(file_path)
+
         create_file("attachment_#{attachment_number}__#{submission_file_name}.pdf", File.read(file_path), 'attachment')
       end
 

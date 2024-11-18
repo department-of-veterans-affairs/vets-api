@@ -22,6 +22,7 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
       receive(:get_clinic).and_return(mock_clinic)
     allow_any_instance_of(VAOS::V2::MobileFacilityService).to \
       receive(:get_facility).and_return(mock_facility)
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
   after(:all) do

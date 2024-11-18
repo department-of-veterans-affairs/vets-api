@@ -25,8 +25,6 @@ module ClaimsApi
       validate_service_after_13th_birthday!
       # ensure 'militaryRetiredPay.receiving' and 'militaryRetiredPay.willReceiveInFuture' are not same non-null values
       validate_form_526_service_pay!
-      # ensure an error is avoided if the unit name is not provided
-      validate_form_526_unit_name!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
       validate_form_526_title10_activation_date!
       # ensure 'title10Activation.anticipatedSeparationDate' is in the future
@@ -142,12 +140,6 @@ module ClaimsApi
       )
     end
 
-    def validate_form_526_unit_name!
-      unit_name = form_attributes&.dig('serviceInformation', 'reservesNationalGuardService', 'unitName')
-      unit_name = ' ' if unit_name.empty?
-      form_attributes['serviceInformation']['reservesNationalGuardService']['unitName'] = unit_name
-    end
-
     def validate_form_526_submission_claim_date!
       return if form_attributes['claimDate'].blank?
       return if DateTime.parse(form_attributes['claimDate']) <= Time.zone.now
@@ -180,11 +172,11 @@ module ClaimsApi
       form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
         next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
         next if separation_locations.any? do |location|
-                  location[:id] == service_period['separationLocationCode']
+                  location[:id]&.to_s == service_period['separationLocationCode']
                 end
 
         raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
-                                                          form_attributes['separationLocationCode'])
+                                                          service_period['separationLocationCode'])
       end
     end
 
