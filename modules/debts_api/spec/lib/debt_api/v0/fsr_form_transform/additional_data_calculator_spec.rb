@@ -31,5 +31,19 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::AdditionalDataCalculator, type: :
 
       expect(service.get_bankruptcy_data['dateDischarged']).to eq('00/0000')
     end
+
+    it 'handles yyyy-mm-dd date for date discharged' do
+      form['additional_data']['bankruptcy']['date_discharged'] = '2024-03-15'
+      service = described_class.new(form)
+
+      expect(service.get_bankruptcy_data['dateDischarged']).to eq('03/2024')
+    end
+
+    it 'handles yyyy-mm date for date discharged' do
+      form['additional_data']['bankruptcy']['date_discharged'] = '2016-01'
+      service = described_class.new(form)
+
+      expect(service.get_bankruptcy_data['dateDischarged']).to eq('00/0000')
+    end
   end
 end
