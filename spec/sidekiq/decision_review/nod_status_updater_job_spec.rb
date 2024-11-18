@@ -11,6 +11,7 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
   let(:guid1) { SecureRandom.uuid }
   let(:guid2) { SecureRandom.uuid }
   let(:guid3) { SecureRandom.uuid }
+  let(:guid4) { SecureRandom.uuid }
 
   let(:response_complete) do
     response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('NOD-SHOW-RESPONSE-200_V2').to_json) # deep copy
@@ -224,19 +225,22 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
           }
         end
 
-        it 'does not increment metrics for unchanged form status' do
-          SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}', metadata: '{"status":"error","uploads":[]}')
+        it 'does not increment metrics for unchanged form status or existing final statuses' do
+          SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}',
+                                                  metadata: '{"status":"error","uploads":[]}')
           SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}',
                                                   metadata: '{"status":"submitted","uploads":[]}')
+          SavedClaim::NoticeOfDisagreement.create(guid: guid3, form: '{}',
+                                                  metadata: '{"status":"pending","uploads":[]}')
+          SavedClaim::NoticeOfDisagreement.create(guid: guid4, form: '{}',
+                                                  metadata: '{"status":"DR_404","uploads":[]}')
 
-          expect(service).to receive(:get_notice_of_disagreement).with(guid1).and_return(response_error)
+          expect(service).not_to receive(:get_notice_of_disagreement).with(guid1)
           expect(service).to receive(:get_notice_of_disagreement).with(guid2).and_return(response_error)
+          expect(service).to receive(:get_notice_of_disagreement).with(guid3).and_return(response_pending)
+          expect(service).not_to receive(:get_notice_of_disagreement).with(guid4)
 
           subject.new.perform
-
-          claim1 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid1)
-          expect(claim1.delete_date).to be_nil
-          expect(claim1.metadata).to include 'error'
 
           claim2 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid2)
           expect(claim2.delete_date).to be_nil
@@ -245,18 +249,19 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.saved_claim_nod_status_updater.status', tags: ['status:error'])
             .exactly(1).time
+          expect(StatsD).not_to have_received(:increment)
+            .with('worker.decision_review.saved_claim_nod_status_updater.status', tags: ['status:pending'])
 
           expect(Rails.logger).not_to have_received(:info)
             .with('DecisionReview::SavedClaimNodStatusUpdaterJob form status error', guid: guid1)
           expect(Rails.logger).to have_received(:info)
             .with('DecisionReview::SavedClaimNodStatusUpdaterJob form status error', guid: guid2)
           expect(StatsD).to have_received(:increment)
-            .with('silent_failure', tags: ['service:board-appeal',
-                                           'function: form submission to Lighthouse'])
+            .with('silent_failure', tags: ['service:board-appeal', 'function: form submission to Lighthouse'])
             .exactly(1).time
         end
 
-        it 'does not increment metrics for unchanged evidence status' do
+        it 'does not increment metrics for unchanged evidence status or existing final statuses' do
           SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}', metadata: metadata1.to_json)
           appeal_submission = create(:appeal_submission, submitted_appeal_uuid: guid1)
           create(:appeal_submission_upload, appeal_submission:, lighthouse_upload_id: upload_id)
@@ -268,8 +273,8 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
 
           expect(service).to receive(:get_notice_of_disagreement).with(guid1).and_return(response_pending)
           expect(service).to receive(:get_notice_of_disagreement).with(guid2).and_return(response_error)
-          expect(service).to receive(:get_notice_of_disagreement_upload).with(guid: upload_id)
-                                                                        .and_return(upload_response_error)
+
+          expect(service).not_to receive(:get_notice_of_disagreement_upload).with(guid: upload_id)
           expect(service).to receive(:get_notice_of_disagreement_upload).with(guid: upload_id2)
                                                                         .and_return(upload_response_error)
           expect(service).to receive(:get_notice_of_disagreement_upload).with(guid: upload_id3)
@@ -298,17 +303,42 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
 
       context 'an error occurs while processing' do
         before do
-          SavedClaim::NoticeOfDisagreement.create(guid: SecureRandom.uuid, form: '{}')
-          SavedClaim::NoticeOfDisagreement.create(guid: SecureRandom.uuid, form: '{}')
+          allow(Rails.logger).to receive(:error)
+          allow(service).to receive(:get_notice_of_disagreement).and_raise(exception)
+
+          SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}')
+          SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}')
         end
 
-        it 'handles request errors and increments the statsd metric' do
-          allow(service).to receive(:get_notice_of_disagreement).and_raise(DecisionReviewV1::ServiceException)
+        context 'and it is a temporary error' do
+          let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_504') }
 
-          subject.new.perform
+          it 'handles request errors and increments the statsd metric' do
+            subject.new.perform
 
-          expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.saved_claim_nod_status_updater.error').exactly(2).times
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.saved_claim_nod_status_updater.error').exactly(2).times
+          end
+        end
+
+        context 'and it is a permanent error' do
+          let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_404') }
+
+          it 'updates the status of the record' do
+            subject.new.perform
+
+            nod1 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid1)
+            metadata1 = JSON.parse(nod1.metadata)
+            expect(metadata1['status']).to eq 'DR_404'
+
+            nod2 = SavedClaim::NoticeOfDisagreement.find_by(guid: guid2)
+            metadata2 = JSON.parse(nod2.metadata)
+            expect(metadata2['status']).to eq 'DR_404'
+
+            expect(Rails.logger).to have_received(:error)
+              .with('DecisionReview::SavedClaimNodStatusUpdaterJob error', { guid: anything, message: anything })
+              .exactly(2).times
+          end
         end
       end
     end

@@ -37,6 +37,7 @@ RSpec.describe DecisionReview::HlrStatusUpdaterJob, type: :job do
       before do
         Flipper.enable :decision_review_saved_claim_hlr_status_updater_job_enabled
         allow(StatsD).to receive(:increment)
+        allow(Rails.logger).to receive(:error)
       end
 
       context 'SavedClaim records are present' do
@@ -80,15 +81,6 @@ RSpec.describe DecisionReview::HlrStatusUpdaterJob, type: :job do
               .exactly(1).time
           end
         end
-
-        it 'handles request errors and increments the statsd metric' do
-          allow(service).to receive(:get_higher_level_review).and_raise(DecisionReviewV1::ServiceException)
-
-          subject.new.perform
-
-          expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.saved_claim_hlr_status_updater.error').exactly(2).times
-        end
       end
 
       context 'SavedClaim record with previous metadata' do
@@ -96,20 +88,16 @@ RSpec.describe DecisionReview::HlrStatusUpdaterJob, type: :job do
           allow(Rails.logger).to receive(:info)
         end
 
-        it 'does not increment metrics for unchanged form status' do
+        it 'does not increment metrics for unchanged form status or existing final statuses' do
           SavedClaim::HigherLevelReview.create(guid: guid1, form: '{}', metadata: '{"status":"error"}')
           SavedClaim::HigherLevelReview.create(guid: guid2, form: '{}', metadata: '{"status":"submitted"}')
           SavedClaim::HigherLevelReview.create(guid: guid3, form: '{}', metadata: '{"status":"pending"}')
 
-          expect(service).to receive(:get_higher_level_review).with(guid1).and_return(response_error)
+          expect(service).not_to receive(:get_higher_level_review).with(guid1)
           expect(service).to receive(:get_higher_level_review).with(guid2).and_return(response_error)
           expect(service).to receive(:get_higher_level_review).with(guid3).and_return(response_pending)
 
           subject.new.perform
-
-          claim1 = SavedClaim::HigherLevelReview.find_by(guid: guid1)
-          expect(claim1.delete_date).to be_nil
-          expect(claim1.metadata).to include 'error'
 
           claim2 = SavedClaim::HigherLevelReview.find_by(guid: guid2)
           expect(claim2.delete_date).to be_nil
@@ -126,9 +114,43 @@ RSpec.describe DecisionReview::HlrStatusUpdaterJob, type: :job do
           expect(Rails.logger).to have_received(:info)
             .with('DecisionReview::SavedClaimHlrStatusUpdaterJob form status error', guid: guid2)
           expect(StatsD).to have_received(:increment)
-            .with('silent_failure', tags: ['service:higher-level-review',
-                                           'function: form submission to Lighthouse'])
+            .with('silent_failure', tags: ['service:higher-level-review', 'function: form submission to Lighthouse'])
             .exactly(1).time
+        end
+      end
+
+      context 'an error occurs while processing' do
+        before do
+          SavedClaim::HigherLevelReview.create(guid: guid1, form: '{}')
+
+          allow(service).to receive(:get_higher_level_review).and_raise(exception)
+        end
+
+        context 'and it is a temporary error' do
+          let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_504') }
+
+          it 'handles request errors and increments the statsd metric' do
+            subject.new.perform
+
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.saved_claim_hlr_status_updater.error').exactly(1).time
+          end
+        end
+
+        context 'and it is a permanent error' do
+          let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_404') }
+
+          it 'updates the status of the record' do
+            subject.new.perform
+
+            hlr = SavedClaim::HigherLevelReview.find_by(guid: guid1)
+            metadata = JSON.parse(hlr.metadata)
+            expect(metadata['status']).to eq 'DR_404'
+
+            expect(Rails.logger).to have_received(:error)
+              .with('DecisionReview::SavedClaimHlrStatusUpdaterJob error', { guid: anything, message: anything })
+              .exactly(1).time
+          end
         end
       end
     end

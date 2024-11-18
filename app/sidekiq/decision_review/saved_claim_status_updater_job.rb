@@ -13,15 +13,19 @@ module DecisionReview
 
     RETENTION_PERIOD = 59.days
 
-    SUCCESSFUL_STATUS = %w[complete].freeze
+    FORM_SUCCESSFUL_STATUS = 'complete'
+
+    UPLOAD_SUCCESSFUL_STATUS = 'vbms'
 
     ERROR_STATUS = 'error'
 
-    UPLOAD_SUCCESSFUL_STATUS = %w[vbms].freeze
+    NOT_FOUND = 'DR_404'
 
     ATTRIBUTES_TO_STORE = %w[status detail createDate updateDate].freeze
 
     SECONDARY_FORM_ATTRIBUTES_TO_STORE = %w[status detail updated_at].freeze
+
+    FINAL_STATUSES = %W[#{FORM_SUCCESSFUL_STATUS} #{UPLOAD_SUCCESSFUL_STATUS} #{ERROR_STATUS} #{NOT_FOUND}].freeze
 
     def perform
       return unless enabled? && records_to_update.present?
@@ -96,11 +100,23 @@ module DecisionReview
     end
 
     def get_status_and_attributes(record)
+      # return existing status if in one of the final status states
+      metadata = JSON.parse(record.metadata || '{}')
+      old_status = metadata['status']
+      return [old_status, metadata.slice(*ATTRIBUTES_TO_STORE)] if FINAL_STATUSES.include? old_status
+
       response = get_record_status(record.guid)
       attributes = response.dig('data', 'attributes')
       status = attributes['status']
 
       [status, attributes]
+    rescue DecisionReviewV1::ServiceException => e
+      if e.key == NOT_FOUND
+        Rails.logger.error("#{log_prefix} error", { guid: record.guid, message: e.message })
+        return [NOT_FOUND, { 'status' => NOT_FOUND }]
+      end
+
+      raise e
     end
 
     def get_evidence_uploads_statuses(record)
@@ -110,14 +126,29 @@ module DecisionReview
 
       attachment_ids = record.appeal_submission&.appeal_submission_uploads
                              &.pluck(:lighthouse_upload_id) || []
-
+      old_metadata = extract_uploads_metadata(record.metadata)
       attachment_ids.each do |guid|
-        response = get_evidence_status(guid)
-        attributes = response.dig('data', 'attributes').slice(*ATTRIBUTES_TO_STORE)
-        result << attributes.merge('id' => guid)
+        result << handle_evidence_status(guid, old_metadata.fetch(guid, {}))
       end
 
       result
+    end
+
+    def handle_evidence_status(guid, metadata)
+      # return existing metadata if in one of the final status states
+      status = metadata['status']
+      return metadata if FINAL_STATUSES.include? status
+
+      response = get_evidence_status(guid)
+      attributes = response.dig('data', 'attributes').slice(*ATTRIBUTES_TO_STORE)
+      attributes.merge('id' => guid)
+    rescue DecisionReviewV1::ServiceException => e
+      if e.key == NOT_FOUND
+        Rails.logger.error("#{log_prefix} get_evidence_status error", { guid:, message: e.message })
+        return { 'id' => guid, 'status' => NOT_FOUND }
+      end
+
+      raise e
     end
 
     def get_and_update_secondary_form_statuses(record)
@@ -132,7 +163,7 @@ module DecisionReview
       secondary_forms.each do |form|
         response = benefits_intake_service.get_status(uuid: form.guid).body
         attributes = response.dig('data', 'attributes').slice(*SECONDARY_FORM_ATTRIBUTES_TO_STORE)
-        all_complete = false unless UPLOAD_SUCCESSFUL_STATUS.include?(attributes['status'])
+        all_complete = false unless attributes['status'] == UPLOAD_SUCCESSFUL_STATUS
         handle_secondary_form_status_metrics_and_logging(form, attributes['status'])
         update_secondary_form_status(form, attributes)
       end
@@ -168,7 +199,7 @@ module DecisionReview
 
     def update_secondary_form_status(form, attributes)
       status = attributes['status']
-      if UPLOAD_SUCCESSFUL_STATUS.include?(status)
+      if status == UPLOAD_SUCCESSFUL_STATUS
         StatsD.increment("#{statsd_prefix}_secondary_form.delete_date_update")
         delete_date = (Time.current + RETENTION_PERIOD)
       else
@@ -185,7 +216,7 @@ module DecisionReview
       uploads_metadata.each do |upload|
         status = upload['status']
         upload_id = upload['id']
-        result = false unless UPLOAD_SUCCESSFUL_STATUS.include? status
+        result = false unless status == UPLOAD_SUCCESSFUL_STATUS
 
         # Skip logging and statsd metrics when there is no status change
         next if old_uploads_metadata.dig(upload_id, 'status') == status
@@ -205,7 +236,7 @@ module DecisionReview
 
     def record_complete?(record, status, uploads_metadata, secondary_forms_complete)
       check_attachments_status(record,
-                               uploads_metadata) && secondary_forms_complete && SUCCESSFUL_STATUS.include?(status)
+                               uploads_metadata) && secondary_forms_complete && status == FORM_SUCCESSFUL_STATUS
     end
 
     def extract_uploads_metadata(metadata)
