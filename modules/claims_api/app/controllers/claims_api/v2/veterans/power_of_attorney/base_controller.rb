@@ -5,6 +5,7 @@ require 'claims_api/v2/params_validation/power_of_attorney'
 require 'claims_api/v2/error/lighthouse_error_handler'
 require 'claims_api/v2/json_format_validation'
 require 'claims_api/v2/power_of_attorney_validation'
+require 'claims_api/dependent_claimant_validation'
 
 module ClaimsApi
   module V2
@@ -14,6 +15,7 @@ module ClaimsApi
         include ClaimsApi::PoaVerification
         include ClaimsApi::V2::Error::LighthouseErrorHandler
         include ClaimsApi::V2::JsonFormatValidation
+        include ClaimsApi::DependentClaimantValidation
         FORM_NUMBER_INDIVIDUAL = '2122A'
         VA_NOTIFY_KEY = 'va_notify_recipient_identifier'
 
@@ -64,10 +66,6 @@ module ClaimsApi
           end
         end
 
-        def feature_enabled_and_claimant_present?
-          Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
-        end
-
         def validate_registration_number!(base, poa_code)
           rn = form_attributes.dig(base, 'registrationNumber')
           rep = ::Veteran::Service::Representative.where('? = ANY(poa_codes) AND representative_id = ?',
@@ -112,7 +110,7 @@ module ClaimsApi
         def set_auth_headers
           headers = auth_headers.merge!({ VA_NOTIFY_KEY => icn_for_vanotify })
 
-          if feature_enabled_and_claimant_present?
+          if allow_dependent_claimant?
             add_dependent_to_auth_headers(headers)
           else
             auth_headers

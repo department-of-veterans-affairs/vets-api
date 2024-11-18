@@ -1075,6 +1075,12 @@ lighthouse:
       access_token:
         client_id: ~
         rsa_key: ~
+      use_mocks: true
+    status:
+      host: https://staging-api.va.gov
+      access_token:
+        client_id: ~
+        rsa_key: ~
       use_mocks: false
   s3:
     uploads_enabled: false
@@ -1381,6 +1387,7 @@ vanotify:
         evidence_submission_failure_email: fake_template_id
     ivc_champva:
       api_key: fake_secret
+      failure_email_threshold_days: 7
       template_id:
         form_10_10d_email: form_10_10d_email
         form_10_10d_failure_email: form_10_10d_failure_email
@@ -1785,9 +1792,6 @@ brd:
 nod_vanotify_status_callback:
   bearer_token: bearer_token_secret
 
-pension_ipf_vanotify_status_callback:
-  bearer_token: bearer_token_secret
-
 travel_pay:
   sts:
     service_account_id: ~
@@ -1839,3 +1843,14 @@ schema_contract:
 
 form_mock_ae_design_patterns:
   prefill: true
+
+vaos:
+  eps:
+    key_path: /fake/client/key/path
+    mock: false
+    client_id: "fake_client_id"
+    kid: "fake_kid"
+    audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
+    access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
+    api_url: "https://api.wellhive.com/care-navigation/v1"
+    scopes: "care-nav"
