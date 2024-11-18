@@ -3,7 +3,9 @@
 require 'rails_helper'
 require 'va_profile/models/preferred_name'
 
-describe VAProfile::Models::PreferredName do
+describe VAProfile::Models::PreferredName,  feature: :personal_info,
+                                            team_owner: :vfs_authenticated_experience_backend,
+                                            type: :model do
   let(:model) { VAProfile::Models::PreferredName.new }
 
   # must only contain alpha, -, acute, grave, diaresis, cirumflex, tilde (case insensitive)

@@ -137,6 +137,18 @@ Rspec.describe 'AppealsApi::V1::DecisionReviews::NoticeOfDisagreements', type: :
         expect(nod.api_version).to eq('V1')
       end
     end
+
+    it_behaves_like 'an endpoint requiring gateway origin headers',
+                    headers: {
+                      'X-VA-First-Name': 'Jane',
+                      'X-VA-Last-Name': 'Doe',
+                      'X-VA-SSN': '123456789',
+                      'X-VA-Birth-Date': '1969-12-31'
+                    } do
+      def make_request(headers)
+        post(path, params: data, headers:)
+      end
+    end
   end
 
   describe '#validate' do
@@ -194,6 +206,18 @@ Rspec.describe 'AppealsApi::V1::DecisionReviews::NoticeOfDisagreements', type: :
           expect(body['errors']).to be_an Array
           expect(body.dig('errors', 0, 'detail')).to eq "The request body isn't a JSON object"
         end
+      end
+    end
+
+    it_behaves_like 'an endpoint requiring gateway origin headers',
+                    headers: {
+                      'X-VA-First-Name': 'Jane',
+                      'X-VA-Last-Name': 'Doe',
+                      'X-VA-SSN': '123456789',
+                      'X-VA-Birth-Date': '1969-12-31'
+                    } do
+      def make_request(headers)
+        post(path, params: data, headers:)
       end
     end
   end

@@ -169,6 +169,26 @@ module VAOS
         nil
       end
 
+      def get_recent_sorted_clinic_appointments
+        end_time = Date.current.end_of_day.yesterday
+        start_time = 1.year.ago
+        statuses = 'booked,fulfilled,arrived'
+
+        appointments = get_appointments(start_time, end_time, statuses)
+        sort_recent_appointments(appointments[:data])
+      end
+
+      def sort_recent_appointments(appointments)
+        filtered_appts = appointments.reject { |appt| appt&.start.nil? }
+        removed_appts = appointments - filtered_appts
+        if removed_appts.length.positive?
+          removed_appts.each do |rem_appt|
+            Rails.logger.info("VAOS appointment sorting filtered out id #{rem_appt.id} due to missing start time.")
+          end
+        end
+        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }
+      end
+
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone(facility_location_id)
         facility_info = mobile_facility_service.get_facility(facility_location_id) unless facility_location_id.nil?
@@ -754,7 +774,7 @@ module VAOS
       end
 
       def appointments_base_path_vaos
-        "/vaos/v1/patients/#{user.icn}/appointments"
+        "/#{base_vaos_route}/patients/#{user.icn}/appointments"
       end
 
       def appointments_base_path_vpg
@@ -769,7 +789,7 @@ module VAOS
         if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
           "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
         else
-          "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
+          "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appointment_id}"
         end
       end
 
@@ -800,7 +820,7 @@ module VAOS
       end
 
       def update_appointment_vaos(appt_id, status)
-        url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        url_path = "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         perform(:put, url_path, params, headers)
       end

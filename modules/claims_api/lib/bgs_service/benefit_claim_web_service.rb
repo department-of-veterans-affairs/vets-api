@@ -15,5 +15,12 @@ module ClaimsApi
 
       make_request(endpoint: bean_name, action: 'findBnftClaim', body:)
     end
+
+    def update_bnft_claim(claim:)
+      camelcase_claim = to_camelcase(claim: claim[:bnft_claim_dto])
+      body = Nokogiri::XML(camelcase_claim.to_xml(skip_instruct: true, root: 'bnftClaimDTO')).root
+      make_request(endpoint: bean_name, action: 'updateBnftClaim',
+                   body:)
+    end
   end
 end

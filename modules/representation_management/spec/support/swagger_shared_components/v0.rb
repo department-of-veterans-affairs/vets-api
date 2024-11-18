@@ -61,7 +61,6 @@ module SwaggerSharedComponents
         service_branch: 'ARMY',
         phone: '5555555555',
         email: 'veteran@example.com',
-        insurance_numbers: [],
         name:,
         address:
       }
@@ -107,11 +106,6 @@ module SwaggerSharedComponents
           type: :array,
           items: { type: :string },
           example: %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL]
-        },
-        conditions_of_appointment: {
-          type: :array,
-          items: { type: :string },
-          example: %w[a123 b456 c789]
         }
       }
     end
@@ -136,8 +130,7 @@ module SwaggerSharedComponents
         properties: {
           id: { type: :string, example: '8c3b3b53-02a1-4dbd-bd23-2b556f5ef635' },
           organization_id: { type: :string, example: '6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943' }
-        },
-        required: [:id]
+        }
       }
     end
 
@@ -145,11 +138,6 @@ module SwaggerSharedComponents
       {
         type: :object,
         properties: {
-          insurance_numbers: {
-            type: :array,
-            items: { type: :string },
-            example: %w[123456789 987654321]
-          },
           name: name_parameters,
           address: address_parameters,
           ssn: { type: :string, example: '123456789' },
@@ -169,7 +157,7 @@ module SwaggerSharedComponents
         type: :object,
         properties: {
           first: { type: :string, example: 'John' },
-          middle: { type: :string, example: 'A' },
+          middle: { type: :string, example: 'Middle' },
           last: { type: :string, example: 'Doe' }
         }
       }
@@ -178,7 +166,7 @@ module SwaggerSharedComponents
     def self.name
       {
         first: 'John',
-        middle: 'A',
+        middle: 'Middle',
         last: 'Doe'
       }
     end

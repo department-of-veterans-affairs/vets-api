@@ -61,7 +61,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 1 * * 1', 'BenefitsIntakeRemediationStatusJob')
 
   # Update Lighthouse526DocumentUpload statuses according to Lighthouse Benefits Documents service tracking
-  mgr.register('15 * * * *', 'Form526DocumentUploadPollingJob')
+  mgr.register('15 * * * *', 'Lighthouse::Form526DocumentUploadPollingJob')
 
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
   mgr.register('0 3 * * *', 'Form526StatusPollingJob')
@@ -207,7 +207,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::FlipperStatusAlert')
 
   # Rotates Lockbox/KMS record keys and _ciphertext fields every October 12th (when the KMS key auto-rotate)
-  mgr.register('0 3 * * *', 'KmsKeyRotation::BatchInitiatorJob')
+  mgr.register('10 5 * * *', 'KmsKeyRotation::BatchInitiatorJob')
 
   # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
   mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
@@ -222,9 +222,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
   # Hourly jobs that update DR SavedClaims with delete_date
-  mgr.register('20 * * * *', 'DecisionReview::SavedClaimHlrStatusUpdaterJob')
-  mgr.register('30 * * * *', 'DecisionReview::SavedClaimNodStatusUpdaterJob')
-  mgr.register('40 * * * *', 'DecisionReview::SavedClaimScStatusUpdaterJob')
+  mgr.register('20 * * * *', 'DecisionReview::HlrStatusUpdaterJob')
+  mgr.register('30 * * * *', 'DecisionReview::NodStatusUpdaterJob')
+  mgr.register('40 * * * *', 'DecisionReview::ScStatusUpdaterJob')
 
   # Clean SavedClaim records that are past delete date
   mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')

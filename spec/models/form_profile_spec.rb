@@ -679,27 +679,6 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.address[:country],
         'postal_code' => user.address[:postal_code][0..4]
       },
-      'veteranSocialSecurityNumber' => user.ssn,
-      'veteranDateOfBirth' => user.birth_date
-    }
-  end
-
-  let(:v21_p_527_ez_expected_military) do
-    {
-      'veteranFullName' => {
-        'first' => user.first_name&.capitalize,
-        'middle' => user.middle_name&.capitalize,
-        'last' => user.last_name&.capitalize,
-        'suffix' => user.suffix
-      },
-      'veteranAddress' => {
-        'street' => street_check[:street],
-        'street2' => street_check[:street2],
-        'city' => user.address[:city],
-        'state' => user.address[:state],
-        'country' => user.address[:country],
-        'postal_code' => user.address[:postal_code][0..4]
-      },
       'email' => 'test2@test1.net',
       'phone' => '4445551212',
       'internationalPhone' => '14445551212',
@@ -1663,11 +1642,56 @@ RSpec.describe FormProfile, type: :model do
           allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0).and_return(gids_response)
         end
 
-        it 'prefills 0873' do
-          VCR.use_cassette('va_profile/demographics/demographics', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-              expect_prefilled('0873')
+        context 'when CRM profile is working' do
+          it 'prefills 0873' do
+            VCR.use_cassette('va_profile/demographics/demographics', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                               allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+                expect_prefilled('0873')
+              end
+            end
+          end
+        end
+
+        context 'when school facility code is nil' do
+          let(:info) do
+            {
+              SchoolFacilityCode: nil,
+              BusinessPhone: '1234567890',
+              BusinessEmail: 'fake@company.com',
+              ServiceNumber: '123455678'
+            }
+          end
+          let(:v0873_expected) do
+            {
+              'personalInformation' => {
+                'first' => user.first_name&.capitalize,
+                'last' => user.last_name&.capitalize,
+                'suffix' => user.suffix,
+                'preferredName' => 'SAM',
+                'dateOfBirth' => user.birth_date,
+                'socialSecurityNumber' => user.ssn,
+                'serviceNumber' => '123455678'
+              },
+              'contactInformation' => {
+                'email' => user.pciu_email,
+                'phone' => us_phone,
+                'address' => address
+              },
+              'avaProfile' => {
+                'businessPhone' => '1234567890',
+                'businessEmail' => 'fake@company.com'
+              },
+              'veteranServiceInformation' => veteran_service_information
+            }
+          end
+
+          it 'does not show in ava profile' do
+            VCR.use_cassette('va_profile/demographics/demographics', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                               allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+                expect_prefilled('0873')
+              end
             end
           end
         end
@@ -1765,33 +1789,9 @@ RSpec.describe FormProfile, type: :model do
           FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
-            Flipper.disable(:pension_military_prefill)
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                              allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
               expect_prefilled(form_id)
-            end
-          end
-        end
-
-        context 'with pension_military_prefill' do
-          it 'returns prefilled 21P-527EZ' do
-            Flipper.enable(:pension_military_prefill)
-            VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-              form_id = '21P-527EZ'
-              prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
-              schema = strip_required(VetsJsonSchema::SCHEMAS[form_id]).except('anyOf')
-              schema_data = prefilled_data.deep_dup
-              errors = JSON::Validator.fully_validate(
-                schema,
-                schema_data.deep_transform_keys { |key| key.camelize(:lower) }, validate_schema: true
-              )
-
-              expect(errors.empty?).to eq(true), "schema errors: #{errors}"
-
-              expect(prefilled_data).to eq(
-                form_profile.send(:clean!, public_send('v21_p_527_ez_expected_military'))
-              )
             end
           end
         end

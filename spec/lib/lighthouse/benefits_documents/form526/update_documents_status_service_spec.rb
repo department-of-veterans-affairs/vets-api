@@ -103,6 +103,49 @@ RSpec.describe BenefitsDocuments::Form526::UpdateDocumentsStatusService do
           end
         end
       end
+
+      context 'when updating multiple records' do
+        let!(:first_pending_polling_document) { create(:lighthouse526_document_upload, aasm_state: 'pending') }
+        let!(:second_pending_polling_document) { create(:lighthouse526_document_upload, aasm_state: 'pending') }
+
+        let(:status_response) do
+          {
+            'data' => {
+              'statuses' => [
+                {
+                  'requestId' => first_pending_polling_document.lighthouse_document_request_id,
+                  'time' => {
+                    'startTime' => start_time_in_unix_milliseconds,
+                    'endTime' => end_time_in_unix_milliseconds
+                  },
+                  'status' => 'SUCCESS'
+                }, {
+                  'requestId' => second_pending_polling_document.lighthouse_document_request_id,
+                  'time' => {
+                    'startTime' => start_time_in_unix_milliseconds,
+                    'endTime' => end_time_in_unix_milliseconds
+                  },
+                  'status' => 'FAILED',
+                  'error' => {
+                    'detail' => 'Something went wrong',
+                    'step' => 'BENEFITS_GATEWAY_SERVICE'
+                  }
+                }
+              ],
+              'requestIdsNotFound' => [
+                0
+              ]
+            }
+          }
+        end
+
+        it 'updates each record status properly' do
+          described_class.call(Lighthouse526DocumentUpload.all, status_response)
+
+          expect(first_pending_polling_document.reload.aasm_state).to eq('completed')
+          expect(second_pending_polling_document.reload.aasm_state).to eq('failed')
+        end
+      end
     end
 
     describe 'document type in statsd metrics' do

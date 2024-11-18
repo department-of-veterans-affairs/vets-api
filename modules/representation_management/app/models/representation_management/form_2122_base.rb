@@ -25,7 +25,6 @@ module RepresentationManagement
       veteran_phone
       veteran_email
       veteran_service_number
-      veteran_insurance_numbers
     ]
 
     claimant_attrs = %i[
@@ -81,7 +80,7 @@ module RepresentationManagement
               if: -> { veteran_service_number.present? }
 
     validate :consent_limits_must_contain_valid_values
-    validate :representative_exists?
+    validate :representative_exists?, if: -> { representative_id.present? }
 
     with_options if: -> { claimant_first_name.present? } do
       validates :claimant_first_name, presence: true, length: { maximum: 12 }
@@ -100,10 +99,27 @@ module RepresentationManagement
       validates :claimant_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
     end
 
-    validates :representative_id, presence: true
-
     def representative
       @representative ||= find_representative
+    end
+
+    def representative_individual_type
+      type = if representative.is_a?(AccreditedIndividual)
+               representative.individual_type
+             else
+               representative.user_types.first
+             end
+      # We're converting 'claims_agent' and 'claim_agents' to 'agent'
+      # here because the PDF checkbox responds to 'agent'.
+      %w[claims_agent claim_agents].include?(type) ? 'agent' : type
+    end
+
+    def representative_phone
+      if representative.is_a?(AccreditedIndividual)
+        representative.phone
+      else
+        representative.phone_number
+      end
     end
 
     private

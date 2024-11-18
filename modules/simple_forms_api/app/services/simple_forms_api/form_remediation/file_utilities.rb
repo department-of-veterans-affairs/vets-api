@@ -70,7 +70,7 @@ module SimpleFormsApi
       def build_path(path_type, base_dir, *path_segments, ext: '.pdf')
         file_ext = path_type == :file ? ext : ''
         path = Pathname.new(base_dir.to_s).join(*path_segments)
-        path = path.to_s + file_ext unless file_ext.empty?
+        path = path.to_s + file_ext if file_ext.present?
         path.to_s
       end
 
@@ -78,12 +78,12 @@ module SimpleFormsApi
         File.write(File.join(dir_path, file_name), content)
       end
 
-      def unique_file_name(form_number, id)
-        "#{Time.zone.today.strftime('%-m.%d.%y')}_form_#{form_number}_vagov_#{id}"
+      def unique_file_name(form_number, id, date = Time.zone.today)
+        "#{date.strftime('%-m.%d.%y')}_form_#{form_number}_vagov_#{id}"
       end
 
-      def dated_directory_name(form_number)
-        "#{Time.zone.today.strftime('%-m.%d.%y')}-Form#{form_number}"
+      def dated_directory_name(form_number, date = Time.zone.today)
+        "#{date.strftime('%-m.%d.%y')}-Form#{form_number}"
       end
 
       def write_manifest(row, path)

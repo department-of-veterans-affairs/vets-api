@@ -132,7 +132,7 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('EP Merge total open EPs', id:, count: pending_eps.count)
     return unless pending_eps.count == 1
 
-    feature_enabled = Flipper.enabled?(:disability_526_ep_merge_api, User.find(user_uuid))
+    feature_enabled = ep_merge_feature_enabled?
     open_claim_review = open_claim_review?
     Rails.logger.info(
       'EP Merge open EP eligibility',
@@ -179,9 +179,16 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('classifier response for 526Submission', payload: response_body)
   end
 
+  def log_and_halt_if_no_disabilities
+    Rails.logger.info("No disabilities found for classification on claim #{id}")
+    false
+  end
+
   # Submits contention information to the VRO contention classification service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
+    return log_and_halt_if_no_disabilities if disabilities.blank?
+
     contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
     params = { claim_id: saved_claim_id, form526_submission_id: id, contentions: contentions_array }
     classifier_response = classify_vagov_contentions(params)
@@ -205,21 +212,21 @@ module Form526ClaimFastTrackingConcern
   end
 
   def log_max_cfi_metrics_on_submit
-    user = User.find(user_uuid)
-    max_cfi_enabled = Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
-    ClaimFastTracking::DiagnosticCodesForMetrics::DC.each do |diagnostic_code|
-      next unless max_rated_diagnostic_codes_from_ipf.include?(diagnostic_code)
-
+    max_rated_diagnostic_codes_from_ipf.each do |diagnostic_code|
       disability_claimed = diagnostic_codes.include?(diagnostic_code)
-
-      if disability_claimed
-        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{max_cfi_enabled}.submit.#{diagnostic_code}")
-      end
-      Rails.logger.info('Max CFI form526 submission',
-                        id:, max_cfi_enabled:, disability_claimed:, diagnostic_code:,
-                        cfi_checkbox_was_selected: cfi_checkbox_was_selected?,
-                        total_increase_conditions: increase_disabilities.count)
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.submit",
+                       tags: ["diagnostic_code:#{diagnostic_code}", "claimed:#{disability_claimed}"])
     end
+    claimed_max_rated_dcs = max_rated_diagnostic_codes_from_ipf & diagnostic_codes
+    Rails.logger.info('Max CFI form526 submission',
+                      id:,
+                      num_max_rated: max_rated_diagnostic_codes_from_ipf.count,
+                      num_max_rated_cfi: claimed_max_rated_dcs.count,
+                      total_cfi: increase_disabilities.count,
+                      cfi_checkbox_was_selected: cfi_checkbox_was_selected?)
+    StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.on_submit",
+                     tags: ["claimed:#{claimed_max_rated_dcs.any?}",
+                            "has_max_rated:#{max_rated_diagnostic_codes_from_ipf.any?}"])
   rescue => e
     # Log the exception but but do not fail, otherwise form will not be submitted
     log_exception_to_sentry(e)
@@ -255,6 +262,15 @@ module Form526ClaimFastTrackingConcern
     update!(form_json: JSON.dump(form))
   end
 
+  def ep_merge_feature_enabled?
+    actor = OpenStruct.new({ flipper_id: user_uuid })
+    if Flipper.enabled?(:disability_compensation_production_tester, actor)
+      Rails.logger.info("EP merge skipped for submission #{id}, user_uuid #{user_uuid}")
+      return false
+    end
+    Flipper.enabled?(:disability_526_ep_merge_api, actor)
+  end
+
   private
 
   def in_progress_form
@@ -281,7 +297,7 @@ module Form526ClaimFastTrackingConcern
   # value outdated if using the same Form526Submission instance.
   def open_claims
     @open_claims ||= begin
-      icn = UserAccount.where(id: user_account_id).first&.icn
+      icn = account.icn
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:claims],
         provider: nil,
