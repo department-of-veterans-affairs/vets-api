@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'decision_review_v1/service'
 
-RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
+RSpec.describe DecisionReview::HlrStatusUpdaterJob, type: :job do
   subject { described_class }
 
   let(:service) { instance_double(DecisionReviewV1::Service) }
@@ -125,6 +125,10 @@ RSpec.describe DecisionReview::SavedClaimHlrStatusUpdaterJob, type: :job do
             .with('DecisionReview::SavedClaimHlrStatusUpdaterJob form status error', guid: guid1)
           expect(Rails.logger).to have_received(:info)
             .with('DecisionReview::SavedClaimHlrStatusUpdaterJob form status error', guid: guid2)
+          expect(StatsD).to have_received(:increment)
+            .with('silent_failure', tags: ['service:higher-level-review',
+                                           'function: form submission to Lighthouse'])
+            .exactly(1).time
         end
       end
     end
