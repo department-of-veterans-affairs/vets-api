@@ -13,8 +13,6 @@ Mobile::Engine.routes.draw do
     get '/appointments/facilities/:facility_id/clinics', to: 'clinics#index'
     get '/appointments/facilities/:facility_id/clinics/:clinic_id/slots', to: 'clinics#slots'
     get '/appointments/facilities/:facility_id/slots', to: 'clinics#facility_slots'
-    get '/appointments/preferences', to: 'appointment_preferences#show'
-    put '/appointments/preferences', to: 'appointment_preferences#update'
     post '/appointments/check-in', to: 'check_in#create'
     patch '/appointments/check-in/demographics', to: 'check_in_demographics#update'
     post '/appointment', to: 'appointments#create'

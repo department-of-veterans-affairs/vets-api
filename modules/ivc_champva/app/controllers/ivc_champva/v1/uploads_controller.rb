@@ -15,26 +15,49 @@ module IvcChampva
         '10-7959A' => 'vha_10_7959a'
       }.freeze
 
-      def submit
-        Datadog::Tracing.trace('Start IVC File Submission') do
-          form_id = get_form_id
-          Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
-          parsed_form_data = JSON.parse(params.to_json)
-          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
-          response = build_json(Array(statuses), error_message)
+      if Flipper.enabled?(:champva_file_recreate, @user)
+        def submit
+          Datadog::Tracing.trace('Start IVC File Submission') do
+            form_id = get_form_id
+            Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
+            parsed_form_data = JSON.parse(params.to_json)
+            statuses, error_message = handle_file_uploads(form_id, parsed_form_data)
 
-          if @current_user && response[:status] == 200
-            InProgressForm.form_for_user(params[:form_number],
-                                         @current_user)&.destroy!
+            response = build_json(Array(statuses), error_message)
+
+            if @current_user && response[:status] == 200
+              InProgressForm.form_for_user(params[:form_number], @current_user)&.destroy!
+            end
+
+            render json: response[:json], status: response[:status]
           end
-
-          render json: response[:json], status: response[:status]
         rescue => e
           Rails.logger.error "Error: #{e.message}"
           Rails.logger.error e.backtrace.join("\n")
-          render json: { error_message: "Error: #{e.message}" },
-                 status: :internal_server_error
+          render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
+        end
+      else
+        def submit
+          Datadog::Tracing.trace('Start IVC File Submission') do
+            form_id = get_form_id
+            Datadog::Tracing.active_trace&.set_tag('form_id', form_id)
+            parsed_form_data = JSON.parse(params.to_json)
+            file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+            statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+            response = build_json(Array(statuses), error_message)
+
+            if @current_user && response[:status] == 200
+              InProgressForm.form_for_user(params[:form_number],
+                                           @current_user)&.destroy!
+            end
+
+            render json: response[:json], status: response[:status]
+          rescue => e
+            Rails.logger.error "Error: #{e.message}"
+            Rails.logger.error e.backtrace.join("\n")
+            render json: { error_message: "Error: #{e.message}" },
+                   status: :internal_server_error
+          end
         end
       end
 
@@ -50,6 +73,24 @@ module IvcChampva
       end
 
       private
+
+      if Flipper.enabled?(:champva_file_recreate, @user)
+        def handle_file_uploads(form_id, parsed_form_data)
+          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+          statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          statuses = Array(statuses)
+
+          # Retry attempt if specific error message is found
+          if statuses.any? do |status|
+            status.is_a?(String) && status.include?('No such file or directory @ rb_sysopen')
+          end
+            file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+            statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          end
+
+          [statuses, error_message]
+        end
+      end
 
       def get_attachment_ids_and_form(parsed_form_data)
         form_id = get_form_id
@@ -79,19 +120,37 @@ module IvcChampva
           parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
       end
 
+      # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Style/IdenticalConditionalBranches
       def get_file_paths_and_metadata(parsed_form_data)
-        attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
-        filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:)
-        file_path = if @current_user
-                      filler.generate(@current_user.loa[:current])
-                    else
-                      filler.generate
-                    end
-        metadata = IvcChampva::MetadataValidator.validate(form.metadata)
-        file_paths = form.handle_attachments(file_path)
+        if Flipper.enabled?(:champva_unique_temp_file_names, @user)
+          attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
+          filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:, uuid: form.uuid)
+          file_path = if @current_user
+                        filler.generate(@current_user.loa[:current])
+                      else
+                        filler.generate
+                      end
+          metadata = IvcChampva::MetadataValidator.validate(form.metadata)
+          file_paths = form.handle_attachments(file_path)
 
-        [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
+          [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
+        else
+          attachment_ids, form = get_attachment_ids_and_form(parsed_form_data)
+          filler = IvcChampva::PdfFiller.new(form_number: form.form_id, form:)
+          file_path = if @current_user
+                        filler.generate(@current_user.loa[:current])
+                      else
+                        filler.generate
+                      end
+          metadata = IvcChampva::MetadataValidator.validate(form.metadata)
+          file_paths = form.handle_attachments(file_path)
+
+          [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
+        end
       end
+      # rubocop:enable Metrics/MethodLength
+      # rubocop:enable Style/IdenticalConditionalBranches
 
       def get_form_id
         form_number = params[:form_number]
