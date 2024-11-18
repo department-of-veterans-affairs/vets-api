@@ -1283,6 +1283,8 @@ RSpec.describe Form526Submission do
         subject { create(:form526_submission, :with_multiple_succesful_jobs) }
 
         it 'does not trigger job when disability_526_call_received_email_from_polling enabled' do
+          allow(Flipper).to receive(:enabled?).with(:disability_526_call_received_email_from_polling,
+                                                    anything).and_return(true)
           expect do
             subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
           end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
