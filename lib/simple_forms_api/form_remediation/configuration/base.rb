@@ -10,7 +10,7 @@ module SimpleFormsApi
           @id_type = :benefits_intake_uuid  # The field to query the FormSubmission by
           @include_manifest = true          # Include a CSV file containing manifest data
           @include_metadata = false         # Include a JSON file containing form submission metadata
-          @parent_dir = '/'                 # The base directory in the S3 bucket where the archive will be stored
+          @parent_dir = ''                  # The base directory in the S3 bucket where the archive will be stored
           @presign_s3_url = true            # Once archived to S3, the service should generate & return a presigned_url
         end
 
@@ -49,7 +49,7 @@ module SimpleFormsApi
         # hydrated and stored. This directory will automatically
         # be deleted once the archive process completes
         def temp_directory_path
-          @temp_directory_path ||= Rails.root.join("tmp/#{SecureRandom.hex}-archive/").to_s
+          Rails.root.join("tmp/#{SecureRandom.hex}-archive/").to_s
         end
 
         # Used in the SimpleFormsApi::FormRemediation::Uploader S3 uploader
@@ -57,24 +57,14 @@ module SimpleFormsApi
           raise NotImplementedError, 'Class must implement s3_settings method'
         end
 
-        # The base S3 resource used for all S3 manipulations
-        def s3_resource
-          @s3_resource ||= uploader.new_s3_resource
-        end
-
-        # The bucket where payloads will be uploaded on S3
-        def target_bucket
-          @target_bucket ||= uploader.s3_bucket
-        end
-
         # Utility method, override to add your own team's preferred logging approach
         def log_info(message, **details)
-          Rails.logger.info(message, details)
+          Rails.logger.info({ message: }.merge(details))
         end
 
         # Utility method, override to add your own team's preferred logging approach
         def log_error(message, error, **details)
-          Rails.logger.error(message, details.merge(error: error.message, backtrace: error.backtrace.first(5)))
+          Rails.logger.error({ message:, error: error.message, backtrace: error.backtrace.first(5) }.merge(details))
         end
 
         # Utility method, override to add your own team's preferred logging approach

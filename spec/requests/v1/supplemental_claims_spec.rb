@@ -128,34 +128,116 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
                                    'V1::SupplementalClaimsController#create exception % (SC_V1)'
     end
 
-    subject do
-      post '/v1/supplemental_claims',
-           params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
-           headers:
+    context 'when tracking 4142 is enabled' do
+      subject do
+        post '/v1/supplemental_claims',
+             params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
+             headers:
+      end
+
+      before do
+        Flipper.enable(:decision_review_track_4142_submissions)
+      end
+
+      it 'creates a supplemental claim and queues and saves a 4142 form when 4142 info is provided' do
+        VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
+              expect { subject }.to change(DecisionReview::Form4142Submit.jobs, :size).by(1)
+              expect(response).to be_successful
+              parsed_response = JSON.parse(response.body)
+              id = parsed_response['data']['id']
+              expect(previous_appeal_submission_ids).not_to include id
+              appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
+              expect(appeal_submission.type_of_appeal).to eq('SC')
+              expect do
+                DecisionReview::Form4142Submit.drain
+              end.to change(DecisionReview::Form4142Submit.jobs, :size).by(-1)
+
+              # SavedClaim should be created with request data and list of uploaded forms
+              request_body = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json)
+              saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
+              expect(saved_claim.form).to eq(request_body.to_json)
+              expect(saved_claim.uploaded_forms).to contain_exactly '21-4142'
+
+              # SecondaryAppealForm should be created with 4142 data and user data
+              expected_form4142_data = VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV')['form4142']
+              veteran_data = {
+                'vaFileNumber' => '796111863',
+                'veteranSocialSecurityNumber' => '796111863',
+                'veteranFullName' => {
+                  'first' => 'abraham',
+                  'middle' => nil,
+                  'last' => 'lincoln'
+                },
+                'veteranDateOfBirth' => '1809-02-12',
+                'veteranAddress' => { 'addressLine1' => '123  Main St', 'city' => 'New York', 'countryCodeISO2' => 'US',
+                                      'zipCode5' => '30012', 'country' => 'US', 'postalCode' => '30012' },
+                'email' => 'josie@example.com',
+                'veteranPhone' => '5558001111'
+              }
+              expected_form4142_data_with_user = veteran_data.merge(expected_form4142_data)
+              saved4142 = SecondaryAppealForm.last
+              saved_4142_json = JSON.parse(saved4142.form)
+              expect(saved_4142_json).to eq(expected_form4142_data_with_user)
+              expect(saved4142.form_id).to eq('21-4142')
+              expect(saved4142.appeal_submission.id).to eq(appeal_submission.id)
+            end
+          end
+        end
+      end
     end
 
-    before do
-      Flipper.disable :decision_review_sc_use_lighthouse_api_for_form4142
-    end
+    context 'when tracking 4142 is disabled' do
+      before do
+        Flipper.disable(:decision_review_track_4142_submissions)
+      end
 
-    it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do
-      VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
-        VCR.use_cassette('central_mail/submit_4142') do
-          previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
-          expect { subject }.to change(DecisionReview::Form4142Submit.jobs, :size).by(1)
-          expect(response).to be_successful
-          parsed_response = JSON.parse(response.body)
-          id = parsed_response['data']['id']
-          expect(previous_appeal_submission_ids).not_to include id
-          appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
-          expect(appeal_submission.type_of_appeal).to eq('SC')
-          expect { DecisionReview::Form4142Submit.drain }.to change(DecisionReview::Form4142Submit.jobs, :size).by(-1)
+      it 'creates a supplemental claim and queues a 4142 form when 4142 info is provided' do
+        VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
+              expect do
+                post '/v1/supplemental_claims',
+                     params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
+                     headers:
+              end.to change(DecisionReview::Form4142Submit.jobs, :size).by(1)
+              expect(response).to be_successful
+              parsed_response = JSON.parse(response.body)
+              id = parsed_response['data']['id']
+              expect(previous_appeal_submission_ids).not_to include id
+              appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
+              expect(appeal_submission.type_of_appeal).to eq('SC')
+              expect do
+                DecisionReview::Form4142Submit.drain
+              end.to change(DecisionReview::Form4142Submit.jobs, :size).by(-1)
 
-          # SavedClaim should be created with request data and list of uploaded forms
-          request_body = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json)
-          saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
-          expect(saved_claim.form).to eq(request_body.to_json)
-          expect(saved_claim.uploaded_forms).to contain_exactly '21-4142'
+              # SavedClaim should be created with request data and list of uploaded forms
+              request_body = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json)
+              saved_claim = SavedClaim::SupplementalClaim.find_by(guid: id)
+              expect(saved_claim.form).to eq(request_body.to_json)
+              expect(saved_claim.uploaded_forms).to contain_exactly '21-4142'
+            end
+          end
+        end
+      end
+
+      it 'does not persist a SecondaryAppealForm for the 4142' do
+        VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-4142-200_V1') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+            VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+              expect do
+                post '/v1/supplemental_claims',
+                     params: VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV').to_json,
+                     headers:
+              end.to change(DecisionReview::Form4142Submit.jobs, :size).by(1)
+              expect do
+                DecisionReview::Form4142Submit.drain
+              end.not_to change(SecondaryAppealForm, :count)
+            end
+          end
         end
       end
     end
@@ -179,14 +261,16 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
 
     it 'creates a supplemental claim and queues evidence jobs when additionalDocuments info is provided' do
       VCR.use_cassette('decision_review/SC-CREATE-RESPONSE-WITH-UPLOADS-200_V1') do
-        VCR.use_cassette('central_mail/submit_4142') do
-          VCR.use_cassette('decision_review/SC-GET-UPLOAD-URL-200_V1') do
-            expect { subject }.to change(DecisionReview::SubmitUpload.jobs, :size).by(2)
-            expect(response).to be_successful
-            parsed_response = JSON.parse(response.body)
-            id = parsed_response['data']['id']
-            appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
-            expect(appeal_submission.type_of_appeal).to eq('SC')
+        VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location') do
+          VCR.use_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload') do
+            VCR.use_cassette('decision_review/SC-GET-UPLOAD-URL-200_V1') do
+              expect { subject }.to change(DecisionReview::SubmitUpload.jobs, :size).by(2)
+              expect(response).to be_successful
+              parsed_response = JSON.parse(response.body)
+              id = parsed_response['data']['id']
+              appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
+              expect(appeal_submission.type_of_appeal).to eq('SC')
+            end
           end
         end
       end
@@ -207,6 +291,7 @@ RSpec.describe 'V1::SupplementalClaims', type: :request do
             expect(AppealSubmissionUpload.count).to eq 0
             expect(DecisionReview::SubmitUpload).not_to have_enqueued_sidekiq_job(anything)
             expect(SavedClaim.count).to eq 0
+            expect(SecondaryAppealForm.count).to eq 0
           end
         end
       end

@@ -181,8 +181,6 @@ class FormProfile
 
   def self.mappings_for_form(form_id)
     @mappings ||= {}
-    # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
-    form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
     @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
   end
 
@@ -358,10 +356,10 @@ class FormProfile
   # preference: vet360 mobile -> vet360 home -> pciu
   def phone_object
     mobile = vet360_contact_info&.mobile_phone
-    return mobile if mobile&.area_code && mobile&.phone_number
+    return mobile if mobile&.area_code && mobile.phone_number
 
     home = vet360_contact_info&.home_phone
-    return home if home&.area_code && home&.phone_number
+    return home if home&.area_code && home.phone_number
 
     phone_struct = Struct.new(:area_code, :phone_number)
 

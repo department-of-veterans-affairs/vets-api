@@ -68,6 +68,12 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims', type: :req
         expect(parsed['errors'][0]['detail']).to include('X-VA-ICN has an invalid format')
       end
     end
+
+    it_behaves_like 'an endpoint requiring gateway origin headers', headers: { 'X-VA-ICN' => '1013062086V794840' } do
+      def make_request(headers)
+        get(path, headers:)
+      end
+    end
   end
 
   describe '#create' do
@@ -404,6 +410,18 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims', type: :req
         expect(sc.status).to eq('submitted')
       end
     end
+
+    it_behaves_like 'an endpoint requiring gateway origin headers',
+                    headers: {
+                      'X-VA-First-Name': 'Jane',
+                      'X-VA-Last-Name': 'Doe',
+                      'X-VA-SSN': '123456789',
+                      'X-VA-Birth-Date': '1969-12-31'
+                    } do
+      def make_request(headers)
+        post(path, params: minimum_data, headers:)
+      end
+    end
   end
 
   describe '#validate' do
@@ -492,6 +510,18 @@ Rspec.describe 'AppealsApi::V2::DecisionReviews::SupplementalClaims', type: :req
         error = JSON.parse(response.body)['errors'][0]
         expect(error['title']).to eql('Invalid pattern')
         expect(error['detail']).to include("'#{icn}' did not match the defined pattern")
+      end
+    end
+
+    it_behaves_like 'an endpoint requiring gateway origin headers',
+                    headers: {
+                      'X-VA-First-Name': 'Jane',
+                      'X-VA-Last-Name': 'Doe',
+                      'X-VA-SSN': '123456789',
+                      'X-VA-Birth-Date': '1969-12-31'
+                    } do
+      def make_request(headers)
+        post(path, params: minimum_data, headers:)
       end
     end
   end

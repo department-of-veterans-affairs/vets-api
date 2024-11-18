@@ -5,60 +5,108 @@ require 'simple_forms_api/form_remediation/configuration/base'
 module SimpleFormsApi
   module FormRemediation
     module FileUtilities
-      def zip_directory!(parent_dir, file_path)
-        base_dir = build_path(:dir, parent_dir, 'remediation', ext: '.zip')
-        raise "Directory not found: #{base_dir}" unless File.directory?(base_dir)
+      def zip_directory!(parent_dir, temp_dir, unique_filename)
+        validate_directory_existence!(temp_dir)
+        zip_file_path = prepare_file_paths(parent_dir, temp_dir, unique_filename)
 
-        Zip::File.open(file_path, Zip::File::CREATE) do |zipfile|
-          Dir.chdir(base_dir) do
-            Dir['**', '*'].each do |file|
-              next if File.directory?(file)
-
-              zipfile.add(file, File.join(base_dir, file)) if File.file?(file)
-            end
-          end
-        end
-
-        file_path
+        create_zip_file(zip_file_path, temp_dir)
       rescue => e
-        handle_error("Failed to zip temp directory: #{base_dir} to location: #{file_path}", e)
+        handle_error("Failed to zip directory: #{temp_dir} to #{zip_file_path}", e)
       end
 
-      def cleanup(path)
+      def prepare_file_paths(parent_dir, temp_dir, unique_filename)
+        s3_dir = build_path(:dir, parent_dir, 'remediation')
+        s3_file_path = build_path(:file, s3_dir, unique_filename, ext: '.zip')
+        build_local_path_from_s3(s3_dir, s3_file_path, temp_dir)
+      end
+
+      def validate_directory_existence!(directory)
+        raise "Directory not found: #{directory}" unless File.directory?(directory)
+      end
+
+      def create_zip_file(zip_file_path, temp_dir)
+        Zip::File.open(zip_file_path, Zip::File::CREATE) do |zipfile|
+          add_files_to_zip(zipfile, temp_dir)
+        end
+        zip_file_path
+      end
+
+      def add_files_to_zip(zipfile, temp_dir)
+        Dir.chdir(temp_dir) do
+          Dir['**', '*'].uniq.each do |file|
+            next if File.directory?(file)
+
+            zipfile.add(file, File.join(temp_dir, file)) if File.file?(file)
+          end
+        end
+      end
+
+      def cleanup!(path)
+        log_info("Cleaning up path: #{path}")
         FileUtils.rm_rf(path)
       end
 
-      def create_temp_directory!(dir_path)
+      def create_directory!(dir_path)
+        return if File.directory?(dir_path)
+
         FileUtils.mkdir_p(dir_path)
       end
 
-      def build_local_file_dir!(s3_key, dir_path, s3_dir_path)
-        local_path = Pathname.new(s3_key).relative_path_from(Pathname.new(s3_dir_path))
-        final_path = Pathname.new(dir_path).join(local_path)
+      def build_local_path_from_s3(s3_dir, s3_key, local_dir)
+        clean_s3_path!(s3_dir, s3_key)
+        local_file_path = Pathname.new(s3_key).relative_path_from(Pathname.new(s3_dir))
+        final_path = Pathname.new(local_dir).join(local_file_path)
 
-        FileUtils.mkdir_p(final_path.dirname)
+        create_directory!(final_path.dirname)
         final_path.to_s
+      rescue => e
+        handle_error('Error building local path from S3', e)
       end
 
-      def build_path(path_type, base_dir, *, ext: '.pdf')
+      def clean_s3_path!(*paths)
+        paths.each { |path| path.sub!(%r{^/}, '') if path.start_with?('/') }
+      end
+
+      def build_path(path_type, base_dir, *path_segments, ext: '.pdf')
         file_ext = path_type == :file ? ext : ''
-        path = Pathname.new(base_dir.to_s).join(*).sub_ext(file_ext)
+        path = Pathname.new(base_dir.to_s).join(*path_segments)
+        path = path.to_s + file_ext if file_ext.present?
         path.to_s
       end
 
-      def write_file(dir_path, file_name, payload)
-        File.write(File.join(dir_path, file_name), payload)
+      def write_file(dir_path, file_name, content)
+        File.write(File.join(dir_path, file_name), content)
       end
 
-      def unique_file_path(form_number, id)
-        [Time.zone.today.strftime('%-m.%d.%y'), 'form', form_number, 'vagov', id].join('_')
+      def unique_file_name(form_number, id, date = Time.zone.today)
+        "#{date.strftime('%-m.%d.%y')}_form_#{form_number}_vagov_#{id}"
       end
 
-      private
+      def dated_directory_name(form_number, date = Time.zone.today)
+        "#{date.strftime('%-m.%d.%y')}-Form#{form_number}"
+      end
 
-      def handle_error(*, **)
-        config = Configuration::Base.new
-        config.handle_error(*, **)
+      def write_manifest(row, path)
+        new_manifest = !File.exist?(path)
+        CSV.open(path, 'ab') do |csv|
+          csv << %w[SubmissionDateTime FormType VAGovID VeteranID FirstName LastName] if new_manifest
+          csv << row
+        end
+      rescue => e
+        handle_error('Failed writing manifest for submission', e)
+      end
+
+      def log_info(message, **details)
+        Rails.logger.info({ message: }.merge(details))
+      end
+
+      def log_error(message, error, **details)
+        Rails.logger.error({ message:, error: error.message, backtrace: error.backtrace.first(5) }.merge(details))
+      end
+
+      def handle_error(message, error, **details)
+        log_error(message, error, **details)
+        raise error
       end
     end
   end

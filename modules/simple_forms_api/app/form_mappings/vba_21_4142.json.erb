@@ -1,15 +1,30 @@
 {
+  <%# Page 1 %>
+
+  <%# Section 1: Veteran's Identification Information %>
+
+  <%# 1. Veteran's Name %>
   "F[0].Page_1[0].VeteranFirstName[0]": "<%= form.data.dig('veteran', 'full_name', 'first') %>",
   "F[0].Page_1[0].VeteranMiddleInitial1[0]": "<%= form.data.dig('veteran', 'full_name', 'middle') %>",
   "F[0].Page_1[0].VeteranLastName[0]": "<%= form.data.dig('veteran', 'full_name', 'last') %>",
+
+  <%# 2. Social Security Number  %>
   "F[0].Page_1[0].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](0..2) %>",
   "F[0].Page_1[0].VeteransSocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](3..4) %>",
   "F[0].Page_1[0].VeteransSocialSecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](5..8) %>",
+
+  <%# 3. VA File Number %>
+  "F[0].Page_1[0].VAFileNumber[0]": "<%= form.data.dig('veteran', 'va_file_number') %>",
+
+  <%# 4. Date of Birth %>
   "F[0].Page_1[0].DOByear[0]": "<%= form.data.dig('veteran', 'date_of_birth')&.[](0..3) %>",
   "F[0].Page_1[0].DOBmonth[0]": "<%= form.data.dig('veteran', 'date_of_birth')&.[](5..6) %>",
   "F[0].Page_1[0].DOBday[0]": "<%= form.data.dig('veteran', 'date_of_birth')&.[](8..9) %>",
-  "F[0].Page_1[0].VAFileNumber[0]": "<%= form.data.dig('veteran', 'va_file_number') %>",
+
+  <%# 5. Veteran's Service Number %>
   "F[0].Page_1[0].VeteransServiceNumber_If_Applicable[0]": "<%= form.data.dig('veteran', 'veteran_service_number') %>",
+
+  <%# 6. Mailing Address %>
   "F[0].Page_1[0].MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= form.data.dig('veteran', 'address', 'postal_code')&.[](0..4) %>",
   "F[0].Page_1[0].MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.data.dig('veteran', 'address', 'postal_code')&.[](5..8) %>",
   "F[0].Page_1[0].MailingAddress_Country[0]": "<%= form.data.dig('veteran', 'address', 'country') %>",
@@ -18,133 +33,218 @@
   "F[0].Page_1[0].MailingAddress_ApartmentOrUnitNumber[0]": "<%= form.data.dig('veteran', 'address', 'street2')&.gsub(/\D/, '') %>",
   "F[0].Page_1[0].MailingAddress_NumberAndStreet[0]": "<%= form.data.dig('veteran', 'address', 'street') %> <%= form.data.dig('veteran', 'address', 'street3') %>",
 
-  "F[0].Page_1[0].Patients_FirstName[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'first') %>",
-  "F[0].Page_1[0].Patients_MiddleInitial1[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'middle') %>",
-  "F[0].Page_1[0].Patients_LastName[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'last') %>",
-  "F[0].Page_1[0].Patient_SocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](0..2) %>",
-  "F[0].Page_1[0].Patient_SocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](3..4) %>",
-  "F[0].Page_1[0].Patient_SocialSecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](5..8) %>",
-  "F[0].Page_1[0].Patients_VAFileNumber_If_Applicable[0]": "<%= form.data.dig('patient_identification', 'patient_va_file_number') %>",
+  <%# 7. Telephone Number %>
   "F[0].Page_1[0].TelephoneNumber_AreaCode[0]": "<%= form.data.dig('veteran', 'home_phone')&.gsub('-', '')&.[](0..2) %>",
   "F[0].Page_1[0].TelephoneNumber_SecondThreeNumbers[0]": "<%= form.data.dig('veteran', 'home_phone')&.gsub('-', '')&.[](3..5) %>",
   "F[0].Page_1[0].TelephoneNumber_LastFourNumbers[0]": "<%= form.data.dig('veteran', 'home_phone')&.gsub('-', '')&.[](6..9) %>",
-  "F[0].Page_1[0].CheckBox1[0]": "<%= form.data.dig('veteran', 'email') ? 1 : 0 %>",
   "F[0].Page_1[0].International_Telephone_Number_If_Applicable[0]": "<%= form.data.dig('veteran', 'international_phone')&.gsub('-', '') %>",
+
+  <%# 8. E-Mail Address %>
+  "F[0].Page_1[0].CheckBox1[0]": "<%= form.data.dig('veteran', 'email') ? 1 : 0 %>",
   "F[0].Page_1[0].E_Mail_Address[0]": "<%= form.data.dig('veteran', 'email')&.[](0..14) %>",
   "F[0].Page_1[0].E_Mail_Address[1]": "<%= form.data.dig('veteran', 'email')&.[](15..) %>",
 
-  "F[0].#subform[1].InformationIsLimitedToWhatIsWrittenInThisSpace[0]": "<%= form.data.dig('limited_consent') %>",
+  <%# Section 2: Patient Identification for Records VA is Requesting %>
+
+  <%# 9. Patient's Name %>
+  "F[0].Page_1[0].Patients_FirstName[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'first') %>",
+  "F[0].Page_1[0].Patients_MiddleInitial1[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'middle') %>",
+  "F[0].Page_1[0].Patients_LastName[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'last') %>",
+
+  <%# 10. Social Security Number %>
+  "F[0].Page_1[0].Patient_SocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](0..2) %>",
+  "F[0].Page_1[0].Patient_SocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](3..4) %>",
+  "F[0].Page_1[0].Patient_SocialSecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](5..8) %>",
+
+  <%# 11. VA File Number %>
+  "F[0].Page_1[0].Patients_VAFileNumber_If_Applicable[0]": "<%= form.data.dig('patient_identification', 'patient_va_file_number') %>",
+
+  <%# Page 2 %>
+
+  <%# HEADER: Social Security Number %>
   "F[0].#subform[1].VeteransSocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](0..2) %>",
   "F[0].#subform[1].VeteransSocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](3..4) %>",
   "F[0].#subform[1].VeteransSocialSecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('veteran', 'ssn')&.[](5..8) %>",
+
+  <%# Section 5: Authorization and Consent to Release Information to VA and Signature %>
+
+  <%# 12. If My Consent to this Information is Limited, the Limitation is Written Here %>
+  "F[0].#subform[1].InformationIsLimitedToWhatIsWrittenInThisSpace[0]": "<%= form.data.dig('limited_consent') %>",
+
+  <%# 13. Signature of Person Authorizing Disclose %>
+  "F[0].#subform[1].SignatureField11[0]": "<%= form.data.dig('veteran', 'full_name', 'first') %> <%= form.data.dig('veteran', 'full_name', 'middle') %> <%= form.data.dig('veteran', 'full_name', 'last') %>",
+
+  <%# 14. Date Signed %>
+  "F[0].#subform[1].Date_Signed_Year[0]": "<%= form&.signature_date&.strftime('%Y') %>",
+  "F[0].#subform[1].Date_Signed_Month[0]": "<%= form&.signature_date&.strftime('%m') %>",
+  "F[0].#subform[1].Date_Signed_Day[0]": "<%= form&.signature_date&.strftime('%d') %>",
+
+  <%# 15. Printed Name of Person Signing %>
   "F[0].#subform[1].Printed_Name_Of_Person_Signing_First[0]": "<%= form.data.dig('preparer_identification', 'preparer_full_name', 'first') %>",
   "F[0].#subform[1].Printed_Name_Of_Person_Signing_Middle_Initial[0]": "<%= form.data.dig('preparer_identification', 'preparer_full_name', 'middle') %>",
   "F[0].#subform[1].Printed_Name_Of_Person_Signing_Last[0]": "<%= form.data.dig('preparer_identification', 'preparer_full_name', 'last') %>",
-  "F[0].#subform[1].Date_Signed_Year[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
-  "F[0].#subform[1].Date_Signed_Month[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m') %>",
-  "F[0].#subform[1].Date_Signed_Day[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>",
+
+  <%# 16. Relationship to Veteran/Claimant %>
   "F[0].#subform[1].Relationship_To_Veteran_Claimant[0]": "<%= form.data.dig('preparer_identification', 'relationship_to_veteran') || form.data.dig('preparer_identification', 'other') %> <%= form.data.dig('preparer_identification', 'preparer_full_name', 'first') %> <%= form.data.dig('preparer_identification', 'preparer_full_name', 'middle') %> <%= form.data.dig('preparer_identification', 'preparer_full_name', 'last') %> <%= form.data.dig('preparer_identification', 'preparer_title') %> <%= form.data.dig('preparer_identification', 'preparer_organization') %> <%= form.data.dig('preparer_identification', 'preparer_address', 'street') %> <%= form.data.dig('preparer_identification', 'preparer_address', 'street2') %> <%= form.data.dig('preparer_identification', 'preparer_address', 'city') %> <%= form.data.dig('preparer_identification', 'preparer_address', 'state') %> <%= form.data.dig('preparer_identification', 'preparer_address', 'postal_code') %> <%= form.data.dig('preparer_identification', 'court_appointment_info') %>",
-  "F[0].#subform[1].SignatureField11[0]": "<%= form.data.dig('veteran', 'full_name', 'first') %> <%= form.data.dig('veteran', 'full_name', 'middle') %> <%= form.data.dig('veteran', 'full_name', 'last') %>",
-  "F[0].#subform[9].VeteranFirstName[0]": "<%= form.data.dig('veteran', 'full_name', 'first') %>",
-  "F[0].#subform[9].VeteranMiddleInitial1[0]": "<%= form.data.dig('veteran', 'full_name', 'middle') %>",
-  "F[0].#subform[9].VeteranLastName[0]": "<%= form.data.dig('veteran', 'full_name', 'last') %>",
-  "F[0].#subform[9].VAFileNumber[0]": "<%= form.data.dig('veteran', 'va_file_number') %>",
-  "F[0].#subform[9].VeteransServiceNumber_If_Applicable[0]": "<%= form.data.dig('veteran', 'veteran_service_number') %>",
 
-  "F[0].#subform[9].Patients_FirstName[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'first') %>",
-  "F[0].#subform[9].PatientMiddleInitial1[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'middle') %>",
-  "F[0].#subform[9].Patients_LastName[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'last') %>",
-  "F[0].#subform[9].Provider_Or_Facility_Name[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_name') %>",
-  "F[0].#subform[9].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
-  "F[0].#subform[9].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
-  "F[0].#subform[9].Provider_Facility_Address_Country[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'country') %>",
-  "F[0].#subform[9].Provider_Facility_Address_StateOrProvince[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'state') %>",
-  "F[0].#subform[9].Provider_Facility_Address_City[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'city') %>",
-  "F[0].#subform[9].MailingAddress_ApartmentOrUnitNumber[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
-  "F[0].#subform[9].Provider_Facility_Street_Address_NumberAndStreet[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'street') %>",
-  "F[0].#subform[9].PatientsSocialSecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](0..2) %>",
-  "F[0].#subform[9].PatientsSocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](3..4) %>",
-  "F[0].#subform[9].PatientsSocialSecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](5..8) %>",
-  "F[0].#subform[9].VeteransSocialSecurityNumber_FirstThreeNumbers[1]": "<%= form.data.dig('veteran', 'ssn')&.[](0..2) %>",
-  "F[0].#subform[9].VeteransSocialSecurityNumber_SecondTwoNumbers[1]": "<%= form.data.dig('veteran', 'ssn')&.[](3..4) %>",
-  "F[0].#subform[9].VeteransSocialSecurityNumber_LastFourNumbers[1]": "<%= form.data.dig('veteran', 'ssn')&.[](5..8) %>",
-  "F[0].#subform[9].DOB_Year[0]": "<%= form.data.dig('veteran', 'date_of_birth')&.[](0..3) %>",
-  "F[0].#subform[9].DOB_Month[0]": "<%= form.data.dig('veteran', 'date_of_birth')&.[](5..6) %>",
-  "F[0].#subform[9].DOB_Day[0]": "<%= form.data.dig('veteran', 'date_of_birth')&.[](8..9) %>",
-  "F[0].#subform[9].FromDate_Year[0]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'from')&.[](0..3) %>",
-  "F[0].#subform[9].FromDate_Month[0]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'from')&.[](5..6) %>",
-  "F[0].#subform[9].FromDate_Day[0]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'from')&.[](8..9) %>",
-  "F[0].#subform[9].ToDate_Year[0]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'to')&.[](0..3) %>",
-  "F[0].#subform[9].ToDate_Month[0]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'to')&.[](5..6) %>",
-  "F[0].#subform[9].ToDate_Day[0]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'to')&.[](8..9) %>",
-  "F[0].#subform[9].VAFileNumber[1]": "<%= form.data.dig('patient_identification', 'patient_va_file_number') %>",
-  "F[0].#subform[9].Conditions_You_Are_Being_Treated_For[0]": "<%= form.data['provider_facility'][0]&.dig('conditions_treated') %>",
+  <%# Section 1: Veteran's Identification Information %>
 
-  "F[0].#subform[9].Provider_Or_Facility_Name[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_name') %>",
-  "F[0].#subform[9].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
-  "F[0].#subform[9].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
-  "F[0].#subform[9].Provider_Facility_Address_Country[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'country') %>",
-  "F[0].#subform[9].Provider_Facility_Address_StateOrProvince[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'state') %>",
-  "F[0].#subform[9].Provider_Facility_Address_City[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'city') %>",
-  "F[0].#subform[9].MailingAddress_ApartmentOrUnitNumber[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
-  "F[0].#subform[9].Provider_Facility_Street_Address_NumberAndStreet[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'street') %>",
-  "F[0].#subform[9].FromDate_Year[1]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'from')&.[](0..3) %>",
-  "F[0].#subform[9].FromDate_Month[1]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'from')&.[](5..6) %>",
-  "F[0].#subform[9].FromDate_Day[1]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'from')&.[](8..9) %>",
-  "F[0].#subform[9].ToDate_Year[1]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'to')&.[](0..3) %>",
-  "F[0].#subform[9].ToDate_Month[1]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'to')&.[](5..6) %>",
-  "F[0].#subform[9].ToDate_Day[1]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'to')&.[](8..9) %>",
-  "F[0].#subform[9].Conditions_You_Are_Being_Treated_For[1]": "<%= form.data['provider_facility'][1]&.dig('conditions_treated') %>",
+  <%# 1. Veteran's Name %>
+  "F[0].#subform[14].VeteranFirstName[0]": "<%= form.data.dig('veteran', 'full_name', 'first') %>",
+  "F[0].#subform[14].VeteranMiddleInitial1[0]": "<%= form.data.dig('veteran', 'full_name', 'middle') %>",
+  "F[0].#subform[14].VeteranLastName[0]": "<%= form.data.dig('veteran', 'full_name', 'last') %>",
 
-  "F[0].#subform[10].Provider_Or_Facility_Name[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_name') %>",
-  "F[0].#subform[10].VeteransSocialSecurityNumber_FirstThreeNumbers[2]": "<%= form.data.dig('veteran', 'ssn')&.[](0..2) %>",
-  "F[0].#subform[10].VeteransSocialSecurityNumber_SecondTwoNumbers[2]": "<%= form.data.dig('veteran', 'ssn')&.[](3..4) %>",
-  "F[0].#subform[10].VeteransSocialSecurityNumber_LastFourNumbers[2]": "<%= form.data.dig('veteran', 'ssn')&.[](5..8) %>",
-  "F[0].#subform[10].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
-  "F[0].#subform[10].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
-  "F[0].#subform[10].Provider_Facility_Address_Country[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'country') %>",
-  "F[0].#subform[10].Provider_Facility_Address_StateOrProvince[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'state') %>",
-  "F[0].#subform[10].Provider_Facility_Address_City[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'city') %>",
-  "F[0].#subform[10].MailingAddress_ApartmentOrUnitNumber[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
-  "F[0].#subform[10].Provider_Facility_Street_Address_NumberAndStreet[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'street') %>",
-  "F[0].#subform[10].FromDate_Year[2]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'from')&.[](0..3) %>",
-  "F[0].#subform[10].FromDate_Month[2]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'from')&.[](5..6) %>",
-  "F[0].#subform[10].FromDate_Day[2]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'from')&.[](8..9) %>",
-  "F[0].#subform[10].ToDate_Year[2]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'to')&.[](0..3) %>",
-  "F[0].#subform[10].ToDate_Month[2]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'to')&.[](5..6) %>",
-  "F[0].#subform[10].ToDate_Day[2]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'to')&.[](8..9) %>",
-  "F[0].#subform[10].Conditions_You_Are_Being_Treated_For[2]": "<%= form.data['provider_facility'][2]&.dig('conditions_treated') %>",
+  <%# 2. Social Security Number %>
+  "F[0].#subform[14].SSN1[0]": "<%= form.data.dig('veteran', 'ssn')&.[](0..2) %>",
+  "F[0].#subform[14].SSN2[0]": "<%= form.data.dig('veteran', 'ssn')&.[](3..4) %>",
+  "F[0].#subform[14].SSN3[0]": "<%= form.data.dig('veteran', 'ssn')&.[](5..8) %>",
 
-  "F[0].#subform[10].Provider_Or_Facility_Name[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_name') %>",
-  "F[0].#subform[10].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
-  "F[0].#subform[10].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
-  "F[0].#subform[10].Provider_Facility_Address_Country[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'country') %>",
-  "F[0].#subform[10].Provider_Facility_Address_StateOrProvince[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'state') %>",
-  "F[0].#subform[10].Provider_Facility_Address_City[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'city') %>",
-  "F[0].#subform[10].MailingAddress_ApartmentOrUnitNumber[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
-  "F[0].#subform[10].Provider_Facility_Street_Address_NumberAndStreet[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'street') %>",
-  "F[0].#subform[10].FromDate_Year[3]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'from')&.[](0..3) %>",
-  "F[0].#subform[10].FromDate_Month[3]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'from')&.[](5..6) %>",
-  "F[0].#subform[10].FromDate_Day[3]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'from')&.[](8..9) %>",
-  "F[0].#subform[10].ToDate_Year[3]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'to')&.[](0..3) %>",
-  "F[0].#subform[10].ToDate_Month[3]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'to')&.[](5..6) %>",
-  "F[0].#subform[10].ToDate_Day[3]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'to')&.[](8..9) %>",
-  "F[0].#subform[10].Conditions_You_Are_Being_Treated_For[3]": "<%= form.data['provider_facility'][3]&.dig('conditions_treated') %>",
+  <%# 3. VA File Number %>
+  "F[0].#subform[14].VAFileNumber[0]": "<%= form.data.dig('veteran', 'va_file_number') %>",
 
-  "F[0].#subform[10].Provider_Or_Facility_Name[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_name') %>",
-  "F[0].#subform[10].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
-  "F[0].#subform[10].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
-  "F[0].#subform[10].Provider_Facility_Address_Country[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'country') %>",
-  "F[0].#subform[10].Provider_Facility_Address_StateOrProvince[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'state') %>",
-  "F[0].#subform[10].Provider_Facility_Address_City[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'city') %>",
-  "F[0].#subform[10].MailingAddress_ApartmentOrUnitNumber[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
-  "F[0].#subform[10].Provider_Facility_Street_Address_NumberAndStreet[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'street') %>",
-  "F[0].#subform[10].FromDate_Year[4]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'from')&.[](0..3) %>",
-  "F[0].#subform[10].FromDate_Month[4]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'from')&.[](5..6) %>",
-  "F[0].#subform[10].FromDate_Day[4]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'from')&.[](8..9) %>",
-  "F[0].#subform[10].ToDate_Year[4]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'to')&.[](0..3) %>",
-  "F[0].#subform[10].ToDate_Month[4]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'to')&.[](5..6) %>",
-  "F[0].#subform[10].ToDate_Day[4]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'to')&.[](8..9) %>",
-  "F[0].#subform[10].Conditions_You_Are_Being_Treated_For[4]": "<%= form.data['provider_facility'][4]&.dig('conditions_treated') %>",
-  "F[0]": "<%= 'F' %>"
+  <%# 4. Date of Birth %>
+  "F[0].#subform[14].Year[0]": "<%= form.data.dig('veteran', 'date_of_birth')&.[](0..3) %>",
+  "F[0].#subform[14].Month[0]": "<%= form.data.dig('veteran', 'date_of_birth')&.[](5..6) %>",
+  "F[0].#subform[14].Day[0]": "<%= form.data.dig('veteran', 'date_of_birth')&.[](8..9) %>",
+
+  <%# 5. Veteran's Service Number %>
+  "F[0].#subform[14].VeteransServiceNumber_If_Applicable[0]": "<%= form.data.dig('veteran', 'veteran_service_number') %>",
+
+  <%# Section 2: Patient Identification for Records VA is Requesting %>
+
+  <%# 6. Patient's Name %>
+  "F[0].#subform[14].Patients_FirstName[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'first') %>",
+  "F[0].#subform[14].PatientMiddleInitial1[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'middle') %>",
+  "F[0].#subform[14].Patients_LastName[0]": "<%= form.data.dig('patient_identification', 'patient_full_name', 'last') %>",
+
+  <%# 7. Social Security Number %>
+  "F[0].#subform[14].FirstThreeNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](0..2) %>",
+  "F[0].#subform[14].SecondTwoNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](3..4) %>",
+  "F[0].#subform[14].LastFourNumbers[0]": "<%= form.data.dig('patient_identification', 'patient_ssn')&.[](5..8) %>",
+
+  <%# 8. VA File Number %>
+  "F[0].#subform[14].VAFileNumber[1]": "<%= form.data.dig('veteran', 'va_file_number') %>",
+
+  <%# Section 3: Medical Provider Information %>
+
+  <%# 9A. Provider or Facility Name %>
+  "F[0].#subform[14].Provider_Or_Facility_Name[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_name') %>",
+
+  <%# 9B. Conditions You Are Being Treated For %>
+  "F[0].#subform[14].Conditions_You_Are_Being_Treated_For[0]": "<%= form.data['provider_facility'][0]&.dig('conditions_treated') %>",
+
+  <%# 9C. Dates of Treatment %>
+  "F[0].#subform[14].Year[1]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'from')&.[](0..3) %>",
+  "F[0].#subform[14].Month[1]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'from')&.[](5..6) %>",
+  "F[0].#subform[14].Day[1]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'from')&.[](8..9) %>",
+  "F[0].#subform[14].Year[2]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'to')&.[](0..3) %>",
+  "F[0].#subform[14].Month[2]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'to')&.[](5..6) %>",
+  "F[0].#subform[14].Day[2]": "<%= form.data['provider_facility'][0]&.dig('treatment_date_range', 'to')&.[](8..9) %>",
+
+  <%# 9D. Provider/Facility Street Address %>
+  "F[0].#subform[14].Provider_Facility_Street_Address_NumberAndStreet[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'street') %>",
+  "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
+  "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
+  "F[0].#subform[14].Provider_Facility_Address_Country[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'country') %>",
+  "F[0].#subform[14].Provider_Facility_Address_StateOrProvince[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'state') %>",
+  "F[0].#subform[14].Provider_Facility_Address_City[0]": "<%= form.data['provider_facility'][0]&.dig('provider_facility_address', 'city') %>",
+
+  <%# 10A. Provider or Facility Name %>
+  "F[0].#subform[14].Provider_Or_Facility_Name[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_name') %>",
+
+  <%# 10B. Conditions You Are Being Treated For %>
+  "F[0].#subform[14].Conditions_You_Are_Being_Treated_For[1]": "<%= form.data['provider_facility'][1]&.dig('conditions_treated') %>",
+
+  <%# 10C. Dates of Treatment %>
+  "F[0].#subform[14].Year[3]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'from')&.[](0..3) %>",
+  "F[0].#subform[14].Month[3]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'from')&.[](5..6) %>",
+  "F[0].#subform[14].Day[3]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'from')&.[](8..9) %>",
+  "F[0].#subform[14].Year[4]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'to')&.[](0..3) %>",
+  "F[0].#subform[14].Month[4]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'to')&.[](5..6) %>",
+  "F[0].#subform[14].Day[4]": "<%= form.data['provider_facility'][1]&.dig('treatment_date_range', 'to')&.[](8..9) %>",
+
+  <%# 10D. Provider/Facility Street Address %>
+  "F[0].#subform[14].Provider_Facility_Street_Address_NumberAndStreet[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'street') %>",
+  "F[0].#subform[14].MailingAddress_ApartmentOrUnitNumber[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
+  "F[0].#subform[14].Provider_Facility_Address_City[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'city') %>",
+  "F[0].#subform[14].Provider_Facility_Address_StateOrProvince[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'state') %>",
+  "F[0].#subform[14].Provider_Facility_Address_Country[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'country') %>",
+  "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
+  "F[0].#subform[14].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[1]": "<%= form.data['provider_facility'][1]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
+
+  <%# Page 3 %>
+
+  <%# HEADER: Social Security Number %>
+  "F[0].#subform[15].SSN1[1]": "<%= form.data.dig('veteran', 'ssn')&.[](0..2) %>",
+  "F[0].#subform[15].SSN2[1]": "<%= form.data.dig('veteran', 'ssn')&.[](3..4) %>",
+  "F[0].#subform[15].SSN3[1]": "<%= form.data.dig('veteran', 'ssn')&.[](5..8) %>",
+
+  <%# 11A. Provider or Facility Name %>
+  "F[0].#subform[15].Provider_Or_Facility_Name[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_name') %>",
+
+  <%# 11B. Conditions You Are Being Treated For %>
+  "F[0].#subform[15].Conditions_You_Are_Being_Treated_For[2]": "<%= form.data['provider_facility'][2]&.dig('conditions_treated') %>",
+
+  <%# 11C. Dates of Treatment %>
+  "F[0].#subform[15].Year[5]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'from')&.[](0..3) %>",
+  "F[0].#subform[15].Month[5]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'from')&.[](5..6) %>",
+  "F[0].#subform[15].Day[5]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'from')&.[](8..9) %>",
+  "F[0].#subform[15].Year[6]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'to')&.[](0..3) %>",
+  "F[0].#subform[15].Month[6]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'to')&.[](5..6) %>",
+  "F[0].#subform[15].Day[6]": "<%= form.data['provider_facility'][2]&.dig('treatment_date_range', 'to')&.[](8..9) %>",
+
+  <%# 11D. Provider/Facility Street Address %>
+  "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'street') %>",
+  "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
+  "F[0].#subform[15].Provider_Facility_Address_City[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'city') %>",
+  "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'state') %>",
+  "F[0].#subform[15].Provider_Facility_Address_Country[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'country') %>",
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[2]": "<%= form.data['provider_facility'][2]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
+
+  <%# 12A. Provider or Facility Name %>
+  "F[0].#subform[15].Provider_Or_Facility_Name[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_name') %>",
+
+  <%# 12B. Conditions You Are Being Treated For %>
+  "F[0].#subform[15].Conditions_You_Are_Being_Treated_For[3]": "<%= form.data['provider_facility'][3]&.dig('conditions_treated') %>",
+
+  <%# 12C. Dates of Treatment %>
+  "F[0].#subform[15].Year[7]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'from')&.[](0..3) %>",
+  "F[0].#subform[15].Month[7]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'from')&.[](5..6) %>",
+  "F[0].#subform[15].Day[7]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'from')&.[](8..9) %>",
+  "F[0].#subform[15].Year[8]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'to')&.[](0..3) %>",
+  "F[0].#subform[15].Month[8]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'to')&.[](5..6) %>",
+  "F[0].#subform[15].Day[8]": "<%= form.data['provider_facility'][3]&.dig('treatment_date_range', 'to')&.[](8..9) %>",
+
+  <%# 12D. Provider/Facility Street Address %>
+  "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'street') %>",
+  "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
+  "F[0].#subform[15].Provider_Facility_Address_City[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'city') %>",
+  "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'state') %>",
+  "F[0].#subform[15].Provider_Facility_Address_Country[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'country') %>",
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[3]": "<%= form.data['provider_facility'][3]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>",
+
+  <%# 13A. Provider or Facility Name %>
+  "F[0].#subform[15].Provider_Or_Facility_Name[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_name') %>",
+
+  <%# 13B. Conditions You Are Being Treated For %>
+  "F[0].#subform[15].Conditions_You_Are_Being_Treated_For[4]": "<%= form.data['provider_facility'][4]&.dig('conditions_treated') %>",
+
+  <%# 13C. Dates of Treatment %>
+  "F[0].#subform[15].Year[9]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'from')&.[](0..3) %>",
+  "F[0].#subform[15].Month[9]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'from')&.[](5..6) %>",
+  "F[0].#subform[15].Day[9]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'from')&.[](8..9) %>",
+  "F[0].#subform[15].Year[10]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'to')&.[](0..3) %>",
+  "F[0].#subform[15].Month[10]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'to')&.[](5..6) %>",
+  "F[0].#subform[15].Day[10]": "<%= form.data['provider_facility'][4]&.dig('treatment_date_range', 'to')&.[](8..9) %>",
+
+  <%# 13D. Provider/Facility Street Address %>
+  "F[0].#subform[15].Provider_Facility_Street_Address_NumberAndStreet[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'street') %>",
+  "F[0].#subform[15].MailingAddress_ApartmentOrUnitNumber[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'street2')&.gsub(/\D/, '') %>",
+  "F[0].#subform[15].Provider_Facility_Address_City[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'city') %>",
+  "F[0].#subform[15].Provider_Facility_Address_StateOrProvince[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'state') %>",
+  "F[0].#subform[15].Provider_Facility_Address_Country[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'country') %>",
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_FirstFiveNumbers[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'postal_code')&.[](0..4) %>",
+  "F[0].#subform[15].Provider_Facility_Address_ZIPOrPostalCode_LastFourNumbers[4]": "<%= form.data['provider_facility'][4]&.dig('provider_facility_address', 'postal_code')&.[](5..8) %>"
 }

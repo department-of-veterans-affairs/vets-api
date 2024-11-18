@@ -3,10 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe Form1010cg::SubmissionJob do
-  let(:claim) do
-    require 'saved_claim/caregivers_assistance_claim'
+  let(:form) { VetsJsonSchema::EXAMPLES['10-10CG'].clone.to_json }
+  let(:claim) { create(:caregivers_assistance_claim, form:) }
+  let(:statsd_key_prefix) { described_class::STATSD_KEY_PREFIX }
+  let(:zsf_tags) { described_class::DD_ZSF_TAGS }
 
-    create(:caregivers_assistance_claim)
+  it 'has a retry count of 16' do
+    expect(described_class.get_sidekiq_options['retry']).to eq(16)
   end
 
   it 'defines #notify' do
@@ -22,18 +25,6 @@ RSpec.describe Form1010cg::SubmissionJob do
     expect(described_class.new.respond_to?(:retry_limits_for_notification)).to eq(true)
   end
 
-  context 'retry_limits_for_notification' do
-    it 'returns 0 and 10 when caregiver1010 is enabled' do
-      allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(true)
-      expect(described_class.new.retry_limits_for_notification).to eq([1, 10])
-    end
-
-    it 'returns 10 when caregiver1010 is disabled' do
-      allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(false)
-      expect(described_class.new.retry_limits_for_notification).to eq([10])
-    end
-  end
-
   it 'returns an array of integers from retry_limits_for_notification' do
     expect(described_class.new.retry_limits_for_notification).to eq([1, 10])
   end
@@ -41,72 +32,148 @@ RSpec.describe Form1010cg::SubmissionJob do
   describe '#notify' do
     subject(:notify) { described_class.new.notify(params) }
 
-    context 'caregiver1010 feature toggle on' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(true)
-      end
+    context 'retry_count is 0' do
+      let(:params) { { 'retry_count' => 0 } }
 
-      context 'retry_count is 0' do
-        let(:params) { { 'retry_count' => 0 } }
-
-        it 'increments applications_retried statsd' do
-          expect { notify }.to trigger_statsd_increment('api.form1010cg.async.applications_retried')
-        end
-      end
-
-      context 'retry_count is not 0 or 10' do
-        let(:params) { { 'retry_count' => 5 } }
-
-        it 'does not increment applications_retried statsd' do
-          expect { notify }.not_to trigger_statsd_increment('api.form1010cg.async.applications_retried')
-        end
-
-        it 'does not increment failed_ten_retries statsd' do
-          expect do
-            notify
-          end.not_to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
-        end
-      end
-
-      context 'retry_count is 10' do
-        let(:params) { { 'retry_count' => 10 } }
-
-        it 'increments failed_ten_retries statsd' do
-          expect do
-            notify
-          end.to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
-        end
+      it 'increments applications_retried statsd' do
+        expect { notify }.to trigger_statsd_increment('api.form1010cg.async.applications_retried')
       end
     end
 
-    context 'caregiver1010 feature toggle off' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(false)
+    context 'retry_count is not 0 or 9' do
+      let(:params) { { 'retry_count' => 5 } }
+
+      it 'does not increment applications_retried statsd' do
+        expect { notify }.not_to trigger_statsd_increment('api.form1010cg.async.applications_retried')
       end
 
-      context 'no params' do
-        let(:params) { {} }
+      it 'does not increment failed_ten_retries statsd' do
+        expect do
+          notify
+        end.not_to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
+      end
+    end
 
-        it 'increments failed_ten_retries statsd' do
-          expect do
-            notify
-          end.to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
-        end
+    context 'retry_count is 9' do
+      let(:params) { { 'retry_count' => 9 } }
+
+      it 'increments failed_ten_retries statsd' do
+        expect do
+          notify
+        end.to trigger_statsd_increment('api.form1010cg.async.failed_ten_retries', tags: ["params:#{params}"])
       end
     end
   end
 
-  describe 'when job has failed' do
+  describe 'when retries are exhausted' do
+    after do
+      allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(true)
+    end
+
     let(:msg) do
       {
         'args' => [claim.id]
       }
     end
 
-    it 'increments statsd' do
-      expect do
-        described_class.new.sidekiq_retries_exhausted_block.call(msg)
-      end.to trigger_statsd_increment('api.form1010cg.async.failed_no_retries_left', tags: ["claim_id:#{claim.id}"])
+    context 'when the parsed form does not have an email' do
+      context 'the send failure email flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(true)
+        end
+
+        it 'only increments StatsD' do
+          described_class.within_sidekiq_retries_exhausted_block(msg) do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}failed_no_retries_left",
+              tags: ["claim_id:#{claim.id}"]
+            )
+            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: zsf_tags)
+            expect(described_class).not_to receive(:send_failure_email)
+          end
+        end
+      end
+
+      context 'the send failure email flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(false)
+        end
+
+        it 'only increments StatsD' do
+          described_class.within_sidekiq_retries_exhausted_block(msg) do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}failed_no_retries_left",
+              tags: ["claim_id:#{claim.id}"]
+            )
+            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: zsf_tags)
+            expect(described_class).not_to receive(:send_failure_email)
+          end
+        end
+      end
+    end
+
+    context 'when the parsed form has an email' do
+      let(:email_address) { 'jane.doe@example.com' }
+      let(:form) do
+        data = JSON.parse(VetsJsonSchema::EXAMPLES['10-10CG'].clone.to_json)
+        data['veteran']['email'] = email_address
+        data.to_json
+      end
+
+      let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
+      let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_cg_failure_email }
+      let(:template_params) do
+        [
+          email_address,
+          template_id,
+          {
+            'salutation' => "Dear #{claim.parsed_form.dig('veteran', 'fullName', 'first')},"
+          },
+          api_key
+        ]
+      end
+
+      context 'the send failure email flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(true)
+        end
+
+        it 'increments StatsD and sends the failure email' do
+          described_class.within_sidekiq_retries_exhausted_block(msg) do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}failed_no_retries_left",
+              tags: ["claim_id:#{claim.id}"]
+            )
+
+            allow(VANotify::EmailJob).to receive(:perform_async)
+            expect(VANotify::EmailJob).to receive(:perform_async).with(*template_params)
+
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}submission_failure_email_sent"
+            )
+          end
+        end
+      end
+
+      context 'the send failure email flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(false)
+        end
+
+        it 'only increments StatsD' do
+          described_class.within_sidekiq_retries_exhausted_block(msg) do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}failed_no_retries_left",
+              tags: ["claim_id:#{claim.id}"]
+            )
+            expect(described_class).not_to receive(:send_failure_email)
+          end
+        end
+      end
     end
   end
 
@@ -114,53 +181,22 @@ RSpec.describe Form1010cg::SubmissionJob do
     let(:job) { described_class.new }
 
     context 'when there is a standarderror' do
-      context 'caregiver1010 flipper enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(true)
-        end
+      it 'increments statsd except applications_retried' do
+        allow_any_instance_of(Form1010cg::Service).to receive(
+          :process_claim_v2!
+        ).and_raise(StandardError)
 
-        it 'increments statsd except applications_retried' do
-          allow_any_instance_of(Form1010cg::Service).to receive(
-            :process_claim_v2!
-          ).and_raise(StandardError)
+        expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
+        expect(StatsD).not_to receive(:increment).with('api.form1010cg.async.applications_retried')
+        expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
 
-          expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
-          expect(StatsD).not_to receive(:increment).with('api.form1010cg.async.applications_retried')
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
+        # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging
+        expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
 
-          # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging
-          expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
-
-          2.times do
-            expect do
-              job.perform(claim.id)
-            end.to raise_error(StandardError)
-          end
-        end
-      end
-
-      context 'caregiver1010 flipper not enabled' do
-        before do
-          allow(Flipper).to receive(:enabled?).with(:caregiver1010).and_return(false)
-        end
-
-        it 'increments statsd' do
-          allow_any_instance_of(Form1010cg::Service).to receive(
-            :process_claim_v2!
-          ).and_raise(StandardError)
-
-          expect(StatsD).to receive(:increment).twice.with('api.form1010cg.async.retries')
-          expect(StatsD).to receive(:increment).with('api.form1010cg.async.applications_retried')
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).twice
-
-          # If we're stubbing StatsD, we also have to expect this because of SavedClaim's after_create metrics logging
-          expect(StatsD).to receive(:increment).with('saved_claim.create', { tags: ['form_id:10-10CG'] })
-
-          2.times do
-            expect do
-              job.perform(claim.id)
-            end.to raise_error(StandardError)
-          end
+        2.times do
+          expect do
+            job.perform(claim.id)
+          end.to raise_error(StandardError)
         end
       end
     end

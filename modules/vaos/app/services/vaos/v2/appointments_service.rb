@@ -19,6 +19,12 @@ module VAOS
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
       APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
+      APPOINTMENT_TYPES = {
+        va: 'VA',
+        cc_appointment: 'COMMUNITY_CARE_APPOINTMENT',
+        cc_request: 'COMMUNITY_CARE_REQUEST',
+        request: 'REQUEST'
+      }.freeze
 
       # Output format for preferred dates
       # Example: "Thu, July 18, 2024 in the ..."
@@ -163,6 +169,26 @@ module VAOS
         nil
       end
 
+      def get_recent_sorted_clinic_appointments
+        end_time = Date.current.end_of_day.yesterday
+        start_time = 1.year.ago
+        statuses = 'booked,fulfilled,arrived'
+
+        appointments = get_appointments(start_time, end_time, statuses)
+        sort_recent_appointments(appointments[:data])
+      end
+
+      def sort_recent_appointments(appointments)
+        filtered_appts = appointments.reject { |appt| appt&.start.nil? }
+        removed_appts = appointments - filtered_appts
+        if removed_appts.length.positive?
+          removed_appts.each do |rem_appt|
+            Rails.logger.info("VAOS appointment sorting filtered out id #{rem_appt.id} due to missing start time.")
+          end
+        end
+        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }
+      end
+
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
       def get_facility_timezone(facility_location_id)
         facility_info = mobile_facility_service.get_facility(facility_location_id) unless facility_location_id.nil?
@@ -183,7 +209,8 @@ module VAOS
 
       private
 
-      def parse_possible_token_related_errors(e) # rubocop:disable Metrics/MethodLength
+      # rubocop:disable Metrics/MethodLength
+      def parse_possible_token_related_errors(e)
         prefix = 'VAOS::V2::AppointmentService#get_appointments'
         sanitized_icn = VAOS::Anonymizers.anonymize_icns(user.icn)
         sanitized_message = VAOS::Anonymizers.anonymize_icns(e.message)
@@ -208,6 +235,7 @@ module VAOS
           { message:, status:, icn: sanitized_icn, context: }
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
       # 1. Reason code fields
@@ -309,6 +337,8 @@ module VAOS
         merge_clinic(appointment) if include[:clinics]
 
         merge_facility(appointment) if include[:facilities]
+
+        set_type(appointment)
       end
 
       def find_and_merge_provider_name(appointment)
@@ -663,6 +693,23 @@ module VAOS
         Rails.logger.warn('Direct schedule submission error', error_entry.to_json)
       end
 
+      def set_type(appointment)
+        type = APPOINTMENT_TYPES[:request] if appointment[:kind] != 'cc' && appointment[:request_periods].present?
+
+        type ||= case appointment[:kind]
+                 when 'cc'
+                   if appointment[:start]
+                     APPOINTMENT_TYPES[:cc_appointment]
+                   else
+                     APPOINTMENT_TYPES[:cc_request]
+                   end
+                 else
+                   APPOINTMENT_TYPES[:va]
+                 end
+
+        appointment[:type] = type
+      end
+
       # Modifies the appointment, setting the cancellable flag to false
       #
       # @param appointment [Hash] the appointment to modify
@@ -727,7 +774,7 @@ module VAOS
       end
 
       def appointments_base_path_vaos
-        "/vaos/v1/patients/#{user.icn}/appointments"
+        "/#{base_vaos_route}/patients/#{user.icn}/appointments"
       end
 
       def appointments_base_path_vpg
@@ -742,7 +789,7 @@ module VAOS
         if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
           "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
         else
-          "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
+          "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appointment_id}"
         end
       end
 
@@ -773,7 +820,7 @@ module VAOS
       end
 
       def update_appointment_vaos(appt_id, status)
-        url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        url_path = "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         perform(:put, url_path, params, headers)
       end

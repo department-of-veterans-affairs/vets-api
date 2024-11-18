@@ -19,6 +19,12 @@ module V0
     before_action(only: :rating_info) { authorize(:hca_disability_rating, :access?) }
 
     def rating_info
+      if Flipper.enabled?(:hca_disable_bgs_service)
+        # Return 0 when not calling the actual BGS::Service
+        render json: HCARatingInfoSerializer.new({ user_percent_of_disability: 0 })
+        return
+      end
+
       service = BGS::Service.new(current_user)
       disability_rating = service.find_rating_data[:disability_rating_record][:service_connected_combined_degree]
 
@@ -80,9 +86,23 @@ module V0
     private
 
     def active_facilities(lighthouse_facilities)
-      active_ids = StdInstitutionFacility.active.pluck(:station_number).compact
-
+      active_ids = active_ves_facility_ids
       lighthouse_facilities.select { |facility| active_ids.include?(facility.unique_id) }
+    end
+
+    def active_ves_facility_ids
+      ids = cached_ves_facility_ids
+
+      return ids if ids.any?
+      return ids if Flipper.enabled?(:hca_retrieve_facilities_without_repopulating)
+
+      HCA::StdInstitutionImportJob.new.perform
+
+      cached_ves_facility_ids
+    end
+
+    def cached_ves_facility_ids
+      StdInstitutionFacility.active.pluck(:station_number).compact
     end
 
     def health_care_application

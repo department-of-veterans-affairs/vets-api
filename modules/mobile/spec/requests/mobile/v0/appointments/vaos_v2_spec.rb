@@ -1,14 +1,17 @@
 # frozen_string_literal: true
 
 require_relative '../../../../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
   include JsonSchemaMatchers
+  include CommitteeHelper
 
   let!(:user) { sis_user(icn: '1012846043V576341', vha_facility_ids: [402, 555]) }
 
   before do
     Flipper.enable_actor(:appointments_consolidation, user)
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
   context 'with VAOS' do
@@ -32,25 +35,17 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       let(:params) { { startDate: start_date, endDate: end_date, include: ['pending'] } }
 
       describe 'authorization' do
-        context 'when feature flag is off' do
-          before { Flipper.disable('va_online_scheduling') }
-
-          it 'returns forbidden' do
-            get('/mobile/v0/appointments', headers: sis_headers, params:)
-            expect(response).to have_http_status(:forbidden)
-          end
-        end
-
         context 'when user does not have access' do
           let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
 
           it 'returns forbidden' do
             get('/mobile/v0/appointments', headers: sis_headers, params:)
             expect(response).to have_http_status(:forbidden)
+            assert_schema_conform(403)
           end
         end
 
-        context 'when feature flag is on and user has access' do
+        context 'when user has access' do
           it 'returns ok' do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
@@ -61,6 +56,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               end
             end
             expect(response).to have_http_status(:ok)
+            assert_schema_conform(200)
           end
         end
       end
@@ -79,7 +75,6 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           physical_location = response.parsed_body.dig('data', 0, 'attributes', 'physicalLocation')
           comments = response.parsed_body.dig('data', 0, 'attributes', 'comment')
           reason = response.parsed_body.dig('data', 0, 'attributes', 'reason')
-          expect(response.body).to match_json_schema('VAOS_v2_appointments')
           expect(location).to eq({ 'id' => '983',
                                    'name' => 'Cheyenne VA Medical Center',
                                    'address' =>
@@ -103,7 +98,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
                                                                          'totalPages' => 1,
                                                                          'totalEntries' => 1 },
                                                        'upcomingAppointmentsCount' => 0,
-                                                       'upcomingDaysLimit' => 7
+                                                       'upcomingDaysLimit' => 30
                                                      })
         end
       end
@@ -119,7 +114,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             end
           end
           expect(response).to have_http_status(:ok)
-          expect(response.body).to match_json_schema('VAOS_v2_appointments')
+          assert_schema_conform(200)
           location = response.parsed_body.dig('data', 0, 'attributes', 'location')
           expect(location).to eq({ 'id' => nil,
                                    'name' => nil,
@@ -148,7 +143,6 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               end
             end
           end
-          expect(response.body).to match_json_schema('VAOS_v2_appointments')
           expect(response.parsed_body.dig('data', 0, 'attributes', 'vetextId')).to eq('442;3220827.043')
         end
       end
@@ -166,7 +160,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             end
           end
           expect(response).to have_http_status(:ok)
-          expect(response.body).to match_json_schema('VAOS_v2_appointments')
+          assert_schema_conform(200)
           expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to be_nil
         end
 
@@ -198,6 +192,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           end
 
           expect(response).to have_http_status(:multi_status)
+          assert_schema_conform(207)
           expect(response.parsed_body['data'].count).to eq(1)
           expect(response.parsed_body['meta']).to include(
             {
@@ -228,7 +223,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           end
           attributes = response.parsed_body.dig('data', 0, 'attributes')
           expect(response).to have_http_status(:ok)
-          expect(response.body).to match_json_schema('VAOS_v2_appointments')
+          assert_schema_conform(200)
 
           expect(attributes['appointmentType']).to eq('VA_VIDEO_CONNECT_ONSITE')
           expect(attributes['location']).to eq({ 'id' => '983',
@@ -266,6 +261,9 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             end
           end
 
+          expect(response).to have_http_status(:ok)
+          assert_schema_conform(200)
+
           appointments = response.parsed_body['data']
           appointment_without_provider = appointments.find { |appt| appt['id'] == '76131' }
           proposed_cc_appointment_with_provider = appointments.find { |appt| appt['id'] == '76132' }
@@ -288,8 +286,11 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
                 end
               end
             end
+
+            expect(response).to have_http_status(:ok)
+            assert_schema_conform(200)
+
             appt_ien = response.parsed_body.dig('data', 0, 'attributes', 'appointmentIen')
-            expect(response.body).to match_json_schema('VAOS_v2_appointments')
             expect(appt_ien).to eq('11461')
           end
         end
@@ -305,7 +306,6 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               end
             end
             appt_ien = response.parsed_body.dig('data', 0, 'attributes', 'appointmentIen')
-            expect(response.body).to match_json_schema('VAOS_v2_appointments')
             expect(appt_ien).to be_nil
           end
         end
@@ -335,7 +335,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           end
           expect(expected_upcoming_pending_count).to eq(1)
           expect(response.parsed_body['meta']['upcomingAppointmentsCount']).to eq(expected_upcoming_pending_count)
-          expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
+          expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(30)
         end
       end
 
@@ -347,6 +347,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             get '/mobile/v0/appointments', headers: sis_headers
           end
           expect(response).to have_http_status(418)
+          assert_schema_conform(418)
           expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Custom error title',
                                                               'body' => 'Custom error body. \\n This explains to ' \
                                                                         'the user the details of the ongoing issue.',
@@ -380,25 +381,17 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       let(:params) { { startDate: start_date, endDate: end_date, include: ['pending'] } }
 
       describe 'authorization' do
-        context 'when feature flag is off' do
-          before { Flipper.disable('va_online_scheduling') }
-
-          it 'returns forbidden' do
-            get('/mobile/v0/appointments', headers: sis_headers, params:)
-            expect(response).to have_http_status(:forbidden)
-          end
-        end
-
         context 'when user does not have access' do
           let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
 
           it 'returns forbidden' do
             get('/mobile/v0/appointments', headers: sis_headers, params:)
             expect(response).to have_http_status(:forbidden)
+            assert_schema_conform(403)
           end
         end
 
-        context 'when feature flag is on and user has access' do
+        context 'user has access' do
           it 'returns ok' do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
@@ -409,6 +402,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               end
             end
             expect(response).to have_http_status(:ok)
+            assert_schema_conform(200)
           end
         end
       end
@@ -426,7 +420,6 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           expect(response).to have_http_status(:ok)
           location = response.parsed_body.dig('data', 0, 'attributes', 'location')
           physical_location = response.parsed_body.dig('data', 0, 'attributes', 'physicalLocation')
-          expect(response.body).to match_json_schema('VAOS_v2_appointments')
           expect(location).to eq({ 'id' => '983',
                                    'name' => 'Cheyenne VA Medical Center',
                                    'address' =>
@@ -448,7 +441,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
                                                                          'totalPages' => 1,
                                                                          'totalEntries' => 1 },
                                                        'upcomingAppointmentsCount' => 0,
-                                                       'upcomingDaysLimit' => 7
+                                                       'upcomingDaysLimit' => 30
                                                      })
         end
       end
@@ -465,7 +458,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             end
           end
           expect(response).to have_http_status(:ok)
-          expect(response.body).to match_json_schema('VAOS_v2_appointments')
+          assert_schema_conform(200)
           location = response.parsed_body.dig('data', 0, 'attributes', 'location')
           expect(location).to eq({ 'id' => nil,
                                    'name' => nil,
@@ -495,7 +488,6 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               end
             end
           end
-          expect(response.body).to match_json_schema('VAOS_v2_appointments')
           expect(response.parsed_body.dig('data', 0, 'attributes', 'vetextId')).to eq('442;3220827.043')
         end
       end
@@ -513,7 +505,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             end
           end
           expect(response).to have_http_status(:ok)
-          expect(response.body).to match_json_schema('VAOS_v2_appointments')
+          assert_schema_conform(200)
           expect(response.parsed_body.dig('data', 0, 'attributes', 'healthcareService')).to be_nil
         end
 
@@ -545,6 +537,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           end
 
           expect(response).to have_http_status(:multi_status)
+          assert_schema_conform(207)
           expect(response.parsed_body['data'].count).to eq(1)
           expect(response.parsed_body['meta']).to include(
             {
@@ -575,7 +568,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           end
           attributes = response.parsed_body.dig('data', 0, 'attributes')
           expect(response).to have_http_status(:ok)
-          expect(response.body).to match_json_schema('VAOS_v2_appointments')
+          assert_schema_conform(200)
 
           expect(attributes['appointmentType']).to eq('VA_VIDEO_CONNECT_ONSITE')
           expect(attributes['location']).to eq({ 'id' => '983',
@@ -613,6 +606,9 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             end
           end
 
+          expect(response).to have_http_status(:ok)
+          assert_schema_conform(200)
+
           appointments = response.parsed_body['data']
 
           appointment_without_provider = appointments.find { |appt| appt['id'] == '76131' }
@@ -637,7 +633,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               end
             end
             appt_ien = response.parsed_body.dig('data', 0, 'attributes', 'appointmentIen')
-            expect(response.body).to match_json_schema('VAOS_v2_appointments')
+            assert_schema_conform(200)
             expect(appt_ien).to eq('11461')
           end
         end
@@ -653,7 +649,6 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
               end
             end
             appt_ien = response.parsed_body.dig('data', 0, 'attributes', 'appointmentIen')
-            expect(response.body).to match_json_schema('VAOS_v2_appointments')
             expect(appt_ien).to be_nil
           end
         end
@@ -683,7 +678,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           end
           expect(expected_upcoming_pending_count).to eq(1)
           expect(response.parsed_body['meta']['upcomingAppointmentsCount']).to eq(expected_upcoming_pending_count)
-          expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
+          expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(30)
         end
       end
 
@@ -694,6 +689,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointment_500', match_requests_on: %i[method uri]) do
             get '/mobile/v0/appointments', headers: sis_headers
           end
+          assert_schema_conform(502)
           expect(response.parsed_body.dig('errors', 0)).to eq({ 'title' => 'Bad Gateway',
                                                                 'detail' => 'The resource could not be found',
                                                                 'code' => '502',

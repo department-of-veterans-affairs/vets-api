@@ -21,8 +21,8 @@ RSpec.describe SavedClaim::Burial do
   end
 
   describe '#process_attachments!' do
-    it 'starts a job to submit the saved claim via Benefits Intake' do
-      expect_any_instance_of(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform).with(instance.id)
+    it 'does NOT start a job to submit the saved claim via Benefits Intake' do
+      expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async)
       instance.process_attachments!
     end
   end
@@ -62,6 +62,41 @@ RSpec.describe SavedClaim::Burial do
   describe '#email' do
     it 'returns the users email' do
       expect(instance.email).to eq('foo@foo.com')
+    end
+  end
+
+  describe '#benefits_claimed' do
+    it 'returns a full array of values' do
+      benefits_claimed = instance_v2.benefits_claimed
+      expected = ['Burial Allowance', 'Plot Allowance', 'Transportation']
+
+      expect(benefits_claimed.length).to eq(3)
+      expect(benefits_claimed).to eq(expected)
+    end
+
+    it 'returns at least an empty array' do
+      form = instance_v2.parsed_form
+
+      form = form.merge({ 'transportation' => false })
+      claim = FactoryBot.build(:burial_claim_v2, form: form.to_json)
+      benefits_claimed = claim.benefits_claimed
+      expected = ['Burial Allowance', 'Plot Allowance']
+      expect(benefits_claimed.length).to eq(2)
+      expect(benefits_claimed).to eq(expected)
+
+      form = form.merge({ 'plotAllowance' => false })
+      claim = FactoryBot.build(:burial_claim_v2, form: form.to_json)
+      benefits_claimed = claim.benefits_claimed
+      expected = ['Burial Allowance']
+      expect(benefits_claimed.length).to eq(1)
+      expect(benefits_claimed).to eq(expected)
+
+      form = form.merge({ 'burialAllowance' => false })
+      claim = FactoryBot.build(:burial_claim_v2, form: form.to_json)
+      benefits_claimed = claim.benefits_claimed
+      expected = []
+      expect(benefits_claimed.length).to eq(0)
+      expect(benefits_claimed).to eq(expected)
     end
   end
 end

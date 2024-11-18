@@ -30,7 +30,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     let(:data) { Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json').read }
     let(:data_with_claimant) do
       parsed_data = JSON.parse(data)
-      parsed_data['data']['attributes']['claimant'] = { firstName: 'Jane', lastName: 'Doe' }
+      parsed_data['data']['attributes']['claimant'] = { firstName: 'Jane', lastName: 'Doe', relationship: 'Spouse' }
+      parsed_data.to_json
+    end
+    let(:data_with_claimant_as_self) do
+      parsed_data = JSON.parse(data)
+      parsed_data['data']['attributes']['claimant'] = { firstName: 'John', lastName: 'Doe', relationship: 'Self' }
       parsed_data.to_json
     end
     let(:path) { '/services/claims/v1/forms/2122' }
@@ -393,36 +398,70 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
             .to receive(:check_file_number_exists!).and_return(nil)
           allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
             .to receive(:validate_dependent_claimant!).and_return(nil)
-          allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-            .to receive(:assign_poa_to_dependent!).and_return(nil)
         end
       end
 
-      context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
+      context "when the lighthouse_claims_api_poa_dependent_claimants feature is enabled and rel is not 'Self'" do
         include_context 'stub validation methods'
+
+        let(:claimant_information_for_headers) do
+          {
+            'claimant_participant_id' => '000000000000',
+            'claimant_first_name' => 'First',
+            'claimant_last_name' => 'Last',
+            'claimant_ssn' => '1111111111'
+          }
+        end
 
         before do
           Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
         end
 
         context 'and the request includes a dependent claimant' do
-          it 'calls assign_poa_to_dependent!' do
+          it 'enqueues the PoaFormBuilderJob' do
             mock_acg(scopes) do |auth_header|
-              expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-                .to receive(:assign_poa_to_dependent!)
+              expect do
+                post path, params: data_with_claimant, headers: headers.merge(auth_header)
+              end.not_to change(ClaimsApi::V1::PoaFormBuilderJob.jobs, :size)
+            end
+          end
+
+          it "includes the 'dependent' object to the auth_headers" do
+            mock_acg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:validate_dependent_claimant!).and_return(claimant_information_for_headers)
 
               post path, params: data_with_claimant, headers: headers.merge(auth_header)
+              parsed = JSON.parse(response.body)
+              poa_id = parsed['data']['id']
+              poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+              expect(poa.auth_headers).to have_key('dependent')
+            end
+          end
+
+          it "does not incude the 'dependent' object to the auth_headers if relatonship is 'Self'" do
+            mock_acg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:validate_dependent_claimant!).and_return(claimant_information_for_headers)
+
+              post path, params: data_with_claimant_as_self, headers: headers.merge(auth_header)
+              parsed = JSON.parse(response.body)
+              poa_id = parsed['data']['id']
+              poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+              expect(poa.auth_headers).not_to have_key('dependent')
             end
           end
         end
 
         context 'and the request does not include a dependent claimant' do
-          it 'does not call assign_poa_to_dependent!' do
+          it "does not include the 'dependent' object to the auth_headers" do
             mock_acg(scopes) do |auth_header|
-              expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-                .not_to receive(:assign_poa_to_dependent!)
-
-              post path, params: data, headers: headers.merge(auth_header)
+              params = JSON.parse data
+              post path, params: params.to_json, headers: headers.merge(auth_header)
+              parsed = JSON.parse(response.body)
+              poa_id = parsed['data']['id']
+              poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+              expect(poa.auth_headers).not_to have_key('dependent')
             end
           end
         end
@@ -435,19 +474,20 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
           Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
         end
 
-        it 'does not call assign_poa_to_dependent!' do
+        it "does not include the 'dependent object in the auth_headers" do
           mock_acg(scopes) do |auth_header|
-            expect_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
-              .not_to receive(:assign_poa_to_dependent!)
-
             post path, params: data_with_claimant, headers: headers.merge(auth_header)
+            parsed = JSON.parse(response.body)
+            poa_id = parsed['data']['id']
+            poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+            expect(poa.auth_headers).not_to have_key('dependent')
           end
         end
       end
     end
 
     describe '#status' do
-      let(:power_of_attorney) { create(:power_of_attorney, auth_headers: headers) }
+      let(:power_of_attorney) { create(:power_of_attorney, :submitted, auth_headers: headers) }
 
       it 'return the status of a POA based on GUID' do
         mock_acg(scopes) do |auth_header|
@@ -461,7 +501,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     end
 
     describe '#upload' do
-      let(:power_of_attorney) { create(:power_of_attorney_without_doc) }
+      let(:power_of_attorney) { create(:power_of_attorney) }
       let(:binary_params) do
         { attachment: Rack::Test::UploadedFile.new(Rails.root.join(
           *'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')

@@ -20,7 +20,6 @@ class SavedClaim::Burial < CentralMailClaim
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
     files.find_each { |f| f.update(saved_claim_id: id) }
-    Lighthouse::SubmitBenefitsIntakeClaim.new.perform(id)
   end
 
   def regional_office
@@ -61,5 +60,30 @@ class SavedClaim::Burial < CentralMailClaim
 
   def business_line
     'NCA'
+  end
+
+  ##
+  # utility function to retrieve claimant first name from form
+  #
+  # @return [String] the claimant first name
+  #
+  def veteran_first_name
+    parsed_form.dig('veteranFullName', 'first')
+  end
+
+  def veteran_last_name
+    parsed_form.dig('veteranFullName', 'last')
+  end
+
+  def claimaint_first_name
+    parsed_form.dig('claimantFullName', 'first')
+  end
+
+  def benefits_claimed
+    claimed = []
+    claimed << 'Burial Allowance' if parsed_form['burialAllowance']
+    claimed << 'Plot Allowance' if parsed_form['plotAllowance']
+    claimed << 'Transportation' if parsed_form['transportation']
+    claimed
   end
 end

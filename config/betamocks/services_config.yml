@@ -847,6 +847,22 @@
       :cache_multiple_responses:
         :uid_location: "query"
         :uid_locator: "icn"
+    # Patient Health API
+    - :method: :post
+      :path: "/oauth2/health/system/v1/token"
+      :file_path: "/lighthouse/veterans_health/token"
+    - :method: :get
+      :path: "/services/fhir/v0/r4/AllergyIntolerance/*"
+      :file_path: "/lighthouse/veterans_health/AllergyIntolerance/show"
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: "\/services\/fhir\/v0\/r4\/AllergyIntolerance\/(.*)"
+    - :method: :get
+      :path: "/services/fhir/v0/r4/AllergyIntolerance"
+      :file_path: "/lighthouse/veterans_health/AllergyIntolerance/index"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: patient
 
 # Lighthouse Benefits Documents API
 - :name: "Lighthouse Benefits Documents"
@@ -920,3 +936,26 @@
     - :method: :post
       :path: "/profile-service/profile/v3/*/*"
       :file_path: "vet360/profile-service/default"
+
+# GIDS
+- :name: "GIDS"
+  :base_uri: <%= "#{URI(Settings.gids.url).host}:#{URI(Settings.gids.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/gids/v1/lce"
+      :file_path: "gids/lce"
+      :cache_multiple_responses:
+        :uid_location: query
+        :uid_locator: type
+    - :method: :get
+      :path: "/gids/v1/lce/certifications/*"
+      :file_path: "gids/lce/certifications/default"
+    - :method: :get
+      :path: "/gids/v1/lce/exams/*"
+      :file_path: "gids/lce/exams/default"
+    - :method: :get
+      :path: "/gids/v1/lce/licenses/*"
+      :file_path: "gids/lce/licenses/default"
+    - :method: :get
+      :path: "/gids/v1/lce/preps/*"
+      :file_path: "gids/lce/preps/default"

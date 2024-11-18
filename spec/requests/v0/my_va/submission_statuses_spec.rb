@@ -3,7 +3,8 @@
 require 'rails_helper'
 require 'forms/submission_statuses/gateway'
 
-RSpec.describe 'V0::MyVA::SubmissionStatuses', type: :request do
+RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
+                                               team_owner: :vfs_authenticated_experience_backend, type: :request do
   let(:user) { build(:user, :loa1) }
 
   before do
@@ -33,7 +34,7 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', type: :request do
     context 'when user has submissions' do
       before do
         create(:form_submission, :with_form214142, user_account_id: user.user_account_uuid)
-        create(:form_submission, :with_form210966, user_account_id: user.user_account_uuid)
+        create(:form_submission, :with_form210845, user_account_id: user.user_account_uuid)
         create(:form_submission, :with_form_blocked, user_account_id: user.user_account_uuid)
       end
 

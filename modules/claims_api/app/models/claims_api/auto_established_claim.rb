@@ -71,6 +71,7 @@ module ClaimsApi
       form_data['disabilities'] = transform_disability_approximate_begin_dates
       form_data['disabilities'] = massage_invalid_disability_names
       form_data['disabilities'] = remove_special_issues_from_secondary_disabilities
+      form_data['disabilities'] = remove_empty_disability_elements
       form_data['treatments'] = transform_treatment_dates if treatments?
       form_data['treatments'] = transform_treatment_center_names if treatments?
       form_data['serviceInformation'] = transform_service_branch
@@ -81,6 +82,7 @@ module ClaimsApi
       resolve_homelessness_risk_situation_type_mappings!
       transform_homelessness_point_of_contact_primary_phone!
       transform_address_lines_length!
+      transform_empty_unit_name!
 
       {
         form526: form_data
@@ -430,13 +432,17 @@ module ClaimsApi
       end
 
       form_data['serviceInformation']['servicePeriods'] = transformed_service_periods
-      transformed_reserves_national_guard_service
+
+      unit_phone = form_data&.dig('serviceInformation', 'reservesNationalGuardService', 'unitPhone')
+      transformed_reserves_national_guard_service(unit_phone) if unit_phone.present?
+
       form_data['serviceInformation']
     end
 
-    def transformed_reserves_national_guard_service
-      unit_phone = form_data&.dig('serviceInformation', 'reservesNationalGuardService', 'unitPhone')
-      unit_phone['phoneNumber'].delete!('-') if unit_phone.present? && unit_phone['phoneNumber'].include?('-')
+    def transformed_reserves_national_guard_service(unit_phone)
+      # both of the below are required in the schema for unitPhone
+      unit_phone['phoneNumber'].gsub!(/[-\s]/, '')
+      unit_phone['areaCode'].gsub!(/\s/, '')
     end
 
     # Legacy claimsApi code previously allowed servicePay-related service branch
@@ -476,6 +482,28 @@ module ClaimsApi
       disabilities
     end
 
+    # remove any empty disability objects to prevent further processing errors
+    def remove_empty_disability_elements
+      disabilities = form_data['disabilities']
+      return if disabilities.blank?
+
+      disabilities.each_with_index do |disability, index|
+        if disability['specialIssues'].presence ||
+           disability['ratedDisabilityId'].presence ||
+           disability['diagnosticCode'].presence ||
+           disability['classificationCode'].presence ||
+           disability['approximateBeginDate'].presence ||
+           disability['serviceRelevance'].presence ||
+           disability['secondaryDisabilities'].presence
+          next
+        end
+
+        disability_name = disability['name']
+        disabilities.delete_at(index) if disability_name == '' && disability['disabilityActionType'].presence
+      end
+      disabilities
+    end
+
     def change_of_address_provided?
       form_data['veteran']['changeOfAddress'].present?
     end
@@ -505,6 +533,15 @@ module ClaimsApi
       addr['addressLine2'] = overflow
 
       form_data['veteran']['currentMailingAddress'] = addr
+    end
+
+    def transform_empty_unit_name!
+      reserves = form_data&.dig('serviceInformation', 'reservesNationalGuardService')
+      return if reserves.nil?
+
+      unit_name = reserves['unitName']
+      unit_name = unit_name.presence || ' '
+      reserves['unitName'] = unit_name
     end
   end
 end

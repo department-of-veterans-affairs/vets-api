@@ -7,6 +7,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
 
   before do
     Flipper.enable('va_online_scheduling')
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
     sign_in_as(user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
   end
@@ -221,6 +222,100 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
               Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
                 get '/vaos/v2/locations/last_visited_clinic', headers: inflection_header
                 expect(response).to have_http_status(:not_found)
+              end
+            end
+          end
+        end
+      end
+    end
+
+    describe 'GET recent clinics' do
+      let(:user) { build(:user, :vaos) }
+
+      context 'using VAOS' do
+        before do
+          Flipper.disable(:va_online_scheduling_use_vpg)
+        end
+
+        context 'on successful query for recent sorted clinics' do
+          it 'returns the recent sorted clinics' do
+            VCR.use_cassette('vaos/v2/systems/get_recent_clinics_200',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
+              Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
+                get '/vaos/v2/locations/recent_clinics', headers: inflection_header
+                expect(response).to have_http_status(:ok)
+                clinic_info = JSON.parse(response.body)['data']
+                expect(clinic_info[0]['attributes']['stationId']).to eq('983')
+                expect(clinic_info[0]['attributes']['id']).to eq('1038')
+              end
+            end
+          end
+        end
+
+        context 'on unsuccessful query for appointment within look back limit' do
+          it 'returns a 404 http status' do
+            expect_any_instance_of(VAOS::V2::AppointmentsService)
+              .to receive(:get_recent_sorted_clinic_appointments)
+              .and_return(nil)
+            get '/vaos/v2/locations/recent_clinics', headers: inflection_header
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+
+        context 'on unsuccessful query for clinic information' do
+          it 'does not populate the sorted clinics list' do
+            allow_any_instance_of(VAOS::V2::SystemsService).to receive(:get_facility_clinics).and_return(nil)
+            VCR.use_cassette('vaos/v2/systems/get_recent_clinics_200',
+                             match_requests_on: %i[method path query]) do
+              Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
+                get '/vaos/v2/locations/recent_clinics', headers: inflection_header
+                expect(JSON.parse(response.body)['data']).to eq([])
+              end
+            end
+          end
+        end
+      end
+
+      context 'using VPG' do
+        let(:user) { build(:user, :mhv) }
+
+        before do
+          Flipper.enable(:va_online_scheduling_use_vpg)
+        end
+
+        context 'on successful query for recent sorted clinics' do
+          it 'returns the recent sorted clinics' do
+            VCR.use_cassette('vaos/v2/systems/get_recent_clinics_vpg_200',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
+              Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
+                get '/vaos/v2/locations/recent_clinics', headers: inflection_header
+                expect(response).to have_http_status(:ok)
+                clinic_info = JSON.parse(response.body)['data']
+                expect(clinic_info[0]['attributes']['stationId']).to eq('983')
+                expect(clinic_info[0]['attributes']['id']).to eq('1038')
+              end
+            end
+          end
+        end
+
+        context 'on unsuccessful query for appointment within look back limit' do
+          it 'returns a 404 http status' do
+            expect_any_instance_of(VAOS::V2::AppointmentsService)
+              .to receive(:get_recent_sorted_clinic_appointments)
+              .and_return(nil)
+            get '/vaos/v2/locations/recent_clinics', headers: inflection_header
+            expect(response).to have_http_status(:not_found)
+          end
+        end
+
+        context 'on unsuccessful query for clinic information' do
+          it 'does not populate the sorted clinics list' do
+            allow_any_instance_of(VAOS::V2::SystemsService).to receive(:get_facility_clinics).and_return(nil)
+            VCR.use_cassette('vaos/v2/systems/get_recent_clinics_vpg_200',
+                             match_requests_on: %i[method path query]) do
+              Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
+                get '/vaos/v2/locations/recent_clinics', headers: inflection_header
+                expect(JSON.parse(response.body)['data']).to eq([])
               end
             end
           end

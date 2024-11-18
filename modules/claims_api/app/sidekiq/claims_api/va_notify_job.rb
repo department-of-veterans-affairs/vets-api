@@ -2,29 +2,28 @@
 
 module ClaimsApi
   class VANotifyJob < ClaimsApi::ServiceBase
+    LOG_TAG = 'va_notify_job'
+
     def perform(poa_id, rep)
       return if skip_notification_email?
 
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+
       unless poa
         raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
           detail: "Could not find Power of Attorney with id: #{poa_id}"
         )
       end
-
       if organization_filing?(poa.form_data)
         org = find_org(poa, '2122')
-        send_organization_notification(poa, org)
+        res = send_organization_notification(poa, org)
       else
         poa_code_from_form('2122a', poa)
-        send_representative_notification(poa, rep)
+        res = send_representative_notification(poa, rep)
       end
+      schedule_follow_up_check(res.id) if res.present?
     rescue => e
-      ClaimsApi::Logger.log(
-        'poa_update_notify_job',
-        detail: "Failed to notify with error: #{get_error_message(e)}"
-      )
-      raise e
+      handle_failure(poa_id, e)
     end
 
     # 2122a
@@ -38,6 +37,19 @@ module ClaimsApi
     end
 
     private
+
+    def handle_failure(poa_id, error)
+      job_name = 'ClaimsApi::VANotifyJob'
+      msg = "VA Notify email notification failed to send for #{poa_id} with error #{error}"
+      slack_alert_on_failure(job_name, msg)
+
+      ClaimsApi::Logger.log(
+        LOG_TAG,
+        detail: msg
+      )
+      # retry job
+      raise error
+    end
 
     def individual_accepted_email_contents(poa, rep)
       {
@@ -171,6 +183,10 @@ module ClaimsApi
     def poa_code_from_form(form_number, poa)
       base = form_number == '2122' ? 'serviceOrganization' : 'representative'
       poa.form_data.dig(base, 'poaCode')
+    end
+
+    def schedule_follow_up_check(notification_id)
+      ClaimsApi::VANotifyFollowUpJob.perform_async(notification_id)
     end
 
     def skip_notification_email?

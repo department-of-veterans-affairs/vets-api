@@ -69,8 +69,7 @@ module Sidekiq
       def initialize(submission_id, docs = [], get_upload_location_on_instantiation: true, ignore_expiration: false)
         @submission_id = submission_id
         @submission = Form526Submission.find(submission_id)
-        @user_account = UserAccount.find_by(id: submission.user_uuid) ||
-                        Account.lookup_by_user_uuid(submission.user_uuid)
+        @user_account = @submission.account
         @docs = docs
         @docs_gathered = false
         @initial_upload_fetched = false

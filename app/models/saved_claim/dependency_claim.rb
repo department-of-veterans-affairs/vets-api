@@ -42,6 +42,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)
     uploaded_forms << form_id
     save
+  rescue => e
+    Rails.logger.debug('DependencyClaim: Issue Uploading to VBMS in upload_pdf method',
+                       { saved_claim_id: id, form_id:, error: e })
+    raise e
   end
 
   def process_pdf(pdf_path, timestamp = nil, form_id = nil)
@@ -128,6 +132,34 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     self.form_id = form_id
 
     PdfFill::Filler.fill_form(self, nil, { created_at: })
+  end
+
+  # this failure email is not the ideal way to handle the Notification Emails as
+  # part of the ZSF work, but with the initial timeline it handles the email as intended.
+  # Future work will be integrating into the Va Notify common lib:
+  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/va_notify/notification_email.rb
+
+  def send_failure_email(encrypted_user_struct = nil)
+    user_struct = encrypted_user_struct.present? ? JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)) : nil # rubocop:disable Layout/LineLength
+    email = parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
+            user_struct.try(:va_profile_email)
+    template_ids = []
+    template_ids << Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email if submittable_686?
+    template_ids << Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email if submittable_674?
+
+    template_ids.each do |template_id|
+      if email.present?
+        VANotify::EmailJob.perform_async(
+          email,
+          template_id,
+          {
+            'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+            'confirmation_number' => confirmation_number
+          }
+        )
+      end
+    end
   end
 
   private

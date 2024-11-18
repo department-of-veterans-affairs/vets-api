@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_12_172605) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -20,6 +20,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
   enable_extension "plpgsql"
   enable_extension "postgis"
   enable_extension "uuid-ossp"
+
+  # Custom types defined in this database.
+  # Note that some types may not work with other database engines. Be careful if changing database.
+  create_enum "itf_remediation_status", ["unprocessed"]
 
   create_table "account_login_stats", force: :cascade do |t|
     t.bigint "account_id", null: false
@@ -165,6 +169,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.string "lighthouse_upload_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "failure_notification_sent_at"
+    t.index ["appeal_submission_id"], name: "index_appeal_submission_uploads_on_appeal_submission_id"
   end
 
   create_table "appeal_submissions", force: :cascade do |t|
@@ -177,6 +183,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.text "upload_metadata_ciphertext"
     t.text "encrypted_kms_key"
     t.uuid "user_account_id"
+    t.datetime "failure_notification_sent_at"
+    t.index ["submitted_appeal_uuid"], name: "index_appeal_submissions_on_submitted_appeal_uuid"
     t.index ["user_account_id"], name: "index_appeal_submissions_on_user_account_id"
   end
 
@@ -288,6 +296,23 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "banners", force: :cascade do |t|
+    t.integer "entity_id", null: false
+    t.string "entity_bundle"
+    t.string "headline"
+    t.string "alert_type"
+    t.boolean "show_close"
+    t.text "content"
+    t.jsonb "context"
+    t.boolean "operating_status_cta"
+    t.boolean "email_updates_button"
+    t.boolean "find_facilities_cta"
+    t.boolean "limit_subpage_inheritance"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["entity_id"], name: "index_banners_on_entity_id"
+  end
+
   create_table "base_facilities", id: false, force: :cascade do |t|
     t.string "unique_id", null: false
     t.string "name", null: false
@@ -320,6 +345,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.integer "saved_claim_id", null: false
     t.index ["saved_claim_id"], name: "index_central_mail_submissions_on_saved_claim_id"
     t.index ["state"], name: "index_central_mail_submissions_on_state"
+  end
+
+  create_table "claim_va_notifications", force: :cascade do |t|
+    t.string "form_type"
+    t.bigint "saved_claim_id", null: false
+    t.boolean "email_sent"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "email_template_id"
+    t.index ["saved_claim_id"], name: "index_claim_va_notifications_on_saved_claim_id"
   end
 
   create_table "claims_api_auto_established_claims", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -464,6 +499,18 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.text "encrypted_kms_key"
     t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
     t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
+  end
+
+  create_table "decision_review_notification_audit_logs", force: :cascade do |t|
+    t.text "notification_id"
+    t.text "status"
+    t.text "reference"
+    t.text "payload_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["notification_id"], name: "idx_on_notification_id_e2314be616"
+    t.index ["reference"], name: "index_decision_review_notification_audit_logs_on_reference"
   end
 
   create_table "deprecated_user_accounts", force: :cascade do |t|
@@ -673,6 +720,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.boolean "ignored_as_duplicate", default: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "remediation_type", default: 0
     t.index ["form526_submission_id"], name: "index_form526_submission_remediations_on_form526_submission_id"
   end
 
@@ -726,6 +774,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.index ["id", "type"], name: "index_form_attachments_on_id_and_type"
   end
 
+  create_table "form_email_matches_profile_logs", force: :cascade do |t|
+    t.string "user_uuid", null: false
+    t.integer "in_progress_form_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_uuid", "in_progress_form_id"], name: "idx_on_user_uuid_in_progress_form_id_f21f47b9c8", unique: true
+  end
+
   create_table "form_submission_attempts", force: :cascade do |t|
     t.bigint "form_submission_id", null: false
     t.jsonb "response"
@@ -743,14 +799,12 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
 
   create_table "form_submissions", force: :cascade do |t|
     t.string "form_type", null: false
-    t.uuid "benefits_intake_uuid"
     t.uuid "user_account_id"
     t.bigint "saved_claim_id"
     t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.jsonb "form_data_ciphertext"
-    t.index ["benefits_intake_uuid"], name: "index_form_submissions_on_benefits_intake_uuid"
     t.index ["saved_claim_id"], name: "index_form_submissions_on_saved_claim_id"
     t.index ["user_account_id"], name: "index_form_submissions_on_user_account_id"
   end
@@ -840,6 +894,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.datetime "form_start_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.enum "status", default: "unprocessed", enum_type: "itf_remediation_status"
     t.index ["veteran_icn"], name: "index_intent_to_file_queue_exhaustions_on_veteran_icn"
   end
 
@@ -1045,6 +1100,21 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.string "error_details"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "secondary_appeal_forms", force: :cascade do |t|
+    t.string "form_id"
+    t.text "encrypted_kms_key"
+    t.text "form_ciphertext"
+    t.uuid "guid"
+    t.string "status"
+    t.datetime "status_updated_at"
+    t.bigint "appeal_submission_id"
+    t.datetime "delete_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "failure_notification_sent_at"
+    t.index ["appeal_submission_id"], name: "index_secondary_appeal_forms_on_appeal_submission_id"
   end
 
   create_table "service_account_configs", force: :cascade do |t|
@@ -1305,6 +1375,23 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.index ["user_account_id", "form_id"], name: "index_in_progress_reminders_sent_user_account_form_id", unique: true
   end
 
+  create_table "va_notify_notifications", force: :cascade do |t|
+    t.uuid "notification_id", null: false
+    t.text "reference"
+    t.text "to"
+    t.text "status"
+    t.datetime "completed_at"
+    t.datetime "sent_at"
+    t.text "notification_type"
+    t.text "status_reason"
+    t.text "provider"
+    t.text "source_location"
+    t.text "callback"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "metadata"
+  end
+
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
     t.integer "month", null: false
     t.integer "year", null: false
@@ -1330,7 +1417,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
     t.index ["created_at"], name: "index_vba_documents_upload_submissions_on_created_at"
     t.index ["guid"], name: "index_vba_documents_upload_submissions_on_guid"
     t.index ["s3_deleted"], name: "index_vba_documents_upload_submissions_on_s3_deleted"
-    t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at", where: "(s3_deleted IS NOT TRUE)"
+    t.index ["status", "created_at"], name: "index_vba_docs_upload_submissions_status_created_at_false", where: "(s3_deleted IS FALSE)"
     t.index ["status"], name: "index_vba_documents_upload_submissions_on_status"
   end
 
@@ -1617,6 +1704,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_09_04_184430) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
   add_foreign_key "async_transactions", "user_accounts"
+  add_foreign_key "claim_va_notifications", "saved_claims"
   add_foreign_key "claims_api_claim_submissions", "claims_api_auto_established_claims", column: "claim_id"
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
