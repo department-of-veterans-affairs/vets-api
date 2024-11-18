@@ -23,7 +23,8 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
       expect(job_status.status).to eq 'pdf_not_found'
     end
 
-    it 'calls polling only for startedFormVersion present and does not retry because the form is there' do
+    it 'calls polling only for startedFormVersion present, does not retry because the form is there,
+                                                                    and triggers confirmation email' do
       allow_any_instance_of(BenefitsClaims::Service).to receive(:get_claim)
         .and_return(
           { 'data' =>
@@ -37,13 +38,17 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
       expect(Lighthouse::PollForm526Pdf).to receive(:perform_async).with(form526_submission.id)
 
       form526_submission.send(:poll_form526_pdf)
-
       expect do
         Lighthouse::PollForm526Pdf.drain
         job_status = form526_submission.form526_job_statuses.find_by(job_class: 'PollForm526Pdf')
         job_status.reload
         expect(job_status.status).to eq 'success'
       end.not_to raise_error
+
+      form526_submission.send(:poll_form526_pdf)
+      expect do
+        Lighthouse::PollForm526Pdf.drain
+      end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
     end
 
     it 'calls polling only for startedFormVersion present and retries' do
@@ -83,22 +88,6 @@ RSpec.describe Lighthouse::PollForm526Pdf, type: :job do
         end
         form526_job_status.reload
         expect(form526_job_status.status).to eq 'pdf_not_found'
-      end
-    end
-
-    context 'with disability_526_call_received_email_from_polling enabled' do
-      let(:form526_submission) { create(:form526_submission, submitted_claim_id: 1) }
-
-      it 'identifies and formats first_name correctly' do
-        expect do
-          subject.first_name.to eq :disabilities_compensation_user.first_name&.upcase.presence
-        end
-      end
-
-      it 'triggers confirmation email' do
-        expect do
-          subject.perform_async(form526_submission.id)
-        end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
       end
     end
   end
