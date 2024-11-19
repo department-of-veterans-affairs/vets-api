@@ -14,8 +14,12 @@ module Banners
 
     def update_vacms_banners
       vacms_banner_data.each do |banner_data|
-        Builder.perform_async(Profile::Vacms.parsed_banner(banner_data))
+        Builder.perform(Profile::Vacms.parsed_banner(banner_data))
       end
+
+      # Delete any banners that are no longer in the list of banners for VACMS
+      entity_ids_to_keep = vacms_banner_data.map { |banner_data| banner_data['entityId'] }
+      Banner.where.not(entity_id: entity_ids_to_keep).destroy_all
     end
 
     private
