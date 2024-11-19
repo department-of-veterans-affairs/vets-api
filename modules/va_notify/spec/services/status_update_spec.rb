@@ -29,8 +29,9 @@ describe VANotify::StatusUpdate do
           id: notification_id
         }
 
-        allow(notification.callback_klass.constantize).to receive(:call).with(notification).and_raise(StandardError,
-                                                                                                      'Something went wrong')
+        allow(notification.callback_klass.constantize).to receive(:call)
+          .with(notification).and_raise(StandardError,
+                                        'Something went wrong')
 
         expect(Rails.logger).to receive(:info).with('Something went wrong')
 
