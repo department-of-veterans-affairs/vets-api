@@ -3,7 +3,7 @@
 require 'common/models/redis_store'
 
 module Eps
-  class RedisClient < Common::RedisStore
+  class AccessTokenStore < Common::RedisStore
     redis_store REDIS_CONFIG[:eps_access_token][:namespace]
     redis_ttl REDIS_CONFIG[:eps_access_token][:each_ttl]
     redis_key :token_type

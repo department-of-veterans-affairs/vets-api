@@ -2,18 +2,18 @@
 
 require 'rails_helper'
 
-describe Eps::RedisClient do
+describe Eps::AccessTokenStore do
   subject { described_class }
 
   let(:access_token) { 'test-access-token' }
   let(:token_type) { 'jwt_bearer' }
   let(:redis_key) { "eps-access-token:#{token_type}" }
   let(:cache_data) { { token_type:, access_token: } }
-  let(:redis_client) { subject.new(token_type:, access_token:) }
+  let(:token_store_client) { subject.new(token_type:, access_token:) }
 
   describe '#save' do
     it 'saves the value in cache' do
-      redis_client.save
+      token_store_client.save
 
       token = Oj.load($redis.get(redis_key))[:access_token]
       expect(token).to eq(access_token)
@@ -22,7 +22,7 @@ describe Eps::RedisClient do
 
   describe '#ttl' do
     before do
-      redis_client.save
+      token_store_client.save
     end
 
     it 'sets cache data expire to time from config file' do
@@ -32,7 +32,7 @@ describe Eps::RedisClient do
 
   describe '#find' do
     before do
-      redis_client.save
+      token_store_client.save
     end
 
     it 'gets data from cache' do
