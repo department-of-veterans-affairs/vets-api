@@ -54,8 +54,24 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
       representative_id: representative.id,
 
       record_consent: true,
-      consent_limits: [],
-      consent_address_change: true
+      consent_limits: %w[
+        ALCOHOLISM
+        DRUG_ABUSE
+      ],
+      consent_address_change: true,
+      consent_inside_access: true,
+      consent_outside_access: true,
+      consent_team_members: [
+        'Jane M Representative',
+        'John M Representative',
+        'Jane M Doe',
+        'John M Doe',
+        'Bobbie M Law',
+        'Bob M Law',
+        'Alice M Aster',
+        'Arthur M Aster'
+      ]
+
     }
   end
 
