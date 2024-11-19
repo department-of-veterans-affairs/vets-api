@@ -132,17 +132,16 @@ module MyHealth
       end
 
       def set_filter_metadata(list)
-        puts list.count { |prescription| ["Discontinued","Expired","Transferred","Unknown"].include?(prescription.disp_status) }
         {
           :filter_count => {
+            :all_medications => list.length,
             :active => list.select { |prescription| [
               "Active","Active: Refill in Process","Active: Non-VA","Active: On hold","Active: Parked","Active: Submitted"
             ]
               .include?(prescription.disp_status) }.length,
-          :recently_requested => list.select { |prescription| ["Active: Refill in Process","Active: Submitted"].include?(prescription.disp_status)}.length,
-          :renewal => list.select { |prescription| (["Expired"].include?(prescription.disp_status) && (["Active"].include?(prescription.disp_status) && prescription.refill_remaining == 0)) && (prescription.is_refillable == false)}.length,
-          :non_active => list.select { |prescription| ["Discontinued","Expired","Transferred","Unknown"].include?(prescription.disp_status)}.length,
-
+            :recently_requested => list.select { |prescription| ["Active: Refill in Process","Active: Submitted"].include?(prescription.disp_status)}.length,
+            :renewal => list.select { |prescription| (["Expired"].include?(prescription.disp_status) || (["Active"].include?(prescription.disp_status) && prescription.refill_remaining == 0)) && (["false"].include?(prescription.is_refillable.to_s))}.length,
+            :non_active => list.select { |prescription| ["Discontinued","Expired","Transferred","Unknown"].include?(prescription.disp_status)}.length,
         }
       }
 
@@ -159,10 +158,3 @@ module MyHealth
     end
   end
 end
-
-
-
-# :renewal => list.select { |prescription| (["Expired"].include?(prescription.disp_status)
-#   && (["Active"].include?(prescription.disp_status)
-#   && prescription.refill_remaining == 0))
-#   && (prescription.is_refillable)}.length
