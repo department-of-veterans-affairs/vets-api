@@ -85,6 +85,15 @@ module ClaimsApi
               key: 'return'
             )
         end
+
+        module FindPoaByParticipantId
+          DEFINITION =
+            Action.new(
+              service: ClaimantService::DEFINITION,
+              name: 'findPOAByPtcpntId',
+              key: 'return'
+            )
+        end
       end
 
       module ClaimantWebService
