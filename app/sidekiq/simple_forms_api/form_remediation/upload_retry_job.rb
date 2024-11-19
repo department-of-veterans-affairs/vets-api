@@ -9,11 +9,11 @@ module SimpleFormsApi
 
       STATSD_KEY_PREFIX = 'api.simple_forms_api.upload_retry_job'
 
-      sidekiq_retries_exhausted do
+      sidekiq_retries_exhausted do |_msg, ex|
         StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted")
         Rails.logger.error(
           'SimpleFormsApi::FormRemediation::UploadRetryJob retries exhausted',
-          { exception: "#{ex.class} - #{ex.message}", backtrace: ex.backtrace.join("\n").to_s }
+          { exception: "#{ex.class} - #{ex.message}", backtrace: ex.backtrace&.join("\n").to_s }
         )
       end
 
@@ -30,7 +30,7 @@ module SimpleFormsApi
         rescue Aws::S3::Errors::ServiceError
           raise if service_available?(config.s3_settings.region)
 
-          retry_later(file, config)
+          retry_later
         end
       end
 
