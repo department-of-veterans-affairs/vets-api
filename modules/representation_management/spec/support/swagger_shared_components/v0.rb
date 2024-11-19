@@ -26,8 +26,10 @@ module SwaggerSharedComponents
       {
         record_consent: '',
         consent_address_change: '',
+        consent_inside_access: '',
+        consent_outside_access: '',
+        consent_team_members: [],
         consent_limits: [],
-        conditions_of_appointment: [],
         claimant:,
         representative:,
         veteran:
@@ -102,10 +104,17 @@ module SwaggerSharedComponents
       {
         record_consent: { type: :boolean, example: true },
         consent_address_change: { type: :boolean, example: false },
+        consent_inside_access: { type: :boolean, example: true },
+        consent_outside_access: { type: :boolean, example: true },
         consent_limits: {
           type: :array,
           items: { type: :string },
           example: %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL]
+        },
+        consent_team_members: {
+          type: :array,
+          items: { type: :string },
+          example: ['Alice Aster', 'Authur Aster']
         }
       }
     end
