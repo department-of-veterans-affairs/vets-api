@@ -4,8 +4,7 @@ require 'rails_helper'
 require 'mhv/account_creation/service'
 
 describe V0::User::MHVUserAccountsController, type: :controller do
-  let(:user) { build(:user, :loa3, vha_facility_ids:, icn:) }
-  let(:vha_facility_ids) { %w[450MH] }
+  let(:user) { build(:user, :loa3, icn:) }
   let(:icn) { '10101V964144' }
 
   let!(:user_verification) do
@@ -42,33 +41,23 @@ describe V0::User::MHVUserAccountsController, type: :controller do
         allow(mhv_client).to receive(:create_account).and_return(mhv_response)
       end
 
-      it 'returns the MHV account' do
+      it 'breaks the cache and returns the MHV account' do
         get :show
 
         expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['data']['attributes']).to eq(mhv_response.with_indifferent_access)
-      end
-    end
-
-    context 'when the user does not have an MHV account' do
-      let(:vha_facility_ids) { [] }
-
-      it 'returns a 404' do
-        get :show
-
-        expect(response).to have_http_status(:not_found)
+        expect(mhv_client).to have_received(:create_account).with(icn:,
+                                                                  email: user_credential_email.credential_email,
+                                                                  tou_occurred_at: terms_of_use_agreement.created_at,
+                                                                  break_cache: true)
       end
     end
 
     context 'when there is an error retrieving the MHV account' do
       shared_examples 'an unprocessable entity' do
-        let(:expected_log_payload) { { error_message: expected_error_message } }
+        let(:expected_log_payload) { { errors: expected_errors } }
         let(:expected_log_message) { '[User][MHVUserAccountsController] show error' }
-        let(:expected_response_body) do
-          {
-            errors: expected_error_message.split(',').map { |m| { detail: m.strip } }
-          }.as_json
-        end
+        let(:expected_response_body) { { errors: expected_errors }.as_json }
 
         it 'returns an unprocessable entity' do
           get :show
@@ -84,35 +73,25 @@ describe V0::User::MHVUserAccountsController, type: :controller do
         end
       end
 
-      context 'when there is an MHV client error' do
-        let(:expected_error_message) { 'some client error' }
-
-        before do
-          allow(mhv_client).to receive(:create_account).and_raise(Common::Client::Errors::ClientError,
-                                                                  expected_error_message)
-        end
-
-        it_behaves_like 'an unprocessable entity'
-      end
-
       context 'when the user does not have an ICN' do
         let(:icn) { nil }
-        let(:expected_error_message) { 'ICN must be present' }
+        let(:expected_errors) { [{ title: 'Validation error', detail: 'ICN must be present' }] }
 
         it_behaves_like 'an unprocessable entity'
       end
 
       context 'when the user does not have an email' do
         let(:user_credential_email) { nil }
-        let(:expected_error_message) { 'Email must be present' }
+        let(:expected_errors) { [{ title: 'Validation error', detail: 'Email must be present' }] }
 
         it_behaves_like 'an unprocessable entity'
       end
 
       context 'when the user does not have a terms of use agreement' do
         let(:terms_of_use_agreement) { nil }
-        let(:expected_error_message) do
-          "Current terms of use agreement must be present, Current terms of use agreement must be 'accepted'"
+        let(:expected_errors) do
+          [{ title: 'Validation error', detail: 'Current terms of use agreement must be present' },
+           { title: 'Validation error', detail: "Current terms of use agreement must be 'accepted'" }]
         end
 
         it_behaves_like 'an unprocessable entity'
@@ -120,9 +99,37 @@ describe V0::User::MHVUserAccountsController, type: :controller do
 
       context 'when the user has not accepted the terms of use agreement' do
         let(:terms_of_use_response) { 'declined' }
-        let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
+        let(:expected_errors) do
+          [{ title: 'Validation error', detail: "Current terms of use agreement must be 'accepted'" }]
+        end
 
         it_behaves_like 'an unprocessable entity'
+      end
+
+      context 'when there is an MHV client error' do
+        let(:mhv_error_body) { { errorCode: mhv_error_code, message: mhv_error_message } }
+        let(:mhv_error_code) { 'some-code' }
+        let(:mhv_error_message) { 'some-error-message' }
+
+        let(:client_error_message) { 'some-client-error' }
+
+        let(:expected_errors) { [{ title: client_error_message, detail: mhv_error_message, code: mhv_error_code }] }
+
+        before do
+          allow(mhv_client).to receive(:create_account)
+            .and_raise(Common::Client::Errors::ClientError.new(client_error_message, 400, mhv_error_body))
+        end
+
+        context 'when the response_body has a code and message' do
+          it_behaves_like 'an unprocessable entity'
+        end
+
+        context 'when the response_body does not have a code and message' do
+          let(:mhv_error_code) { nil }
+          let(:mhv_error_message) { nil }
+
+          it_behaves_like 'an unprocessable entity'
+        end
       end
     end
   end

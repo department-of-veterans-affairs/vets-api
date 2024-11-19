@@ -27,11 +27,11 @@ module AskVAApi
         private
 
         def submitter_info
-          inquiry_params[:about_yourself]
+          @submitter_info ||= inquiry_params[:about_yourself] || {}
         end
 
         def submitter_address
-          inquiry_params[:address]
+          @submitter_address ||= inquiry_params[:address] || {}
         end
 
         def base_profile
@@ -40,9 +40,9 @@ module AskVAApi
             MiddleName: submitter_info[:middle],
             LastName: submitter_info[:last],
             PreferredName: inquiry_params[:preferred_name],
-            Suffix: @translator.call(submitter_info[:suffix]),
+            Suffix: @translator.call(:suffix, submitter_info[:suffix]),
             Gender: nil,
-            Pronouns: formatted_pronouns(inquiry_params[:pronouns]),
+            Pronouns: formatted_pronouns(inquiry_params[:pronouns]) || inquiry_params[:pronouns_not_listed_text],
             Country: country_data,
             Street: submitter_address[:street],
             City: submitter_address[:city],
@@ -55,10 +55,10 @@ module AskVAApi
 
         def contact_info
           @contact_info ||= {
-            BusinessPhone: contact_field(:phone_number, 'Business'),
-            PersonalPhone: contact_field(:phone_number, 'Personal'),
-            BusinessEmail: contact_field(:email_address, 'Business'),
-            PersonalEmail: contact_field(:email_address, 'Personal')
+            BusinessPhone: retrieve_contact_field(:phone_number, 'Business'),
+            PersonalPhone: retrieve_contact_field(:phone_number, 'Personal'),
+            BusinessEmail: retrieve_contact_field(:email_address, 'Business'),
+            PersonalEmail: retrieve_contact_field(:email_address, 'Personal')
           }
         end
 
@@ -73,10 +73,10 @@ module AskVAApi
         def service_info
           {
             BranchOfService: submitter_info[:branch_of_service],
-            SSN: submitter_info[:ssn],
+            SSN: submitter_info.dig(:social_or_service_num, :ssn),
             EDIPI: user&.edipi,
             ICN: user&.icn,
-            ServiceNumber: nil,
+            ServiceNumber: submitter_info.dig(:social_or_service_num, :service_number),
             ClaimNumber: nil,
             VeteranServiceStateDate: nil,
             VeteranServiceEndDate: nil
@@ -97,8 +97,8 @@ module AskVAApi
           }
         end
 
-        def contact_field(field, type)
-          inquiry_details[:level_of_authentication] == type ? inquiry_params[field] : nil
+        def retrieve_contact_field(field, required_authentication_level)
+          inquiry_details[:level_of_authentication] == required_authentication_level ? inquiry_params[field] : nil
         end
       end
     end

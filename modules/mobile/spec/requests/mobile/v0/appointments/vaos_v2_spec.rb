@@ -11,6 +11,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
 
   before do
     Flipper.enable_actor(:appointments_consolidation, user)
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
   context 'with VAOS' do
@@ -97,7 +98,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
                                                                          'totalPages' => 1,
                                                                          'totalEntries' => 1 },
                                                        'upcomingAppointmentsCount' => 0,
-                                                       'upcomingDaysLimit' => 7
+                                                       'upcomingDaysLimit' => 30
                                                      })
         end
       end
@@ -334,7 +335,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           end
           expect(expected_upcoming_pending_count).to eq(1)
           expect(response.parsed_body['meta']['upcomingAppointmentsCount']).to eq(expected_upcoming_pending_count)
-          expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
+          expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(30)
         end
       end
 
@@ -440,7 +441,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
                                                                          'totalPages' => 1,
                                                                          'totalEntries' => 1 },
                                                        'upcomingAppointmentsCount' => 0,
-                                                       'upcomingDaysLimit' => 7
+                                                       'upcomingDaysLimit' => 30
                                                      })
         end
       end
@@ -677,7 +678,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
           end
           expect(expected_upcoming_pending_count).to eq(1)
           expect(response.parsed_body['meta']['upcomingAppointmentsCount']).to eq(expected_upcoming_pending_count)
-          expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(7)
+          expect(response.parsed_body['meta']['upcomingDaysLimit']).to eq(30)
         end
       end
 

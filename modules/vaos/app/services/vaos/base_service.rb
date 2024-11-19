@@ -28,5 +28,9 @@ module VAOS
         'https://review-instance.va.gov' # VAMF rejects Referer that is not valid; such as those of review instances
       end
     end
+
+    def base_vaos_route
+      'vaos/v1'
+    end
   end
 end

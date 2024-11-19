@@ -3,7 +3,8 @@
 require 'rails_helper'
 require 'forms/submission_statuses/gateway'
 
-RSpec.describe 'V0::MyVA::SubmissionStatuses', type: :request do
+RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
+                                               team_owner: :vfs_authenticated_experience_backend, type: :request do
   let(:user) { build(:user, :loa1) }
 
   before do

@@ -15,6 +15,7 @@ FactoryBot.define do
       middle_name { nil }
       last_name { 'lincoln' }
       gender { 'M' }
+      preferred_name { 'abe' }
       birth_date { '1809-02-12' }
       ssn { '796111863' }
       idme_uuid { 'b2fab2b5-6af0-45e1-a9e2-394347af91ef' }
@@ -22,7 +23,7 @@ FactoryBot.define do
       verified_at { nil }
       sec_id { '123498767' }
       participant_id { Faker::Number.number(digits: 8) }
-      birls_id { Faker::Number.number(digits: 10) }
+      birls_id { Faker::Number.number(digits: 9) }
       icn { '123498767V234859' }
       mhv_icn { nil }
       multifactor { false }
@@ -94,6 +95,7 @@ FactoryBot.define do
       mpi_profile do
         given_names = [first_name]
         given_names << middle_name if middle_name.present?
+        preferred_names = [preferred_name]
 
         mpi_attributes = { active_mhv_ids:,
                            address:,
@@ -105,6 +107,7 @@ FactoryBot.define do
                            family_name: last_name,
                            gender:,
                            given_names:,
+                           preferred_names:,
                            home_phone:,
                            icn:,
                            mhv_ids:,

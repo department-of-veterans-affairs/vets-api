@@ -111,9 +111,7 @@ module V0
     end
 
     def create_submission(saved_claim)
-      Rails.logger.info(
-        'Creating 526 submission', user_uuid: @current_user&.uuid, saved_claim_id: saved_claim&.id
-      )
+      Rails.logger.info('Creating 526 submission', user_uuid: @current_user&.uuid, saved_claim_id: saved_claim&.id)
       submission = Form526Submission.new(
         user_uuid: @current_user.uuid,
         user_account: @current_user.user_account,
@@ -122,6 +120,13 @@ module V0
         form_json: saved_claim.to_submission_data(@current_user),
         submit_endpoint: includes_toxic_exposure? ? 'claims_api' : 'evss'
       ) { |sub| sub.add_birls_ids @current_user.birls_id }
+
+      if missing_disabilities?(submission)
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'no new or increased disabilities were submitted', source: 'DisabilityCompensationFormsController'
+        )
+      end
+
       submission.save! && submission
     rescue PG::NotNullViolation => e
       Rails.logger.error(
@@ -155,6 +160,17 @@ module V0
     def includes_toxic_exposure?
       # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
       form_content['form526']['startedFormVersion']
+    end
+
+    def missing_disabilities?(submission)
+      if submission.form['form526']['form526']['disabilities'].none?
+        StatsD.increment("#{stats_key}.failure")
+        Rails.logger.error(
+          'Creating 526 submission: no new or increased disabilities were submitted', user_uuid: @current_user&.uuid
+        )
+        return true
+      end
+      false
     end
   end
 end

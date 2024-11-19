@@ -13,8 +13,8 @@ metadata = {
 
 # rubocop:disable RSpec/ScatteredSetup, RSpec/RepeatedExample
 describe 'PowerOfAttorney', metadata do
-  path '/power-of-attorney-requests' do
-    get 'Search for Power of Attorney requests.' do
+  path '/veterans/power-of-attorney-requests' do
+    post 'Search for Power of Attorney requests.' do
       tags 'Power of Attorney'
       operationId 'searchPowerOfAttorneyRequests'
       security [
@@ -23,60 +23,53 @@ describe 'PowerOfAttorney', metadata do
         { bearer_token: [] }
       ]
       produces 'application/json'
-      description 'Faceted, paginated, and sorted search of Power of Attorney requests'
+      consumes 'application/json'
+      description 'Search for Power of Attorney requests'
 
       let(:Authorization) { 'Bearer token' }
       let(:scopes) { %w[system/claim.read system/claim.write] }
 
-      query_schema =
+      body_schema =
         JSON.load_file(
           ClaimsApi::Engine.root.join(
             Settings.claims_api.schema_dir,
-            'v2/power_of_attorney_requests/get.json'
+            'v2/power_of_attorney_requests/post.json'
           )
         )
 
-      query_example = {
-        'filter' => {
-          'poaCodes' => %w[
-            083 002 003 065 074 022 091 070
-            097 077 1EY 6B6 862 9U7 BQX
-          ],
-          'decision' => {
-            'statuses' => %w[
-              none
-              accepting
-              declining
-            ]
+      body_example = {
+        'data' => {
+          'attributes' => {
+            'poaCodes' => %w[002 003 083],
+            'pageSize' => '3',
+            'pageIndex' => '1',
+            'filter' => {
+              'status' => %w[NEW ACCEPTED DECLINED],
+              'state' => 'OR',
+              'city' => 'Portland',
+              'country' => 'USA'
+            }
           }
-        },
-        'page' => {
-          'number' => 2,
-          'size' => 3
-        },
-        'sort' => {
-          'field' => 'createdAt',
-          'order' => 'asc'
         }
       }
 
       # No idea why string keys don't work here.
-      query_schema.deep_transform_keys!(&:to_sym)
-      query_schema[:example] = query_example
+      body_schema.deep_transform_keys!(&:to_sym)
+      body_schema[:example] = body_example
 
       parameter(
-        name: 'query', in: :query, required: true,
-        schema: query_schema, example: query_example
+        name: 'data', in: :body, required: true,
+        schema: body_schema, example: body_example
       )
 
       response '200', 'Search results' do
         schema JSON.load_file(File.expand_path('rswag/200.json', __dir__))
 
-        let(:query) { query_example }
+        let(:data) { body_example }
 
         before do |example|
           mock_ccg(scopes) do
-            use_soap_cassette('nonempty', use_spec_name_prefix: true) do
+            VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
               submit_request(example.metadata)
             end
           end
@@ -95,92 +88,14 @@ describe 'PowerOfAttorney', metadata do
         end
       end
 
-      response '422', 'Invalid query' do
-        schema JSON.load_file(File.expand_path('rswag/422.json', __dir__))
+      response '400', 'Invalid request' do
+        schema JSON.load_file(File.expand_path('rswag/400.json', __dir__))
 
-        let(:query) do
-          {
-            'filter' => {
-              'decision' => {
-                'statuses' => [
-                  'NotAStatus'
-                ]
-              }
-            },
-            'sort' => {
-              'field' => nil,
-              'order' => nil
-            },
-            'page' => {
-              'size' => 'whoops',
-              'number' => nil
-            }
-          }
+        let(:data) do
+          {}
         end
 
         before do |example|
-          mock_ccg(scopes) do
-            submit_request(example.metadata)
-          end
-        end
-
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
-
-        it do |example|
-          assert_response_matches_metadata(example.metadata)
-        end
-      end
-
-      response '502', 'Bad gateway' do
-        schema JSON.load_file(File.expand_path('rswag/502.json', __dir__))
-
-        let(:query) do
-          { 'filter' => { 'poaCodes' => %w[083] } }
-        end
-
-        before do |example|
-          pattern = %r{/VDC/ManageRepresentativeService}
-          stub_request(:post, pattern).to_raise(
-            Faraday::ConnectionFailed
-          )
-
-          mock_ccg(scopes) do
-            submit_request(example.metadata)
-          end
-        end
-
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
-
-        it do |example|
-          assert_response_matches_metadata(example.metadata)
-        end
-      end
-
-      response '504', 'Gateway timeout' do
-        schema JSON.load_file(File.expand_path('rswag/504.json', __dir__))
-
-        let(:query) do
-          { 'filter' => { 'poaCodes' => %w[083] } }
-        end
-
-        before do |example|
-          pattern = %r{/VDC/ManageRepresentativeService}
-          stub_request(:post, pattern).to_raise(
-            Faraday::TimeoutError
-          )
-
           mock_ccg(scopes) do
             submit_request(example.metadata)
           end
@@ -202,8 +117,8 @@ describe 'PowerOfAttorney', metadata do
       response '401', 'Unauthorized' do
         schema JSON.load_file(File.expand_path('rswag/401.json', __dir__))
 
-        let(:query) do
-          { 'filter' => { 'poaCodes' => %w[083] } }
+        let(:data) do
+          { 'data' => { 'attributes' => { 'poaCodes' => %w[083] } } }
         end
 
         before do |example|

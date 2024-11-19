@@ -229,6 +229,20 @@ RSpec.describe 'Mobile::V0::Messaging::Health::Messages', type: :request do
           expect(response).to be_successful
           expect(response).to have_http_status(:no_content)
         end
+
+        context 'when message is not found' do
+          it 'responds with expected error' do
+            VCR.use_cassette('sm_client/messages/moves_a_message_with_id_error') do
+              patch '/mobile/v0/messaging/health/messages/999999/move?folder_id=0', headers: sis_headers
+            end
+            expected_error = { 'errors' => [{ 'title' => 'Operation failed',
+                                              'detail' => 'Message requested could not be found',
+                                              'code' => 'SM904', 'source' => 'Severity[Error]:message.not.found;',
+                                              'status' => '404' }] }
+            expect(response).to have_http_status(:not_found)
+            expect(response.parsed_body).to eq(expected_error)
+          end
+        end
       end
     end
   end

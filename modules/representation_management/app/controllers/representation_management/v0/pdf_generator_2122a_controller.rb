@@ -36,7 +36,9 @@ module RepresentationManagement
           record_consent: form_params[:record_consent],
           consent_limits: form_params[:consent_limits],
           consent_address_change: form_params[:consent_address_change],
-          conditions_of_appointment: form_params[:conditions_of_appointment]
+          consent_inside_access: form_params[:consent_inside_access],
+          consent_outside_access: form_params[:consent_outside_access],
+          consent_team_members: form_params[:consent_team_members]
         }.merge(flatten_veteran_params(form_params))
           .merge(flatten_claimant_params(form_params))
       end
