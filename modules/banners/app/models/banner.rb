@@ -47,7 +47,7 @@ class Banner < ApplicationRecord
                               ].to_json)
                         .where(limit_subpage_inheritance: false)
 
-    # Combine conditions with the "AND" for type, and "OR" between exact paths and subpage matches
+    # Look for both exact paths and subpage matches
     exact_path_conditions.or(subpage_condition)
   }
 end
