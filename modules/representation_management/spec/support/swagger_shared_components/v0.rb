@@ -91,16 +91,16 @@ module SwaggerSharedComponents
         schema: {
           type: :object,
           properties: appointment_conditions_parameter.merge(
-            claimant: claimant_parameter,
-            representative: rep_parameter.tap { |r| r[:properties].delete_if { |k, _| k == :organization_id } },
-            veteran: veteran_parameter,
             consent_inside_access: { type: :boolean, example: true },
             consent_outside_access: { type: :boolean, example: true },
             consent_team_members: {
               type: :array,
               items: { type: :string },
               example: ['Alice Aster', 'Authur Aster']
-            }
+            },
+            claimant: claimant_parameter,
+            representative: rep_parameter.tap { |r| r[:properties].delete_if { |k, _| k == :organization_id } },
+            veteran: veteran_parameter
           ),
           required: %w[record_consent veteran]
         }
@@ -137,8 +137,16 @@ module SwaggerSharedComponents
       {
         type: :object,
         properties: {
-          id: { type: :string, example: '8c3b3b53-02a1-4dbd-bd23-2b556f5ef635' },
-          organization_id: { type: :string, example: '6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943' }
+          id: {
+            type: :string,
+            example: '8c3b3b53-02a1-4dbd-bd23-2b556f5ef635',
+            description: 'This is an AccreditedIndividual#id or a Veteran::Service::Representative#representative_id'
+          },
+          organization_id: {
+            type: :string,
+            example: '6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943',
+            description: 'This is an AccreditedOrganization#id or a Veteran::Service::Organization#poa'
+          }
         }
       }
     end
