@@ -52,12 +52,25 @@ def connection
 end
 ```
 
-2. Add endpoints to be mocked to the services config file.
+2. Add endpoints to be mocked to the [services config file](../../config/betamocks/services_config.yml).
 Each service description has a `base_uri` (pulled from Settings)
 `endpoints` is an array of hashes with:
 - `method:` a symbol of the http verb `:get`, `:post`, `:put`...
 - `path:` the path that combined with the base_uri makes a full URI
 - `file_path:` where to save the file (relative to betamocks' cache dir)
+```yaml
+:services:
+
+# VA Profile / Vet360
+  :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
+  :endpoints:
+    - :method: :get
+      :path: "/demographics/demographics/v1/*/*"
+      :file_path: "vet360/demographics/default"
+    - :method: :post
+      :path: "/profile-service/profile/v3/*/*"
+      :file_path: "vet360/profile-service/default"
+```
 
 3. In config/settings.yml set betamocks recording to true:
 ```yaml
