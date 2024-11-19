@@ -3,7 +3,7 @@
 require 'banners/engine'
 require 'banners/builder'
 module Banners
-  class Updater 
+  class Updater
     # If banners are to be added in the future, include them here by adding
     # another #update_{type_of}_banners method for #perform to call
     def self.perform
@@ -19,7 +19,7 @@ module Banners
 
     def vacms_banner_data
       banner_graphql_query = Rails.root.join('modules', 'banners', 'config', 'vacms_graphql_query.txt')
-      body = { query: File.read(banner_graphql_query)}
+      body = { query: File.read(banner_graphql_query) }
 
       response = connection.post do |req|
         req.path = 'graphql'
