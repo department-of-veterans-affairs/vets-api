@@ -1452,7 +1452,7 @@ dgi:
       private_key_path: ""
       public_ica11_rca2_key_path: ""
     vets:
-      url: ENV['DGI_VYE_VETS_URL']
+      url: ""
       mock: false
   vets:
     url: "https://jenkins.ld.afsp.io:32512/vets-service/v1/" # Docker setup for microservice
