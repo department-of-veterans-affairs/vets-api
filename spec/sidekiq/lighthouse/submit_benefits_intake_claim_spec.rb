@@ -132,7 +132,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_return(path)
 
-      expect(job.process_record(record, timestamp, form_id)).to eq(path)
+      expect(job.process_record(record)).to eq(path)
     end
 
     it 'handles an invalid record' do
@@ -190,7 +190,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.document_upload_error')
 
       expect do
-        job.process_record(record, timestamp, form_id)
+        job.process_record(record)
       end.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
     end
   end
