@@ -88,14 +88,21 @@ RSpec.describe DecisionReview::HlrStatusUpdaterJob, type: :job do
           allow(Rails.logger).to receive(:info)
         end
 
+        let(:guid4) { SecureRandom.uuid }
+        let(:guid5) { SecureRandom.uuid }
+
         it 'does not increment metrics for unchanged form status or existing final statuses' do
           SavedClaim::HigherLevelReview.create(guid: guid1, form: '{}', metadata: '{"status":"error"}')
           SavedClaim::HigherLevelReview.create(guid: guid2, form: '{}', metadata: '{"status":"submitted"}')
           SavedClaim::HigherLevelReview.create(guid: guid3, form: '{}', metadata: '{"status":"pending"}')
+          SavedClaim::HigherLevelReview.create(guid: guid4, form: '{}', metadata: '{"status":"complete"}')
+          SavedClaim::HigherLevelReview.create(guid: guid5, form: '{}', metadata: '{"status":"DR_404"}')
 
           expect(service).not_to receive(:get_higher_level_review).with(guid1)
           expect(service).to receive(:get_higher_level_review).with(guid2).and_return(response_error)
           expect(service).to receive(:get_higher_level_review).with(guid3).and_return(response_pending)
+          expect(service).not_to receive(:get_higher_level_review).with(guid4)
+          expect(service).not_to receive(:get_higher_level_review).with(guid5)
 
           subject.new.perform
 
@@ -153,7 +160,7 @@ RSpec.describe DecisionReview::HlrStatusUpdaterJob, type: :job do
           end
         end
 
-        context 'and it is a permanent error' do
+        context 'and it is a 404 error' do
           let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_404') }
 
           it 'updates the status of the record' do

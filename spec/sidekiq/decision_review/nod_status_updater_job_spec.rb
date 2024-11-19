@@ -11,7 +11,6 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
   let(:guid1) { SecureRandom.uuid }
   let(:guid2) { SecureRandom.uuid }
   let(:guid3) { SecureRandom.uuid }
-  let(:guid4) { SecureRandom.uuid }
 
   let(:response_complete) do
     response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('NOD-SHOW-RESPONSE-200_V2').to_json) # deep copy
@@ -190,6 +189,9 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
           allow(Rails.logger).to receive(:info)
         end
 
+        let(:guid4) { SecureRandom.uuid }
+        let(:guid5) { SecureRandom.uuid }
+
         let(:upload_id) { SecureRandom.uuid }
         let(:upload_id2) { SecureRandom.uuid }
         let(:upload_id3) { SecureRandom.uuid }
@@ -233,12 +235,15 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
           SavedClaim::NoticeOfDisagreement.create(guid: guid3, form: '{}',
                                                   metadata: '{"status":"pending","uploads":[]}')
           SavedClaim::NoticeOfDisagreement.create(guid: guid4, form: '{}',
+                                                  metadata: '{"status":"complete","uploads":[]}')
+          SavedClaim::NoticeOfDisagreement.create(guid: guid5, form: '{}',
                                                   metadata: '{"status":"DR_404","uploads":[]}')
 
           expect(service).not_to receive(:get_notice_of_disagreement).with(guid1)
           expect(service).to receive(:get_notice_of_disagreement).with(guid2).and_return(response_error)
           expect(service).to receive(:get_notice_of_disagreement).with(guid3).and_return(response_pending)
           expect(service).not_to receive(:get_notice_of_disagreement).with(guid4)
+          expect(service).not_to receive(:get_notice_of_disagreement).with(guid5)
 
           subject.new.perform
 
@@ -337,7 +342,7 @@ RSpec.describe DecisionReview::NodStatusUpdaterJob, type: :job do
           end
         end
 
-        context 'and it is a permanent error' do
+        context 'and it is a 404 error' do
           let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_404') }
 
           it 'updates the status of the record' do

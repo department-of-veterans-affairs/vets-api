@@ -11,7 +11,6 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
   let(:guid1) { SecureRandom.uuid }
   let(:guid2) { SecureRandom.uuid }
   let(:guid3) { SecureRandom.uuid }
-  let(:guid4) { SecureRandom.uuid }
 
   let(:response_complete) do
     response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('SC-SHOW-RESPONSE-200_V2').to_json) # deep copy
@@ -354,6 +353,9 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
           allow(Rails.logger).to receive(:info)
         end
 
+        let(:guid4) { SecureRandom.uuid }
+        let(:guid5) { SecureRandom.uuid }
+
         let(:upload_id) { SecureRandom.uuid }
         let(:upload_id2) { SecureRandom.uuid }
         let(:upload_id3) { SecureRandom.uuid }
@@ -393,12 +395,14 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
           SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', metadata: '{"status":"error","uploads":[]}')
           SavedClaim::SupplementalClaim.create(guid: guid2, form: '{}', metadata: '{"status":"submitted","uploads":[]}')
           SavedClaim::SupplementalClaim.create(guid: guid3, form: '{}', metadata: '{"status":"pending","uploads":[]}')
-          SavedClaim::SupplementalClaim.create(guid: guid4, form: '{}', metadata: '{"status":"DR_404,"uploads":[]}')
+          SavedClaim::SupplementalClaim.create(guid: guid4, form: '{}', metadata: '{"status":"complete,"uploads":[]}')
+          SavedClaim::SupplementalClaim.create(guid: guid5, form: '{}', metadata: '{"status":"DR_404,"uploads":[]}')
 
           expect(service).not_to receive(:get_supplemental_claim).with(guid1)
           expect(service).to receive(:get_supplemental_claim).with(guid2).and_return(response_error)
           expect(service).to receive(:get_supplemental_claim).with(guid3).and_return(response_pending)
           expect(service).not_to receive(:get_supplemental_claim).with(guid4)
+          expect(service).not_to receive(:get_supplemental_claim).with(guid5)
 
           subject.new.perform
 
@@ -500,7 +504,7 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
           end
         end
 
-        context 'and it is a permanent error' do
+        context 'and it is a 404 error' do
           let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_404') }
 
           it 'updates the status of the record' do
