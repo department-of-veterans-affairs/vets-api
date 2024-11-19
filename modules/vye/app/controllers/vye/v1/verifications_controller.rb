@@ -42,7 +42,7 @@ module Vye
 
           # Find verification that includes this month end
           pending_verifications.each do |pv|
-            found = month_end.to_time if pv.act_end.to_date >= month_end && month_end < current_date
+            found = month_end.to_time if pv.act_end.to_date >= month_end
           end
         end
 
