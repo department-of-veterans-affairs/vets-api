@@ -852,7 +852,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         end
 
         context 'veteran preparer' do
-          it 'successful submission' do
+          it 'sends the received email' do
             allow_any_instance_of(SimpleFormsApi::IntentToFile)
               .to receive(:submit).and_return([confirmation_number, Time.zone.now])
             allow_any_instance_of(SimpleFormsApi::IntentToFile)
@@ -867,7 +867,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
               'abraham.lincoln@vets.gov',
-              'form21_0966_confirmation_email_template_id',
+              'form21_0966_received_email_template_id',
               {
                 'first_name' => 'Veteran',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
