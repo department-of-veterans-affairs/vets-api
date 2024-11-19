@@ -75,9 +75,9 @@ class LighthouseDocument < Common::Base
     [tracked_item_id, uuid]
   end
 
-  # def ==(other)
-  #   attributes == other.attributes
-  # end
+  def ==(other)
+    attributes == other.attributes
+  end
 
   def to_serializable_hash
     # file_obj is not suitable for serialization

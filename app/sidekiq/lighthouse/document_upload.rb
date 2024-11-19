@@ -82,31 +82,16 @@ class Lighthouse::DocumentUpload
   def perform(user_icn, document_hash)
     @user_icn = user_icn
     @document_hash = document_hash
-    # client = BenefitsDocuments::WorkerService.new
-    # document, file_body, uploader = nil
 
-    Datadog::Tracing.trace('Config/Initialize Upload Document') do
-      Sentry.set_tags(source: 'documents-upload')
-      # document = LighthouseDocument.new document_hash
+    initialize_upload_document
 
-      validate_document!
-
-      # uploader = LighthouseDocumentUploader.new(user_icn, document.uploader_ids)
-      uploader.retrieve_from_store!(document.file_name)
-    end
-    # Datadog::Tracing.trace('Sidekiq read_for_upload') do
-      # file_body = uploader.read_for_upload
-    # end
     Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
       span.set_tag('Document File Size', file_body.size)
       response = client.upload_document(file_body, document) # returns upload response which includes requestId
       request_successful = response.dig(:data, :success)
       if request_successful
         request_id = response.dig(:data, :requestId)
-        # update evidence submission record to include request_id
-        es = EvidenceSubmission.find_by(job_id: Sidekiq::Context.current["jid"])
-        es.request_id = request_id
-        es.save!
+        EvidenceSubmission.find_by(job_id: jid).update(request_id:)
       else
         raise StandardError
       end
@@ -118,16 +103,20 @@ class Lighthouse::DocumentUpload
 
   private
 
-  # def perform_document_upload_to_lighthouse(file_body)
-  #   client.upload_document(file_body, document)
-  # end
+  def initialize_upload_document
+    Datadog::Tracing.trace('Config/Initialize Upload Document') do
+      Sentry.set_tags(source: 'documents-upload')
+      validate_document!
+      uploader.retrieve_from_store!(document.file_name)
+    end
+  end
 
   def validate_document!
     raise Common::Exceptions::ValidationErrors, document unless document.valid?
   end
 
   def client
-    @client = BenefitsDocuments::WorkerService.new
+    @client ||= BenefitsDocuments::WorkerService.new
   end
 
   def document
