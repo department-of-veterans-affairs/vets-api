@@ -5,6 +5,9 @@ require 'burials/monitor'
 
 module V0
   class BurialClaimsController < ApplicationController
+    skip_before_action(:authenticate)
+    before_action :load_user, only: :create
+
     service_tag 'burial-application'
 
     # an identifier that matches the parameter that the form will be set as in the JSON submission.
