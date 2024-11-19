@@ -15,7 +15,7 @@ module MyHealth
       def index
         resource = collection_resource
         resource.data = filter_non_va_meds(resource.data)
-        options = { meta: resource.metadata.merge(set_filter_metadata(resource.data))}
+        options = { meta: resource.metadata.merge(set_filter_metadata(resource.data)) }
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         # resource.data = params[:renew].present? ? filter_data_by_refill_and_renew(resource.data) : resource.data
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
@@ -133,18 +133,25 @@ module MyHealth
 
       def set_filter_metadata(list)
         {
-          :filter_count => {
-            :all_medications => list.length,
-            :active => list.select { |prescription| [
-              "Active","Active: Refill in Process","Active: Non-VA","Active: On hold","Active: Parked","Active: Submitted"
-            ]
-              .include?(prescription.disp_status) }.length,
-            :recently_requested => list.select { |prescription| ["Active: Refill in Process","Active: Submitted"].include?(prescription.disp_status)}.length,
-            :renewal => list.select { |prescription| (["Expired"].include?(prescription.disp_status) || (["Active"].include?(prescription.disp_status) && prescription.refill_remaining == 0)) && (["false"].include?(prescription.is_refillable.to_s))}.length,
-            :non_active => list.select { |prescription| ["Discontinued","Expired","Transferred","Unknown"].include?(prescription.disp_status)}.length,
+          filter_count: {
+            all_medications: list.length,
+            active: list.select do |prescription|
+                      [
+                        'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold', 'Active: Parked', 'Active: Submitted'
+                      ]
+                        .include?(prescription.disp_status)
+                    end.length,
+            recently_requested: list.select do |prescription|
+                                  ['Active: Refill in Process', 'Active: Submitted'].include?(prescription.disp_status)
+                                end.length,
+            renewal: list.select do |prescription|
+                       (['Expired'].include?(prescription.disp_status) || (['Active'].include?(prescription.disp_status) && prescription.refill_remaining == 0)) && ['false'].include?(prescription.is_refillable.to_s)
+                     end.length,
+            non_active: list.select do |prescription|
+                          %w[Discontinued Expired Transferred Unknown].include?(prescription.disp_status)
+                        end.length
+          }
         }
-      }
-
       end
 
       def collection_resource
