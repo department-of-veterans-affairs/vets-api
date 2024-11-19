@@ -3,8 +3,8 @@
 require 'rails_helper'
 require 'claims_api/common/exceptions/lighthouse/resource_not_found'
 
-describe ClaimsApi::VANotifyJob, type: :job do
-  subject { described_class.new  }
+describe ClaimsApi::VANotifyAcceptedJob, type: :job do
+  subject { described_class.new }
 
   let(:va_notify_org) do
     create(:organization, address_line1: '345 Sixth St.', address_line2: 'Suite 3',
@@ -90,7 +90,7 @@ describe ClaimsApi::VANotifyJob, type: :job do
               email: va_notify_rep.email,
               phone: va_notify_rep.phone_number
             },
-            template_id: Settings.claims_api.vanotify.representative_template_id
+            template_id: Settings.claims_api.vanotify.accepted_representative_template_id
           }
         end
 
@@ -119,7 +119,7 @@ describe ClaimsApi::VANotifyJob, type: :job do
               email: va_notify_rep.email,
               phone: va_notify_rep.phone_number
             },
-            template_id: Settings.claims_api.vanotify.representative_template_id
+            template_id: Settings.claims_api.vanotify.accepted_representative_template_id
           }
         end
 
@@ -145,7 +145,7 @@ describe ClaimsApi::VANotifyJob, type: :job do
               location: 'Pensacola, FL 12345-9876',
               phone: ''
             },
-            template_id: Settings.claims_api.vanotify.service_organization_template_id
+            template_id: Settings.claims_api.vanotify.accepted_service_organization_template_id
           }
         end
 

@@ -358,6 +358,16 @@
                             "type": "string",
                             "description": "The reason for declining the request.",
                             "nullable": true
+                          },
+                          "participantId": {
+                            "type": "string",
+                            "description": "The unique identifier of the requestʼs participant. Required if the decision is DECLINED.",
+                            "nullable": true
+                          },
+                          "representativeId": {
+                            "type": "string",
+                            "description": "The unique identifier of the requestʼs representative. Required if the decision is DECLINED.",
+                            "nullable": true
                           }
                         }
                       }

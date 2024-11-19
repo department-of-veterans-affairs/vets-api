@@ -43,28 +43,27 @@ module ClaimsApi
 
         def decide
           proc_id = form_attributes['procId']
+          ptcpnt_id = form_attributes['participantId']
+          decision = normalize(form_attributes['decision'])
+          representative_id = form_attributes['representativeId']
 
-          unless proc_id
-            raise ::Common::Exceptions::ParameterMissing.new('procId',
-                                                             detail: 'procId is required')
-          end
-
-          decision = form_attributes['decision']
-
-          unless decision && %w[accepted declined].include?(normalize(decision))
-            raise ::Common::Exceptions::ParameterMissing.new(
-              'decision',
-              detail: 'decision is required and must be either "ACCEPTED" or "DECLINED"'
-            )
-          end
+          validate_decide_params!(proc_id:, decision:)
 
           service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
                                                     external_key: 'power_of_attorney_request_key')
 
+          if decision == 'declined'
+            poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
+          end
+
+          first_name = poa_request['claimantFirstName'] || poa_request['vetFirstName'].presence if poa_request
+
           res = service.update_poa_request(proc_id:, secondary_status: decision,
                                            declined_reason: form_attributes['declinedReason'])
 
-          raise ::Common::Exceptions::Lighthouse::BadGateway unless res
+          raise Common::Exceptions::Lighthouse::BadGateway if res.blank?
+
+          send_declined_notification(ptcpnt_id:, first_name:, representative_id:) if decision == 'declined'
 
           render json: res, status: :ok
         end
@@ -103,6 +102,53 @@ module ClaimsApi
         end
 
         private
+
+        def validate_decide_params!(proc_id:, decision:)
+          if proc_id.blank?
+            raise ::Common::Exceptions::ParameterMissing.new('procId',
+                                                             detail: 'procId is required')
+          end
+
+          unless decision.present? && %w[accepted declined].include?(decision)
+            raise ::Common::Exceptions::ParameterMissing.new(
+              'decision',
+              detail: 'decision is required and must be either "ACCEPTED" or "DECLINED"'
+            )
+          end
+        end
+
+        def send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
+          lockbox = Lockbox.new(key: Settings.lockbox.master_key)
+          encrypted_ptcpnt_id = Base64.strict_encode64(lockbox.encrypt(ptcpnt_id))
+          encrypted_first_name = Base64.strict_encode64(lockbox.encrypt(first_name))
+
+          ClaimsApi::VANotifyDeclinedJob.perform_async(encrypted_ptcpnt_id, encrypted_first_name, representative_id)
+        end
+
+        def validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
+          if ptcpnt_id.blank?
+            raise ::Common::Exceptions::ParameterMissing.new('ptcpntId',
+                                                             detail: 'ptcpntId is required if decision is declined')
+          end
+
+          if representative_id.blank?
+            raise ::Common::Exceptions::ParameterMissing
+              .new('representativeId', detail: 'representativeId is required if decision is declined')
+          end
+
+          res = service.read_poa_request_by_ptcpnt_id(ptcpnt_id:)
+
+          raise ::Common::Exceptions::Lighthouse::BadGateway if res.blank?
+
+          poa_requests = Array.wrap(res['poaRequestRespondReturnVOList'])
+
+          matching_request = poa_requests.find { |poa_request| poa_request['procID'] == proc_id }
+
+          detail = 'Participant ID/Process ID combination not found'
+          raise ::Common::Exceptions::ResourceNotFound.new(detail:) if matching_request.nil?
+
+          matching_request
+        end
 
         def validate_accredited_representative(registration_number, poa_code)
           @representative = ::Veteran::Service::Representative.where('? = ANY(poa_codes) AND representative_id = ?',

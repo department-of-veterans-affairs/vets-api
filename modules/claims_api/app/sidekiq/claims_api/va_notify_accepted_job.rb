@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class VANotifyJob < ClaimsApi::ServiceBase
-    LOG_TAG = 'va_notify_job'
+  class VANotifyAcceptedJob < ClaimsApi::ServiceBase
+    LOG_TAG = 'va_notify_accepted_job'
 
     def perform(poa_id, rep)
       return if skip_notification_email?
@@ -39,7 +39,7 @@ module ClaimsApi
     private
 
     def handle_failure(poa_id, error)
-      job_name = 'ClaimsApi::VANotifyJob'
+      job_name = 'ClaimsApi::VANotifyAcceptedJob'
       msg = "VA Notify email notification failed to send for #{poa_id} with error #{error}"
       slack_alert_on_failure(job_name, msg)
 
@@ -64,7 +64,7 @@ module ClaimsApi
           email: value_or_default_for_field(rep.email),
           phone: rep_phone(rep)
         },
-        template_id: Settings.claims_api.vanotify.representative_template_id
+        template_id: Settings.claims_api.vanotify.accepted_representative_template_id
       }
     end
 
@@ -78,7 +78,7 @@ module ClaimsApi
           location: value_or_default_for_field(org_location(org)),
           phone: value_or_default_for_field(org.phone)
         },
-        template_id: Settings.claims_api.vanotify.service_organization_template_id
+        template_id: Settings.claims_api.vanotify.accepted_service_organization_template_id
       }
     end
 
