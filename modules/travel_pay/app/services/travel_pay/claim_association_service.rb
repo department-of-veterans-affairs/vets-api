@@ -100,10 +100,10 @@ module TravelPay
           'success' => false
         }
       else
-        Rails.logger.error(message: "An unknown error occored: #{e}")
+        Rails.logger.error(message: "An unknown error occured: #{e}")
         {
           'status' => 520, # Unknown error code
-          'message' => "An unknown error occored: #{e}",
+          'message' => "An unknown error occured: #{e}",
           'success' => false
         }
       end
