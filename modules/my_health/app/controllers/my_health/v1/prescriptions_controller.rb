@@ -14,14 +14,15 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
-        resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         resource.data = filter_non_va_meds(resource.data)
+        options = { meta: resource.metadata.merge(set_filter_metadata(resource.data))}
+        resource = params[:filter].present? ? resource.find_by(filter_params) : resource
+        # resource.data = params[:renew].present? ? filter_data_by_refill_and_renew(resource.data) : resource.data
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
 
-        options = { meta: resource.metadata }
         options[:links] = pagination_links(resource) if is_using_pagination
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
@@ -130,6 +131,23 @@ module MyHealth
         end
       end
 
+      def set_filter_metadata(list)
+        puts list.count { |prescription| ["Discontinued","Expired","Transferred","Unknown"].include?(prescription.disp_status) }
+        {
+          :filter_count => {
+            :active => list.select { |prescription| [
+              "Active","Active: Refill in Process","Active: Non-VA","Active: On hold","Active: Parked","Active: Submitted"
+            ]
+              .include?(prescription.disp_status) }.length,
+          :recently_requested => list.select { |prescription| ["Active: Refill in Process","Active: Submitted"].include?(prescription.disp_status)}.length,
+          :renewal => list.select { |prescription| (["Expired"].include?(prescription.disp_status) && (["Active"].include?(prescription.disp_status) && prescription.refill_remaining == 0)) && (prescription.is_refillable == false)}.length,
+          :non_active => list.select { |prescription| ["Discontinued","Expired","Transferred","Unknown"].include?(prescription.disp_status)}.length,
+
+        }
+      }
+
+      end
+
       def collection_resource
         case params[:refill_status]
         when nil
@@ -141,3 +159,10 @@ module MyHealth
     end
   end
 end
+
+
+
+# :renewal => list.select { |prescription| (["Expired"].include?(prescription.disp_status)
+#   && (["Active"].include?(prescription.disp_status)
+#   && prescription.refill_remaining == 0))
+#   && (prescription.is_refillable)}.length
