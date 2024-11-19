@@ -11,22 +11,10 @@ module ClaimsApi
           return [] if bgs_claim.nil?
 
           @supporting_documents = []
+          file_number = get_file_number
+          return [] if file_number.nil?
 
           docs = if benefits_documents_enabled?
-                   file_number = if use_birls_id_file_number?
-                                   target_veteran.birls_id
-                                 else
-                                   local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
-                                 end
-
-                   if file_number.nil?
-                     claims_v2_logging('benefits_documents',
-                                       message: "calling benefits documents api for claim_id: #{params[:id]} " \
-                                                'returned a nil file number in claims controller v2')
-
-                     return []
-                   end
-
                    claims_v2_logging('benefits_documents',
                                      message: "calling benefits documents api for claim_id #{params[:id]} " \
                                               'in claims controller v2')
@@ -53,6 +41,22 @@ module ClaimsApi
           end
         end
         # rubocop:enable Metrics/MethodLength
+
+        def get_file_number
+          file_number = if use_birls_id_file_number?
+                          target_veteran.birls_id
+                        else
+                          local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
+                        end
+
+          if file_number.blank?
+            claims_v2_logging('benefits_documents',
+                              message: "calling benefits documents api for claim_id: #{params[:id]} " \
+                                       'returned a nil file number in claims controller v2')
+            return nil
+          end
+          file_number
+        end
 
         def get_evss_documents(claim_id)
           evss_docs_service.get_claim_documents(claim_id).body
