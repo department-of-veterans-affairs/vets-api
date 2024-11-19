@@ -12,15 +12,13 @@ module DebtsApi
 
       def digital_disputes_params
         params.permit(
-          veteran_information: {
-            contact_information: [
-              :email,
-              :phone_number,
-              :street_address_line_1,
-              :street_address_line_2,
-              :city
-            ]
-          },
+          contact_information: [
+            :email,
+            :phone_number,
+            :street_address_line_1,
+            :street_address_line_2,
+            :city
+          ],
           debt_information: [
             :debt,
             :dispute_reason,
