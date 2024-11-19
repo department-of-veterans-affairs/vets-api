@@ -17,13 +17,18 @@ module VRE
       super('vre-application')
     end
 
-    def track_submission_exhaustion(msg)
+    def track_submission_exhaustion(msg, email = nil)
       additional_context = {
         message: msg
       }
-      # log_silent_failure calls the ZSF method which increases a special StatsD metric
-      # and writes to the Rails log for additional ZSF tracking.
-      log_silent_failure(additional_context, nil, call_location: caller_locations.first)
+
+      if email
+        log_silent_failure_avoided(additional_context, nil, call_location: caller_locations.first)
+      else
+        # log_silent_failure calls the ZSF method which increases a special StatsD metric
+        # and writes to the Rails log for additional ZSF tracking.
+        log_silent_failure(additional_context, nil, call_location: caller_locations.first)
+      end
 
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
       Rails.logger.error(
