@@ -40,9 +40,9 @@ module PagerDuty
       begin
         perform(:get, 'maintenance_windows', query).body
       rescue => e
-        if e.message.include?('400')
+        if e.respond_to?(:original_status) && e.original_status == 400
           Rails.logger.error(
-            "Invalid arguments sent to PagerDuty. One of the following Service IDs: #{query['service_ids']} is bad."
+            "Invalid arguments sent to PagerDuty. One of the following Service IDs is bad: #{query['service_ids']}"
           )
         else
           Rails.logger.error("Querying PagerDuty for maintenance windows failed with the error: #{e}")

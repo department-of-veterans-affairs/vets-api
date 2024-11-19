@@ -93,7 +93,7 @@ describe PagerDuty::MaintenanceClient do
         )
 
       expect(Rails.logger).to receive(:error)
-        .with('Invalid arguments sent to PagerDuty. One of the following Service IDs: ["XBADXX"] is bad.')
+        .with('Invalid arguments sent to PagerDuty. One of the following Service IDs is bad: ["XBADXX"]')
 
       windows = subject.get_all
       expect(windows).to be_empty
