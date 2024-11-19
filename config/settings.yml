@@ -674,8 +674,10 @@ claims_api:
   poa_v2:
     disable_jobs: false
   vanotify:
-    representative_template_id: ~
-    service_organization_template_id: ~
+    accepted_representative_template_id: ~
+    accepted_service_organization_template_id: ~
+    declined_representative_template_id: ~
+    declined_service_organization_template_id: ~
     services:
       lighthouse:
         api_key: ~
@@ -1399,6 +1401,7 @@ vanotify:
     health_apps_1010:
       api_key: fake_secret
       template_id:
+        form1010_cg_failure_email: fake_template_id
         form1010_ez_failure_email: fake_template_id
         form1010_ezr_failure_email: fake_template_id
     # https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/
