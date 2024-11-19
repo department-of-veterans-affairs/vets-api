@@ -340,7 +340,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         before do
           user = OpenStruct.new({ flipper_id: submission.user_uuid })
           allow(Flipper).to receive(:enabled?).and_call_original
-          allow(Flipper).to receive(:enabled?).with(:disability_526_expanded_contention_classification, user).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:disability_526_expanded_contention_classification,
+                                                    user).and_return(true)
         end
 
         it 'calls the expanded classification endpoint' do
