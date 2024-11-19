@@ -29,7 +29,7 @@ module VAOS
           type:
         }
 
-        perform(:get, "/vaos/v1/patients/#{user.icn}/eligibility", params, headers)
+        perform(:get, "/#{base_vaos_route}/patients/#{user.icn}/eligibility", params, headers)
       end
 
       def get_patient_appointment_metadata_vpg(clinic_service_id, facility_id, type)

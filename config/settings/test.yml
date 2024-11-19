@@ -228,11 +228,14 @@ lighthouse:
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
       api_scope:
         - "launch"
+        - "patient/AllergyIntolerance.read"
+        - "patient/DiagnosticReport.read"
         - "patient/Patient.read"
         - "system/Patient.read"
         - "patient/Observation.read"
         - "patient/Practitioner.read"
         - "patient/MedicationRequest.read"
+        - "patient/Condition.read"
       aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token"
       client_id: "fake_client_id"
       grant_type: "client_credentials"
@@ -445,9 +448,6 @@ travel_pay:
   base_url: 'https://btsss.gov'
   client_number: '12345'
   service_name: 'BTSSS-API'
-
-pension_ipf_vanotify_status_callback:
-  bearer_token: bearer_token_secret
 
 va_notify:
   status_callback:

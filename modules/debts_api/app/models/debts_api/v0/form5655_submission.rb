@@ -84,6 +84,7 @@ module DebtsApi
       update(error_message: message)
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
+      StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
     end
 

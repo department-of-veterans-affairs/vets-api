@@ -30,7 +30,12 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
     let(:data) { Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'form_2122_json_api.json').read }
     let(:data_with_claimant) do
       parsed_data = JSON.parse(data)
-      parsed_data['data']['attributes']['claimant'] = { firstName: 'Jane', lastName: 'Doe' }
+      parsed_data['data']['attributes']['claimant'] = { firstName: 'Jane', lastName: 'Doe', relationship: 'Spouse' }
+      parsed_data.to_json
+    end
+    let(:data_with_claimant_as_self) do
+      parsed_data = JSON.parse(data)
+      parsed_data['data']['attributes']['claimant'] = { firstName: 'John', lastName: 'Doe', relationship: 'Self' }
       parsed_data.to_json
     end
     let(:path) { '/services/claims/v1/forms/2122' }
@@ -396,7 +401,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
       end
 
-      context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
+      context "when the lighthouse_claims_api_poa_dependent_claimants feature is enabled and rel is not 'Self'" do
         include_context 'stub validation methods'
 
         let(:claimant_information_for_headers) do
@@ -431,6 +436,19 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
               poa_id = parsed['data']['id']
               poa = ClaimsApi::PowerOfAttorney.find(poa_id)
               expect(poa.auth_headers).to have_key('dependent')
+            end
+          end
+
+          it "does not incude the 'dependent' object to the auth_headers if relatonship is 'Self'" do
+            mock_acg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                .to receive(:validate_dependent_claimant!).and_return(claimant_information_for_headers)
+
+              post path, params: data_with_claimant_as_self, headers: headers.merge(auth_header)
+              parsed = JSON.parse(response.body)
+              poa_id = parsed['data']['id']
+              poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+              expect(poa.auth_headers).not_to have_key('dependent')
             end
           end
         end
