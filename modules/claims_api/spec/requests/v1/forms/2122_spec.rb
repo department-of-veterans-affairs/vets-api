@@ -3,6 +3,7 @@
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
+require 'bgs_service/person_web_service'
 
 RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
   let(:headers) do

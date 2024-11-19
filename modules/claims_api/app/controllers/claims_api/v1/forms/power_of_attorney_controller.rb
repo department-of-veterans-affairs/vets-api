@@ -2,6 +2,7 @@
 
 require 'bgs/power_of_attorney_verifier'
 require 'bgs_service/local_bgs'
+require 'bgs_service/person_web_service'
 require 'claims_api/dependent_claimant_validation'
 
 module ClaimsApi
@@ -268,7 +269,7 @@ module ClaimsApi
 
         def find_by_ssn(ssn)
           # rubocop:disable Rails/DynamicFindBy
-          ClaimsApi::LocalBGS.new(
+          ClaimsApi::PersonWebService.new(
             external_uid: target_veteran.participant_id,
             external_key: target_veteran.participant_id
           ).find_by_ssn(ssn)
