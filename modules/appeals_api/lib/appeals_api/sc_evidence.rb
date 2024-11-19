@@ -31,4 +31,3 @@ module AppealsApi
     end
   end
 end
-
