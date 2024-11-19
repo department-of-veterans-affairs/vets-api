@@ -1283,6 +1283,9 @@ RSpec.describe Form526Submission do
         subject { create(:form526_submission, :with_multiple_succesful_jobs) }
 
         it 'does not trigger job when disability_526_call_received_email_from_polling enabled' do
+          # saved_claim_schema_validation_disable in the same call chain needs to be disabled to prevent
+          # potential flakiness
+          allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:disability_526_call_received_email_from_polling,
                                                     anything).and_return(true)
           expect do
@@ -1291,6 +1294,8 @@ RSpec.describe Form526Submission do
         end
 
         it 'returns one job triggered when disability_526_call_received_email_from_polling disabled' do
+          # Same here
+          allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:disability_526_call_received_email_from_polling,
                                                     anything).and_return(false)
           expect do
