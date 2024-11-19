@@ -332,16 +332,6 @@
                   "veteran": {
                     "type": "object",
                     "properties": {
-                      "insurance_numbers": {
-                        "type": "array",
-                        "items": {
-                          "type": "string"
-                        },
-                        "example": [
-                          "123456789",
-                          "987654321"
-                        ]
-                      },
                       "name": {
                         "type": "object",
                         "properties": {

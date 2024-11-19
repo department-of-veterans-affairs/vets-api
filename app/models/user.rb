@@ -131,6 +131,10 @@ class User < Common::RedisStore
     }
   end
 
+  def preferred_name
+    preferred_name_mpi
+  end
+
   def gender
     identity.gender.presence || gender_mpi
   end
@@ -234,6 +238,10 @@ class User < Common::RedisStore
 
   def first_name_mpi
     given_names&.first
+  end
+
+  def preferred_name_mpi
+    mpi_profile&.preferred_names&.first
   end
 
   def middle_name_mpi
