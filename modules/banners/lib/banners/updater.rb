@@ -2,6 +2,7 @@
 
 require 'banners/builder'
 require 'banners/profile/vacms'
+
 module Banners
   class Updater
     # If banners are to be added in the future, include them here by adding
