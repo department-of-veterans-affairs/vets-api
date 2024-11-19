@@ -2,6 +2,7 @@
 
 require 'banners/engine'
 require 'banners/builder'
+require 'banners/profile/vacms'
 module Banners
   class Updater
     # If banners are to be added in the future, include them here by adding
@@ -13,7 +14,7 @@ module Banners
 
     def update_vacms_banners
       vacms_banner_data.each do |banner_data|
-        Builder.perform_async(parsed_vacms_banner(banner_data))
+        Builder.perform_async(Profile::Vacms.parsed_banner(banner_data))
       end
     end
 
@@ -52,22 +53,6 @@ module Banners
       options = { ssl: { verify: false } }
       options[:proxy] = { uri: URI.parse('socks://localhost:2001') } unless Rails.env.production?
       options
-    end
-
-    def parsed_vacms_banner(banner_data)
-      {
-        entity_id: banner_data['entityId'],
-        headline: banner_data['title'],
-        alert_type: banner_data['fieldAlertType'],
-        entity_bundle: 'full_width_banner_alert',
-        content: banner_data['fieldBody']['processed'],
-        context: banner_data['fieldBannerAlertVamcs'],
-        show_close: banner_data['fieldAlertDismissable'],
-        operating_status_cta: banner_data['fieldAlertOperatingStatusCta'],
-        email_updates_button: banner_data['fieldAlertEmailUpdatesButton'],
-        find_facilities_cta: banner_data['fieldAlertFindFacilitiesCta'],
-        limit_subpage_inheritance: banner_data['fieldAlertLimitSubpageInheritance'] || false
-      }
     end
 
     def enabled?
