@@ -15,7 +15,7 @@ describe Eps::BaseService do
         'Content-Type' => 'application/json',
         'X-Request-ID' => 'request-id'
       }
-      expect(service.send(:headers)).to eq(expected_headers)
+      expect(service.headers).to eq(expected_headers)
     end
   end
 
