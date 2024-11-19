@@ -459,6 +459,22 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
         end
       end
 
+      context 'Retrieving SavedClaim records fails' do
+        before do
+          allow(SavedClaim::SupplementalClaim).to receive(:where).and_raise(ActiveRecord::ConnectionTimeoutError)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'rescues the error and logs' do
+          subject.new.perform
+
+          expect(Rails.logger).to have_received(:error)
+            .with('DecisionReview::SavedClaimScStatusUpdaterJob error', anything)
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_sc_status_updater.error').once
+        end
+      end
+
       context 'an error occurs while processing form, attachments, or secondary form' do
         before do
           SavedClaim::SupplementalClaim.create(guid: SecureRandom.uuid, form: '{}')

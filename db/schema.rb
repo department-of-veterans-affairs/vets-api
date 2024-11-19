@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_14_213556) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_19_134025) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -741,6 +741,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_14_213556) do
     t.string "aasm_state", default: "unprocessed"
     t.integer "submit_endpoint"
     t.integer "backup_submitted_claim_status"
+    t.index ["backup_submitted_claim_id"], name: "index_form526_submissions_on_backup_submitted_claim_id"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -1075,7 +1076,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_14_213556) do
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
     t.string "uploaded_forms", default: [], array: true
-    t.datetime "itf_datetime"
     t.datetime "form_start_date"
     t.datetime "delete_date"
     t.text "metadata"
@@ -1384,6 +1384,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_14_213556) do
     t.datetime "updated_at", null: false
     t.string "metadata"
     t.jsonb "callback_metadata"
+    t.text "callback_klass"
+    t.uuid "template_id"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
