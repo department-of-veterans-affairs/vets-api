@@ -873,6 +873,65 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             end
           end
         end
+
+        context "when 'unitName' is empty" do
+          let(:unit_name) { '' }
+
+          it 'returns a successful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService']['unitName'] =
+                    unit_name
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:ok)
+                  response_body = JSON.parse(response.body)
+                  claim_id = response_body['data']['id']
+                  claim = ClaimsApi::AutoEstablishedClaim.find(claim_id)
+                  claim.to_internal
+                  expect(claim.form_data['serviceInformation']['reservesNationalGuardService']['unitName']).to eq(' ')
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'unitName' is nil" do
+          let(:unit_name) { nil }
+
+          it 'returns a unsuccessful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService']['unitName'] =
+                    unit_name
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
+
+        context "when 'unitName' is not present" do
+          it 'returns a unsuccessful response' do
+            mock_acg(scopes) do |auth_header|
+              VCR.use_cassette('claims_api/bgs/claims/claims') do
+                VCR.use_cassette('claims_api/brd/countries') do
+                  par = json_data
+                  par['data']['attributes']['serviceInformation']['reservesNationalGuardService'].delete('unitName')
+
+                  post path, params: par.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:unprocessable_entity)
+                end
+              end
+            end
+          end
+        end
       end
 
       context '526 submission payload validations' do
@@ -1664,6 +1723,28 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               '11111111111'
             post path, params: params.to_json, headers: headers.merge(auth_header)
             expect(response).to have_http_status(:bad_request)
+            response_error_details = JSON.parse(response.body)['errors'].first['detail']
+            expect(response_error_details).to include('is not a valid value for "separationLocationCode"')
+          end
+        end
+      end
+    end
+
+    context 'when submitted separationLocationCode is an integer' do
+      it 'responds with bad request' do
+        mock_acg(scopes) do |auth_header|
+          VCR.use_cassette('claims_api/brd/intake_sites') do
+            json_data = JSON.parse data
+            params = json_data
+            params['data']['attributes']['serviceInformation']['servicePeriods'].first['activeDutyEndDate'] =
+              (Time.zone.today + 1.day).to_s
+            params['data']['attributes']['serviceInformation']['servicePeriods'].first['separationLocationCode'] =
+              111
+            post path, params: params.to_json, headers: headers.merge(auth_header)
+            expect(response).to have_http_status(:unprocessable_entity)
+            response_error_details = JSON.parse(response.body)['errors'].first['detail']
+            expect(response_error_details).to include('Code must match the values returned by the /intake-sites' \
+                                                      ' endpoint on the [Benefits reference Data API]')
           end
         end
       end
