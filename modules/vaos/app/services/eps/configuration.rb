@@ -2,24 +2,18 @@
 
 module Eps
   class Configuration < Common::Client::Configuration::REST
-    def self.login_url
-      Settings.vaos.eps.access_token_url
+    delegate :access_token_url, :api_url, :grant_type, :scopes, :client_assertion_type, to: 'Settings.vaos.eps'
+
+    def login_url
+      access_token_url
     end
 
-    def self.base_path
-      Settings.vaos.eps.api_url
+    def base_path
+      api_url
     end
 
-    def self.grant_type
-      Settings.vaos.eps.grant_type
-    end
-
-    def self.scope
-      Settings.vaos.eps.scopes
-    end
-
-    def self.client_assertion_type
-      Settings.vaos.eps.client_assertion_type
+    def scope
+      scopes
     end
 
     def connection
@@ -43,10 +37,6 @@ module Eps
     end
 
     private
-
-    def base_path
-      self.class.base_path
-    end
 
     def base_request_headers
       # Define your base request headers here
