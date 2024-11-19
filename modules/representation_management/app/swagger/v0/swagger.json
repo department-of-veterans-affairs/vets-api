@@ -193,6 +193,38 @@
     }
   },
   "paths": {
+    "/representation_management/v0/accredited_entities_for_appoint": {
+      "get": {
+        "summary": "Accredited Entities for Appoint",
+        "tags": [
+          "Accredited Entities for Appoint"
+        ],
+        "operationId": "accreditedEntitiesForAppoint",
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "example": "Bob"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/representation_management/v0/pdf_generator2122": {
       "post": {
         "summary": "Generate a PDF for form 21-22",
