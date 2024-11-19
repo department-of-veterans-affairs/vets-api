@@ -93,7 +93,14 @@ module SwaggerSharedComponents
           properties: appointment_conditions_parameter.merge(
             claimant: claimant_parameter,
             representative: representative_parameter,
-            veteran: veteran_parameter
+            veteran: veteran_parameter,
+            consent_inside_access: { type: :boolean, example: true },
+            consent_outside_access: { type: :boolean, example: true },
+            consent_team_members: {
+              type: :array,
+              items: { type: :string },
+              example: ['Alice Aster', 'Authur Aster']
+            }
           ),
           required: %w[record_consent veteran]
         }
@@ -104,17 +111,10 @@ module SwaggerSharedComponents
       {
         record_consent: { type: :boolean, example: true },
         consent_address_change: { type: :boolean, example: false },
-        consent_inside_access: { type: :boolean, example: true },
-        consent_outside_access: { type: :boolean, example: true },
         consent_limits: {
           type: :array,
           items: { type: :string },
           example: %w[ALCOHOLISM DRUG_ABUSE HIV SICKLE_CELL]
-        },
-        consent_team_members: {
-          type: :array,
-          items: { type: :string },
-          example: ['Alice Aster', 'Authur Aster']
         }
       }
     end
@@ -154,7 +154,6 @@ module SwaggerSharedComponents
           date_of_birth: { type: :string, format: :date, example: '1980-12-31' },
           service_number: { type: :string, example: '123456789' },
           service_branch: { type: :string, example: 'Army' },
-          service_branch_other: { type: :string, example: 'Other Branch' },
           phone: { type: :string, example: '1234567890' },
           email: { type: :string, example: 'veteran@example.com' }
         }
