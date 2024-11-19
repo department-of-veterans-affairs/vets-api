@@ -2,22 +2,22 @@
 
 module Eps
   class Configuration < Common::Client::Configuration::REST
-    delegate :access_token_url, :api_url, :grant_type, :scopes, :client_assertion_type, to: 'Settings.vaos.eps'
+    delegate :access_token_url, :api_url, :grant_type, :scopes, :client_assertion_type, to: :settings
 
-    def login_url
-      access_token_url
+    def settings
+      Settings.vaos.eps
     end
 
-    def base_path
-      api_url
+    def service_name
+      'EPS'
     end
 
-    def scope
-      scopes
+    def mock_enabled?
+      [true, 'true'].include?(settings.mock)
     end
 
     def connection
-      Faraday.new(base_path, headers: base_request_headers, request: request_options) do |conn|
+      Faraday.new(api_url, headers: base_request_headers, request: request_options) do |conn|
         conn.use :breakers
         conn.request :camelcase
         conn.request :json
@@ -34,20 +34,6 @@ module Eps
         conn.use :vaos_logging
         conn.adapter Faraday.default_adapter
       end
-    end
-
-    private
-
-    def base_request_headers
-      # Define your base request headers here
-    end
-
-    def request_options
-      # Define your request options here
-    end
-
-    def mock_enabled?
-      # Define your mock enabled logic here
     end
   end
 end
