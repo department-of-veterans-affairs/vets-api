@@ -1,5 +1,12 @@
 query bannerAlerts {
-  nodeQuery(limit: 500, filter: {conditions: [{field: "status", value: "1", operator: EQUAL}, {field: "type", value: "full_width_banner_alert"}]}) {
+  nodeQuery(
+    limit: 500,
+    filter: {conditions: [
+      {field: "status", value: "1", operator: EQUAL},
+      {field: "type", value: "full_width_banner_alert"},
+      {field: "field_banner_alert_vamcs", operator: IS_NOT_NULL}
+    ]}
+  ) {
     count
     entities {
       ... on NodeFullWidthBannerAlert {

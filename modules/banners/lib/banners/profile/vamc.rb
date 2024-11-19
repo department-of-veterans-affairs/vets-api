@@ -2,8 +2,8 @@
 
 module Banners
   module Profile
-    class Vacms
-      # Converts the GraphQL response into a hash that can be used to create or update a VACMS banner
+    class Vamc
+      # Converts the GraphQL response into a hash that can be used to create or update a VAMC banner
       def self.parsed_banner(graphql_banner_response)
         {
           entity_id: graphql_banner_response['entityId'],

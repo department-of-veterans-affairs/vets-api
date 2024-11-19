@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'banners/builder'
-require 'banners/profile/vacms'
+require 'banners/profile/vamc'
 
 module Banners
   class Updater
@@ -9,16 +9,16 @@ module Banners
     # another #update_{type_of}_banners method for #perform to call
     def self.perform
       banner_updater = new
-      banner_updater.update_vacms_banners
+      banner_updater.update_vamc_banners
     end
 
-    def update_vacms_banners
-      vacms_banner_data.each do |banner_data|
-        Builder.perform(Profile::Vacms.parsed_banner(banner_data))
+    def update_vamc_banners
+      vamcs_banner_data.each do |banner_data|
+        Builder.perform(Profile::Vamc.parsed_banner(banner_data))
       end
 
-      # Delete any banners that are no longer in the list of banners for VACMS
-      entity_ids_to_keep = vacms_banner_data.map { |banner_data| banner_data['entityId'] }
+      # Delete any banners that are no longer in the list of banners for VAMCS
+      entity_ids_to_keep = vamcs_banner_data.map { |banner_data| banner_data['entityId'] }
       Banner.where.not(entity_id: entity_ids_to_keep).destroy_all
     end
 
@@ -42,8 +42,8 @@ module Banners
       options
     end
 
-    def vacms_banner_data
-      banner_graphql_query = Rails.root.join('modules', 'banners', 'config', 'vacms_graphql_query.txt')
+    def vamcs_banner_data
+      banner_graphql_query = Rails.root.join('modules', 'banners', 'config', 'vamcs_graphql_query.txt')
       body = { query: File.read(banner_graphql_query) }
 
       response = connection.post do |req|
