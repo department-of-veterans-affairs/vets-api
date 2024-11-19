@@ -106,8 +106,10 @@ describe PagerDuty::MaintenanceClient do
           status: 429
         )
 
-      expect(Rails.logger).to receive(:error)
-        .with('Querying PagerDuty for maintenance windows failed with the error: PagerDuty::ServiceException')
+      # rubocop:disable Layout/LineLength
+      error_message = 'Querying PagerDuty for maintenance windows failed with the error: BackendServiceException: {:status=>429, :detail=>nil, :code=>\"PAGERDUTY_429\", :source=>nil}'
+      # rubocop:enable Layout/LineLength
+      expect(Rails.logger).to receive(:error).with(error_message)
 
       windows = subject.get_all
       expect(windows).to be_empty
