@@ -76,7 +76,7 @@ module SwaggerSharedComponents
           type: :object,
           properties: appointment_conditions_parameter.merge(
             claimant: claimant_parameter,
-            representative: representative_parameter,
+            representative: representative_parameter_id_and_organization_id,
             veteran: veteran_parameter
           ),
           required: %w[record_consent veteran]
@@ -92,7 +92,7 @@ module SwaggerSharedComponents
           type: :object,
           properties: appointment_conditions_parameter.merge(
             claimant: claimant_parameter,
-            representative: representative_parameter,
+            representative: representative_parameter_only_id,
             veteran: veteran_parameter,
             consent_inside_access: { type: :boolean, example: true },
             consent_outside_access: { type: :boolean, example: true },
@@ -133,12 +133,21 @@ module SwaggerSharedComponents
       }
     end
 
-    def self.representative_parameter
+    def self.representative_parameter_id_and_organization_id
       {
         type: :object,
         properties: {
           id: { type: :string, example: '8c3b3b53-02a1-4dbd-bd23-2b556f5ef635' },
           organization_id: { type: :string, example: '6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943' }
+        }
+      }
+    end
+
+    def self.representative_parameter_only_id
+      {
+        type: :object,
+        properties: {
+          id: { type: :string, example: '8c3b3b53-02a1-4dbd-bd23-2b556f5ef635' }
         }
       }
     end
