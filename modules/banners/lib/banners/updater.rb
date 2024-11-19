@@ -17,8 +17,8 @@ module Banners
         Builder.perform(Profile::Vamc.parsed_banner(banner_data))
       end
 
-      # Delete any banners that are no longer in the list of banners for VAMCS
-      entity_ids_to_keep = vamcs_banner_data.map { |banner_data| banner_data['entityId'] }
+      # Delete any banners that are no longer in the list of banners for VAMCs
+      entity_ids_to_keep = vamcs_banner_data.pluck('entityId')
       Banner.where.not(entity_id: entity_ids_to_keep).destroy_all
     end
 
