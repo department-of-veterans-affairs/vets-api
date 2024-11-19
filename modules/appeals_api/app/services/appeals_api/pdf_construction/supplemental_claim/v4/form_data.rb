@@ -75,7 +75,7 @@ module AppealsApi
           end
 
           def new_evidence_dates
-            evidence_records.map { |er| er.dates(month_format: true) }
+            evidence_records.map(&:dates_month_format)
           end
 
           def veteran_ssn_first_three

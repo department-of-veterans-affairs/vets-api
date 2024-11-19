@@ -115,7 +115,7 @@ describe AppealsApi::PdfConstruction::Generator do
     end
 
     context 'Supplemental Claim' do
-      shared_examples 'shared SC v2 and v3 generator examples' do |pdf_version, max_content_form_data|
+      shared_examples 'shared SC v2/v3/v4 generator examples' do |pdf_version, max_content_form_data|
         let(:created_at) { '2021-02-03T14:15:16Z' }
         let(:generated_pdf) { described_class.new(sc, pdf_version:).generate }
         let(:expected_pdf) { fixture_filepath("decision_reviews/v2/pdfs/#{pdf_version}/#{fixture_name}") }
@@ -209,19 +209,19 @@ describe AppealsApi::PdfConstruction::Generator do
       end
 
       context 'v2' do
-        include_examples 'shared SC v2 and v3 generator examples', 'v2', {
+        include_examples 'shared SC v2/v3/v4 generator examples', 'v2', {
           signing_appellant_phone: '+WWW-WWWWWWWWWWWWWWW'
         }
       end
 
       context 'v3' do
-        include_examples 'shared SC v2 and v3 generator examples', 'v3', {
+        include_examples 'shared SC v2/v3/v4 generator examples', 'v3', {
           international_phone: '+WWW-WWWWWWWWWWWWWWW'
         }
       end
 
       context 'v4' do
-        include_examples 'shared SC v2 and v3 generator examples', 'v4', {
+        include_examples 'shared SC v2/v3/v4 generator examples', 'v4', {
           international_phone: '+WWW-WWWWWWWWWWWWWWW'
         }
       end
