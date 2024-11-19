@@ -2,12 +2,13 @@
 
 require 'rails_helper'
 require 'bd/bd'
+require 'bgs_service/person_web_service'
 
 class FakeController
   include ClaimsApi::V2::ClaimsRequests::SupportingDocuments
 
   def local_bgs_service
-    @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+    ClaimsApi::PersonWebService.new(
       external_uid: target_veteran.participant_id,
       external_key: target_veteran.participant_id
     )
@@ -54,7 +55,7 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
       }
     }
   end
-
+  let(:ssn) { '796111863' }
   let(:supporting_doc_list) do
     { data: {
       documents: [
@@ -100,8 +101,7 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
     allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return(false)
 
-    allow(controller.local_bgs_service).to receive(:find_by_ssn).with('796111863')
-                                                                .and_return({ file_nbr: '796111863' })
+    allow(controller).to receive(:get_file_number).with('796111863').and_return('796111863')
     allow(controller.benefits_doc_api).to receive(:search).with('8675309', '796111863')
                                                           .and_return(supporting_doc_list)
   end
@@ -109,13 +109,13 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
   describe '#build_supporting_docs from Benefits Documents' do
     it 'builds and returns the correctly number of docs' do
       allow(controller).to receive(:get_file_number).and_return('796111863')
-      result = controller.build_supporting_docs(bgs_claim)
+      result = controller.build_supporting_docs(bgs_claim, ssn)
       expect(result.length).to eq(supporting_doc_list[:data][:documents].length)
     end
 
     it 'builds the correct doc output' do
       allow(controller).to receive(:get_file_number).and_return('796111863')
-      result = controller.build_supporting_docs(bgs_claim)
+      result = controller.build_supporting_docs(bgs_claim, ssn)
 
       expect(result[0][:document_id]).to eq(supporting_doc_list[:data][:documents][0][:documentId])
       expect(result[0][:document_type_label]).to eq(supporting_doc_list[:data][:documents][0][:documentTypeLabel])
@@ -133,12 +133,12 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
     end
 
     it 'builds and returns the correctly number of docs' do
-      result = controller.build_supporting_docs(bgs_claim)
+      result = controller.build_supporting_docs(bgs_claim, ssn)
       expect(result.length).to eq(evss_doc_list['documents'].length)
     end
 
     it 'builds the correct doc output' do
-      result = controller.build_supporting_docs(bgs_claim)
+      result = controller.build_supporting_docs(bgs_claim, ssn)
 
       expect(result[0][:document_id]).to eq(evss_doc_list['documents'][0]['document_id'])
       expect(result[0][:document_type_label]).to eq(evss_doc_list['documents'][0]['document_type_label'])
@@ -170,14 +170,6 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
     it 'returns nil if the date is empty' do
       result = controller.upload_date(nil)
       expect(result).to eq(nil)
-    end
-  end
-
-  describe '#get_file_number' do
-    it 'checks if the file number' do
-      result = controller.get_file_number
-
-      expect(result).to eq('796111863')
     end
   end
 end
