@@ -8,7 +8,7 @@ appeals_api:
 
 mocked_authentication: 
   mvi:
-    url: http://ps-dev.commserv.healthevet.va.gov:8110/psim_webservice/IdMWebService
+    url: http://www.example.com/
 
 faciliates_api:
   ppms:
