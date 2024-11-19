@@ -54,10 +54,5 @@ module Banners
       options[:proxy] = { uri: URI.parse('socks://localhost:2001') } unless Rails.env.production?
       options
     end
-
-    def enabled?
-      true
-      # Settings.va_forms.form_reloader.enabled
-    end
   end
 end
