@@ -2,6 +2,7 @@
 
 require 'common/client/base'
 require 'lighthouse/veteran_verification/configuration'
+require 'lighthouse/veteran_verification/constants'
 require 'lighthouse/service_exception'
 
 module VeteranVerification
@@ -31,14 +32,19 @@ module VeteranVerification
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
+    ##
+    # Request a veteran's Title 38 status
+    #   see https://developer.va.gov/explore/api/veteran-service-history-and-eligibility/docs
     def get_vet_verification_status(icn, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
       endpoint = 'status'
-      config.get(
+      response = config.get(
         "#{endpoint}/#{icn}",
         lighthouse_client_id,
         lighthouse_rsa_key_path,
         options
       ).body
+
+      transform_response(response)
     rescue => e
       handle_error(e, lighthouse_client_id, endpoint)
     end
@@ -50,6 +56,19 @@ module VeteranVerification
         lighthouse_client_id,
         "#{config.base_api_path}/#{endpoint}"
       )
+    end
+
+    def transform_response(response)
+      attributes = response['data']['attributes']
+      return response if attributes['veteran_status'] != 'not confirmed' || attributes.exclude?('not_confirmed_reason')
+
+      response['data']['message'] =
+        if attributes['not_confirmed_reason'] == 'NOT_TITLE_38'
+          VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
+        else
+          VeteranVerification::Constants::NOT_FOUND_MESSAGE
+        end
+      response
     end
   end
 end

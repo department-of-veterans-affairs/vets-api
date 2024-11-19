@@ -118,7 +118,6 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
             s3_file_path = build_path(:file, s3_dir, filename, ext: '.zip')
             build_local_path_from_s3(s3_dir, s3_file_path, temp_dir)
           end
-          build_archive
         end
 
         shared_examples 'successfully built submission archive' do
@@ -140,12 +139,14 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
           end
 
           it 'writes the submission pdf file' do
+            build_archive
             expect(File).to have_received(:write).with(
               "#{temp_file_path}/#{submission_file_path}.pdf", a_string_starting_with('%PDF')
             )
           end
 
           it 'writes the attachment files' do
+            build_archive
             attachments.each_with_index do |_, i|
               expect(File).to have_received(:write).with(
                 "#{temp_file_path}/attachment_#{i + 1}__#{submission_file_path}.pdf", a_string_starting_with('%PDF')
@@ -154,11 +155,22 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
           end
 
           it 'zips the directory when necessary' do
+            build_archive
             if type == :submission
               expect(archive_instance).not_to have_received(:zip_directory!)
             else
               expect(archive_instance).to have_received(:zip_directory!).with(
                 config.parent_dir, "#{temp_file_path}/", submission_file_path
+              )
+            end
+          end
+
+          context 'when the attachment file cannot be found' do
+            let(:attachments) { ['non-existent-file.pdf'] }
+
+            it 'raises an exception' do
+              expect { build_archive }.to raise_exception(
+                RuntimeError, 'Attachment file not found: non-existent-file.pdf'
               )
             end
           end
@@ -178,6 +190,27 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
           let(:archive_instance) { described_class.new(**hydrated_submission_args) }
 
           include_examples 'successfully built submission archive'
+        end
+      end
+
+      describe '#retrieval_data' do
+        subject(:retrieval_data) { archive_instance.retrieval_data }
+
+        let(:archive_instance) { described_class.new(**hydrated_submission_args) }
+        let(:file_name) { "#{temp_file_path}/#{submission_file_path}.#{type == :remediation ? 'zip' : 'pdf'}" }
+
+        it 'returns the correct archive path and manifest row' do
+          expect(retrieval_data.first).to include(file_name)
+          expect(retrieval_data.second).to eq(
+            [
+              submission.created_at,
+              form_type,
+              benefits_intake_uuid,
+              metadata['fileNumber'],
+              metadata['veteranFirstName'],
+              metadata['veteranLastName']
+            ]
+          )
         end
       end
     end

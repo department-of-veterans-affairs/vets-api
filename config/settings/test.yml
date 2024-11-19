@@ -416,8 +416,10 @@ claims_api:
         aud_claim_url: https://fakeurlhere/fake/path/here
   vanotify:
     client_url: https://fakeurl/with/path/here
-    representative_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
-    service_organization_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
+    accepted_representative_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
+    accepted_service_organization_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
+    declined_representative_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
+    declined_service_organization_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
     services:
       lighthouse:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
@@ -448,9 +450,6 @@ travel_pay:
   base_url: 'https://btsss.gov'
   client_number: '12345'
   service_name: 'BTSSS-API'
-
-pension_ipf_vanotify_status_callback:
-  bearer_token: bearer_token_secret
 
 va_notify:
   status_callback:
