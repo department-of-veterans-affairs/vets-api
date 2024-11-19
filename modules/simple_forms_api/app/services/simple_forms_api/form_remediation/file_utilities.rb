@@ -32,12 +32,12 @@ module SimpleFormsApi
       end
 
       def add_files_to_zip(zipfile, temp_dir)
-        Dir.chdir(temp_dir) do
-          Dir['**', '*'].uniq.each do |file|
-            next if File.directory?(file)
+        temp_dir_files = Dir.glob(File.join(temp_dir, '**', '*')).uniq
+        temp_dir_files.each do |file|
+          next unless File.file?(file)
 
-            zipfile.add(file, File.join(temp_dir, file)) if File.file?(file)
-          end
+          relative_path = file.sub("#{temp_dir}/", '')
+          zipfile.add(relative_path, file)
         end
       end
 
