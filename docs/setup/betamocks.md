@@ -64,12 +64,9 @@ Each service description has a `base_uri` (pulled from Settings)
 # VA Profile / Vet360
   :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
   :endpoints:
-    - :method: :get
-      :path: "/demographics/demographics/v1/*/*"
-      :file_path: "vet360/demographics/default"
-    - :method: :post
-      :path: "/profile-service/profile/v3/*/*"
-      :file_path: "vet360/profile-service/default"
+  - :method: :post
+    :path: "/profile-service/profile/v3/*/*"
+    :file_path: "vet360/profile-service/default"
 ```
 
 3. In config/settings.yml set betamocks recording to true:
