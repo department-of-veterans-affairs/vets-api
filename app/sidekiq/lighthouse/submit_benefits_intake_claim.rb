@@ -45,13 +45,9 @@ module Lighthouse
     def perform(saved_claim_id)
       init(saved_claim_id)
 
+      # Create document stamps
       @pdf_path = process_record(@claim)
 
-      # if @claim.form_id == '21P-530V2'
-      #               process_record(@claim, @claim.created_at, @claim.form_id)
-      #             else
-      #               process_record(@claim)
-      #             end
       @attachment_paths = @claim.persistent_attachments.map { |record| process_record(record) }
 
       create_form_submission_attempt
