@@ -119,6 +119,22 @@ RSpec.describe DecisionReview::HlrStatusUpdaterJob, type: :job do
         end
       end
 
+      context 'Retrieving SavedClaim records fails' do
+        before do
+          allow(SavedClaim::HigherLevelReview).to receive(:where).and_raise(ActiveRecord::ConnectionTimeoutError)
+          allow(Rails.logger).to receive(:error)
+        end
+
+        it 'rescues the error and logs' do
+          subject.new.perform
+
+          expect(Rails.logger).to have_received(:error)
+            .with('DecisionReview::SavedClaimHlrStatusUpdaterJob error', anything)
+          expect(StatsD).to have_received(:increment)
+            .with('worker.decision_review.saved_claim_hlr_status_updater.error').once
+        end
+      end
+
       context 'an error occurs while processing' do
         before do
           SavedClaim::HigherLevelReview.create(guid: guid1, form: '{}')

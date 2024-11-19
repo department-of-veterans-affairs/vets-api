@@ -1181,10 +1181,6 @@ features:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
     enable_in_development: true
-  search_dropdown_component_enabled:
-    actor_type: user
-    description: Enables typeahead 2.0 functionality
-    enable_in_development: true
   search_gov_maintenance:
     actor_type: user
     description: Use when Search.gov system maintenance impacts sitewide search
@@ -1461,7 +1457,7 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
-  vaos_online_scheduling_remove_podiatry:
+  va_online_scheduling_remove_podiatry:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
@@ -1689,6 +1685,10 @@ features:
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true
   hlr_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
+  sc_confirmation_update:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true

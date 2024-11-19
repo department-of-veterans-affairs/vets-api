@@ -28,7 +28,7 @@ module DecisionReview
     FINAL_STATUSES = %W[#{FORM_SUCCESSFUL_STATUS} #{UPLOAD_SUCCESSFUL_STATUS} #{ERROR_STATUS} #{NOT_FOUND}].freeze
 
     def perform
-      return unless enabled? && records_to_update.present?
+      return unless should_perform?
 
       StatsD.increment("#{statsd_prefix}.processing_records", records_to_update.size)
 
@@ -93,6 +93,13 @@ module DecisionReview
 
     def enabled?
       raise Common::Exceptions::NotImplemented
+    end
+
+    def should_perform?
+      enabled? && records_to_update.present?
+    rescue => e
+      StatsD.increment("#{statsd_prefix}.error")
+      Rails.logger.error("#{log_prefix} error", { message: e.message })
     end
 
     def decision_review_service
