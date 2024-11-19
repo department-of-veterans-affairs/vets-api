@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'lighthouse/veteran_verification/constants'
 require 'lighthouse/veteran_verification/service'
 require 'lighthouse/service_exception'
 
@@ -65,9 +66,22 @@ RSpec.describe VeteranVerification::Service do
         it 'retrieves veteran not confirmed status from the Lighthouse API' do
           VCR.use_cassette('lighthouse/veteran_verification/status/200_not_confirmed_response') do
             response = @service.get_vet_verification_status('1012666182V203559', '', '')
+
             expect(response['data']['id']).to eq('1012666182V203559')
             expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
             expect(response['data']['attributes']).to have_key('not_confirmed_reason')
+            expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE)
+          end
+        end
+
+        it 'retrieves veteran not found status from the Lighthouse API' do
+          VCR.use_cassette('lighthouse/veteran_verification/status/200_person_not_found_response') do
+            response = @service.get_vet_verification_status('1012667145V762141', '', '')
+
+            expect(response['data']['id']).to eq(nil)
+            expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
+            expect(response['data']['attributes']).to have_key('not_confirmed_reason')
+            expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE)
           end
         end
 
