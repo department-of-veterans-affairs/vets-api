@@ -11,30 +11,24 @@ describe Eps::AccessTokenStore do
   let(:cache_data) { { token_type:, access_token: } }
   let(:token_store_client) { subject.new(token_type:, access_token:) }
 
+  before do
+    token_store_client.save
+  end
+
   describe '#save' do
     it 'saves the value in cache' do
-      token_store_client.save
-
       token = Oj.load($redis.get(redis_key))[:access_token]
       expect(token).to eq(access_token)
     end
   end
 
   describe '#ttl' do
-    before do
-      token_store_client.save
-    end
-
     it 'sets cache data expire to time from config file' do
       expect($redis.ttl(redis_key)).to eq(900)
     end
   end
 
   describe '#find' do
-    before do
-      token_store_client.save
-    end
-
     it 'gets data from cache' do
       expect(Oj.load($redis.get(redis_key))).to eq(cache_data)
     end
