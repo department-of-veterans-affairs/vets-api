@@ -69,8 +69,8 @@ RSpec.describe PCPG::Monitor do
         expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
         expect(StatsD).to receive(:increment).with("#{benefits_intake_submission_stats_key}.exhausted")
         expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
-
-        monitor.track_benefits_intake_submission_exhaustion(msg, claim, claim.parsed_form.dig('claimantInformation', 'emailAddress'))
+        email_address = claim.parsed_form.dig('claimantInformation', 'emailAddress')
+        monitor.track_benefits_intake_submission_exhaustion(msg, claim, email_address)
       end
 
       it 'logs sidekiq job exhaustion without email' do
