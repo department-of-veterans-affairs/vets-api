@@ -73,6 +73,7 @@ RSpec.describe V0::Profile::VetVerificationStatusesController, type: :controller
         parsed_body = JSON.parse(response.body)
         expect(parsed_body['data']['attributes']['veteran_status']).to eq('not confirmed')
         expect(parsed_body['data']['attributes']['not_confirmed_reason']).to eq('PERSON_NOT_FOUND')
+        expect(parsed_body['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE)
       end
     end
   end

@@ -126,7 +126,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
                                 })
         poa.save!
 
-        expect(ClaimsApi::VANotifyJob).to receive(:perform_async)
+        expect(ClaimsApi::VANotifyAcceptedJob).to receive(:perform_async)
 
         subject.new.perform(poa.id, 'Rep Data')
       end
@@ -141,7 +141,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
                                 })
         poa.save!
 
-        expect(ClaimsApi::VANotifyJob).not_to receive(:perform_async)
+        expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
 
         subject.new.perform(poa.id, 'Rep Data')
       end
@@ -154,13 +154,13 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
                                 })
         poa.save!
 
-        expect(ClaimsApi::VANotifyJob).not_to receive(:perform_async)
+        expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
 
         subject.new.perform(poa.id, nil)
       end
 
       it 'when the header key is not present' do
-        expect(ClaimsApi::VANotifyJob).not_to receive(:perform_async)
+        expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
 
         subject.new.perform(poa.id, 'Rep data')
       end
