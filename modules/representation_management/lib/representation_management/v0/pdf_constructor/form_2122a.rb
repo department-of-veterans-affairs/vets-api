@@ -177,25 +177,38 @@ module RepresentationManagement
             "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[2]": data.representative.zip_code,
             "#{PAGE2_KEY}.MailingAddress_ZIPOrPostalCode_LastFourNumbers[2]": data.representative.zip_suffix,
             # Representative Phone Number
-            "#{PAGE2_KEY}.Telephone_Number_Area_Code[2]": data.representative_phone[0..2],
-            "#{PAGE2_KEY}.Telephone_Middle_Three_Numbers[1]": data.representative_phone[3..5],
-            "#{PAGE2_KEY}.Telephone_Last_Four_Numbers[2]": data.representative_phone[6..9],
+            "#{PAGE2_KEY}.Telephone_Number_Area_Code[2]": unformat_phone_number(data.representative_phone)[0..2],
+            "#{PAGE2_KEY}.Telephone_Middle_Three_Numbers[1]": unformat_phone_number(data.representative_phone)[3..5],
+            "#{PAGE2_KEY}.Telephone_Last_Four_Numbers[2]": unformat_phone_number(data.representative_phone)[6..9],
             # Representative Email
             "#{PAGE2_KEY}.E_Mail_Address_Of_Individual_Appointed_As_Claimants_Representative_Optional[0]": \
             data.representative.email
           }
         end
 
+        # rubocop:disable Metrics/LineLength
+        # Disabled due to two extremely long keys.
         def appointment_options(data)
           {
             # Record Consent
             "#{PAGE2_KEY}.AuthorizationForRepAccessToRecords[0]": data.record_consent == true ? 1 : 0,
             # Consent Limits
-            "#{PAGE2_KEY}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits),
+            "#{PAGE2_KEY}.RelationshipToVeteran[1]": limitations_of_consent_text(data.consent_limits,
+                                                                                 data.record_consent),
             # Consent Address Change
-            "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0
+            "#{PAGE2_KEY}.AuthorizationForRepActClaimantsBehalf[0]": data.consent_address_change == true ? 1 : 0,
+            # 19a Consent Inside Access
+            "#{PAGE2_KEY}.Checkbox_I_Authorize_VA_To_Disclose_All_My_Records_Other_Than_As_Provided_In_Items_20_And_21[0]": data.consent_inside_access == true ? 1 : 0,
+            # 19a text box - This is commented for now because we're not gathering this data on the frontend but I
+            # didn't want to lose the key.
+            # "#{PAGE2_KEY}.Provide_The_Name_Of_The_Firm_Or_Organization_Here[0]": data.consent_team_members.to_sentence,
+            # 19b Consent Outside Access
+            "#{PAGE2_KEY}.Checkbox_I_Authorize_VA_To_Disclose_All_My_Records_Other_Than_As_Provided_In_Items_20_And_21[1]": data.consent_outside_access == true ? 1 : 0,
+            # 19b text box
+            "#{PAGE2_KEY}.Provide_The_Names_Of_The_Individuals_Here[0]": data.consent_team_members.to_sentence
           }
         end
+        # rubocop:enable Metrics/LineLength
 
         def header_options(data)
           {
@@ -236,15 +249,16 @@ module RepresentationManagement
           representative_type_map[representative_type]
         end
 
-        def limitations_of_consent_text(consent_limits)
+        def limitations_of_consent_text(consent_limits, record_consent)
+          return '' unless record_consent
+
           limitations = {
             'ALCOHOLISM' => 'Alcoholism and alcohol abuse records',
             'DRUG_ABUSE' => 'Drug abuse records',
             'HIV' => 'HIV records',
             'SICKLE_CELL' => 'Sickle cell anemia records'
           }
-          consent_text = consent_limits.filter_map { |limit| limitations[limit] }.to_sentence
-          consent_text.presence || "No, they can't access any of these types of records."
+          consent_limits.filter_map { |limit| limitations[limit] }.to_sentence
         end
 
         def normalize_country_code_to_alpha2(country_code)

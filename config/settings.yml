@@ -1399,6 +1399,7 @@ vanotify:
     health_apps_1010:
       api_key: fake_secret
       template_id:
+        form1010_cg_failure_email: fake_template_id
         form1010_ez_failure_email: fake_template_id
         form1010_ezr_failure_email: fake_template_id
     # https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/
@@ -1790,9 +1791,6 @@ brd:
   base_name: 'https://something.fake.va.gov'
 
 nod_vanotify_status_callback:
-  bearer_token: bearer_token_secret
-
-pension_ipf_vanotify_status_callback:
   bearer_token: bearer_token_secret
 
 travel_pay:

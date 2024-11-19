@@ -107,7 +107,7 @@ module EVSS
       # Recursively submits a file in a new instance of this job for each upload in the uploads list
       #
       # @param submission_id [Integer] The {Form526Submission} id
-      # @param upload_data [String] upload GUID in AWS S3
+      # @param upload_data [String] Form metadata for attachment, including upload GUID in AWS S3
       #
       def perform(submission_id, upload_data)
         Sentry.set_tags(source: '526EZ-all-claims')
@@ -124,7 +124,7 @@ module EVSS
           raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
           if Flipper.enabled?(:disability_compensation_use_api_provider_for_submit_veteran_upload)
-            upload_via_api_provider(submission, upload_data['attachmentId'], file_body, sea)
+            upload_via_api_provider(submission, upload_data, file_body, sea)
           else
             EVSS::DocumentsService.new(submission.auth_headers).upload(file_body, document_data)
           end
@@ -141,13 +141,17 @@ module EVSS
       # We use these providers to iteratively migrate uploads to Lighthouse
       #
       # @param submission [Form526Submission]
-      # @document_type [string] VA internal document code for attachment type (e.g. L451)
-      # @file_body [string] Attachment file contents
-      # @attachment [SupportingEvidenceAttachment] Upload attachment record
-      def upload_via_api_provider(submission, document_type, file_body, attachment)
+      # @param upload_data [Hash] the form metadata for the attachment
+      # @param file_body [string] Attachment file contents
+      # @param attachment [SupportingEvidenceAttachment] Upload attachment record
+      def upload_via_api_provider(submission, upload_data, file_body, attachment)
+        document_type = upload_data['attachmentId']
         provider = self.class.api_upload_provider(submission, document_type, attachment)
 
-        upload_document = provider.generate_upload_document(attachment.converted_filename)
+        # Fall back to name in metadata if converted_filename returns nil; matches existing behavior
+        filename = attachment.converted_filename || upload_data['name']
+
+        upload_document = provider.generate_upload_document(filename)
         provider.submit_upload_document(upload_document, file_body)
       end
 

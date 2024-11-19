@@ -38,10 +38,6 @@ module RepresentationManagement
         }.merge(flatten_veteran_params(form_params))
           .merge(flatten_claimant_params(form_params))
       end
-
-      def flatten_veteran_params(veteran_params)
-        super.merge(veteran_insurance_numbers: veteran_params.dig(:veteran, :insurance_numbers))
-      end
     end
   end
 end

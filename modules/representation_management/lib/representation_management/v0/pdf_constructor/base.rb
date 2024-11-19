@@ -117,6 +117,14 @@ module RepresentationManagement
           "#{phone_number[0..2]}-#{phone_number[3..5]}-#{phone_number[6..9]}"
         end
 
+        # Removes non-digit characters from a phone number.
+        #
+        # @param phone_number [String] The phone number to be unformatted.
+        # @return [String] The unformatted phone number.
+        def unformat_phone_number(phone_number)
+          phone_number&.gsub(/\D/, '')
+        end
+
         #
         # Fill in pdf form fields based on data provided, then combine all
         # the pages into a final pdf.  We create an inner tempfile to fill

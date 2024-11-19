@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_14_213556) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -774,6 +774,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.index ["id", "type"], name: "index_form_attachments_on_id_and_type"
   end
 
+  create_table "form_email_matches_profile_logs", force: :cascade do |t|
+    t.string "user_uuid", null: false
+    t.integer "in_progress_form_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_uuid", "in_progress_form_id"], name: "idx_on_user_uuid_in_progress_form_id_f21f47b9c8", unique: true
+  end
+
   create_table "form_submission_attempts", force: :cascade do |t|
     t.bigint "form_submission_id", null: false
     t.jsonb "response"
@@ -1002,13 +1010,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
-  create_table "pension_ipf_notifications", force: :cascade do |t|
-    t.text "payload_ciphertext"
-    t.text "encrypted_kms_key"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
     t.uuid "guid"
     t.string "type"
@@ -1074,7 +1075,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
     t.string "uploaded_forms", default: [], array: true
-    t.datetime "itf_datetime"
     t.datetime "form_start_date"
     t.datetime "delete_date"
     t.text "metadata"
@@ -1382,6 +1382,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "metadata"
+    t.jsonb "callback_metadata"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|

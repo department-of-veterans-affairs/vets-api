@@ -23,10 +23,21 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
                              'militaryPostOffice' => nil, 'militaryPostalCode' => nil }
     }
   end
+  let(:poa_request_list_mock_data) do
+    [poa_request_details_mock_data, poa_request_details_mock_data, poa_request_details_mock_data]
+  end
 
   before do
     Flipper.enable(:accredited_representative_portal_pilot)
     login_as(test_user)
+  end
+
+  describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
+    it 'returns the list of a power of attorney request' do
+      get('/accredited_representative_portal/v0/power_of_attorney_requests')
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to eq(poa_request_list_mock_data)
+    end
   end
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests/:id' do

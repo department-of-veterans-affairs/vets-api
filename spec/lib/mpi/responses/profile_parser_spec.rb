@@ -126,6 +126,7 @@ describe MPI::Responses::ProfileParser do
             :address_austin,
             family_name: 'Smith',
             given_names: %w[John William],
+            preferred_names: %w[General],
             suffix: 'Sr',
             birls_id: nil,
             birls_ids: [],

@@ -190,6 +190,10 @@ RSpec.describe Users::Profile do
         expect(profile[:last_name]).to eq(user.last_name)
       end
 
+      it 'includes preferred_name' do
+        expect(profile[:preferred_name]).to eq(user.preferred_name)
+      end
+
       it 'includes birth_date' do
         expect(profile[:birth_date]).to eq(user.birth_date)
       end

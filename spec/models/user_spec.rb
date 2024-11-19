@@ -368,6 +368,10 @@ RSpec.describe User, type: :model do
               country: 'USA' }
           end
 
+          it 'fetches preferred name from MPI' do
+            expect(user.preferred_name).to eq(user.preferred_name_mpi)
+          end
+
           context 'user has an address' do
             it 'returns mpi_profile\'s address as hash' do
               expect(user.address).to eq(expected_address)

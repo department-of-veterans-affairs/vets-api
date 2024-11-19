@@ -109,7 +109,7 @@ module VaNotify
         notification_id: response.id,
         source_location: find_caller_locations,
         callback: callback_options[:callback],
-        metadata: callback_options[:metadata]
+        callback_metadata: callback_options[:callback_metadata]
       )
 
       if notification.save

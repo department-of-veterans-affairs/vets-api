@@ -10,6 +10,7 @@ module MPI
 
       attribute :given_names, Array[String]
       attribute :family_name, String
+      attribute :preferred_names, Array[String]
       attribute :suffix, String
       attribute :gender, String
       attribute :birth_date, Common::DateTimeString

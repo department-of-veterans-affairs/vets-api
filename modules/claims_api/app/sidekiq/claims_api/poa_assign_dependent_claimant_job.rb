@@ -28,8 +28,6 @@ module ClaimsApi
         poa.id,
         'POA assigned for dependent'
       )
-
-      ClaimsApi::PoaVBMSUpdater.perform_async(poa.id) if enable_vbms_access?(poa_form: poa)
     end
 
     private

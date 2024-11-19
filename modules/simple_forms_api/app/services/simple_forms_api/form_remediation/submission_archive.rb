@@ -37,6 +37,12 @@ module SimpleFormsApi
         config.handle_error("Failed building submission: #{id}", e)
       end
 
+      def retrieval_data
+        extension = archive_type == :submission ? 'pdf' : 'zip'
+        final_path = "#{temp_directory_path}#{submission_file_name}.#{extension}"
+        [final_path, manifest_entry]
+      end
+
       private
 
       attr_reader :archive_type, :attachments, :config, :file_path, :id, :metadata, :pdf_already_exists, :submission,

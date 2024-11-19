@@ -192,6 +192,27 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
           include_examples 'successfully built submission archive'
         end
       end
+
+      describe '#retrieval_data' do
+        subject(:retrieval_data) { archive_instance.retrieval_data }
+
+        let(:archive_instance) { described_class.new(**hydrated_submission_args) }
+        let(:file_name) { "#{temp_file_path}/#{submission_file_path}.#{type == :remediation ? 'zip' : 'pdf'}" }
+
+        it 'returns the correct archive path and manifest row' do
+          expect(retrieval_data.first).to include(file_name)
+          expect(retrieval_data.second).to eq(
+            [
+              submission.created_at,
+              form_type,
+              benefits_intake_uuid,
+              metadata['fileNumber'],
+              metadata['veteranFirstName'],
+              metadata['veteranLastName']
+            ]
+          )
+        end
+      end
     end
   end
 end

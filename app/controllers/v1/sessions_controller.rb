@@ -144,8 +144,8 @@ module V1
     def user_login(saml_response)
       user_session_form = UserSessionForm.new(saml_response)
       raise_saml_error(user_session_form) unless user_session_form.valid?
-      mhv_unverified_validation(user_session_form)
-
+      mhv_unverified_validation(user_session_form.user)
+      create_user_verification(user_session_form.user)
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
@@ -158,8 +158,18 @@ module V1
       login_stats(:success)
     end
 
-    def mhv_unverified_validation(user_session_form)
-      if html_escaped_relay_state['type'] == 'mhv_verified' && user_session_form.user.loa[:current] < LOA::THREE
+    def create_user_verification(user)
+      user_verifier_object = OpenStruct.new({ sign_in: user.identity.sign_in,
+                                              mhv_correlation_id: user.mhv_correlation_id,
+                                              idme_uuid: user.idme_uuid,
+                                              edipi: user.identity.edipi,
+                                              logingov_uuid: user.logingov_uuid,
+                                              icn: user.icn })
+      Login::UserVerifier.new(user_verifier_object).perform
+    end
+
+    def mhv_unverified_validation(user)
+      if html_escaped_relay_state['type'] == 'mhv_verified' && user.loa[:current] < LOA::THREE
         mhv_unverified_error = SAML::UserAttributeError::ERRORS[:mhv_unverified_blocked]
         Rails.logger.warn("SessionsController version:v1 #{mhv_unverified_error[:message]}")
         raise SAML::UserAttributeError.new(message: mhv_unverified_error[:message],
@@ -398,13 +408,6 @@ module V1
     end
 
     def after_login_actions
-      user_verifier_object = OpenStruct.new({ sign_in: @current_user.identity.sign_in,
-                                              mhv_correlation_id: @current_user.mhv_correlation_id,
-                                              idme_uuid: @current_user.idme_uuid,
-                                              edipi: @current_user.identity.edipi,
-                                              logingov_uuid: @current_user.logingov_uuid,
-                                              icn: @current_user.icn })
-      Login::UserVerifier.new(user_verifier_object).perform
       Login::AfterLoginActions.new(@current_user).perform
       log_persisted_session_and_warnings
     end
