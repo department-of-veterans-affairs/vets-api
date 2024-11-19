@@ -16,8 +16,7 @@ class Banner < ApplicationRecord
   validates :find_facilities_cta, inclusion: { in: [true, false] }
   validates :limit_subpage_inheritance, inclusion: { in: [true, false] }
 
-  # Returns banners for a given path and banner bundle type.
-  scope :by_path_and_type, lambda { |path, type|
+  scope :by_path, lambda { |path|
     normalized_path = path.sub(%r{^/?}, '')
 
     # Direct path matches.
@@ -48,10 +47,7 @@ class Banner < ApplicationRecord
                               ].to_json)
                         .where(limit_subpage_inheritance: false)
 
-    # Bundle type match
-    type_condition = where(entity_bundle: type)
-
     # Combine conditions with the "AND" for type, and "OR" between exact paths and subpage matches
-    type_condition.and(exact_path_conditions.or(subpage_condition))
+    exact_path_conditions.or(subpage_condition)
   }
 end
