@@ -1,7 +1,6 @@
 module Banners
     class Builder
-        # TODO: Add logic to build banners, this needs #perform and #perform_async methods
-        #      to be implemented that will find or create a banner based on the data passed in
+        # TODO: Adjust perform and perform_async to log appropriate messages and use job for async
         def self.perform(banner_data)
             banner = new(banner_data).banner
             puts "got banner data: #{banner_data}"
