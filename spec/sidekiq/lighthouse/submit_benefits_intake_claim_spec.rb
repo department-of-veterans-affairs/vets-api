@@ -162,7 +162,6 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       datestamp_double2 = double
       datestamp_double3 = double
       timestamp = claim.created_at
-      form_id = '21P-530V2'
 
       expect(record).to receive(:to_pdf).and_return('path1')
       expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
