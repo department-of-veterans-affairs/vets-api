@@ -187,8 +187,6 @@ RSpec.configure do |config|
     Timecop.return
   end
 
-
-
   # enable `allow_forgery_protection` in Lighthouse specs to ensure that the endpoints
   # in those modules have explicitly skipped the CSRF protection functionality
   lighthouse_dirs = %r{
