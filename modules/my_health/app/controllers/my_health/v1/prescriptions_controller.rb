@@ -15,13 +15,14 @@ module MyHealth
       def index
         resource = collection_resource
         resource.data = filter_non_va_meds(resource.data)
-        options = { meta: resource.metadata.merge(set_filter_metadata(resource.data)) }
+        filter_count = set_filter_metadata(resource.data)
         resource = params[:filter].present? ? resource.find_by(filter_params) : resource
         # resource.data = params[:renew].present? ? filter_data_by_refill_and_renew(resource.data) : resource.data
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
+        options = { meta: resource.metadata.merge(filter_count) }
 
         options[:links] = pagination_links(resource) if is_using_pagination
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
