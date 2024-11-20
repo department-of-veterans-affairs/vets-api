@@ -9,11 +9,11 @@ describe VANotify::DefaultCallback do
       let(:notification_type) { :error }
 
       context 'metadata is provided' do
-        let(:metadata) { { notification_type:, statsd_tags: {} }.to_json }
+        let(:callback_metadata) { { notification_type:, statsd_tags: {} } }
 
         context 'delivered' do
           let(:notification_record) do
-            build(:notification, status: 'delivered', metadata:)
+            build(:notification, status: 'delivered', callback_metadata:)
           end
 
           it 'increments StatsD' do
@@ -27,7 +27,7 @@ describe VANotify::DefaultCallback do
 
         context 'permanently failed' do
           let(:notification_record) do
-            build(:notification, status: 'permanent-failure', metadata:)
+            build(:notification, status: 'permanent-failure', callback_metadata:)
           end
 
           it 'increments StatsD' do
@@ -45,11 +45,11 @@ describe VANotify::DefaultCallback do
       let(:notification_type) { :received }
 
       context 'metadata is provided' do
-        let(:metadata) { { notification_type:, statsd_tags: {} }.to_json }
+        let(:callback_metadata) { { notification_type:, statsd_tags: {} } }
 
         context 'delivered' do
           let(:notification_record) do
-            build(:notification, status: 'delivered', metadata:)
+            build(:notification, status: 'delivered', callback_metadata:)
           end
 
           it 'does not increment StatsD' do
@@ -63,7 +63,7 @@ describe VANotify::DefaultCallback do
 
         context 'permanent-failure' do
           let(:notification_record) do
-            build(:notification, status: 'permanent-failure', metadata:)
+            build(:notification, status: 'permanent-failure', callback_metadata:)
           end
 
           it 'does not increment StatsD' do

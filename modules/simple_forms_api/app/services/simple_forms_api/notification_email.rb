@@ -118,7 +118,7 @@ module SimpleFormsApi
           template_id,
           get_personalization(first_name),
           Settings.vanotify.services.va_gov.api_key,
-          { metadata: { notification_type:, form_number:, statsd_tags: }.to_json }
+          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
         )
       else
         VANotify::EmailJob.perform_at(

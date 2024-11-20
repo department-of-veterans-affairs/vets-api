@@ -6,8 +6,7 @@ module VANotify
 
     def initialize(notification_record)
       @notification_record = notification_record
-      raw_metadata = notification_record.metadata
-      @metadata = JSON.parse(raw_metadata) if raw_metadata
+      @metadata = notification_record.callback_metadata
     end
 
     def call
