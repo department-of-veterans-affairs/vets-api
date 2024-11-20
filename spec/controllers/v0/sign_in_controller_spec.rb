@@ -1137,6 +1137,11 @@ RSpec.describe V0::SignInController, type: :controller do
 
               before do
                 allow(SecureRandom).to receive(:uuid).and_return(client_code)
+                Timecop.freeze
+              end
+
+              after do
+                Timecop.return
               end
 
               shared_context 'dslogon successful callback' do
