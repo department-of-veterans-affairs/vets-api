@@ -367,17 +367,14 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "oneOf": [
-                      {
-                        "$ref": "#/components/schemas/accredited_individual_schema"
-                      },
-                      {
-                        "$ref": "#/components/schemas/accredited_organization_schema"
-                      }
-                    ]
-                  }
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/accredited_individual"
+                    },
+                    {
+                      "$ref": "#/components/schemas/accredited_organization"
+                    }
+                  ]
                 }
               }
             }
