@@ -13,7 +13,6 @@ module ClaimsApi
       make_request(endpoint: bean_name, action: 'findContentionsByPtcpntId', body:)
     end
 
-    # rubocop:disable Metrics/MethodLength
     def manage_contentions(options)
       validate_required_keys(required_manage_contentions_fields, options, __method__.to_s)
 
@@ -26,8 +25,23 @@ module ClaimsApi
           end
         }
       end
+      body = contentions_body(options)
+      output = build_contentions_node(contentions, body)
 
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+      make_request(endpoint: bean_name, action: 'manageContentions', body: output)
+    end
+
+    private
+
+    def validate_required_keys(required_keys, provided_hash, call)
+      required_keys.each do |key|
+        raise(ArgumentError, "#{key} is a required key in #{call}") unless provided_hash.key?(key)
+        raise(ArgumentError, "#{key} cannot be empty or nil") if provided_hash[key].blank?
+      end
+    end
+
+    def contentions_body(options)
+      Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <BenefitClaim>
           <jrnDt>#{options[:jrn_dt]}</jrnDt>
           <bnftClmTc>#{options[:bnft_clm_tc]}</bnftClmTc>
@@ -46,13 +60,10 @@ module ClaimsApi
           <sojLctnId>#{options[:soj_lctn_id]}</sojLctnId>
         </BenefitClaim>
       EOXML
+    end
 
+    def build_contentions_node(contentions, body)
       doc = Nokogiri::XML(body.to_s)
-
-      special_issues_body_tag = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <specialIssues>
-        </specialIssues>
-      EOXML
 
       contentions.each do |contention|
         claim_id_node = Nokogiri::XML::Node.new('clmId', body)
@@ -74,19 +85,15 @@ module ClaimsApi
           si_parent_node.add_child(si_node.to_s)
         end
       end
-      output = doc.root.to_xml(encoding: 'UTF-8', save_with: Nokogiri::XML::Node::SaveOptions::AS_XML)
 
-      make_request(endpoint: bean_name, action: 'manageContentions', body: output)
+      doc.root.to_xml(encoding: 'UTF-8', save_with: Nokogiri::XML::Node::SaveOptions::AS_XML)
     end
-    # rubocop:enable Metrics/MethodLength
 
-    private
-
-    def validate_required_keys(required_keys, provided_hash, call)
-      required_keys.each do |key|
-        raise(ArgumentError, "#{key} is a required key in #{call}") unless provided_hash.key?(key)
-        raise(ArgumentError, "#{key} cannot be empty or nil") if provided_hash[key].blank?
-      end
+    def special_issues_body_tag
+      Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <specialIssues>
+        </specialIssues>
+      EOXML
     end
 
     def required_manage_contentions_fields
