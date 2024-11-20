@@ -2,6 +2,9 @@
 
 require 'pension_burial/tag_sentry'
 require 'lgy/tag_sentry'
+require 'claim_documents/monitor'
+require 'lighthouse/benefits_intake/service'
+require 'pdf_utilities/datestamp_pdf'
 
 module V0
   class ClaimDocumentsController < ApplicationController
@@ -9,21 +12,30 @@ module V0
     skip_before_action(:authenticate)
 
     def create
-      Rails.logger.info "Creating PersistentAttachment FormID=#{form_id}"
+      uploads_monitor.track_document_upload_attempt(form_id, current_user)
 
       attachment = klass.new(form_id:)
       # add the file after so that we have a form_id and guid for the uploader to use
       attachment.file = unlock_file(params['file'], params['password'])
+      
+      document = PDFUtilities::DatestampPdf.new(attachment.to_pdf).run(text: 'VA.GOV', x: 5, y: 5)
+      document = PDFUtilities::DatestampPdf.new(document).run(
+        text: 'FDC Reviewed - VA.gov Submission',
+        x: 429,
+        y: 770,
+        text_only: true
+      )
+      stamped_pdf_valid = intake_service.valid_document?(document:)
 
-      raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+      raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid? && stamped_pdf_valid
 
       attachment.save
 
-      Rails.logger.info "Success creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment.id}"
+      uploads_monitor.track_document_upload_success(form_id, attachment.id, current_user)
 
       render json: PersistentAttachmentSerializer.new(attachment)
     rescue => e
-      Rails.logger.error "Error creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment.id} #{e}"
+      uploads_monitor.track_document_upload_failed(form_id, attachment&.id, current_user, e)
       raise e
     end
 
@@ -47,7 +59,7 @@ module V0
     end
 
     def unlock_file(file, file_password)
-      return file unless File.extname(file) == '.pdf' && file_password
+      return file unless File.extname(file) == '.pdf' && file_password.present?
 
       pdftk = PdfForms.new(Settings.binaries.pdftk)
       tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
@@ -68,6 +80,14 @@ module V0
       file.tempfile.unlink
       file.tempfile = tmpf
       file
+    end
+
+    def intake_service
+      @intake_service = BenefitsIntake::Service.new
+    end
+
+    def uploads_monitor
+      @uploads_monitor ||= ClaimDocuments::Monitor.new(intake_service)
     end
   end
 end
