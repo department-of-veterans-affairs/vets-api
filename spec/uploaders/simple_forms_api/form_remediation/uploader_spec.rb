@@ -7,27 +7,39 @@ require 'simple_forms_api/form_remediation/configuration/vff_config'
 module SimpleFormsApi
   module FormRemediation
     RSpec.describe Uploader do
+      let(:config) do
+        instance_double(Configuration::VffConfig, s3_settings: OpenStruct.new(region: 'region', bucket: bucket_name))
+      end
+      let(:directory) { '/some/path' }
+      let(:bucket_name) { 'bucket' }
+      let(:mock_config) { instance_double(Config::Options) }
+      let(:uploader_instance) { described_class.new(directory:, config:) }
+
       describe '#initialize' do
-        subject(:new) { described_class.new(directory:, config:) }
-
-        before do
-          allow(Settings.vff_simple_forms).to(
-            receive(:aws).and_return(OpenStruct.new(region: 'region', bucket: 'bucket'))
-          )
-        end
-
-        let(:config) { Configuration::VffConfig.new }
-        let(:directory) { '/some/path' }
+        subject(:new) { uploader_instance }
 
         it 'allows image, pdf, json, csv, and text files' do
           expect(new.extension_allowlist).to match_array %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
         end
 
-        it 'returns a store directory containing benefits_intake_uuid' do
+        it 'returns a store directory containing the given directory' do
           expect(new.store_dir).to eq(directory)
         end
 
-        describe 'when config is nil' do
+        it 'uses an AWS store' do
+          expect(described_class.storage).to eq(CarrierWave::Storage::AWS)
+          expect(new._storage?).to eq(true)
+          expect(new._storage).to eq(CarrierWave::Storage::AWS)
+        end
+
+        it 'sets aws config' do
+          expect(new.aws_acl).to eq('private')
+          expect(new.aws_bucket).to eq(bucket_name)
+          expect(new.aws_attributes).to eq(server_side_encryption: 'AES256')
+          expect(new.aws_credentials).to eq(region: 'region')
+        end
+
+        context 'when config is nil' do
           let(:config) { nil }
 
           it 'throws an error' do
@@ -35,7 +47,7 @@ module SimpleFormsApi
           end
         end
 
-        describe 'when directory is nil' do
+        context 'when directory is nil' do
           let(:directory) { nil }
 
           it 'throws an error' do
