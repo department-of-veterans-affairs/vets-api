@@ -15,6 +15,12 @@ module VirtualRegionalOffice
       end
     end
 
+    def classify_vagov_contentions_expanded(params)
+      with_monitoring do
+        perform(:post, Settings.virtual_regional_office.expanded_classification_path, params.to_json.to_s, headers_hash)
+      end
+    end
+
     def get_max_rating_for_diagnostic_codes(diagnostic_codes_array)
       with_monitoring do
         params = { diagnostic_codes: diagnostic_codes_array }
