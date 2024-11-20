@@ -44,7 +44,6 @@ module MebApi
           claimant_id = forms_claimant_response['claimant_id']
         end
 
-        form_type = @form_type || 'toe'
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, form_type)
         response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
         srlzer = valid_claimant_response?(forms_claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
@@ -102,7 +101,7 @@ module MebApi
       private
 
       def set_type
-        @form_type = params['type'] == 'toe' ? 'toe' : params['type']&.capitalize
+        @form_type = params['type'] == 'ToeSubmission' ? 'toe' : params['type']&.capitalize
       end
 
       def valid_claimant_response?(response)
