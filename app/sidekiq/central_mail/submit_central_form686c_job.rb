@@ -231,7 +231,7 @@ module CentralMail
     def self.trigger_failure_events(msg)
       monitor = Dependents::Monitor.new
       saved_claim_id, _, encrypted_user_struct = msg['args']
-      user_struct = encrypted_user_struct.present? ? JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)) : nil # rubocop:disable Layout/LineLength
+      user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)) if encrypted_user_struct.present?
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
       email = claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
               user_struct.try(:va_profile_email)

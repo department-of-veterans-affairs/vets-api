@@ -162,7 +162,9 @@ class BenefitsIntakeStatusJob
     # Dependents
     if %w[686C-674].include?(form_id)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-      email = claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') if claim.present? # rubocop:disable Layout/LineLength
+      email = if claim.present?
+                claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address')
+              end
       if claim.present? && email.present?
         claim.send_failure_email(email)
         Dependents::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
