@@ -118,8 +118,8 @@ bgs:
   external_key: xKey
 # You can use this in `config/settings/test.local.yml`.
 # bgs:
-#  url: https://localhost:4447
-#  ssl_verify_mode: "none"
+#   url: https://localhost:4447
+#   ssl_verify_mode: "none"
 
 flipper:
   github_organization: "organization"
