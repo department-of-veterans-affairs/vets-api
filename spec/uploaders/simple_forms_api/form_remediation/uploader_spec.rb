@@ -15,19 +15,18 @@ module SimpleFormsApi
       let(:mock_config) { instance_double(Config::Options) }
       let(:uploader_instance) { described_class.new(directory:, config:) }
 
+      describe '.storage' do
+        subject(:storage) { described_class.storage }
+
+        it 'uses an AWS store' do
+          expect(storage).to eq(CarrierWave::Storage::AWS)
+        end
+      end
+
       describe '#initialize' do
         subject(:new) { uploader_instance }
 
-        it 'allows image, pdf, json, csv, and text files' do
-          expect(new.extension_allowlist).to match_array %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
-        end
-
-        it 'returns a store directory containing the given directory' do
-          expect(new.store_dir).to eq(directory)
-        end
-
         it 'uses an AWS store' do
-          expect(described_class.storage).to eq(CarrierWave::Storage::AWS)
           expect(new._storage?).to eq(true)
           expect(new._storage).to eq(CarrierWave::Storage::AWS)
         end
@@ -53,6 +52,22 @@ module SimpleFormsApi
           it 'throws an error' do
             expect { new }.to raise_exception(RuntimeError, 'The S3 directory is missing.')
           end
+        end
+      end
+
+      describe '#extension_allowlist' do
+        subject(:extension_allowlist) { uploader_instance.extension_allowlist }
+
+        it 'allows image, pdf, json, csv, and text files' do
+          expect(extension_allowlist).to match_array %w[bmp csv gif jpeg jpg json pdf png tif tiff txt zip]
+        end
+      end
+
+      describe '#store_dir' do
+        subject(:store_dir) { uploader_instance.store_dir }
+
+        it 'returns a store directory containing the given directory' do
+          expect(store_dir).to eq(directory)
         end
       end
     end
