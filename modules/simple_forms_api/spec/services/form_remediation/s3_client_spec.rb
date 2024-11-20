@@ -17,7 +17,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
   # Params setup
   let(:attachments) { Array.new(5) { Rails.root.join(fixtures_path, 'doctors-note.pdf') } }
   let(:submission) { create(:form_submission, :pending, form_type:, form_data:) }
-  let(:benefits_intake_uuid) { submission.benefits_intake_uuid }
+  let(:benefits_intake_uuid) { submission.latest_attempt.benefits_intake_uuid }
   let(:config) { SimpleFormsApi::FormRemediation::Configuration::VffConfig.new }
   let(:file_path) { Rails.root.join(fixtures_path, 'pdfs', 'vba_20_10207-completed.pdf') }
   let(:metadata) do
@@ -71,7 +71,10 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
     allow(CarrierWave::SanitizedFile).to receive(:new).with(file_double).and_return(carrier_wave_file)
     allow(CSV).to receive(:open).and_return(true)
     allow(SimpleFormsApi::FormRemediation::SubmissionArchive).to(receive(:new).and_return(submission_archive_double))
-    allow(submission_archive_double).to receive(:build!).and_return([local_archive_path, manifest_entry])
+    allow(submission_archive_double).to receive_messages(
+      build!: [local_archive_path, manifest_entry],
+      retrieval_data: [local_archive_path, manifest_entry]
+    )
     allow(SimpleFormsApi::FormRemediation::Uploader).to receive_messages(new: uploader)
     allow(uploader).to receive(:get_s3_link).with(s3_archive_path).and_return('/s3_url/stuff.pdf')
     allow(uploader).to receive_messages(get_s3_file: s3_file, store!: carrier_wave_file)
@@ -84,6 +87,11 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
       let(:type) { archive_type }
 
       describe '.fetch_presigned_url' do
+        subject(:fetch_presigned_url) { described_class.fetch_presigned_url(benefits_intake_uuid, config:, type:) }
+
+        it 'returns the s3 link' do
+          expect(fetch_presigned_url).to eq('/s3_url/stuff.pdf')
+        end
       end
 
       describe '#initialize' do

@@ -112,7 +112,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 end
 
                 context 'and the request includes a claimant' do
-                  it 'enqueues the PoaAssignDependentClaimantJob and not the PoaFormBuilder job' do
+                  it 'enqueues the PoaFormBuilder job' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
                         json = JSON.parse(request_body)
@@ -121,11 +121,42 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
                         expect do
                           post appoint_organization_path, params: request_body, headers: auth_header
-                        end.to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size).by(1)
+                        end.to change(ClaimsApi::V2::PoaFormBuilderJob.jobs, :size)
+                      end
+                    end
+                  end
 
-                        expect do
-                          post appoint_organization_path, params: request_body, headers: auth_header
-                        end.not_to change(ClaimsApi::V2::PoaFormBuilderJob.jobs, :size)
+                  it 'adds dependent values to the auth_headers' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(scopes) do |auth_header|
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['claimant'] = claimant_data
+                        request_body = json.to_json
+
+                        post appoint_organization_path, params: request_body, headers: auth_header
+
+                        poa_id = JSON.parse(response.body)['data']['id']
+                        poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+                        auth_headers = poa.auth_headers
+                        expect(auth_headers).to have_key('dependent')
+                      end
+                    end
+                  end
+
+                  it "does not add dependent values to the auth_headers if relationship is 'Self'" do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(scopes) do |auth_header|
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['claimant'] = claimant_data
+                        json['data']['attributes']['claimant']['relationship'] = 'Self'
+                        request_body = json.to_json
+
+                        post appoint_organization_path, params: request_body, headers: auth_header
+
+                        poa_id = JSON.parse(response.body)['data']['id']
+                        poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+                        auth_headers = poa.auth_headers
+                        expect(auth_headers).not_to have_key('dependent')
                       end
                     end
                   end
@@ -137,16 +168,19 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   Flipper.disable(:lighthouse_claims_api_poa_dependent_claimants)
                 end
 
-                it 'does not enqueue the PoaAssignDependentClaimantJob' do
+                it 'does not add the dependent object to the auth_headers' do
                   VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     mock_ccg(scopes) do |auth_header|
                       json = JSON.parse(request_body)
                       json['data']['attributes']['claimant'] = claimant_data
                       request_body = json.to_json
 
-                      expect do
-                        post appoint_organization_path, params: request_body, headers: auth_header
-                      end.not_to change(ClaimsApi::PoaAssignDependentClaimantJob.jobs, :size)
+                      post appoint_organization_path, params: request_body, headers: auth_header
+
+                      poa_id = JSON.parse(response.body)['data']['id']
+                      poa = ClaimsApi::PowerOfAttorney.find(poa_id)
+                      auth_headers = poa.auth_headers
+                      expect(auth_headers).not_to have_key('dependent')
                     end
                   end
                 end
@@ -231,6 +265,74 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               end
             end
           end
+
+          context 'when validating email values' do
+            context 'when the email is valid' do
+              it 'allows an empty string' do
+                data[:data][:attributes][:veteran][:email] = ''
+                mock_ccg(scopes) do |auth_header|
+                  expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                    .and_return(bgs_poa)
+                  allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                    .and_return({ person_poa_history: nil })
+
+                  post appoint_organization_path, params: data.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:accepted)
+                end
+              end
+
+              it "allows a valid 'normal' looking email" do
+                data[:data][:attributes][:veteran][:email] = 'valid@email.com'
+                mock_ccg(scopes) do |auth_header|
+                  expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                    .and_return(bgs_poa)
+                  allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                    .and_return({ person_poa_history: nil })
+
+                  post appoint_organization_path, params: data.to_json, headers: auth_header
+
+                  expect(response).to have_http_status(:accepted)
+                end
+              end
+            end
+
+            context 'when the email is invalid' do
+              it 'denies an invalid value' do
+                data[:data][:attributes][:veteran][:email] = 'thisisnotavalidemailatall'
+                mock_ccg(scopes) do |auth_header|
+                  post appoint_organization_path, params: data.to_json, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(json_response['errors'][0]['detail']).to eq(
+                    'The property /veteran/email did not match the following requirements: ' \
+                    '{"description"=>"Email address of the veteran.", "type"=>"string", ' \
+                    '"pattern"=>"^(?!.*\\\\s).+@.+\\\\..+|^$", "maxLength"=>61, "example"=>' \
+                    '"veteran@example.com"}'
+                  )
+                end
+              end
+
+              it 'denies an empty string' do
+                data[:data][:attributes][:veteran][:email] = ' '
+                mock_ccg(scopes) do |auth_header|
+                  post appoint_organization_path, params: data.to_json, headers: auth_header
+
+                  json_response = JSON.parse(response.body)
+
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  expect(json_response['errors'][0]['detail']).to eq(
+                    'The property /veteran/email did not match the following requirements: ' \
+                    '{"description"=>"Email address of the veteran.", "type"=>"string", ' \
+                    '"pattern"=>"^(?!.*\\\\s).+@.+\\\\..+|^$", "maxLength"=>61, "example"=>' \
+                    '"veteran@example.com"}'
+                  )
+                end
+              end
+            end
+          end
         end
       end
 
@@ -247,7 +349,6 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 .and_return({ person_poa_history: nil })
 
               post appoint_organization_path, params: data.to_json, headers: auth_header
-
               expect(response).to have_http_status(:accepted)
             end
           end

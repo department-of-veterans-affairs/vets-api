@@ -92,7 +92,8 @@ class EVSSSupplementalDocumentUploadProvider
   def base_logging_info
     {
       class: 'EVSSSupplementalDocumentUploadProvider',
-      submission_id: @form526_submission.submitted_claim_id,
+      submitted_claim_id: @form526_submission.submitted_claim_id,
+      submission_id: @form526_submission.id,
       user_uuid: @form526_submission.user_uuid,
       va_document_type_code: @va_document_type,
       primary_form: 'Form526'

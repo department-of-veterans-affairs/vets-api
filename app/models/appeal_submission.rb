@@ -15,6 +15,28 @@ class AppealSubmission < ApplicationRecord
 
   has_many :appeal_submission_uploads, dependent: :destroy
   has_many :secondary_appeal_forms, dependent: :destroy
+  has_many :incomplete_secondary_appeal_forms, lambda {
+    where(delete_date: nil)
+  }, class_name: 'SecondaryAppealForm', dependent: nil, inverse_of: :appeal_submission
+
+  # Work around for a polymorphic association, each AppealSubmission will only have one of the following: sc, hlr, nod
+  has_one :saved_claim_sc, class_name: 'SavedClaim::SupplementalClaim', foreign_key: :guid,
+                           primary_key: :submitted_appeal_uuid,
+                           dependent: :restrict_with_exception,
+                           inverse_of: :appeal_submission,
+                           required: false
+
+  has_one :saved_claim_hlr, class_name: 'SavedClaim::HigherLevelReview', foreign_key: :guid,
+                            primary_key: :submitted_appeal_uuid,
+                            dependent: :restrict_with_exception,
+                            inverse_of: :appeal_submission,
+                            required: false
+
+  has_one :saved_claim_nod, class_name: 'SavedClaim::NoticeOfDisagreement', foreign_key: :guid,
+                            primary_key: :submitted_appeal_uuid,
+                            dependent: :restrict_with_exception,
+                            inverse_of: :appeal_submission,
+                            required: false
 
   scope :failure_not_sent, -> { where(failure_notification_sent_at: nil).order(id: :asc) }
 
@@ -70,9 +92,8 @@ class AppealSubmission < ApplicationRecord
   def get_mpi_profile
     @mpi_profile ||= begin
       service = ::MPI::Service.new
-      idme_profile = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile
-      logingov_profile = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'logingov')&.profile
-      response = idme_profile || logingov_profile
+      response = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile
+      response ||= service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'logingov')&.profile
       raise 'Failed to fetch MPI profile' if response.nil?
 
       response

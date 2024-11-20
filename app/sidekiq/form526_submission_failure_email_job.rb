@@ -20,7 +20,9 @@ class Form526SubmissionFailureEmailJob
     'form8940' => 'VA Form 21-8940'
   }.freeze
 
-  sidekiq_options retry: 14
+  # retry for  2d 1h 47m 12s
+  # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+  sidekiq_options retry: 16
 
   sidekiq_retries_exhausted do |msg, _ex|
     job_id = msg['jid']
@@ -58,9 +60,9 @@ class Form526SubmissionFailureEmailJob
     raise e
   end
 
-  def perform(submission_id, date_of_failure = Time.now.utc)
+  def perform(submission_id, date_of_failure = Time.now.utc.to_s)
     @submission = Form526Submission.find(submission_id)
-    @date_of_failure = date_of_failure
+    @date_of_failure = Time.zone.parse(date_of_failure)
     send_email
     track_remedial_action
     log_success
@@ -106,11 +108,11 @@ class Form526SubmissionFailureEmailJob
       date_submitted: submission.format_creation_time_for_mailers,
       forms_submitted: list_forms_submitted.presence || 'None',
       files_submitted: list_files_submitted.presence || 'None',
-      date_of_failure:
+      date_of_failure: parsed_date_of_failure
     }
   end
 
-  def date_of_failure
+  def parsed_date_of_failure
     @date_of_failure.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 

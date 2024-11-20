@@ -80,7 +80,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
           debug_timestamp: anything
         )
         expect(@controller).to receive(:log_message_to_sentry).with(
-          'form attachment error 1',
+          'form attachment error 1 - validate class',
           :info,
           phase: 'FAC_validate',
           klass: 'String',
@@ -102,8 +102,10 @@ RSpec.describe FormAttachmentCreate, type: :controller do
           debug_timestamp: anything
         )
         expect(@controller).to receive(:log_message_to_sentry).with(
-          'form attachment error 2',
+          'form attachment error 2 - save to cloud',
           :info,
+          has_pass: false,
+          ext: File.extname(file_data).last(5),
           phase: 'FAC_cloud',
           exception: 'Unprocessable Entity'
         )
@@ -128,7 +130,7 @@ RSpec.describe FormAttachmentCreate, type: :controller do
           debug_timestamp: anything
         )
         expect(@controller).to receive(:log_message_to_sentry).with(
-          'form attachment error 3',
+          'form attachment error 3 - save to db',
           :info,
           phase: 'FAC_db',
           errors: 'error text',

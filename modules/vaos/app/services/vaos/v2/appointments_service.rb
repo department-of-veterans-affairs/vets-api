@@ -179,7 +179,14 @@ module VAOS
       end
 
       def sort_recent_appointments(appointments)
-        appointments.sort_by { |appointment| DateTime.parse(appointment.start) }
+        filtered_appts = appointments.reject { |appt| appt&.start.nil? }
+        removed_appts = appointments - filtered_appts
+        if removed_appts.length.positive?
+          removed_appts.each do |rem_appt|
+            Rails.logger.info("VAOS appointment sorting filtered out id #{rem_appt.id} due to missing start time.")
+          end
+        end
+        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
@@ -767,7 +774,7 @@ module VAOS
       end
 
       def appointments_base_path_vaos
-        "/vaos/v1/patients/#{user.icn}/appointments"
+        "/#{base_vaos_route}/patients/#{user.icn}/appointments"
       end
 
       def appointments_base_path_vpg
@@ -782,7 +789,7 @@ module VAOS
         if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
           "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
         else
-          "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
+          "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appointment_id}"
         end
       end
 
@@ -813,7 +820,7 @@ module VAOS
       end
 
       def update_appointment_vaos(appt_id, status)
-        url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        url_path = "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         perform(:put, url_path, params, headers)
       end

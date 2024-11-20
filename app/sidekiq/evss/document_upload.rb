@@ -6,10 +6,13 @@ require 'logging/third_party_transaction'
 
 class EVSS::DocumentUpload
   include Sidekiq::Job
+  extend SentryLogging
   extend Logging::ThirdPartyTransaction::MethodWrapper
 
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
   OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
+
+  DD_ZSF_TAGS = ['service:claim-status', 'function: evidence upload to EVSS'].freeze
 
   NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
   MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
@@ -29,14 +32,14 @@ class EVSS::DocumentUpload
   )
 
   # retry for one day
-  sidekiq_options retry: 14, queue: 'low'
+  sidekiq_options retry: 16, queue: 'low'
   # Set minimum retry time to ~1 hour
   sidekiq_retry_in do |count, _exception|
     rand(3600..3660) if count < 9
   end
 
   sidekiq_retries_exhausted do |msg, _ex|
-    # There should be 3 args:
+    # There should be 3 values in msg['args']:
     # 1) Auth headers needed to authenticate with EVSS
     # 2) The uuid of the record in the UserAccount table
     # 3) Document metadata
@@ -56,9 +59,12 @@ class EVSS::DocumentUpload
     )
 
     ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email sent')
+    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   rescue => e
     ::Rails.logger.error('EVSS::DocumentUpload exhaustion handler email error',
                          { message: e.message })
+    StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
+    log_exception_to_sentry(e)
   end
 
   def perform(auth_headers, user_uuid, document_hash)

@@ -15,7 +15,7 @@ module Mobile
         %i[bgs payment_history],
         %i[arcgis facility_locator],
         %i[caseflow appeals],
-        %i[vet360 military_service_history],
+        %i[vapro_military_info military_service_history],
         %i[vbms evss],
         %i[vbms lighthouse],
         %i[lighthouse claims],
@@ -28,7 +28,8 @@ module Mobile
         %i[mhv_sm secure_messaging],
         %i[mhv_meds rx_refill],
         %i[vaos appointments],
-        %i[vet360 user_profile_update],
+        %i[vapro_personal_info user_demographics],
+        %i[vapro_contact_info user_contact_update],
         %i[eoas preneed_burial]
       )
 
