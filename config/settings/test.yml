@@ -8,9 +8,6 @@ mvi:
   url: http://www.example.com/
   mock: false
 
-locators:
-  providers_enabled: true
-
 reports:
   aws:
     access_key_id: key
@@ -228,11 +225,14 @@ lighthouse:
       client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
       api_scope:
         - "launch"
+        - "patient/AllergyIntolerance.read"
+        - "patient/DiagnosticReport.read"
         - "patient/Patient.read"
         - "system/Patient.read"
         - "patient/Observation.read"
         - "patient/Practitioner.read"
         - "patient/MedicationRequest.read"
+        - "patient/Condition.read"
       aud_claim_url: "https://deptva-eval.okta.com/oauth2/aus8nm1q0f7VQ0a482p7/v1/token"
       client_id: "fake_client_id"
       grant_type: "client_credentials"
@@ -272,9 +272,6 @@ lighthouse:
 
 rrd:
   alerts:
-    recipients:
-      - fake_email
-  event_tracking:
     recipients:
       - fake_email
 
@@ -368,7 +365,6 @@ lgy:
 form_10_10cg:
   carma:
     mulesoft:
-      mock: true
       host: "https://fake-mulesoft.vapi.va.gov"
       client_id: BEEFCAFE1234
       client_secret: C0FFEEFACE4321
@@ -388,7 +384,6 @@ vha:
 
 mhv:
   medical_records:
-    app_id: 0
     app_token: xyz
     host: http://example.org
 
@@ -398,7 +393,6 @@ evss:
 
 claims_api:
   evss_container:
-    auth_base_name: staging-api.va.gov
     client_key: fakekeyvaluehere
   pdf_generator_526:
     url: 'https://fake_pdf_url.com'
@@ -413,8 +407,10 @@ claims_api:
         aud_claim_url: https://fakeurlhere/fake/path/here
   vanotify:
     client_url: https://fakeurl/with/path/here
-    representative_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
-    service_organization_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
+    accepted_representative_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
+    accepted_service_organization_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
+    declined_representative_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
+    declined_service_organization_template_id: xxxxxx-zzzz-aaaa-bbbb-cccccccc
     services:
       lighthouse:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
@@ -445,9 +441,6 @@ travel_pay:
   base_url: 'https://btsss.gov'
   client_number: '12345'
   service_name: 'BTSSS-API'
-
-pension_ipf_vanotify_status_callback:
-  bearer_token: bearer_token_secret
 
 va_notify:
   status_callback:

@@ -16,11 +16,15 @@ module MHV
         validate!
         create_mhv_user_account!
       rescue ActiveModel::ValidationError, Errors::ValidationError => e
-        log_and_raise_error(e, :validation)
+        log_error(e, :validation)
+        raise Errors::ValidationError, e.message
       rescue Common::Client::Errors::Error => e
-        log_and_raise_error(e, :client)
+        log_error(e, :client)
+
+        raise Errors::MHVClientError.new(e.message, e.body)
       rescue => e
-        log_and_raise_error(e, :creator)
+        log_error(e, :creator)
+        raise Errors::CreatorError, e.message
       end
 
       private
@@ -69,18 +73,8 @@ module MHV
         raise Errors::ValidationError, errors.join(', ') if errors.present?
       end
 
-      def log_and_raise_error(error, type = nil)
-        klass = case type
-                when :validation
-                  Errors::ValidationError
-                when :client
-                  Errors::MHVClientError
-                else
-                  Errors::CreatorError
-                end
-
+      def log_error(error, type)
         Rails.logger.error("[MHV][UserAccount][Creator] #{type} error", error_message: error.message, icn:)
-        raise klass, error.message
       end
     end
   end
