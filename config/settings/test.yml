@@ -113,13 +113,13 @@ bgs:
   application: VAgovAPI
   client_station_id: 281
   client_username: VAgovAPI
-  # url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447
+  url: https://internal-dsva-vagov-dev-fwdproxy-1893365470.us-gov-west-1.elb.amazonaws.com:4447
   external_uid: xUid
   external_key: xKey
 # You can use this in `config/settings/test.local.yml`.
 # bgs:
-  url: https://localhost:4447
-  ssl_verify_mode: "none"
+  # url: https://localhost:4447
+  # ssl_verify_mode: "none"
 
 flipper:
   github_organization: "organization"

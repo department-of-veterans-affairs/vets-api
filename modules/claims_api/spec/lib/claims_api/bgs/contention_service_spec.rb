@@ -12,7 +12,7 @@ describe ClaimsApi::ContentionService do
   end
 
   it 'get find_contentions_by_ptcpnt_id' do
-    VCR.use_cassette('contention/find_contentions_by_ptcpnt_id') do
+    VCR.use_cassette('claims_api/bgs/contention/find_contentions_by_ptcpnt_id') do
       response = service.find_contentions_by_ptcpnt_id('600036156')
       expect(response[:benefit_claims].count).to eq(383)
 
@@ -42,35 +42,4 @@ describe ClaimsApi::ContentionService do
       expect(first_claim[:suspns_rsn_txt]).to eq('Cancelled')
     end
   end
-
-  # it 'post manage_contentions' do
-  #   VCR.use_cassette('contention/manage_contentions') do
-  #     service.manage_contentions(
-  #       jrn_dt: '2024-08-17T10:44:43-05:00',
-  #       bnft_clm_tc: '130DPNEBNADJ',
-  #       bnft_clm_tn: 'eBenefits Dependency Adjustment',
-  #       claim_rcvd_dt: '2024-08-17T00:00:00-05:00',
-  #       clm_id: '600200323',
-  #       contentions: [
-  #         {
-  #           clm_id: '600200323',
-  #           special_issues: [
-  #             { spis_tc: 'POW' }
-  #           ]
-  #         }
-  #       ],
-  #       lc_stt_rsn_tc: 'OPEN',
-  #       lc_stt_rsn_tn: 'Open',
-  #       lctn_id: '322',
-  #       non_med_clm_desc: 'eBenefits Dependency Adjustment',
-  #       prirty: '0',
-  #       ptcpnt_id_clmnt: '600036156',
-  #       ptcpnt_id_vet: '600036156',
-  #       ptcpnt_suspns_id: '600276939',
-  #       soj_lctn_id: '347'
-  #     )
-
-  #     byebug
-  #   end
-  # end
 end
