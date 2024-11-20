@@ -28,8 +28,11 @@ module Dependents
         message: msg
       }
       if email
+        # if an email address is present it means an email has been sent by vanotify
+        # this means the silent failure is avoided.
         log_silent_failure_avoided(additional_context, nil, call_location: caller_locations.first)
       else
+        # if no email is present, log silent failure
         log_silent_failure(additional_context, nil, call_location: caller_locations.first)
       end
 

@@ -29,10 +29,13 @@ module PCPG
       }
 
       if email
+        # if an email address is present it means an email has been sent by vanotify
+        # this means the silent failure is avoided.
         log_silent_failure_avoided(additional_context, user_account_uuid, call_location: caller_locations.first)
       else
         # log_silent_failure calls the ZSF method which increases a special StatsD metric
         # and writes to the Rails log for additional ZSF tracking.
+        # if no email is present, log silent failure
         log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
       end
 
