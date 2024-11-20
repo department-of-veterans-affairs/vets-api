@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require_relative '../vaos/middleware/response/errors'
+require_relative '../vaos/middleware/vaos_logging'
+
 module Eps
   class Configuration < Common::Client::Configuration::REST
     delegate :access_token_url, :api_url, :grant_type, :scopes, :client_assertion_type, to: :settings
