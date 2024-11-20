@@ -76,9 +76,16 @@ features:
   caregiver1010:
     actor_type: user
     description: Enables new features while investigating 1010CG errors
+  caregiver_use_va_notify_on_submission_failure:
+    actor_type: user
+    description: Send 10-10CG submission failure email to Veteran using VANotify.
+    enable_in_development: true
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
+  hca_disable_bgs_service:
+    actor_type: user
+    description: Do not call the BGS Service when this is turned on. Instead return 0 for rating.
   hca_enrollment_status_override_enabled:
     actor_type: user
     description: Enables override of enrollment status for a user, to allow multiple submissions with same user.
@@ -105,6 +112,9 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
+  hca_log_email_diff_in_progress_form:
+    actor_type: user
+    description: Enable using database instead of redis to log email differences between va_profile and in progress forms.
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
@@ -490,6 +500,9 @@ features:
   disability_526_toxic_exposure_document_upload_polling:
     actor_type: user
     description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
+  disability_526_call_received_email_from_polling:
+    actor_type: user
+    description: enables received email in poll_form526_pdf job and disables calling from form526_submission
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
@@ -1036,9 +1049,6 @@ features:
     actor_type: user
     description: >
       [Front-end only] When enabled, 21P-527EZ will display additional explanations for the medical evidence requirement.
-  pension_military_prefill:
-    actor_type: user
-    description: When enabled, 21P-527EZ will prefill military information.
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -1151,6 +1161,9 @@ features:
   my_va_form_submission_statuses:
     actor_type: user
     description: Enables users to view the status of submitted forms.
+  my_va_form_submission_pdf_link:
+    actor_type: user
+    description: Enables users to view PDF link within submitted forms cards
   rated_disabilities_detect_discrepancies:
     actor_type: user
     description:
@@ -1164,16 +1177,15 @@ features:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
     enable_in_development: true
+  saved_claim_schema_validation_disable:
+    actor_type: user
+    description: Disables validating a saved_claim schema before validating the form data with the schema.
   schema_contract_appointments_index:
     actor_type: user
     description: Enables schema validation for the appointments service index fetch.
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
-    enable_in_development: true
-  search_dropdown_component_enabled:
-    actor_type: user
-    description: Enables typeahead 2.0 functionality
     enable_in_development: true
   search_gov_maintenance:
     actor_type: user
@@ -1451,7 +1463,7 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
-  vaos_online_scheduling_remove_podiatry:
+  va_online_scheduling_remove_podiatry:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
@@ -1478,6 +1490,10 @@ features:
   veteran_onboarding_show_welcome_message_to_new_users:
     actor_type: user
     description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
+    enable_in_development: false
+  veteran_status_card_use_lighthouse:
+    actor_type: user
+    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display
     enable_in_development: false
   vre_trigger_action_needed_email:
     actor_type: user
@@ -1682,6 +1698,10 @@ features:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true
+  sc_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
   hlr_updateed_contnet:
     actor_type: user
     description: HLR show form content updates
@@ -1689,10 +1709,6 @@ features:
   sc_new_form:
     actor_type: user
     description: Supplemental Claim new form updates
-    enable_in_development: true
-  pension_ipf_callbacks_endpoint:
-    actor_type: user
-    description: Pension IPF VANotify notification callbacks endpoint
     enable_in_development: true
   hlr_browser_monitoring_enabled:
     actor_type: user
@@ -1782,11 +1798,6 @@ features:
       Controls how the GI Bill State of Benefits (SOB) application is presented.
       When enabled: it use the new SOB application that works 24/7.
       When disabled: it will use the old SOB application that only works from 0600 to 2200 hrs
-  sob_print_page_update:
-    actor_type: user
-    description: >-
-      Changes classname by which query selector looks for breadcrumbs on print page of GI Bill Statement of Benefits (SOB)
-      application. Used to test fix in staging.
   travel_pay_power_switch:
     actor_type: user
     enable_in_development: true
@@ -1871,4 +1882,3 @@ features:
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
-

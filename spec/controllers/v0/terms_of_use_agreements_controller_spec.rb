@@ -100,7 +100,9 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
   end
 
   describe 'POST #accept' do
-    subject { post :accept, params: { version: agreement_version, terms_code: } }
+    subject { post :accept, params: { version: agreement_version, terms_code:, skip_mhv_account_creation: }.compact }
+
+    let(:skip_mhv_account_creation) { nil }
 
     shared_examples 'authenticated agreements acceptance' do
       context 'when the agreement is accepted successfully' do
@@ -129,6 +131,24 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
             '[TermsOfUseAgreement] [Accepted]',
             hash_including(:terms_of_use_agreement_id, :user_account_uuid, :icn, :agreement_version, :response)
           )
+        end
+
+        context 'when creating a MHV account' do
+          context 'when skip_mhv_account_creation is true' do
+            let(:skip_mhv_account_creation) { true }
+
+            it 'does not create an MHV account' do
+              expect(user).not_to receive(:create_mhv_account_async)
+              subject
+            end
+          end
+
+          context 'when skip_mhv_account_creation is not present' do
+            it 'does not create an MHV account' do
+              expect(user).not_to receive(:create_mhv_account_async)
+              subject
+            end
+          end
         end
       end
 
@@ -278,7 +298,12 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
   end
 
   describe 'POST #accept_and_provision' do
-    subject { post :accept_and_provision, params: { version: agreement_version, terms_code: } }
+    subject do
+      post :accept_and_provision,
+           params: { version: agreement_version, terms_code:, skip_mhv_account_creation: }.compact
+    end
+
+    let(:skip_mhv_account_creation) { nil }
 
     shared_examples 'successful acceptance and provisioning' do
       let(:expected_status) { :created }
@@ -305,6 +330,24 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       it 'logs the expected log' do
         subject
         expect(Rails.logger).to have_received(:info).with(expected_log, { icn: })
+      end
+
+      context 'when creating a MHV account' do
+        context 'when skip_mhv_account_creation is true' do
+          let(:skip_mhv_account_creation) { true }
+
+          it 'does not create an MHV account' do
+            expect(user).not_to receive(:create_mhv_account_async)
+            subject
+          end
+        end
+
+        context 'when skip_mhv_account_creation is not present' do
+          it 'does not create an MHV account' do
+            expect(user).not_to receive(:create_mhv_account_async)
+            subject
+          end
+        end
       end
     end
 
