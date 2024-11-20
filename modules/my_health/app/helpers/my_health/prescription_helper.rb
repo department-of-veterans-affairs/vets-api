@@ -4,6 +4,7 @@ require 'common/exceptions'
 
 module MyHealth
   module PrescriptionHelper
+    # rubocop:disable Metrics/MethodLength
     module Filtering
       def collection_resource
         case params[:refill_status]
@@ -106,6 +107,18 @@ module MyHealth
         end
       end
 
+      def set_filter_metadata(list)
+        {
+          filter_count: {
+            all_medications: list.length,
+            active: count_active_medications(list),
+            recently_requested: count_recently_requested_medications(list),
+            renewal: count_renewals(list),
+            non_active: count_non_active_medications(list)
+          }
+        }
+      end
+
       private
 
       def valid_date_within_cut_off_date?(date)
@@ -114,10 +127,37 @@ module MyHealth
         date.present? && date != zero_date && date >= cut_off_date
       end
 
+      def count_active_medications(list)
+        active_statuses = [
+          'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
+          'Active: Parked', 'Active: Submitted'
+        ]
+        list.select { |rx| active_statuses.include?(rx.disp_status) }.length
+      end
+
+      def count_recently_requested_medications(list)
+        recently_requested_statuses = ['Active: Refill in Process', 'Active: Submitted']
+        list.select { |rx| recently_requested_statuses.include?(rx.disp_status) }.length
+      end
+
+      def count_renewals(list)
+        list.select do |rx|
+          is_expired = rx.disp_status == 'Expired'
+          is_active_no_refills = rx.disp_status == 'Active' && rx.refill_remaining.zero?
+          (is_expired || is_active_no_refills) && ['false'].include?(rx.is_refillable.to_s)
+        end.length
+      end
+
+      def count_non_active_medications(list)
+        non_active_statuses = %w[Discontinued Expired Transferred Unknown]
+        list.select { |rx| non_active_statuses.include?(rx.disp_status) }.length
+      end
+
       module_function :collection_resource,
                       :filter_data_by_refill_and_renew,
                       :filter_non_va_meds,
-                      :sort_by
+                      :sort_by,
+                      :set_filter_metadata
     end
   end
 end
