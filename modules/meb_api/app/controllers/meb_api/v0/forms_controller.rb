@@ -12,12 +12,13 @@ module MebApi
       before_action :set_type, only: %i[claim_letter claim_status claimant_info]
 
       def claim_letter
-        claimant_response = form_claimant_service.get_claimant_info(@form_type)
-        claimant_id = claimant_response['claimant']['claimant_id']
+        claimant_response = claimant_service.get_claimant_info(@form_type)
+        claimant_id = claimant_response['claimant_id']
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         claim_letter_response = letter_service.get_claim_letter(claimant_id, @form_type)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
-        response = if claimant_response.status == valid_claimant_response?(claimant_response)
+
+        response = if valid_claimant_response?(claimant_response)
                      claim_letter_response
                    else
                      claimant_response
