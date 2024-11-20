@@ -101,7 +101,7 @@ module MebApi
       private
 
       def set_type
-        @form_type = params['@type'] == 'ToeSubmission' ? 'toe' : params['@type']&.capitalize
+        @form_type = params['type'] == 'ToeSubmission' ? 'toe' : params['type']&.capitalize
       end
 
       def valid_claimant_response?(response)
