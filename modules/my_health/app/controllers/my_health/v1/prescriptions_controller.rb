@@ -16,8 +16,12 @@ module MyHealth
         resource = collection_resource
         resource.data = filter_non_va_meds(resource.data)
         filter_count = set_filter_metadata(resource.data)
-        renewal_params = 'Active,Expired';
-        resource = params[:filter].present? ? filter_params[:disp_status][:eq] == renewal_params ? filter_renewals(resource) : resource.find_by(filter_params) : resource
+        renewal_params = 'Active,Expired'
+        resource = if params[:filter].present?
+                     filter_params[:disp_status][:eq] == renewal_params ? filter_renewals(resource) : resource.find_by(filter_params)
+                   else
+                     resource
+                   end
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
@@ -43,15 +47,14 @@ module MyHealth
       end
 
       def filter_renewals(resource)
-        data = filter_by(resource.data, method(:is_renewable))
-        resource.data = data
+        resource.data = resource.data.select(&method(:renewable))
         resource.metadata = resource.metadata.merge({
-          "filter" => {
-            "disp_status" => {
-              "eq" => "Active,Expired"
-            }
-          }
-        })
+                                                      'filter' => {
+                                                        'disp_status' => {
+                                                          'eq' => 'Active,Expired'
+                                                        }
+                                                      }
+                                                    })
         resource
       end
 
@@ -160,7 +163,7 @@ module MyHealth
             all_medications: list.length,
             active: count_active_medications(list),
             recently_requested: count_recently_requested_medications(list),
-            renewal: filter_by(list, method(:is_renewable)).length,
+            renewal: list.select(&method(:renewable)).length,
             non_active: count_non_active_medications(list)
           }
         }
