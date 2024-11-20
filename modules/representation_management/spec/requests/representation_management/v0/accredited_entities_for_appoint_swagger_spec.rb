@@ -23,10 +23,10 @@ RSpec.describe 'Accredited Entities for Appoint',
         schema type: :array,
                items: {
                  oneOf: [
-                   { '$ref' => '#/components/schemas/veteran_service_representative' },
-                   { '$ref' => '#/components/schemas/veteran_service_organization' },
-                   { '$ref' => '#/components/schemas/accredited_individual' },
-                   { '$ref' => '#/components/schemas/accredited_organization' }
+                   #  { '$ref' => '#/components/schemas/veteran_service_representative' },
+                   #  { '$ref' => '#/components/schemas/veteran_service_organization' },
+                   { '$ref' => '#/components/schemas/accredited_individual_schema' },
+                   { '$ref' => '#/components/schemas/accredited_organization_schema' }
                  ]
                }
         run_test!
