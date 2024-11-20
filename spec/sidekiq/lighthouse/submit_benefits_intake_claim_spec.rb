@@ -82,7 +82,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
 
     it 'processes a record and add stamps' do
       record = double
-      allow(record).to receive(:created_at).and_return(claim.created_at)
+      allow(record).to receive_messages({ created_at: nil, form_id: '21P-530' })
       datestamp_double1 = double
       datestamp_double2 = double
 
@@ -103,6 +103,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
 
     it 'processes a 21P-530V2 record and add stamps' do
       record = double
+      allow(record).to receive_messages({ created_at: claim.created_at, form_id: '21P-530V2' })
       datestamp_double1 = double
       datestamp_double2 = double
       datestamp_double3 = double
@@ -138,6 +139,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
 
     it 'handles an invalid record' do
       record = double
+      allow(record).to receive_messages({ created_at: nil, form_id: '21P-530' })
       datestamp_double1 = double
       datestamp_double2 = double
 
@@ -159,6 +161,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
 
     it 'handles an invalid 21P-530V2 record' do
       record = double
+      allow(record).to receive_messages({ created_at: claim.created_at, form_id: '21P-530V2' })
       datestamp_double1 = double
       datestamp_double2 = double
       datestamp_double3 = double
