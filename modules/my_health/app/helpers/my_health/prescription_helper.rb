@@ -159,5 +159,6 @@ module MyHealth
                       :sort_by,
                       :set_filter_metadata
     end
+    # rubocop:enable Metrics/MethodLength
   end
 end
