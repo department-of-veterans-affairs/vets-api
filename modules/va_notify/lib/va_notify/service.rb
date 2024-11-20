@@ -28,7 +28,7 @@ module VaNotify
         response = with_monitoring do
           notify_client.send_email(args)
         end
-        create_notification(response)
+        create_notification(response, args[:template_id])
         response
       else
         with_monitoring do
@@ -44,7 +44,7 @@ module VaNotify
         response = with_monitoring do
           notify_client.send_sms(args)
         end
-        create_notification(response)
+        create_notification(response, args[:template_id])
         response
       else
         with_monitoring do
@@ -99,7 +99,7 @@ module VaNotify
       )
     end
 
-    def create_notification(response)
+    def create_notification(response, template_id)
       if response.nil?
         Rails.logger.error('VANotify - no response')
         return
@@ -109,7 +109,8 @@ module VaNotify
         notification_id: response.id,
         source_location: find_caller_locations,
         callback: callback_options[:callback],
-        callback_metadata: callback_options[:callback_metadata]
+        callback_metadata: callback_options[:callback_metadata],
+        template_id: template_id
       )
 
       if notification.save
