@@ -18,7 +18,11 @@ module MyHealth
         filter_count = set_filter_metadata(resource.data)
         renewal_params = 'Active,Expired'
         resource = if params[:filter].present?
-                     filter_params[:disp_status][:eq] == renewal_params ? filter_renewals(resource) : resource.find_by(filter_params)
+                     if filter_params[:disp_status][:eq] == renewal_params
+                       filter_renewals(resource)
+                     else
+                       resource.find_by(filter_params)
+                     end
                    else
                      resource
                    end
