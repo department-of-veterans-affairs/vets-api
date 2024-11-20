@@ -55,6 +55,7 @@ RSpec.describe BenefitsDocuments::Service do
 
       it 'records an evidence submission when cst_synchronous_evidence_uploads is false' do
         Flipper.disable(:cst_synchronous_evidence_uploads)
+        expect(Lighthouse::DocumentUpload).to receive(:perform_in).and_return(String)
         service.queue_document_upload(params)
         expect(EvidenceSubmission.count).to eq(1)
       end

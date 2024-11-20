@@ -42,6 +42,13 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
       }
     }
   end
+  let(:failure_response) do
+    {
+      data: {
+        success: false
+      }
+    }
+  end
 
   let(:issue_instant) { Time.now.to_i }
   let(:args) do
@@ -121,6 +128,14 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
       # After running DocumentUpload job, there should be a new EvidenceSubmission record
       # with the response request_id
       expect(EvidenceSubmission.find_by(job_id: job_id).request_id).to eql(response.dig(:data, :requestId))
+    end
+
+    it 'raises an error when Lighthouse returns a failure response' do
+      allow(client_stub).to receive(:upload_document).with(file, document_data).and_return(failure_response)
+      expect do
+        job
+        described_class.drain
+      end.to raise_error(StandardError)
     end
   end
 
