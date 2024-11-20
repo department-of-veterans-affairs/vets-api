@@ -43,7 +43,11 @@ class RepresentationManagement::RswagConfig
       ErrorModel: error_model,
       Errors: errors,
       Error: error,
-      PowerOfAttorneyResponse: power_of_attorney_response
+      PowerOfAttorneyResponse: power_of_attorney_response,
+      veteran_service_representative: veteran_service_representative_schema,
+      veteran_service_organizations: veteran_service_organizations_schema,
+      accredited_individual: accredited_individual_schema,
+      accredited_organization: accredited_organization_schema
     }
   end
 

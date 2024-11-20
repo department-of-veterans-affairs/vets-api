@@ -20,6 +20,15 @@ RSpec.describe 'Accredited Entities for Appoint',
         let(:accredited_entities_for_appoint) do
           SwaggerSharedComponents::V0.body_examples[:accredited_entities_for_appoint]
         end
+        schema type: :array,
+               items: {
+                 oneOf: [
+                   { '$ref' => '#/components/schemas/veteran_service_representative' },
+                   { '$ref' => '#/components/schemas/veteran_service_organization' },
+                   { '$ref' => '#/components/schemas/accredited_individual' },
+                   { '$ref' => '#/components/schemas/accredited_organization' }
+                 ]
+               }
         run_test!
       end
 
