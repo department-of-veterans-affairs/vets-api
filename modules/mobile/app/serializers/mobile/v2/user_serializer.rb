@@ -9,14 +9,14 @@ module Mobile
 
       set_type :user
       attributes :id, :first_name, :middle_name, :last_name, :signin_email, :birth_date, :signin_service,
-                 :has_facility_transitioning_to_cerner
+                 :has_facility_transitioning_to_cerner, :edipi
 
       def initialize(user)
         @user = user
         birth_date = user.birth_date.nil? ? nil : Date.parse(user.birth_date).iso8601
         resource = UserStruct.new(user.uuid, user.first_name, user.middle_name, user.last_name, user.email,
                                   birth_date, user.identity.sign_in[:service_name].remove('oauth_'),
-                                  transitioning_facility?(user))
+                                  transitioning_facility?(user), user.edipi)
         super(resource)
       end
 
@@ -30,7 +30,7 @@ module Mobile
 
       UserStruct = Struct.new(
         :id, :first_name, :middle_name, :last_name, :signin_email, :birth_date, :signin_service,
-        :has_facility_transitioning_to_cerner
+        :has_facility_transitioning_to_cerner, :edipi
       )
     end
   end

@@ -527,10 +527,20 @@ RSpec.describe V1::SessionsController, type: :controller do
             allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
           end
 
-          it 'redirects to terms of use page' do
-            expect(call_endpoint).to redirect_to(
-              'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
-            )
+          context 'when the application is not in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
+            it 'redirects to terms of use page' do
+              expect(call_endpoint).to redirect_to(
+                'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
+              )
+            end
+          end
+
+          context 'when the application is in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
+            let(:application) { 'mhv' }
+
+            it 'redirects to terms of use page with skip_mhv_account_creation query param' do
+              expect(call_endpoint).to redirect_to(a_string_including('skip_mhv_account_creation=true'))
+            end
           end
         end
 
@@ -570,10 +580,20 @@ RSpec.describe V1::SessionsController, type: :controller do
             allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
           end
 
-          it 'redirects to terms of use page' do
-            expect(call_endpoint).to redirect_to(
-              'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
-            )
+          context 'when the application is not in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
+            it 'redirects to terms of use page' do
+              expect(call_endpoint).to redirect_to(
+                'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
+              )
+            end
+          end
+
+          context 'when the application is in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
+            let(:application) { 'mhv' }
+
+            it 'redirects to terms of use page with skip_mhv_account_creation query param' do
+              expect(call_endpoint).to redirect_to(a_string_including('skip_mhv_account_creation=true'))
+            end
           end
         end
 
