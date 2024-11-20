@@ -9,6 +9,10 @@ RSpec.describe SavedClaim::EducationBenefits::VA10203 do
   let(:user) { create(:user) }
   let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
 
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+  end
+
   it_behaves_like 'saved_claim'
 
   validate_inclusion(:form_id, '22-10203')

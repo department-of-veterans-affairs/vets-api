@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../../../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::PreNeedBurial', type: :request do
   include SchemaMatchers
+  include CommitteeHelper
 
   describe 'POST /mobile/v0/claims/pre-need-burial' do
     Flipper.disable(:va_v3_contact_information_service)
@@ -16,7 +18,7 @@ RSpec.describe 'Mobile::V0::PreNeedBurial', type: :request do
       it 'returns an with a 422 error' do
         params[:application][:veteran].delete(:military_status)
         post('/mobile/v0/claims/pre-need-burial', headers: sis_headers, params:)
-        expect(response).to have_http_status(:unprocessable_entity)
+        assert_schema_conform(422)
         expect(response.parsed_body).to eq({ 'errors' =>
                                               [{ 'title' => 'Validation error',
                                                  'detail' => "The property '#/application/veteran/militaryStatus' of " \
@@ -41,7 +43,7 @@ RSpec.describe 'Mobile::V0::PreNeedBurial', type: :request do
           post('/mobile/v0/claims/pre-need-burial', headers: sis_headers, params:)
         end
 
-        expect(response).to have_http_status(:bad_request)
+        assert_schema_conform(400)
 
         errors = response.parsed_body.dig('errors', 0)
         expect(errors['title']).to eq('Operation failed')
