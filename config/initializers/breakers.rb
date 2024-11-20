@@ -12,7 +12,6 @@ require 'evss/dependents/configuration'
 require 'evss/disability_compensation_form/configuration'
 require 'evss/documents_service'
 require 'evss/letters/service'
-require 'evss/pciu_address/configuration'
 require 'evss/reference_data/configuration'
 require 'gi/configuration'
 require 'gibft/configuration'
@@ -54,7 +53,6 @@ Rails.application.reloader.to_prepare do
     EVSS::DisabilityCompensationForm::Configuration.instance.breakers_service,
     EVSS::DocumentsService.breakers_service,
     EVSS::Letters::Configuration.instance.breakers_service,
-    EVSS::PCIUAddress::Configuration.instance.breakers_service,
     EVSS::Dependents::Configuration.instance.breakers_service,
     EVSS::ReferenceData::Configuration.instance.breakers_service,
     Gibft::Configuration.instance.breakers_service,
