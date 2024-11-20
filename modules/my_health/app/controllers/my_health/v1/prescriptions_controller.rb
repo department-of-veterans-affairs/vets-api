@@ -136,21 +136,10 @@ module MyHealth
         {
           filter_count: {
             all_medications: list.length,
-            active: list.select do |prescription|
-                      [
-                        'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold', 'Active: Parked', 'Active: Submitted'
-                      ]
-                        .include?(prescription.disp_status)
-                    end.length,
-            recently_requested: list.select do |prescription|
-                                  ['Active: Refill in Process', 'Active: Submitted'].include?(prescription.disp_status)
-                                end.length,
-            renewal: list.select do |prescription|
-                       (['Expired'].include?(prescription.disp_status) || (['Active'].include?(prescription.disp_status) && prescription.refill_remaining == 0)) && ['false'].include?(prescription.is_refillable.to_s)
-                     end.length,
-            non_active: list.select do |prescription|
-                          %w[Discontinued Expired Transferred Unknown].include?(prescription.disp_status)
-                        end.length
+            active: count_active_medications(list),
+            recently_requested: count_recently_requested_medications(list),
+            renewal: count_renewals(list),
+            non_active: count_non_active_medications(list)
           }
         }
       end
@@ -162,6 +151,32 @@ module MyHealth
         when 'active'
           client.get_active_rxs_with_details
         end
+      end
+
+      def count_active_medications(list)
+        active_statuses = [
+          'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
+          'Active: Parked', 'Active: Submitted'
+        ]
+        list.select { |rx| active_statuses.include?(rx.disp_status) }.length
+      end
+
+      def count_recently_requested_medications(list)
+        recently_requested_statuses = ['Active: Refill in Process', 'Active: Submitted']
+        list.select { |rx| recently_requested_statuses.include?(rx.disp_status) }.length
+      end
+
+      def count_renewals(list)
+        list.select do |rx|
+          is_expired = rx.disp_status == 'Expired'
+          is_active_no_refills = rx.disp_status == 'Active' && rx.refill_remaining.zero?
+          (is_expired || is_active_no_refills) && ['false'].include?(rx.is_refillable.to_s)
+        end.length
+      end
+
+      def count_non_active_medications(list)
+        non_active_statuses = %w[Discontinued Expired Transferred Unknown]
+        list.select { |rx| non_active_statuses.include?(rx.disp_status) }.length
       end
     end
   end
