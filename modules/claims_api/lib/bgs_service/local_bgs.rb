@@ -279,7 +279,6 @@ module ClaimsApi
     end
 
     def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
-      byebug
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
           f.use :breakers
@@ -287,7 +286,7 @@ module ClaimsApi
         end
       end
       connection.options.timeout = @timeout
-byebug
+
       begin
         url = "#{Settings.bgs.url}/#{endpoint}"
         body = full_body(action:, body:, namespace: namespace(connection, endpoint), namespaces:)
@@ -296,7 +295,6 @@ byebug
           'Host' => "#{@env}.vba.va.gov",
           'Soapaction' => %("#{action}")
         }
-byebug
         response = log_duration(event: 'connection_post', endpoint:, action:) do
           connection.post(url, body, headers)
         end

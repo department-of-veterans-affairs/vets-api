@@ -13,12 +13,11 @@ module ClaimsApi
 
       contention_id.symbolize_keys!
       validate_contention_id_structure(contention_id)
-
-      if 1 == 1
-        service = contention_service(user)
-      else
-        service = bgs_ext_service(user).contention
-      end
+      service = if Flipper.enabled?(:claims_api_special_issues_updater_uses_local_bgs)
+                  contention_service(user)
+                else
+                  bgs_ext_service(user).contention
+                end
 
       claims = service.find_contentions_by_ptcpnt_id(user['participant_id'])[:benefit_claims] || []
       claim = claim_from_contention_id(claims, contention_id)
