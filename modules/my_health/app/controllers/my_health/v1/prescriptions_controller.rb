@@ -16,8 +16,8 @@ module MyHealth
         resource = collection_resource
         resource.data = filter_non_va_meds(resource.data)
         filter_count = set_filter_metadata(resource.data)
-        resource = params[:filter].present? ? resource.find_by(filter_params) : resource
-        # resource.data = params[:renew].present? ? filter_data_by_refill_and_renew(resource.data) : resource.data
+        renewal_params = 'Active,Expired';
+        resource = params[:filter].present? ? filter_params[:disp_status][:eq] == renewal_params ? filter_renewals(resource) : resource.find_by(filter_params) : resource
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
@@ -40,6 +40,19 @@ module MyHealth
       def refill
         client.post_refill_rx(params[:id])
         head :no_content
+      end
+
+      def filter_renewals(resource)
+        data = filter_by(resource.data, method(:is_renewable))
+        resource.data = data
+        resource.metadata = resource.metadata.merge({
+          "filter" => {
+            "disp_status" => {
+              "eq" => "Active,Expired"
+            }
+          }
+        })
+        resource
       end
 
       def refill_prescriptions
@@ -147,7 +160,7 @@ module MyHealth
             all_medications: list.length,
             active: count_active_medications(list),
             recently_requested: count_recently_requested_medications(list),
-            renewal: count_renewals(list),
+            renewal: filter_by(list, method(:is_renewable)).length,
             non_active: count_non_active_medications(list)
           }
         }
@@ -164,14 +177,6 @@ module MyHealth
       def count_recently_requested_medications(list)
         recently_requested_statuses = ['Active: Refill in Process', 'Active: Submitted']
         list.select { |rx| recently_requested_statuses.include?(rx.disp_status) }.length
-      end
-
-      def count_renewals(list)
-        list.select do |rx|
-          is_expired = rx.disp_status == 'Expired'
-          is_active_no_refills = rx.disp_status == 'Active' && rx.refill_remaining.zero?
-          (is_expired || is_active_no_refills) && ['false'].include?(rx.is_refillable.to_s)
-        end.length
       end
 
       def count_non_active_medications(list)
