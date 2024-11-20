@@ -79,6 +79,37 @@ module ClaimsApi
       end
 
       ##
+      # CorporateUpdateServiceBean
+      #
+      module CorporateUpdateServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'CorporateUpdateServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module CorporateUpdateWebService
+        DEFINITION =
+          Service.new(
+            bean: CorporateUpdateServiceBean::DEFINITION,
+            path: 'CorporateUpdateWebService'
+          )
+
+        module UpdatePoaAccess
+          DEFINITION =
+            Action.new(
+              service: CorporateUpdateWebService::DEFINITION,
+              name: 'updatePoaAccess',
+              key: 'return'
+            )
+        end
+      end
+
+      ##
       # EBenefitsBnftClaimStatusWebServiceBean
       #
       module EBenefitsBenefitClaimStatusWebServiceBean

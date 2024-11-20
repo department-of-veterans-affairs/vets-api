@@ -31,6 +31,21 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         end
       end
 
+      context 'CorporateUpdateServiceBean' do
+        let(:endpoint) { 'CorporateUpdateServiceBean/CorporateUpdateWebService' }
+        let(:action) { 'updatePoaAccess' }
+        let(:key) { 'return' }
+
+        it 'response with the correct attributes for CorporateUpdateServiceBean' do
+          result = subject.for_action(endpoint, action)
+          parsed_result = JSON.parse(result.to_json)
+
+          expect(parsed_result['service']['bean']['path']).to eq 'CorporateUpdateServiceBean'
+          expect(parsed_result['service']['path']).to eq 'CorporateUpdateWebService'
+          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://services.share.benefits.vba.va.gov/'
+        end
+      end
+
       context 'EBenefitsBnftClaimStatusWebServiceBean' do
         let(:endpoint) { 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService' }
         let(:action) { 'findBenefitClaimsStatusByPtcpntId' }
