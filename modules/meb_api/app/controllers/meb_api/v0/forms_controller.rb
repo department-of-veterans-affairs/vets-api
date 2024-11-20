@@ -40,12 +40,12 @@ module MebApi
         claimant_id = forms_claimant_response['claimant']&.dig('claimant_id')
 
         if claimant_id.blank?
-          form_type = @form_type || 'toe'
           forms_claimant_response = claimant_service.get_claimant_info(form_type)
           claimant_id = forms_claimant_response['claimant_id']
         end
 
-        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
+        form_type = @form_type || 'toe'
+        claim_status_response = claim_status_service.get_claim_status(params, claimant_id, form_type)
         response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
         srlzer = valid_claimant_response?(forms_claimant_response) ? ClaimStatusSerializer : ToeClaimantInfoSerializer
 
