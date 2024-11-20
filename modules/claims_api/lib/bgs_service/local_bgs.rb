@@ -295,6 +295,7 @@ module ClaimsApi
           'Host' => "#{@env}.vba.va.gov",
           'Soapaction' => %("#{action}")
         }
+
         response = log_duration(event: 'connection_post', endpoint:, action:) do
           connection.post(url, body, headers)
         end
