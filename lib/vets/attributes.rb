@@ -10,7 +10,7 @@ module Vets
 
     module ClassMethods
       def attributes
-        @attributes ||= {} # rubocop:disable ThreadSafety/InstanceVariableInClassMethod
+        @attributes ||= {} # rubocop:disable ThreadSafety/ClassInstanceVariable
       end
 
       def attribute(name, klass, **options)

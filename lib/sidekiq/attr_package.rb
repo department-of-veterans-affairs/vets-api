@@ -44,7 +44,7 @@ module Sidekiq
       private
 
       def redis
-        @redis ||= Redis::Namespace.new(REDIS_NAMESPACE, redis: $redis) # rubocop:disable ThreadSafety/InstanceVariableInClassMethod
+        @redis ||= Redis::Namespace.new(REDIS_NAMESPACE, redis: $redis) # rubocop:disable ThreadSafety/ClassInstanceVariable
       end
     end
   end
