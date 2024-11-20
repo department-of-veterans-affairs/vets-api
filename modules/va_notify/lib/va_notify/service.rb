@@ -108,7 +108,7 @@ module VaNotify
       notification = VANotify::Notification.new(
         notification_id: response.id,
         source_location: find_caller_locations,
-        callback: callback_options[:callback],
+        callback_klass: callback_options[:callback_klass],
         callback_metadata: callback_options[:callback_metadata],
         template_id: template_id
       )

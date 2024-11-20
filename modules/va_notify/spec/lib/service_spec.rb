@@ -75,8 +75,8 @@ describe VaNotify::Service do
     it 'can receive callback_options' do
       test_base_url = 'https://fakishapi.com'
       callback_options = {
-        callback: 'TestTeam::TestClass',
-        metadata: 'optional_test_metadata'
+        callback_klass: 'TestTeam::TestClass',
+        callback_metadata: 'optional_test_metadata'
       }
       with_settings(Settings.vanotify,
                     client_url: test_base_url) do
@@ -147,7 +147,7 @@ describe VaNotify::Service do
         it 'with callback data' do
           VCR.use_cassette('va_notify/success_email') do
             subject = described_class.new(test_api_key,
-                                          { callback: 'TestCallback', callback_metadata: 'optional_metadata' })
+                                          { callback_klass: 'TestCallback', callback_metadata: 'optional_metadata' })
             allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
 
             subject.send_email(send_email_parameters)
