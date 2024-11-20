@@ -118,8 +118,8 @@ module Form526ClaimFastTrackingConcern
     begin
       is_claim_fully_classified = update_contention_classification_all!
     rescue => e
-      Rails.logger.error "Contention Classification failed #{e.message}."
-      Rails.logger.error e.backtrace.join('\n')
+      Rails.logger.error("Contention Classification failed #{e.message}.")
+      Rails.logger.error(e.backtrace.join('\n'))
     end
 
     prepare_for_ep_merge! if is_claim_fully_classified
@@ -394,7 +394,7 @@ module Form526ClaimFastTrackingConcern
     vro_client = VirtualRegionalOffice::Client.new
     vro_client.merge_end_products(pending_claim_id:, ep400_id: submitted_claim_id)
   rescue => e
-    Rails.logger.error "EP merge request failed #{e.message}.", backtrace: e.backtrace
+    Rails.logger.error("EP merge request failed #{e.message}.", backtrace: e.backtrace)
   end
 
   def log_flashes
@@ -402,7 +402,7 @@ module Form526ClaimFastTrackingConcern
       Rails.logger.info('Flash Prototype Added', { submitted_claim_id:, flash: 'Amyotrophic Lateral Sclerosis' })
     end
   rescue => e
-    Rails.logger.error "Failed to log Flash Prototypes #{e.message}.", backtrace: e.backtrace
+    Rails.logger.error("Failed to log Flash Prototypes #{e.message}.", backtrace: e.backtrace)
   end
 end
 # rubocop:enable Metrics/ModuleLength
