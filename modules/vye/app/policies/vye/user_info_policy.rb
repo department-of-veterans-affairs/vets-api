@@ -10,25 +10,7 @@ module Vye
 
     alias_method :show?, :create?
 
-    def claimant_lookup?
-      return true if user.present?
-
-      false
-    end
-
-    def claimant_status?
-      return true if user.present?
-
-      false
-    end
-
-    def verify_claimant?
-      return true if user.present?
-
-      false
-    end
-
-    def verification_record?
+    def access?
       return true if user.present?
 
       false

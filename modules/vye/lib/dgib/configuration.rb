@@ -7,7 +7,6 @@ module Vye
         @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
           faraday.use :breakers
           faraday.ssl[:ca_file] = '/srv/vets-api/secret/dgib_ica11_rca2.key'
-          # faraday.ssl[:ca_file] =  'modules/vye/spec/fixtures/RCA2-ICA11-combined-cert.pem'
           faraday.request :json
           faraday.use      Faraday::Response::RaiseError
           faraday.response :betamocks if mock_enabled?

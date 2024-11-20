@@ -8,6 +8,8 @@ require 'dgib/verify_claimant/service'
 module Vye
   module Vye::V1
     class Vye::V1::DgibVerificationsController < Vye::V1::ApplicationController
+      before_action { authorize :vye, :access? }
+
       def verification_record
         head :forbidden unless authorize(user_info, policy_class: UserInfoPolicy)
 
