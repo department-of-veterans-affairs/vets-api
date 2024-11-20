@@ -2,6 +2,7 @@
 
 require 'pension_burial/tag_sentry'
 require 'burials/monitor'
+require 'common/exceptions/validation_errors'
 
 module V0
   class BurialClaimsController < ApplicationController
@@ -9,16 +10,6 @@ module V0
     before_action :load_user, only: :create
 
     service_tag 'burial-application'
-
-    # an identifier that matches the parameter that the form will be set as in the JSON submission.
-    def short_name
-      'burial_claim'
-    end
-
-    # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
-    def claim_class
-      SavedClaim::Burial
-    end
 
     def show
       claim = claim_class.find_by!(guid: params[:id])
@@ -58,6 +49,18 @@ module V0
       raise e
     end
 
+    private
+
+    # an identifier that matches the parameter that the form will be set as in the JSON submission.
+    def short_name
+      'burial_claim'
+    end
+
+    # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
+    def claim_class
+      SavedClaim::Burial
+    end
+
     def create_claim
       if Flipper.enabled?(:va_burial_v2)
         form = filtered_params[:form]
@@ -66,8 +69,6 @@ module V0
         claim_class.new(form: filtered_params[:form])
       end
     end
-
-    private
 
     def process_and_upload_to_lighthouse(in_progress_form, claim)
       claim.process_attachments!
