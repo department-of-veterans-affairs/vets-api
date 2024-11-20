@@ -88,6 +88,7 @@ module Lighthouse
         form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
         address['postalCode'],
         "#{@claim.class} va.gov",
+        @claim.form_id,
         @claim.business_line
       )
     end
