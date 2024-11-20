@@ -69,7 +69,7 @@ module Vye
       end
 
       def process_response(response, serializer)
-        Rails.logger.debug { "Processing response with status: #{response.status}" }
+        Rails.logger.debug { "Processing response with status: #{response&.status}" }
         case response.status
         when 200
           Rails.logger.debug 'Rendering JSON response'
@@ -86,6 +86,8 @@ module Vye
         when 422
           Rails.logger.debug 'Sending unprocessable entity'
           head :unprocessable_entity
+        when nil
+          Rails.logger.debug 'No response from server'
         else
           Rails.logger.debug 'Sending internal server error'
           head :internal_server_error

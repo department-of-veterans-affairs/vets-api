@@ -13,7 +13,7 @@ module Vye
     end
 
     def status
-      @resource.status
+      @resource&.status
     end
   end
 end
