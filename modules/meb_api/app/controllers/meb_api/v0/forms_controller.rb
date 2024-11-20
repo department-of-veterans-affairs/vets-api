@@ -33,16 +33,8 @@ module MebApi
       end
 
       def claim_status
-        forms_claimant_response = form_claimant_service.get_claimant_info(@form_type)
-
-        return render_claimant_error(forms_claimant_response) unless valid_claimant_response?(forms_claimant_response)
-
-        claimant_id = forms_claimant_response['claimant']&.dig('claimant_id')
-
-        if claimant_id.blank?
-          forms_claimant_response = claimant_service.get_claimant_info(@form_type)
-          claimant_id = forms_claimant_response['claimant_id']
-        end
+        forms_claimant_response = claimant_service.get_claimant_info(@form_type)
+        claimant_id = forms_claimant_response['claimant_id']
 
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
