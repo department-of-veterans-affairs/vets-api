@@ -17,6 +17,7 @@ module DebtsApi
       end
 
       def transform_and_submit
+        binding.pry
         output = full_transform_service.transform
         render json: service.submit_financial_status_report(output.to_h)
       end
@@ -262,6 +263,9 @@ module DebtsApi
           personal_identification: %i[ssn file_number],
           selected_debts_and_copays: [
             :id,
+            :resolution_waiver_check,
+            :resolution_option,
+            :resolution_comment,
             :p_s_seq_num,
             :p_s_tot_seq_num,
             :p_s_facility_num,
