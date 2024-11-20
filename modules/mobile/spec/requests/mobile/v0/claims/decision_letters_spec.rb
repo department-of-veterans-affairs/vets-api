@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
 require_relative '../../../../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/committee_helper'
 
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
 
 RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
   include JsonSchemaMatchers
+  include CommitteeHelper
 
   let!(:user) { sis_user(icn: '24811694708759028') }
 
@@ -33,7 +35,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
 
       it 'returns forbidden' do
         get '/mobile/v0/claims/decision-letters', headers: sis_headers
-        expect(response).to have_http_status(:forbidden)
+        assert_schema_conform(403)
       end
     end
 
@@ -44,7 +46,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
 
           get '/mobile/v0/claims/decision-letters', headers: sis_headers
 
-          expect(response).to have_http_status(:ok)
+          assert_schema_conform(200)
           decision_letters = response.parsed_body['data']
           first_received_at = decision_letters.first.dig('attributes', 'receivedAt')
           last_received_at = decision_letters.last.dig('attributes', 'receivedAt')
@@ -61,7 +63,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
           Flipper.disable(:mobile_filter_doc_27_decision_letters_out)
 
           get '/mobile/v0/claims/decision-letters', headers: sis_headers
-          expect(response).to have_http_status(:ok)
+          assert_schema_conform(200)
           decision_letters = response.parsed_body['data']
           first_received_at = decision_letters.first.dig('attributes', 'receivedAt')
           last_received_at = decision_letters.last.dig('attributes', 'receivedAt')
@@ -101,7 +103,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
       VCR.use_cassette('mobile/bgs/uploaded_document_service/uploaded_document_data') do
         VCR.use_cassette('mobile/bgs/people_service/person_data') do
           get "/mobile/v0/claims/decision-letters/#{CGI.escape(doc_id)}/download", headers: sis_headers
-          expect(response).to have_http_status(:ok)
+          assert_schema_conform(200)
         end
       end
     end
@@ -111,8 +113,8 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
 
       VCR.use_cassette('mobile/bgs/uploaded_document_service/uploaded_document_data') do
         VCR.use_cassette('mobile/bgs/people_service/person_data') do
-          get "/mobile/v0/decision-letters/#{CGI.escape(doc_id)}", headers: sis_headers
-          expect(response).to have_http_status(:not_found)
+          get "/mobile/v0/claims/decision-letters/#{CGI.escape(doc_id)}/download", headers: sis_headers
+          assert_schema_conform(404)
         end
       end
     end
