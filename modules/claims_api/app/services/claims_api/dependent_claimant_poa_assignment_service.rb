@@ -53,19 +53,19 @@ module ClaimsApi
         return true
       end
 
-      log(level: :warn,
-          detail: 'Something else went wrong with manage_ptcpnt_rlnshp. Falling back to update_benefit_claim.')
-
-      false
+      raise
     rescue ::Common::Exceptions::ServiceError => e
       if e.errors.first.detail == 'PtcpntIdA has open claims.'
         log(detail: 'Dependent has open claims, continuing.')
-      else
-        log(level: :warn,
-            detail: 'Something else went wrong with manage_ptcpnt_rlnshp. Falling back to update_benefit_claim.')
+
+        return false
       end
 
-      false
+      raise e
+    rescue => e
+      log(level: :error, detail: 'Something else went wrong with manage_ptcpnt_rlnshp.')
+
+      raise e
     end
 
     def iso_to_date(iso_date)
