@@ -385,16 +385,8 @@ module ClaimsApi
         DEFINITION =
           Service.new(
             bean: VetRecordServiceBean::DEFINITION,
-            path: 'VetRecordServiceBean'
+            path: 'VetRecordWebService'
           )
-        module UpdateBirlsRecord
-          DEFINITION =
-            Action.new(
-              service: VetRecordWebService::DEFINITION,
-              name: 'updateBirlsRecord',
-              key: 'return'
-            )
-        end
       end
 
       # VnpAtchmsWebServiceBean
