@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs'
+require 'bgs_service/corporate_update_service'
 
 module ClaimsApi
   class PoaVBMSUpdater < ClaimsApi::ServiceBase
@@ -17,7 +18,7 @@ module ClaimsApi
         poa_code:
       )
 
-      response = update_poa_access(participant_id: poa_form.auth_headers['va_eauth_pid'],
+      response = update_poa_access(poa_form:, participant_id: poa_form.auth_headers['va_eauth_pid'],
                                    poa_code:, allow_poa_access: 'y')
 
       if response[:return_code] == 'GUIE50000'
@@ -46,7 +47,7 @@ module ClaimsApi
       poa_form.form_data['consentAddressChange']
     end
 
-    def update_poa_access(participant_id:, poa_code:, allow_poa_access:)
+    def update_poa_access(poa_form:, participant_id:, poa_code:, allow_poa_access:)
       # allow_poa_c_add reports 'No Data' if sent lowercase
       if Flipper.enabled? :claims_api_poa_vbms_updater_uses_local_bgs
         service = corporate_update_service

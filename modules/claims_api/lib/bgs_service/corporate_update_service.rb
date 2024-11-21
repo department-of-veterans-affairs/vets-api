@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ClaimsApi
   class CorporateUpdateService < ClaimsApi::LocalBGS
     def bean_name
