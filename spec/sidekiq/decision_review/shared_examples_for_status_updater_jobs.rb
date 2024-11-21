@@ -117,40 +117,6 @@ RSpec.shared_examples 'status updater job with base forms' do |subclass|
   context 'SavedClaim record with previous metadata' do
     let(:guid4) { SecureRandom.uuid }
     let(:guid5) { SecureRandom.uuid }
-    # let(:upload_id) { SecureRandom.uuid }
-    # let(:upload_id2) { SecureRandom.uuid }
-    # let(:upload_id3) { SecureRandom.uuid }
-
-    # let(:metadata1) do
-    #   {
-    #     'status' => 'submitted',
-    #     'uploads' => [
-    #       {
-    #         'status' => 'error',
-    #         'detail' => 'Invalid PDF',
-    #         'id' => upload_id
-    #       }
-    #     ]
-    #   }
-    # end
-
-    # let(:metadata2) do
-    #   {
-    #     'status' => 'submitted',
-    #     'uploads' => [
-    #       {
-    #         'status' => 'pending',
-    #         'detail' => nil,
-    #         'id' => upload_id2
-    #       },
-    #       {
-    #         'status' => 'processing',
-    #         'detail' => nil,
-    #         'id' => upload_id3
-    #       }
-    #     ]
-    #   }
-    # end
 
     before do
       subclass.create(guid: guid1, form: '{}', metadata: '{"status":"error","uploads":[]}')
