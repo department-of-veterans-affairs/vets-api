@@ -17,7 +17,6 @@ describe MHV::AccountCreation::Service do
     let(:account_creation_path) { 'v1/usermgmt/account-service/account' }
     let(:break_cache) { false }
     let(:start_time) { Time.current }
-    # let(:start_time) { Time.new(2024, 11, 21, 12, 0, 0) }
     let(:end_time) { start_time + 0.0765 }
 
     before do
