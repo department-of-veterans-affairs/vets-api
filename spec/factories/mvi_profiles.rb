@@ -38,6 +38,7 @@ end
 FactoryBot.define do
   factory :mpi_profile, class: 'MPI::Models::MviProfile' do
     given_names { Array.new(1) { Faker::Name.first_name } }
+    preferred_names { Array.new(1) { Faker::Name.first_name } }
     family_name { Faker::Name.last_name }
     suffix { Faker::Name.suffix }
     gender { %w[M F].sample }
@@ -82,6 +83,7 @@ FactoryBot.define do
 
     factory :mpi_profile_response do
       given_names { %w[John William] }
+      preferred_names { [] }
       family_name { 'Smith' }
       suffix { 'Sr' }
       gender { 'M' }
