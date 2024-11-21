@@ -488,6 +488,10 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
+  disability_526_ee_process_als_flash:
+    actor_type: user
+    description: enables adding applicable flashes to disability_526 prior to submission.
+    enable_in_development: true
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -756,6 +760,10 @@ features:
   simple_forms_email_notifications:
     actor_type: user
     description: Enables form email notifications upon certain state changes (error and received)
+    enable_in_development: true
+  simple_forms_notification_callbacks:
+    actor_type: user
+    description: Enables form email notification callback for Simple Forms
     enable_in_development: true
   form2010206:
     actor_type: user
@@ -1158,9 +1166,6 @@ features:
   my_va_lighthouse_uploads_report:
     actor_type: user
     description: Use lighthouse /uploads/report endpoint for Form status
-  my_va_form_submission_statuses:
-    actor_type: user
-    description: Enables users to view the status of submitted forms.
   my_va_form_submission_pdf_link:
     actor_type: user
     description: Enables users to view PDF link within submitted forms cards
