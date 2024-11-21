@@ -103,24 +103,43 @@ module SimpleFormsApi
 
       # async job and form data includes email
       if email_from_form_data && first_name_from_form_data
-        VANotify::EmailJob.perform_at(
-          at,
-          email_from_form_data,
-          template_id,
-          get_personalization(first_name_from_form_data)
-        )
+        async_job_with_form_data(email_from_form_data, first_name_from_form_data, at, template_id)
       # async job and we have a UserAccount
       elsif user_account
-        first_name_from_user_account = get_first_name_from_user_account
-        return unless first_name_from_user_account
+        async_job_with_user_account(user_account, at, template_id)
+      end
+    end
 
-        VANotify::UserAccountJob.perform_at(
+    def async_job_with_form_data(email, first_name, at, template_id)
+      if Flipper.enabled?(:simple_forms_notification_callbacks)
+        VANotify::EmailJob.perform_at(
           at,
-          user_account.id,
+          email,
           template_id,
-          get_personalization(first_name_from_user_account)
+          get_personalization(first_name),
+          Settings.vanotify.services.va_gov.api_key,
+          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+        )
+      else
+        VANotify::EmailJob.perform_at(
+          at,
+          email,
+          template_id,
+          get_personalization(first_name)
         )
       end
+    end
+
+    def async_job_with_user_account(user_account, at, template_id)
+      first_name_from_user_account = get_first_name_from_user_account
+      return unless first_name_from_user_account
+
+      VANotify::UserAccountJob.perform_at(
+        at,
+        user_account.id,
+        template_id,
+        get_personalization(first_name_from_user_account)
+      )
     end
 
     def send_email_now(template_id)
@@ -351,6 +370,10 @@ module SimpleFormsApi
       else
         form_data.dig('application', 'applicant', 'name', 'first')
       end
+    end
+
+    def statsd_tags
+      { 'service' => 'veteran-facing-forms', 'function' => "#{form_number} form submission to Lighthouse" }
     end
   end
 end
