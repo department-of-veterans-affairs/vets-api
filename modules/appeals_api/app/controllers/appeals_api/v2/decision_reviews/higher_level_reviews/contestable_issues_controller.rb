@@ -3,6 +3,11 @@
 class AppealsApi::V2::DecisionReviews::HigherLevelReviews::ContestableIssuesController < AppealsApi::V1::DecisionReviews::BaseContestableIssuesController # rubocop:disable Layout/LineLength
   # This is overwritten so that we can more correctly format errors from caseflow when we get a 404 - all other
   # behavior should match the original method in BaseContestableIssuesController.
+
+  before_action :validate_receipt_date_header!, only: %i[index]
+
+  AMA_ACTIVATION_DATE = Date.new(2019, 2, 19)
+
   def index
     get_contestable_issues_from_caseflow
     if caseflow_response_has_a_body_and_a_status?
@@ -26,6 +31,20 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviews::ContestableIssuesCont
   end
 
   private
+
+  def validate_receipt_date_header!
+    unless Date.parse(request_headers['X-VA-Receipt-Date']).after?(AMA_ACTIVATION_DATE)
+      error = {
+        title: I18n.t('appeals_api.errors.titles.validation_error'),
+        detail: I18n.t('appeals_api.errors.receipt_date_too_early'),
+        source: {
+          parameter: 'receiptDate'
+        },
+        status: '422'
+      }
+      render json: { errors: [error] }, status: :unprocessable_entity
+    end
+  end
 
   def decision_review_type
     'higher_level_reviews'
