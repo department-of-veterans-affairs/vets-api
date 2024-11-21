@@ -53,7 +53,7 @@ module ClaimsApi
         return true
       end
 
-      raise
+      raise ::Common::Exceptions::ServiceError
     rescue ::Common::Exceptions::ServiceError => e
       if e.errors.first.detail == 'PtcpntIdA has open claims.'
         log(detail: 'Dependent has open claims, continuing.')
@@ -118,7 +118,7 @@ module ClaimsApi
 
       log(level: :error, detail: 'Dependent claims not found in BGS')
 
-      raise ::Common::Exceptions::FailedDependency
+      raise ::Common::Exceptions::ResourceNotFound
     end
 
     def benefit_claim_web_service
@@ -138,7 +138,7 @@ module ClaimsApi
 
       log(level: :error, detail: 'Claim details not found in BGS', claim_id:)
 
-      raise ::Common::Exceptions::FailedDependency
+      raise ::Common::Exceptions::ResourceNotFound
     end
 
     def poa_participant_id
@@ -148,7 +148,7 @@ module ClaimsApi
 
       log(level: :error, detail: 'POA code/participant ID combo not found in BGS')
 
-      raise ::Common::Exceptions::FailedDependency
+      raise ::Common::Exceptions::ResourceNotFound
     end
 
     def manage_ptcpnt_rlnshp_poa_success?(response)
@@ -164,7 +164,7 @@ module ClaimsApi
       else
         log(level: :error, detail: 'Program type code not recognized', pgm_type_cd:)
 
-        raise ::Common::Exceptions::FailedDependency
+        raise ::Common::Exceptions::BadRequest
       end
     end
   end
