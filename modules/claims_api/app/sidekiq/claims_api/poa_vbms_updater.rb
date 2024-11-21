@@ -1,15 +1,25 @@
 # frozen_string_literal: true
 
 require 'bgs'
+require 'bgs_service/corporate_update_web_service'
 
 module ClaimsApi
   class PoaVBMSUpdater < ClaimsApi::ServiceBase
     def perform(power_of_attorney_id) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
-      service = BGS::Services.new(
-        external_uid: poa_form.external_uid,
-        external_key: poa_form.external_key
-      )
+
+      service = if Flipper.enabled?(:claims_api_poa_vbms_updater_uses_local_bgs)
+                  ClaimsApi::CorporateUpdateWebService.new(
+                    external_uid: poa_form.external_uid,
+                    external_key: poa_form.external_key
+                  )
+                else
+                  BGS::Services.new(
+                    external_uid: poa_form.external_uid,
+                    external_key: poa_form.external_key
+                  )
+                end
+
       poa_code = extract_poa_code(poa_form.form_data)
 
       ClaimsApi::Logger.log(

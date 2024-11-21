@@ -83,9 +83,12 @@ module ClaimsApi
       #
       module CorporateUpdateWebService
         DEFINITION =
-          Service.new(
-            bean: CorporateUpdateServiceBean::DEFINITION,
-            path: 'ClaimantWebService'
+          Bean.new(
+            path: 'CorporateUpdateWebService',
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
+              data: nil
+            )
           )
       end
 
