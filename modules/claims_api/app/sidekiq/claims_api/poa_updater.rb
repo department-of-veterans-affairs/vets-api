@@ -2,7 +2,7 @@
 
 require 'bgs'
 require 'bgs_service/person_web_service'
-require 'bgs_service/vet_record_service'
+require 'bgs_service/vet_record_web_service'
 
 module ClaimsApi
   class PoaUpdater < ClaimsApi::ServiceBase
@@ -60,14 +60,14 @@ module ClaimsApi
     end
 
     def vet_record_service(poa_form)
-      ClaimsApi::VetRecordService.new(
+      ClaimsApi::VetRecordWebService.new(
         external_uid: poa_form.external_uid,
         external_key: poa_form.external_key
       )
     end
 
     def find_by_ssn(ssn, poa_form)
-      if Flipper.enabled? :claims_api_poa_updater_enables_local_bgs
+      if Flipper.enabled? :claims_api_use_person_web_service
         person_web_service(poa_form).find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
       else
         bgs_ext_service(poa_form).people.find_by_ssn(ssn)[:file_nbr] # rubocop:disable Rails/DynamicFindBy
@@ -75,7 +75,7 @@ module ClaimsApi
     end
 
     def update_birls_record(file_number, ssn, poa_code, poa_form)
-      if Flipper.enabled? :claims_api_poa_updater_enables_local_bgs
+      if Flipper.enabled? :claims_api_use_vet_record_service
         vet_record_service(poa_form).update_birls_record(
           file_number:,
           ssn:,

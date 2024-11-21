@@ -1,12 +1,16 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs_service/person_web_service'
+require 'bgs_service/vet_record_web_service'
 
 RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/poa_updater' do
   subject { described_class }
 
   before do
     Sidekiq::Job.clear_all
+    allow(Flipper).to receive(:enabled?).with(:claims_api_use_vet_record_service).and_return false
+    allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -20,6 +24,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
     context 'and the poaCode is retrieved successfully from the V2 2122a form data' do
       it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
         mock_service_by_flipper
+        use_person_web_service_flipper_service
         expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
 
         poa = create_poa
@@ -50,6 +55,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
     context 'and record consent is granted' do
       it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
         mock_service_by_flipper
+        use_person_web_service_flipper_service
         expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
 
         poa = create_poa
@@ -66,6 +72,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
       context "because 'recordConsent' is false" do
         it "updates the form's status but does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
           mock_service_by_flipper
+          use_person_web_service_flipper_service
           expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
 
           poa = create_poa
@@ -81,6 +88,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
       context "because a limitation exists in 'consentLimits'" do
         it "updates the form's status but does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
           mock_service_by_flipper
+          use_person_web_service_flipper_service
           expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
 
           poa = create_poa
@@ -98,7 +106,8 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
   context "when call to BGS 'update_birls_record' fails" do
     it "updates the form's status and does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
       mock_service_by_flipper
-      allow_any_instance_of(ClaimsApi::VetRecordService).to receive(:update_birls_record).and_return(
+      use_person_web_service_flipper_service
+      allow_any_instance_of(ClaimsApi::VetRecordWebService).to receive(:update_birls_record).and_return(
         return_code: 'some error code'
       )
       expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
@@ -114,6 +123,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
   context 'deciding to send a VA Notify email' do
     before do
       mock_service_by_flipper
+      use_person_web_service_flipper_service
     end
 
     let(:poa) { create_poa }
@@ -186,6 +196,46 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
     end
   end
 
+  context 'when the claims_api_use_person_web_service flipper is on' do
+    let(:person_web_service) { instance_double(ClaimsApi::PersonWebService) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
+      allow(Flipper).to receive(:enabled?).with(:claims_api_use_vet_record_service).and_return true
+      allow(ClaimsApi::PersonWebService).to receive(:new).with(external_uid: anything,
+                                                               external_key: anything)
+                                                         .and_return(person_web_service)
+      allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
+    end
+
+    it 'calls local bgs services instead of bgs-ext' do
+      poa = create_poa
+
+      subject.new.perform(poa.id)
+      expect(person_web_service).to have_received(:find_by_ssn)
+    end
+  end
+
+  context 'when the claims_api_use_vet_record_service flipper is on' do
+    let(:vet_record_web_service) { instance_double(ClaimsApi::VetRecordWebService) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
+      allow(Flipper).to receive(:enabled?).with(:claims_api_use_vet_record_service).and_return true
+      allow(ClaimsApi::PersonWebService).to receive(:new).with(external_uid: anything,
+                                                               external_key: anything)
+                                                         .and_return(vet_record_web_service)
+      allow(vet_record_web_service).to receive(:update_birls_record).and_return({ return_code: 'BMOD0001' })
+    end
+
+    it 'calls local bgs services instead of bgs-ext' do
+      poa = create_poa
+
+      subject.new.perform(poa.id)
+      expect(vet_record_web_service).to have_received(:update_birls_record)
+    end
+  end
+
   private
 
   def create_poa
@@ -196,22 +246,28 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/p
   end
 
   def mock_service_by_flipper
-    if Flipper.enabled? :claims_api_poa_updater_enables_local_bgs
+    if Flipper.enabled? :claims_api_use_vet_record_service
       create_mock_local_bgs_service
     else
       create_mock_bgs_ext_service
     end
   end
 
+  def use_person_web_service_flipper_service
+    if Flipper.enabled? :claims_api_use_person_web_service
+      allow_any_instance_of(ClaimsApi::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+    else
+      allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
+    end
+  end
+
   def create_mock_bgs_ext_service
-    allow_any_instance_of(BGS::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
     allow_any_instance_of(BGS::VetRecordWebService).to receive(:update_birls_record)
       .and_return({ return_code: 'BMOD0001' })
   end
 
   def create_mock_local_bgs_service
-    allow_any_instance_of(ClaimsApi::PersonWebService).to receive(:find_by_ssn).and_return({ file_nbr: '123456789' })
-    allow_any_instance_of(ClaimsApi::VetRecordService).to receive(:update_birls_record)
+    allow_any_instance_of(ClaimsApi::VetRecordWebService).to receive(:update_birls_record)
       .and_return({ return_code: 'BMOD0001' })
   end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class VetRecordService < ClaimsApi::LocalBGS
+  class VetRecordWebService < ClaimsApi::LocalBGS
     def bean_name
       'VetRecordServiceBean/VetRecordWebService'
     end
