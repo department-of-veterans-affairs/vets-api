@@ -336,6 +336,8 @@ module VAOS
         merge_facility(appointment) if include[:facilities]
 
         set_type(appointment)
+
+        set_modality(appointment)
       end
 
       def find_and_merge_provider_name(appointment)
@@ -712,6 +714,35 @@ module VAOS
       # @param appointment [Hash] the appointment to modify
       def set_cancellable_false(appointment)
         appointment[:cancellable] = false
+      end
+
+      def set_modality(appointment)
+        modality = nil
+        if appointment[:kind] == 'clinic'
+          modality = 'vaInPerson'
+        elsif appointment[:serviceType] == 'covid'
+          modality = 'vaInPersonVaccine'
+        elsif appointment[:kind] == 'telehealth'
+          modality = telehealth_modality(appointment)
+        elsif appointment[:kind] == 'phone'
+          modality = 'vaPhone'
+        elsif appointment[:kind] == 'cc' && !appointment[:start].nil?
+          modality = 'communityCare'
+        elsif !appointment[:serviceCategory].nil? && appointment[:serviceCategory][0].text == 'COMPENSATION & PENSION'
+          modality = 'claimExamAppointment'
+        end
+
+        appointment[:modality] = modality
+      end
+
+      def telehealth_modality(appointment)
+        if appointment.dig(:telehealth, :vvsKind) == 'MOBILE_ANY/ADHOC'
+          appointment.dig(:extension, :patientHasMobileGfe) ? 'vaVideoCareOnGfe' : 'vaVideoCareAtHome'
+        elsif %w[CLINIC_BASED STORE_FORWARD].include?(appointment.dig(:telehealth, :vvsKind))
+          'vaVideoCareAtAVaLocation'
+        elsif !appointment.dig(:telehealth, :atlas).nil?
+          'vaVideoCareAtAnAtlasLocation'
+        end
       end
 
       def ds_error_details(e)
