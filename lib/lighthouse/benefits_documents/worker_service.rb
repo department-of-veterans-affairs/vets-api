@@ -11,7 +11,7 @@ module BenefitsDocuments
     STATSD_UPLOAD_LATENCY = 'lighthouse.api.benefits.documents.latency'
 
     def upload_document(file_body, lighthouse_document)
-      config.post(file_body, lighthouse_document) # returns upload response which includes requestId
+      config.post(file_body, lighthouse_document)
     end
   end
 end
