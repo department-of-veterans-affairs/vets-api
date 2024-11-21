@@ -86,12 +86,10 @@ sign_in:
 
 terms_of_use:
   current_version: v1
-  provisioner_cookie_domain: localhost
   enabled_clients: vaweb, mhv, myvahealth
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
-  previous_master_key: "a798f118b400a1a7552597cc94f44c577919c76b3d26c1eed8ae0703f4240216"
 
 binaries:
   # you can specify a full path in settings.local.yml if necessary
@@ -105,8 +103,6 @@ clamav:
   # config/initializers/clamav.rb
   host: 'clamav'
   port: '3310'
-
-db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
 database_url: postgis:///vets-api
 test_database_url: postgis:///vets-api-test
@@ -159,11 +155,7 @@ salesforce-gibft:
   url: "https://va--rdtcddev.cs33.my.salesforce.com/"
 
 salesforce-carma:
-  mock: true
   url: "https://fake-carma.salesforce.com"
-  consumer_key: 12345ABC.QQ_1234BBfake
-  signing_key_path: "spec/fixtures/carma/privatekey.pem" # A dummy private key used for test suite
-  username: fake-user@va.gov.carmafake
 
 salesforce:
   env: dev
@@ -171,7 +163,6 @@ salesforce:
 form_10_10cg:
   carma:
     mulesoft:
-      mock: false
       host: ~
       client_id: ~
       client_secret: ~
@@ -385,8 +376,6 @@ modules_appeals_api:
     daily_decision_review:
       enabled: false
     weekly_decision_review:
-      enabled: false
-    daily_error:
       enabled: false
     weekly_error:
       enabled: false
@@ -647,12 +636,6 @@ claims_api:
     content_type: 'application/vnd.api+json'
   report_enabled: false
   audit_enabled: false
-  s3:
-    enabled: false
-    aws_access_key_id: ~
-    aws_secret_access_key: ~
-    region: ~
-    bucket: ~
   disability_claims_mock_override: false
   schema_dir: config/schemas
   slack:
@@ -674,8 +657,10 @@ claims_api:
   poa_v2:
     disable_jobs: false
   vanotify:
-    representative_template_id: ~
-    service_organization_template_id: ~
+    accepted_representative_template_id: ~
+    accepted_service_organization_template_id: ~
+    declined_representative_template_id: ~
+    declined_service_organization_template_id: ~
     services:
       lighthouse:
         api_key: ~
@@ -832,7 +817,6 @@ iam_ssoe:
   client_id: "Mobile_App_API_Server_LOWERS"
   # oauth (rest) and sts (soap) services are on different hosts
   oauth_url: "https://int.fed.eauth.va.gov:444"
-  sts_url: "https://preprod.services.eauth.va.gov:9301"
   timeout: 20
 
 statsd:
@@ -854,7 +838,7 @@ maintenance:
     carma: P6XLE0T
     appeals: P9S4RFU
     arcgis: P45YBFA
-    coe: PXXXXXX
+    coe: PSY4HU1
     dslogon: P9DJJAV
     es: PH7OPR4
     evss: PZKWB6Y
@@ -1635,9 +1619,6 @@ rrd:
   alerts:
     recipients:
       - fake_email
-  event_tracking:
-    recipients:
-      - fake_email
   mas_tracking:
     recipients:
       - fake_email
@@ -1653,6 +1634,7 @@ virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
   vagov_classification_path: contention-classification/va-gov-claim-classifier
+  expanded_classification_path: contention-classification/expanded-contention-classification
   max_cfi_path: employee-experience/max-ratings
   ep_merge_path: employee-experience-ep-merge-app/merge
 
@@ -1851,7 +1833,10 @@ vaos:
     mock: false
     client_id: "fake_client_id"
     kid: "fake_kid"
+    grant_type: "client_credentials"
+    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
     access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
     api_url: "https://api.wellhive.com/care-navigation/v1"
     scopes: "care-nav"
+
