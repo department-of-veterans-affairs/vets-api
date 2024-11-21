@@ -17,8 +17,87 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
     headers
   end
 
+  context 'when the claims_api_poa_vbms_updater_uses_local_bgs flipper is disabled' do
+    before do
+      Flipper.disable :claims_api_poa_vbms_updater_uses_local_bgs
+    end
+
+    context 'when address change is present and allowed' do
+      let(:allow_poa_c_add) { 'Y' }
+      let(:consent_address_change) { true }
+
+      it 'updates a the BIRLS record for a qualifying POA submittal' do
+        poa = create_poa
+        create_mock_lighthouse_service
+        subject.new.perform(poa.id)
+      end
+    end
+
+    context 'when address change is present and not allowed' do
+      let(:allow_poa_c_add) { 'N' }
+      let(:consent_address_change) { false }
+
+      it 'updates a the BIRLS record for a qualifying POA submittal' do
+        poa = create_poa
+        create_mock_lighthouse_service
+        subject.new.perform(poa.id)
+      end
+    end
+
+    context 'when address change is not present' do
+      let(:allow_poa_c_add) { 'N' }
+      let(:consent_address_change) { nil }
+
+      it 'updates a the BIRLS record for a qualifying POA submittal' do
+        poa = create_poa
+        create_mock_lighthouse_service
+        subject.new.perform(poa.id)
+      end
+    end
+
+    context 'when BGS fails the error is handled' do
+      let(:allow_poa_c_add) { 'Y' }
+      let(:consent_address_change) { true }
+
+      it 'marks the form as errored' do
+        poa = create_poa
+        create_mock_lighthouse_service_bgs_failure # API-31645 real life example
+        subject.new.perform(poa.id)
+
+        poa.reload
+        expect(poa.status).to eq('errored')
+        expect(poa.vbms_error_message).to eq('updatePoaAccess: No POA found on system of record')
+      end
+    end
+
+    context 'when an errored job has exhausted its retries' do
+      let(:allow_poa_c_add) { 'Y' }
+      let(:consent_address_change) { true }
+
+      it 'logs to the ClaimsApi Logger' do
+        poa = create_poa
+        error_msg = 'An error occurred for the POA VBMS Updater Job'
+        msg = { 'args' => [poa.id],
+                'class' => subject,
+                'error_message' => error_msg }
+
+        described_class.within_sidekiq_retries_exhausted_block(msg) do
+          expect(ClaimsApi::Logger).to receive(:log).with(
+            'claims_api_retries_exhausted',
+            record_id: poa.id,
+            detail: "Job retries exhausted for #{subject}",
+            error: error_msg
+          )
+        end
+      end
+    end
+  end
+
   context 'when the claims_api_poa_vbms_updater_uses_local_bgs flipper is enabled' do
-    Flipper.enable :claims_api_poa_vbms_updater_uses_local_bgs
+    before do
+      Flipper.enable :claims_api_poa_vbms_updater_uses_local_bgs
+    end
+
     context 'when address change is present and allowed' do
       let(:allow_poa_c_add) { 'Y' }
       let(:consent_address_change) { true }
@@ -27,76 +106,6 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
         poa = create_poa
         create_mock_local_bgs_service
         subject.new.perform(poa.id)
-      end
-    end
-  end
-
-  context 'when address change is present and allowed' do
-    let(:allow_poa_c_add) { 'Y' }
-    let(:consent_address_change) { true }
-
-    it 'updates a the BIRLS record for a qualifying POA submittal' do
-      poa = create_poa
-      create_mock_lighthouse_service
-      subject.new.perform(poa.id)
-    end
-  end
-
-  context 'when address change is present and not allowed' do
-    let(:allow_poa_c_add) { 'N' }
-    let(:consent_address_change) { false }
-
-    it 'updates a the BIRLS record for a qualifying POA submittal' do
-      poa = create_poa
-      create_mock_lighthouse_service
-      subject.new.perform(poa.id)
-    end
-  end
-
-  context 'when address change is not present' do
-    let(:allow_poa_c_add) { 'N' }
-    let(:consent_address_change) { nil }
-
-    it 'updates a the BIRLS record for a qualifying POA submittal' do
-      poa = create_poa
-      create_mock_lighthouse_service
-      subject.new.perform(poa.id)
-    end
-  end
-
-  context 'when BGS fails the error is handled' do
-    let(:allow_poa_c_add) { 'Y' }
-    let(:consent_address_change) { true }
-
-    it 'marks the form as errored' do
-      poa = create_poa
-      create_mock_lighthouse_service_bgs_failure # API-31645 real life example
-      subject.new.perform(poa.id)
-
-      poa.reload
-      expect(poa.status).to eq('errored')
-      expect(poa.vbms_error_message).to eq('updatePoaAccess: No POA found on system of record')
-    end
-  end
-
-  context 'when an errored job has exhausted its retries' do
-    let(:allow_poa_c_add) { 'Y' }
-    let(:consent_address_change) { true }
-
-    it 'logs to the ClaimsApi Logger' do
-      poa = create_poa
-      error_msg = 'An error occurred for the POA VBMS Updater Job'
-      msg = { 'args' => [poa.id],
-              'class' => subject,
-              'error_message' => error_msg }
-
-      described_class.within_sidekiq_retries_exhausted_block(msg) do
-        expect(ClaimsApi::Logger).to receive(:log).with(
-          'claims_api_retries_exhausted',
-          record_id: poa.id,
-          detail: "Job retries exhausted for #{subject}",
-          error: error_msg
-        )
       end
     end
   end
