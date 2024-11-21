@@ -3,17 +3,13 @@
 require 'pension_burial/processing_office'
 
 class SavedClaim::Burial < SavedClaim
-  FORM = '21P-530'
+  FORM = '21P-530EZ'
 
   # attribute name is passed from the FE as a flag, maintaining camel case
   attr_accessor :formV2 # rubocop:disable Naming/MethodName
 
   after_initialize do
-    self.form_id = if Flipper.enabled?(:va_burial_v2)
-                     formV2 || form_id == '21P-530V2' ? '21P-530V2' : self.class::FORM.upcase
-                   else
-                     self.class::FORM.upcase
-                   end
+    self.form_id = self.class::FORM.upcase
   end
 
   def process_attachments!

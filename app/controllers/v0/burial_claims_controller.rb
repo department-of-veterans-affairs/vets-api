@@ -25,7 +25,7 @@ module V0
     def create
       PensionBurial::TagSentry.tag_sentry
 
-      claim = create_claim
+      claim = claim_class.new(form: filtered_params[:form])
       monitor.track_create_attempt(claim, current_user)
 
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil

@@ -3,7 +3,7 @@
 namespace :burials_v2 do
   desc 'Perform migration of 21p-530 in progress forms to v2'
   task update: :environment do
-    InProgressForm.where(form_id: '21P-530').find_in_batches do |group|
+    InProgressForm.where(form_id: '21P-530V2').find_in_batches do |group|
       sleep(0.05) # short pause between batches
 
       group.each do |ipf|
@@ -18,7 +18,7 @@ namespace :burials_v2 do
 
         ipf.form_data = parsed_form.to_json
 
-        ipf.form_id = '21P-530V2'
+        ipf.form_id = '21P-530EZ'
 
         ipf.save
       end

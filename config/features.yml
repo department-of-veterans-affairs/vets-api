@@ -1501,9 +1501,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  va_burial_v2:
-    actor_type: user
-    description: Allows us to toggle between 21-P530 and 21-P530V2
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
@@ -1766,10 +1763,6 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
-  burial_form_v2:
-    actor_type: user
-    description: Enable Burial form v2 re-design
-    enable_in_development: true
   burial_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification

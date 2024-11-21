@@ -52,8 +52,8 @@ describe PdfFill::Filler, type: :model do
   describe '#fill_form' do
     [
       {
-        form_id: '21P-530V2',
-        factory: :burial_claim_v2
+        form_id: '21P-530EZ',
+        factory: :burial_claim
       },
       {
         form_id: '21P-0969',
