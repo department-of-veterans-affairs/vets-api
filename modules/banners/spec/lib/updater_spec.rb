@@ -6,8 +6,8 @@ RSpec.describe Banners::Updater do
   let(:updater) { described_class.new }
   let(:banner_data) do
     [
-      { 'entityId' => '1', 'title' => 'Test Banner 1', 'fieldBody' => { 'processed' => 'Test Banner 1 Content'} },
-      { 'entityId' => '2', 'title' => 'Test Banner 2', 'fieldBody' => { 'processed' => 'Test Banner 2 Content'} }
+      { 'entityId' => '1', 'title' => 'Test Banner 1', 'fieldBody' => { 'processed' => 'Test Banner 1 Content' } },
+      { 'entityId' => '2', 'title' => 'Test Banner 2', 'fieldBody' => { 'processed' => 'Test Banner 2 Content' } }
     ]
   end
 
@@ -28,7 +28,7 @@ RSpec.describe Banners::Updater do
     end
 
     it 'returns true when all banners are successfully updated' do
-      expect(updater).to receive(:destroy_missing_banners).with(['1', '2'])
+      expect(updater).to receive(:destroy_missing_banners).with(%w[1 2])
       expect(updater).to receive(:log_success).with('vamc')
 
       expect(updater.update_vamc_banners).to be true

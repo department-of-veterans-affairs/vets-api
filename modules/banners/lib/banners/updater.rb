@@ -15,7 +15,7 @@ module Banners
     end
 
     def update_vamc_banners
-      if vamcs_banner_data.all?{ |banner_data| Builder.perform(Profile::Vamc.parsed_banner(banner_data)) }
+      if vamcs_banner_data.all? { |banner_data| Builder.perform(Profile::Vamc.parsed_banner(banner_data)) }
         destroy_missing_banners(vamcs_banner_data.pluck('entityId'))
         log_success('vamc')
         true
@@ -28,9 +28,10 @@ module Banners
     private
 
     def connection
-      @connection ||= Faraday.new(Settings.va_forms.drupal_url, faraday_options) do |faraday|
+      @connection ||= Faraday.new(Settings.alternative_banners.drupal_url, faraday_options) do |faraday|
         faraday.request :url_encoded
-        faraday.request :authorization, :basic, Settings.va_forms.drupal_username, Settings.va_forms.drupal_password
+        faraday.request :authorization, :basic, Settings.alternative_banners.drupal_username,
+                        Settings.alternative_banners.drupal_password
         faraday.adapter faraday_adapter
       end
     end

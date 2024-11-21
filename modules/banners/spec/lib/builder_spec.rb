@@ -12,7 +12,7 @@ RSpec.describe Banners::Builder do
     }
   end
 
-  let(:banner) { instance_double('Banner') }
+  let(:banner) { instance_double(Banner) }
 
   before do
     allow(Banner).to receive(:find_or_initialize_by).and_return(banner)
