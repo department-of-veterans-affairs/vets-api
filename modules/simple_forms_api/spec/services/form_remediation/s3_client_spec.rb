@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'simple_forms_api/form_remediation'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
@@ -182,7 +183,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
             before { allow(File).to receive(:directory?).and_raise('oops') }
 
             it 'raises the error' do
-              expect { upload }.to raise_exception(RuntimeError, 'oops')
+              expect { upload }.to raise_exception(SimpleFormsApi::FormRemediation::Error, a_string_including('oops'))
             end
           end
         end

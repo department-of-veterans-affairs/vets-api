@@ -41,7 +41,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::Uploader do
       let(:config) { nil }
 
       it 'throws an error' do
-        expect { new }.to raise_exception(RuntimeError, 'The configuration is missing.')
+        expect { new }.to raise_exception(RuntimeError, a_string_including('The configuration is missing.'))
       end
     end
 
@@ -49,7 +49,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::Uploader do
       let(:directory) { nil }
 
       it 'throws an error' do
-        expect { new }.to raise_exception(RuntimeError, 'The S3 directory is missing.')
+        expect { new }.to raise_exception(RuntimeError, a_string_including('The S3 directory is missing.'))
       end
     end
   end

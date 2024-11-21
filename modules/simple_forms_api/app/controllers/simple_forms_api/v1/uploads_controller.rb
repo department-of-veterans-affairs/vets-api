@@ -130,16 +130,24 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, uuid: confirmation_number }
         )
 
-        presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
-                             upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
-                           end
-
         if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
           send_confirmation_email(parsed_form_data, form_id, confirmation_number)
         end
 
+        presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
+                             upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
+                           end
+
         json = get_json(confirmation_number || nil, form_id, presigned_s3_url)
         { json:, status: }
+      rescue SimpleFormsApi::FormRemediation::Error
+        handle_s3_upload_error(error, confirmation_number, form_id)
+      end
+
+      def handle_s3_upload_error(error, confirmation_number, form_id)
+        Rails.logger.error('Simple forms api - error uploading form submission to S3 bucket', { error: })
+        json = get_json(confirmation_number, form_id, nil)
+        { json:, status: :error }
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
