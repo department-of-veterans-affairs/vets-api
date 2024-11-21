@@ -26,7 +26,7 @@ module ClaimsApi
 
       log(level: :error, detail: 'Failed to assign POA to dependent')
 
-      raise ::Common::Exceptions::FailedDependency
+      raise ::Common::Exceptions::ServiceError
     end
 
     private
@@ -94,6 +94,12 @@ module ClaimsApi
       first_open_claim = dependent_claims.find do |claim|
         claim[:phase_type] != 'Complete' && claim[:ptcpnt_vet_id] == @veteran_participant_id
       end
+      if first_open_claim.nil? || first_open_claim.blank?
+        log(detail: 'Dependent has no open claims.', statuses: dependent_claims.pluck(:phase_type).uniq)
+
+        raise ::Common::Exceptions::ServiceError
+      end
+
       first_open_claim_details = claim_details(first_open_claim[:benefit_claim_id])
 
       benefit_claim_update_input = build_benefit_claim_update_input(claim_details: first_open_claim_details)
@@ -113,8 +119,9 @@ module ClaimsApi
       local_bgs = ClaimsApi::LocalBGS.new(external_uid: @dependent_participant_id,
                                           external_key: @dependent_participant_id)
       res = local_bgs.find_benefit_claims_status_by_ptcpnt_id(@dependent_participant_id)
+      benefit_claims = Array.wrap(res&.dig(:benefit_claims_dto, :benefit_claim))
 
-      return res&.dig(:benefit_claims_dto, :benefit_claim) if res&.dig(:benefit_claims_dto, :benefit_claim).present?
+      return benefit_claims if benefit_claims.present? && benefit_claims.is_a?(Array) && benefit_claims.first.present?
 
       log(level: :error, detail: 'Dependent claims not found in BGS')
 
