@@ -9,11 +9,5 @@ module Vye
     end
 
     alias_method :show?, :create?
-
-    def access?
-      return true if user.present?
-
-      false
-    end
   end
 end

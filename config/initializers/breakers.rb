@@ -6,6 +6,10 @@ require 'caseflow/configuration'
 require 'central_mail/configuration'
 require 'debt_management_center/debts_configuration'
 require 'decision_review/configuration'
+require 'dgib/claimant_lookup/configuration'
+require 'dgib/claimant_status/configuration'
+require 'dgib/verification_record/configuration'
+require 'dgib/verify_claimant/configuration'
 require 'evss/claims_service'
 require 'evss/common_service'
 require 'evss/dependents/configuration'
@@ -77,7 +81,11 @@ Rails.application.reloader.to_prepare do
     SearchTypeahead::Configuration.instance.breakers_service,
     SearchClickTracking::Configuration.instance.breakers_service,
     VAOS::Configuration.instance.breakers_service,
+    Vye::DGIB::ClaimantLookup::Configuration.instance.breakers_service,
+    Vye::DGIB::ClaimantStatus::Configuration.instance.breakers_service,
     Vye::DGIB::Configuration.instance.breakers_service,
+    Vye::DGIB::VerificationRecord::Configuration.instance.breakers_service,
+    Vye::DGIB::VerifyClaimant::Configuration.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,
     CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
     VEText::Configuration.instance.breakers_service,
