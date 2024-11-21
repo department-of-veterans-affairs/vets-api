@@ -241,6 +241,10 @@ features:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
     enable_in_development: true
+  claims_api_poa_vbms_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables poa vbms updater to use local_bgs
+    enable_in_development: true
   confirmation_page_new:
     actor_type: user
     description: Enables the 2024 version of the confirmation page view in simple forms
