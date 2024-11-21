@@ -112,6 +112,9 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
+  hca_log_email_diff_in_progress_form:
+    actor_type: user
+    description: Enable using database instead of redis to log email differences between va_profile and in progress forms.
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
@@ -497,6 +500,9 @@ features:
   disability_526_toxic_exposure_document_upload_polling:
     actor_type: user
     description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
+  disability_526_call_received_email_from_polling:
+    actor_type: user
+    description: enables received email in poll_form526_pdf job and disables calling from form526_submission
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
@@ -1485,6 +1491,10 @@ features:
     actor_type: user
     description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
     enable_in_development: false
+  veteran_status_card_use_lighthouse:
+    actor_type: user
+    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display
+    enable_in_development: false
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
@@ -1788,11 +1798,6 @@ features:
       Controls how the GI Bill State of Benefits (SOB) application is presented.
       When enabled: it use the new SOB application that works 24/7.
       When disabled: it will use the old SOB application that only works from 0600 to 2200 hrs
-  sob_print_page_update:
-    actor_type: user
-    description: >-
-      Changes classname by which query selector looks for breadcrumbs on print page of GI Bill Statement of Benefits (SOB)
-      application. Used to test fix in staging.
   travel_pay_power_switch:
     actor_type: user
     enable_in_development: true

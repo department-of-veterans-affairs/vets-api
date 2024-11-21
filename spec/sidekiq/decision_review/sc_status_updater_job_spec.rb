@@ -190,7 +190,7 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
       end
 
       it 'does not query SavedClaim::HigherLevelReview records' do
-        expect(SavedClaim::HigherLevelReview).not_to receive(:where)
+        expect(SavedClaim::SupplementalClaim).not_to receive(:where)
 
         subject.new.perform
       end

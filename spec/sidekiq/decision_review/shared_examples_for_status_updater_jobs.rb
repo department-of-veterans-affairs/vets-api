@@ -57,6 +57,7 @@ RSpec.shared_context 'status updater job context' do |subclass|
   before do
     allow(DecisionReviewV1::Service).to receive(:new).and_return(service)
     allow(StatsD).to receive(:increment)
+    allow(Rails.logger).to receive(:error)
   end
 end
 
@@ -114,23 +115,61 @@ RSpec.shared_examples 'status updater job with base forms' do |subclass|
   end
 
   context 'SavedClaim record with previous metadata' do
+    let(:guid4) { SecureRandom.uuid }
+    let(:guid5) { SecureRandom.uuid }
+    # let(:upload_id) { SecureRandom.uuid }
+    # let(:upload_id2) { SecureRandom.uuid }
+    # let(:upload_id3) { SecureRandom.uuid }
+
+    # let(:metadata1) do
+    #   {
+    #     'status' => 'submitted',
+    #     'uploads' => [
+    #       {
+    #         'status' => 'error',
+    #         'detail' => 'Invalid PDF',
+    #         'id' => upload_id
+    #       }
+    #     ]
+    #   }
+    # end
+
+    # let(:metadata2) do
+    #   {
+    #     'status' => 'submitted',
+    #     'uploads' => [
+    #       {
+    #         'status' => 'pending',
+    #         'detail' => nil,
+    #         'id' => upload_id2
+    #       },
+    #       {
+    #         'status' => 'processing',
+    #         'detail' => nil,
+    #         'id' => upload_id3
+    #       }
+    #     ]
+    #   }
+    # end
+
     before do
-      subclass.create(guid: guid1, form: '{}', metadata: '{"status":"error"}')
-      subclass.create(guid: guid2, form: '{}', metadata: '{"status":"submitted"}')
-      subclass.create(guid: guid3, form: '{}', metadata: '{"status":"pending"}')
+      subclass.create(guid: guid1, form: '{}', metadata: '{"status":"error","uploads":[]}')
+      subclass.create(guid: guid2, form: '{}', metadata: '{"status":"submitted","uploads":[]}')
+      subclass.create(guid: guid3, form: '{}', metadata: '{"status":"pending","uploads":[]}')
       allow(Rails.logger).to receive(:info)
     end
 
-    it 'does not increment metrics for unchanged form status' do
-      expect(service).to receive(service_method).with(guid1).and_return(response_error)
+    it 'does not increment metrics for unchanged form status or existing final statuses' do
+      subclass.create(guid: guid4, form: '{}', metadata: '{"status":"complete","uploads":[]}')
+      subclass.create(guid: guid5, form: '{}', metadata: '{"status":"DR_404","uploads":[]}')
+
+      expect(service).not_to receive(service_method).with(guid1)
       expect(service).to receive(service_method).with(guid2).and_return(response_error)
       expect(service).to receive(service_method).with(guid3).and_return(response_pending)
+      expect(service).not_to receive(service_method).with(guid4)
+      expect(service).not_to receive(service_method).with(guid5)
 
       subject.new.perform
-
-      claim1 = subclass.find_by(guid: guid1)
-      expect(claim1.delete_date).to be_nil
-      expect(claim1.metadata).to include 'error'
 
       claim2 = subclass.find_by(guid: guid2)
       expect(claim2.delete_date).to be_nil
@@ -147,8 +186,7 @@ RSpec.shared_examples 'status updater job with base forms' do |subclass|
       expect(Rails.logger).to have_received(:info)
         .with("#{log_prefix} form status error", guid: guid2)
       expect(StatsD).to have_received(:increment)
-        .with('silent_failure', tags: [service_tag,
-                                       'function: form submission to Lighthouse'])
+        .with('silent_failure', tags: [service_tag, 'function: form submission to Lighthouse'])
         .exactly(1).time
     end
   end
@@ -169,19 +207,37 @@ RSpec.shared_examples 'status updater job with base forms' do |subclass|
     end
   end
 
-  context 'an error occurs while processing form, attachments, or secondary form' do
+  context 'an error occurs while processing' do
     before do
-      subclass.create(guid: SecureRandom.uuid, form: '{}')
-      subclass.create(guid: SecureRandom.uuid, form: '{}')
+      subclass.create(guid: guid1, form: '{}')
+      allow(service).to receive(service_method).and_raise(exception)
     end
 
-    it 'handles request errors and increments the statsd metric' do
-      allow(service).to receive(service_method).and_raise(DecisionReviewV1::ServiceException)
+    context 'and it is a temporary error' do
+      let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_504') }
 
-      subject.new.perform
+      it 'handles request errors and increments the statsd metric' do
+        subject.new.perform
 
-      expect(StatsD).to have_received(:increment)
-        .with("#{statsd_prefix}.error").exactly(2).times
+        expect(StatsD).to have_received(:increment)
+          .with("#{statsd_prefix}.error").exactly(1).times
+      end
+    end
+
+    context 'and it is a 404 error' do
+      let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_404') }
+
+      it 'updates the status of the record' do
+        subject.new.perform
+
+        record = subclass.find_by(guid: guid1)
+        metadata = JSON.parse(record.metadata)
+        expect(metadata['status']).to eq 'DR_404'
+
+        expect(Rails.logger).to have_received(:error)
+          .with("#{log_prefix} error", { guid: anything, message: anything })
+          .exactly(1).time
+      end
     end
   end
 end
@@ -208,14 +264,50 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
   let(:evidence_service_method) { SUBCLASS_INFO[subclass][:evidence_service_method].to_sym }
 
   context 'SavedClaim records are present with completed status in LH and have associated evidence uploads' do
+    let(:guid4) { SecureRandom.uuid }
+    let(:guid5) { SecureRandom.uuid }
+
     let(:upload_id) { SecureRandom.uuid }
     let(:upload_id2) { SecureRandom.uuid }
     let(:upload_id3) { SecureRandom.uuid }
     let(:upload_id4) { SecureRandom.uuid }
 
-    before do
-      allow(Rails.logger).to receive(:info)
+    let(:metadata1) do
+      {
+        'status' => 'submitted',
+        'uploads' => [
+          {
+            'status' => 'error',
+            'detail' => 'Invalid PDF',
+            'id' => upload_id
+          }
+        ]
+      }
+    end
 
+    let(:metadata2) do
+      {
+        'status' => 'submitted',
+        'uploads' => [
+          {
+            'status' => 'pending',
+            'detail' => nil,
+            'id' => upload_id2
+          },
+          {
+            'status' => 'processing',
+            'detail' => nil,
+            'id' => upload_id3
+          }
+        ]
+      }
+    end
+
+    before do
+      allow(Rails.logger).to receive(:info) 
+    end
+
+    it 'only sets delete_date for subclass with all attachments in vbms status' do
       subclass.create(guid: guid1, form: '{}')
       subclass.create(guid: guid2, form: '{}')
       subclass.create(guid: guid3, form: '{}')
@@ -230,9 +322,7 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
       appeal_submission3 = create(:appeal_submission, submitted_appeal_uuid: guid3)
       create(:appeal_submission_upload, appeal_submission: appeal_submission3, lighthouse_upload_id: upload_id3)
       create(:appeal_submission_upload, appeal_submission: appeal_submission3, lighthouse_upload_id: upload_id4)
-    end
 
-    it 'only sets delete_date for subclass with all attachments in vbms status' do
       expect(service).to receive(evidence_service_method).with(guid: upload_id)
                                                          .and_return(upload_response_vbms)
       expect(service).to receive(evidence_service_method).with(guid: upload_id2)
@@ -288,6 +378,45 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
         .exactly(2).times
       expect(Rails.logger).not_to have_received(:info)
         .with("#{log_prefix} evidence status error", anything)
+    end
+
+    it 'does not increment metrics for unchanged evidence status or existing final statuses' do
+      subclass.create(guid: guid1, form: '{}', metadata: metadata1.to_json)
+      appeal_submission = create(:appeal_submission, submitted_appeal_uuid: guid1)
+      create(:appeal_submission_upload, appeal_submission:, lighthouse_upload_id: upload_id)
+
+      subclass.create(guid: guid2, form: '{}', metadata: metadata2.to_json)
+      appeal_submission2 = create(:appeal_submission, submitted_appeal_uuid: guid2)
+      create(:appeal_submission_upload, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id2)
+      create(:appeal_submission_upload, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id3)
+
+      expect(service).to receive(service_method).with(guid1).and_return(response_pending)
+      expect(service).to receive(service_method).with(guid2).and_return(response_error)
+
+      expect(service).not_to receive(evidence_service_method).with(guid: upload_id)
+      expect(service).to receive(evidence_service_method).with(guid: upload_id2)
+                                                                    .and_return(upload_response_error)
+      expect(service).to receive(evidence_service_method).with(guid: upload_id3)
+                                                                    .and_return(upload_response_processing)
+
+      subject.new.perform
+
+      expect(StatsD).to have_received(:increment)
+        .with("#{statsd_prefix}.status", tags: ['status:error'])
+        .exactly(1).times
+      expect(StatsD).not_to have_received(:increment)
+        .with("#{statsd_prefix}.status", tags: ['status:processing'])
+
+      expect(Rails.logger).not_to have_received(:info)
+        .with("#{log_prefix} evidence status error",
+              guid: anything, lighthouse_upload_id: upload_id, detail: anything)
+      expect(Rails.logger).to have_received(:info)
+        .with("#{log_prefix} evidence status error",
+              guid: guid2, lighthouse_upload_id: upload_id2, detail: 'Invalid PDF')
+      expect(StatsD).to have_received(:increment)
+        .with('silent_failure', tags: [service_tag,
+                                       'function: evidence submission to Lighthouse'])
+        .exactly(1).time
     end
   end
 end
