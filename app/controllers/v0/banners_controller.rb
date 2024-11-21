@@ -8,7 +8,7 @@ module V0
     def by_path
       # Default to 'full_width_banner_alert' banner (bundle) type.
       banner_type = params.fetch(:type, 'full_width_banner_alert')
-      render json: { error: 'Path parameter is required' }, status: :bad_request if path.blank?
+      return render json: { error: 'Path parameter is required' }, status: :bad_request if path.blank?
 
       banners = Banner.where(entity_bundle: banner_type).by_path(path)
       render json: { banners:, path:, banner_type: }
