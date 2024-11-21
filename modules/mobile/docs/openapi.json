@@ -22910,7 +22910,8 @@
               "lastName",
               "signinEmail",
               "birthDate",
-              "signinService"
+              "signinService",
+              "edipi"
             ],
             "properties": {
               "firstName": {
@@ -22947,6 +22948,10 @@
               "hasFacilityTransitioningToCerner": {
                 "type": "boolean",
                 "description": "The user has a treatment facility that is currently transitioning to cerner. This is temporary."
+              },
+              "edipi": {
+                "type": "string",
+                "example": "384759483"
               }
             }
           }
