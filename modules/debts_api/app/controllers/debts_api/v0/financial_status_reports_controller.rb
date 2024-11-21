@@ -262,6 +262,9 @@ module DebtsApi
           personal_identification: %i[ssn file_number],
           selected_debts_and_copays: [
             :id,
+            :resolution_waiver_check,
+            :resolution_option,
+            :resolution_comment,
             :p_s_seq_num,
             :p_s_tot_seq_num,
             :p_s_facility_num,

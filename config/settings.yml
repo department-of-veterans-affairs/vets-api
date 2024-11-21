@@ -1833,7 +1833,10 @@ vaos:
     mock: false
     client_id: "fake_client_id"
     kid: "fake_kid"
+    grant_type: "client_credentials"
+    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
     access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
     api_url: "https://api.wellhive.com/care-navigation/v1"
     scopes: "care-nav"
+
