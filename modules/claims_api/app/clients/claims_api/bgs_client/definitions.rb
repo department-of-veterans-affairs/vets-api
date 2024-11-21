@@ -79,6 +79,17 @@ module ClaimsApi
       end
 
       ##
+      # CorporateUpdateServiceBean
+      #
+      module CorporateUpdateWebService
+        DEFINITION =
+          Service.new(
+            bean: CorporateUpdateServiceBean::DEFINITION,
+            path: 'ClaimantWebService'
+          )
+      end
+
+      ##
       # EBenefitsBnftClaimStatusWebServiceBean
       #
       module EBenefitsBenefitClaimStatusWebServiceBean
