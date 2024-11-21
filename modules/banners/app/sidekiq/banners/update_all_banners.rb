@@ -4,7 +4,7 @@ module Banners
   class UpdateAllBanners
     include Sidekiq::Job
 
-    STATSD_KEY_PREFIX = 'alternative_banners.sidekiq.update_all_banners'
+    STATSD_KEY_PREFIX = 'banners.sidekiq.update_all_banners'
 
     sidekiq_options retry: 7
 
