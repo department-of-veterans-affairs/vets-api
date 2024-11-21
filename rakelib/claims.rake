@@ -3,7 +3,7 @@
 namespace :claims do
   FORM_IDS = [
     '21P-527EZ', # Pension form
-    '21P-530' # Burial form
+    '21P-530EZ' # Burial form
   ].freeze
 
   COLUMNS = %i[
@@ -15,7 +15,7 @@ namespace :claims do
 
   desc 'Find failed burial and pension claim uploads'
   task failed: :environment do
-    failed_uploads = PersistentAttachment.where(form_id: %w[21P-527EZ 21P-530], completed_at: nil)
+    failed_uploads = PersistentAttachment.where(form_id: %w[21P-527EZ 21P-530EZ], completed_at: nil)
                                          .where('created_at < ?', 21.days.ago)
                                          .order(:created_at)
 
