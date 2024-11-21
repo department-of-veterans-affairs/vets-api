@@ -488,6 +488,10 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
+  disability_526_ee_process_als_flash:
+    actor_type: user
+    description: enables adding applicable flashes to disability_526 prior to submission.
+    enable_in_development: true
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
