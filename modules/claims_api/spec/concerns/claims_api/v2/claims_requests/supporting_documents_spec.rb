@@ -8,10 +8,17 @@ class FakeController
   include ClaimsApi::V2::ClaimsRequests::SupportingDocuments
 
   def local_bgs_service
-    ClaimsApi::PersonWebService.new(
-      external_uid: target_veteran.participant_id,
-      external_key: target_veteran.participant_id
-    )
+    if Flipper.enabled? :claims_api_use_person_web_service
+      ClaimsApi::PersonWebService.new(
+        external_uid: target_veteran.participant_id,
+        external_key: target_veteran.participant_id
+      )
+    else
+      ClaimsApi::LocalBGS.new(
+        external_uid: target_veteran.participant_id,
+        external_key: target_veteran.participant_id
+      )
+    end
   end
 
   def target_veteran
@@ -100,6 +107,7 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
   before do
     allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return(false)
 
     allow(controller).to receive(:get_file_number).with('796111863').and_return('796111863')
     allow(controller.benefits_doc_api).to receive(:search).with('8675309', '796111863')
@@ -170,6 +178,23 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
     it 'returns nil if the date is empty' do
       result = controller.upload_date(nil)
       expect(result).to eq(nil)
+    end
+  end
+
+  describe 'when the claims_api_use_person_web_service flipper is on' do
+    let(:person_web_service) { instance_double(ClaimsApi::PersonWebService) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
+      allow(ClaimsApi::PersonWebService).to receive(:new).with(external_uid: anything,
+                                                               external_key: anything)
+                                                         .and_return(person_web_service)
+      allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
+    end
+
+    it 'calls local bgs services instead of bgs-ext' do
+      controller.find_by_ssn(ssn) # rubocop:disable Rails/DynamicFindBy
+      expect(person_web_service).to have_received(:find_by_ssn)
     end
   end
 end
