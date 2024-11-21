@@ -40,10 +40,17 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
     )
   end
   let(:person_web_service) do
-    ClaimsApi::PersonWebService.new(
-      external_uid: target_veteran.participant_id,
-      external_key: target_veteran.participant_id
-    )
+    if Flipper.enabled? :claims_api_use_person_web_service
+      ClaimsApi::PersonWebService.new(
+        external_uid: target_veteran.participant_id,
+        external_key: target_veteran.participant_id
+      )
+    else
+      ClaimsApi::LocalBGS.new(
+        external_uid: target_veteran.participant_id,
+        external_key: target_veteran.participant_id
+      )
+    end
   end
   let(:target_veteran) do
     OpenStruct.new(
