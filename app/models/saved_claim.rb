@@ -35,7 +35,7 @@ class SavedClaim < ApplicationRecord
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    self.form_id = self.class::FORM.upcase unless instance_of?(::SavedClaim::Burial)
+    self.form_id = self.class::FORM.upcase unless [SavedClaim::Burial, SavedClaim::DependencyClaim].any? { |klass| self.instance_of?(klass) }
   end
 
   def self.add_form_and_validation(form_id)
