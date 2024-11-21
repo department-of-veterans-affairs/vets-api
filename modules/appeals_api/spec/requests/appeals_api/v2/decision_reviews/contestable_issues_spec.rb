@@ -43,7 +43,7 @@ Rspec.describe AppealsApi::V2::DecisionReviews::ContestableIssuesController, typ
           get(path, headers:)
         end
 
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
       end
     end
 

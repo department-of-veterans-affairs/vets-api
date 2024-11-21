@@ -17,11 +17,11 @@ Rspec.describe AppealsApi::V2::DecisionReviews::HigherLevelReviews::ContestableI
 
     context 'with valid inputs' do
       it 'returns a 200 response' do
-        VCR.use_cassette("caseflow/higher_level_reviews/contestable_issues") do
+        VCR.use_cassette('caseflow/higher_level_reviews/contestable_issues') do
           get(path, headers:)
         end
 
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
       end
     end
 
@@ -29,7 +29,7 @@ Rspec.describe AppealsApi::V2::DecisionReviews::HigherLevelReviews::ContestableI
       let(:receipt_date) { '2019-02-19' }
 
       it 'returns a 422 error with details' do
-        VCR.use_cassette("caseflow/higher_level_reviews/contestable_issues") do
+        VCR.use_cassette('caseflow/higher_level_reviews/contestable_issues') do
           get(path, headers:)
         end
 
@@ -48,7 +48,7 @@ Rspec.describe AppealsApi::V2::DecisionReviews::HigherLevelReviews::ContestableI
                       'X-VA-Receipt-Date': '2019-12-01'
                     } do
       def make_request(headers)
-        VCR.use_cassette("caseflow/higher_level_reviews/contestable_issues") do
+        VCR.use_cassette('caseflow/higher_level_reviews/contestable_issues') do
           get(path, headers:)
         end
       end
