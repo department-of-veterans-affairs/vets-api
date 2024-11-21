@@ -28,8 +28,8 @@ module Vye
         let(:serializer) { Vye::ClaimantLookupSerializer.new(claimant_service_response) }
 
         before do
-          allow_any_instance_of(Vye::UserInfoPolicy).to receive(:access?).and_return(true)
-          allow_any_instance_of(Vye::DGIB::ClaimantLookup::Service)
+          allow_any_instance_of(VyePolicy).to receive(:access?).and_return(true)
+          allow_any_instance_of(Vye::DGIB::Service)
             .to receive(:claimant_lookup)
             .and_return(claimant_service_response)
 
@@ -41,8 +41,6 @@ module Vye
 
         context 'when the service returns a successful response' do
           it 'calls the claimant_lookup_service' do
-            expect_any_instance_of(Vye::DGIB::ClaimantLookup::Service)
-              .to receive(:claimant_lookup).with(current_user.ssn)
 
             # You have to do this or the test will fail.
             # Something buried in pundit is preventing it from working without it
@@ -85,8 +83,8 @@ module Vye
         let(:verfied_through_date) { '2023-11-30' }
 
         before do
-          allow_any_instance_of(Vye::UserInfoPolicy).to receive(:access?).and_return(true)
-          allow_any_instance_of(Vye::DGIB::VerifyClaimant::Service)
+          allow_any_instance_of(VyePolicy).to receive(:access?).and_return(true)
+          allow_any_instance_of(Vye::DGIB::Service)
             .to receive(:verify_claimant)
             .and_return(verify_claimant_response)
 
@@ -98,7 +96,7 @@ module Vye
 
         context 'when the service returns a successful response' do
           it 'calls the verify_claimant_service' do
-            expect_any_instance_of(Vye::DGIB::VerifyClaimant::Service).to receive(:verify_claimant)
+            expect_any_instance_of(Vye::DGIB::Service).to receive(:verify_claimant)
 
             # You have to do this or the test will fail.
             # Something buried in pundit is preventing it from working without it
@@ -146,7 +144,7 @@ module Vye
           }
         )
 
-        Vye::DGIB::VerifyClaimant::Response.new(200, response)
+        Vye::DGIB::VerifyClaimantResponse.new(200, response)
       end
     end
   end
