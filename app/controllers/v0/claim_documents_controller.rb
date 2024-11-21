@@ -17,17 +17,12 @@ module V0
       attachment = klass.new(form_id:)
       # add the file after so that we have a form_id and guid for the uploader to use
       attachment.file = unlock_file(params['file'], params['password'])
-      
-      document = PDFUtilities::DatestampPdf.new(attachment.to_pdf).run(text: 'VA.GOV', x: 5, y: 5)
-      document = PDFUtilities::DatestampPdf.new(document).run(
-        text: 'FDC Reviewed - VA.gov Submission',
-        x: 429,
-        y: 770,
-        text_only: true
-      )
-      stamped_pdf_valid = intake_service.valid_document?(document:)
 
-      raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid? && stamped_pdf_valid
+      if Flipper.enabled?(:document_upload_validation_enabled) && !stamped_pdf_valid?(attachment)
+        raise Common::Exceptions::ValidationErrors, attachment
+      end
+
+      raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
       attachment.save
 
@@ -80,6 +75,17 @@ module V0
       file.tempfile.unlink
       file.tempfile = tmpf
       file
+    end
+
+    def stamped_pdf_valid?(attachment)
+      document = PDFUtilities::DatestampPdf.new(attachment.to_pdf).run(text: 'VA.GOV', x: 5, y: 5)
+      document = PDFUtilities::DatestampPdf.new(document).run(
+        text: 'FDC Reviewed - VA.gov Submission',
+        x: 429,
+        y: 770,
+        text_only: true
+      )
+      intake_service.valid_document?(document:)
     end
 
     def intake_service
