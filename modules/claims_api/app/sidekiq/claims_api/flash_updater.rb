@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'bgs_service/claimant_service'
+require 'bgs_service/claimant_web_service'
 module ClaimsApi
   class FlashUpdater < UpdaterService
     def perform(flashes, auto_claim_id)
@@ -50,7 +50,7 @@ module ClaimsApi
     end
 
     def claimant_service(user)
-      ClaimsApi::ClaimantService.new(
+      ClaimsApi::ClaimantWebService.new(
         external_uid: user['ssn'],
         external_key: user['ssn']
       )

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class ClaimantService < ClaimsApi::LocalBGS
+  class ClaimantWebService < ClaimsApi::LocalBGS
     def bean_name
       'ClaimantServiceBean/ClaimantWebService'
     end
@@ -10,7 +10,6 @@ module ClaimsApi
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <fileNumber>#{file_number}</fileNumber>
       EOXML
-
       make_request(endpoint: bean_name, action: 'findAssignedFlashes', body:, key: 'return')
     end
 
@@ -23,7 +22,6 @@ module ClaimsApi
           <flashType>#{flash[:flash_type]}</flashType>
         </flash>
       EOXML
-
       response = make_request(endpoint: bean_name, action: 'addFlash', body:)
       response&.dig(:body, :add_flash_response) || response
     end
