@@ -145,7 +145,7 @@ module SimpleFormsApi
       end
 
       def handle_s3_upload_error(error, confirmation_number, form_id)
-        Rails.logger.error('Simple forms api - error uploading form submission to S3 bucket', { error: })
+        Rails.logger.error('Simple forms api - error uploading form submission to S3 bucket', error:)
         json = get_json(confirmation_number, form_id, nil)
         { json:, status: :error }
       end
