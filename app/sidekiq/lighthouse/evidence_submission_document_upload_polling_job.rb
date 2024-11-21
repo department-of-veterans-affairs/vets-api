@@ -3,13 +3,14 @@
 module Lighthouse
   class EvidenceSubmissionDocumentUploadPollingJob
     include Sidekiq::Job
+    # Job runs every hour; ensure retries happen within the same window to prevent duplicate polling of documents
+    # 7 retries = retry for ~42 minutes
+    # See Sidekiq documentation for exponential retry formula:
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling#automatic-job-retry
+    sidekiq_options retry: 7
 
-    # TODO: Determine how many sidekiq retries we want to have
-    # sidekiq_options retry: 7
-
-    # TODO: Determine how many batched documents we want to poll at a time
-    # POLLED_BATCH_DOCUMENT_COUNT = 100
-    # TODO: Determine polling statsd metrics
+    POLLED_BATCH_DOCUMENT_COUNT = 100
+    # TODO: Determine polling statsd metrics (including commented statsd stuff further down in the doc)
     # STATSD_KEY_PREFIX = 'worker.lighthouse.poll_form526_document_uploads'
     # STATSD_PENDING_DOCUMENTS_POLLED_KEY = 'pending_documents_polled'
     # STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY = 'pending_documents_marked_completed'
@@ -43,16 +44,16 @@ module Lighthouse
 
     # TODO: Flesh out perform function
     def perform
-      successful_documents_before_polling = Lighthouse526DocumentUpload.completed.count
-      failed_documents_before_polling = Lighthouse526DocumentUpload.failed.count
+      successful_documents_before_polling = EvidenceSubmission.completed.count
+      failed_documents_before_polling = EvidenceSubmission.failed.count
 
-      documents_to_poll = Lighthouse526DocumentUpload.pending.status_update_required
-      StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_POLLED_KEY}", documents_to_poll.count)
+      documents_to_poll = EvidenceSubmission.pending
+      # StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_POLLED_KEY}", documents_to_poll.count)
 
       documents_to_poll.in_batches(
         of: POLLED_BATCH_DOCUMENT_COUNT
       ) do |document_batch|
-        lighthouse_document_request_ids = document_batch.pluck(:lighthouse_document_request_id)
+        lighthouse_document_request_ids = document_batch.pluck(:request_id)
 
         update_document_batch(document_batch, lighthouse_document_request_ids)
       rescue Faraday::ResourceNotFound => e
@@ -62,10 +63,10 @@ module Lighthouse
       end
 
       documents_marked_success = Lighthouse526DocumentUpload.completed.count - successful_documents_before_polling
-      StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY}", documents_marked_success)
+      # StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY}", documents_marked_success)
 
       documents_marked_failed = Lighthouse526DocumentUpload.failed.count - failed_documents_before_polling
-      StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY}", documents_marked_failed)
+      # StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY}", documents_marked_failed)
     end
 
     private
