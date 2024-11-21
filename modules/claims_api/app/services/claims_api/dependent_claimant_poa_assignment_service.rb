@@ -9,6 +9,7 @@ require 'bgs_service/benefit_claim_service'
 module ClaimsApi
   class DependentClaimantPoaAssignmentService
     def initialize(**options)
+      @poa_id = options[:poa_id]
       @poa_code = options[:poa_code]
       @veteran_participant_id = options[:veteran_participant_id]
       @dependent_participant_id = options[:dependent_participant_id]
@@ -36,7 +37,8 @@ module ClaimsApi
     end
 
     def log(level: :info, **rest)
-      ClaimsApi::Logger.log('dependent_claimant_poa_assignment_service', level:, poa_code: @poa_code, **rest)
+      ClaimsApi::Logger.log('dependent_claimant_poa_assignment_service', level:, poa_id: @poa_id, poa_code: @poa_code,
+                                                                         **rest)
     end
 
     def assign_poa_to_dependent_via_manage_ptcpnt_rlnshp?
