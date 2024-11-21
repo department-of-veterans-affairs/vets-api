@@ -761,6 +761,10 @@ features:
     actor_type: user
     description: Enables form email notifications upon certain state changes (error and received)
     enable_in_development: true
+  simple_forms_notification_callbacks:
+    actor_type: user
+    description: Enables form email notification callback for Simple Forms
+    enable_in_development: true
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
