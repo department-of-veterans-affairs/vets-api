@@ -51,6 +51,10 @@ RSpec.describe V0::ContactUs::InquiriesController, type: :controller do
       post(:create, params: { ask: { form: } })
     end
 
+    before do
+      allow(Flipper).to receive(:enabled?).and_call_original
+    end
+
     context 'when Flipper :get_help_ask_form is' do
       context 'disabled' do
         it 'renders :not_implemented' do

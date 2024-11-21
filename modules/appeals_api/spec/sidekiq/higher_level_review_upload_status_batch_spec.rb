@@ -35,11 +35,9 @@ describe AppealsApi::HigherLevelReviewUploadStatusBatch, type: :job do
         let(:upload) { create(:higher_level_review_v1, status: 'received') }
 
         it 'ignores them' do
-          with_settings(Settings.modules_appeals_api, higher_level_review_updater_enabled: true) do
-            Sidekiq::Testing.inline! { AppealsApi::HigherLevelReviewUploadStatusBatch.new.perform }
-            upload.reload
-            expect(upload.status).to eq('received')
-          end
+          Sidekiq::Testing.inline! { AppealsApi::HigherLevelReviewUploadStatusBatch.new.perform }
+          upload.reload
+          expect(upload.status).to eq('received')
         end
       end
 
