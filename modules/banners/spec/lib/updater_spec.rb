@@ -79,7 +79,7 @@ RSpec.describe Banners::Updater do
   describe '#log_success' do
     it 'increments StatsD with success metric' do
       expect(StatsD).to receive(:increment).with(
-        'alternative_banners.updater.success',
+        'banners.updater.success',
         tags: ['banner_type:test']
       )
 
@@ -90,7 +90,7 @@ RSpec.describe Banners::Updater do
   describe '#log_failure' do
     it 'increments StatsD with failure metric' do
       expect(StatsD).to receive(:increment).with(
-        'alternative_banners.updater.failure',
+        'banners.updater.failure',
         tags: ['banner_type:test']
       )
 
