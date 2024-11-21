@@ -48,7 +48,6 @@ module ClaimsApi
           <bnftClmTn>#{options[:bnft_clm_tn]}</bnftClmTn>
           <claimRcvdDt>#{options[:claim_rcvd_dt]}</claimRcvdDt>
           <clmId>#{options[:clm_id]}</clmId>
-          <contentions></contentions>
           <lcSttRsnTc>#{options[:lc_stt_rsn_tc]}</lcSttRsnTc>
           <lcSttRsnTn>#{options[:lc_stt_rsn_tn]}</lcSttRsnTn>
           <lctnId>#{options[:lctn_id]}</lctnId>
@@ -66,18 +65,23 @@ module ClaimsApi
       doc = Nokogiri::XML(body.to_s)
 
       contentions.each do |contention|
+        next unless contention[:specialIssues].any?
+
+        contention_node = contention_body_tag
+
         claim_id_node = Nokogiri::XML::Node.new('clmId', body)
         contention_id_node = Nokogiri::XML::Node.new('cntntnId', body)
 
         claim_id_node.content = contention[:clmId]
         contention_id_node.content = contention[:cntntnId]
 
-        contentions_node = doc.at_xpath('//contentions')
-        contentions_node.add_child(claim_id_node.to_s)
-        contentions_node.add_child(contention_id_node.to_s) if contention[:cntntnId]
-        contentions_node.add_child(special_issues_body_tag.to_s)
+        contention_node.add_child(claim_id_node.to_s)
+        contention_node.add_child(contention_id_node.to_s) if contention[:cntntnId]
 
-        si_parent_node = doc.at_xpath('//specialIssues')
+        si_parent_node = special_issues_body_tag
+        contention_node.add_child(si_parent_node)
+
+        doc.root.add_child(contention_node)
 
         contention[:specialIssues].each do |si|
           si_node = Nokogiri::XML::Node.new('spisTc', body)
@@ -87,6 +91,13 @@ module ClaimsApi
       end
 
       doc.root.to_xml(encoding: 'UTF-8', save_with: Nokogiri::XML::Node::SaveOptions::AS_XML)
+    end
+
+    def contention_body_tag
+      Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <contentions>
+        </contentions>
+      EOXML
     end
 
     def special_issues_body_tag
