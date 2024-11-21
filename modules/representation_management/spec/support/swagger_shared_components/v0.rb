@@ -68,7 +68,8 @@ module SwaggerSharedComponents
           type: :object,
           properties: {
             query: { type: :string, example: 'Bob' }
-          }
+          },
+          required: %w[query]
         }
       }
     end

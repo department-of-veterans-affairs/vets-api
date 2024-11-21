@@ -9,8 +9,10 @@ RSpec.describe 'Accredited Entities for Appoint',
                type: :request do
   before do
     create(:accredited_organization,
+           :with_location,
            name: "Bob Law's Law Firm")
     create(:accredited_individual,
+           :with_location,
            first_name: 'Bob',
            last_name: 'Law',
            full_name: 'Bob Law')
@@ -23,13 +25,11 @@ RSpec.describe 'Accredited Entities for Appoint',
       produces 'application/json'
       operationId 'accreditedEntitiesForAppoint'
 
-      parameter SwaggerSharedComponents::V0.body_examples[:accredited_entities_for_appoint_parameter]
+      # parameter SwaggerSharedComponents::V0.body_examples[:accredited_entities_for_appoint_parameter]
+      parameter name: :query, in: :query, type: :string, description: 'Search query'
 
       response '200', 'OK' do
-        let(:accredited_entities_for_appoint) do
-          p SwaggerSharedComponents::V0.body_examples[:accredited_entities_for_appoint]
-          SwaggerSharedComponents::V0.body_examples[:accredited_entities_for_appoint]
-        end
+        let(:query) { 'Bob' }
         # schema type: :array,
         #        items: {
         #          anyOf: [

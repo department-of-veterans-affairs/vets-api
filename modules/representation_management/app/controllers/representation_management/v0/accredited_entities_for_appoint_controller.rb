@@ -8,10 +8,21 @@ module RepresentationManagement
       before_action :feature_enabled
 
       def index
-        p "params: #{params}", "params[:query]: #{params[:query]}"
+        if AccreditedOrganization.all.empty?
+          FactoryBot.create(:accredited_organization,
+                            name: "Bob Law's Law Firm")
+        end
+        if AccreditedIndividual.all.empty?
+          FactoryBot.create(:accredited_individual,
+                            first_name: 'Bob',
+                            last_name: 'Law',
+                            full_name: 'Bob Law')
+        end
+        p "params: #{params}", "params[:query]: #{params[:query]}", "form_params: #{form_params}",
+          "form_params[:query]: #{form_params[:query]}"
         p "AccreditedIndividuals: #{AccreditedIndividual.all.each(&:inspect)}"
         p "AccreditedOrganizations: #{AccreditedOrganization.all.each(&:inspect)}"
-        data = RepresentationManagement::AccreditedEntityQuery.new(params[:query]).results
+        data = RepresentationManagement::AccreditedEntityQuery.new(form_params[:query]).results
         p "RepresentationManagement::AccreditedEntitiesForAppointController#index data: #{data}"
         json_response = data.map do |record|
           if record.is_a?(AccreditedIndividual)
@@ -21,6 +32,12 @@ module RepresentationManagement
           end
         end
         render json: json_response
+      end
+
+      private
+
+      def form_params
+        params.permit(:query)
       end
 
       def feature_enabled

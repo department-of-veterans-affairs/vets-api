@@ -25,6 +25,7 @@ RSpec.describe 'PDF Generator 21-22', openapi_spec: 'modules/representation_mana
 
       response '200', 'PDF generated successfully' do
         let(:pdf_generator2122) do
+          p 'pdf_generator2122', SwaggerSharedComponents::V0.body_examples[:pdf_generator2122]
           SwaggerSharedComponents::V0.body_examples[:pdf_generator2122]
         end
         run_test!
