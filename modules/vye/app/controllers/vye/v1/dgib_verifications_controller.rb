@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
-require 'dgib/claimant_lookup/service'
-require 'dgib/claimant_status/service'
-require 'dgib/verification_record/service'
-require 'dgib/verify_claimant/service'
+require 'dgib/service'
 
 module Vye
   module Vye::V1
@@ -11,17 +8,13 @@ module Vye
       before_action { authorize :vye, :access? }
 
       def verification_record
-        head :forbidden unless authorize(user_info, policy_class: VyePolicy)
-
-        response = verification_service.get_verification_record(params[:claimant_id])
+        response = service.get_verification_record(params[:claimant_id])
         serializer = Vye::ClaimantVerificationSerializer
         process_response(response, serializer)
       end
 
       def verify_claimant
-        head :forbidden unless authorize(user_info, policy_class: VyePolicy)
-
-        response = verify_claimant_service.verify_claimant(
+        response = service.verify_claimant(
           params[:claimant_id],
           params[:verified_period_begin_date],
           params[:verified_period_end_date],
@@ -36,17 +29,13 @@ module Vye
 
       # the serializer for this endpoint is the same as for verify_claimant
       def claimant_status
-        head :forbidden unless authorize(user_info, policy_class: VyePolicy)
-
-        response = claimant_status_service.get_claimant_status(params[:claimant_id])
+        response = service.get_claimant_status(params[:claimant_id])
         serializer = Vye::VerifyClaimantSerializer
         process_response(response, serializer)
       end
 
       def claimant_lookup
-        head :forbidden unless authorize(user_info, policy_class: VyePolicy)
-
-        response = claimant_lookup_service.claimant_lookup(current_user.ssn)
+        response = service.claimant_lookup(current_user.ssn)
         serializer = Vye::ClaimantLookupSerializer
         process_response(response, serializer)
       end
@@ -54,20 +43,8 @@ module Vye
       private
 
       # Vye Services related stuff
-      def claimant_lookup_service
-        Vye::DGIB::ClaimantLookup::Service.new(@current_user)
-      end
-
-      def claimant_status_service
-        Vye::DGIB::ClaimantStatus::Service.new(@current_user)
-      end
-
-      def verification_service
-        Vye::DGIB::VerificationRecord::Service.new(@current_user)
-      end
-
-      def verify_claimant_service
-        Vye::DGIB::VerifyClaimant::Service.new(@current_user)
+      def service
+        Vye::DGIB::Service.new(@current_user)
       end
 
       def process_response(response, serializer)

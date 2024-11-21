@@ -74,7 +74,7 @@ module Vye
       def create_claimant_response
         response_struct = Struct.new(:body)
         response = response_struct.new({ 'claimant_id' => 1 })
-        Vye::DGIB::ClaimantLookup::Response.new(200, response)
+        Vye::DGIB::ClaimantLookupResponse.new(200, response)
       end
 
       describe '#verify_claimant' do
