@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/vbms_uploader'
+require 'bgs_service/person_web_service'
 
 module ClaimsApi
   module PoaVbmsSidekiq
@@ -62,7 +63,7 @@ module ClaimsApi
     end
 
     def bgs_service(power_of_attorney:)
-      if Flipper.enabled? :claims_api_find_by_ssn_uses_person_web_service
+      if Flipper.enabled? :claims_api_use_person_web_service
         ClaimsApi::PersonWebService.new(
           external_uid: power_of_attorney.auth_headers['va_eauth_pid'],
           external_key: power_of_attorney.auth_headers['va_eauth_pid']
