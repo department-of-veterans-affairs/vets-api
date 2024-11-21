@@ -5,6 +5,8 @@ require 'banners/profile/vamc'
 
 module Banners
   class Updater
+    STATSD_KEY_PREFIX = 'alternative_banners.updater'
+
     # If banners are to be added in the future, include them here by adding
     # another #update_{type_of}_banners method for #perform to call
     def self.perform
@@ -13,13 +15,14 @@ module Banners
     end
 
     def update_vamc_banners
-      vamcs_banner_data.each do |banner_data|
-        Builder.perform(Profile::Vamc.parsed_banner(banner_data))
+      if vamcs_banner_data.all?{ |banner_data| Builder.perform(Profile::Vamc.parsed_banner(banner_data)) }
+        destroy_missing_banners(vamcs_banner_data.pluck('entityId'))
+        log_success('vamc')
+        true
+      else
+        log_failure('vamc')
+        false
       end
-
-      # Delete any banners that are no longer in the list of banners for VAMCs
-      entity_ids_to_keep = vamcs_banner_data.pluck('entityId')
-      Banner.where.not(entity_id: entity_ids_to_keep).destroy_all
     end
 
     private
@@ -32,6 +35,10 @@ module Banners
       end
     end
 
+    def destroy_missing_banners(entity_ids_to_keep)
+      Banner.where.not(entity_id: entity_ids_to_keep).destroy_all
+    end
+
     def faraday_adapter
       Rails.env.production? ? Faraday.default_adapter : :net_http_socks
     end
@@ -40,6 +47,14 @@ module Banners
       options = { ssl: { verify: false } }
       options[:proxy] = { uri: URI.parse('socks://localhost:2001') } unless Rails.env.production?
       options
+    end
+
+    def log_failure(banner_type)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.failure", tags: ["banner_type:#{banner_type}"])
+    end
+
+    def log_success(banner_type)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags: ["banner_type:#{banner_type}"])
     end
 
     def vamcs_banner_data
