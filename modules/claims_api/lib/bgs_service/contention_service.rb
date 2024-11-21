@@ -67,44 +67,29 @@ module ClaimsApi
       contentions.each do |contention|
         next unless contention[:specialIssues].any?
 
-        contention_node = contention_body_tag
+        contention_node = Nokogiri::XML::Node.new('contentions', doc)
 
-        claim_id_node = Nokogiri::XML::Node.new('clmId', body)
-        contention_id_node = Nokogiri::XML::Node.new('cntntnId', body)
+        claim_id_node = Nokogiri::XML::Node.new('clmId', doc)
+        contention_id_node = Nokogiri::XML::Node.new('cntntnId', doc)
+        si_parent_node = Nokogiri::XML::Node.new('specialIssues', doc)
 
         claim_id_node.content = contention[:clmId]
-        contention_id_node.content = contention[:cntntnId]
+        contention_id_node.content = contention[:cntntnId] if contention[:cntntnId]
 
-        contention_node.add_child(claim_id_node.to_s)
-        contention_node.add_child(contention_id_node.to_s) if contention[:cntntnId]
-
-        si_parent_node = special_issues_body_tag
-        contention_node.add_child(si_parent_node)
-
-        doc.root.add_child(contention_node)
+        contention_node.add_child(claim_id_node)
+        contention_node.add_child(contention_id_node)
 
         contention[:specialIssues].each do |si|
-          si_node = Nokogiri::XML::Node.new('spisTc', body)
-          si_node.content = si[:spisTc]
-          si_parent_node.add_child(si_node.to_s)
+          si_node = Nokogiri::XML::Node.new('spisTc', doc)
+          si_node.content = si.is_a?(Hash) ? si[:spisTc] : si
+          si_parent_node.add_child(si_node)
         end
+
+        contention_node.add_child(si_parent_node)
+        doc.root.add_child(contention_node)
       end
 
       doc.root.to_xml(encoding: 'UTF-8', save_with: Nokogiri::XML::Node::SaveOptions::AS_XML)
-    end
-
-    def contention_body_tag
-      Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <contentions>
-        </contentions>
-      EOXML
-    end
-
-    def special_issues_body_tag
-      Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <specialIssues>
-        </specialIssues>
-      EOXML
     end
 
     def required_manage_contentions_fields
