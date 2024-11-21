@@ -1,12 +1,12 @@
-require 'sidekiq'
+# frozen_string_literal: true
 
 module Banners
-  class UpdateAllBanners
+  class UpdateAllJob
     include Sidekiq::Job
 
     STATSD_KEY_PREFIX = 'banners.sidekiq.update_all_banners'
 
-    sidekiq_options retry: 7
+    sidekiq_options retry: 5
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
@@ -51,7 +51,7 @@ module Banners
     private
 
     def enabled?
-      true #should consider bringing in a flipper here
+      true #should consider bringing in a flipper heres
     end
   end
 end
