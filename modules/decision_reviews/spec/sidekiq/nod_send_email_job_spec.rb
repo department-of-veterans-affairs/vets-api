@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'decision_review_v1/service'
 
-RSpec.describe DecisionReview::NodSendEmailJob, type: :job do
+RSpec.describe DecisionReviews::NodSendEmailJob, type: :job do
   subject { described_class }
 
   around do |example|

@@ -230,7 +230,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('50 * * * *', 'DecisionReview::ScStatusUpdaterJob')
 
   # Clean SavedClaim records that are past delete date
-  mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
+  mgr.register('0 7 * * *', 'DecisionReviews::DeleteSavedClaimRecordsJob')
 
   # Send Decision Review emails to Veteran for failed form/evidence submissions
   mgr.register('5 1 * * *', 'DecisionReview::FailureNotificationEmailJob')

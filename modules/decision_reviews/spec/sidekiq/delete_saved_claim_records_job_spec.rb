@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DecisionReview::DeleteSavedClaimRecordsJob, type: :job do
+RSpec.describe DecisionReviews::DeleteSavedClaimRecordsJob, type: :job do
   subject { described_class }
 
   let(:delete_date1) { DateTime.new(2024, 1, 1) }

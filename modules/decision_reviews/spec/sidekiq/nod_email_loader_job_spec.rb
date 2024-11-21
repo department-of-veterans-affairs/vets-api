@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'decision_review_v1/service'
 
-RSpec.describe DecisionReview::NodEmailLoaderJob, type: :job do
+RSpec.describe DecisionReviews::NodEmailLoaderJob, type: :job do
   subject { described_class }
 
   around do |example|
@@ -28,14 +27,14 @@ RSpec.describe DecisionReview::NodEmailLoaderJob, type: :job do
   describe 'perform' do
     context 'when csv with emails is loaded' do
       it 'queues additional jobs with the correct parameters' do
-        expect(DecisionReview::NodSendEmailJob).not_to receive(:perform_async)
+        expect(DecisionReviews::NodSendEmailJob).not_to receive(:perform_async)
           .with('Email', anything, anything, anything)
 
-        expect(DecisionReview::NodSendEmailJob).to receive(:perform_async)
+        expect(DecisionReviews::NodSendEmailJob).to receive(:perform_async)
           .with('email@test.com', template_id, { 'full_name' => 'John Vet' }, 1)
-        expect(DecisionReview::NodSendEmailJob).to receive(:perform_async)
+        expect(DecisionReviews::NodSendEmailJob).to receive(:perform_async)
           .with('email2@test.com', template_id, { 'full_name' => 'Jane Doe' }, 2)
-        expect(DecisionReview::NodSendEmailJob).to receive(:perform_async)
+        expect(DecisionReviews::NodSendEmailJob).to receive(:perform_async)
           .with('test@test.test', template_id, { 'full_name' => 'GI Joe' }, 3)
 
         subject.perform_async(file_name, template_id, s3_config)
@@ -48,7 +47,7 @@ RSpec.describe DecisionReview::NodEmailLoaderJob, type: :job do
       end
 
       it 'aborts the job and does not queue any NodSendEmailJob jobs' do
-        expect(DecisionReview::NodSendEmailJob).not_to receive(:perform_async)
+        expect(DecisionReviews::NodSendEmailJob).not_to receive(:perform_async)
 
         subject.perform_async(file_name, template_id, s3_config)
       end

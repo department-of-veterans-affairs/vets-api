@@ -2,7 +2,7 @@
 
 require 'sidekiq'
 
-module DecisionReview
+module DecisionReviews
   class DeleteSavedClaimRecordsJob
     include Sidekiq::Job
 

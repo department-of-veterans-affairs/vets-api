@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'decision_review_v1/utilities/logging_utils'
+require 'decision_reviews/v1/logging_utils'
 
-module DecisionReview
+module DecisionReviews
   class NodSendEmailJob
     include Sidekiq::Job
-    include DecisionReviewV1::Appeals::LoggingUtils
+    include DecisionReviews::V1::LoggingUtils
 
     sidekiq_options retry: false
 

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require 'decision_review_v1/utilities/logging_utils'
+require 'decision_reviews/v1/logging_utils'
 
-module DecisionReview
+module DecisionReviews
   class NodEmailLoaderJob
     include Sidekiq::Job
-    include DecisionReviewV1::Appeals::LoggingUtils
+      include DecisionReviews::V1::LoggingUtils
 
     sidekiq_options retry: false
 
@@ -23,7 +23,7 @@ module DecisionReview
       csv_file.gets # skip CSV header
       csv_file.each_line do |line|
         email, full_name = line.split(',')
-        DecisionReview::NodSendEmailJob.perform_async(email, template_id, { 'full_name' => full_name.strip }, line_num)
+        DecisionReviews::NodSendEmailJob.perform_async(email, template_id, { 'full_name' => full_name.strip }, line_num)
         line_num += 1
       end
 
