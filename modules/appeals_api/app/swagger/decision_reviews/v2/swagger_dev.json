@@ -96,7 +96,7 @@
             "in": "header",
             "name": "X-VA-Receipt-Date",
             "required": true,
-            "description": "(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified.",
+            "description": "(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified. This date must be after 2019-02-19, the Appeals Modernization Act (AMA) Activation Date.",
             "example": "2022-01-01",
             "schema": {
               "$ref": "#/components/schemas/X-VA-Receipt-Date"
@@ -246,14 +246,16 @@
                       ]
                     }
                   },
-                  "Bad receipt date for HLR": {
+                  "Invalid receipt date": {
                     "value": {
                       "errors": [
                         {
-                          "status": "422",
-                          "code": "invalid_receipt_date",
-                          "title": "Invalid Receipt Date",
-                          "detail": "\"2019-02-18\" is before AMA Activation Date (2019-02-19)."
+                          "title": "Validation error",
+                          "detail": "Receipt date cannot be before 2019-02-20",
+                          "source": {
+                            "parameter": "receiptDate"
+                          },
+                          "status": "422"
                         }
                       ]
                     }
@@ -1142,7 +1144,7 @@
             "in": "header",
             "name": "X-VA-Receipt-Date",
             "required": true,
-            "description": "(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified.",
+            "description": "(yyyy-mm-dd) In order to determine contestability of issues, the receipt date of a hypothetical Decision Review must be specified. This date must be after 2019-02-19, the Appeals Modernization Act (AMA) Activation Date.",
             "example": "2022-01-01",
             "schema": {
               "$ref": "#/components/schemas/X-VA-Receipt-Date"
@@ -1427,21 +1429,20 @@
             }
           },
           "422": {
-            "description": "Bad receipt date",
+            "description": "Invalid receipt date",
             "content": {
               "application/json": {
                 "example": {
                   "errors": [
                     {
-                      "status": "422",
-                      "code": "invalid_receipt_date",
-                      "title": "Invalid Receipt Date",
-                      "detail": "\"2019-02-18\" is before AMA Activation Date (2019-02-19)."
+                      "title": "Validation error",
+                      "detail": "Receipt date cannot be before 2019-02-20",
+                      "source": {
+                        "parameter": "receiptDate"
+                      },
+                      "status": "422"
                     }
-                  ],
-                  "code": "invalid_receipt_date",
-                  "detail": "Invalid Receipt Date",
-                  "source": "\"2019-02-18\" is before AMA Activation Date (2019-02-19)."
+                  ]
                 },
                 "schema": {
                   "$ref": "#/components/schemas/errorModel"
@@ -3421,11 +3422,11 @@
                       "status": "pending",
                       "code": null,
                       "detail": null,
-                      "appealType": "NoticeOfDisagreement",
-                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": "http://some.fakesite.com/path/uuid",
-                      "createdAt": "2020-01-02T03:04:05.067Z",
-                      "updatedAt": "2020-01-02T03:04:05.067Z"
+                      "appealId": "00000000-1111-2222-3333-444444444444",
+                      "appealType": "NoticeOfDisagreement",
+                      "createDate": "2020-01-02T03:04:05.067Z",
+                      "updateDate": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -3647,11 +3648,11 @@
                       "status": "pending",
                       "code": null,
                       "detail": null,
-                      "appealType": "NoticeOfDisagreement",
-                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": null,
-                      "createdAt": "2020-01-02T03:04:05.067Z",
-                      "updatedAt": "2020-01-02T03:04:05.067Z"
+                      "appealId": "00000000-1111-2222-3333-444444444444",
+                      "appealType": "NoticeOfDisagreement",
+                      "createDate": "2020-01-02T03:04:05.067Z",
+                      "updateDate": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -5180,11 +5181,11 @@
                       "status": "pending",
                       "code": null,
                       "detail": null,
-                      "appealType": "SupplementalClaim",
-                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": "http://some.fakesite.com/path/uuid",
-                      "createdAt": "2020-01-02T03:04:05.067Z",
-                      "updatedAt": "2020-01-02T03:04:05.067Z"
+                      "appealId": "00000000-1111-2222-3333-444444444444",
+                      "appealType": "SupplementalClaim",
+                      "createDate": "2020-01-02T03:04:05.067Z",
+                      "updateDate": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
@@ -5430,11 +5431,11 @@
                       "status": "pending",
                       "code": null,
                       "detail": null,
-                      "appealType": "SupplementalClaim",
-                      "appealId": "00000000-1111-2222-3333-444444444444",
                       "location": null,
-                      "createdAt": "2020-01-02T03:04:05.067Z",
-                      "updatedAt": "2020-01-02T03:04:05.067Z"
+                      "appealId": "00000000-1111-2222-3333-444444444444",
+                      "appealType": "SupplementalClaim",
+                      "createDate": "2020-01-02T03:04:05.067Z",
+                      "updateDate": "2020-01-02T03:04:05.067Z"
                     }
                   }
                 },
