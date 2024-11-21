@@ -353,6 +353,9 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
           allow(Rails.logger).to receive(:info)
         end
 
+        let(:guid4) { SecureRandom.uuid }
+        let(:guid5) { SecureRandom.uuid }
+
         let(:upload_id) { SecureRandom.uuid }
         let(:upload_id2) { SecureRandom.uuid }
         let(:upload_id3) { SecureRandom.uuid }
@@ -388,18 +391,20 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
           }
         end
 
-        it 'does not increment metrics for unchanged form status' do
+        it 'does not increment metrics for unchanged form status or existing final statuses' do
           SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', metadata: '{"status":"error","uploads":[]}')
           SavedClaim::SupplementalClaim.create(guid: guid2, form: '{}', metadata: '{"status":"submitted","uploads":[]}')
+          SavedClaim::SupplementalClaim.create(guid: guid3, form: '{}', metadata: '{"status":"pending","uploads":[]}')
+          SavedClaim::SupplementalClaim.create(guid: guid4, form: '{}', metadata: '{"status":"complete,"uploads":[]}')
+          SavedClaim::SupplementalClaim.create(guid: guid5, form: '{}', metadata: '{"status":"DR_404,"uploads":[]}')
 
-          expect(service).to receive(:get_supplemental_claim).with(guid1).and_return(response_error)
+          expect(service).not_to receive(:get_supplemental_claim).with(guid1)
           expect(service).to receive(:get_supplemental_claim).with(guid2).and_return(response_error)
+          expect(service).to receive(:get_supplemental_claim).with(guid3).and_return(response_pending)
+          expect(service).not_to receive(:get_supplemental_claim).with(guid4)
+          expect(service).not_to receive(:get_supplemental_claim).with(guid5)
 
           subject.new.perform
-
-          claim1 = SavedClaim::SupplementalClaim.find_by(guid: guid1)
-          expect(claim1.delete_date).to be_nil
-          expect(claim1.metadata).to include 'error'
 
           claim2 = SavedClaim::SupplementalClaim.find_by(guid: guid2)
           expect(claim2.delete_date).to be_nil
@@ -408,6 +413,8 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.saved_claim_sc_status_updater.status', tags: ['status:error'])
             .exactly(1).time
+          expect(StatsD).not_to have_received(:increment)
+            .with('worker.decision_review.saved_claim_sc_status_updater.status', tags: ['status:pending'])
 
           expect(Rails.logger).not_to have_received(:info)
             .with('DecisionReview::SavedClaimScStatusUpdaterJob form status error', guid: guid1)
@@ -419,7 +426,7 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
             .exactly(1).time
         end
 
-        it 'does not increment metrics for unchanged evidence status' do
+        it 'does not increment metrics for unchanged evidence status or existing final statuses' do
           SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', metadata: metadata1.to_json)
           appeal_submission = create(:appeal_submission, submitted_appeal_uuid: guid1)
           create(:appeal_submission_upload, appeal_submission:, lighthouse_upload_id: upload_id)
@@ -431,8 +438,8 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
 
           expect(service).to receive(:get_supplemental_claim).with(guid1).and_return(response_pending)
           expect(service).to receive(:get_supplemental_claim).with(guid2).and_return(response_error)
-          expect(service).to receive(:get_supplemental_claim_upload).with(uuid: upload_id)
-                                                                    .and_return(upload_response_error)
+
+          expect(service).not_to receive(:get_supplemental_claim_upload).with(uuid: upload_id)
           expect(service).to receive(:get_supplemental_claim_upload).with(uuid: upload_id2)
                                                                     .and_return(upload_response_error)
           expect(service).to receive(:get_supplemental_claim_upload).with(uuid: upload_id3)
@@ -477,17 +484,44 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
 
       context 'an error occurs while processing form, attachments, or secondary form' do
         before do
-          SavedClaim::SupplementalClaim.create(guid: SecureRandom.uuid, form: '{}')
-          SavedClaim::SupplementalClaim.create(guid: SecureRandom.uuid, form: '{}')
+          SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}')
+          SavedClaim::SupplementalClaim.create(guid: guid2, form: '{}')
+
+          allow(service).to receive(:get_supplemental_claim).and_raise(exception)
+          allow(Rails.logger).to receive(:error)
         end
 
-        it 'handles request errors and increments the statsd metric' do
-          allow(service).to receive(:get_supplemental_claim).and_raise(DecisionReviewV1::ServiceException)
+        context 'and it is a temporary error' do
+          let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_504') }
 
-          subject.new.perform
+          it 'handles request errors and increments the statsd metric' do
+            allow(service).to receive(:get_supplemental_claim).and_raise(DecisionReviewV1::ServiceException)
 
-          expect(StatsD).to have_received(:increment)
-            .with('worker.decision_review.saved_claim_sc_status_updater.error').exactly(2).times
+            subject.new.perform
+
+            expect(StatsD).to have_received(:increment)
+              .with('worker.decision_review.saved_claim_sc_status_updater.error').exactly(2).times
+          end
+        end
+
+        context 'and it is a 404 error' do
+          let(:exception) { DecisionReviewV1::ServiceException.new(key: 'DR_404') }
+
+          it 'updates the status of the record' do
+            subject.new.perform
+
+            sc1 = SavedClaim::SupplementalClaim.find_by(guid: guid1)
+            metadata1 = JSON.parse(sc1.metadata)
+            expect(metadata1['status']).to eq 'DR_404'
+
+            sc2 = SavedClaim::SupplementalClaim.find_by(guid: guid2)
+            metadata2 = JSON.parse(sc2.metadata)
+            expect(metadata2['status']).to eq 'DR_404'
+
+            expect(Rails.logger).to have_received(:error)
+              .with('DecisionReview::SavedClaimScStatusUpdaterJob error', { guid: anything, message: anything })
+              .exactly(2).times
+          end
         end
       end
     end
