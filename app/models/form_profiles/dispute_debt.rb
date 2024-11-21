@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class FormProfiles::DisputeDebt < FormProfiles
+class FormProfiles::DisputeDebt < FormProfile
   def metadata
     {
       version: 0,
