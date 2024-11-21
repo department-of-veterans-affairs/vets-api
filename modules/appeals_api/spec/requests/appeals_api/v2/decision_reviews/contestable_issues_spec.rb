@@ -26,9 +26,9 @@ Rspec.describe AppealsApi::V2::DecisionReviews::ContestableIssuesController, typ
   end
 
   describe '#index' do
-    let(:decision_review_type) { 'higher_level_reviews' }
+    let(:decision_review_type) { 'notice_of_disagreements' }
     let(:base_path) { '/services/appeals/v2/decision_reviews/contestable_issues' }
-    let(:path) { "#{base_path}/#{decision_review_type}?benefit_type=compensation" }
+    let(:path) { "#{base_path}/#{decision_review_type}" }
     let(:receipt_date) { '2019-02-20' }
     let(:headers) do
       {
