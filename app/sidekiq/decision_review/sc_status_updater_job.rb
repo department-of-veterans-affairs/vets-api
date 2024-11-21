@@ -26,8 +26,8 @@ module DecisionReview
       decision_review_service.get_supplemental_claim(guid).body
     end
 
-    def get_evidence_status(uuid)
-      decision_review_service.get_supplemental_claim_upload(uuid:).body
+    def get_evidence_status(guid)
+      decision_review_service.get_supplemental_claim_upload(guid:).body
     end
 
     def evidence?

@@ -92,9 +92,8 @@ class AppealSubmission < ApplicationRecord
   def get_mpi_profile
     @mpi_profile ||= begin
       service = ::MPI::Service.new
-      idme_profile = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile
-      logingov_profile = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'logingov')&.profile
-      response = idme_profile || logingov_profile
+      response = service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'idme')&.profile
+      response ||= service.find_profile_by_identifier(identifier: user_uuid, identifier_type: 'logingov')&.profile
       raise 'Failed to fetch MPI profile' if response.nil?
 
       response

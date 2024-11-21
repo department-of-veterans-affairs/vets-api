@@ -42,14 +42,12 @@ module Lighthouse
       end
     end
 
-    def perform(saved_claim_id) # rubocop:disable Metrics/MethodLength
+    def perform(saved_claim_id)
       init(saved_claim_id)
 
-      @pdf_path = if @claim.form_id == '21P-530V2'
-                    process_record(@claim, @claim.created_at, @claim.form_id)
-                  else
-                    process_record(@claim)
-                  end
+      # Create document stamps
+      @pdf_path = process_record(@claim)
+
       @attachment_paths = @claim.persistent_attachments.map { |record| process_record(record) }
 
       create_form_submission_attempt
@@ -95,21 +93,27 @@ module Lighthouse
       )
     end
 
-    def process_record(record, timestamp = nil, form_id = nil)
+    def process_record(record)
       pdf_path = record.to_pdf
-      stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5, timestamp:)
+      # coordinates 0, 0 is bottom left of the PDF
+      # This is the bottom left of the form, right under the form date, e.g. "AUG 2022"
+      stamped_path1 = PDFUtilities::DatestampPdf.new(pdf_path).run(text: 'VA.GOV', x: 5, y: 5,
+                                                                   timestamp: record.created_at)
+      # This is the top right of the PDF, above "OMB approved line"
       stamped_path2 = PDFUtilities::DatestampPdf.new(stamped_path1).run(
         text: 'FDC Reviewed - va.gov Submission',
         x: 400,
         y: 770,
         text_only: true
       )
-      document = if form_id.present? && ['21P-530V2'].include?(form_id)
-                   stamped_pdf_with_form(form_id, stamped_path2,
-                                         timestamp)
-                 else
-                   stamped_path2
-                 end
+
+      document = stamped_path2
+
+      if ['21P-530V2'].include?(record.form_id)
+        # If you are doing a burial form, add the extra box that is filled out
+        document = stamped_pdf_with_form(record.form_id, stamped_path2,
+                                         record.created_at)
+      end
 
       @lighthouse_service.valid_document?(document:)
     rescue => e
@@ -132,6 +136,8 @@ module Lighthouse
       }
     end
 
+    # This seems to be specific to burials
+    # This is stamping the (Do not write in this space portion of the PDF)
     def stamped_pdf_with_form(form_id, path, timestamp)
       PDFUtilities::DatestampPdf.new(path).run(
         text: 'Application Submitted on va.gov',

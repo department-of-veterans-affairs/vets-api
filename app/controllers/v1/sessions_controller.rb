@@ -408,7 +408,8 @@ module V1
     end
 
     def after_login_actions
-      Login::AfterLoginActions.new(@current_user).perform
+      client_id = url_service.tracker.payload_attr(:application)
+      Login::AfterLoginActions.new(@current_user, client_id).perform
       log_persisted_session_and_warnings
     end
 
