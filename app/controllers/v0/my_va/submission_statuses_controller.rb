@@ -6,7 +6,6 @@ module V0
   module MyVA
     class SubmissionStatusesController < ApplicationController
       service_tag 'form-submission-statuses'
-      before_action :controller_enabled?
 
       def show
         report = Forms::SubmissionStatuses::Report.new(
@@ -20,12 +19,6 @@ module V0
       end
 
       private
-
-      def controller_enabled?
-        unless Flipper.enabled?(:my_va_form_submission_statuses, @current_user)
-          raise Common::Exceptions::Forbidden, detail: 'Submission statuses are disabled.'
-        end
-      end
 
       def allowed_forms
         %w[20-10206 20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847]
