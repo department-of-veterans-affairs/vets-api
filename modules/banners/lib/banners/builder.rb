@@ -2,7 +2,7 @@
 
 module Banners
   class Builder
-    STATSD_KEY_PREFIX = 'alternative_banners.builder'
+    STATSD_KEY_PREFIX = 'banners.builder'
 
     def self.perform(banner_data)
       banner = new(banner_data).banner

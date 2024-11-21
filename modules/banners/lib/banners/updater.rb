@@ -5,7 +5,7 @@ require 'banners/profile/vamc'
 
 module Banners
   class Updater
-    STATSD_KEY_PREFIX = 'alternative_banners.updater'
+    STATSD_KEY_PREFIX = 'banners.updater'
 
     # If banners are to be added in the future, include them here by adding
     # another #update_{type_of}_banners method for #perform to call
@@ -28,10 +28,10 @@ module Banners
     private
 
     def connection
-      @connection ||= Faraday.new(Settings.alternative_banners.drupal_url, faraday_options) do |faraday|
+      @connection ||= Faraday.new(Settings.banners.drupal_url, faraday_options) do |faraday|
         faraday.request :url_encoded
-        faraday.request :authorization, :basic, Settings.alternative_banners.drupal_username,
-                        Settings.alternative_banners.drupal_password
+        faraday.request :authorization, :basic, Settings.banners.drupal_username,
+                        Settings.banners.drupal_password
         faraday.adapter faraday_adapter
       end
     end

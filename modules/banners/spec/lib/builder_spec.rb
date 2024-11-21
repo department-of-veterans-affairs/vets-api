@@ -32,7 +32,7 @@ RSpec.describe Banners::Builder do
       it 'logs success' do
         described_class.perform(banner_data)
         expect(StatsD).to have_received(:increment).with(
-          'alternative_banners.builder.success',
+          'banners.builder.success',
           tags: ["entitiy_id:#{entity_id}"]
         )
       end
@@ -50,7 +50,7 @@ RSpec.describe Banners::Builder do
       it 'logs failure' do
         described_class.perform(banner_data)
         expect(StatsD).to have_received(:increment).with(
-          'alternative_banners.builder.failure',
+          'banners.builder.failure',
           tags: ["entitiy_id:#{entity_id}"]
         )
       end
@@ -76,7 +76,7 @@ RSpec.describe Banners::Builder do
       it 'increments success metric with entity_id tag' do
         described_class.send(:log_success, entity_id)
         expect(StatsD).to have_received(:increment).with(
-          'alternative_banners.builder.success',
+          'banners.builder.success',
           tags: ["entitiy_id:#{entity_id}"]
         )
       end
@@ -86,7 +86,7 @@ RSpec.describe Banners::Builder do
       it 'increments failure metric with entity_id tag' do
         described_class.send(:log_failure, entity_id)
         expect(StatsD).to have_received(:increment).with(
-          'alternative_banners.builder.failure',
+          'banners.builder.failure',
           tags: ["entitiy_id:#{entity_id}"]
         )
       end
