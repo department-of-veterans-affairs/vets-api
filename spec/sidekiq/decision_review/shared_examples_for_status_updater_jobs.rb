@@ -304,7 +304,7 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
     end
 
     before do
-      allow(Rails.logger).to receive(:info) 
+      allow(Rails.logger).to receive(:info)
     end
 
     it 'only sets delete_date for subclass with all attachments in vbms status' do
@@ -395,9 +395,9 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
 
       expect(service).not_to receive(evidence_service_method).with(guid: upload_id)
       expect(service).to receive(evidence_service_method).with(guid: upload_id2)
-                                                                    .and_return(upload_response_error)
+                                                         .and_return(upload_response_error)
       expect(service).to receive(evidence_service_method).with(guid: upload_id3)
-                                                                    .and_return(upload_response_processing)
+                                                         .and_return(upload_response_processing)
 
       subject.new.perform
 
