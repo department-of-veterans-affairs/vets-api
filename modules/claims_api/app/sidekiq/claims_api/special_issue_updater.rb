@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'bgs_service/contention_service'
+
 module ClaimsApi
   class SpecialIssueUpdater < UpdaterService
     # Update special issues for a single contention/disability
