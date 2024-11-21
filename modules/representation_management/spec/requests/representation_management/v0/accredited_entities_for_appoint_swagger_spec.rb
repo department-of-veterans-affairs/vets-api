@@ -7,6 +7,15 @@ require_relative '../../../support/swagger_shared_components/v0'
 RSpec.describe 'Accredited Entities for Appoint',
                openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json',
                type: :request do
+  before do
+    create(:accredited_organization,
+           name: "Bob Law's Law Firm")
+    create(:accredited_individual,
+           first_name: 'Bob',
+           last_name: 'Law',
+           full_name: 'Bob Law')
+  end
+
   path '/representation_management/v0/accredited_entities_for_appoint' do
     get('Accredited Entities for Appoint') do
       tags 'Accredited Entities for Appoint'
@@ -18,6 +27,7 @@ RSpec.describe 'Accredited Entities for Appoint',
 
       response '200', 'OK' do
         let(:accredited_entities_for_appoint) do
+          p SwaggerSharedComponents::V0.body_examples[:accredited_entities_for_appoint]
           SwaggerSharedComponents::V0.body_examples[:accredited_entities_for_appoint]
         end
         # schema type: :array,
