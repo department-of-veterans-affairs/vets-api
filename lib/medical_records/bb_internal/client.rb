@@ -165,7 +165,7 @@ module BBInternal
     end
 
     def get_sei_chemlab
-      response = perform(:get, "healthhistory/immunization/#{@session.user_id}", nil, token_headers)
+      response = perform(:get, "healthhistory/chemlab/#{@session.user_id}", nil, token_headers)
       response.body
     end
 
