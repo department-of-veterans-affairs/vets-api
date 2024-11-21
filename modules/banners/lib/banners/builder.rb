@@ -6,7 +6,7 @@ module Banners
 
     def self.perform(banner_data)
       banner = new(banner_data).banner
-      puts "got banner data: #{banner_data}"
+
       if banner.update(banner_data)
         log_success(banner_data[:entity_id])
         banner
@@ -28,12 +28,14 @@ module Banners
 
     private
 
-    def log_failure(entity_id)
+    def self.log_failure(entity_id)
       StatsD.increment("#{STATSD_KEY_PREFIX}.failure", tags: ["entitiy_id:#{entity_id}"])
     end
 
-    def log_success(entity_id)
+    def self.log_success(entity_id)
       StatsD.increment("#{STATSD_KEY_PREFIX}.success", tags: ["entitiy_id:#{entity_id}"])
     end
+
+    private_class_method :log_failure, :log_success
   end
 end
