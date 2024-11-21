@@ -25,12 +25,16 @@ module MHV
 
       def create_account_with_cache(icn:, force:, expires_in:, &request)
         cache_hit = true
+        start = nil
         account = Rails.cache.fetch("#{config.service_name}_#{icn}", force:, expires_in:) do
           cache_hit = false
+          start = Time.current
           request.call
         end
-        Rails.logger.info("#{config.logging_prefix} create_account success", { icn:, account:, from_cache: cache_hit })
+        duration_ms = cache_hit == false ? ((Time.current - start) * 1000).round(2) : nil
 
+        Rails.logger.info("#{config.logging_prefix} create_account success",
+                          { icn:, account:, duration_ms:, from_cache: cache_hit }.compact)
         account
       end
 

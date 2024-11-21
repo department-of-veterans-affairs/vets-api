@@ -16,11 +16,15 @@ describe MHV::AccountCreation::Service do
     let(:account_creation_base_url) { 'https://apigw-intb.aws.myhealth.va.gov' }
     let(:account_creation_path) { 'v1/usermgmt/account-service/account' }
     let(:break_cache) { false }
+    let(:start_time) { Time.current }
+    # let(:start_time) { Time.new(2024, 11, 21, 12, 0, 0) }
+    let(:end_time) { start_time + 0.0765 }
 
     before do
       allow(Rails.logger).to receive(:info)
       allow(Rails.logger).to receive(:error)
       allow_any_instance_of(SignInService::Sts).to receive(:base_url).and_return('https://staging-api.va.gov')
+      allow(Time).to receive(:current).and_return(start_time, start_time, end_time)
     end
 
     context 'when making a request' do
@@ -47,7 +51,10 @@ describe MHV::AccountCreation::Service do
     context 'when the response is successful' do
       let(:successful_response_cassette) { 'mhv/account_creation/account_creation_service_200_found' }
       let(:expected_log_message) { "#{log_prefix} create_account success" }
-      let(:expected_log_payload) { { icn:, account: expected_response_body, from_cache: expected_from_cache_log } }
+      let(:expected_log_payload) do
+        { icn:, account: expected_response_body, from_cache: expected_from_cache_log,
+          duration_ms: expected_duration }.compact
+      end
       let(:user_profile_id) { '12345678' }
       let(:premium) { true }
       let(:champ_va) { true }
@@ -57,6 +64,7 @@ describe MHV::AccountCreation::Service do
       let(:expected_response_body) do
         { user_profile_id:, premium:, champ_va:, patient:, sm_account_created:, message: }
       end
+      let(:expected_duration) { 76.5 }
 
       shared_examples 'a successful external request' do
         it 'makes a request to the account creation service' do
@@ -114,6 +122,8 @@ describe MHV::AccountCreation::Service do
         let(:expected_expires_in) { 1.day }
 
         context 'when break_cache is false' do
+          let(:expected_duration) { nil }
+
           before do
             allow(Rails.cache).to receive(:fetch)
               .with(expected_cache_key, force: break_cache, expires_in: expected_expires_in)
