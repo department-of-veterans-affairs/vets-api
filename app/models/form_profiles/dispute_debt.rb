@@ -1,0 +1,29 @@
+# frozen_string_literal: true
+
+class FormProfiles::DisputeDebt < FormProfiles
+  def metadata
+    {
+      version: 0,
+      prefill: true,
+      returnUrl: '/personal-information'
+    }
+  end
+
+  private
+
+  # Borrowed from app/models/form_profiles/va_5655.rb as a starting point to pull file number
+  def va_file_number_last_four
+    return unless user.authorize :debt, :access?
+
+    file_number =
+      begin
+        response = BGS::People::Request.new.find_person_by_participant_id(user:)
+        response.file_number.presence || user.ssn
+      rescue
+        user.ssn
+      end
+
+    file_number&.last(4)
+  end
+
+end
