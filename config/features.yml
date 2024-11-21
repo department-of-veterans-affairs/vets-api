@@ -112,6 +112,9 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
+  hca_log_email_diff_in_progress_form:
+    actor_type: user
+    description: Enable using database instead of redis to log email differences between va_profile and in progress forms.
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
@@ -1491,6 +1494,10 @@ features:
   veteran_onboarding_show_welcome_message_to_new_users:
     actor_type: user
     description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
+    enable_in_development: false
+  veteran_status_card_use_lighthouse:
+    actor_type: user
+    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display
     enable_in_development: false
   vre_trigger_action_needed_email:
     actor_type: user
