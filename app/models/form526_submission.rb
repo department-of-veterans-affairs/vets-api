@@ -367,6 +367,7 @@ class Form526Submission < ApplicationRecord
       'email' => form['form526']['form526']['veteran']['emailAddress'],
       'submitted_claim_id' => submitted_claim_id,
       'date_submitted' => created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
+      'date_received' => Time.now.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
       'first_name' => first_name
     }
   end
