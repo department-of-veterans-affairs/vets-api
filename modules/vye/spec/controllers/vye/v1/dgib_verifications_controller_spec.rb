@@ -28,7 +28,7 @@ module Vye
         let(:serializer) { Vye::ClaimantLookupSerializer.new(claimant_service_response) }
 
         before do
-          allow_any_instance_of(Vye::UserInfoPolicy).to receive(:claimant_lookup?).and_return(true)
+          allow_any_instance_of(Vye::UserInfoPolicy).to receive(:access?).and_return(true)
           allow_any_instance_of(Vye::DGIB::ClaimantLookup::Service)
             .to receive(:claimant_lookup)
             .and_return(claimant_service_response)
@@ -85,7 +85,7 @@ module Vye
         let(:verfied_through_date) { '2023-11-30' }
 
         before do
-          allow_any_instance_of(Vye::UserInfoPolicy).to receive(:claimant_lookup?).and_return(true)
+          allow_any_instance_of(Vye::UserInfoPolicy).to receive(:access?).and_return(true)
           allow_any_instance_of(Vye::DGIB::VerifyClaimant::Service)
             .to receive(:verify_claimant)
             .and_return(verify_claimant_response)
