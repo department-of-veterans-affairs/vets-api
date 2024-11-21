@@ -1386,10 +1386,6 @@ features:
     actor_type: user
     description: Toggle for new vaos service va appointments.
     enable_in_development: true
-  va_online_scheduling_facilities_service_v2:
-    actor_type: user
-    description: Toggle for new mobile facility service v2 endpoints
-    enable_in_development: true
   va_online_scheduling_vaos_v2_next:
     actor_type: user
     enable_in_development: true
@@ -1414,14 +1410,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for proof of concept to help Veteran contact a facility when the type of care is not available
-  va_online_scheduling_after_visit_summary:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for After visit summary feature.
-  va_online_scheduling_start_scheduling_link:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for Start Scheduling action link.
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
