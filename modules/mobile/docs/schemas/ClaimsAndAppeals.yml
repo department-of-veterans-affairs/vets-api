@@ -34,10 +34,12 @@ properties:
       dateFiled:
         type: string
         format: date
+        nullable: true
         example: "2020-01-01"
       updatedAt:
         type: string
         format: date
+        nullable: true
         example: "2020-01-01"
       displayTitle:
         type: string
@@ -65,4 +67,5 @@ properties:
       claimTypeCode:
         type: string
         description: Type of claim
+        nullable: true
         example: "020NEW"

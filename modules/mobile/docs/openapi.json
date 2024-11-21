@@ -1100,7 +1100,7 @@
           {
             "description": "Unique location identifier",
             "in": "query",
-            "name": "locationId",
+            "name": "location_id",
             "required": true,
             "schema": {
               "type": "string"
@@ -1137,7 +1137,13 @@
             "$ref": "#/components/responses/422"
           },
           "500": {
-            "$ref": "#/components/responses/500"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentCheckinErrors500"
+                }
+              }
+            }
           },
           "502": {
             "$ref": "#/components/responses/502"
@@ -1163,7 +1169,7 @@
             "application/json": {
               "schema": {
                 "properties": {
-                  "locationId": {
+                  "location_id": {
                     "type": "string"
                   },
                   "demographicConfirmations": {
@@ -1220,7 +1226,13 @@
             "$ref": "#/components/responses/422"
           },
           "500": {
-            "$ref": "#/components/responses/500"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentCheckinErrors500"
+                }
+              }
+            }
           },
           "502": {
             "$ref": "#/components/responses/502"
@@ -1247,7 +1259,7 @@
           {
             "description": "Type of service to check eligibility for. Can only be one of following options primaryCare, nutrition, podiatry, optometry, audiology.",
             "in": "path",
-            "name": "serviceType",
+            "name": "service_type",
             "required": true,
             "schema": {
               "type": "string"
@@ -1267,6 +1279,9 @@
               }
             },
             "description": "OK"
+          },
+          "400": {
+            "$ref": "#/components/responses/400"
           },
           "401": {
             "$ref": "#/components/responses/401"
@@ -1686,125 +1701,6 @@
           }
         ],
         "summary": "/v0/appointments/facilities/{facility_id}/clinics/{clinic_id}/slots"
-      }
-    },
-    "/v0/appointments/preferences": {
-      "get": {
-        "description": "Returns VAOS appointment contact preferences",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/InflectionHeader"
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AppointmentPreferences"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "408": {
-            "$ref": "#/components/responses/408"
-          },
-          "422": {
-            "$ref": "#/components/responses/422"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          },
-          "502": {
-            "$ref": "#/components/responses/502"
-          },
-          "503": {
-            "$ref": "#/components/responses/503"
-          },
-          "504": {
-            "$ref": "#/components/responses/504"
-          }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "summary": "/v0/appointments/preferences"
-      },
-      "put": {
-        "description": "updates VAOS appointment preferences",
-        "parameters": [
-          {
-            "$ref": "#/components/parameters/InflectionHeader"
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AppointmentPreferencesRequest"
-              }
-            }
-          },
-          "description": "Preferences data to update",
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/AppointmentPreferences"
-                }
-              }
-            },
-            "description": "OK"
-          },
-          "401": {
-            "$ref": "#/components/responses/401"
-          },
-          "403": {
-            "$ref": "#/components/responses/403"
-          },
-          "404": {
-            "$ref": "#/components/responses/404"
-          },
-          "408": {
-            "$ref": "#/components/responses/408"
-          },
-          "422": {
-            "$ref": "#/components/responses/422"
-          },
-          "500": {
-            "$ref": "#/components/responses/500"
-          },
-          "502": {
-            "$ref": "#/components/responses/502"
-          },
-          "503": {
-            "$ref": "#/components/responses/503"
-          },
-          "504": {
-            "$ref": "#/components/responses/504"
-          }
-        },
-        "security": [
-          {
-            "Bearer": []
-          }
-        ],
-        "summary": "/v0/appointments/preferences"
       }
     },
     "/v0/appointments/va/eligibility": {
@@ -2468,6 +2364,9 @@
             },
             "description": "OK"
           },
+          "400": {
+            "$ref": "#/components/responses/400"
+          },
           "401": {
             "$ref": "#/components/responses/401"
           },
@@ -2731,7 +2630,13 @@
             "$ref": "#/components/responses/500"
           },
           "502": {
-            "$ref": "#/components/responses/502"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClaimsAndAppealsOverview502"
+                }
+              }
+            }
           },
           "503": {
             "$ref": "#/components/responses/503"
@@ -8662,7 +8567,12 @@
             "type": "string"
           },
           "source": {
-            "type": "string"
+            "type": {
+              "anyOf": [
+                "string",
+                "object"
+              ]
+            }
           },
           "meta": {
             "type": "object",
@@ -8826,7 +8736,8 @@
               "Granted",
               "dismissed_matter_of_law",
               "Dismissed",
-              "Deferred"
+              "Deferred",
+              "Denied"
             ]
           },
           "date": {
@@ -8958,7 +8869,8 @@
                       "other",
                       "multiple",
                       "vha",
-                      "voc_rehub"
+                      "voc_rehub",
+                      "voc_rehab"
                     ]
                   },
                   "status": {
@@ -9711,267 +9623,312 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "insuranceVerificationNeeded",
-          "needsConfirmation",
-          "mailingAddress",
-          "residentialAddress",
-          "homePhone",
-          "officePhone",
-          "cellPhone",
-          "email",
-          "emergencyContact",
-          "nextOfKin"
+          "data"
         ],
         "properties": {
-          "insuranceVerificationNeeded": {
-            "type": "boolean",
-            "example": true
-          },
-          "needsConfirmation": {
-            "type": "boolean",
-            "example": true
-          },
-          "mailingAddress": {
+          "data": {
             "type": "object",
             "additionalProperties": false,
             "required": [
-              "street1",
-              "street2",
-              "street3",
-              "city",
-              "county",
-              "state",
-              "zip",
-              "zip4",
-              "country"
+              "type",
+              "id",
+              "attributes"
             ],
             "properties": {
-              "street1": {
-                "type": "string"
+              "type": {
+                "type": "string",
+                "example": "checkInDemographics"
               },
-              "street2": {
-                "type": "string"
+              "id": {
+                "type": "string",
+                "example": "75db6a5c-84ae-4ca4-bba2-ef4c41d563ab",
+                "description": "user uuid"
               },
-              "street3": {
-                "type": "string"
-              },
-              "city": {
-                "type": "string"
-              },
-              "county": {
-                "type": "string"
-              },
-              "state": {
-                "type": "string"
-              },
-              "zip": {
-                "type": "string"
-              },
-              "zip4": {
-                "type": "string"
-              },
-              "country": {
-                "type": "string"
-              }
-            }
-          },
-          "residentialAddress": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "street1",
-              "street2",
-              "street3",
-              "city",
-              "county",
-              "state",
-              "zip",
-              "zip4",
-              "country"
-            ],
-            "properties": {
-              "street1": {
-                "type": "string"
-              },
-              "street2": {
-                "type": "string"
-              },
-              "street3": {
-                "type": "string"
-              },
-              "city": {
-                "type": "string"
-              },
-              "county": {
-                "type": "string"
-              },
-              "state": {
-                "type": "string"
-              },
-              "zip": {
-                "type": "string"
-              },
-              "zip4": {
-                "type": "string"
-              },
-              "country": {
-                "type": "string"
-              }
-            }
-          },
-          "homePhone": {
-            "type": "string"
-          },
-          "officePhone": {
-            "type": "string"
-          },
-          "cellPhone": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
-          "emergencyContact": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "needsConfirmation",
-              "name",
-              "relationship",
-              "phone",
-              "workPhone",
-              "address"
-            ],
-            "properties": {
-              "needsConfirmation": {
-                "type": "boolean"
-              },
-              "name": {
-                "type": "string"
-              },
-              "relationship": {
-                "type": "string"
-              },
-              "phone": {
-                "type": "string"
-              },
-              "workPhone": {
-                "type": "string"
-              },
-              "address": {
+              "attributes": {
                 "type": "object",
                 "additionalProperties": false,
                 "required": [
-                  "street1",
-                  "street2",
-                  "street3",
-                  "city",
-                  "county",
-                  "state",
-                  "zip",
-                  "zip4",
-                  "country"
+                  "insuranceVerificationNeeded",
+                  "needsConfirmation",
+                  "mailingAddress",
+                  "residentialAddress",
+                  "homePhone",
+                  "officePhone",
+                  "cellPhone",
+                  "email",
+                  "emergencyContact",
+                  "nextOfKin"
                 ],
                 "properties": {
-                  "street1": {
+                  "insuranceVerificationNeeded": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "needsConfirmation": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "mailingAddress": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "street1",
+                      "street2",
+                      "street3",
+                      "city",
+                      "county",
+                      "state",
+                      "zip",
+                      "zip4",
+                      "country"
+                    ],
+                    "properties": {
+                      "street1": {
+                        "type": "string"
+                      },
+                      "street2": {
+                        "type": "string"
+                      },
+                      "street3": {
+                        "type": "string"
+                      },
+                      "city": {
+                        "type": "string"
+                      },
+                      "county": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "zip": {
+                        "type": "string"
+                      },
+                      "zip4": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "country": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "residentialAddress": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "street1",
+                      "street2",
+                      "street3",
+                      "city",
+                      "county",
+                      "state",
+                      "zip",
+                      "zip4",
+                      "country"
+                    ],
+                    "properties": {
+                      "street1": {
+                        "type": "string"
+                      },
+                      "street2": {
+                        "type": "string"
+                      },
+                      "street3": {
+                        "type": "string"
+                      },
+                      "city": {
+                        "type": "string"
+                      },
+                      "county": {
+                        "type": "string"
+                      },
+                      "state": {
+                        "type": "string"
+                      },
+                      "zip": {
+                        "type": "string"
+                      },
+                      "zip4": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "country": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "homePhone": {
                     "type": "string"
                   },
-                  "street2": {
+                  "officePhone": {
                     "type": "string"
                   },
-                  "street3": {
+                  "cellPhone": {
                     "type": "string"
                   },
-                  "city": {
+                  "email": {
                     "type": "string"
                   },
-                  "county": {
-                    "type": "string"
+                  "emergencyContact": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "needsConfirmation",
+                      "name",
+                      "relationship",
+                      "phone",
+                      "workPhone",
+                      "address"
+                    ],
+                    "properties": {
+                      "needsConfirmation": {
+                        "type": "boolean"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "relationship": {
+                        "type": "string"
+                      },
+                      "phone": {
+                        "type": "string"
+                      },
+                      "workPhone": {
+                        "type": "string"
+                      },
+                      "address": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "street1",
+                          "street2",
+                          "street3",
+                          "city",
+                          "county",
+                          "state",
+                          "zip",
+                          "zip4",
+                          "country"
+                        ],
+                        "properties": {
+                          "street1": {
+                            "type": "string"
+                          },
+                          "street2": {
+                            "type": "string"
+                          },
+                          "street3": {
+                            "type": "string"
+                          },
+                          "city": {
+                            "type": "string"
+                          },
+                          "county": {
+                            "type": "string"
+                          },
+                          "state": {
+                            "type": "string"
+                          },
+                          "zip": {
+                            "type": "string"
+                          },
+                          "zip4": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "country": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
                   },
-                  "state": {
-                    "type": "string"
-                  },
-                  "zip": {
-                    "type": "string"
-                  },
-                  "zip4": {
-                    "type": "string"
-                  },
-                  "country": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          },
-          "nextOfKin": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "needsConfirmation",
-              "name",
-              "relationship",
-              "phone",
-              "workPhone",
-              "address"
-            ],
-            "properties": {
-              "needsConfirmation": {
-                "type": "boolean"
-              },
-              "name": {
-                "type": "string"
-              },
-              "relationship": {
-                "type": "string"
-              },
-              "phone": {
-                "type": "string"
-              },
-              "workPhone": {
-                "type": "string"
-              },
-              "address": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "street1",
-                  "street2",
-                  "street3",
-                  "city",
-                  "county",
-                  "state",
-                  "zip",
-                  "zip4",
-                  "country"
-                ],
-                "properties": {
-                  "street1": {
-                    "type": "string"
-                  },
-                  "street2": {
-                    "type": "string"
-                  },
-                  "street3": {
-                    "type": "string"
-                  },
-                  "city": {
-                    "type": "string"
-                  },
-                  "county": {
-                    "type": "string"
-                  },
-                  "state": {
-                    "type": "string"
-                  },
-                  "zip": {
-                    "type": "string"
-                  },
-                  "zip4": {
-                    "type": "string"
-                  },
-                  "country": {
-                    "type": "string"
+                  "nextOfKin": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "needsConfirmation",
+                      "name",
+                      "relationship",
+                      "phone",
+                      "workPhone",
+                      "address"
+                    ],
+                    "properties": {
+                      "needsConfirmation": {
+                        "type": "boolean"
+                      },
+                      "name": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "relationship": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "phone": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "workPhone": {
+                        "type": "string",
+                        "nullable": true
+                      },
+                      "address": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "street1",
+                          "street2",
+                          "street3",
+                          "city",
+                          "county",
+                          "state",
+                          "zip",
+                          "zip4",
+                          "country"
+                        ],
+                        "properties": {
+                          "street1": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "street2": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "street3": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "city": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "county": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "state": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "zip": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "zip4": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "country": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        }
+                      }
+                    }
                   }
                 }
               }
@@ -9983,22 +9940,50 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "contactNeedsUpdate",
-          "emergencyContactNeedsUpdate",
-          "nextOfKinNeedsUpdate"
+          "data"
         ],
         "properties": {
-          "contactNeedsUpdate": {
-            "type": "boolean",
-            "example": false
-          },
-          "emergencyContactNeedsUpdate": {
-            "type": "boolean",
-            "example": false
-          },
-          "nextOfKinNeedsUpdate": {
-            "type": "boolean",
-            "example": false
+          "data": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id",
+              "attributes"
+            ],
+            "properties": {
+              "type": {
+                "type": "string",
+                "example": "demographicConfirmations"
+              },
+              "id": {
+                "type": "string",
+                "example": "5"
+              },
+              "attributes": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "contactNeedsUpdate",
+                  "emergencyContactNeedsUpdate",
+                  "nextOfKinNeedsUpdate"
+                ],
+                "properties": {
+                  "contactNeedsUpdate": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "emergencyContactNeedsUpdate": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "nextOfKinNeedsUpdate": {
+                    "type": "boolean",
+                    "example": false
+                  }
+                }
+              }
+            }
           }
         }
       },
@@ -10218,97 +10203,6 @@
               "additionalProperties": false,
               "$ref": "#/components/schemas/Slot"
             }
-          }
-        }
-      },
-      "AppointmentPreferences": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "data"
-        ],
-        "properties": {
-          "data": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "type",
-              "id",
-              "attributes"
-            ],
-            "properties": {
-              "type": {
-                "type": "string",
-                "example": "appointment_preferences"
-              },
-              "id": {
-                "type": "string",
-                "example": "6260ab13-177f-583d-b2dc-1b350404abb7",
-                "description": "user UUID"
-              },
-              "attributes": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "notificationFrequency",
-                  "emailAllowed",
-                  "textMsgAllowed"
-                ],
-                "properties": {
-                  "notificationFrequency": {
-                    "type": "string",
-                    "example": "Never"
-                  },
-                  "emailAllowed": {
-                    "type": "boolean",
-                    "example": true
-                  },
-                  "emailAddress": {
-                    "type": "string",
-                    "description": "omitted if not allowed",
-                    "example": "abraham.lincoln@va.gov"
-                  },
-                  "textMsgAllowed": {
-                    "type": "boolean",
-                    "example": false
-                  },
-                  "TextMsgPhNumber": {
-                    "type": "string",
-                    "description": "omitted if not allowed",
-                    "example": "480-278-2515"
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "AppointmentPreferencesRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": [
-          "notification_frequency"
-        ],
-        "properties": {
-          "notification_frequency": {
-            "type": "string",
-            "example": "Each new message"
-          },
-          "email_allowed": {
-            "type": "boolean",
-            "example": true
-          },
-          "email_address": {
-            "type": "string",
-            "example": "abraham.lincoln@va.gov"
-          },
-          "text_msg_allowed": {
-            "type": "boolean",
-            "example": false
-          },
-          "text_msg_ph_number": {
-            "type": "string",
-            "example": "480-278-2515"
           }
         }
       },
@@ -11382,8 +11276,8 @@
                   "netAmt",
                   "payeeTypeCd",
                   "priorEfctvDt",
-                  "ptcptBeneId",
-                  "ptcptVetId",
+                  "ptcpntBeneId",
+                  "ptcpntVetId",
                   "reasonOneTxt",
                   "spouseTxt"
                 ],
@@ -11394,8 +11288,8 @@
                     "description": "user UUID"
                   },
                   "aportnRecipId": {
-                    "type": "integer",
-                    "example": 2810777
+                    "type": "string",
+                    "example": "2810777"
                   },
                   "awardAmt": {
                     "type": "decimal",
@@ -11434,28 +11328,28 @@
                     "example": "30"
                   },
                   "depHlplsThisNbr": {
-                    "type": "integer",
-                    "example": 0
+                    "type": "string",
+                    "example": "0"
                   },
                   "depHlplsTotalNbr": {
-                    "type": "integer",
-                    "example": 0
+                    "type": "string",
+                    "example": "0"
                   },
                   "depSchoolThisNbr": {
-                    "type": "integer",
-                    "example": 0
+                    "type": "string",
+                    "example": "0"
                   },
                   "depSchoolTotalNbr": {
-                    "type": "integer",
-                    "example": 0
+                    "type": "string",
+                    "example": "0"
                   },
                   "depThisNbr": {
-                    "type": "integer",
-                    "example": 12
+                    "type": "string",
+                    "example": "12"
                   },
                   "depTotalNbr": {
-                    "type": "integer",
-                    "example": 12
+                    "type": "string",
+                    "example": "12"
                   },
                   "efctvDt": {
                     "type": "date",
@@ -11466,8 +11360,8 @@
                     "example": "41"
                   },
                   "fileNbr": {
-                    "type": "integer",
-                    "example": 796121200
+                    "type": "string",
+                    "example": "796121200"
                   },
                   "futureEfctvDt": {
                     "type": "string",
@@ -11517,11 +11411,11 @@
                     "type": "string",
                     "example": "2020-07-01T00:00:00.000"
                   },
-                  "ptcptBeneId": {
+                  "ptcpntBeneId": {
                     "type": "string",
                     "example": "2810777"
                   },
-                  "ptcptVetId": {
+                  "ptcpntVetId": {
                     "type": "string",
                     "example": "2810777"
                   },
@@ -11581,7 +11475,8 @@
           },
           "description": {
             "type": "string",
-            "example": "The information provided concerning your prior marital history is inconsistent. In order to resolve these inconsistencies you should submit certified copies of the public record of the termination (death, divorce or annulment) for each of your prior marriages."
+            "example": "The information provided concerning your prior marital history is inconsistent. In order to resolve these inconsistencies you should submit certified copies of the public record of the termination (death, divorce or annulment) for each of your prior marriages.",
+            "nullable": true
           },
           "display_name": {
             "type": "string",
@@ -11589,15 +11484,18 @@
           },
           "overdue": {
             "type": "boolean",
-            "example": true
+            "example": true,
+            "nullable": true
           },
           "status": {
             "type": "string",
-            "example": "NEEDED"
+            "example": "NEEDED",
+            "nullable": true
           },
           "uploaded": {
             "type": "boolean",
-            "example": true
+            "example": true,
+            "nullable": true
           },
           "uploads_allowed": {
             "type": "boolean",
@@ -11627,7 +11525,8 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/claimDocument"
-            }
+            },
+            "nullable": true
           },
           "upload_date": {
             "type": "string",
@@ -11635,7 +11534,8 @@
           },
           "date": {
             "type": "string",
-            "example": "2023-05-30"
+            "example": "2023-05-30",
+            "nullable": true
           },
           "file_type": {
             "type": "integer",
@@ -11647,7 +11547,8 @@
           },
           "filename": {
             "type": "string",
-            "example": "7B434B58-477C-4379-816F-05E6D3A10487.pdf"
+            "example": "7B434B58-477C-4379-816F-05E6D3A10487.pdf",
+            "nullable": true
           },
           "document_id": {
             "type": "string",
@@ -11750,7 +11651,8 @@
                   },
                   "vaRepresentative": {
                     "type": "string",
-                    "example": "DALE M BOETTCHER"
+                    "example": "DALE M BOETTCHER",
+                    "nullable": true
                   },
                   "documentsNeeded": {
                     "type": "boolean"
@@ -11763,19 +11665,22 @@
                   },
                   "updatedAt": {
                     "type": "string",
-                    "example": "2017-12-13T03:28:23+00:00"
+                    "example": "2017-12-13T03:28:23+00:00",
+                    "nullable": true
                   },
                   "phase": {
                     "type": "integer",
                     "description": "The phase of processing the claim is in. The integers used map to the phases as `1 => CLAIM_RECEIVED, 2 => UNDER_REVIEW, 3 => GATHERING_OF_EVIDENCE, 4 => REVIEW_OF_EVIDENCE, 5 => PREPARATION_FOR_DECISION, 6 => PENDING_DECISION_APPROVAL, 7 => PREPARATION_FOR_NOTIFICATION, 8 => COMPLETE`",
-                    "example": 2
+                    "example": 2,
+                    "nullable": true
                   },
                   "claimType": {
                     "type": "string",
                     "example": "Compensation"
                   },
                   "everPhaseBack": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "nullable": true
                   },
                   "currentPhaseBack": {
                     "type": "boolean"
@@ -13294,11 +13199,13 @@
               "dateFiled": {
                 "type": "string",
                 "format": "date",
+                "nullable": true,
                 "example": "2020-01-01"
               },
               "updatedAt": {
                 "type": "string",
                 "format": "date",
+                "nullable": true,
                 "example": "2020-01-01"
               },
               "displayTitle": {
@@ -13332,6 +13239,7 @@
               "claimTypeCode": {
                 "type": "string",
                 "description": "Type of claim",
+                "nullable": true,
                 "example": "020NEW"
               }
             }
@@ -13461,7 +13369,12 @@
                     "completed",
                     "dateFiled",
                     "updatedAt",
-                    "displayTitle"
+                    "displayTitle",
+                    "decisionLetterSent",
+                    "phase",
+                    "documentsNeeded",
+                    "developmentLetterSent",
+                    "claimTypeCode"
                   ],
                   "properties": {
                     "subtype": {
@@ -13486,6 +13399,36 @@
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
                       "example": "disability compensation appeal"
+                    },
+                    "decisionLetterSent": {
+                      "type": "boolean",
+                      "description": "decision letter will be available from endpoint /v0/claims/decision-letters if true",
+                      "nullable": true,
+                      "example": null
+                    },
+                    "phase": {
+                      "type": "integer",
+                      "nullable": true,
+                      "description": "The phase of processing the claim is in. This does not apply to appeals. The integers used map to the phases as `1 => CLAIM_RECEIVED, 2 => UNDER_REVIEW, 3 => GATHERING_OF_EVIDENCE, 4 => REVIEW_OF_EVIDENCE, 5 => PREPARATION_FOR_DECISION, 6 => PENDING_DECISION_APPROVAL, 7 => PREPARATION_FOR_NOTIFICATION, 8 => COMPLETE`",
+                      "example": null
+                    },
+                    "documentsNeeded": {
+                      "type": "boolean",
+                      "nullable": true,
+                      "description": "Documents are still needed.",
+                      "example": null
+                    },
+                    "developmentLetterSent": {
+                      "type": "boolean",
+                      "nullable": true,
+                      "description": "Development letter has been sent.",
+                      "example": null
+                    },
+                    "claimTypeCode": {
+                      "type": "string",
+                      "description": "Type of claim",
+                      "nullable": true,
+                      "example": null
                     }
                   }
                 }
@@ -13549,6 +13492,11 @@
                     "example": 15
                   }
                 }
+              },
+              "activeClaimsCount": {
+                "type": "number",
+                "example": 3,
+                "description": "Count of claims with `completed` set to false"
               }
             }
           }
@@ -13588,7 +13536,12 @@
                     "completed",
                     "dateFiled",
                     "updatedAt",
-                    "displayTitle"
+                    "displayTitle",
+                    "decisionLetterSent",
+                    "phase",
+                    "documentsNeeded",
+                    "developmentLetterSent",
+                    "claimTypeCode"
                   ],
                   "properties": {
                     "subtype": {
@@ -13602,17 +13555,48 @@
                     "dateFiled": {
                       "type": "string",
                       "format": "date",
+                      "nullable": true,
                       "example": "2020-01-01"
                     },
                     "updatedAt": {
                       "type": "string",
                       "format": "date",
+                      "nullable": true,
                       "example": "2020-01-01"
                     },
                     "displayTitle": {
                       "type": "string",
                       "description": "Formatted title for display in mobile overview list",
                       "example": "disability compensation appeal"
+                    },
+                    "decisionLetterSent": {
+                      "type": "boolean",
+                      "description": "decision letter will be available from endpoint /v0/claims/decision-letters if true",
+                      "example": "true"
+                    },
+                    "phase": {
+                      "type": "integer",
+                      "nullable": true,
+                      "description": "The phase of processing the claim is in. This does not apply to appeals. The integers used map to the phases as `1 => CLAIM_RECEIVED, 2 => UNDER_REVIEW, 3 => GATHERING_OF_EVIDENCE, 4 => REVIEW_OF_EVIDENCE, 5 => PREPARATION_FOR_DECISION, 6 => PENDING_DECISION_APPROVAL, 7 => PREPARATION_FOR_NOTIFICATION, 8 => COMPLETE`",
+                      "example": 1
+                    },
+                    "documentsNeeded": {
+                      "type": "boolean",
+                      "nullable": true,
+                      "description": "Documents are still needed.",
+                      "example": "true"
+                    },
+                    "developmentLetterSent": {
+                      "type": "boolean",
+                      "nullable": true,
+                      "description": "Development letter has been sent.",
+                      "example": "true"
+                    },
+                    "claimTypeCode": {
+                      "type": "string",
+                      "description": "Type of claim",
+                      "nullable": true,
+                      "example": "020NEW"
                     }
                   }
                 }
@@ -13676,6 +13660,73 @@
                     "example": 15
                   }
                 }
+              },
+              "activeClaimsCount": {
+                "type": "number",
+                "example": 3,
+                "description": "Count of claims with `completed` set to false"
+              }
+            }
+          }
+        }
+      },
+      "ClaimsAndAppealsOverview502": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data",
+          "meta"
+        ],
+        "properties": {
+          "data": {
+            "type": "array"
+          },
+          "meta": {
+            "properties": {
+              "errors": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "$ref": "#/components/schemas/ClaimsAndAppealsOverviewErrors",
+                    "description": "Array info about failing upstream services"
+                  }
+                }
+              },
+              "pagination": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "currentPage",
+                  "perPage",
+                  "totalPages",
+                  "totalEntries"
+                ],
+                "properties": {
+                  "currentPage": {
+                    "type": "number",
+                    "example": 1
+                  },
+                  "perPage": {
+                    "type": "number",
+                    "example": 10
+                  },
+                  "totalPages": {
+                    "type": "number",
+                    "example": 2
+                  },
+                  "totalEntries": {
+                    "type": "number",
+                    "example": 15
+                  }
+                }
+              },
+              "activeClaimsCount": {
+                "type": "number",
+                "example": 3,
+                "description": "Count of claims with `completed` set to false"
               }
             }
           }
@@ -22859,7 +22910,8 @@
               "lastName",
               "signinEmail",
               "birthDate",
-              "signinService"
+              "signinService",
+              "edipi"
             ],
             "properties": {
               "firstName": {
@@ -22896,6 +22948,10 @@
               "hasFacilityTransitioningToCerner": {
                 "type": "boolean",
                 "description": "The user has a treatment facility that is currently transitioning to cerner. This is temporary."
+              },
+              "edipi": {
+                "type": "string",
+                "example": "384759483"
               }
             }
           }
