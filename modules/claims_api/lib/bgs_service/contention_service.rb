@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'bgs_service/contention_service'
+
 module ClaimsApi
   class ContentionService < ClaimsApi::LocalBGS
     def bean_name
