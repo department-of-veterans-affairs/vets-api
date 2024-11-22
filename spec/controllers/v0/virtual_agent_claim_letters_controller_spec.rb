@@ -24,10 +24,13 @@ RSpec.describe V0::VirtualAgentClaimLettersController, type: :controller do
       expect(letters.first.keys).to include(*expected_important_keys)
     end
 
-    it 'lists only documents of the doctypes specified by the controller' do
+    it 'lists only documents of the doctypes specified by the feature flags' do
+      Flipper.disable(:cst_include_ddl_boa_letters)
+      Flipper.enable(:cst_include_ddl_5103_letters)
+      Flipper.disable(:cst_include_ddl_sqd_letters)
       get(:index)
       letters = JSON.parse(response.body)
-      allowed_letters = letters.select { |d| d['doc_type'] == '184' }
+      allowed_letters = letters.select { |d| %w[184 704 706 858].include?(d['doc_type']) }
 
       expect(allowed_letters.length).to eql(letters.length)
     end

@@ -82,7 +82,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
           Flipper.enable(:cst_include_ddl_sqd_letters)
 
           get '/mobile/v0/claims/decision-letters', headers: sis_headers
-          expect(response).to have_http_status(:ok)
+          assert_schema_conform(200)
           decision_letters = response.parsed_body['data']
           first_received_at = decision_letters.first.dig('attributes', 'receivedAt')
           last_received_at = decision_letters.last.dig('attributes', 'receivedAt')
