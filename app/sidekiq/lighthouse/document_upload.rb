@@ -83,7 +83,7 @@ class Lighthouse::DocumentUpload
   def perform(user_icn, document_hash, user_account_uuid, claim_id, tracked_item_id)
     @user_icn = user_icn
     @document_hash = document_hash
-    
+
     evidence_submission = record_evidence_submission(claim_id, jid, tracked_item_id, user_account_uuid)
     initialize_upload_document
 
@@ -145,10 +145,10 @@ class Lighthouse::DocumentUpload
     upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
 
     evidence_submission = EvidenceSubmission.find_or_create_by(claim_id:,
-                                                 tracked_item_id:,
-                                                 job_id:,
-                                                 job_class:,
-                                                 upload_status:)
+                                                              tracked_item_id:,
+                                                              job_id:,
+                                                              job_class:,
+                                                              upload_status:)
     evidence_submission.user_account = user_account
     evidence_submission.save!
     evidence_submission
