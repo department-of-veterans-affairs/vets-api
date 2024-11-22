@@ -14,7 +14,7 @@ module Post911SOB
       end
 
       def service_name
-        'Post911SOB/DGIB/Toe'
+        'Post911SOB/DGIB'
       end
 
       def connection
