@@ -109,7 +109,7 @@ module Vye
 
       def request_headers
         {
-          Authorization: "Bearer #{Vye::DGIB::AuthenticationTokenService.call}"
+          Authorization: "Bearer #{DGIB::AuthenticationTokenService.call}"
         }
       end
     end
