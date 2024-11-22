@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs'
-require 'bgs_service/corporate_update_service'
+require 'bgs_service/corporate_update_web_service'
 
 module ClaimsApi
   class PoaVBMSUpdater < ClaimsApi::ServiceBase
@@ -70,7 +70,7 @@ module ClaimsApi
     end
 
     def corporate_update_service
-      ClaimsApi::CorporateUpdateService.new(
+      ClaimsApi::CorporateUpdateWebService.new(
         external_uid: @external_uid,
         external_key: @external_key
       )

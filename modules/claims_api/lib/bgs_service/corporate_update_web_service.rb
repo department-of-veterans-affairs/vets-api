@@ -1,9 +1,13 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class CorporateUpdateService < ClaimsApi::LocalBGS
+  class CorporateUpdateWebService < ClaimsApi::LocalBGS
     def bean_name
-      'CorporateUpdateServiceBean/CorporateUpdateWebService'
+      'CorporateUpdateServiceBean'
+    end
+
+    def corporate_update
+      self
     end
 
     def update_poa_access(participant_id:, poa_code:, allow_poa_access: 'y', allow_poa_c_add: 'y')
@@ -14,8 +18,8 @@ module ClaimsApi
         <allowPoaCadd>#{allow_poa_c_add}</allowPoaCadd>
       EOXML
 
-      response = make_request(endpoint: bean_name, action: 'update_poa_access', body:, key: 'return')
-      response&.dig(:body, :update_poa_access_response) || response
+      response = make_request(endpoint: bean_name, action: 'updatePoaAccess', body:)
+      response[:return]
     end
   end
 end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs_service/corporate_update_service'
+require 'bgs_service/corporate_update_web_service'
 
 RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   subject { described_class }
@@ -136,14 +136,14 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   def create_mock_local_bgs_service
-    corporate_update_stub = ClaimsApi::CorporateUpdateService.new(external_uid: 'uid', external_key: 'key')
+    corporate_update_stub = ClaimsApi::CorporateUpdateWebService.new(external_uid: 'uid', external_key: 'key')
     expect(corporate_update_stub).to receive(:update_poa_access).with(
       participant_id: user.participant_id,
       poa_code: '074',
       allow_poa_access: 'y',
       allow_poa_c_add:
     ).and_return({ return_code: 'GUIE50000' })
-    expect(ClaimsApi::CorporateUpdateService).to receive(:new).and_return(corporate_update_stub)
+    expect(ClaimsApi::CorporateUpdateWebService).to receive(:new).and_return(corporate_update_stub)
   end
 
   def create_mock_lighthouse_service_bgs_failure
