@@ -20035,7 +20035,13 @@
                         "secure_messaging",
                         "appointments",
                         "user_profile_update",
-                        "rx_refill"
+                        "rx_refill",
+                        "efolder",
+                        "mhv_sm",
+                        "mhv_meds",
+                        "preneed_burial",
+                        "user_contact_update",
+                        "user_demographics"
                       ],
                       "example": "claims"
                     },
