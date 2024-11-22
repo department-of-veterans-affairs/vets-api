@@ -31,7 +31,6 @@ module BenefitsDocuments
       end
 
       jid = submit_document(params[:file], params, lighthouse_client_id)
-      record_evidence_submission(claim_id, jid, tracked_item_id)
       StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ['is_multifile:false'])
       jid
     end
@@ -51,7 +50,6 @@ module BenefitsDocuments
 
       file_to_upload = generate_multi_image_pdf(params[:files])
       jid = submit_document(file_to_upload, params, lighthouse_client_id)
-      record_evidence_submission(claim_id, jid, tracked_item_id)
       StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ['is_multifile:true'])
       jid
     end
@@ -64,7 +62,10 @@ module BenefitsDocuments
 
     def submit_document(file, file_params, lighthouse_client_id = nil)
       user_icn = @user.icn
+      user_account_uuid = @user.user_account_uuid
       document_data = build_lh_doc(file, file_params)
+      claim_id = file_params[:claimId] || file_params[:claim_id]
+      tracked_item_id = file_params[:trackedItemIds] || file_params[:tracked_item_ids]
 
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
@@ -75,7 +76,7 @@ module BenefitsDocuments
       if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
         Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_data.to_serializable_hash)
       else
-        Lighthouse::DocumentUpload.perform_in(1.minute, user_icn, document_data.to_serializable_hash)
+        Lighthouse::DocumentUpload.perform_async(user_icn, document_data.to_serializable_hash, user_account_uuid, claim_id, tracked_item_id)
       end
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)
@@ -108,19 +109,6 @@ module BenefitsDocuments
         lighthouse_client_id,
         "#{config.base_api_path}/#{endpoint}"
       )
-    end
-
-    def record_evidence_submission(claim_id, job_id, tracked_item_id)
-      user_account = UserAccount.find(@user.user_account_uuid)
-      job_class = self.class
-      upload_status = 'pending'
-      evidence_submission = EvidenceSubmission.new(claim_id:,
-                                                   tracked_item_id:,
-                                                   job_id:,
-                                                   job_class:,
-                                                   upload_status:)
-      evidence_submission.user_account = user_account
-      evidence_submission.save!
     end
 
     def generate_multi_image_pdf(image_list)

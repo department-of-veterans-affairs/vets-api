@@ -6,9 +6,10 @@ Sidekiq::Testing.fake!
 
 require 'lighthouse/document_upload'
 require 'va_notify/service'
+require 'lighthouse/benefits_documents/constants'
 
 RSpec.describe Lighthouse::DocumentUpload, type: :job do
-  subject(:job) { described_class.perform_in(1.minute, user_icn, document_data.to_serializable_hash) }
+  subject(:job) { described_class.perform_async(user_icn, document_data.to_serializable_hash, user_account_uuid, claim_id, tracked_item_ids) }
 
   let(:client_stub) { instance_double(BenefitsDocuments::WorkerService) }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
@@ -21,11 +22,13 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
   let(:tracked_item_ids) { '1234' }
   let(:document_type) { 'L029' }
   let(:password) { 'Password_123' }
+  let(:claim_id) { '4567' }
+  let(:job_class) { 'Lighthouse::DocumentUpload' }
   let(:document_data) do
     LighthouseDocument.new(
       first_name: 'First Name',
       participant_id: '1111',
-      claim_id: '4567',
+      claim_id: claim_id,
       # file_obj: file,
       uuid: SecureRandom.uuid,
       file_extension: 'pdf',
@@ -117,13 +120,17 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
     it 'retrieves the file and uploads to Lighthouse' do
       allow(LighthouseDocumentUploader).to receive(:new) { uploader_stub }
       allow(BenefitsDocuments::WorkerService).to receive(:new) { client_stub }
-      # allow(described_class).to receive(:validate_document!).and_return(nil)
       allow(uploader_stub).to receive(:retrieve_from_store!).with(filename) { file }
       allow(uploader_stub).to receive(:read_for_upload) { file }
       allow(client_stub).to receive(:upload_document).with(file, document_data)
       expect(uploader_stub).to receive(:remove!).once
       expect(client_stub).to receive(:upload_document).with(file, document_data).and_return(response)
-      allow(EvidenceSubmission).to receive(:find_by).with({ job_id: job_id }).and_return(evidence_submission_stub)
+      allow(EvidenceSubmission).to receive(:find_or_create_by)
+        .with({ claim_id:,
+                tracked_item_id: tracked_item_ids,
+                job_id:,
+                job_class:,
+                upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING] }).and_return(evidence_submission_stub)
       described_class.drain # runs all queued jobs of this class
       # After running DocumentUpload job, there should be a new EvidenceSubmission record
       # with the response request_id

@@ -3,6 +3,7 @@
 require 'ddtrace'
 require 'timeout'
 require 'lighthouse/benefits_documents/worker_service'
+require 'lighthouse/benefits_documents/constants'
 
 class Lighthouse::DocumentUpload
   include Sidekiq::Job
@@ -79,10 +80,11 @@ class Lighthouse::DocumentUpload
     VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
   end
 
-  def perform(user_icn, document_hash)
+  def perform(user_icn, document_hash, user_account_uuid, claim_id, tracked_item_id)
     @user_icn = user_icn
     @document_hash = document_hash
-
+    
+    evidence_submission = record_evidence_submission(claim_id, jid, tracked_item_id, user_account_uuid)
     initialize_upload_document
 
     Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
@@ -91,7 +93,7 @@ class Lighthouse::DocumentUpload
       request_successful = response.dig(:data, :success)
       if request_successful
         request_id = response.dig(:data, :requestId)
-        EvidenceSubmission.find_by(job_id: jid).update(request_id:)
+        evidence_submission.update(request_id:)
       else
         raise StandardError
       end
@@ -135,5 +137,20 @@ class Lighthouse::DocumentUpload
 
   def file_body
     @file_body ||= perform_initial_file_read
+  end
+
+  def record_evidence_submission(claim_id, job_id, tracked_item_id, user_account_uuid)
+    user_account = UserAccount.find(user_account_uuid)
+    job_class = self.class.to_s
+    upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
+
+    evidence_submission = EvidenceSubmission.find_or_create_by(claim_id:,
+                                                 tracked_item_id:,
+                                                 job_id:,
+                                                 job_class:,
+                                                 upload_status:)
+    evidence_submission.user_account = user_account
+    evidence_submission.save!
+    evidence_submission
   end
 end
