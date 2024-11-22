@@ -61,14 +61,6 @@ module ClaimsApi
           )
       end
 
-      module ClaimantWebService
-        DEFINITION =
-          Service.new(
-            bean: ClaimantServiceBean::DEFINITION,
-            path: 'ClaimantWebService'
-          )
-      end
-
       ##
       # EBenefitsBnftClaimStatusWebServiceBean
       #
