@@ -36,12 +36,19 @@ spec:
                   valueFrom:
                     secretKeyRef:
                       name: {{ $keys }}
-                      key:  {{ $secret.name }}
+                      key: {{ $secret.name }}
               {{- end }}
+              {{- end }}
+              {{- range $varName := $root.Values.parameters }}
+                - name: {{ $varName }}
+                  valueFrom:
+                    secretKeyRef:
+                      name: common-environment-vars
+                      key: {{ $varName }}
               {{- end }}
           restartPolicy: OnFailure
           securityContext:
-            fsGroup: 1000
+            fsGroup: {{ $root.Values.fsGroup }}
           volumes:
 {{ toYaml $root.Values.common.volumes | indent 12 }}
 {{- end }}
