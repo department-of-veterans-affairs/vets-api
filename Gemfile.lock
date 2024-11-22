@@ -662,7 +662,7 @@ GEM
     mini_mime (1.1.5)
     mini_portile2 (2.8.8)
     minitest (5.25.1)
-    mock_redis (0.45.0)
+    mock_redis (0.46.0)
     msgpack (1.7.2)
     msgpack (1.7.2-java)
     multi_json (1.15.0)
