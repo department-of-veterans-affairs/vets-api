@@ -43,6 +43,8 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
       context 'with mobile_filter_doc_27_decision_letters_out flag enabled' do
         it 'returns expected decision letters' do
           Flipper.enable(:mobile_filter_doc_27_decision_letters_out)
+          Flipper.enable(:cst_include_ddl_5103_letters)
+          Flipper.disable(:cst_include_ddl_sqd_letters)
 
           get '/mobile/v0/claims/decision-letters', headers: sis_headers
 
@@ -50,35 +52,18 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
           decision_letters = response.parsed_body['data']
           first_received_at = decision_letters.first.dig('attributes', 'receivedAt')
           last_received_at = decision_letters.last.dig('attributes', 'receivedAt')
-          expect(decision_letters.count).to eq(5)
+          expect(decision_letters.count).to eq(8)
           expect(first_received_at).to be >= last_received_at
           expect(response.body).to match_json_schema('decision_letter')
           doc_types = decision_letters.map { |letter| letter.dig('attributes', 'docType') }.uniq
-          expect(doc_types).to eq(['184'])
+          expect(doc_types).to eq(%w[858 706 184 704])
         end
       end
 
       context 'with mobile_filter_doc_27_decision_letters_out flag disabled' do
         it 'returns expected decision letters' do
           Flipper.disable(:mobile_filter_doc_27_decision_letters_out)
-
-          get '/mobile/v0/claims/decision-letters', headers: sis_headers
-          assert_schema_conform(200)
-          decision_letters = response.parsed_body['data']
-          first_received_at = decision_letters.first.dig('attributes', 'receivedAt')
-          last_received_at = decision_letters.last.dig('attributes', 'receivedAt')
-          expect(decision_letters.count).to eq(6)
-          expect(first_received_at).to be >= last_received_at
-          expect(response.body).to match_json_schema('decision_letter')
-          doc_types = decision_letters.map { |letter| letter.dig('attributes', 'docType') }.uniq
-          expect(doc_types).to eq(%w[27 184])
-        end
-      end
-
-      context 'with additional claim letter doctypes enabled' do
-        it 'returns expected decision letters' do
-          Flipper.enable(:mobile_filter_doc_27_decision_letters_out)
-          Flipper.enable(:cst_include_ddl_5103_letters)
+          Flipper.disable(:cst_include_ddl_5103_letters)
           Flipper.enable(:cst_include_ddl_sqd_letters)
 
           get '/mobile/v0/claims/decision-letters', headers: sis_headers
@@ -86,11 +71,11 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
           decision_letters = response.parsed_body['data']
           first_received_at = decision_letters.first.dig('attributes', 'receivedAt')
           last_received_at = decision_letters.last.dig('attributes', 'receivedAt')
-          expect(decision_letters.count).to eq(15)
+          expect(decision_letters.count).to eq(13)
           expect(first_received_at).to be >= last_received_at
           expect(response.body).to match_json_schema('decision_letter')
           doc_types = decision_letters.map { |letter| letter.dig('attributes', 'docType') }.uniq
-          expect(doc_types).to eq(%w[1605 858 34 408 700 859 942 864 706 184 704])
+          expect(doc_types).to eq(%w[27 34 408 700 859 942 864 1605 184])
         end
       end
     end
