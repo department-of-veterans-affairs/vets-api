@@ -447,7 +447,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
 
         before do
-          allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return true
+          allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                              .and_return true
         end
 
         context 'and the request includes a dependent claimant' do
