@@ -2,15 +2,15 @@
 
 require 'dgi/configuration'
 require 'common/client/base'
-require_relative 'claimant_lookup_response'
-require_relative 'claimant_status_response'
-require_relative 'verification_record_response'
-require_relative 'verify_claimant_response'
+require_relative 'response'
+require_relative 'authentication_token_service'
 
 module Vye
   module DGIB
     class Service < Common::Client::Base
       include Common::Client::Concerns::Monitoring
+
+      STATSD_KEY_PREFIX = 'api.vye.dgib'
 
       def initialize(user)
         @user = user
@@ -109,7 +109,7 @@ module Vye
 
       def request_headers
         {
-          Authorization: "Bearer #{DGIB::AuthenticationTokenService.call}"
+          Authorization: "Bearer #{Vye::DGIB::AuthenticationTokenService.call}"
         }
       end
     end
