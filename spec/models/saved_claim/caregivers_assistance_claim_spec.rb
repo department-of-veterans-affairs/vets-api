@@ -146,7 +146,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
       context 'validation errors' do
         let(:schema_errors) { [{ fragment: 'error' }] }
 
-        context 'when fully_validate returns errors' do
+        context 'when JSON:Validator.fully_validate returns errors' do
           before do
             allow(JSON::Validator).to receive(:fully_validate).and_return(schema_errors)
           end
@@ -163,7 +163,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
           let(:exception_text) { 'Some exception' }
           let(:exception) { StandardError.new(exception_text) }
 
-          context 'multiple times' do
+          context '3 times' do
             let(:schema) { 'schema_content' }
 
             before do
@@ -194,7 +194,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
             end
           end
 
-          context 'but succeeds after retrying' do
+          context '1 time but succeeds after retrying' do
             before do
               # Throws exception the first time, returns empty array on subsequent calls
               call_count = 0
