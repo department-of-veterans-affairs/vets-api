@@ -33,49 +33,12 @@ RSpec.describe 'Accredited Entities for Appoint',
         schema type: :array,
                items: {
                  anyOf: [
-                   #  { '$ref' => '#/components/schemas/veteran_service_representative' },
-                   #  { '$ref' => '#/components/schemas/veteran_service_organization' },
                    { '$ref' => '#/components/schemas/accredited_individual' },
                    { '$ref' => '#/components/schemas/accredited_organization' }
                  ]
                }
-        # schema anyOf: [
-        #   { '$ref' => '#/components/schemas/accredited_individual' },
-        #   { '$ref' => '#/components/schemas/accredited_organization' }
-        # ]
-        # schema type: :array,
-        #        items: {
-        #          type: :object,
-        #          properties: {
-        #            data: {
-        #              type: :object,
-        #              properties: {
-        #                id: { type: :string, example: 'c38ebd47-aa3a-4c64-98c5-00c2c699931f' },
-        #                type: { type: :string, enum: %w[individual organization] },
-        #                attributes: {
-        #                  oneOf: [
-        #                    { '$ref' => '#/components/schemas/AccreditedIndividualAttributes' },
-        #                    { '$ref' => '#/components/schemas/AccreditedOrganizationAttributes' }
-        #                  ]
-        #                }
-        #              },
-        #              required: %w[id type attributes]
-        #            }
-        #          },
-        #          required: ['data']
-        #        }
         run_test!
       end
-
-      # response '422', 'unprocessable entity response' do
-      #   let(:accredited_entities_for_appoint) do
-      #     params = SwaggerSharedComponents::V0.body_examples[:accredited_entities_for_appoint]
-      #     params.delete(:query)
-      #     params
-      #   end
-      #   schema '$ref' => '#/components/schemas/Errors'
-      #   run_test!
-      # end
     end
   end
 end

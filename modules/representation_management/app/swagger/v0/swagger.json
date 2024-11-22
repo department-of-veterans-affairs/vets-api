@@ -193,82 +193,100 @@
       "accredited_individual": {
         "type": "object",
         "properties": {
-          "first_name": {
-            "type": "string",
-            "example": "John"
-          },
-          "last_name": {
-            "type": "string",
-            "example": "Doe"
-          },
-          "full_name": {
-            "type": "string",
-            "example": "John Doe"
-          },
-          "address_line1": {
-            "type": "string",
-            "example": "123 Main St"
-          },
-          "address_line2": {
-            "type": "string",
-            "example": "Apt 4B"
-          },
-          "address_line3": {
-            "type": "string",
-            "example": ""
-          },
-          "address_type": {
-            "type": "string",
-            "example": "Home"
-          },
-          "city": {
-            "type": "string",
-            "example": "Anytown"
-          },
-          "country_name": {
-            "type": "string",
-            "example": "USA"
-          },
-          "country_code_iso3": {
-            "type": "string",
-            "example": "USA"
-          },
-          "province": {
-            "type": "string",
-            "example": ""
-          },
-          "international_postal_code": {
-            "type": "string",
-            "example": ""
-          },
-          "state_code": {
-            "type": "string",
-            "example": "NY"
-          },
-          "zip_code": {
-            "type": "string",
-            "example": "12345"
-          },
-          "zip_suffix": {
-            "type": "string",
-            "example": "6789"
-          },
-          "phone": {
-            "type": "string",
-            "example": "555-555-5555"
-          },
-          "email": {
-            "type": "string",
-            "example": "john.doe@example.com"
-          },
-          "individual_type": {
-            "type": "string",
-            "example": "Attorney"
-          },
-          "accredited_organizations": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/accredited_organization"
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "123456"
+              },
+              "type": {
+                "type": "string",
+                "example": "individual"
+              },
+              "attributes": {
+                "type": "object",
+                "properties": {
+                  "first_name": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                  },
+                  "full_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "address_line1": {
+                    "type": "string",
+                    "example": "123 Main St"
+                  },
+                  "address_line2": {
+                    "type": "string",
+                    "example": "Apt 4B"
+                  },
+                  "address_line3": {
+                    "type": "string",
+                    "example": ""
+                  },
+                  "address_type": {
+                    "type": "string",
+                    "example": "Home"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Anytown"
+                  },
+                  "country_name": {
+                    "type": "string",
+                    "example": "USA"
+                  },
+                  "country_code_iso3": {
+                    "type": "string",
+                    "example": "USA"
+                  },
+                  "province": {
+                    "type": "string",
+                    "example": ""
+                  },
+                  "international_postal_code": {
+                    "type": "string",
+                    "example": ""
+                  },
+                  "state_code": {
+                    "type": "string",
+                    "example": "NY"
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "example": "12345"
+                  },
+                  "zip_suffix": {
+                    "type": "string",
+                    "example": "6789"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "555-555-5555"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                  },
+                  "individual_type": {
+                    "type": "string",
+                    "example": "Attorney"
+                  },
+                  "accredited_organizations": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/accredited_organization"
+                    }
+                  }
+                }
+              }
             }
           }
         }
