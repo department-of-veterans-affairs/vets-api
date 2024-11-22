@@ -3,7 +3,6 @@
 require 'common/client/base'
 require 'post911_sob/dgib/configuration'
 require 'post911_sob/dgib/authentication_token_service'
-require 'meb_api/dgi/claimant/service'
 
 module Post911SOB
   module DGIB
@@ -14,10 +13,8 @@ module Post911SOB
 
       BENEFIT_TYPE = 'Chapter33'
 
-      def initialize(ssn)
-        @ssn = ssn
-        # Do we need to check if ssn blank?
-        # raise ArgumentError, 'no SSN passed in for DGI API request.' if ssn.blank?
+      def initialize(claimant_id)
+        @claimant_id = claimant_id
 
         super()
       end
@@ -33,16 +30,6 @@ module Post911SOB
 
       def end_point
         "transferees/#{claimant_id}/toe"
-      end
-
-      def claimant_id
-        'TEST_ID'
-        # claimant_response = claimant_service.get_claimant_info(BENEFIT_TYPE)
-        # claimant_response['claimant_id']
-      end
-
-      def claimant_service
-        MebApi::DGI::Claimant::Service.new(@current_user)
       end
 
       def request_headers
