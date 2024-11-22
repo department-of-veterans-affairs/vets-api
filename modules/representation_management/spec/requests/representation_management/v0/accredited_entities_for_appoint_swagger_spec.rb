@@ -30,19 +30,40 @@ RSpec.describe 'Accredited Entities for Appoint',
 
       response '200', 'OK' do
         let(:query) { 'Bob' }
+        schema type: :array,
+               items: {
+                 anyOf: [
+                   #  { '$ref' => '#/components/schemas/veteran_service_representative' },
+                   #  { '$ref' => '#/components/schemas/veteran_service_organization' },
+                   { '$ref' => '#/components/schemas/accredited_individual' },
+                   { '$ref' => '#/components/schemas/accredited_organization' }
+                 ]
+               }
+        # schema anyOf: [
+        #   { '$ref' => '#/components/schemas/accredited_individual' },
+        #   { '$ref' => '#/components/schemas/accredited_organization' }
+        # ]
         # schema type: :array,
         #        items: {
-        #          anyOf: [
-        #            #  { '$ref' => '#/components/schemas/veteran_service_representative' },
-        #            #  { '$ref' => '#/components/schemas/veteran_service_organization' },
-        #            { '$ref' => '#/components/schemas/accredited_individual_schema' },
-        #            { '$ref' => '#/components/schemas/accredited_organization_schema' }
-        #          ]
+        #          type: :object,
+        #          properties: {
+        #            data: {
+        #              type: :object,
+        #              properties: {
+        #                id: { type: :string, example: 'c38ebd47-aa3a-4c64-98c5-00c2c699931f' },
+        #                type: { type: :string, enum: %w[individual organization] },
+        #                attributes: {
+        #                  oneOf: [
+        #                    { '$ref' => '#/components/schemas/AccreditedIndividualAttributes' },
+        #                    { '$ref' => '#/components/schemas/AccreditedOrganizationAttributes' }
+        #                  ]
+        #                }
+        #              },
+        #              required: %w[id type attributes]
+        #            }
+        #          },
+        #          required: ['data']
         #        }
-        schema anyOf: [
-          { '$ref' => '#/components/schemas/accredited_individual' },
-          { '$ref' => '#/components/schemas/accredited_organization' }
-        ]
         run_test!
       end
 

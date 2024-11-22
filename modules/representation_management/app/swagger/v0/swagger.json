@@ -359,7 +359,14 @@
         ],
         "operationId": "accreditedEntitiesForAppoint",
         "parameters": [
-
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Search query",
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
@@ -367,28 +374,16 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "anyOf": [
-                    {
-                      "$ref": "#/components/schemas/accredited_individual"
-                    },
-                    {
-                      "$ref": "#/components/schemas/accredited_organization"
-                    }
-                  ]
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "query": {
-                    "type": "string",
-                    "example": "Bob"
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/components/schemas/accredited_individual"
+                      },
+                      {
+                        "$ref": "#/components/schemas/accredited_organization"
+                      }
+                    ]
                   }
                 }
               }
