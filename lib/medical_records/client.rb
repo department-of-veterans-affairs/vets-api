@@ -113,7 +113,8 @@ module MedicalRecords
       fhir_read(FHIR::Immunization, vaccine_id)
     end
 
-    def list_vitals
+    # Function args are accepted and ignored for compatibility with MedicalRecords::LighthouseClient
+    def list_vitals(*)
       # loinc_codes =
       #   "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT},#{PULSE_OXIMETRY}"
       bundle = fhir_search(FHIR::Observation,

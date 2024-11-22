@@ -15,7 +15,6 @@ module VAOS
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
 
-      AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
       APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
@@ -326,9 +325,7 @@ module VAOS
 
         extract_appointment_fields(appointment)
 
-        if avs_applicable?(appointment, include[:avs]) && Flipper.enabled?(AVS_FLIPPER, user)
-          fetch_avs_and_update_appt_body(appointment)
-        end
+        fetch_avs_and_update_appt_body(appointment) if avs_applicable?(appointment, include[:avs])
 
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
