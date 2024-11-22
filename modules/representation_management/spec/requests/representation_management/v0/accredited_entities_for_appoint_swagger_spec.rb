@@ -10,12 +10,30 @@ RSpec.describe 'Accredited Entities for Appoint',
   before do
     create(:accredited_organization,
            :with_location,
-           name: "Bob Law's Law Firm")
+           name: "Bob Law's Law Firm",
+           poa_code: '123',
+           address_type: 'Domestic',
+           address_line1: '123 Main St',
+           city: 'Anytown',
+           state_code: 'NY',
+           zip_code: '12345',
+           phone: '123-456-7890')
     create(:accredited_individual,
            :with_location,
            first_name: 'Bob',
            last_name: 'Law',
-           full_name: 'Bob Law')
+           full_name: 'Bob Law',
+           address_type: 'Domestic',
+           address_line1: '123 Main St',
+           city: 'Anytown',
+           country_name: 'USA',
+           country_code_iso3: 'USA',
+           province: 'New York',
+           state_code: 'NY',
+           zip_code: '12345',
+           phone: '123-456-7890',
+           email: 'boblaw@example.com',
+           individual_type: 'attorney')
   end
 
   path '/representation_management/v0/accredited_entities_for_appoint' do

@@ -175,8 +175,13 @@ class RepresentationManagement::RswagConfig
                 email: { type: :string, example: 'john.doe@example.com' },
                 individual_type: { type: :string, example: 'Attorney' },
                 accredited_organizations: {
-                  type: :array,
-                  items: { '$ref' => '#/components/schemas/accredited_organization' }
+                  type: :object,
+                  properties: {
+                    data: {
+                      type: :array,
+                      items: { '$ref' => '#/components/schemas/accredited_organization' }
+                    }
+                  }
                 }
               }
             }
