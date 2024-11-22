@@ -105,11 +105,19 @@ module SAML
     end
 
     def terms_of_use_url
-      if Settings.review_instance_slug.present?
-        "http://#{Settings.review_instance_slug}.review.vetsgov-internal/terms-of-use"
-      else
-        "#{base_redirect_url}/terms-of-use"
+      current_application = @tracker&.payload_attr(:application)
+
+      base_url = if Settings.review_instance_slug.present?
+                   "http://#{Settings.review_instance_slug}.review.vetsgov-internal/terms-of-use"
+                 else
+                   "#{base_redirect_url}/terms-of-use"
+                 end
+
+      if current_application.in?(SKIP_MHV_ACCOUNT_CREATION_CLIENTS)
+        base_url = add_query(base_url, { skip_mhv_account_creation: true })
       end
+
+      base_url
     end
 
     def client_redirect_target
