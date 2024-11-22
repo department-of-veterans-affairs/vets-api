@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'rails_helper'
+
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestsPolicy do
   let(:user) { build(:representative_user, email: 'test@va.gov') }
   let(:unassociated_user) { build(:representative_user, email: 'other@va.gov') }
