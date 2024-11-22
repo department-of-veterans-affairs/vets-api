@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'dgib/service'
+require 'vye/dgib/service'
 
 module Vye
-  module Vye::V1
-    class Vye::V1::DgibVerificationsController < Vye::V1::ApplicationController
+  module V1
+    class DgibVerificationsController < Vye::V1::ApplicationController
       before_action { authorize :vye, :access? }
 
       def verification_record

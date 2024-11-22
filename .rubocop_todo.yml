@@ -315,7 +315,7 @@ Lint/MissingSuper:
     - 'modules/va_notify/lib/va_notify/service.rb'
     - 'modules/vaos/app/services/vaos/session_service.rb'
     - 'modules/veteran/app/models/veteran/user.rb'
-    - 'modules/vye/lib/dgib/service.rb'
+    - 'lib/vye/dgib/service.rb'
 
 # Offense count: 5
 Lint/NoReturnInBeginEndBlocks:

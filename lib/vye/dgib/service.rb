@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'dgi/configuration'
 require 'common/client/base'
+require_relative 'configuration'
 require_relative 'response'
 require_relative 'authentication_token_service'
 
@@ -11,6 +11,7 @@ module Vye
       include Common::Client::Concerns::Monitoring
 
       STATSD_KEY_PREFIX = 'api.vye.dgib'
+      configuration Vye::DGIB::Configuration
 
       def initialize(user)
         @user = user
@@ -36,7 +37,7 @@ module Vye
           options = { timeout: 60 }
           response = perform(:post, claimant_lookup_end_point, camelize_keys_for_java_service(params).to_json, headers,
                              options)
-          Vye::DGIB::ClaimantLookupResponse.new(response.status, response)
+          ClaimantLookupResponse.new(response.status, response)
         end
       end
 
@@ -45,7 +46,7 @@ module Vye
           headers = request_headers
           options = { timeout: 60 }
           raw_response = perform(:get, claimant_status_end_point(claimant_id), {}, headers, options)
-          Vye::DGIB::ClaimantStatusRecordResponse.new(raw_response.status, raw_response)
+          ClaimantStatusRecordResponse.new(raw_response.status, raw_response)
         end
       end
 
@@ -72,7 +73,7 @@ module Vye
           options = { timeout: 60 }
           response = perform(:post, verify_claimant_end_point, camelize_keys_for_java_service(params).to_json, headers,
                              options)
-          Vye::DGIB::VerifyClaimant::Response.new(response.status, response)
+          VerifyClaimantResponse.new(response.status, response)
         end
       end
 
@@ -81,7 +82,7 @@ module Vye
           headers = request_headers
           options = { timeout: 60 }
           raw_response = perform(:get, verification_record_end_point(claimant_id), {}, headers, options)
-          Vye::DGIB::VerificationRecordResponse.new(raw_response.status, raw_response)
+          VerificationRecordResponse.new(raw_response.status, raw_response)
         end
       end
 
@@ -109,7 +110,7 @@ module Vye
 
       def request_headers
         {
-          Authorization: "Bearer #{DGIB::AuthenticationTokenService.call}"
+          Authorization: "Bearer #{AuthenticationTokenService.call}"
         }
       end
     end

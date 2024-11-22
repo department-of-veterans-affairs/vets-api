@@ -11,7 +11,7 @@ module Vye
           faraday.use      Faraday::Response::RaiseError
           faraday.response :betamocks if mock_enabled?
           faraday.response :snakecase, symbolize: false
-          faraday.response :json, content_type: /\bjson/ # ensures only json content types parsed
+          faraday.response :json, content_type: /\bjson$/ # ensures only json content types parsed
           faraday.adapter Faraday.default_adapter
         end
       end
@@ -21,7 +21,7 @@ module Vye
       end
 
       def service_name
-        'DGI'
+        'VYE/DGIB'
       end
 
       def mock_enabled?

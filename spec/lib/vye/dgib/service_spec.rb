@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'dgib/service'
+require 'vye/dgib/service'
 
 RSpec.describe Vye::DGIB::Service do
   include ActiveSupport::Testing::TimeHelpers
