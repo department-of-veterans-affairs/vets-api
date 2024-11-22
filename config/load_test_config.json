@@ -1,0 +1,11 @@
+{
+  "client_id": "load_test_client",
+  "type": "logingov",
+  "acr": "http://idmanagement.gov/ns/assurance/ial/2",
+  "concurrent_users": 100,
+  "stages": [
+    { "duration": "2m", "target": 50 },
+    { "duration": "5m", "target": 100 },
+    { "duration": "2m", "target": 0 }
+  ]
+} 

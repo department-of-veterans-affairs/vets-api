@@ -3,6 +3,7 @@
 require 'flipper/route_authorization_constraint'
 
 Rails.application.routes.draw do
+  mount LoadTesting::Engine => '/load_testing'
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
   match '/services/*path', to: 'application#cors_preflight', via: [:options]
 

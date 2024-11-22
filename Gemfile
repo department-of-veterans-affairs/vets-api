@@ -39,6 +39,7 @@ path 'modules' do
   gem 'veteran'
   gem 'veteran_confirmation'
   gem 'vye'
+  gem 'load_testing', path: 'modules/load_testing'
 end
 
 gem 'rails', '~> 7.1.3'
@@ -189,13 +190,21 @@ group :test do
   gem 'rspec_junit_formatter'
   gem 'rspec-retry'
   gem 'rspec-sidekiq'
-  gem 'rubocop-junit-formatter'
-  gem 'rufus-scheduler'
-  gem 'shoulda-matchers'
-  gem 'simplecov', require: false
-  gem 'super_diff'
-  gem 'vcr'
-  gem 'webrick'
+  gem 'rspec-its'
+  gem 'rspec-rails'
+  gem 'rswag-specs'
+  gem 'rubocop', '~> 1.56'
+  gem 'rubocop-capybara', '~> 2.19'
+  gem 'rubocop-factory_bot', '~> 2.24'
+  gem 'rubocop-rails', '~> 2.22'
+  gem 'rubocop-rspec', '~> 2.25'
+  gem 'rubocop-rspec_rails'
+  gem 'rubocop-thread_safety'
+  gem 'sidekiq', '~> 7.2.0'
+  gem 'timecop'
+  gem 'webmock'
+  gem 'yard'
+  gem 'pry-rails'
 end
 
 group :development, :test do
@@ -221,11 +230,11 @@ group :development, :test do
   gem 'rspec-its'
   gem 'rspec-rails'
   gem 'rswag-specs'
-  gem 'rubocop', require: false
-  gem 'rubocop-capybara'
-  gem 'rubocop-factory_bot'
-  gem 'rubocop-rails'
-  gem 'rubocop-rspec'
+  gem 'rubocop', '~> 1.56'
+  gem 'rubocop-capybara', '~> 2.19'
+  gem 'rubocop-factory_bot', '~> 2.24'
+  gem 'rubocop-rails', '~> 2.22'
+  gem 'rubocop-rspec', '~> 2.25'
   gem 'rubocop-rspec_rails'
   gem 'rubocop-thread_safety'
   gem 'sidekiq', '~> 7.2.0'
@@ -246,3 +255,5 @@ else
     gem 'sidekiq-pro'
   end
 end
+
+gem "simplecov", "~> 0.22.0", :group => :test
