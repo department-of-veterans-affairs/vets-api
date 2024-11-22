@@ -66,7 +66,7 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
            used to submit the signed PDF via the PUT /forms/2122/{id} endpoint.\n\n
 
         Dependent claimant information:\n
-           - If dependent claimant information is included in the request, the dependent relationship to the Veteran
+           - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran
            will be validated.\n
            - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n
 

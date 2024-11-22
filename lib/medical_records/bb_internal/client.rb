@@ -136,6 +136,18 @@ module BBInternal
       response.body
     end
 
+    # Retrieves the patient information by user ID.
+    # @return [Hash] A hash containing the patient's details
+    #
+    def get_patient
+      response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
+      patient = response.body
+
+      raise Common::Exceptions::ServiceError.new(detail: 'Patient not found') if patient.blank?
+
+      patient
+    end
+
     private
 
     ##
@@ -156,22 +168,13 @@ module BBInternal
       @session = super
 
       # Supplement session with patientId
-      session.patient_id = get_patient_id
+      patient = get_patient
+      session.patient_id = patient['ipas']&.first&.dig('patientId')
       # Put ICN back into the session
       session.icn = icn
 
       session.save
       session
-    end
-
-    def get_patient_id
-      response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
-
-      patient_id = response.body['ipas']&.first&.dig('patientId')
-
-      raise Common::Exceptions::ServiceError.new(detail: 'Patient ID not found for user') if patient_id.blank?
-
-      patient_id
     end
 
     ##
