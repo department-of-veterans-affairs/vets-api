@@ -1,8 +1,0 @@
-{
-  "gitlens.views.searchAndCompare.pullRequests.enabled": false,
-  "gitlens.views.searchAndCompare.pullRequests.showForCommits": false,
-  "gitlens.views.searchAndCompare.avatars": false,
-  "gitlens.views.searchAndCompare.files.compact": false,
-  "gitlens.graph.searchItemLimit": 0,
-  "gitlens.advanced.maxSearchItems": 0
-}
