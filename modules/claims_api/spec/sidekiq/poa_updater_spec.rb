@@ -4,7 +4,8 @@ require 'rails_helper'
 require 'bgs_service/person_web_service'
 require 'bgs_service/vet_record_web_service'
 
-RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/find_by_ssn' do
+RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: ['bgs/person_web_service/find_by_ssn',
+                                                        'bgs/vet_record_service/update_birls_record'] do
   subject { described_class }
 
   before do
@@ -196,6 +197,32 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
           error: error_msg
         )
       end
+    end
+  end
+
+  describe 'when the claims_api_use_person_web_service flipper is on' do
+    let(:person_web_service) { instance_double(ClaimsApi::PersonWebService) }
+    let(:vet_record_web_service) { instance_double(ClaimsApi::VetRecordWebService) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
+      allow(Flipper).to receive(:enabled?).with(:claims_api_use_vet_record_web_service).and_return true
+      allow(ClaimsApi::PersonWebService).to receive(:new).with(external_uid: anything,
+                                                               external_key: anything)
+                                                         .and_return(person_web_service)
+      allow(ClaimsApi::VetRecordWebService).to receive(:new).with(external_uid: anything,
+                                                                  external_key: anything)
+                                                            .and_return(person_web_service)
+      allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
+      allow(vet_record_web_service).to receive(:update_birls_record).and_return({ return_code: 'BMOD0001' })
+    end
+
+    it 'calls local bgs services instead of bgs-ext' do
+      poa = create_poa
+      subject.new.perform(poa.id)
+
+      expect(person_web_service).to have_received(:find_by_ssn)
+      expect(vet_record_web_service).to have_received(:update_birls_record)
     end
   end
 
