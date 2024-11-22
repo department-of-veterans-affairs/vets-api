@@ -3,6 +3,7 @@
 require 'common/client/base'
 require 'post911_sob/dgib/configuration'
 require 'post911_sob/dgib/authentication_token_service'
+require 'meb_api/dgi/claimant/service'
 
 module Post911SOB
   module DGIB
@@ -10,6 +11,8 @@ module Post911SOB
       include Common::Client::Concerns::Monitoring
 
       configuration Post911SOB::DGIB::Configuration
+
+      BENEFIT_TYPE = 'Chapter33'
 
       def initialize(ssn)
         @ssn = ssn
@@ -33,7 +36,13 @@ module Post911SOB
       end
 
       def claimant_id
-        1234
+        'TEST_ID'
+        # claimant_response = claimant_service.get_claimant_info(BENEFIT_TYPE)
+        # claimant_response['claimant_id']
+      end
+
+      def claimant_service
+        MebApi::DGI::Claimant::Service.new(@current_user)
       end
 
       def request_headers
