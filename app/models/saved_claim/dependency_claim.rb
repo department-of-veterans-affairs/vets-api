@@ -139,7 +139,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # Future work will be integrating into the Va Notify common lib:
   # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/va_notify/notification_email.rb
 
-  def send_failure_email(email)
+  def send_failure_email(email) # rubocop:disable Metrics/MethodLength
     # if the claim is both a 686c and a 674, send a combination email.
     # otherwise, check to see which individual type it is and send the corresponding email.
     template_id = if submittable_686? && submittable_674?
@@ -148,6 +148,9 @@ class SavedClaim::DependencyClaim < CentralMailClaim
                     Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email
                   elsif submittable_674?
                     Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email
+                  else
+                    Rails.logger.error('Email template cannot be assigned for SavedClaim', saved_claim_id: id)
+                    nil
                   end
 
     if email.present? && template_id.present?
