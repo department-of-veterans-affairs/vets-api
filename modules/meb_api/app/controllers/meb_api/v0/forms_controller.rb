@@ -12,12 +12,13 @@ module MebApi
       before_action :set_type, only: %i[claim_letter claim_status claimant_info]
 
       def claim_letter
-        claimant_response = form_claimant_service.get_claimant_info(@form_type)
-        claimant_id = claimant_response['claimant']['claimant_id']
+        claimant_response = claimant_service.get_claimant_info(@form_type)
+        claimant_id = claimant_response['claimant_id']
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         claim_letter_response = letter_service.get_claim_letter(claimant_id, @form_type)
         is_eligible = claim_status_response.claim_status == 'ELIGIBLE'
-        response = if claimant_response.status == valid_claimant_response?(claimant_response)
+
+        response = if valid_claimant_response?(claimant_response)
                      claim_letter_response
                    else
                      claimant_response
@@ -33,17 +34,8 @@ module MebApi
       end
 
       def claim_status
-        forms_claimant_response = form_claimant_service.get_claimant_info(@form_type)
-
-        return render_claimant_error(forms_claimant_response) unless valid_claimant_response?(forms_claimant_response)
-
-        claimant_id = forms_claimant_response['claimant']&.dig('claimant_id')
-
-        if claimant_id.blank?
-          form_type = @form_type || 'toe'
-          forms_claimant_response = claimant_service.get_claimant_info(form_type)
-          claimant_id = forms_claimant_response['claimant_id']
-        end
+        forms_claimant_response = claimant_service.get_claimant_info(@form_type)
+        claimant_id = forms_claimant_response['claimant_id']
 
         claim_status_response = claim_status_service.get_claim_status(params, claimant_id, @form_type)
         response = valid_claimant_response?(forms_claimant_response) ? claim_status_response : forms_claimant_response
@@ -102,7 +94,7 @@ module MebApi
       private
 
       def set_type
-        @form_type = params['type'] == 'toe' ? 'toe' : params['type']&.capitalize
+        @form_type = params['type'] == 'ToeSubmission' ? 'toe' : params['type']&.capitalize
       end
 
       def valid_claimant_response?(response)
