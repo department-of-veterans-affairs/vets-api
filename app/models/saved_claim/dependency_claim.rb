@@ -140,22 +140,26 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/va_notify/notification_email.rb
 
   def send_failure_email(email)
-    template_ids = []
-    template_ids << Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email if submittable_686?
-    template_ids << Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email if submittable_674?
+    template_id = if submittable_686?
+                    if submittable_674?
+                      Settings.vanotify.services.va_gov.template_id.form21_686c_674_action_needed_email
+                    else
+                      Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email
+                    end
+                  elsif submittable_674?
+                    Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email
+                  end
 
-    template_ids.each do |template_id|
-      if email.present?
-        VANotify::EmailJob.perform_async(
-          email,
-          template_id,
-          {
-            'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number
-          }
-        )
-      end
+    if email.present? && template_id.present?
+      VANotify::EmailJob.perform_async(
+        email,
+        template_id,
+        {
+          'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => confirmation_number
+        }
+      )
     end
   end
 
