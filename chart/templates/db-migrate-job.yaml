@@ -33,9 +33,14 @@ spec:
                   key: {{ $secret.name }}
           {{- end }}
           {{- end }}
-          envFrom:
-            - secretRef:
-                name: common-environment-ssm-vars
+          {{- range $varName := .Values.parameters }}
+            - name: {{ $varName }}
+              valueFrom:
+                secretKeyRef:
+                  name: common-environment-vars
+                  key: {{ $varName }}
+          {{- end }}
+
       restartPolicy: Never
       securityContext:
         fsGroup: {{ .Values.fsGroup }}
