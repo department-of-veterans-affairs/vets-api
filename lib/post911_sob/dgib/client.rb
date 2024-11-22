@@ -29,7 +29,7 @@ module Post911SOB
       private
 
       def end_point
-        "transferees/#{claimant_id}/toe"
+        "transferees/#{@claimant_id}/toe"
       end
 
       def request_headers
