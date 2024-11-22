@@ -63,9 +63,18 @@ module ClaimsApi
 
       raise e
     rescue => e
-      log(level: :error, detail: 'Something else went wrong with manage_ptcpnt_rlnshp.')
+      log(level: :error, detail: 'Something else went wrong with manage_ptcpnt_rlnshp.', error: error_details(e))
 
       raise e
+    end
+
+    def error_details(e)
+      {
+        message: e.message,
+        detail: e.try(:detail),
+        details: e.try(:details),
+        errors: e.try(:errors)&.map(&:to_h)
+      }.compact
     end
 
     def iso_to_date(iso_date)
