@@ -45,4 +45,3 @@ spec:
           volumes:
 {{ toYaml $root.Values.common.volumes | indent 12 }}
 {{- end }}
-d
