@@ -551,6 +551,10 @@ features:
     actor_type: user
     description: Iteration of new features for discharge wizard
     enable_in_development: true
+  dispute_debt:
+    actor_type: user
+    description: Enables the Dispute Debt feature
+    enable_in_development: true
   facilities_ppms_suppress_all:
     actor_type: user
     description: Hide all ppms search options
