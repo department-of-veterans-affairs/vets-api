@@ -226,10 +226,10 @@ describe BBInternal::Client do
     end
   end
 
-  describe '#get_sei_chemlab' do
-    it 'retrieves the SEI chemlab' do
-      VCR.use_cassette 'mr_client/bb_internal/get_sei_chemlab' do
-        response = client.get_sei_chemlab
+  describe '#get_sei_test_entries' do
+    it 'retrieves the SEI test entries' do
+      VCR.use_cassette 'mr_client/bb_internal/get_sei_test_entries' do
+        response = client.get_sei_test_entries
 
         expect(response).to be_a(Hash)
         expect(response).to have_key('pojoObject')

@@ -20,8 +20,8 @@ module MyHealth
           render json: bb_client.get_sei_immunizations.to_json
         end
 
-        def chemlab
-          render json: bb_client.get_sei_chemlab.to_json
+        def test_entries
+          render json: bb_client.get_sei_test_entries.to_json
         end
 
         def medical_events

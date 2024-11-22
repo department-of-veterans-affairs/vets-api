@@ -32,7 +32,7 @@ MyHealth::Engine.routes.draw do
         get :allergies, on: :collection
         get :family_history, on: :collection
         get :vaccines, on: :collection
-        get :chemlab, on: :collection
+        get :test_entries, on: :collection
         get :medical_events, on: :collection
         get :military_history, on: :collection
         get :providers, on: :collection
