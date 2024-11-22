@@ -27,6 +27,7 @@ MyHealth::Engine.routes.draw do
         get :status, on: :collection
       end
       resources :military_service, only: %i[index]
+      resources :patient, only: %i[index]
       resources :imaging, only: %i[index], defaults: { format: :json } do
         get 'request', on: :member, action: :request_download
         get :status, on: :collection, action: :request_status
