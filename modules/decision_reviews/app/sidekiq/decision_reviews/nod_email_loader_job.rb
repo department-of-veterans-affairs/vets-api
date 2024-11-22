@@ -5,7 +5,7 @@ require 'decision_reviews/v1/logging_utils'
 module DecisionReviews
   class NodEmailLoaderJob
     include Sidekiq::Job
-      include DecisionReviews::V1::LoggingUtils
+    include DecisionReviews::V1::LoggingUtils
 
     sidekiq_options retry: false
 

@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe DecisionReviews::V1::DecisionReviewNotificationCallbacksController, type: :controller do
   routes { DecisionReviews::Engine.routes }
-  
+
   let(:notification_id) { SecureRandom.uuid }
   let(:reference) { "NOD-form-#{SecureRandom.uuid}" }
   let(:status) { 'delivered' }
