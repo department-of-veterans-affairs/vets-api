@@ -123,6 +123,8 @@ spec:
           envFrom:
             - secretRef:
                 name: common-environment-ssm-vars
+            - secretRef:
+                name: checkin-secretsmanager-vars
         {{- if $root.Values.clamav.enabled  }}
         - name: clamav
           image: "{{ $root.Values.clamav.image.value }}:{{ $root.Values.clamav.image.tag }}"
