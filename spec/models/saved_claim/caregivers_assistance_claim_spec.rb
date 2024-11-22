@@ -139,6 +139,9 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
         end
 
         it 'returns true' do
+          expect(Rails.logger).not_to receive(:info)
+            .with('Form validation succeeded on attempt 1/3')
+
           expect(claim.validate).to eq true
         end
       end
@@ -153,6 +156,9 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
 
           it 'adds validation errors to the form' do
             expect(JSON::Validator).not_to receive(:fully_validate_schema)
+
+            expect(Rails.logger).not_to receive(:info)
+              .with('Form validation succeeded on attempt 1/3')
 
             claim.validate
             expect(claim.errors.full_messages).not_to be_empty
@@ -174,6 +180,8 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
             it 'logs exceptions and raises exception' do
               expect(Rails.logger).to receive(:warn)
                 .with("Retrying form validation due to error: #{exception_text} (Attempt 1/3)").once
+              expect(Rails.logger).not_to receive(:info)
+                .with('Form validation succeeded on attempt 1/3')
               expect(Rails.logger).to receive(:warn)
                 .with("Retrying form validation due to error: #{exception_text} (Attempt 2/3)").once
               expect(Rails.logger).to receive(:warn)
@@ -211,6 +219,8 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
             it 'logs exception and validates succesfully after the retry' do
               expect(Rails.logger).to receive(:warn)
                 .with("Retrying form validation due to error: #{exception_text} (Attempt 1/3)").once
+              expect(Rails.logger).to receive(:info)
+                .with('Form validation succeeded on attempt 2/3').once
 
               expect(claim.validate).to eq true
             end

@@ -99,9 +99,11 @@ class SavedClaim::CaregiversAssistanceClaim < SavedClaim
     max_attempts = 3
 
     begin
-      JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true })
-    rescue => e
       attempts += 1
+      errors_array = JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true })
+      Rails.logger.info("Form validation succeeded on attempt #{attempts}/#{max_attempts}") if attempts > 1
+      errors_array
+    rescue => e
       if attempts <= max_attempts
         Rails.logger.warn("Retrying form validation due to error: #{e.message} (Attempt #{attempts}/#{max_attempts})")
         sleep(1) # Delay 1 second in between attempts
