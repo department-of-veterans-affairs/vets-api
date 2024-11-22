@@ -232,6 +232,7 @@ group :development, :test do
   gem 'timecop'
   gem 'webmock'
   gem 'yard'
+  gem 'pry-rails'
 end
 
 # sidekiq enterprise requires a license key to download. In many cases, basic sidekiq is enough for local development
