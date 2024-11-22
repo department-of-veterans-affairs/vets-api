@@ -152,7 +152,7 @@ class RepresentationManagement::RswagConfig
           type: :object,
           properties: {
             id: { type: :string, example: '123456' },
-            type: { type: :string, example: 'individual' },
+            type: { type: :string, example: 'representative' },
             attributes: {
               type: :object,
               properties: {
@@ -160,17 +160,17 @@ class RepresentationManagement::RswagConfig
                 last_name: { type: :string, example: 'Doe' },
                 full_name: { type: :string, example: 'John Doe' },
                 address_line1: { type: :string, example: '123 Main St' },
-                address_line2: { type: :string, example: 'Apt 4B' },
-                address_line3: { type: :string, example: '' },
-                address_type: { type: :string, example: 'Home' },
+                address_line2: { type: :string, example: 'Apt 4B', nullable: true },
+                address_line3: { type: :string, example: '', nullable: true },
+                address_type: { type: :string, example: 'Domestic' },
                 city: { type: :string, example: 'Anytown' },
                 country_name: { type: :string, example: 'USA' },
                 country_code_iso3: { type: :string, example: 'USA' },
-                province: { type: :string, example: '' },
-                international_postal_code: { type: :string, example: '' },
+                province: { type: :string, example: 'New York' },
+                international_postal_code: { type: :string, example: '', nullable: true },
                 state_code: { type: :string, example: 'NY' },
                 zip_code: { type: :string, example: '12345' },
-                zip_suffix: { type: :string, example: '6789' },
+                zip_suffix: { type: :string, example: '6789', nullable: true },
                 phone: { type: :string, example: '555-555-5555' },
                 email: { type: :string, example: 'john.doe@example.com' },
                 individual_type: { type: :string, example: 'Attorney' },
@@ -190,23 +190,35 @@ class RepresentationManagement::RswagConfig
     {
       type: :object,
       properties: {
-        poa_code: { type: :string, example: '123' },
-        name: { type: :string, example: 'Organization Name' },
-        address_line1: { type: :string, example: '456 Elm St' },
-        address_line2: { type: :string, example: '' },
-        address_line3: { type: :string, example: 'Suite 100' },
-        address_type: { type: :string, example: 'Office' },
-        city: { type: :string, example: 'Othertown' },
-        country_name: { type: :string, example: 'USA' },
-        country_code_iso3: { type: :string, example: 'USA' },
-        province: { type: :string, example: '' },
-        international_postal_code: { type: :string, example: '' },
-        state_code: { type: :string, example: 'CA' },
-        zip_code: { type: :string, example: '98765' },
-        zip_suffix: { type: :string, example: '4321' },
-        phone: { type: :string, example: '555-555-5555' },
-        lat: { type: :number, format: :float, example: 37.7749 },
-        long: { type: :number, format: :float, example: -122.4194 }
+        data: {
+          type: :object,
+          properties: {
+            id: { type: :string, example: '123456' },
+            type: { type: :string, example: 'individual' },
+            attributes: {
+              type: :object,
+              properties: {
+                poa_code: { type: :string, example: '123' },
+                name: { type: :string, example: 'Organization Name' },
+                address_line1: { type: :string, example: '456 Elm St' },
+                address_line2: { type: :string, example: '', nullable: true },
+                address_line3: { type: :string, example: 'Suite 100', nullable: true },
+                address_type: { type: :string, example: 'Domestic' },
+                city: { type: :string, example: 'Othertown' },
+                country_name: { type: :string, example: 'USA', nullable: true },
+                country_code_iso3: { type: :string, example: 'USA', nullable: true },
+                province: { type: :string, example: '', nullable: true },
+                international_postal_code: { type: :string, example: '', nullable: true },
+                state_code: { type: :string, example: 'CA' },
+                zip_code: { type: :string, example: '98765' },
+                zip_suffix: { type: :string, example: '4321', nullable: true },
+                phone: { type: :string, example: '555-555-5555' },
+                lat: { type: :number, format: :float, example: 37.7749, nullable: true },
+                long: { type: :number, format: :float, example: -122.4194, nullable: true }
+              }
+            }
+          }
+        }
       }
     }
   end
