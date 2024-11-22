@@ -304,7 +304,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
       end
     end
 
-    it 'logs the error to zsf and sends two emails with the 686C 674 templates' do
+    it 'logs the error to zsf and a combo email with 686c-674' do
       CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
         { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
       ) do
@@ -313,16 +313,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
         expect(SavedClaim::DependencyClaim).to receive(:find).with(claim.id).and_return(claim)
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           'vets.gov.user+228@gmail.com',
-          'form21_686c_action_needed_email_template_id',
-          {
-            'first_name' => 'MARK',
-            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => claim.confirmation_number
-          }
-        )
-        expect(VANotify::EmailJob).to receive(:perform_async).with(
-          'vets.gov.user+228@gmail.com',
-          'form21_674_action_needed_email_template_id',
+          'form21_686c_674_action_needed_email_template_id',
           {
             'first_name' => 'MARK',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
