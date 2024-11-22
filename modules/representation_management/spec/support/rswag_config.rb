@@ -199,7 +199,7 @@ class RepresentationManagement::RswagConfig
           type: :object,
           properties: {
             id: { type: :string, example: '123456' },
-            type: { type: :string, example: 'individual' },
+            type: { type: :string, example: 'organization' },
             attributes: {
               type: :object,
               properties: {

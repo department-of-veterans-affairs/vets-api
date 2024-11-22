@@ -202,7 +202,7 @@
               },
               "type": {
                 "type": "string",
-                "example": "individual"
+                "example": "representative"
               },
               "attributes": {
                 "type": "object",
@@ -225,15 +225,17 @@
                   },
                   "address_line2": {
                     "type": "string",
-                    "example": "Apt 4B"
+                    "example": "Apt 4B",
+                    "nullable": true
                   },
                   "address_line3": {
                     "type": "string",
-                    "example": ""
+                    "example": "",
+                    "nullable": true
                   },
                   "address_type": {
                     "type": "string",
-                    "example": "Home"
+                    "example": "Domestic"
                   },
                   "city": {
                     "type": "string",
@@ -249,11 +251,12 @@
                   },
                   "province": {
                     "type": "string",
-                    "example": ""
+                    "example": "New York"
                   },
                   "international_postal_code": {
                     "type": "string",
-                    "example": ""
+                    "example": "",
+                    "nullable": true
                   },
                   "state_code": {
                     "type": "string",
@@ -265,7 +268,8 @@
                   },
                   "zip_suffix": {
                     "type": "string",
-                    "example": "6789"
+                    "example": "6789",
+                    "nullable": true
                   },
                   "phone": {
                     "type": "string",
@@ -280,9 +284,14 @@
                     "example": "Attorney"
                   },
                   "accredited_organizations": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/accredited_organization"
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/accredited_organization"
+                        }
+                      }
                     }
                   }
                 }
@@ -294,75 +303,102 @@
       "accredited_organization": {
         "type": "object",
         "properties": {
-          "poa_code": {
-            "type": "string",
-            "example": "123"
-          },
-          "name": {
-            "type": "string",
-            "example": "Organization Name"
-          },
-          "address_line1": {
-            "type": "string",
-            "example": "456 Elm St"
-          },
-          "address_line2": {
-            "type": "string",
-            "example": ""
-          },
-          "address_line3": {
-            "type": "string",
-            "example": "Suite 100"
-          },
-          "address_type": {
-            "type": "string",
-            "example": "Office"
-          },
-          "city": {
-            "type": "string",
-            "example": "Othertown"
-          },
-          "country_name": {
-            "type": "string",
-            "example": "USA"
-          },
-          "country_code_iso3": {
-            "type": "string",
-            "example": "USA"
-          },
-          "province": {
-            "type": "string",
-            "example": ""
-          },
-          "international_postal_code": {
-            "type": "string",
-            "example": ""
-          },
-          "state_code": {
-            "type": "string",
-            "example": "CA"
-          },
-          "zip_code": {
-            "type": "string",
-            "example": "98765"
-          },
-          "zip_suffix": {
-            "type": "string",
-            "example": "4321"
-          },
-          "phone": {
-            "type": "string",
-            "example": "555-555-5555"
-          },
-          "lat": {
-            "type": "number",
-            "format": "float",
-            "example": 37.7749
-          },
-          "long": {
-            "type": "number",
-            "format": "float",
-            "example": -122.4194
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "123456"
+              },
+              "type": {
+                "type": "string",
+                "example": "organization"
+              },
+              "attributes": {
+                "type": "object",
+                "properties": {
+                  "poa_code": {
+                    "type": "string",
+                    "example": "123"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Organization Name"
+                  },
+                  "address_line1": {
+                    "type": "string",
+                    "example": "456 Elm St"
+                  },
+                  "address_line2": {
+                    "type": "string",
+                    "example": "",
+                    "nullable": true
+                  },
+                  "address_line3": {
+                    "type": "string",
+                    "example": "Suite 100",
+                    "nullable": true
+                  },
+                  "address_type": {
+                    "type": "string",
+                    "example": "Domestic"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Othertown"
+                  },
+                  "country_name": {
+                    "type": "string",
+                    "example": "USA",
+                    "nullable": true
+                  },
+                  "country_code_iso3": {
+                    "type": "string",
+                    "example": "USA",
+                    "nullable": true
+                  },
+                  "province": {
+                    "type": "string",
+                    "example": "",
+                    "nullable": true
+                  },
+                  "international_postal_code": {
+                    "type": "string",
+                    "example": "",
+                    "nullable": true
+                  },
+                  "state_code": {
+                    "type": "string",
+                    "example": "CA"
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "example": "98765"
+                  },
+                  "zip_suffix": {
+                    "type": "string",
+                    "example": "4321",
+                    "nullable": true
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "555-555-5555"
+                  },
+                  "lat": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 37.7749,
+                    "nullable": true
+                  },
+                  "long": {
+                    "type": "number",
+                    "format": "float",
+                    "example": -122.4194,
+                    "nullable": true
+                  }
+                }
+              }
+            }
           }
         }
       }
