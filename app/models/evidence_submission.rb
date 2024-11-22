@@ -9,7 +9,7 @@ class EvidenceSubmission < ApplicationRecord
   # IN_PROGRESS: the workflow is currently executing.
   # SUCCESS: the workflow has completed all steps successfully.
   # FAILED: the workflow could not complete because a step encountered a non-recoverable error.
-  scope :completed, -> { where(upload_status: 'SUCCESS') }
+  scope :completed, -> { where(upload_status: 'SUCCESS') } # TODO: make sure scopes use user_account
   scope :pending, -> { where(upload_status: 'IN_PROGRESS') }
   scope :failed, -> { where(upload_status: 'FAILED') }
 end
