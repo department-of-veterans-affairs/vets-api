@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require 'holidays'
+
+Holidays.load_custom(Rails.root.join('config', 'custom_holidays.yml').to_s)
+
 # @see https://crontab.guru/
 # @see https://en.wikipedia.org/wiki/Cron
 PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
@@ -240,5 +244,5 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
 
   # Daily job for Vye: clears deactivated BDNs every evening.
-  mgr.register('00 20 * * 1-5', 'Vye::SundownSweep::ClearDeactivatedBdns')
+  mgr.register('0 20 * * 1-5', 'Vye::ClearDeactivatedBdns') unless Holidays.on(Time.zone.today, :us, :observed).any?
 }
