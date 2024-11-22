@@ -125,13 +125,13 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
         end
 
         it 'only sets delete_date for SavedClaim::SupplementalClaim with all attachments in vbms status' do
-          expect(service).to receive(:get_supplemental_claim_upload).with(uuid: upload_id)
+          expect(service).to receive(:get_supplemental_claim_upload).with(guid: upload_id)
                                                                     .and_return(upload_response_vbms)
-          expect(service).to receive(:get_supplemental_claim_upload).with(uuid: upload_id2)
+          expect(service).to receive(:get_supplemental_claim_upload).with(guid: upload_id2)
                                                                     .and_return(upload_response_processing)
-          expect(service).to receive(:get_supplemental_claim_upload).with(uuid: upload_id3)
+          expect(service).to receive(:get_supplemental_claim_upload).with(guid: upload_id3)
                                                                     .and_return(upload_response_vbms)
-          expect(service).to receive(:get_supplemental_claim_upload).with(uuid: upload_id4)
+          expect(service).to receive(:get_supplemental_claim_upload).with(guid: upload_id4)
                                                                     .and_return(upload_response_processing)
 
           expect(service).to receive(:get_supplemental_claim).with(guid1).and_return(response_complete)
@@ -439,10 +439,10 @@ RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
           expect(service).to receive(:get_supplemental_claim).with(guid1).and_return(response_pending)
           expect(service).to receive(:get_supplemental_claim).with(guid2).and_return(response_error)
 
-          expect(service).not_to receive(:get_supplemental_claim_upload).with(uuid: upload_id)
-          expect(service).to receive(:get_supplemental_claim_upload).with(uuid: upload_id2)
+          expect(service).not_to receive(:get_supplemental_claim_upload).with(guid: upload_id)
+          expect(service).to receive(:get_supplemental_claim_upload).with(guid: upload_id2)
                                                                     .and_return(upload_response_error)
-          expect(service).to receive(:get_supplemental_claim_upload).with(uuid: upload_id3)
+          expect(service).to receive(:get_supplemental_claim_upload).with(guid: upload_id3)
                                                                     .and_return(upload_response_processing)
 
           subject.new.perform
