@@ -20,5 +20,29 @@ class CreateLoadTestingTables < ActiveRecord::Migration[7.1]
 
     add_index :load_testing_test_sessions, :status
     add_index :load_testing_test_tokens, :expires_at
+
+    # Create the load test client config
+    reversible do |dir|
+      dir.up do
+        # Skip in test environment
+        next if Rails.env.test?
+
+        SignIn::ClientConfig.find_or_create_by!(client_id: 'load_test_client') do |config|
+          config.redirect_uri = 'http://localhost:3000/load_testing/callback'
+          config.scopes = ['openid', 'profile', 'email']
+          config.auth_type = 'logingov'
+          config.cookie_auth = false
+          config.terms_of_use_url = nil
+          config.description = 'Load Testing Client'
+        end
+      end
+
+      dir.down do
+        # Skip in test environment
+        next if Rails.env.test?
+
+        SignIn::ClientConfig.find_by(client_id: 'load_test_client')&.destroy
+      end
+    end
   end
 end 

@@ -2,15 +2,18 @@ module LoadTesting
   module V0
     class TestSessionsController < ApplicationController
       def create
-        test_session = TestSession.create!(
+        test_session = TestSession.new(
           concurrent_users: params[:concurrent_users],
           status: 'pending',
-          configuration: params.permit!.to_h
+          configuration: test_session_params
         )
-        
-        TokenManager.new(test_session).generate_tokens(params[:concurrent_users])
-        
-        render json: test_session, status: :created
+
+        if test_session.save
+          TokenManager.new(test_session).generate_tokens(test_session.concurrent_users)
+          render json: test_session, status: :created
+        else
+          render json: { errors: test_session.errors.full_messages }, status: :unprocessable_entity
+        end
       end
 
       def show
@@ -27,6 +30,14 @@ module LoadTesting
         test_session = TestSession.find(params[:id])
         analyzer = MetricsAnalyzer.new(test_session)
         render json: analyzer.analyze
+      end
+
+      private
+
+      def test_session_params
+        params.permit(:concurrent_users, configuration: {}).tap do |whitelisted|
+          whitelisted[:configuration] = params[:configuration] if params[:configuration].present?
+        end
       end
     end
   end

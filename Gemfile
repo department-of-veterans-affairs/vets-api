@@ -255,5 +255,3 @@ else
     gem 'sidekiq-pro'
   end
 end
-
-gem "simplecov", "~> 0.22.0", :group => :test

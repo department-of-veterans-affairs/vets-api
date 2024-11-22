@@ -14,6 +14,15 @@ module LoadTesting
       app.middleware.use LoadTesting::Middleware::AccessControl
     end
 
+    # Add migrations path
+    initializer :append_migrations do |app|
+      unless app.root.to_s.match?(root.to_s)
+        config.paths['db/migrate'].expanded.each do |expanded_path|
+          app.config.paths['db/migrate'] << expanded_path
+        end
+      end
+    end
+
     # Add load testing specific configurations
     config.load_testing = ActiveSupport::OrderedOptions.new
     config.load_testing.allowed_teams = ['identity']
