@@ -368,19 +368,19 @@ module SimpleFormsApi
     def get_intent_to_file_benefits_variables
       benefits = @form_data['benefit_selection']
       if benefits['compensation'] && benefits['pension']
-        ['Disability Compensation (VA Form 21-526EZ) and Pension (VA Form 21P-527EZ)',
-         '[Complete your Disability compensation claim (VA Form 21-526EZ)](https://www.va.gov/disability/' \
-         'file-disability-claim-form-21-526ez/introduction) and [Complete your Pension claim (VA Form 21P-527EZ)](https://www.va.gov/find-forms/about-form-21p-527ez/)']
+        ['disability compensation and Veterans pension benefits',
+         '[File for disability compensation (VA Form 21-526EZ)]' \
+         '(https://www.va.gov/disability/file-disability-claim-form-21-526ez/introduction) and [Apply for Veterans ' \
+         'Pension benefits (VA Form 21P-527EZ)](https://www.va.gov/find-forms/about-form-21p-527ez/)']
       elsif benefits['compensation']
-        ['Disability Compensation (VA Form 21-526EZ)',
-         '[Complete your Disability compensation claim (VA Form 21-526EZ)](https://www.va.gov/disability/file-disability-claim-form-21-526ez/introduction)']
+        ['disability compensation',
+         '[File for disability compensation (VA Form 21-526EZ)](https://www.va.gov/disability/file-disability-claim-form-21-526ez/introduction)']
       elsif benefits['pension']
-        ['Pension (VA Form 21P-527EZ)',
-         '[Pension claim (VA Form 21P-527EZ)](https://www.va.gov/find-forms/about-form-21p-527ez/)']
+        ['Veterans pension benefits',
+         '[Apply for Veterans Pension benefits (VA Form 21P-527EZ)](https://www.va.gov/find-forms/about-form-21p-527ez/)']
       elsif benefits['survivor']
-        ['Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-         ' (VA Form 21P-534 or VA Form 21P-534EZ)',
-         '[Pension claim for survivors (21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)']
+        ['survivors pension benefits',
+         '[Apply for DIC, Survivors Pension, and/or Accrued Benefits (VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)']
       end
     end
 
