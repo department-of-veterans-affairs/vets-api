@@ -11,8 +11,8 @@ module Post911SOB
 
       configuration Post911SOB::DGIB::Configuration
 
-      def initialize(user)
-        @ssn = user.ssn
+      def initialize(ssn)
+        @ssn = ssn
         # Do we need to check if ssn blank?
         # raise ArgumentError, 'no SSN passed in for DGI API request.' if ssn.blank?
 
@@ -30,6 +30,10 @@ module Post911SOB
 
       def end_point
         "transferees/#{claimant_id}/toe"
+      end
+
+      def claimant_id
+        1234
       end
 
       def request_headers

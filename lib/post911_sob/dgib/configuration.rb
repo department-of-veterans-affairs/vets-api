@@ -7,19 +7,20 @@ module Post911SOB
     class Configuration < Common::Client::Configuration::REST
       SETTINGS = Settings.dgi.post911_sob.claimants
 
+      # TO-DO: Datadog
+
       def base_path
         SETTINGS.url.to_s
       end
 
       def service_name
-        # TO-DO
+        'Post911SOB/DGIB/Toe'
       end
 
       def connection
         @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
           faraday.use :breakers
           faraday.use Faraday::Response::RaiseError
-
           faraday.request :json
 
           faraday.response :betamocks if mock_enabled?
