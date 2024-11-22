@@ -162,19 +162,6 @@ RSpec.configure do |config|
     # loaded, so we may as well take the hit and load them right away.
     # Verified working on --seed 11101, commit e378e8
     I18n.locale_available?(:en)
-
-    # Warning.define_singleton_method(:warn) do |message|
-    #   if message.include?("parser advancing")
-    #     puts "\nWarning occurred during:"
-    #     puts "Current example: #{RSpec.current_example.full_description}"
-    #     puts "Test file: #{RSpec.current_example.metadata[:file_path]}"
-    #     puts "Line number: #{RSpec.current_example.metadata[:line_number]}"
-    #     puts "Stack trace:"
-    #     puts caller
-    #     puts "---"
-    #   end
-    #   super(message)
-    # end
   end
 
   config.include SpecBuilders
