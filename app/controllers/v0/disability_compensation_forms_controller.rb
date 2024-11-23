@@ -158,11 +158,6 @@ module V0
       'api.disability_compensation'
     end
 
-    def includes_toxic_exposure?
-      # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
-      form_content['form526']['startedFormVersion']
-    end
-
     def missing_disabilities?(submission)
       if submission.form['form526']['form526']['disabilities'].none?
         StatsD.increment("#{stats_key}.failure")
