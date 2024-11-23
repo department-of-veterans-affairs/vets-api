@@ -329,17 +329,12 @@ module Sidekiq
         form_json[FORM_526]['claimDate'] ||= submission_create_date
         form_json[FORM_526]['applicationExpirationDate'] = 365.days.from_now.iso8601 if @ignore_expiration
 
-        form_version = submission.saved_claim.parsed_form['startedFormVersion']
-        if form_version.present?
-          transaction_id = submission.system_transaction_id
-          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json,
-                                            transaction_id)
-          content = resp.env.response_body
-        else
-          resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:evss], form_json.to_json)
-          b64_enc_body = resp.body['pdf']
-          content = Base64.decode64(b64_enc_body)
-        end
+        # 100% form version 2022/TE - always send to lighthouse
+        transaction_id = submission.system_transaction_id
+        resp = get_form_from_external_api(headers, ApiProviderFactory::API_PROVIDER[:lighthouse], form_json.to_json,
+                                          transaction_id)
+        content = resp.env.response_body
+
         file = write_to_tmp_file(content)
         docs << { type: FORM_526_DOC_TYPE, file: }
       end

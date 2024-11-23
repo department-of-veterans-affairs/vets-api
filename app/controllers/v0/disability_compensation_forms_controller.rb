@@ -118,7 +118,8 @@ module V0
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,
         form_json: saved_claim.to_submission_data(@current_user),
-        submit_endpoint: includes_toxic_exposure? ? 'claims_api' : 'evss'
+        # 100% form version 2022/TE - always send to lighthouse
+        submit_endpoint: 'claims_api'
       ) { |sub| sub.add_birls_ids @current_user.birls_id }
 
       if missing_disabilities?(submission)

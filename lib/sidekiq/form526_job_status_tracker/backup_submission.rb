@@ -28,9 +28,7 @@ module Sidekiq
                                  job_class == 'SubmitForm526AllClaim' &&
                                  submission_obj.submitted_claim_id.nil? &&
                                  (additional_birls = submission_obj.birls_ids_that_havent_been_tried_yet).empty? &&
-                                 submission_obj.backup_submitted_claim_id.nil? &&
-                                 submission_obj.submitted_claim_id.nil?
-
+                                 submission_obj.backup_submitted_claim_id.nil?
         if send_backup_submission
           backup_job_jid = Sidekiq::Form526BackupSubmissionProcess::Submit.perform_async(form526_submission_id)
         end
