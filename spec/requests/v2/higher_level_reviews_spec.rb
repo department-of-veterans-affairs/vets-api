@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe 'V1::HigherLevelReviews', type: :request do
+RSpec.describe 'V2::HigherLevelReviews', type: :request do
   let(:user) { build(:user, :loa3) }
   let(:headers) { { 'CONTENT_TYPE' => 'application/json' } }
   let(:success_log_args) do
@@ -19,7 +19,7 @@ RSpec.describe 'V1::HigherLevelReviews', type: :request do
         status_code: 200,
         body: '[Redacted]'
       },
-      version: 'V1'
+      version: 'V2'
     }
   end
   let(:error_log_args) do
@@ -35,7 +35,7 @@ RSpec.describe 'V1::HigherLevelReviews', type: :request do
         status_code: 422,
         body: response_error_body
       },
-      version: 'V1'
+      version: 'V2'
     }
   end
 
@@ -59,11 +59,11 @@ RSpec.describe 'V1::HigherLevelReviews', type: :request do
 
   describe '#create' do
     def personal_information_logs
-      PersonalInformationLog.where 'error_class like ?', 'V1::HigherLevelReviewsController#create exception % (HLR_V1)'
+      PersonalInformationLog.where 'error_class like ?', 'V2::HigherLevelReviewsController#create exception % (HLR_V2)'
     end
 
     subject do
-      post '/v1/higher_level_reviews',
+      post '/v2/higher_level_reviews',
            params: VetsJsonSchema::EXAMPLES.fetch('HLR-CREATE-REQUEST-BODY_V1').to_json,
            headers:
     end
