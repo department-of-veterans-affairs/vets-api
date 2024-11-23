@@ -9,7 +9,7 @@ module Vye
 
       def verification_record
         response = service.get_verification_record(params[:claimant_id])
-        serializer = Vye::ClaimantVerificationSerializer
+        serializer = ClaimantVerificationSerializer
         process_response(response, serializer)
       end
 
@@ -23,20 +23,20 @@ module Vye
           params.dig(:app_communication, :response_type)
         )
 
-        serializer = Vye::VerifyClaimantSerializer
+        serializer = VerifyClaimantSerializer
         process_response(response, serializer)
       end
 
       # the serializer for this endpoint is the same as for verify_claimant
       def claimant_status
         response = service.get_claimant_status(params[:claimant_id])
-        serializer = Vye::VerifyClaimantSerializer
+        serializer = VerifyClaimantSerializer
         process_response(response, serializer)
       end
 
       def claimant_lookup
         response = service.claimant_lookup(current_user.ssn)
-        serializer = Vye::ClaimantLookupSerializer
+        serializer = ClaimantLookupSerializer
         process_response(response, serializer)
       end
 
