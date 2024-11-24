@@ -1,15 +1,19 @@
 # frozen_string_literal: true
 
 require_relative '../../../../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/committee_helper'
+
 RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
-  let!(:user) { sis_user }
+  include CommitteeHelper
+
+  let!(:user) { sis_user(vha_facility_ids: [402, 555]) }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
   describe 'GET /mobile/v0/user/authorized-services' do
     it 'includes a hash with all available services and a boolean value of if the user has access' do
       get '/mobile/v0/user/authorized-services', headers: sis_headers,
                                                  params: { 'appointmentIEN' => '123', 'locationId' => '123' }
-      expect(response).to have_http_status(:ok)
+      assert_schema_conform(200)
 
       expect(attributes['authorizedServices']).to eq(
         { 'appeals' => true,
@@ -25,7 +29,7 @@ RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
           'paymentHistory' => true,
           'preferredName' => true,
           'prescriptions' => false,
-          'scheduleAppointments' => false,
+          'scheduleAppointments' => true,
           'secureMessaging' => false,
           'userProfileUpdate' => true }
       )

@@ -20035,7 +20035,13 @@
                         "secure_messaging",
                         "appointments",
                         "user_profile_update",
-                        "rx_refill"
+                        "rx_refill",
+                        "efolder",
+                        "mhv_sm",
+                        "mhv_meds",
+                        "preneed_burial",
+                        "user_contact_update",
+                        "user_demographics"
                       ],
                       "example": "claims"
                     },
@@ -22910,7 +22916,8 @@
               "lastName",
               "signinEmail",
               "birthDate",
-              "signinService"
+              "signinService",
+              "edipi"
             ],
             "properties": {
               "firstName": {
@@ -22947,6 +22954,10 @@
               "hasFacilityTransitioningToCerner": {
                 "type": "boolean",
                 "description": "The user has a treatment facility that is currently transitioning to cerner. This is temporary."
+              },
+              "edipi": {
+                "type": "string",
+                "example": "384759483"
               }
             }
           }
