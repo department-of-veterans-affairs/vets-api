@@ -19,9 +19,8 @@ module Banners
       message = "#{job_class} retries exhausted"
       Rails.logger.error(message, { job_id:, error_class:, error_message: })
     rescue => e
-      message = "Failure in #{job_class}#sidekiq_retries_exhausted"
       Rails.logger.error(
-        message,
+        "Failure in #{job_class}#sidekiq_retries_exhausted",
         {
           messaged_content: e.message,
           job_id:,
@@ -42,7 +41,7 @@ module Banners
     rescue Banners::Updater::BannerDataFetchError => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.banner_data_fetch_error")
       Rails.logger.error(
-        "Banner data fetch failed",
+        'Banner data fetch failed',
         { error_message: e.message, error_class: e.class.name }
       )
       raise # Re-raise to trigger Sidekiq retries
