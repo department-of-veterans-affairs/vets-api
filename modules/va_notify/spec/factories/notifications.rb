@@ -26,7 +26,7 @@ FactoryBot.define do
     }
     provider { %w[ses twilio pinpoint].sample }
     source_location { 'SomeTeam' }
-    callback_klass { }
+    callback_klass {}
     callback_metadata { {} }
     template_id { SecureRandom.uuid }
   end
