@@ -70,8 +70,8 @@ RSpec.describe Banners::Updater do
     context 'when response is invalid JSON' do
       let(:response_body) { 'invalid json' }
 
-      it 'returns empty array' do
-        expect(updater.send(:vamcs_banner_data)).to eq([])
+      it 'returns an error' do
+        expect { updater.send(:vamcs_banner_data) }.to raise_error(Banners::Updater::BannerDataFetchError)
       end
     end
   end
