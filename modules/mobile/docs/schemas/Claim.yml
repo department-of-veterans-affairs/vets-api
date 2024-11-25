@@ -75,6 +75,7 @@ properties:
           vaRepresentative:
             type: string
             example: "DALE M BOETTCHER"
+            nullable: true
           documentsNeeded:
             type: boolean
           developmentLetterSent:
@@ -84,15 +85,18 @@ properties:
           updatedAt:
             type: string
             example: "2017-12-13T03:28:23+00:00"
+            nullable: true
           phase:
             type: integer
             description: The phase of processing the claim is in. The integers used map to the phases as `1 => CLAIM_RECEIVED, 2 => UNDER_REVIEW, 3 => GATHERING_OF_EVIDENCE, 4 => REVIEW_OF_EVIDENCE, 5 => PREPARATION_FOR_DECISION, 6 => PENDING_DECISION_APPROVAL, 7 => PREPARATION_FOR_NOTIFICATION, 8 => COMPLETE`
             example: 2
+            nullable: true
           claimType:
             type: string
             example: "Compensation"
           everPhaseBack:
             type: boolean
+            nullable: true
           currentPhaseBack:
             type: boolean
           claimTypeCode:

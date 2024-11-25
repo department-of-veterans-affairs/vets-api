@@ -107,7 +107,7 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
     before do
       sign_in_as(current_user)
 
-      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_allergies_enabled,
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_enabled,
                                                 instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
     end
