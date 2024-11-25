@@ -159,6 +159,9 @@ features:
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
+  champva_confirmation_email_bugfix:
+    actor_type: user
+    description: Enables fix for a bug where confirmation emails may get sent when Pega reports a status of 'Not Processed'
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences

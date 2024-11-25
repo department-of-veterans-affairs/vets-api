@@ -66,6 +66,10 @@ module IvcChampva
             created_at: form.created_at.strftime('%B %d, %Y')
           }
 
+        # Possible values of pega_status are 'Processed' or 'Not Processed'
+        # When the status is anything other than 'Processed', set the template_id so that we send a failure email
+        form_data[:template_id] = "#{form[:form_number]}-FAILURE" if form.pega_status != 'Processed'
+
         ActiveRecord::Base.transaction do
           if IvcChampva::Email.new(form_data).send_email
             fetch_forms_by_uuid(form_uuid).update_all(email_sent: true) # rubocop:disable Rails/SkipsModelValidations
