@@ -838,7 +838,7 @@ maintenance:
     carma: P6XLE0T
     appeals: P9S4RFU
     arcgis: P45YBFA
-    coe: PXXXXXX
+    coe: PSY4HU1
     dslogon: P9DJJAV
     es: PH7OPR4
     evss: PZKWB6Y
@@ -1450,6 +1450,10 @@ dgi:
   vets:
     url: "https://jenkins.ld.afsp.io:32512/vets-service/v1/" # Docker setup for microservice
     mock: false
+  post911_sob:
+    jwt:
+      public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
+      private_key_path: spec/fixtures/post911_sob/dgib/private_test.pem
 
 # Settings for the VEText integration (mobile push notifications)
 vetext_push:
@@ -1634,6 +1638,7 @@ virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
   vagov_classification_path: contention-classification/va-gov-claim-classifier
+  expanded_classification_path: contention-classification/expanded-contention-classification
   max_cfi_path: employee-experience/max-ratings
   ep_merge_path: employee-experience-ep-merge-app/merge
 
@@ -1832,7 +1837,10 @@ vaos:
     mock: false
     client_id: "fake_client_id"
     kid: "fake_kid"
+    grant_type: "client_credentials"
+    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
     access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
     api_url: "https://api.wellhive.com/care-navigation/v1"
     scopes: "care-nav"
+

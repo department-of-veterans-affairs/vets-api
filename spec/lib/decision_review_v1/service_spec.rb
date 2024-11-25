@@ -684,10 +684,10 @@ describe DecisionReviewV1::Service do
 
   describe '#get_supplemental_claim_upload' do
     subject do
-      described_class.new.get_supplemental_claim_upload(uuid:)
+      described_class.new.get_supplemental_claim_upload(guid:)
     end
 
-    let(:uuid) { '59cdb98f-f94b-4aaa-8952-4d1e59b6e40a' }
+    let(:guid) { '59cdb98f-f94b-4aaa-8952-4d1e59b6e40a' }
 
     context '200 response' do
       it 'returns a properly formatted 200 response' do

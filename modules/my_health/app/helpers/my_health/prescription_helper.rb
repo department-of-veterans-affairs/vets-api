@@ -19,7 +19,7 @@ module MyHealth
       end
 
       def sort_by(resource, sort_params)
-        sort_orders = get_sort_order(sort_params)
+        sort_orders = sort_params.map { |param| param.to_s.start_with?('-') }
         resource.data = resource.data.sort do |a, b|
           comparison = 0
           sort_params.each_with_index do |field, index|
@@ -37,12 +37,6 @@ module MyHealth
           end
         end
         resource
-      end
-
-      def get_sort_order(fields)
-        fields.map do |field|
-          field.to_s.start_with?('-')
-        end
       end
 
       def compare_fields(field_a, field_b, is_descending)
@@ -88,36 +82,41 @@ module MyHealth
 
       def filter_data_by_refill_and_renew(data)
         data.select do |item|
-          disp_status = item[:disp_status]
-          refill_history_expired_date = item[:rx_rf_records]&.[](0)&.[](1)&.[](0)&.[](:expiration_date)&.to_date
-          expired_date = refill_history_expired_date || item[:expiration_date]&.to_date
-
           next true if item[:is_refillable]
-
-          if item[:refill_remaining].to_i.zero?
-            next true if disp_status.downcase == 'active'
-            next true if disp_status.downcase == 'active: parked' && !item[:rx_rf_records].all?(&:empty?)
-          end
-          if disp_status == 'Expired' && expired_date.present? && valid_date_within_cut_off_date?(expired_date)
-            next true
-          end
+          next true if renewable(item)
 
           false
         end
       end
 
+      def renewable(item)
+        disp_status = item[:disp_status]
+        refill_history_expired_date = item[:rx_rf_records]&.[](0)&.[](1)&.[](0)&.[](:expiration_date)&.to_date
+        expired_date = refill_history_expired_date || item[:expiration_date]&.to_date
+        not_refillable = ['false'].include?(item.is_refillable.to_s)
+        if item[:refill_remaining].to_i.zero? && not_refillable
+          return true if disp_status&.downcase == 'active'
+          return true if disp_status&.downcase == 'active: parked' && !item[:rx_rf_records].all?(&:empty?)
+        end
+        if disp_status == 'Expired' && expired_date.present? && within_cut_off_date?(expired_date) && not_refillable
+          return true
+        end
+
+        false
+      end
+
       private
 
-      def valid_date_within_cut_off_date?(date)
-        cut_off_date = Time.zone.today - 120.days
+      def within_cut_off_date?(date)
         zero_date = Date.new(0, 1, 1)
-        date.present? && date != zero_date && date >= cut_off_date
+        date.present? && date != zero_date && date >= Time.zone.today - 120.days
       end
 
       module_function :collection_resource,
                       :filter_data_by_refill_and_renew,
                       :filter_non_va_meds,
-                      :sort_by
+                      :sort_by,
+                      :renewable
     end
   end
 end
