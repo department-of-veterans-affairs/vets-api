@@ -6,10 +6,11 @@ module Login
   class AfterLoginActions
     include Accountable
 
-    attr_reader :current_user
+    attr_reader :current_user, :client_id
 
-    def initialize(user)
+    def initialize(user, client_id)
       @current_user = user
+      @client_id = client_id
     end
 
     def perform
@@ -29,6 +30,12 @@ module Login
     end
 
     private
+
+    def create_mhv_account
+      return if client_id.in?(SAML::URLService::SKIP_MHV_ACCOUNT_CREATION_CLIENTS)
+
+      current_user.create_mhv_account_async
+    end
 
     def login_type
       @login_type ||= current_user.identity.sign_in[:service_name]
@@ -53,13 +60,6 @@ module Login
         error_data.merge!(identity_value:, mpi_value:) unless error_message.include?('SSN')
         Rails.logger.warn("[SessionsController version:v1] #{error_message}", error_data)
       end
-    end
-
-    def create_mhv_account
-      return unless current_user.loa3?
-      return unless Flipper.enabled?(:mhv_account_creation_after_login, current_user.user_account)
-
-      MHV::AccountCreatorJob.perform_async(current_user.user_verification_id)
     end
   end
 end

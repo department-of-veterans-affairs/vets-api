@@ -14,7 +14,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
            state_code: 'OR',
            country_code_iso3: 'USA',
            zip_code: '12345',
-           phone: '5555555555',
+           phone: '555-555-5555', # We're adding dashes here to make sure they aren't present in the pdf output.
            email: 'representative@example.com',
            individual_type: 'attorney')
   end
@@ -54,9 +54,24 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
       representative_id: representative.id,
 
       record_consent: true,
-      consent_limits: [],
+      consent_limits: %w[
+        ALCOHOLISM
+        DRUG_ABUSE
+      ],
       consent_address_change: true,
-      conditions_of_appointment: []
+      consent_inside_access: true,
+      consent_outside_access: true,
+      consent_team_members: [
+        'Jane M Representative',
+        'John M Representative',
+        'Jane M Doe',
+        'John M Doe',
+        'Bobbie M Law',
+        'Bob M Law',
+        'Alice M Aster',
+        'Arthur M Aster'
+      ]
+
     }
   end
 

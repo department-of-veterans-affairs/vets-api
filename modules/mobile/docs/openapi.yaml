@@ -341,7 +341,7 @@ paths:
       parameters:
         - description: Unique location identifier
           in: query
-          name: locationId
+          name: location_id
           required: true
           schema:
             type: string
@@ -364,7 +364,10 @@ paths:
         '422':
           $ref: '#/components/responses/422'
         '500':
-          $ref: '#/components/responses/500'
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinErrors500.yml
         '502':
           $ref: '#/components/responses/502'
         '503':
@@ -381,7 +384,7 @@ paths:
           application/json:
             schema:
               properties:
-                locationId:
+                location_id:
                   type: string
                 demographicConfirmations:
                   type: object
@@ -417,7 +420,10 @@ paths:
         '422':
           $ref: '#/components/responses/422'
         '500':
-          $ref: '#/components/responses/500'
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinErrors500.yml
         '502':
           $ref: '#/components/responses/502'
         '503':
@@ -433,7 +439,7 @@ paths:
       parameters:
         - description: Type of service to check eligibility for. Can only be one of following options primaryCare, nutrition, podiatry, optometry, audiology.
           in: path
-          name: serviceType
+          name: service_type
           required: true
           schema:
             type: string
@@ -445,6 +451,8 @@ paths:
               schema:
                 $ref: ./schemas/CommunityCaresEligibility.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -721,78 +729,6 @@ paths:
       security:
         - Bearer: [ ]
       summary: /v0/appointments/facilities/{facility_id}/clinics/{clinic_id}/slots
-  /v0/appointments/preferences:
-    get:
-      description: Returns VAOS appointment contact preferences
-      parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/AppointmentPreferences.yml
-          description: OK
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '408':
-          $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-      security:
-        - Bearer: [ ]
-      summary: /v0/appointments/preferences
-    put:
-      description: updates VAOS appointment preferences
-      parameters:
-        - $ref: '#/components/parameters/InflectionHeader'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: ./schemas/AppointmentPreferencesRequest.yml
-        description: Preferences data to update
-        required: true
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: ./schemas/AppointmentPreferences.yml
-          description: OK
-        '401':
-          $ref: '#/components/responses/401'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '408':
-          $ref: '#/components/responses/408'
-        '422':
-          $ref: '#/components/responses/422'
-        '500':
-          $ref: '#/components/responses/500'
-        '502':
-          $ref: '#/components/responses/502'
-        '503':
-          $ref: '#/components/responses/503'
-        '504':
-          $ref: '#/components/responses/504'
-      security:
-        - Bearer: []
-      summary: /v0/appointments/preferences
   /v0/appointments/va/eligibility:
     get:
       description: Lists types of service. For each type of service, lists users registered facilities that support request and direct appointments.
@@ -1196,6 +1132,8 @@ paths:
               schema:
                 $ref: ./schemas/CreatePreneedBurialResponse.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1332,7 +1270,10 @@ paths:
         '500':
           $ref: '#/components/responses/500'
         '502':
-          $ref: '#/components/responses/502'
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/ClaimsAndAppealsOverview502.yml
         '503':
           $ref: '#/components/responses/503'
         '504':

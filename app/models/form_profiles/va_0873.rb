@@ -42,11 +42,19 @@ class FormProfiles::VA0873 < FormProfile
     payload = user.full_name_normalized.merge(preferred_name:, service_number:)
 
     VA0873::FormPersonalInformation.new(payload)
+  rescue => e
+    log_exception_to_sentry(e, {}, prefill: :personal_information)
+    {}
   end
 
   def initialize_ava_profile
-    school = GIDSRedis.new.get_institution_details_v0(id: profile.school_facility_code)
-    school_name = school[:data][:attributes][:name]
+    school_name = nil
+
+    unless profile.school_facility_code.nil?
+      school = GIDSRedis.new.get_institution_details_v0(id: profile.school_facility_code)
+      school_name = school[:data][:attributes][:name]
+    end
+
     payload = {
       school_facility_code: profile.school_facility_code,
       school_name:,
@@ -62,6 +70,9 @@ class FormProfiles::VA0873 < FormProfile
 
   def preferred_name
     VAProfile::Demographics::Service.new(user).get_demographics.demographics.preferred_name.text
+  rescue => e
+    log_exception_to_sentry(e, {}, prefill: :personal_information)
+    {}
   end
 
   def profile

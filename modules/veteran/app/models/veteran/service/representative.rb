@@ -29,11 +29,10 @@ module Veteran
       def self.all_for_user(first_name:, last_name:, middle_initial: nil, poa_code: nil)
         return [] if first_name.nil? || last_name.nil?
 
-        representatives = get_representatives(first_name, last_name)
-
-        representatives = representatives&.where('? = ANY(poa_codes)', poa_code) if poa_code
-
-        representatives&.select { |rep| matching_middle_initial(rep, middle_initial) }
+        representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
+                                last_name&.downcase)
+        representatives = representatives.where('? = ANY(poa_codes)', poa_code) if poa_code
+        representatives.select { |rep| matching_middle_initial(rep, middle_initial) }
       end
 
       #
@@ -112,27 +111,8 @@ module Veteran
         end
       end
 
-      def self.get_suffixes(first_name, last_name)
-        first_suffix = first_name.split.last if first_name.split.count > 1
-        last_suffix = last_name.split.last if last_name.split.count > 1
-        [first_suffix, last_suffix]
-      end
-
-      def self.get_representatives(first_name, last_name)
-        suffixes = get_suffixes(first_name, last_name)
-
-        representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
-                                last_name&.downcase)
-
-        if representatives.blank? && suffixes.any?
-          # check without suffix
-          first_name = first_name.delete(suffixes[0]).strip if suffixes[0].present?
-          last_name = last_name.delete(suffixes[1]).strip if suffixes[1].present?
-
-          representatives = where('lower(first_name) = ? AND lower(last_name) = ?', first_name&.downcase,
-                                  last_name&.downcase)
-        end
-        representatives
+      def user_type
+        user_types.first
       end
 
       private

@@ -95,8 +95,8 @@ module Lighthouse
       with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?) do
         form526_pdf = get_form526_pdf(submission)
         if form526_pdf.present?
-          job_success
           Rails.logger.info('Poll for form 526 PDF: PDF found')
+          send_confirmation_email(submission) if Flipper.enabled?(:disability_526_call_received_email_from_polling)
           return
         else
           # Check the submission.created_at date, if it's more than 2 days old
@@ -124,10 +124,7 @@ module Lighthouse
     end
 
     def get_form526_pdf(submission)
-      user_account = UserAccount.find_by(id: submission.user_account_id) ||
-                     Account.lookup_by_user_uuid(submission.user_uuid)
-
-      icn = user_account.icn
+      icn = submission.account.icn
       service = BenefitsClaims::Service.new(icn)
       raw_response = service.get_claim(submission.submitted_claim_id)
       raw_response_body = if raw_response.is_a? String
@@ -140,6 +137,16 @@ module Lighthouse
       supporting_documents.find do |d|
         d['documentTypeLabel'] == 'VA 21-526 Veterans Application for Compensation or Pension'
       end
+    end
+
+    def send_confirmation_email(submission)
+      user_uuid = submission.user_uuid
+      user = User.find(user_uuid)
+      first_name = user&.first_name&.upcase.presence || auth_headers&.dig('va_eauth_firstName')&.upcase
+      Rails.logger.info("Form526ConfirmationEmailJob called for user #{user_uuid},
+                                                        submission: #{submission_id} from poll_form526_pdf")
+      params = submission.personalization_parameters(first_name)
+      Form526ConfirmationEmailJob.perform_async(params)
     end
   end
   # rubocop:enable Metrics/MethodLength

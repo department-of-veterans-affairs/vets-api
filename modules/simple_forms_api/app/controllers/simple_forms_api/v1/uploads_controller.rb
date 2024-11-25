@@ -189,14 +189,15 @@ module SimpleFormsApi
       end
 
       def create_form_submission_attempt(uuid)
-        form_submission = create_form_submission(uuid)
-        FormSubmissionAttempt.create(form_submission:)
+        FormSubmissionAttempt.transaction do
+          form_submission = create_form_submission
+          FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
+        end
       end
 
-      def create_form_submission(uuid)
+      def create_form_submission
         FormSubmission.create(
           form_type: params[:form_number],
-          benefits_intake_uuid: uuid,
           form_data: params.to_json,
           user_account: @current_user&.user_account
         )
@@ -220,7 +221,7 @@ module SimpleFormsApi
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
-        attachments = get_form_id == 'vba_20_10207' ? form.attachment_guids : []
+        attachments = get_form_id == 'vba_20_10207' ? form.get_attachments : []
         s3_client = config.s3_client.new(
           config:, type: :submission, id:, submission:, attachments:, file_path:, metadata:
         )
@@ -242,9 +243,9 @@ module SimpleFormsApi
         FORM_NUMBER_MAP[form_number]
       end
 
-      def get_json(confirmation_number, form_id, presigned_s3_url)
+      def get_json(confirmation_number, form_id, pdf_url)
         { confirmation_number: }.tap do |json|
-          json[:presigned_s3_url] = presigned_s3_url if presigned_s3_url.present?
+          json[:pdf_url] = pdf_url if pdf_url.present?
           json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
         end
       end

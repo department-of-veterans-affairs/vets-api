@@ -98,6 +98,10 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  def flashes
+    form.dig('form526', 'form526', 'flashes') || []
+  end
+
   def disabilities
     form.dig('form526', 'form526', 'disabilities')
   end
@@ -114,8 +118,8 @@ module Form526ClaimFastTrackingConcern
     begin
       is_claim_fully_classified = update_contention_classification_all!
     rescue => e
-      Rails.logger.error "Contention Classification failed #{e.message}."
-      Rails.logger.error e.backtrace.join('\n')
+      Rails.logger.error("Contention Classification failed #{e.message}.")
+      Rails.logger.error(e.backtrace.join('\n'))
     end
 
     prepare_for_ep_merge! if is_claim_fully_classified
@@ -160,8 +164,15 @@ module Form526ClaimFastTrackingConcern
   end
 
   def classify_vagov_contentions(params)
+    user = OpenStruct.new({ flipper_id: user_uuid })
     vro_client = VirtualRegionalOffice::Client.new
-    response = vro_client.classify_vagov_contentions(params)
+
+    response = if Flipper.enabled?(:disability_526_expanded_contention_classification, user)
+                 vro_client.classify_vagov_contentions_expanded(params)
+               else
+                 vro_client.classify_vagov_contentions(params)
+               end
+
     response.body
   end
 
@@ -179,9 +190,16 @@ module Form526ClaimFastTrackingConcern
     Rails.logger.info('classifier response for 526Submission', payload: response_body)
   end
 
+  def log_and_halt_if_no_disabilities
+    Rails.logger.info("No disabilities found for classification on claim #{id}")
+    false
+  end
+
   # Submits contention information to the VRO contention classification service
   # adds classification to the form for each contention provided a classification
   def update_contention_classification_all!
+    return log_and_halt_if_no_disabilities if disabilities.blank?
+
     contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
     params = { claim_id: saved_claim_id, form526_submission_id: id, contentions: contentions_array }
     classifier_response = classify_vagov_contentions(params)
@@ -228,6 +246,7 @@ module Form526ClaimFastTrackingConcern
   def send_post_evss_notifications!
     conditionally_notify_mas
     conditionally_merge_ep
+    log_flashes
     Rails.logger.info('Submitted 526Submission to eVSS', id:, saved_claim_id:, submitted_claim_id:)
   end
 
@@ -290,7 +309,7 @@ module Form526ClaimFastTrackingConcern
   # value outdated if using the same Form526Submission instance.
   def open_claims
     @open_claims ||= begin
-      icn = UserAccount.where(id: user_account_id).first&.icn
+      icn = account.icn
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:claims],
         provider: nil,
@@ -382,7 +401,15 @@ module Form526ClaimFastTrackingConcern
     vro_client = VirtualRegionalOffice::Client.new
     vro_client.merge_end_products(pending_claim_id:, ep400_id: submitted_claim_id)
   rescue => e
-    Rails.logger.error "EP merge request failed #{e.message}.", backtrace: e.backtrace
+    Rails.logger.error("EP merge request failed #{e.message}.", backtrace: e.backtrace)
+  end
+
+  def log_flashes
+    if flashes.includes?('Amyotrophic Lateral Sclerosis')
+      Rails.logger.info('Flash Prototype Added', { submitted_claim_id:, flash: 'Amyotrophic Lateral Sclerosis' })
+    end
+  rescue => e
+    Rails.logger.error("Failed to log Flash Prototypes #{e.message}.", backtrace: e.backtrace)
   end
 end
 # rubocop:enable Metrics/ModuleLength

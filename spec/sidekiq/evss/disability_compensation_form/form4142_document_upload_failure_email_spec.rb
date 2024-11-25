@@ -42,12 +42,18 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEm
       allow(notification_client).to receive(:send_email)
     end
 
-    it 'increments a Statsd metric' do
+    it 'increments StatsD success and silent failure avoided metrics' do
       expect do
         subject.perform_async(form526_submission.id)
         subject.drain
       end.to trigger_statsd_increment(
         'api.form_526.veteran_notifications.form4142_upload_failure_email.success'
+      ).and trigger_statsd_increment(
+        'silent_failure_avoided_no_confirmation',
+        tags: [
+          'service:disability-application',
+          'function:526_form_4142_upload_failure_email_sending'
+        ]
       )
     end
 
@@ -113,7 +119,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEm
       allow(notification_client).to receive(:send_email)
     end
 
-    it 'increments a StatsD exhaustion metric, logs to the Rails logger and updates the job status' do
+    it 'increments StatsD exhaustion & silent failure metrics, logs to the Rails logger and updates the job status' do
       Timecop.freeze(exhaustion_time) do
         described_class.within_sidekiq_retries_exhausted_block(retry_params) do
           expect(Rails.logger).to receive(:warn).with(
@@ -128,10 +134,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEm
           ).and_call_original
           expect(StatsD).to receive(:increment).with(
             'api.form_526.veteran_notifications.form4142_upload_failure_email.exhausted'
-          )
-          expect(StatsD).to receive(:increment).with('silent_failure',
-                                                     tags: ['service:disability-application',
-                                                            'function:Form 526 Flow - Form 4142 failure email sending'])
+          ).ordered
+          expect(StatsD).to receive(:increment).with(
+            'silent_failure',
+            tags: [
+              'service:disability-application',
+              'function:526_form_4142_upload_failure_email_sending'
+            ]
+          ).ordered
         end
 
         expect(form526_job_status.reload.status).to eq(Form526JobStatus::STATUS[:exhausted])

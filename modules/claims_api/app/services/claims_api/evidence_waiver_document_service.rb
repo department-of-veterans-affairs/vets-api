@@ -3,6 +3,7 @@
 module ClaimsApi
   class EvidenceWaiverDocumentService < DocumentServiceBase
     LOG_TAG = 'Ews_Document_service'
+    FORM_SUFFIX = '5103'
 
     def create_upload(claim:, pdf_path:, doc_type:, ptcpnt_vet_id:)
       unless File.exist? pdf_path
@@ -23,13 +24,13 @@ module ClaimsApi
     # @return {parameters, file}
     def generate_body(claim:, doc_type:, pdf_path:, ptcpnt_vet_id:)
       auth_headers = claim.auth_headers
-      veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'],
-                                          auth_headers['va_eauth_lastName'])
-      file_name = build_file_name(veteran_name:, identifier: claim.claim_id, suffix: '5103')
+      veteran_name = compact_name_for_file(auth_headers['va_eauth_firstName'],
+                                           auth_headers['va_eauth_lastName'])
       tracked_item_ids = claim.tracked_items&.map(&:to_i) if claim&.has_attribute?(:tracked_items)
 
-      generate_upload_body(claim_id: claim.claim_id, system_name: 'VA.gov', doc_type:, pdf_path:, file_name:,
-                           birls_file_number: nil, participant_id: ptcpnt_vet_id, tracked_item_ids:)
+      generate_upload_body(claim_id: claim.claim_id, system_name: 'VA.gov', doc_type:, pdf_path:,
+                           file_name: file_name(claim, veteran_name, FORM_SUFFIX), birls_file_number: nil,
+                           participant_id: ptcpnt_vet_id, tracked_item_ids:)
     end
   end
 end

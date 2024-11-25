@@ -28,7 +28,7 @@ module ClaimsApi
 
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
 
-        ClaimsApi::VANotifyJob.perform_async(poa_form.id, rep) if vanotify?(poa_form.auth_headers, rep)
+        ClaimsApi::VANotifyAcceptedJob.perform_async(poa_form.id, rep) if vanotify?(poa_form.auth_headers, rep)
 
         ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id) if enable_vbms_access?(poa_form:)
       else
@@ -41,10 +41,6 @@ module ClaimsApi
     end
 
     private
-
-    def enable_vbms_access?(poa_form:)
-      poa_form.form_data['recordConsent'] && poa_form.form_data['consentLimits'].blank?
-    end
 
     def vanotify?(auth_headers, rep)
       if Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify)

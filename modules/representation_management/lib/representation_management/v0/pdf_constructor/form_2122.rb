@@ -27,25 +27,10 @@ module RepresentationManagement
         end
 
         def next_steps_contact(pdf, data)
-          rep_name = <<~HEREDOC.squish
-            #{data.representative.first_name}
-            #{data.representative.middle_initial}
-            #{data.representative.last_name}
-          HEREDOC
-          add_text_with_spacing(pdf, rep_name, style: :bold, move_down: 8)
-          pdf.font('soursesanspro') do
-            pdf.text(data.organization_name)
-            pdf.text(data.representative.address_line1)
-            pdf.text(data.representative.address_line2)
-            city_state_zip = <<~HEREDOC.squish
-              #{data.representative.city},
-              #{data.representative.state_code}
-              #{data.representative.zip_code}
-            HEREDOC
-            pdf.text(city_state_zip)
-            pdf.move_down(5)
-            pdf.text(format_phone_number(data.representative.phone))
-            pdf.text(data.representative.email)
+          if data.representative
+            add_representative_contact(pdf, data)
+          else
+            add_organization_contact(pdf, data.organization)
           end
         end
 
@@ -63,7 +48,7 @@ module RepresentationManagement
         def template_options(data)
           {
             # Service Organization Name
-            "#{PAGE1_KEY}.Name_Of_Service_Organization[0]": data.organization_name
+            "#{PAGE1_KEY}.Name_Of_Service_Organization[0]": data.organization.name
           }.merge(veteran_identification(data))
             .merge(veteran_contact_details(data))
             .merge(claimant_identification(data))
@@ -92,9 +77,7 @@ module RepresentationManagement
             "#{PAGE1_KEY}.DOByear[0]": data.veteran_date_of_birth.split('-').first,
             # Veteran Service Number
             "#{PAGE1_KEY}.VeteransServiceNumber_If_Applicable[0]": \
-            data.veteran_service_number,
-            # Veteran Insurance Number
-            "#{PAGE1_KEY}.InsuranceNumber_s[0]": data.veteran_insurance_numbers.join(', ')
+            data.veteran_service_number
           }
         end
 
@@ -184,6 +167,50 @@ module RepresentationManagement
             # Consent Address Change
             "#{PAGE2_KEY}.I_Authorize[0]": data.consent_address_change == true ? 1 : 0
           }
+        end
+
+        private
+
+        def add_representative_contact(pdf, data)
+          representative = data.representative
+          organization_name = data.organization.name
+          rep_name = format_name(representative)
+          add_text_with_spacing(pdf, rep_name, style: :bold, move_down: 8)
+          pdf.font('soursesanspro') do
+            pdf.text(organization_name)
+            add_address(pdf, representative)
+            pdf.move_down(5)
+            pdf.text(format_phone_number(data.representative_phone))
+            pdf.text(representative.email)
+          end
+        end
+
+        def add_organization_contact(pdf, organization)
+          add_text_with_spacing(pdf, organization.name, style: :bold, move_down: 8)
+          pdf.font('soursesanspro') do
+            add_address(pdf, organization)
+            pdf.move_down(5)
+            pdf.text(format_phone_number(organization.phone))
+          end
+        end
+
+        def format_name(person)
+          <<~HEREDOC.squish
+            #{person.first_name}
+            #{person.middle_initial}
+            #{person.last_name}
+          HEREDOC
+        end
+
+        def add_address(pdf, entity)
+          pdf.text(entity.address_line1)
+          pdf.text(entity.address_line2)
+          city_state_zip = <<~HEREDOC.squish
+            #{entity.city},
+            #{entity.state_code}
+            #{entity.zip_code}
+          HEREDOC
+          pdf.text(city_state_zip)
         end
       end
     end

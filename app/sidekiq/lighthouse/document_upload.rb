@@ -6,38 +6,50 @@ require 'lighthouse/benefits_documents/worker_service'
 
 class Lighthouse::DocumentUpload
   include Sidekiq::Job
+  extend SentryLogging
 
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
   OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
 
+  DD_ZSF_TAGS = ['service:claim-status', 'function: evidence upload to Lighthouse'].freeze
+
   NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
   MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
 
-  # retry for one day
-  sidekiq_options retry: 14, queue: 'low'
+  # retry for  2d 1h 47m 12s
+  # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+  sidekiq_options retry: 16, queue: 'low'
   # Set minimum retry time to ~1 hour
   sidekiq_retry_in do |count, _exception|
     rand(3600..3660) if count < 9
   end
 
   sidekiq_retries_exhausted do |msg, _ex|
+    # There should be 2 values in msg['args']:
+    # 1) The ICN of the user
+    # 2) Document metadata
+
     next unless Flipper.enabled?('cst_send_evidence_failure_emails')
 
     icn = msg['args'].first
     first_name = msg['args'][1]['first_name'].titleize
     filename = obscured_filename(msg['args'][1]['file_name'])
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
+    date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
     notify_client.send_email(
       recipient_identifier: { id_value: icn, id_type: 'ICN' },
       template_id: MAILER_TEMPLATE_ID,
-      personalisation: { first_name:, filename:, date_submitted: }
+      personalisation: { first_name:, filename:, date_submitted:, date_failed: }
     )
 
     ::Rails.logger.info('Lighthouse::DocumentUpload exhaustion handler email sent')
+    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   rescue => e
     ::Rails.logger.error('Lighthouse::DocumentUpload exhaustion handler email error',
                          { message: e.message })
+    StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
+    log_exception_to_sentry(e)
   end
 
   def self.obscured_filename(original_filename)

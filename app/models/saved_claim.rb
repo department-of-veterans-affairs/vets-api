@@ -16,7 +16,6 @@ require 'pdf_fill/filler'
 #    files to the submitted claim, and to begin processing them.
 
 class SavedClaim < ApplicationRecord
-  self.ignored_columns += %w[itf_datetime]
   include SetGuid
 
   validates(:form, presence: true)
@@ -83,15 +82,18 @@ class SavedClaim < ApplicationRecord
     return unless form_is_string
 
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
-
-    schema_errors = JSON::Validator.fully_validate_schema(schema, { errors_as_objects: true })
     clear_cache = false
-    unless schema_errors.empty?
-      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
-      clear_cache = true
+
+    unless Flipper.enabled?(:saved_claim_schema_validation_disable)
+      schema_errors = validate_schema(schema)
+
+      unless schema_errors.empty?
+        Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
+        clear_cache = true
+      end
     end
 
-    validation_errors = JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true, clear_cache: })
+    validation_errors = validate_form(schema, clear_cache)
 
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])
@@ -117,7 +119,54 @@ class SavedClaim < ApplicationRecord
     ''
   end
 
+  def email
+    nil
+  end
+
+  ##
+  # insert notifcation after VANotify email send
+  #
+  # @see ClaimVANotification
+  #
+  def insert_notification(email_template_id)
+    claim_va_notifications.create!(
+      form_type: form_id,
+      email_sent: true,
+      email_template_id: email_template_id
+    )
+  end
+
+  ##
+  # Find notifcation by args*
+  #
+  # @param email_template_id
+  # @see ClaimVANotification
+  #
+  def va_notification?(email_template_id)
+    claim_va_notifications.find_by(
+      form_type: form_id,
+      email_template_id: email_template_id
+    )
+  end
+
   private
+
+  def validate_schema(schema)
+    JSON::Validator.fully_validate_schema(schema, { errors_as_objects: true })
+  rescue => e
+    Rails.logger.error('Error during schema validation!', { error: e.message, backtrace: e.backtrace, schema: })
+    raise
+  end
+
+  def validate_form(schema, clear_cache)
+    JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true, clear_cache: })
+  rescue => e
+    PersonalInformationLog.create(data: { schema:, parsed_form:, params: { errors_as_objects: true, clear_cache: } },
+                                  error_class: 'SavedClaim FormValidationError')
+    Rails.logger.error('Error during form validation!',
+                       { error: e.message, backtrace: e.backtrace, schema:, clear_cache: })
+    raise
+  end
 
   def attachment_keys
     []

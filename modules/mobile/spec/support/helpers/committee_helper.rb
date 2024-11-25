@@ -7,7 +7,8 @@ module CommitteeHelper
     @committee_options ||= {
       schema_path: Rails.root.join('modules', 'mobile', 'docs', 'openapi.json').to_s,
       prefix: '/mobile',
-      strict_reference_validation: true
+      strict_reference_validation: true,
+      check_content_type: false
     }
   end
 end

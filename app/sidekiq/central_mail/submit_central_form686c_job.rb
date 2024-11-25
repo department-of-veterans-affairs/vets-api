@@ -5,6 +5,7 @@ require 'benefits_intake_service/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pdf_info'
 require 'simple_forms_api_submission/metadata_validator'
+require 'dependents/monitor'
 
 module CentralMail
   class SubmitCentralForm686cJob
@@ -15,7 +16,9 @@ module CentralMail
     FORM_ID = '686C-674'
     FORM_ID_674 = '21-674'
     STATSD_KEY_PREFIX = 'worker.submit_686c_674_backup_submission'
-    RETRY = 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    RETRY = 16
 
     attr_reader :claim, :form_path, :attachment_paths
 
@@ -28,10 +31,9 @@ module CentralMail
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      Rails.logger.error(
-        "Failed all retries on CentralMail::SubmitCentralForm686cJob, last error: #{msg['error_message']}"
-      )
-      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+      if Flipper.enabled?(:dependents_trigger_action_needed_email)
+        CentralMail::SubmitCentralForm686cJob.trigger_failure_events(msg)
+      end
     end
 
     def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
@@ -77,13 +79,14 @@ module CentralMail
     end
 
     def create_form_submission_attempt(intake_uuid)
-      form_submission = FormSubmission.create(
-        form_type: claim.submittable_686? ? FORM_ID : FORM_ID_674,
-        benefits_intake_uuid: intake_uuid,
-        saved_claim: claim,
-        user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
-      )
-      FormSubmissionAttempt.create(form_submission:)
+      FormSubmissionAttempt.transaction do
+        form_submission = FormSubmission.create(
+          form_type: claim.submittable_686? ? FORM_ID : FORM_ID_674,
+          saved_claim: claim,
+          user_account: UserAccount.find_by(icn: claim.parsed_form['veteran_information']['icn'])
+        )
+        FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: intake_uuid)
+      end
     end
 
     def get_files_from_claim
@@ -223,6 +226,17 @@ module CentralMail
         first_name: user&.first_name&.upcase,
         user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
       )
+    end
+
+    def self.trigger_failure_events(msg)
+      monitor = Dependents::Monitor.new
+      saved_claim_id, _, encrypted_user_struct = msg['args']
+      user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)) if encrypted_user_struct.present?
+      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+      email = claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
+              user_struct.try(:va_profile_email)
+      monitor.track_submission_exhaustion(msg, email)
+      claim.send_failure_email(email)
     end
 
     private

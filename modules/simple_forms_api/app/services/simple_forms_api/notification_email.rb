@@ -48,7 +48,12 @@ module SimpleFormsApi
       },
       'vba_40_0247' => {
         confirmation: Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email,
-        error: nil,
+        error: Settings.vanotify.services.va_gov.template_id.form40_0247_error_email,
+        received: nil
+      },
+      'vba_40_10007' => {
+        confirmation: nil,
+        error: Settings.vanotify.services.va_gov.template_id.form40_10007_error_email,
         received: nil
       }
     }.freeze
@@ -98,24 +103,43 @@ module SimpleFormsApi
 
       # async job and form data includes email
       if email_from_form_data && first_name_from_form_data
-        VANotify::EmailJob.perform_at(
-          at,
-          email_from_form_data,
-          template_id,
-          get_personalization(first_name_from_form_data)
-        )
+        async_job_with_form_data(email_from_form_data, first_name_from_form_data, at, template_id)
       # async job and we have a UserAccount
       elsif user_account
-        first_name_from_user_account = get_first_name_from_user_account
-        return unless first_name_from_user_account
+        async_job_with_user_account(user_account, at, template_id)
+      end
+    end
 
-        VANotify::UserAccountJob.perform_at(
+    def async_job_with_form_data(email, first_name, at, template_id)
+      if Flipper.enabled?(:simple_forms_notification_callbacks)
+        VANotify::EmailJob.perform_at(
           at,
-          user_account.id,
+          email,
           template_id,
-          get_personalization(first_name_from_user_account)
+          get_personalization(first_name),
+          Settings.vanotify.services.va_gov.api_key,
+          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+        )
+      else
+        VANotify::EmailJob.perform_at(
+          at,
+          email,
+          template_id,
+          get_personalization(first_name)
         )
       end
+    end
+
+    def async_job_with_user_account(user_account, at, template_id)
+      first_name_from_user_account = get_first_name_from_user_account
+      return unless first_name_from_user_account
+
+      VANotify::UserAccountJob.perform_at(
+        at,
+        user_account.id,
+        template_id,
+        get_personalization(first_name_from_user_account)
+      )
     end
 
     def send_email_now(template_id)
@@ -160,9 +184,12 @@ module SimpleFormsApi
         form20_10207_contact_info[0]
       when 'vba_40_0247'
         form_data['applicant_email']
+      when 'vba_40_10007'
+        form_data.dig('application', 'claimant', 'email')
       end
     end
 
+    # rubocop:disable Metrics/MethodLength
     def get_first_name_from_form_data
       case @form_number
       when 'vba_21_0845'
@@ -183,8 +210,11 @@ module SimpleFormsApi
         form20_10207_contact_info[1]
       when 'vba_40_0247'
         form_data.dig('applicant_full_name', 'first')
+      when 'vba_40_10007'
+        form40_10007_first_name
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     def get_first_name_from_user_account
       mpi_response = MPI::Service.new.find_profile_by_identifier(identifier_type: 'ICN', identifier: user_account.icn)
@@ -330,6 +360,20 @@ module SimpleFormsApi
                                     ' (VA Form 21P-534 or VA Form 21P-534EZ)'
                                 end
       { 'intent_to_file_benefits' => intent_to_file_benefits }
+    end
+
+    def form40_10007_first_name
+      applicant_relationship = form_data.dig('application', 'applicant', 'applicant_relationship_to_claimant')
+
+      if applicant_relationship == 'Self'
+        form_data.dig('application', 'claimant', 'name', 'first')
+      else
+        form_data.dig('application', 'applicant', 'name', 'first')
+      end
+    end
+
+    def statsd_tags
+      { 'service' => 'veteran-facing-forms', 'function' => "#{form_number} form submission to Lighthouse" }
     end
   end
 end

@@ -126,7 +126,7 @@ jobs:
       - name: Setup Database
         uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
         with:
-          timeout_minutes: 20
+          timeout_minutes: 10
           retry_wait_seconds: 3 # Seconds
           max_attempts: 3
           command: |
@@ -134,7 +134,7 @@ jobs:
               -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 24  -e 'bin/rails db:reset'"
 
       - name: Run Specs
-        timeout-minutes: 20
+        timeout-minutes: 15
         run: |
           docker compose -f docker-compose.test.yml run web bash \
           -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 24 -o '--color --tty'"

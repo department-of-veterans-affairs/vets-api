@@ -2,12 +2,14 @@
 
 module VANotify
   class StatusUpdate
+    attr_reader :notification
+
     def delegate(notification_callback)
-      notification = VANotify::Notification.find_by(notification_id: notification_callback[:id])
+      @notification = VANotify::Notification.find_by(notification_id: notification_callback[:id])
 
-      # notification.callback is set by other teams, not user input
-      klass = constantized_class(notification.callback)
+      return if callback_info_missing?
 
+      klass = constantized_class(notification.callback_klass)
       if klass.respond_to?(:call)
         begin
           klass.call(notification)
@@ -28,7 +30,17 @@ module VANotify
     private
 
     def constantized_class(class_name)
+      # notification.callback is set by other teams, not user input
       class_name.constantize
+    end
+
+    def callback_info_missing?
+      if notification.callback_klass.blank?
+        Rails.logger.info(message: "VANotify - no callback provided for notification: #{notification.id}")
+        true
+      else
+        false
+      end
     end
   end
 end
