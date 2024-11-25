@@ -3,8 +3,6 @@
 module Vye
   module DGIB
     class AuthenticationTokenService
-      Rails.logger.debug { "\n\n\n*** Private key path: #{Settings.dgi.vye.jwt.private_key_path}***\n\n\n" }
-      Rails.logger.debug { "\n\n\n***File exists? #{File.exist?(Settings.dgi.vye.jwt.private_key_path)}***\n\n\n" }
       ALGORITHM_TYPE = 'RS256'
       E = 'AQAB'
       TYP = 'JWT'

@@ -6,6 +6,4 @@ VyePolicy = Struct.new(:user, :user_info) do
 
     false
   end
-
-  alias_method :claimant_lookup?, :access?
 end
