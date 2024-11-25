@@ -16,7 +16,7 @@ module V0
         state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
         render(json: { data: { attributes: { state: } } })
       elsif central_mail_submission
-        render json: CentralMailSubmissionSerializer.new(central_mail_submission)
+        render json: BenefitsIntakeSubmissionSerializer.new(central_mail_submission)
       end
     rescue ActiveRecord::RecordNotFound => e
       monitor.track_show404(params[:id], current_user, e)

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe CentralMail::DeleteOldClaims, :uploader_helpers, type: :model do
+RSpec.describe Lighthouse::BenefitsIntake::DeleteOldClaims, :uploader_helpers, type: :model do
   describe '#perform' do
     stub_virus_scan
 
