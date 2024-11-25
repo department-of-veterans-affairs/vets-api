@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/benefits_documents/constants'
+
 class EvidenceSubmission < ApplicationRecord
   belongs_to :user_account
   has_kms_key
@@ -9,7 +11,7 @@ class EvidenceSubmission < ApplicationRecord
   # IN_PROGRESS: the workflow is currently executing.
   # SUCCESS: the workflow has completed all steps successfully.
   # FAILED: the workflow could not complete because a step encountered a non-recoverable error.
-  scope :completed, -> { where(upload_status: 'SUCCESS') } # TODO: make sure scopes use user_account
-  scope :pending, -> { where(upload_status: 'IN_PROGRESS') }
-  scope :failed, -> { where(upload_status: 'FAILED') }
+  scope :completed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]) }
+  scope :pending, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]) }
+  scope :failed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]) }
 end
