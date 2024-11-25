@@ -51,7 +51,7 @@ module Banners
     private
 
     def enabled?
-      true #should consider bringing in a flipper heres
+      Flipper.enabled?(:banner_update_alternative_banners)
     end
   end
 end
