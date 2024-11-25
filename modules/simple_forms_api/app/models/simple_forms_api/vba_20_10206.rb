@@ -29,6 +29,10 @@ module SimpleFormsApi
       @data.dig('address', 'country') == 'USA'
     end
 
+    def words_to_remove
+      citizen_ssn + address + date_of_birth + home_phone
+    end
+
     def desired_stamps
       []
     end
@@ -54,6 +58,36 @@ module SimpleFormsApi
       identity = data['preparer_type']
       StatsD.increment("#{STATS_KEY}.#{identity}")
       Rails.logger.info('Simple forms api - 20-10206 submission user identity', identity:, confirmation_number:)
+    end
+
+    private
+
+    def citizen_ssn
+      [
+        data.dig('citizen_id', 'ssn')&.[](0..2),
+        data.dig('citizen_id', 'ssn')&.[](3..4),
+        data.dig('citizen_id', 'ssn')&.[](5..8)
+      ]
+    end
+
+    def address
+      [data.dig('address', 'postal_code')&.[](0..4), data.dig('address', 'postal_code')&.[](5..8)]
+    end
+
+    def date_of_birth
+      [
+        data['date_of_birth']&.[](0..3),
+        data['date_of_birth']&.[](5..6),
+        data['date_of_birth']&.[](8..9)
+      ]
+    end
+
+    def home_phone
+      [
+        data['home_phone']&.gsub('-', '')&.[](0..2),
+        data['home_phone']&.gsub('-', '')&.[](3..5),
+        data['home_phone']&.gsub('-', '')&.[](6..9)
+      ]
     end
   end
 end

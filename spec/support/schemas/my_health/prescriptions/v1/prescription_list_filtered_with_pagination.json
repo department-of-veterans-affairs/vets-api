@@ -1,0 +1,60 @@
+{
+  "$schema" : "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "required": ["data", "meta"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "prescription_details.json"
+      }
+    },
+    "meta": {
+      "type": "object",
+      "required": ["updated_at", "failed_station_list", "sort"],
+      "properties": {
+        "updated_at": { "type": "string" },
+        "failed_station_list": { "type": "string" },
+                "filter": {
+          "type": "object"
+        },
+        "sort": {
+          "type": "object"
+        },
+        "pagination": {
+          "type": "object",
+          "required": ["current_page", "per_page", "total_pages", "total_entries"],
+          "properties": {
+            "current_page": { "type": "integer" },
+            "per_page": { "type": "integer" },
+            "total_pages": { "type": "integer" },
+            "total_entries": { "type": "integer" }
+          }
+        },
+        "filter_count": { 
+          "type": "object",
+          "properties": {
+            "active": { "type":"integer"},
+            "all_medications": { "type":"integer"},
+            "recently_requested": { "type":"integer"},
+            "non_active": { "type":"integer"},
+            "renewal": { "type":"integer"}
+          }
+        }
+      }
+    },
+    "links": {
+      "type": "object",
+      "required": ["self", "first", "prev", "next", "last"],
+      "properties": {
+        "self": { "type": "string" },
+        "first": { "type": "string" },
+        "prev": { "type": ["string", "null"] },
+        "next": { "type": ["string", "null"] },
+        "last": { "type": "string" }
+      }
+    }
+  }
+}

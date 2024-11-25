@@ -13,8 +13,9 @@ module Lighthouse
 
     INCOME_AND_ASSETS_SOURCE = 'app/sidekiq/lighthouse/income_and_assets_intake_job.rb'
 
-    # retry for one day
-    sidekiq_options retry: 14, queue: 'low'
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 16, queue: 'low'
     sidekiq_retries_exhausted do |msg|
       ia_monitor = IncomeAndAssets::Submissions::Monitor.new
       begin
@@ -144,7 +145,6 @@ module Lighthouse
       form_submission = {
         form_type: @claim.form_id,
         form_data: @claim.to_json,
-        benefits_intake_uuid: @intake_service.uuid,
         saved_claim: @claim,
         saved_claim_id: @claim.id
       }

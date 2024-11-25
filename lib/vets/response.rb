@@ -3,7 +3,9 @@
 require 'vets/model'
 
 module Vets
-  class Response < Vets::Model
+  class Response
+    include Vets::Model
+
     STATUS_TEXTS = {
       200 => 'OK',
       403 => 'NOT_AUTHORIZED',

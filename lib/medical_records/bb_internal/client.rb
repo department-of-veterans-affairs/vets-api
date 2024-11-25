@@ -112,9 +112,9 @@ module BBInternal
     # @return - Continuity of Care Document in XML format
     #
     def get_download_ccd(date)
-      token_headers['Accept'] = 'application/xml'
-
-      response = perform(:get, "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML", nil, token_headers)
+      modified_headers = token_headers.dup
+      modified_headers['Accept'] = 'application/xml'
+      response = perform(:get, "bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML", nil, modified_headers)
       response.body
     end
 
@@ -125,6 +125,27 @@ module BBInternal
     def get_study_status
       response = perform(:get, "bluebutton/studyjob/#{session.patient_id}", nil, token_headers)
       response.body
+    end
+
+    # Retrieves the BBMI notification setting for the user.
+    # @return [Hash] containing:
+    #   - flag [Boolean]: Indicates whether the BBMI notification setting is enabled (true) or disabled (false)
+    #
+    def get_bbmi_notification_setting
+      response = perform(:get, 'usermgmt/notification/bbmi', nil, token_headers)
+      response.body
+    end
+
+    # Retrieves the patient information by user ID.
+    # @return [Hash] A hash containing the patient's details
+    #
+    def get_patient
+      response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
+      patient = response.body
+
+      raise Common::Exceptions::ServiceError.new(detail: 'Patient not found') if patient.blank?
+
+      patient
     end
 
     private
@@ -147,22 +168,13 @@ module BBInternal
       @session = super
 
       # Supplement session with patientId
-      session.patient_id = get_patient_id
+      patient = get_patient
+      session.patient_id = patient['ipas']&.first&.dig('patientId')
       # Put ICN back into the session
       session.icn = icn
 
       session.save
       session
-    end
-
-    def get_patient_id
-      response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
-
-      patient_id = response.body['ipas']&.first&.dig('patientId')
-
-      raise Common::Exceptions::ServiceError.new(detail: 'Patient ID not found for user') if patient_id.blank?
-
-      patient_id
     end
 
     ##

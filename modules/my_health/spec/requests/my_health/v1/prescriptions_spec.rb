@@ -157,6 +157,24 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         end
       end
 
+      it 'responds to GET #index with filter metadata for specific disp_status' do
+        VCR.use_cassette('rx_client/prescriptions/index_with_disp_status_filter') do
+          get '/my_health/v1/prescriptions?filter[[disp_status][eq]]=Active,Expired'
+        end
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response['meta']['filter_count']).to include(
+          'all_medications', 'active', 'recently_requested', 'renewal', 'non_active'
+        )
+        expect(json_response['meta']['filter_count']['all_medications']).to be >= 0
+        expect(json_response['meta']['filter_count']['active']).to be >= 0
+        expect(json_response['meta']['filter_count']['recently_requested']).to be >= 0
+        expect(json_response['meta']['filter_count']['renewal']).to be >= 0
+        expect(json_response['meta']['filter_count']['non_active']).to be >= 0
+        disp_statuses = json_response['data'].map { |prescription| prescription['attributes']['disp_status'] }
+        expect(disp_statuses).to all(be_in(%w[Active Expired]))
+      end
+
       it 'responds to GET #index with pagination parameters when camel-inflected' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_prescriptions') do
           get '/my_health/v1/prescriptions?page=2&per_page=20', headers: inflection_header
@@ -263,6 +281,22 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(response).to be_successful
         expect(response.body).to be_a(String)
         expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescription_list_filtered')
+      end
+
+      it 'responds to GET #index with filter and pagination' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_vagov') do
+          get '/my_health/v1/prescriptions?page=1&per_page=100&filter[[disp_status][eq]]=Active: Refill in Process'
+        end
+
+        filtered_response = JSON.parse(response.body)['data'].select do |i|
+          i['attributes']['disp_status'] == 'Active: Refill in Process'
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescription_list_filtered_with_pagination')
+        expect(filtered_response.length).to eq(JSON.parse(response.body)['data'].length)
+        expect(filtered_response.length).to eq(JSON.parse(response.body)['meta']['pagination']['total_entries'])
       end
 
       it 'responds to POST #refill' do

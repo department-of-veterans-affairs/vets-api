@@ -86,7 +86,7 @@ describe TravelPay::ClaimsClient do
     end
 
     it 'returns response from claims/search endpoint' do
-      @stubs.get('/api/v1.1/claims/search-by-appointment-date') do
+      @stubs.get('api/v1.1/claims/search-by-appointment-date') do
         [
           200,
           {},
@@ -131,7 +131,7 @@ describe TravelPay::ClaimsClient do
       claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'
       body = { 'appointmentId' => 'fake_btsss_appt_id', 'claimName' => 'SMOC claim',
                'claimantType' => 'Veteran' }.to_json
-      @stubs.post('/api/v1.1/claims') do
+      @stubs.post('api/v1.1/claims') do
         [
           200,
           {},

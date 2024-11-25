@@ -14,9 +14,9 @@ module HCA
       'function: 10-10EZR async form submission'
     ].freeze
 
-    # 14 retries was decided on because it's the closest to a 24-hour time span based on
-    # Sidekiq's backoff formula: https://github.com/sidekiq/sidekiq/wiki/Error-Handling#automatic-job-retry
-    sidekiq_options retry: 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 16
 
     sidekiq_retries_exhausted do |msg, _e|
       parsed_form = decrypt_form(msg['args'][0])

@@ -3,12 +3,16 @@
 require 'rails_helper'
 require 'vets/model'
 
-class FakeApartment < Vets::Model
+class FakeApartment
+  include Vets::Model
+
   attribute :unit_number, Integer
   attribute :building_number, Integer
 end
 
-class FakeAddress < Vets::Model
+class FakeAddress
+  include Vets::Model
+
   attribute :street, String
   attribute :street2, String
   attribute :city, String

@@ -1,0 +1,66 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: https://sandbox-api.va.gov/services/veteran_verification/v2/status/1012667145V762142
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Authorization: Bearer <TOKEN>
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 502
+      message: Bad Gateway
+    headers:
+      Date:
+      - Thu, 31 Oct 2024 18:08:54 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '120'
+      Ratelimit-Remaining:
+      - '117'
+      Ratelimit-Reset:
+      - '6'
+      Ratelimit-Limit:
+      - '120'
+      X-Ratelimit-Remaining-Minute:
+      - '117'
+      Www-Authenticate:
+      - Bearer
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      Cache-Control:
+      - ''
+      X-Frame-Options:
+      - SAMEORIGIN
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: UTF-8
+      string: '{
+  "errors": [
+    {
+      "title": "Bad Gateway",
+      "detail": "Upstream Request Error.",
+      "code": "502",
+      "status": "502"
+    }
+  ]
+}'
+  recorded_at: Thu, 31 Oct 2024 18:08:54 GMT
+recorded_with: VCR 6.3.1

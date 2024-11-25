@@ -74,6 +74,7 @@ en:
           - :phone_number
           - :postal_code
           - :preferred_name
+          - :pronouns_not_listed_text
           - :question
           - :relationship_to_veteran
           - :relationship_not_listed
@@ -100,7 +101,6 @@ en:
         nested_fields:
           pronouns:
             - :he_him_his
-            - :pronouns_not_listed_text
             - :she_her_hers
             - :they_them_theirs
             - :use_my_preferred_name
@@ -144,11 +144,8 @@ en:
             - :residency_state
             - :school_state
           files:
-            - :base64
-            - :file_id
             - :file_name
-            - :file_size
-            - :file_type
+            - :file_content
           school_obj:
             - :institution_name
             - :school_facility_code

@@ -65,10 +65,7 @@ module Mobile
         begin
           appeal = appeal_adapter.parse(appeal) if Flipper.enabled?(:mobile_appeal_model, @current_user)
         rescue => e
-          PersonalInformationLog.create!(
-            data: { appeal:, error: e.message },
-            error_class: 'MobileAppealModelValidationError'
-          )
+          Rails.logger.info('MOBILE APPEAL VALIDATION ERROR', error: e.message)
         end
 
         render json: Mobile::V0::AppealSerializer.new(appeal)

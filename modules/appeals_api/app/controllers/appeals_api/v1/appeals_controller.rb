@@ -36,7 +36,7 @@ module AppealsApi
       end
 
       def token_validation_api_key
-        Settings.dig(:modules_appeals_api, :token_validation, :appeals_status, :api_key)
+        Settings.modules_appeals_api.token_validation.appeals_status.api_key
       end
     end
   end

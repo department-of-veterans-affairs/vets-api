@@ -158,4 +158,35 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       end
     end
   end
+
+  describe '#register_failure' do
+    let(:form5655_submission) { create(:debts_api_form5655_submission) }
+    let(:message) { 'This is an error message' }
+
+    it 'saves error message and logs error' do
+      expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
+      expect(StatsD).to receive(:increment).with(
+        'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
+      )
+      expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
+      form5655_submission.register_failure(message)
+      expect(form5655_submission.error_message).to eq(message)
+    end
+
+    context 'combined form' do
+      it 'saves error message and logs error' do
+        form5655_submission.public_metadata = { combined: true }
+        form5655_submission.save
+
+        expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
+        expect(StatsD).to receive(:increment).with(
+          'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
+        )
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.combined.failure')
+        form5655_submission.register_failure(message)
+        expect(form5655_submission.error_message).to eq(message)
+      end
+    end
+  end
 end

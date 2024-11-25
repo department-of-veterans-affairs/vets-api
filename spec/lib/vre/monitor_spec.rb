@@ -28,7 +28,22 @@ RSpec.describe VRE::Monitor do
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
 
   describe '#track_submission_exhaustion' do
-    it 'logs sidekiq job exhaustion' do
+    it 'logs sidekiq job exhaustion failure avoided' do
+      msg = { 'args' => [claim.id, encrypted_user], error_message: 'Error!' }
+
+      log = "Failed all retries on VRE::Submit1900Job, last error: #{msg['error_message']}"
+      payload = {
+        message: msg
+      }
+
+      expect(monitor).to receive(:log_silent_failure_avoided).with(payload, nil, anything)
+      expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
+      expect(Rails.logger).to receive(:error).with(log)
+
+      monitor.track_submission_exhaustion(msg, user_struct.va_profile_email)
+    end
+
+    it 'logs sidekiq job exhaustion failure' do
       msg = { 'args' => [claim.id, encrypted_user], error_message: 'Error!' }
 
       log = "Failed all retries on VRE::Submit1900Job, last error: #{msg['error_message']}"
@@ -40,7 +55,7 @@ RSpec.describe VRE::Monitor do
       expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
       expect(Rails.logger).to receive(:error).with(log)
 
-      monitor.track_submission_exhaustion(msg)
+      monitor.track_submission_exhaustion(msg, nil)
     end
   end
 end

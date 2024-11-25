@@ -5,7 +5,9 @@ require 'sentry_logging'
 class VANotifyDdEmailJob
   include Sidekiq::Job
   extend SentryLogging
-  sidekiq_options retry: 14
+  # retry for  2d 1h 47m 12s
+  # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+  sidekiq_options retry: 16
 
   STATSD_ERROR_NAME = 'worker.direct_deposit_confirmation_email.error'
   STATSD_SUCCESS_NAME = 'worker.direct_deposit_confirmation_email.success'

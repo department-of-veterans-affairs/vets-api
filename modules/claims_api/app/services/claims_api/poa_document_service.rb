@@ -23,18 +23,29 @@ module ClaimsApi
     # @return {parameters, file}
     def generate_body(poa:, doc_type:, pdf_path:, action:)
       auth_headers = poa.auth_headers
-      veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'],
-                                          auth_headers['va_eauth_lastName'])
+      name_on_file = build_name_for_file(poa)
+
       ptcpnt_vet_id = auth_headers['va_eauth_pid']
       participant_id = find_ptcpnt_vet_id(auth_headers, ptcpnt_vet_id)
-      form_name = get_form_name(action:, doc_type:)
-      file_name = build_file_name(veteran_name:, identifier: nil, suffix: form_name)
+      form_suffix = get_form_suffix(action:, doc_type:)
 
-      generate_upload_body(claim_id: nil, system_name: 'Lighthouse', doc_type:, pdf_path:, file_name:,
-                           birls_file_number: nil, participant_id:, tracked_item_ids: nil)
+      generate_upload_body(claim_id: nil, system_name: 'Lighthouse', doc_type:, pdf_path:,
+                           file_name: file_name(poa, name_on_file, form_suffix), birls_file_number: nil,
+                           participant_id:, tracked_item_ids: nil)
     end
 
-    def get_form_name(action:, doc_type:)
+    def build_name_for_file(poa)
+      first_name, last_name = if dependent_filing?(poa)
+                                [poa.auth_headers['dependent']['first_name'],
+                                 poa.auth_headers['dependent']['last_name']]
+                              else
+                                [poa.auth_headers['va_eauth_firstName'], poa.auth_headers['va_eauth_lastName']]
+                              end
+
+      compact_name_for_file(first_name, last_name)
+    end
+
+    def get_form_suffix(action:, doc_type:)
       doc_type_form_names = {
         'put' => {
           'L075' => 'representative',

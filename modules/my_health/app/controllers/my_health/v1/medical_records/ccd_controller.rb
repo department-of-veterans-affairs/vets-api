@@ -15,6 +15,9 @@ module MyHealth
         # @param generated_datetime [String] date receieved from get_generate_ccd call property dateGenerated
         # @return [XML] Continuity of Care Document
         def download
+          generated_datetime = params[:date].to_s
+          raise Common::Exceptions::ParameterMissing, 'date' if generated_datetime.blank?
+
           resource = bb_client.get_download_ccd(generated_datetime)
           send_data resource, type: 'application/xml'
         end

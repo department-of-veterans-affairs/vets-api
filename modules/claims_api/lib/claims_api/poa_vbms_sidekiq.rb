@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/vbms_uploader'
+require 'bgs_service/person_web_service'
 
 module ClaimsApi
   module PoaVbmsSidekiq
@@ -53,7 +54,7 @@ module ClaimsApi
       ssn = power_of_attorney.auth_headers['va_eauth_pnid']
 
       begin
-        bgs_service(power_of_attorney:).people.find_by_ssn(ssn)&.[](:file_nbr) # rubocop:disable Rails/DynamicFindBy
+        bgs_service(power_of_attorney:).find_by_ssn(ssn)&.[](:file_nbr) # rubocop:disable Rails/DynamicFindBy
       rescue BGS::ShareError => e
         error_message = "A BGS failure occurred while trying to retrieve Veteran 'FileNumber'"
         log_exception_to_sentry(e, nil, { message: error_message }, 'warn')
@@ -62,10 +63,17 @@ module ClaimsApi
     end
 
     def bgs_service(power_of_attorney:)
-      BGS::Services.new(
-        external_uid: power_of_attorney.auth_headers['va_eauth_pid'],
-        external_key: power_of_attorney.auth_headers['va_eauth_pid']
-      )
+      if Flipper.enabled? :claims_api_use_person_web_service
+        ClaimsApi::PersonWebService.new(
+          external_uid: power_of_attorney.auth_headers['va_eauth_pid'],
+          external_key: power_of_attorney.auth_headers['va_eauth_pid']
+        )
+      else
+        BGS::Services.new(
+          external_uid: power_of_attorney.auth_headers['va_eauth_pid'],
+          external_key: power_of_attorney.auth_headers['va_eauth_pid']
+        ).people
+      end
     end
   end
 end

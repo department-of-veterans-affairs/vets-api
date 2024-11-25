@@ -6,7 +6,8 @@ require 'vets/model'
 # Should not be initialized directly
 #
 module Preneeds
-  class Base < Vets::Model
+  class Base
+    include Vets::Model
     # Override `as_json`
     #
     # @param options [Hash]

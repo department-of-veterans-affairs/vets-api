@@ -77,9 +77,7 @@ module RepresentationManagement
             "#{PAGE1_KEY}.DOByear[0]": data.veteran_date_of_birth.split('-').first,
             # Veteran Service Number
             "#{PAGE1_KEY}.VeteransServiceNumber_If_Applicable[0]": \
-            data.veteran_service_number,
-            # Veteran Insurance Number
-            "#{PAGE1_KEY}.InsuranceNumber_s[0]": data.veteran_insurance_numbers.join(', ')
+            data.veteran_service_number
           }
         end
 

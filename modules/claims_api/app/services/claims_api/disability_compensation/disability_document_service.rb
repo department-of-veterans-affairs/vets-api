@@ -25,8 +25,8 @@ module ClaimsApi
       # @return {parameters, file}
       def generate_body(claim:, doc_type:, pdf_path:, original_filename: nil)
         auth_headers = claim.auth_headers
-        veteran_name = compact_veteran_name(auth_headers['va_eauth_firstName'],
-                                            auth_headers['va_eauth_lastName'])
+        veteran_name = compact_name_for_file(auth_headers['va_eauth_firstName'],
+                                             auth_headers['va_eauth_lastName'])
         birls_file_number = auth_headers['va_eauth_birlsfilenumber']
         claim_id = claim.evss_id
         form_name = doc_type == 'L122' ? '526EZ' : 'supporting'

@@ -87,11 +87,11 @@ module AskVAApi
 
         def handle_family_inquiry(inquiry_params, inquiry_details)
           if inquiry_params[:is_question_about_veteran_or_someone_else] == 'Veteran' &&
-             inquiry_params[:their_relationship_to_veteran]
+             inquiry_params[:more_about_your_relationship_to_veteran]
             build_inquiry_details(
               inquiry_details: inquiry_details,
               inquiry_about: 'On Behalf of a Veteran',
-              veteran_relationship: inquiry_params[:their_relationship_to_veteran]
+              veteran_relationship: inquiry_params[:more_about_your_relationship_to_veteran]
             )
           elsif inquiry_params[:is_question_about_veteran_or_someone_else] == 'Someone else' &&
                 inquiry_params[:their_relationship_to_veteran]
@@ -106,7 +106,7 @@ module AskVAApi
         def general_inquiry(inquiry_params, details)
           build_inquiry_details(
             inquiry_details: details,
-            inquiry_about: "It's a general question",
+            inquiry_about: 'A general question',
             veteran_relationship: inquiry_params[:your_role]
           )
         end

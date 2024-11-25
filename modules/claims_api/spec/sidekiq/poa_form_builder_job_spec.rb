@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'pdf_fill/filler'
 
-RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
+RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_web_service/find_by_ssn' do
   subject { described_class }
 
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
@@ -17,7 +17,7 @@ RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
       .to receive(:get_auth_token).and_return('some-value-here')
     b64_image = File.read('modules/claims_api/spec/fixtures/signature_b64.txt')
     power_of_attorney.form_data = {
-      recordConcent: true,
+      recordConsent: true,
       consentAddressChange: true,
       consentLimits: ['DRUG ABUSE', 'SICKLE CELL'],
       signatures: {

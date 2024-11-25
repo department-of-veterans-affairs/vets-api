@@ -2,7 +2,9 @@
 
 module HCA
   class SubmissionJob < BaseSubmissionJob
-    sidekiq_options retry: 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 16
 
     sidekiq_retries_exhausted do |msg, _e|
       health_care_application = HealthCareApplication.find(msg['args'][2])

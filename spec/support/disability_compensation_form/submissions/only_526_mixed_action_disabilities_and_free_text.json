@@ -104,6 +104,14 @@
           "ratedDisabilityId": null,
           "diagnosticCode": 9999,
           "secondaryDisabilities": []
+        },
+        {
+          "name": "acl tear in right knee",
+          "classificationCode": null,
+          "disabilityActionType": "NEW",
+          "ratedDisabilityId": null,
+          "diagnosticCode": null,
+          "secondaryDisabilities": []
         }
       ],
       "treatments": [
@@ -144,4 +152,3 @@
   "form8940": null,
   "flashes": []
 }
-

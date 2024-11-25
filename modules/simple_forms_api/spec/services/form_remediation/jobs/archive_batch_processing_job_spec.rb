@@ -16,10 +16,10 @@ module SimpleFormsApi
         end
         let(:submissions) do
           create_list(:form_submission, 4, :pending, form_type:, form_data:) do |submission|
-            submission.update!(benefits_intake_uuid: SecureRandom.uuid)
+            submission.latest_attempt.update!(benefits_intake_uuid: SecureRandom.uuid)
           end
         end
-        let(:benefits_intake_uuids) { submissions.map(&:benefits_intake_uuid) }
+        let(:benefits_intake_uuids) { submissions.map(&:latest_attempt).map(&:benefits_intake_uuid) }
         let(:config) { Configuration::VffConfig.new }
         let(:s3_client_double) { instance_double(S3Client) }
 

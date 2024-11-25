@@ -6,6 +6,10 @@ FactoryBot.define do
 
     form {
       {
+        'view:selectable686_options': {
+          add_child: true,
+          report674: true
+        },
         add_child: true,
         privacy_agreementAccepted: true,
         veteran_information: {

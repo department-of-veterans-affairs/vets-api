@@ -6,7 +6,9 @@ module VBMS
     include Sidekiq::Job
     include SentryLogging
 
-    sidekiq_options retry: 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 16
     attr_reader :claim
 
     sidekiq_retries_exhausted do |msg, error|

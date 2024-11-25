@@ -35,8 +35,16 @@ describe ClaimsApi::V1::PoaPdfConstructor::Organization do
           state: 'CA',
           country: 'US',
           zipFirstFive: '92264'
-        }
-      }
+        },
+        organizationName: 'Official Service Organization',
+        firstName: 'Igor',
+        lastName: 'Sikorsky',
+        jobTitle: 'Veteran Service representative',
+        email: 'attorneyatlaw@nonsensedomain.org'
+      },
+      recordConsent: true,
+      consentLimits: ['DRUG ABUSE', 'SICKLE CELL'],
+      consentAddressChange: true
     }
     temp.save
   end

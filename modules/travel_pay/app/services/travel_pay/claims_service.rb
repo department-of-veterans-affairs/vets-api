@@ -26,14 +26,26 @@ module TravelPay
 
       @auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token, params)
-      raw_claims = faraday_response.body['data'].deep_dup
 
-      {
-        data: raw_claims.map do |sc|
-          sc['claimStatus'] = sc['claimStatus'].underscore.titleize
-          sc
-        end
-      }
+      if faraday_response.body['data']
+        raw_claims = faraday_response.body['data'].deep_dup
+
+        {
+          metadata: {
+            'status' => faraday_response.body['statusCode'],
+            'success' => faraday_response.body['success'],
+            'message' => faraday_response.body['message']
+          },
+          data: raw_claims&.map do |sc|
+            sc['claimStatus'] = sc['claimStatus'].underscore.titleize
+            sc
+          end
+        }
+      end
+      # Because we're appending this to the Appointments object, we need to not just throw an exception
+      # TODO: Integrate error handling from the token client through every subsequent client/service
+    rescue Faraday::Error
+      nil
     end
 
     def get_claim_by_id(claim_id)

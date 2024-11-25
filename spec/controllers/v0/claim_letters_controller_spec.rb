@@ -93,6 +93,24 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
     end
   end
 
+  describe '#index when "cst_include_ddl_5103_letters", "cst_include_ddl_boa_letters",
+  and "cst_include_ddl_sqd_letters" feature flags are all enabled' do
+    before do
+      Flipper.enable(:cst_include_ddl_5103_letters)
+      Flipper.enable(:cst_include_ddl_boa_letters)
+      Flipper.enable(:cst_include_ddl_sqd_letters)
+    end
+
+    it 'lists correct documents' do
+      all_allowed_doctypes = %w[27 34 184 408 700 704 706 858 859 864 942 1605]
+      get(:index)
+      letters = JSON.parse(response.body)
+      allowed_letters = letters.select { |d| all_allowed_doctypes.include?(d['doc_type']) }
+
+      expect(allowed_letters.length).to eql(letters.length)
+    end
+  end
+
   describe '#show' do
     it 'responds with a pdf with a dated filename' do
       get(:show, params: { document_id: })
@@ -132,37 +150,37 @@ RSpec.describe V0::ClaimLettersController, type: :controller do
               message_type: 'ddl.doctypes_metadata',
               document_type_metadata: contain_exactly(
                 { doc_type: '27',
-                  type_description: 'Board Of Appeals Decision Letter' },
+                  type_description: 'Board decision' },
                 { doc_type: '864',
-                  type_description: 'General Records Request (Medical)' },
+                  type_description: 'Copy of request for medical records sent to a non-VA provider' },
                 { doc_type: '859',
-                  type_description: 'Subsequent Development letter' },
+                  type_description: 'Request for specific evidence or information' },
                 { doc_type: '700',
-                  type_description: 'MAP-D Development letter' },
+                  type_description: 'Request for specific evidence or information' },
                 { doc_type: '408',
-                  type_description: 'VA Examination Letter' },
+                  type_description: 'Notification: Exam with VHA has been scheduled' },
                 { doc_type: '34',
-                  type_description: 'Correspondence' },
+                  type_description: 'Request for specific evidence or information' },
                 { doc_type: '858',
-                  type_description: 'Custom 5103 Notice' },
+                  type_description: 'List of evidence we may need ("5103 notice")' },
                 { doc_type: '1605',
-                  type_description: 'General Records Request (Non-Medical)' },
+                  type_description: 'Copy of request for non-medical records sent to a non-VA organization' },
                 { doc_type: '942',
-                  type_description: 'Final Attempt Letter' },
+                  type_description: 'Final notification: Request for specific evidence or information' },
                 { doc_type: '706',
-                  type_description: '5103/DTA Letter' },
+                  type_description: 'List of evidence we may need ("5103 notice")' },
                 { doc_type: '184',
-                  type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  type_description: 'Claim decision (or other notification, like Intent to File)' },
                 { doc_type: '184',
-                  type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  type_description: 'Claim decision (or other notification, like Intent to File)' },
                 { doc_type: '184',
-                  type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  type_description: 'Claim decision (or other notification, like Intent to File)' },
                 { doc_type: '704',
-                  type_description: 'Standard 5103 Notice' },
+                  type_description: 'List of evidence we may need ("5103 notice")' },
                 { doc_type: '184',
-                  type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' },
+                  type_description: 'Claim decision (or other notification, like Intent to File)' },
                 { doc_type: '184',
-                  type_description: 'Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)' }
+                  type_description: 'Claim decision (or other notification, like Intent to File)' }
               ))
     end
   end

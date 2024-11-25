@@ -23,6 +23,7 @@ class SavedClaim::DisabilityCompensation < SavedClaim
     form4142 = EVSS::DisabilityCompensationForm::Form4142.new(user, @form_hash.deep_dup).translate
     form526 = @form_hash.deep_dup
     dis_form = EVSS::DisabilityCompensationForm::DataTranslationAllClaim.new(user, form526, form4142.present?).translate
+    claimed_disabilities = dis_form.dig('form526', 'disabilities')
     form526_uploads = form526['form526'].delete('attachments')
 
     {
@@ -33,7 +34,7 @@ class SavedClaim::DisabilityCompensation < SavedClaim
                                                                                      @form_hash.deep_dup).translate,
       Form526Submission::FORM_8940 => EVSS::DisabilityCompensationForm::Form8940.new(user,
                                                                                      @form_hash.deep_dup).translate,
-      'flashes' => BGS::DisabilityCompensationFormFlashes.new(user, @form_hash.deep_dup).translate
+      'flashes' => BGS::DisabilityCompensationFormFlashes.new(user, @form_hash.deep_dup, claimed_disabilities).translate
     }.to_json
   end
 end

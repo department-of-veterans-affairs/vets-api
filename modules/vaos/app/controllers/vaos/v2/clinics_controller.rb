@@ -45,7 +45,7 @@ module VAOS
         sorted_clinics = []
         sorted_appointments = appointments_service.get_recent_sorted_clinic_appointments
 
-        if sorted_appointments.nil?
+        if sorted_appointments.blank?
           render json: { message: 'No appointments found' }, status: :not_found
           return
         end

@@ -5,10 +5,12 @@ properties:
   description:
     type: string
   diagnosticCode:
-    type: string, null
+    type: string
+    nullable: true
     example: 8100
   lastAction:
     type: string
+    nullable: true
     enum:
       - field_grant
       - withdrawn
@@ -20,5 +22,8 @@ properties:
       - dismissed_matter_of_law
       - Dismissed
       - Deferred
+      - Denied
   date:
     type: string
+    nullable: true
+

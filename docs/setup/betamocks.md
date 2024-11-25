@@ -52,7 +52,7 @@ def connection
 end
 ```
 
-2. Add endpoints to be mocked to the services config file.
+2. Add endpoints to be mocked to the [services config file](../../config/betamocks/services_config.yml).
 Each service description has a `base_uri` (pulled from Settings)
 `endpoints` is an array of hashes with:
 - `method:` a symbol of the http verb `:get`, `:post`, `:put`...
@@ -61,12 +61,12 @@ Each service description has a `base_uri` (pulled from Settings)
 ```yaml
 :services:
 
-# EVSS::PCIUAddress
-- :base_uri: <%= URI(Settings.evss.url).host %>
+# VA Profile / Vet360
+  :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
   :endpoints:
-  - :method: :get
-    :path: "/wss-pciu-services-web/rest/pciuServices/v1/states"
-    :file_path: "evss/pciu_address"
+  - :method: :post
+    :path: "/profile-service/profile/v3/*/*"
+    :file_path: "vet360/profile-service/default"
 ```
 
 3. In config/settings.yml set betamocks recording to true:

@@ -1,19 +1,26 @@
 # frozen_string_literal: true
 
+require 'pcpg/monitor'
+
 module Lighthouse
   class SubmitCareerCounselingJob
     include Sidekiq::Job
-    RETRY = 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    RETRY = 16
 
     STATSD_KEY_PREFIX = 'worker.lighthouse.submit_career_counseling_job'
 
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      Rails.logger.error(
-        "Failed all retries on SubmitCareerCounselingJob, last error: #{msg['error_message']}"
-      )
-      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+      begin
+        claim = SavedClaim.find(msg['args'].first)
+      rescue
+        claim = nil
+      end
+
+      Lighthouse::SubmitCareerCounselingJob.trigger_failure_events(msg, claim) if Flipper.enabled?(:pcpg_trigger_action_needed_email) # rubocop:disable Layout/LineLength
     end
 
     def perform(claim_id, user_uuid = nil)
@@ -48,6 +55,13 @@ module Lighthouse
           'date' => Time.zone.today.strftime('%B %d, %Y')
         }
       )
+    end
+
+    def self.trigger_failure_events(msg, claim)
+      pcpg_monitor = PCPG::Monitor.new
+      email = claim.parsed_form.dig('claimantInformation', 'emailAddress')
+      pcpg_monitor.track_submission_exhaustion(msg, claim, email)
+      claim.send_failure_email(email) if claim.present?
     end
   end
 end

@@ -15,10 +15,9 @@ module EVSS
       attr_accessor :submission_id
 
       # Sidekiq has built in exponential back-off functionality for retries
-      # A max retry attempt of 15 will result in a run time of ~36 hours
-      # Changed from 15 -> 14 ~ Jan 19, 2023
-      # This change reduces the run-time from ~36 hours to ~24 hours
-      RETRY = 14
+      # retry for  2d 1h 47m 12s
+      # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+      RETRY = 16
       STATSD_KEY_PREFIX = 'worker.evss.submit_form526'
 
       wrap_with_logging(
@@ -109,7 +108,7 @@ module EVSS
       # send submission data to either EVSS or Lighthouse (LH)
       def choose_service_provider(submission, service)
         if submission.claims_api? # not needed once fully migrated to LH
-          send_submission_data_to_lighthouse(submission, submission_account(submission).icn)
+          send_submission_data_to_lighthouse(submission, submission.account.icn)
         else
           service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
         end
@@ -146,10 +145,6 @@ module EVSS
       rescue => e
         handle_errors(submission, e)
         false
-      end
-
-      def submission_account(submission)
-        UserAccount.find_by(id: submission.user_account_id) || Account.lookup_by_user_uuid(submission.user_uuid)
       end
 
       def send_submission_data_to_lighthouse(submission, icn)

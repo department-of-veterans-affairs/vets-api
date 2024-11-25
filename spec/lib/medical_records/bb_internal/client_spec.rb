@@ -6,8 +6,7 @@ require 'stringio'
 
 describe BBInternal::Client do
   before(:all) do
-    # The "get_patient" cassette also contains the session auth call.
-    VCR.use_cassette 'mr_client/bb_internal/get_patient' do
+    VCR.use_cassette 'mr_client/bb_internal/session_auth' do
       @client ||= begin
         client = BBInternal::Client.new(session: { user_id: '11375034', icn: '1012740022V620959' })
         client.authenticate
@@ -108,9 +107,30 @@ describe BBInternal::Client do
   end
 
   describe '#get_download_ccd' do
-    it 'retrieves a previously generated CCD as XML' do
-      VCR.use_cassette 'mr_client/bb_internal/download_ccd' do
-        ccd = client.get_download_ccd('2024-10-23T12:42:48.000-0400')
+    let(:date) { '2024-10-23T12:42:48.000-0400' }
+    let(:expected_url) do
+      "#{Settings.mhv.medical_records.host}/mhvapi/v1/bluebutton/healthsummary/#{date}/fileFormat/XML/ccdType/XML"
+    end
+    let(:response_body) { '<ClinicalDocument>...</ClinicalDocument>' }
+
+    context 'when using VCR' do
+      it 'retrieves a previously generated CCD as XML' do
+        VCR.use_cassette 'mr_client/bb_internal/download_ccd' do
+          ccd = client.get_download_ccd(date)
+
+          expect(ccd).to be_a(String)
+          expect(ccd).to include('<ClinicalDocument')
+        end
+      end
+    end
+
+    context 'when verifying headers with WebMock' do
+      it 'sends the correct Accept header' do
+        stub_request(:get, expected_url)
+          .with(headers: { 'Accept' => 'application/xml' })
+          .to_return(status: 200, body: response_body, headers: { 'Content-Type' => 'application/xml' })
+
+        ccd = client.get_download_ccd(date)
 
         expect(ccd).to be_a(String)
         expect(ccd).to include('<ClinicalDocument')
@@ -133,6 +153,49 @@ describe BBInternal::Client do
         expect(first_study_job['status']).to be_a(String)
         expect(first_study_job).to have_key('studyIdUrn')
         expect(first_study_job['studyIdUrn']).to be_a(String)
+      end
+    end
+  end
+
+  describe '#get_bbmi_notification_setting' do
+    it 'retrieves the BBMI notification setting' do
+      VCR.use_cassette 'mr_client/bb_internal/get_bbmi_notification_setting' do
+        notification_setting = client.get_bbmi_notification_setting
+
+        expect(notification_setting).to be_a(Hash)
+        expect(notification_setting).to have_key('flag')
+        expect(notification_setting['flag']).to eq(true)
+      end
+    end
+  end
+
+  describe '#get_patient' do
+    it 'retrieves the patient information by user ID' do
+      VCR.use_cassette 'mr_client/bb_internal/get_patient' do
+        patient = client.get_patient
+
+        expect(patient).to be_a(Hash)
+
+        expect(patient).to have_key('ipas')
+        expect(patient['ipas']).to be_an(Array)
+        expect(patient['ipas']).not_to be_empty
+
+        expect(patient).to have_key('facilities')
+        expect(patient['facilities']).to be_an(Array)
+        expect(patient['facilities']).not_to be_empty
+
+        first_facility = patient['facilities'].first
+        expect(first_facility).to be_a(Hash)
+        expect(first_facility['facilityInfo']).to have_key('name')
+      end
+    end
+
+    it 'raises a ServiceError when the patient is not found' do
+      empty_response = double('Response', body: nil)
+      allow(client).to receive(:perform).and_return(empty_response)
+
+      expect { client.get_patient }.to raise_error(Common::Exceptions::ServiceError) do |error|
+        expect(error.errors.first[:detail]).to eq('Patient not found')
       end
     end
   end

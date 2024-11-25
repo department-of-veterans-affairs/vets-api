@@ -45,7 +45,7 @@ module ClaimsApi
             "#{base_form}.SocialSecurityNumber_FirstThreeNumbers[1]": data.dig('veteran', 'ssn')[0..2],
             "#{base_form}.SocialSecurityNumber_SecondTwoNumbers[1]": data.dig('veteran', 'ssn')[3..4],
             "#{base_form}.SocialSecurityNumber_LastFourNumbers[1]": data.dig('veteran', 'ssn')[5..8],
-            "#{base_form}.AuthorizationForRepAccessToRecords[0]": data['recordConcent'] == true ? 1 : 0,
+            "#{base_form}.AuthorizationForRepAccessToRecords[0]": data['recordConsent'] == true ? 1 : 0,
             "#{base_form}.AuthorizationForRepActClaimantsBehalf[0]": data['consentAddressChange'] == true ? 1 : 0,
             "#{base_form}.Date_Signed[0]": I18n.l(Time.zone.now.to_date, format: :va_form),
             "#{base_form}.Date_Signed[1]": I18n.l(Time.zone.now.to_date, format: :va_form),

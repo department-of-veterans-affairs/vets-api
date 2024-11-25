@@ -25,7 +25,6 @@ module RepresentationManagement
       veteran_phone
       veteran_email
       veteran_service_number
-      veteran_insurance_numbers
     ]
 
     claimant_attrs = %i[

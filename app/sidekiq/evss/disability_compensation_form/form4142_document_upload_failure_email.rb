@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'logging/call_location'
 require 'va_notify/service'
 require 'zero_silent_failures/monitor'
 
@@ -9,8 +10,9 @@ module EVSS
       STATSD_METRIC_PREFIX = 'api.form_526.veteran_notifications.form4142_upload_failure_email'
       ZSF_DD_TAG_FUNCTION  = '526_form_4142_upload_failure_email_sending'
 
-      # retry for one day
-      sidekiq_options retry: 14
+      # retry for  2d 1h 47m 12s
+      # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+      sidekiq_options retry: 16
 
       sidekiq_retries_exhausted do |msg, _ex|
         job_id = msg['jid']
@@ -59,7 +61,7 @@ module EVSS
       ensure
         StatsD.increment("#{STATSD_METRIC_PREFIX}.exhausted")
         cl = caller_locations.first
-        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
         user_account_id = begin
           Form526Submission.find(form526_submission_id).user_account_id
         rescue
@@ -115,7 +117,7 @@ module EVSS
         Rails.logger.info('Form4142DocumentUploadFailureEmail notification dispatched', log_info)
 
         cl = caller_locations.first
-        call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+        call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
         zsf_monitor.log_silent_failure_avoided(
           log_info.merge(email_confirmation_id: email_response&.id),
           Form526Submission.find(form526_submission_id).user_account_id,

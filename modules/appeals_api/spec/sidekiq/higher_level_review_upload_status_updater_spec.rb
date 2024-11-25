@@ -28,11 +28,9 @@ describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
       in_process_element[0]['uuid'] = upload.id
       expect(faraday_response).to receive(:body).at_least(:once).and_return([in_process_element].to_json)
 
-      with_settings(Settings.modules_appeals_api, higher_level_review_updater_enabled: true) do
-        AppealsApi::HigherLevelReviewUploadStatusUpdater.new.perform([upload])
-        upload.reload
-        expect(upload.status).to eq('processing')
-      end
+      AppealsApi::HigherLevelReviewUploadStatusUpdater.new.perform([upload])
+      upload.reload
+      expect(upload.status).to eq('processing')
     end
 
     it 'notifies sentry & slack of individual bad records without affecting good records' do
@@ -51,13 +49,11 @@ describe AppealsApi::HigherLevelReviewUploadStatusUpdater, type: :job do
       expect_any_instance_of(AppealsApi::CentralMailUpdater).to receive(:log_exception_to_sentry).once
       expect_any_instance_of(AppealsApi::Slack::Messager).to receive(:notify!).once
 
-      with_settings(Settings.modules_appeals_api, higher_level_review_updater_enabled: true) do
-        AppealsApi::HigherLevelReviewUploadStatusUpdater.new.perform([bad_upload, upload])
-        upload.reload
-        bad_upload.reload
-        expect(upload.status).to eq('processing')
-        expect(bad_upload.status).to eq('submitting')
-      end
+      AppealsApi::HigherLevelReviewUploadStatusUpdater.new.perform([bad_upload, upload])
+      upload.reload
+      bad_upload.reload
+      expect(upload.status).to eq('processing')
+      expect(bad_upload.status).to eq('submitting')
     end
   end
 end

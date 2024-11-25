@@ -43,7 +43,7 @@ module SimpleFormsApi
       end
 
       def validate_submission
-        raise 'Submission was not found or invalid' unless submission&.send(config.id_type)
+        raise 'Submission was not found or invalid' unless submission&.latest_attempt&.send(config.id_type)
         raise "#{self.class} cannot be built: Only VFF forms are supported" unless valid_form?
       end
 

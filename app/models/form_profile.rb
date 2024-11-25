@@ -181,8 +181,6 @@ class FormProfile
 
   def self.mappings_for_form(form_id)
     @mappings ||= {}
-    # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
-    form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
     @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
   end
 

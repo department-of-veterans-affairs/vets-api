@@ -23,12 +23,16 @@ RSpec.describe MHV::AccountCreatorJob, type: :job do
     }
   end
 
-  before do
-    allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
-    allow(mhv_client).to receive(:create_account).and_return(mhv_response_body)
+  it 'is unique for 5 minutes' do
+    expect(described_class.sidekiq_options['unique_for']).to eq(5.minutes)
   end
 
   describe '#perform' do
+    before do
+      allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
+      allow(mhv_client).to receive(:create_account).and_return(mhv_response_body)
+    end
+
     Sidekiq::Testing.inline! do
       context 'when a UserVerification exists' do
         it 'calls the MHV::UserAccount::Creator service class and returns the created MHVUserAccount instance' do

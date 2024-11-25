@@ -66,10 +66,6 @@ module V0
         key :description, 'Send and receive secure messages to health providers'
       end
       tag do
-        key :name, 'facilities'
-        key :description, 'VA facilities, locations, hours of operation, available services'
-      end
-      tag do
         key :name, 'gi_bill_institutions'
         key :description, 'Discover institutions at which GI Bill benefits may be used'
       end

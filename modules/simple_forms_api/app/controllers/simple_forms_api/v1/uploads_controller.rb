@@ -190,15 +190,14 @@ module SimpleFormsApi
 
       def create_form_submission_attempt(uuid)
         FormSubmissionAttempt.transaction do
-          form_submission = create_form_submission(uuid)
+          form_submission = create_form_submission
           FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
         end
       end
 
-      def create_form_submission(uuid)
+      def create_form_submission
         FormSubmission.create(
           form_type: params[:form_number],
-          benefits_intake_uuid: uuid,
           form_data: params.to_json,
           user_account: @current_user&.user_account
         )
@@ -222,7 +221,7 @@ module SimpleFormsApi
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
-        attachments = get_form_id == 'vba_20_10207' ? form.attachment_guids : []
+        attachments = get_form_id == 'vba_20_10207' ? form.get_attachments : []
         s3_client = config.s3_client.new(
           config:, type: :submission, id:, submission:, attachments:, file_path:, metadata:
         )

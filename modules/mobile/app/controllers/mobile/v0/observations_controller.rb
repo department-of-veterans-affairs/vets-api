@@ -7,7 +7,14 @@ module Mobile
     class ObservationsController < ApplicationController
       def show
         response = client.get_observation(params[:id])
-        observation = Mobile::V0::Adapters::Observation.new.parse(response.body)
+        begin
+          observation = Mobile::V0::Adapters::Observation.parse(response.body)
+        rescue => e
+          PersonalInformationLog.create!(
+            data: { observation: response, error: e.message },
+            error_class: 'MobileObservationModelValidationError'
+          )
+        end
 
         render json: ObservationSerializer.new(observation)
       end

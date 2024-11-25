@@ -13,9 +13,6 @@ betamocks:
   cache_dir: /cache # via docker; e.g. make up or make console
   services_config: config/betamocks/services_config.yml
 
-saml_ssoe:
-  idme_authn_context: https://eauth.va.gov/csp?Select=idme3
-
 account:
   enabled: true
 

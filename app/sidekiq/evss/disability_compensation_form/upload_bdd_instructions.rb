@@ -12,8 +12,9 @@ module EVSS
       BDD_INSTRUCTIONS_DOCUMENT_TYPE = 'L023'
       BDD_INSTRUCTIONS_FILE_NAME = 'BDD_Instructions.pdf'
 
-      # retry for one day
-      sidekiq_options retry: 14
+      # retry for  2d 1h 47m 12s
+      # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+      sidekiq_options retry: 16
 
       sidekiq_retries_exhausted do |msg, _ex|
         job_id = msg['jid']

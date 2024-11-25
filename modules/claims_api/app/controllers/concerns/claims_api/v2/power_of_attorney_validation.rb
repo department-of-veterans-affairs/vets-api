@@ -1,10 +1,13 @@
 # frozen_string_literal: false
 
 # rubocop:disable Metrics/ModuleLength
+require 'claims_api/dependent_claimant_validation'
 
 module ClaimsApi
   module V2
     module PowerOfAttorneyValidation
+      include ClaimsApi::DependentClaimantValidation
+
       def validate_form_2122_and_2122a_submission_values(user_profile:, veteran_participant_id: nil, poa_code: nil,
                                                          base: nil)
         validate_claimant_fields(user_profile)
@@ -18,12 +21,8 @@ module ClaimsApi
 
       private
 
-      def feature_enabled_and_claimant_present?
-        Flipper.enabled?(:lighthouse_claims_api_poa_dependent_claimants) && form_attributes['claimant'].present?
-      end
-
       def validate_dependent_claimant(veteran_participant_id:, user_profile:, poa_code:, base:)
-        return nil unless feature_enabled_and_claimant_present?
+        return nil unless allow_dependent_claimant?
 
         service = build_dependent_claimant_verification_service(veteran_participant_id:, user_profile:,
                                                                 poa_code:)

@@ -94,6 +94,7 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
   let(:dummy_class) { Class.new { include ClaimsApi::V2::ClaimsRequests::SupportingDocuments } }
 
   let(:controller) { FakeController.new }
+  let(:file_number) { '796111863' }
 
   before do
     allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return(true)
@@ -107,11 +108,13 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
 
   describe '#build_supporting_docs from Benefits Documents' do
     it 'builds and returns the correctly number of docs' do
+      allow(controller).to receive(:get_file_number).and_return('796111863')
       result = controller.build_supporting_docs(bgs_claim)
       expect(result.length).to eq(supporting_doc_list[:data][:documents].length)
     end
 
     it 'builds the correct doc output' do
+      allow(controller).to receive(:get_file_number).and_return('796111863')
       result = controller.build_supporting_docs(bgs_claim)
 
       expect(result[0][:document_id]).to eq(supporting_doc_list[:data][:documents][0][:documentId])
@@ -167,6 +170,14 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
     it 'returns nil if the date is empty' do
       result = controller.upload_date(nil)
       expect(result).to eq(nil)
+    end
+  end
+
+  describe '#get_file_number' do
+    it 'checks if the file number' do
+      result = controller.get_file_number
+
+      expect(result).to eq('796111863')
     end
   end
 end

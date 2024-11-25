@@ -139,7 +139,8 @@ describe SimpleFormsApi::NotificationEmail do
 
             subject.send(at: time)
 
-            expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything)
+            expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything, anything,
+                                                                          anything)
           end
         end
       end
@@ -532,16 +533,21 @@ describe SimpleFormsApi::NotificationEmail do
         }
       end
 
-      context 'when the applicant is the claimant ("self")' do
+      context 'when the applicant is the claimant ("Self")' do
         let(:form_data) do
           {
             'application' => {
               'applicant' => {
-                'applicant_relationship_to_claimant' => 'self'
+                'applicant_relationship_to_claimant' => 'Self'
+              },
+              'claimant' => {
+                'name' => {
+                  'first' => 'Freddy'
+                }
               },
               'veteran' => {
                 'current_name' => {
-                  'first' => 'Freddy'
+                  'first' => 'Bob'
                 }
               }
             }
@@ -558,11 +564,14 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'application' => {
               'applicant' => {
-                'applicant_relationship_to_claimant' => 'other'
+                'applicant_relationship_to_claimant' => 'Authorized Agent/Rep',
+                'name' => {
+                  'first' => 'Jason'
+                }
               },
               'claimant' => {
                 'name' => {
-                  'first' => 'Jason'
+                  'first' => 'Charles'
                 }
               }
             }

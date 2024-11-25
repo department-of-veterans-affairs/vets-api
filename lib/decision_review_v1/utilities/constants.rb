@@ -22,4 +22,25 @@ module DecisionReviewV1
 
   GET_CONTESTABLE_ISSUES_RESPONSE_SCHEMA =
     VetsJsonSchema::SCHEMAS.fetch 'DECISION-REVIEW-GET-CONTESTABLE-ISSUES-RESPONSE-200_V1'
+
+  TEMPLATE_IDS = Settings.vanotify.services.benefits_decision_review.template_id
+
+  FORM_TEMPLATE_IDS = {
+    'HLR' => TEMPLATE_IDS.higher_level_review_form_error_email,
+    'NOD' => TEMPLATE_IDS.notice_of_disagreement_form_error_email,
+    'SC' => TEMPLATE_IDS.supplemental_claim_form_error_email
+  }.freeze
+
+  EVIDENCE_TEMPLATE_IDS = {
+    'NOD' => TEMPLATE_IDS.notice_of_disagreement_evidence_error_email,
+    'SC' => TEMPLATE_IDS.supplemental_claim_evidence_error_email
+  }.freeze
+
+  SECONDARY_FORM_TEMPLATE_ID = TEMPLATE_IDS.supplemental_claim_secondary_form_error_email
+
+  APPEAL_TYPE_TO_SERVICE_MAP = {
+    'HLR' => 'higher-level-review',
+    'NOD' => 'board-appeal',
+    'SC' => 'supplemental-claims'
+  }.freeze
 end

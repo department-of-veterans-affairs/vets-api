@@ -156,7 +156,7 @@ module VAForms
         form_details_url:
           form_data['entityPublished'] ? "#{VAForms::Form::FORM_BASE_URL}#{form_data.dig('entityUrl', 'path')}" : '',
         form_tool_intro: form_data['fieldVaFormToolIntro'],
-        form_tool_url: form_data.dig('fieldVaFormToolUrl', 'uri'),
+        form_tool_url: form_data['entityPublished'] ? form_data.dig('fieldVaFormToolUrl', 'uri') : '',
         deleted_at: form_data.dig('fieldVaFormDeletedDate', 'value'),
         related_forms: form_data['fieldVaFormRelatedForms'].map { |f| f.dig('entity', 'fieldVaFormNumber') },
         benefit_categories: parse_benefit_categories(form_data),

@@ -12,7 +12,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
   let(:created_at) { 3.years.ago }
   let(:submission) { create(:form_submission, :pending, form_type:, form_data:, created_at:) }
   let(:submission_attempt) { submission.form_submission_attempts.first }
-  let(:benefits_intake_uuid) { submission.benefits_intake_uuid }
+  let(:benefits_intake_uuid) { submission_attempt.benefits_intake_uuid }
   let(:config) { SimpleFormsApi::FormRemediation::Configuration::VffConfig.new }
   let(:submission_instance) { described_class.new(id: benefits_intake_uuid, config:) }
   let(:filler) { instance_double(SimpleFormsApi::PdfFiller) }

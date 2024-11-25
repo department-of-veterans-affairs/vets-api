@@ -5,7 +5,7 @@ FactoryBot.define do
     date_of_birth { '2001-01-31' }
     desired_cemetery { '400' } # Alabama National VA Cemetery
     relationship_to_vet { '1' } # self
-    ssn { '123-45-6789' }
+    ssn { '123456789' }
     email { 'a@b.com' }
     phone_number { '1234567890' }
 

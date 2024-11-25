@@ -101,6 +101,7 @@
                 "firstName",
                 "middleName",
                 "lastName",
+                "preferredName",
                 "birthDate",
                 "gender",
                 "zip",
@@ -134,6 +135,12 @@
                 },
                 "lastName": {
                   "type": "string"
+                },
+                "preferredName": {
+                  "type": [
+                    "string",
+                    null
+                  ]
                 },
                 "birthDate": {
                   "type": "string"

@@ -144,10 +144,12 @@ module MPI
         person_component = locate_element(person, PATIENT_PERSON_PREFIX)
         person_types = parse_person_type(person)
         name = parse_name(locate_elements(person_component, NAME_XPATH))
+        preferred_names = parse_name(locate_elements(person_component, NAME_XPATH), indicator: NAME_PREFERRED_INDICATOR)
         {
           given_names: name[:given],
           family_name: name[:family],
           suffix: name[:suffix],
+          preferred_names: preferred_names[:given],
           gender: locate_element(person_component, GENDER_XPATH),
           birth_date: locate_element(person_component, DOB_XPATH),
           deceased_date: locate_element(person_component, DECEASED_XPATH),
@@ -248,15 +250,15 @@ module MPI
         { given:, family: }
       end
 
-      def parse_name(name)
-        name_element = parse_name_node(name, indicator: NAME_LEGAL_INDICATOR)
+      def parse_name(name, indicator: NAME_LEGAL_INDICATOR)
+        name_element = parse_name_node(name, indicator:)
 
         given = [*name_element.locate('given')].map { |el| el.nodes.first.capitalize }
-        family = name_element.locate('family').first.nodes.first.capitalize
+        family = name_element.locate('family')&.first&.nodes&.first&.capitalize
         suffix = name_element.locate('suffix')&.first&.nodes&.first&.capitalize
         { given:, family:, suffix: }
       rescue
-        Rails.logger.warn 'MPI::Response.parse_name failed'
+        Rails.logger.warn 'MPI::Response.parse_name failed' if indicator == NAME_LEGAL_INDICATOR
         { given: nil, family: nil }
       end
 

@@ -15,7 +15,10 @@ properties:
   status:
     type: string
   source:
-    type: string
+    type:
+      anyOf:
+        - string
+        - object
   meta:
     type: object
     additionalProperties: false

@@ -116,6 +116,13 @@ RSpec.describe FormSubmissionAttempt, type: :model do
         .to transition_from(:pending).to(:success).on_event(:succeed)
     end
 
+    it 'transitions to a manual state' do
+      form_submission_attempt = create(:form_submission_attempt)
+
+      expect(form_submission_attempt)
+        .to transition_from(:failure).to(:manually).on_event(:manual)
+    end
+
     context 'transitioning to a vbms state' do
       let(:notification_type) { :received }
 

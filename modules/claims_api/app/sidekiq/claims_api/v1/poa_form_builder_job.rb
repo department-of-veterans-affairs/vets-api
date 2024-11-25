@@ -30,7 +30,11 @@ module ClaimsApi
           upload_to_vbms(power_of_attorney, output_path)
         end
 
-        ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
+        if dependent_filing?(power_of_attorney)
+          ClaimsApi::PoaAssignDependentClaimantJob.perform_async(power_of_attorney.id)
+        else
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id)
+        end
       rescue VBMS::Unknown
         rescue_vbms_error(power_of_attorney)
       rescue Errno::ENOENT

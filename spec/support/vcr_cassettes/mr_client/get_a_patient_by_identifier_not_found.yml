@@ -1,0 +1,58 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_MR_HOST>/fhir/Patient?identifier=12345"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept:
+          - application/fhir+json
+        User-Agent:
+          - Ruby FHIR Client
+        Accept-Charset:
+          - utf-8
+        Authorization: Bearer <TOKEN>
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Host:
+          - localhost:2003
+    response:
+      status:
+        code: 202
+        message: ""
+      headers:
+        Date:
+          - Thu, 28 Sep 2023 18:36:15 GMT
+        Content-Type:
+          - application/fhir+json;charset=UTF-8
+        Transfer-Encoding:
+          - chunked
+        X-Powered-By:
+          - HAPI FHIR 6.2.2 REST Server (FHIR Server; FHIR 4.0.1/R4)
+        X-Request-Id:
+          - d2627c3d159be1e9d944fbfb77fe9e2c
+        Last-Modified:
+          - Thu, 28 Sep 2023 18:36:15 GMT
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: UTF-8
+        string: |-
+          {
+              "resourceType": "OperationOutcome",
+              "text": {
+                  "status": "generated",
+                  "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\"><h1>Operation Outcome</h1><table border=\"0\"><tr><td style=\"font-weight: bold;\">ERROR</td><td>[]</td><td>No Patient found</td></tr></table></div>"
+              },
+              "issue": [
+                  {
+                      "severity": "error",
+                      "code": "processing",
+                      "diagnostics": "No Patient found"
+                  }
+              ]
+          }
+    recorded_at: Thu, 28 Sep 2023 18:36:15 GMT
+recorded_with: VCR 6.2.0

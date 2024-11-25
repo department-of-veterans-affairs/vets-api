@@ -9,7 +9,7 @@ module VeteranVerification
   class Configuration < Common::Client::Configuration::REST
     self.read_timeout = Settings.lighthouse.veteran_verification.timeout || 20
 
-    API_SCOPES = %w[disability_rating.read].freeze
+    API_SCOPES = %w[disability_rating.read veteran_status.read].freeze
     VETERAN_VERIFICATION_PATH = 'services/veteran_verification/v2'
     TOKEN_PATH = 'oauth2/veteran-verification/system/v1/token'
 

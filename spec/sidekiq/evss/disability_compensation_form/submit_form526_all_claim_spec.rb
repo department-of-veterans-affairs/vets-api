@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'disability_compensation/factories/api_provider_factory'
+require 'virtual_regional_office/client'
 
 # pulled from vets-api/spec/support/disability_compensation_form/submissions/only_526.json
 ONLY_526_JSON_CLASSIFICATION_CODE = 'string'
@@ -14,6 +15,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_compensation_production_tester)
     Flipper.disable(:disability_compensation_fail_submission)
+    Flipper.disable(:disability_526_expanded_contention_classification)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -317,13 +319,57 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         submission.reload
 
         classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
-        expect(classification_codes).to eq([9012, 8994, nil])
+        expect(classification_codes).to eq([9012, 8994, nil, nil])
       end
 
-      it 'calls va-gov-claim-classifier' do
+      it 'calls va-gov-claim-classifier as default' do
+        vro_client_mock = instance_double(VirtualRegionalOffice::Client)
+        allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client_mock)
+        allow(vro_client_mock).to receive_messages(
+          classify_vagov_contentions_expanded: OpenStruct.new(body: 'expanded classification'),
+          classify_vagov_contentions: OpenStruct.new(body: 'regular response')
+        )
+
+        expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
+        expect(vro_client_mock).to receive(:classify_vagov_contentions)
         subject.perform_async(submission.id)
-        expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions)
         described_class.drain
+      end
+
+      context 'when the expanded classification endpoint is enabled' do
+        before do
+          user = OpenStruct.new({ flipper_id: submission.user_uuid })
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:disability_526_expanded_contention_classification,
+                                                    user).and_return(true)
+        end
+
+        it 'calls the expanded classification endpoint' do
+          vro_client_mock = instance_double(VirtualRegionalOffice::Client)
+          allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client_mock)
+          allow(vro_client_mock).to receive_messages(
+            classify_vagov_contentions_expanded: OpenStruct.new(body: 'expanded classification'),
+            classify_vagov_contentions: OpenStruct.new(body: 'regular response')
+          )
+
+          expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
+          expect(vro_client_mock).to receive(:classify_vagov_contentions_expanded)
+          subject.perform_async(submission.id)
+          described_class.drain
+        end
+
+        it 'uses expanded classification to classify contentions' do
+          subject.perform_async(submission.id)
+          expect do
+            VCR.use_cassette('virtual_regional_office/expanded_classification') do
+              described_class.drain
+            end
+          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+          submission.reload
+
+          classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+          expect(classification_codes).to eq([9012, 8994, nil, 8997])
+        end
       end
 
       context 'when the disabilities array is empty' do

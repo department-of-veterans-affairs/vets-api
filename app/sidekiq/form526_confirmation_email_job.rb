@@ -20,6 +20,7 @@ class Form526ConfirmationEmailJob
       personalisation: {
         'claim_id' => personalization_parameters['submitted_claim_id'],
         'date_submitted' => personalization_parameters['date_submitted'],
+        'date_received' => personalization_parameters['date_received'],
         'first_name' => personalization_parameters['first_name']
       }
     )

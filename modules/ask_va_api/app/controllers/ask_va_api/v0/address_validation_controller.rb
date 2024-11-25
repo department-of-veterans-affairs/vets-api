@@ -2,6 +2,8 @@
 
 require 'va_profile/models/validation_address'
 require 'va_profile/address_validation/service'
+require 'va_profile/models/v3/validation_address'
+require 'va_profile/v3/address_validation/service'
 
 module AskVAApi
   module V0
@@ -11,7 +13,12 @@ module AskVAApi
       service_tag 'profile'
 
       def create
-        address = VAProfile::Models::ValidationAddress.new(address_params)
+        validation_model = if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+                             VAProfile::Models::V3::ValidationAddress
+                           else
+                             VAProfile::Models::ValidationAddress
+                           end
+        address = validation_model.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
         Rails.logger.warn('AddressValidationController#create request completed', sso_logging_info)
@@ -39,7 +46,11 @@ module AskVAApi
       end
 
       def service
-        @service ||= VAProfile::AddressValidation::Service.new
+        @service ||= if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+                       VAProfile::V3::AddressValidation::Service.new
+                     else
+                       VAProfile::AddressValidation::Service.new
+                     end
       end
     end
   end

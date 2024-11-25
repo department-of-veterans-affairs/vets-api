@@ -1,12 +1,14 @@
 # frozen_string_literal: true
 
 require_relative '../../../support/helpers/rails_helper'
+require_relative '../../../support/helpers/committee_helper'
 
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service'
 
 RSpec.describe 'Mobile::V0::Claim', type: :request do
   include JsonSchemaMatchers
+  include CommitteeHelper
 
   let!(:user) { sis_user(icn: '1008596379V859838') }
 
@@ -33,8 +35,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
           event['trackedItemId'] == 360_052
         end.first
 
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to match_json_schema('individual_claim', strict: true)
+        assert_schema_conform(200)
 
         expect(tracked_item_with_docs['documents'].count).to eq(1)
         expect(tracked_item_with_docs['uploaded']).to eq(true)
@@ -58,7 +59,7 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
         VCR.use_cassette('mobile/lighthouse_claims/show/404_response') do
           get '/mobile/v0/claim/60038334', headers: sis_headers
 
-          expect(response).to have_http_status(:not_found)
+          assert_schema_conform(404)
           expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Resource not found',
                                                               'detail' => 'Resource not found',
                                                               'code' => '404', 'status' => '404' }] })

@@ -120,6 +120,9 @@ development: &defaults
   va_mobile_session_refresh_lock:
     namespace: va-mobile-session-refresh-lock
     each_ttl: 60
+  eps_access_token:
+    namespace: eps-access-token
+    each_ttl: 900 # 15 minutes
   saml_request_tracker:
     namespace: saml_request_tracker
     each_ttl: 3600 # 1 hour

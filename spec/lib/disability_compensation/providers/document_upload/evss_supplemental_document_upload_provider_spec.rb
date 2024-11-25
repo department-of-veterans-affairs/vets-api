@@ -88,7 +88,8 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
           'EVSSSupplementalDocumentUploadProvider upload attempted',
           {
             class: 'EVSSSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526'
@@ -118,7 +119,8 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
           'EVSSSupplementalDocumentUploadProvider upload successful',
           {
             class: 'EVSSSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526'
@@ -152,7 +154,8 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
           'EVSSSupplementalDocumentUploadProvider upload failed',
           {
             class: 'EVSSSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526'
@@ -185,7 +188,8 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
           "#{uploading_job_class} EVSSSupplementalDocumentUploadProvider Failure",
           {
             class: 'EVSSSupplementalDocumentUploadProvider',
-            submission_id: submission.submitted_claim_id,
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526',
