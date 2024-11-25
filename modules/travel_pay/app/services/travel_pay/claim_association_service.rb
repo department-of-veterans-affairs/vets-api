@@ -56,8 +56,11 @@ module TravelPay
                    rescue_errors(e))
     end
 
-    def associate_single_appointment_to_claim(params = {}) # rubocop:disable Metrics/MethodLength
+    def associate_single_appointment_to_claim(params = {})
       appt = params['appointment']
+      # Because we only receive a single date/time but the external endpoint requires 2 dates
+      # in this case both start and end dates are the same
+
       validate_date_params(appt['start'], appt['start'])
 
       auth_manager.authorize => { veis_token:, btsss_token: }
