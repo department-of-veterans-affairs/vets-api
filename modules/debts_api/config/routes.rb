@@ -9,6 +9,8 @@ DebtsApi::Engine.routes.draw do
       end
     end
 
+    resources :digital_disputes, only: %i[create]
+
     get 'financial_status_reports/rehydrate_submission/:submission_id', to: 'financial_status_reports#rehydrate'
     post 'financial_status_reports/transform_and_submit', to: 'financial_status_reports#transform_and_submit'
 
