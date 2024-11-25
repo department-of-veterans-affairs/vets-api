@@ -8,7 +8,7 @@ module RepresentationManagement
       before_action :feature_enabled
 
       def index
-        data = RepresentationManagement::AccreditedEntityQuery.new(form_params[:query]).results
+        data = RepresentationManagement::AccreditedEntityQuery.new(params[:query]).results
         json_response = data.map do |record|
           if record.is_a?(AccreditedIndividual)
             RepresentationManagement::AccreditedEntities::IndividualSerializer.new(record).serializable_hash
@@ -20,10 +20,6 @@ module RepresentationManagement
       end
 
       private
-
-      def form_params
-        params.permit(:query)
-      end
 
       def feature_enabled
         routing_error unless Flipper.enabled?(:appoint_a_representative_enable_pdf)
