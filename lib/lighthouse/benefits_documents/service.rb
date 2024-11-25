@@ -22,13 +22,6 @@ module BenefitsDocuments
       Rails.logger.info('Parameters for document upload', loggable_params)
 
       start_timer = Time.zone.now
-      claim_id = params[:claimId] || params[:claim_id]
-      tracked_item_id = params[:trackedItemIds] || params[:tracked_item_ids]
-
-      unless claim_id
-        raise Common::Exceptions::InternalServerError,
-              ArgumentError.new("Claim with id #{claim_id} not found")
-      end
 
       jid = submit_document(params[:file], params, lighthouse_client_id)
       StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ['is_multifile:false'])
@@ -41,12 +34,6 @@ module BenefitsDocuments
       Rails.logger.info('Parameters for document multi image upload', loggable_params)
 
       start_timer = Time.zone.now
-      claim_id = params[:claimId] || params[:claim_id]
-      tracked_item_id = params[:trackedItemIds] || params[:tracked_item_ids]
-      unless claim_id
-        raise Common::Exceptions::InternalServerError,
-              ArgumentError.new("Claim with id #{claim_id} not found")
-      end
 
       file_to_upload = generate_multi_image_pdf(params[:files])
       jid = submit_document(file_to_upload, params, lighthouse_client_id)
@@ -67,20 +54,31 @@ module BenefitsDocuments
       claim_id = file_params[:claimId] || file_params[:claim_id]
       tracked_item_id = file_params[:trackedItemIds] || file_params[:tracked_item_ids]
 
+      unless claim_id
+        raise Common::Exceptions::InternalServerError,
+              ArgumentError.new("Claim with id #{claim_id} not found")
+      end
+
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
       uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
       uploader.store!(document_data.file_obj)
       # the uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
-      if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
-        Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_data.to_serializable_hash)
-      else
-        Lighthouse::DocumentUpload.perform_async(user_icn, document_data.to_serializable_hash, user_account_uuid, claim_id, tracked_item_id)
-      end
+      document_upload(user_icn, document_data.to_serializable_hash, user_account_uuid,
+                      claim_id, tracked_item_id)
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)
       raise e
+    end
+
+    def document_upload(user_icn, document_hash, user_account_uuid, claim_id, tracked_item_id)
+      if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
+        Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_hash)
+      else
+        Lighthouse::DocumentUpload.perform_async(user_icn, document_hash, user_account_uuid,
+                                                 claim_id, tracked_item_id)
+      end
     end
 
     def build_lh_doc(file, file_params)

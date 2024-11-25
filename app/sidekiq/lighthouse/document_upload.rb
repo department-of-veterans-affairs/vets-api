@@ -145,10 +145,10 @@ class Lighthouse::DocumentUpload
     upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
 
     evidence_submission = EvidenceSubmission.find_or_create_by(claim_id:,
-                                                              tracked_item_id:,
-                                                              job_id:,
-                                                              job_class:,
-                                                              upload_status:)
+                                                               tracked_item_id:,
+                                                               job_id:,
+                                                               job_class:,
+                                                               upload_status:)
     evidence_submission.user_account = user_account
     evidence_submission.save!
     evidence_submission
