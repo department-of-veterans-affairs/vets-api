@@ -4,10 +4,18 @@ module SwaggerSharedComponents
   class V0
     def self.body_examples
       {
+        original_entities: original_entities,
+        original_entities_parameter:,
         pdf_generator2122:,
         pdf_generator2122_parameter:
       }
     end
+
+    # def self.original_entities
+    #   {
+    #     query: 'Bob'
+    #   }
+    # end
 
     def self.pdf_generator2122
       {
@@ -49,6 +57,20 @@ module SwaggerSharedComponents
         email: 'veteran@example.com',
         name:,
         address:
+      }
+    end
+
+    def self.original_entities_parameter
+      {
+        name: :accredited_entities_for_appoint,
+        in: :body,
+        schema: {
+          type: :object,
+          properties: {
+            query: { type: :string, example: 'Bob' }
+          },
+          required: %w[query]
+        }
       }
     end
 
