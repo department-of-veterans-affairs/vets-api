@@ -9,16 +9,10 @@ check_in:
   chip_api_v2:
     mock: false
     timeout: 30
-  chip_api:
-    mock: false
-    timeout: 30
   lorota_v2:
     mock: false
   travel_reimbursement_api:
     redis_token_expiry: 3540
-claims_api:
-  s3:
-    enabled: true
 clamav:
   mock: false
 coverband:
