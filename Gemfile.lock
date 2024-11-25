@@ -137,6 +137,18 @@ PATH
     vye (0.1.0)
 
 GEM
+  remote: https://enterprise.contribsys.com/
+  specs:
+    sidekiq-ent (7.2.4)
+      einhorn (~> 1.0)
+      gserver
+      sidekiq (>= 7.2.0, < 8)
+      sidekiq-pro (>= 7.2.0, < 8)
+    sidekiq-pro (7.2.1)
+      base64
+      sidekiq (>= 7.2.0, < 8)
+
+GEM
   remote: https://rubygems.org/
   specs:
     Ascii85 (1.1.0)
@@ -407,15 +419,16 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
+    einhorn (1.0.0)
     erubi (1.13.0)
     et-orbi (1.2.11)
       tzinfo
     ethon (0.16.0)
       ffi (>= 1.15.0)
-    factory_bot (6.4.5)
+    factory_bot (6.5.0)
       activesupport (>= 5.0.0)
-    factory_bot_rails (6.4.3)
-      factory_bot (~> 6.4)
+    factory_bot_rails (6.4.4)
+      factory_bot (~> 6.5)
       railties (>= 5.0.0)
     faker (3.5.1)
       i18n (>= 1.8.11, < 2)
@@ -528,6 +541,7 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
+    gserver (0.0.1)
     guard (2.18.1)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -652,7 +666,7 @@ GEM
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     mini_portile2 (2.8.8)
-    minitest (5.25.1)
+    minitest (5.25.2)
     mock_redis (0.46.0)
     msgpack (1.7.2)
     msgpack (1.7.2-java)
@@ -782,7 +796,7 @@ GEM
     raabro (1.4.0)
     racc (1.8.1)
     racc (1.8.1-java)
-    rack (2.2.9)
+    rack (2.2.10)
     rack-attack (6.7.0)
       rack (>= 1.0, < 4)
     rack-cors (2.0.2)
@@ -1284,6 +1298,8 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq (~> 7.2.0)
+  sidekiq-ent!
+  sidekiq-pro!
   sign_in_service
   simple_forms_api!
   simplecov
