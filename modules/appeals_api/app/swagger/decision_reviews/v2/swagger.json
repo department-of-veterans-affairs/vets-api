@@ -253,7 +253,7 @@
                           "title": "Validation error",
                           "detail": "Receipt date cannot be before 2019-02-20",
                           "source": {
-                            "parameter": "receiptDate"
+                            "header": "X-VA-Receipt-Date"
                           },
                           "status": "422"
                         }
@@ -1438,7 +1438,7 @@
                       "title": "Validation error",
                       "detail": "Receipt date cannot be before 2019-02-20",
                       "source": {
-                        "parameter": "receiptDate"
+                        "header": "X-VA-Receipt-Date"
                       },
                       "status": "422"
                     }

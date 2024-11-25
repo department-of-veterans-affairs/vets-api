@@ -37,7 +37,7 @@ Rspec.describe AppealsApi::V2::DecisionReviews::HigherLevelReviews::ContestableI
         error = JSON.parse(response.body)['errors'][0]
         expect(error['title']).to eql('Validation error')
         expect(error['detail']).to eql('Receipt date cannot be before 2019-02-20')
-        expect(error['source']['parameter']).to eql('receiptDate')
+        expect(error['source']['header']).to eql('X-VA-Receipt-Date')
         expect(error['status']).to eql('422')
       end
     end

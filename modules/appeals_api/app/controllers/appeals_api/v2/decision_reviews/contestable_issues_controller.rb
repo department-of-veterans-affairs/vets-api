@@ -145,7 +145,7 @@ module AppealsApi::V2
             title: I18n.t('appeals_api.errors.titles.validation_error'),
             detail: I18n.t('appeals_api.errors.receipt_date_too_early'),
             source: {
-              parameter: 'receiptDate'
+              header: 'X-VA-Receipt-Date'
             },
             status: '422'
           }
