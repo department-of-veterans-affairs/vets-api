@@ -4394,7 +4394,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "40ff08dd-56a5-4c8e-9729-7311bc1c3e07",
+                        "id": "94cf4190-cb60-462f-9f9f-18e96a98f679",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4625,7 +4625,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "57b3ccaa-60f7-448a-92f1-c580c0e24ba0",
+                        "id": "2afcf5be-3233-4f3d-b575-c163867c2538",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -9838,7 +9838,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bb2c086e-a74e-4a5a-b0c1-e80e2ecd8b4b",
+                    "id": "416efb54-617a-4ace-b396-a3f00a15b951",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -14477,7 +14477,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c3a784d4-7eaf-4b54-ad95-c431e341757f",
+                    "id": "0235eeb5-f965-4063-9379-72c177bdd474",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15249,7 +15249,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bdedb2d6-4fc3-41a4-80c5-06e6eb111545",
+                    "id": "ca3654c9-d900-4767-8e3e-2593b89ed609",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15833,27 +15833,15 @@
                         "veteran": {
                           "address": {
                             "addressLine1": "123",
-                            "addressLine2": "2a",
                             "city": "city",
-                            "country": "US",
                             "stateCode": "OR",
-                            "zipCode": "12345",
-                            "zipCodeSuffix": "6789"
+                            "country": "US",
+                            "zipCode": "12345"
                           }
                         },
-                        "representative": {
-                          "poaCode": "067",
-                          "registrationNumber": "999999999999",
-                          "type": "ATTORNEY",
-                          "address": {
-                            "addressLine1": "123",
-                            "addressLine2": "2a",
-                            "city": "city",
-                            "country": "US",
-                            "stateCode": "OR",
-                            "zipCode": "12345",
-                            "zipCodeSuffix": "6789"
-                          }
+                        "serviceOrganization": {
+                          "poaCode": "083",
+                          "registrationNumber": "999999999999"
                         }
                       }
                     }
@@ -15866,27 +15854,15 @@
                         "veteran": {
                           "address": {
                             "addressLine1": "123",
-                            "addressLine2": "2a",
                             "city": "city",
-                            "country": "US",
                             "stateCode": "OR",
-                            "zipCode": "12345",
-                            "zipCodeSuffix": "6789"
+                            "country": "US",
+                            "zipCode": "12345"
                           }
                         },
-                        "representative": {
-                          "poaCode": "067",
-                          "registrationNumber": "999999999999",
-                          "type": "ATTORNEY",
-                          "address": {
-                            "addressLine1": "123",
-                            "addressLine2": "2a",
-                            "city": "city",
-                            "country": "US",
-                            "stateCode": "OR",
-                            "zipCode": "12345",
-                            "zipCodeSuffix": "6789"
-                          }
+                        "serviceOrganization": {
+                          "poaCode": "083",
+                          "registrationNumber": "999999999999"
                         },
                         "claimant": {
                           "claimantId": "1013093331V548481",
@@ -17269,7 +17245,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4579f7c6-603c-4378-b0a6-dd464a4ab267",
+                    "id": "f02c432d-5009-4744-be2b-fb6ace6014b5",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2024-11-25",

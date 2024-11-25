@@ -438,10 +438,10 @@ describe 'PowerOfAttorney',
       }
 
       request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                                    'power_of_attorney', '2122a', 'valid.json').read)
+                                                    'power_of_attorney', '2122', 'valid.json').read)
 
       request_template_with_dependent = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
-                                                                   'veterans', 'power_of_attorney', '2122a',
+                                                                   'veterans', 'power_of_attorney', '2122',
                                                                    'valid.json').read)
 
       request_template_with_dependent['data']['attributes']['claimant'] = claimant_data
