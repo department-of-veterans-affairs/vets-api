@@ -163,7 +163,8 @@ module BenefitsIntake
       form_id = form_submission_attempt.form_submission.form_type
       saved_claim_id = form_submission_attempt.form_submission.saved_claim_id
 
-      FORM_HANDLERS[form_id]&.handle(result, saved_claim_id)
+      call_location = caller_locations.first
+      FORM_HANDLERS[form_id]&.handle(result, saved_claim_id, call_location:)
     end
 
     def attempt_status_result(uuid, status)

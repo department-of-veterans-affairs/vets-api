@@ -5,15 +5,18 @@ module BenefitsIntake
     class SavedClaim
       class << self
 
-      def handle(result, saved_claim_id)
-        claim = claim_class.find(saved_claim_id)
+        def handle(result, saved_claim_id, call_location: nil)
+          @claim = claim_class.find(saved_claim_id)
+        end
+
+        private
+
+        def claim_class
+          ::SavedClaim
+        end
+
       end
 
-      private
-
-      def claim_class
-        SavedClaim
-      end
     end
   end
 end
