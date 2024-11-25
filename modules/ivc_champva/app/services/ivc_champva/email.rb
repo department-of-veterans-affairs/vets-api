@@ -10,8 +10,11 @@ module IvcChampva
       '10-7959F-1' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959f_1_email,
       '10-7959F-1-FAILURE' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959f_1_failure_email,
       '10-7959F-2' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959f_2_email,
+      '10-7959F-2-FAILURE' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959f_2_failure_email,
       '10-7959C' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959c_email,
+      '10-7959C-FAILURE' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959c_failure_email,
       '10-7959A' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959a_email
+      '10-7959A-FAILURE' => Settings.vanotify.services.ivc_champva.template_id.form_10_7959a_failure_email,
     }.freeze
 
     def initialize(data)
