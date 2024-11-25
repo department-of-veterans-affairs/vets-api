@@ -124,8 +124,8 @@ describe VaNotify::Service do
             expect(VANotify::Notification.count).to eq(1)
             notification = VANotify::Notification.first
             expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
-            expect(notification.callback).to eq(nil)
-            expect(notification.metadata).to eq(nil)
+            expect(notification.callback_klass).to eq(nil)
+            expect(notification.callback_metadata).to eq(nil)
           end
         end
 
@@ -139,8 +139,8 @@ describe VaNotify::Service do
             expect(VANotify::Notification.count).to eq(1)
             notification = VANotify::Notification.first
             expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
-            expect(notification.callback).to eq(nil)
-            expect(notification.metadata).to eq(nil)
+            expect(notification.callback_klass).to eq(nil)
+            expect(notification.callback_metadata).to eq(nil)
           end
         end
 
@@ -154,7 +154,7 @@ describe VaNotify::Service do
             expect(VANotify::Notification.count).to eq(1)
             notification = VANotify::Notification.first
             expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
-            expect(notification.callback).to eq('TestCallback')
+            expect(notification.callback_klass).to eq('TestCallback')
             expect(notification.callback_metadata).to eq('optional_metadata')
           end
         end
