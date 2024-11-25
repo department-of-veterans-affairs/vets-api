@@ -8,8 +8,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
   before do
     Sidekiq::Job.clear_all
 
-    Flipper.disable(:disability_compensation_use_api_provider_for_submit_veteran_upload)
-    Flipper.disable(:form526_send_document_upload_failure_notification)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_use_api_provider_for_submit_veteran_upload)
+                                        .and_return(false)
+    allow(Flipper).to receive(:enabled?).with('disability_compensation_use_api_provider_for_submit_veteran_upload',
+                                              instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:form526_send_document_upload_failure_notification).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -79,7 +83,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
         context 'when the form526_send_document_upload_failure_notification Flipper is enabled' do
           before do
-            Flipper.enable(:form526_send_document_upload_failure_notification)
+            allow(Flipper).to receive(:enabled?)
+              .with(:form526_send_document_upload_failure_notification).and_return(true)
           end
 
           it 'enqueues a failure notification mailer to send to the veteran' do
@@ -151,7 +156,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
   describe 'When an ApiProvider is used for uploads' do
     before do
-      Flipper.enable(:disability_compensation_use_api_provider_for_submit_veteran_upload)
+      allow(Flipper).to receive(:enabled?).with(:disability_compensation_use_api_provider_for_submit_veteran_upload)
+                                          .and_return(true)
       # StatsD metrics are incremented in several callbacks we're not testing here so we need to allow them
       allow(StatsD).to receive(:increment)
     end
@@ -180,7 +186,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         end
 
         before do
-          Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
+          allow(Flipper).to receive(:enabled?).with('disability_compensation_upload_veteran_evidence_to_lighthouse',
+                                                    instance_of(User)).and_return(true)
 
           allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
             .and_return(faraday_response)
@@ -310,7 +317,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       # Upload to EVSS
       context 'when the disability_compensation_upload_veteran_evidence_to_lighthouse flipper is disabled' do
         before do
-          Flipper.disable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
+          allow(Flipper).to receive(:enabled?).with('disability_compensation_upload_veteran_evidence_to_lighthouse',
+                                                    instance_of(User)).and_return(false)
           allow_any_instance_of(EVSS::DocumentsService).to receive(:upload)
         end
 
@@ -379,7 +387,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
       context 'when the API Provider uploads are enabled' do
         before do
-          Flipper.enable(:disability_compensation_use_api_provider_for_submit_veteran_upload)
+          allow(Flipper).to receive(:enabled?).with(:disability_compensation_use_api_provider_for_submit_veteran_upload)
+                                              .and_return(true)
         end
 
         let(:sidekiq_job_exhaustion_errors) do
@@ -393,7 +402,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
         context 'for a Lighthouse upload' do
           it 'logs the job failure' do
-            Flipper.enable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
+            allow(Flipper).to receive(:enabled?).with('disability_compensation_upload_veteran_evidence_to_lighthouse',
+                                                      instance_of(User)).and_return(true)
 
             subject.within_sidekiq_retries_exhausted_block(sidekiq_job_exhaustion_errors) do
               expect_any_instance_of(LighthouseSupplementalDocumentUploadProvider)
@@ -405,7 +415,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
 
         context 'for an EVSS Upload' do
           it 'logs the job failure' do
-            Flipper.disable(:disability_compensation_upload_veteran_evidence_to_lighthouse)
+            allow(Flipper).to receive(:enabled?).with('disability_compensation_upload_veteran_evidence_to_lighthouse',
+                                                      instance_of(User)).and_return(false)
 
             subject.within_sidekiq_retries_exhausted_block(sidekiq_job_exhaustion_errors) do
               expect_any_instance_of(EVSSSupplementalDocumentUploadProvider).to receive(:log_uploading_job_failure)
@@ -422,7 +433,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
       let!(:failure_email) { EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail }
 
       before do
-        Flipper.enable(:form526_send_document_upload_failure_notification)
+        allow(Flipper).to receive(:enabled?).with(:form526_send_document_upload_failure_notification).and_return(true)
         allow(ZeroSilentFailures::Monitor).to receive(:new).with(zsf_tag).and_return(zsf_monitor)
       end
 
