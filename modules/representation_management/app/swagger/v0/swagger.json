@@ -207,30 +207,18 @@
               "attributes": {
                 "type": "object",
                 "properties": {
-                  "first_name": {
-                    "type": "string",
-                    "example": "John"
-                  },
-                  "last_name": {
-                    "type": "string",
-                    "example": "Doe"
-                  },
-                  "full_name": {
-                    "type": "string",
-                    "example": "John Doe"
-                  },
                   "address_line1": {
                     "type": "string",
                     "example": "123 Main St"
                   },
                   "address_line2": {
                     "type": "string",
-                    "example": "Apt 4B",
+                    "example": "Apt 4",
                     "nullable": true
                   },
                   "address_line3": {
                     "type": "string",
-                    "example": "",
+                    "example": "Suite 100",
                     "nullable": true
                   },
                   "address_type": {
@@ -243,15 +231,18 @@
                   },
                   "country_name": {
                     "type": "string",
-                    "example": "USA"
+                    "example": "USA",
+                    "nullable": true
                   },
                   "country_code_iso3": {
                     "type": "string",
-                    "example": "USA"
+                    "example": "USA",
+                    "nullable": true
                   },
                   "province": {
                     "type": "string",
-                    "example": "New York"
+                    "example": "New York",
+                    "nullable": true
                   },
                   "international_postal_code": {
                     "type": "string",
@@ -270,6 +261,18 @@
                     "type": "string",
                     "example": "6789",
                     "nullable": true
+                  },
+                  "first_name": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                  },
+                  "full_name": {
+                    "type": "string",
+                    "example": "John Doe"
                   },
                   "phone": {
                     "type": "string",
@@ -317,21 +320,13 @@
               "attributes": {
                 "type": "object",
                 "properties": {
-                  "poa_code": {
-                    "type": "string",
-                    "example": "123"
-                  },
-                  "name": {
-                    "type": "string",
-                    "example": "Organization Name"
-                  },
                   "address_line1": {
                     "type": "string",
-                    "example": "456 Elm St"
+                    "example": "123 Main St"
                   },
                   "address_line2": {
                     "type": "string",
-                    "example": "",
+                    "example": "Apt 4",
                     "nullable": true
                   },
                   "address_line3": {
@@ -345,7 +340,7 @@
                   },
                   "city": {
                     "type": "string",
-                    "example": "Othertown"
+                    "example": "Anytown"
                   },
                   "country_name": {
                     "type": "string",
@@ -359,7 +354,7 @@
                   },
                   "province": {
                     "type": "string",
-                    "example": "",
+                    "example": "New York",
                     "nullable": true
                   },
                   "international_postal_code": {
@@ -369,16 +364,24 @@
                   },
                   "state_code": {
                     "type": "string",
-                    "example": "CA"
+                    "example": "NY"
                   },
                   "zip_code": {
                     "type": "string",
-                    "example": "98765"
+                    "example": "12345"
                   },
                   "zip_suffix": {
                     "type": "string",
-                    "example": "4321",
+                    "example": "6789",
                     "nullable": true
+                  },
+                  "poa_code": {
+                    "type": "string",
+                    "example": "123"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Organization Name"
                   },
                   "phone": {
                     "type": "string",
