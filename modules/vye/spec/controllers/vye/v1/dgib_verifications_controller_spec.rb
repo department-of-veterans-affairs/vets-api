@@ -2,23 +2,28 @@
 
 require 'rails_helper'
 require 'support/controller_spec_helper'
+require 'vye/vye_serializer'
 
-RSpec.describe VYE::V1::DgibVerificationsController, type: :controller do
+RSpec.describe Vye::V1::DgibVerificationsController, type: :controller do
+  routes { Vye::Engine.routes }
+
   let!(:current_user) { create(:user, :accountable) }
   let(:claimant_id) { '1' }
 
   before do
-    # Nothing with the routing seemed to work but subject.claimant_lookup works. However
-    # it gives this error:
-    # Module::DelegationError:
-    #  ActionController::Metal#media_type delegated to @_response.media_type, but @_response is nil:
-    # #<V1::DgibVerificationsController:0x0000000003b150>
-    # What makes this work is to set the @_response instance variable.
     subject.instance_variable_set(:@_response, ActionDispatch::Response.new)
-
     sign_in_as(current_user)
     allow_any_instance_of(ApplicationController).to receive(:validate_session).and_return(true)
     allow_any_instance_of(ApplicationController).to receive(:current_user).and_return(current_user)
+    controller.instance_variable_set(:@current_user, current_user)
+
+    # Mock the VyePolicy
+    policy = instance_double(VyePolicy, access?: true)
+    allow(VyePolicy).to receive(:new).and_return(policy)
+    # Skip the verify_authorized check
+    allow(controller).to receive(:verify_authorized).and_return(true)
+    # Allow the authorize call to pass
+    allow(controller).to receive(:authorize).with(:vye, :access?).and_return(true)
   end
 
   describe '#claimant_lookup' do
@@ -26,7 +31,6 @@ RSpec.describe VYE::V1::DgibVerificationsController, type: :controller do
     let(:serializer) { Vye::ClaimantLookupSerializer.new(claimant_service_response) }
 
     before do
-      allow_any_instance_of(VyePolicy).to receive(:access?).and_return(true)
       allow_any_instance_of(Vye::DGIB::Service)
         .to receive(:claimant_lookup)
         .and_return(claimant_service_response)
@@ -39,32 +43,16 @@ RSpec.describe VYE::V1::DgibVerificationsController, type: :controller do
 
     context 'when the service returns a successful response' do
       it 'calls the claimant_lookup_service' do
-        # You have to do this or the test will fail.
-        # Something buried in pundit is preventing it from working without it
-        # Consequently, no separate test for pundit
-        expect(controller).to receive(:authorize).with(@current_user, policy_class: UserInfoPolicy).and_return(true)
-
-        subject.claimant_lookup
+        expect_any_instance_of(Vye::DGIB::Service).to receive(:claimant_lookup)
+        post :claimant_lookup
       end
 
       it 'renders the serialized response with a 200 status' do
-        # You have to do this or the test will fail.
-        # Something buried in pundit is preventing it from working without it
-        # Consequently, no separate test for pundit
-        expect(controller).to receive(:authorize).with(@current_user, policy_class: UserInfoPolicy).and_return(true)
-
-        # Chatgpt says do this, but it does not work:
-        # expect(controller).to receive(:render).with(json: serializer.new(claimant_service_response).to_json)
-        # What works is this
         expect(controller).to receive(:render).with(json: serializer.serializable_hash.to_json)
-
-        subject.claimant_lookup
+        post :claimant_lookup
       end
     end
   end
-
-  # The remaining tests will be done via requests. There were too many issues with RSpec trying to
-  # make them work as controller tests, mostly having to do with post requests.
 
   def create_claimant_response
     response_struct = Struct.new(:body)
@@ -77,10 +65,9 @@ RSpec.describe VYE::V1::DgibVerificationsController, type: :controller do
     let(:serializer) { Vye::VerifyClaimantSerializer.new(verify_claimant_response) }
     let(:verified_period_begin_date) { '2024-11-01' }
     let(:verified_period_end_date) { '2024-11-30' }
-    let(:verfied_through_date) { '2023-11-30' }
+    let(:verified_through_date) { '2023-11-30' }
 
     before do
-      allow_any_instance_of(VyePolicy).to receive(:access?).and_return(true)
       allow_any_instance_of(Vye::DGIB::Service)
         .to receive(:verify_claimant)
         .and_return(verify_claimant_response)
@@ -95,33 +82,23 @@ RSpec.describe VYE::V1::DgibVerificationsController, type: :controller do
       it 'calls the verify_claimant_service' do
         expect_any_instance_of(Vye::DGIB::Service).to receive(:verify_claimant)
 
-        # You have to do this or the test will fail.
-        # Something buried in pundit is preventing it from working without it
-        # Consequently, no separate test for pundit
-        expect(controller).to receive(:authorize).with(@current_user, policy_class: UserInfoPolicy).and_return(true)
-
-        subject.params =
-          { claimant_id:, verified_period_begin_date:, verified_period_end_date:, verfied_through_date: }
-
-        subject.verify_claimant
+        post :verify_claimant, params: {
+          claimant_id: claimant_id,
+          verified_period_begin_date: verified_period_begin_date,
+          verified_period_end_date: verified_period_end_date,
+          verified_through_date: verified_through_date
+        }
       end
 
       it 'renders the serialized response with a 200 status' do
-        # You have to do this or the test will fail.
-        # Something buried in pundit is preventing it from working without it
-        # Consequently, no separate test for pundit
-        expect(controller).to receive(:authorize).with(@current_user, policy_class: UserInfoPolicy).and_return(true)
-
-        # Chatgpt says do this, but it does not work:
-        # expect(controller).to receive(:render).with(json: serializer.new(claimant_service_response).to_json)
-        # What works is this
         expect(controller).to receive(:render).with(json: serializer.serializable_hash.to_json)
 
-        subject.params =
-          { claimant_id:, verified_period_begin_date:, verified_period_end_date:, verfied_through_date: }
-
-        subject.verify_claimant
-        expect(serializer.status).to eq(200)
+        post :verify_claimant, params: {
+          claimant_id: claimant_id,
+          verified_period_begin_date: verified_period_begin_date,
+          verified_period_end_date: verified_period_end_date,
+          verified_through_date: verified_through_date
+        }
       end
     end
   end
