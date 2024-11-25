@@ -38,7 +38,7 @@ module Dependents
 
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
       Rails.logger.error(
-        "Failed all retries on CentralMail::SubmitCentralForm686cJob, last error: #{msg['error_message']}"
+        "Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, last error: #{msg['error_message']}" # rubocop:disable Layout/LineLength
       )
     end
   end
