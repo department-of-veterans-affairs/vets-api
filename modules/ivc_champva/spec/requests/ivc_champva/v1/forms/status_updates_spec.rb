@@ -233,6 +233,79 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
       end
     end
 
+    context 'Feature champva_confirmation_email_bugfix=false' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:champva_confirmation_email_bugfix, @current_user).and_return(false)
+      end
+
+      let(:valid_payload_with_status_of_not_processed) do
+        {
+          form_uuid: '12345678-1234-5678-1234-567812345678',
+          file_names: ['12345678-1234-5678-1234-567812345678_vha_10_10d.pdf',
+                       '12345678-1234-5678-1234-567812345678_vha_10_10d1.pdf'],
+          case_id: 'ABC-1234',
+          status: 'Not Processed'
+        }
+      end
+
+      let(:email_instance) { instance_double(IvcChampva::Email) }
+
+      context 'with valid payload and status of Not Processed' do
+        before do
+          allow_any_instance_of(IvcChampva::Email).to receive(:valid_environment?).and_return(true)
+          allow(IvcChampva::Email).to receive(:new).and_return(email_instance)
+          allow(email_instance).to receive(:send_email).and_return(true)
+        end
+
+        it 'returns HTTP status 200 with same form_uuid but not all files and incorrectly sends success email' do
+          IvcChampvaForm.delete_all
+          IvcChampvaForm.create!(
+            form_uuid: '12345678-1234-5678-1234-567812345678',
+            email: 'test@email.com',
+            first_name: 'Veteran',
+            last_name: 'Surname',
+            form_number: '10-10D',
+            file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d.pdf',
+            s3_status: 'Submitted',
+            pega_status: nil,
+            case_id: nil,
+            email_sent: false
+          )
+
+          IvcChampvaForm.create!(
+            form_uuid: '12345678-1234-5678-1234-567812345678',
+            email: 'test@email.com',
+            first_name: 'Veteran',
+            last_name: 'Surname',
+            form_number: '10-10D',
+            file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d1.pdf',
+            s3_status: 'Submitted',
+            pega_status: nil,
+            case_id: nil,
+            email_sent: false
+          )
+
+          IvcChampvaForm.create!(
+            form_uuid: '12345678-1234-5678-1234-567812345678',
+            email: 'test@email.com',
+            first_name: 'Veteran',
+            last_name: 'Surname',
+            form_number: '10-10D',
+            file_name: '12345678-1234-5678-1234-567812345678_vha_10_10d2.pdf',
+            s3_status: 'Submitted',
+            pega_status: nil,
+            case_id: nil,
+            email_sent: false
+          )
+
+          # with the toggle disabled, we should not see template_id being populated
+          expect(IvcChampva::Email).to receive(:new).with(hash_excluding(:template_id))
+
+          post '/ivc_champva/v1/forms/status_updates', params: valid_payload_with_status_of_not_processed
+        end
+      end
+    end
+
     context 'with invalid payload' do
       let(:invalid_payload) { { status: 'invalid' } }
 
