@@ -18,6 +18,7 @@ module Mobile
         %i[vapro_military_info military_service_history],
         %i[vbms evss],
         %i[vbms lighthouse],
+        %i[vbms efolder],
         %i[lighthouse claims],
         %i[lighthouse_direct_deposit direct_deposit_benefits],
         %i[evss disability_rating],
