@@ -55,4 +55,38 @@ describe Eps::BaseService do
       end
     end
   end
+
+  describe '#get_token' do
+    let(:config) { instance_double(Eps::Configuration) }
+    let(:jwt_wrapper) { instance_double(Eps::JwtWrapper) }
+
+    before do
+      allow(Eps::Configuration).to receive(:instance).and_return(config)
+      allow(config).to receive_messages(access_token_url: 'http://test.url', grant_type: 'client_credentials',
+                                        scopes: 'test.scope', client_assertion_type: 'urn:test')
+      allow(Eps::JwtWrapper).to receive(:new).and_return(jwt_wrapper)
+      allow(jwt_wrapper).to receive(:sign_assertion).and_return('signed_jwt')
+
+      allow(service).to receive(:perform).and_return(mock_token_response)
+      allow(service).to receive(:with_monitoring).and_yield
+    end
+
+    it 'makes POST request with correct parameters' do
+      expected_params = URI.encode_www_form({
+                                              grant_type: 'client_credentials',
+                                              scope: 'test.scope',
+                                              client_assertion_type: 'urn:test',
+                                              client_assertion: 'signed_jwt'
+                                            })
+
+      expect(service).to receive(:perform).with(
+        :post,
+        'http://test.url',
+        expected_params,
+        { 'Content-Type' => 'application/x-www-form-urlencoded' }.freeze
+      )
+
+      service.get_token
+    end
+  end
 end
