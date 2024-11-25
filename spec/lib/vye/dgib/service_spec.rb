@@ -8,7 +8,6 @@ RSpec.describe Vye::DGIB::Service do
   let(:user) { FactoryBot.create(:user, :loa3) }
   let(:service) { described_class.new(user) }
 
-
   describe '#claimant_lookup' do
     let(:ssn) { '123-45-6789' }
     let(:json_body) { 'modules/vye/spec/fixtures/claimant_lookup_response.json' }
