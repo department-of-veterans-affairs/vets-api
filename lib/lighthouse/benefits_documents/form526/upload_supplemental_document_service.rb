@@ -38,6 +38,7 @@ module BenefitsDocuments
           e, self.class.to_s.underscore, nil, BenefitsDocuments::Configuration::DOCUMENTS_PATH
         )
 
+        # Don't need to re-raise?
         raise e
       end
     end

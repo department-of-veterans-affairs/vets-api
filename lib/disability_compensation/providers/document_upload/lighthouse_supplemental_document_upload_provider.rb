@@ -130,6 +130,17 @@ class LighthouseSupplementalDocumentUploadProvider
   end
 
   def log_upload_failure(exception)
+    # puts "exception"
+    # puts exception
+    # puts "exception class"
+    # puts exception.class
+
+    # puts "exception message"
+    # puts exception.message
+
+
+
+
     StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_FAILED_METRIC}")
 
     Rails.logger.error(
@@ -139,6 +150,12 @@ class LighthouseSupplementalDocumentUploadProvider
         error_info: exception.to_s
       }
     )
+
+
+    # puts "logging info"
+    # puts exception.to_s
+    # puts { **base_logging_info, error_info: exception.to_s
+
   end
 
   # Processes the response from Lighthouse and logs accordingly. If the upload is successful, creates

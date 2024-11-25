@@ -216,7 +216,16 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
 
       RSpec.shared_examples 'log Lighthouse response exception' do |exception_class|
         it 'increments a StatsD failure metric, logs the error metadata and re-raises the error' do
-          error_info = { title: 'error title', detail: 'error message' }
+
+
+          Common::Exceptions::Timeout.new(errors: [{ title: error.class, detail: error.message }])
+
+
+          errors_info = [{title: exception.class, detail: ''}]
+
+
+
+          error_info = { title: exception_class, detail: 'error message' }
           exception = exception_class.new(error_info)
 
           allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
