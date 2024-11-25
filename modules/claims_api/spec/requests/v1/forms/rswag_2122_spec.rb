@@ -119,7 +119,6 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
         },
         'POA for Dependent Claimant' => {
           value: request_template_with_dependent
-
         }
       }
 
