@@ -43,7 +43,6 @@ RSpec.describe 'Accredited Entities for Appoint',
       produces 'application/json'
       operationId 'accreditedEntitiesForAppoint'
 
-      # parameter SwaggerSharedComponents::V0.body_examples[:accredited_entities_for_appoint_parameter]
       parameter name: :query, in: :query, type: :string, description: 'Search query'
 
       response '200', 'OK' do
