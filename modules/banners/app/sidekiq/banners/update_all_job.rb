@@ -44,7 +44,7 @@ module Banners
         'Banner data fetch failed',
         { error_message: e.message, error_class: e.class.name }
       )
-      raise # Re-raise to trigger Sidekiq retries
+      raise e # Re-raise to trigger Sidekiq retries
     end
 
     private
