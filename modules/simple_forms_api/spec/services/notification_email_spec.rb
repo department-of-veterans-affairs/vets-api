@@ -745,9 +745,9 @@ describe SimpleFormsApi::NotificationEmail do
             'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
             'lighthouse_updated_at' => nil,
-            'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                         ' (VA Form 21P-534 or VA Form 21P-534EZ)',
-            'intent_to_file_benefits_links' => '[Pension claim for survivors (21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+            'intent_to_file_benefits' => 'survivors pension benefits',
+            'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                               '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
             'itf_api_expiration_date' => nil
           }
         )
@@ -774,9 +774,9 @@ describe SimpleFormsApi::NotificationEmail do
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil,
-              'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                           ' (VA Form 21P-534 or VA Form 21P-534EZ)',
-              'intent_to_file_benefits_links' => '[Pension claim for survivors (21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+              'intent_to_file_benefits' => 'survivors pension benefits',
+              'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                                 '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
               'itf_api_expiration_date' => nil
             }
           )
@@ -817,9 +817,9 @@ describe SimpleFormsApi::NotificationEmail do
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => nil,
-                'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                             ' (VA Form 21P-534 or VA Form 21P-534EZ)',
-                'intent_to_file_benefits_links' => '[Pension claim for survivors (21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+                'intent_to_file_benefits' => 'survivors pension benefits',
+                'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                                   '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                 'itf_api_expiration_date' => expiration_date
               }
             )
@@ -846,9 +846,9 @@ describe SimpleFormsApi::NotificationEmail do
                   'date_submitted' => date_submitted,
                   'confirmation_number' => 'confirmation_number',
                   'lighthouse_updated_at' => nil,
-                  'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                               ' (VA Form 21P-534 or VA Form 21P-534EZ)',
-                  'intent_to_file_benefits_links' => '[Pension claim for survivors (21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+                  'intent_to_file_benefits' => 'survivors pension benefits',
+                  'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                                     '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
                   'itf_api_expiration_date' => expiration_date
                 }
               )
