@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'pdf_fill/filler'
 
-RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
+RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_web_service/find_by_ssn' do
   subject { described_class }
 
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
@@ -15,7 +15,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
 
   before do
     Sidekiq::Job.clear_all
-    Flipper.disable(:lighthouse_claims_api_poa_use_bd)
+    allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
+    allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return false
   end
 
   describe 'generating and uploading the signed pdf' do
@@ -453,7 +454,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
       let(:output_path) { 'some.pdf' }
 
       before do
-        Flipper.enable(:lighthouse_claims_api_poa_use_bd)
+        allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
         pdf_constructor_double = instance_double(ClaimsApi::V2::PoaPdfConstructor::Organization)
         allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:pdf_constructor)
           .and_return(pdf_constructor_double)
@@ -462,7 +463,7 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
       end
 
       it 'calls the Benefits Documents uploader instead of VBMS' do
-        Flipper.disable(:claims_api_poa_uploads_bd_refactor)
+        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return false
         expect_any_instance_of(ClaimsApi::VBMSUploader).not_to receive(:upload_document)
         expect_any_instance_of(ClaimsApi::BD).to receive(:upload)
         subject.new.perform(power_of_attorney.id, '2122', rep.id, action: 'post')
@@ -473,8 +474,8 @@ RSpec.describe ClaimsApi::V2::PoaFormBuilderJob, type: :job do
       let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
 
       before do
-        Flipper.enable(:lighthouse_claims_api_poa_use_bd)
-        Flipper.enable(:claims_api_poa_uploads_bd_refactor)
+        allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return true
+        allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_api_poa_uploads_bd_refactor).and_return true
         pdf_constructor_double = instance_double(ClaimsApi::V2::PoaPdfConstructor::Organization)
         allow_any_instance_of(ClaimsApi::V2::PoaFormBuilderJob).to receive(:pdf_constructor)
           .and_return(pdf_constructor_double)
