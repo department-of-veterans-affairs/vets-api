@@ -61,7 +61,14 @@ class LighthouseSupplementalDocumentUploadProvider
   # @param file_body [String]
   def submit_upload_document(lighthouse_document, file_body)
     log_upload_attempt
-    api_response = BenefitsDocuments::Form526::UploadSupplementalDocumentService.call(file_body, lighthouse_document)
+
+    begin
+      api_response = BenefitsDocuments::Form526::UploadSupplementalDocumentService.call(file_body, lighthouse_document)
+    rescue => e
+      log_upload_failure(e)
+      raise e
+    end
+
     handle_lighthouse_response(api_response)
   end
 
@@ -114,16 +121,12 @@ class LighthouseSupplementalDocumentUploadProvider
     StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_SUCCESS_METRIC}")
   end
 
-  # For logging an error response from the Lighthouse Benefits Document API
-  #
-  # @param lighthouse_error_response [Hash] parsed JSON response from the Lighthouse API
-  # this will be an array of errors
-  def log_upload_failure(lighthouse_error_response)
+  def log_upload_failure(exception)
     Rails.logger.error(
       'LighthouseSupplementalDocumentUploadProvider upload failed',
       {
         **base_logging_info,
-        lighthouse_error_response:
+        error_info: exception.message
       }
     )
 

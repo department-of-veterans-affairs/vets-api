@@ -106,6 +106,45 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         provider.submit_upload_document(lighthouse_document, file_body)
       end.to change { Lighthouse526DocumentUpload.where(**upload_attributes).count }.by(1)
     end
+
+    context 'when there is an exception thrown when the upload is attempted' do
+      let(:error_message) { 'Something Broke'}
+
+      before do
+        # Skip upload attempt logging
+        allow(provider).to receive(:log_upload_attempt)
+
+        allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+          .and_raise(StandardError.new(error_message))
+      end
+
+      it 'increments a StatsD failure metric and re-raises the error' do
+        expect(StatsD).to receive(:increment).with(
+          'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.upload_failure'
+        )
+
+        expect { provider.submit_upload_document(lighthouse_document, file_body) }
+          .to raise_error(StandardError, error_message)
+      end
+
+      it 'logs the failure to the Rails logger and re-raises the error' do
+        expect(Rails.logger).to receive(:error).with(
+          'LighthouseSupplementalDocumentUploadProvider upload failed',
+          {
+            class: 'LighthouseSupplementalDocumentUploadProvider',
+            submitted_claim_id: submission.submitted_claim_id,
+            submission_id: submission.id,
+            user_uuid: submission.user_uuid,
+            va_document_type_code: va_document_type,
+            primary_form: 'Form526',
+            error_info: error_message
+          }
+        )
+
+        expect { provider.submit_upload_document(lighthouse_document, file_body) }
+          .to raise_error(StandardError, error_message)
+      end
+    end
   end
 
   context 'For SupportingEvidenceAttachment uploads' do
