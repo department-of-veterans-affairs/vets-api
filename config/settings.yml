@@ -1845,5 +1845,4 @@ vaos:
     scopes: "care-nav"
 
 accredited_representative_portal:
-  pilot_users: {}
-
+  pilot_users: ~
