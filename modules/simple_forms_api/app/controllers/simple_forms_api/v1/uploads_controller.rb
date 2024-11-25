@@ -95,9 +95,9 @@ module SimpleFormsApi
         end
 
         json_for210966(confirmation_number, expiration_date, existing_intents)
-      rescue Common::Exceptions::UnprocessableEntity, Net::ReadTimeout => e
+      rescue Common::Exceptions::UnprocessableEntity, Exceptions::BenefitsClaimsApiDownError => e
         # Common::Exceptions::UnprocessableEntity: There is an authentication issue with the Intent to File API
-        # Faraday::TimeoutError: The Intent to File API is down or timed out
+        # Exceptions::BenefitsClaimsApiDownError: The Intent to File API is down or timed out
         # In either case, we revert to sending a PDF to Central Mail through the Benefits Intake API
         prepare_params_for_benefits_intake_and_log_error(e)
         submit_form_to_benefits_intake
