@@ -56,7 +56,7 @@ module TravelPay
                    rescue_errors(e))
     end
 
-    def associate_single_appointment_to_claim(params = {})
+    def associate_single_appointment_to_claim(params = {}) # rubocop:disable Metrics/MethodLength
       appt = params['appointment']
       # Because we only receive a single date/time but the external endpoint requires 2 dates
       # in this case both start and end dates are the same
