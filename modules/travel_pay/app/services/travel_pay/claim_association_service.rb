@@ -56,27 +56,21 @@ module TravelPay
                    rescue_errors(e))
     end
 
-    def associate_single_appointment_to_claim(params = {}) # rubocop:disable Metrics/MethodLength
+    def associate_single_appointment_to_claim(params = {})
       appt = params['appointment']
       # Because we only receive a single date/time but the external endpoint requires 2 dates
       # in this case both start and end dates are the same
-
       validate_date_params(appt['start'], appt['start'])
 
       auth_manager.authorize => { veis_token:, btsss_token: }
       faraday_response = client.get_claims_by_date(veis_token, btsss_token,
                                                    { 'start_date' => appt['start'], 'end_date' => appt['start'] })
 
-      appt['travelPayClaim'] = if faraday_response.body['data']&.count
-                                 {
-                                   'metadata' => build_metadata(faraday_response.body),
-                                   'claim' => faraday_response.body['data'][0]
-                                 }
-                               else
-                                 {
-                                   'metadata' => build_metadata(faraday_response.body)
-                                 }
-                               end
+      claim_data = faraday_response.body['data']&.dig(0)
+      appt['travelPayClaim'] = {}
+      appt['travelPayClaim']['metadata'] = build_metadata(faraday_response.body)
+      appt['travelPayClaim']['claim'] = claim_data if claim_data
+
       appt
     rescue => e
       appt['travelPayClaim'] = {
