@@ -9,7 +9,12 @@ require 'va_notify/service'
 require 'lighthouse/benefits_documents/constants'
 
 RSpec.describe Lighthouse::DocumentUpload, type: :job do
-  subject(:job) { described_class.perform_async(user_icn, document_data.to_serializable_hash, user_account_uuid, claim_id, tracked_item_ids) }
+  subject(:job) do
+    described_class.perform_async(user_icn,
+                                  document_data.to_serializable_hash,
+                                  user_account_uuid, claim_id,
+                                  tracked_item_ids)
+  end
 
   let(:client_stub) { instance_double(BenefitsDocuments::WorkerService) }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
@@ -130,7 +135,8 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
                 tracked_item_id: tracked_item_ids,
                 job_id:,
                 job_class:,
-                upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING] }).and_return(evidence_submission_stub)
+                upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING] })
+        .and_return(evidence_submission_stub)
       described_class.drain # runs all queued jobs of this class
       # After running DocumentUpload job, there should be a new EvidenceSubmission record
       # with the response request_id
