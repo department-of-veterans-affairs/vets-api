@@ -211,6 +211,39 @@ describe 'PowerOfAttorney',
       let(:poa_code) { '067' }
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
+      claimant_data = {
+        'claimantId' => '1013093331V548481',
+        'address' => {
+          'addressLine1' => '123 anystreet',
+          'city' => 'anytown',
+          'stateCode' => 'OR',
+          'country' => 'USA',
+          'zipCode' => '12345'
+        },
+        'relationship' => 'Spouse'
+      }
+
+      request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                                    'power_of_attorney', '2122a', 'valid.json').read)
+
+      request_template_with_dependent = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
+                                                                   'veterans', 'power_of_attorney', '2122a',
+                                                                   'valid.json').read)
+
+      request_template_with_dependent['data']['attributes']['claimant'] = claimant_data
+
+      parameter name: :power_of_attorney_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a][:schema]
+
+      parameter in: :body, examples: {
+        'POA for Veteran' => {
+          value: request_template
+        },
+        'POA for Dependent Claimant' => {
+          value: request_template_with_dependent
+        }
+      }
+
       describe 'Getting a successful response' do
         response '202', 'Valid request response' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
@@ -221,6 +254,10 @@ describe 'PowerOfAttorney',
             temp = JSON.parse(temp)
 
             temp
+          end
+
+          let(:power_of_attorney_request) do
+            data
           end
 
           before do |example|
@@ -387,6 +424,40 @@ describe 'PowerOfAttorney',
       let(:scopes) { %w[system/claim.write] }
       let(:organization_poa_code) { '083' }
       let(:bgs_poa) { { person_org_name: "#{organization_poa_code} name-here" } }
+
+      claimant_data = {
+        'claimantId' => '1013093331V548481',
+        'address' => {
+          'addressLine1' => '123 anystreet',
+          'city' => 'anytown',
+          'stateCode' => 'OR',
+          'country' => 'USA',
+          'zipCode' => '12345'
+        },
+        'relationship' => 'Spouse'
+      }
+
+      request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                                    'power_of_attorney', '2122a', 'valid.json').read)
+
+      request_template_with_dependent = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
+                                                                   'veterans', 'power_of_attorney', '2122a',
+                                                                   'valid.json').read)
+
+      request_template_with_dependent['data']['attributes']['claimant'] = claimant_data
+
+      parameter name: :power_of_attorney_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a][:schema]
+
+      parameter in: :body, examples: {
+        'POA for Veteran' => {
+          value: request_template
+        },
+        'POA for Dependent Claimant' => {
+          value: request_template_with_dependent
+        }
+      }
+
       let(:data) do
         temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                'power_of_attorney', '2122', 'valid.json').read
@@ -411,6 +482,10 @@ describe 'PowerOfAttorney',
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
+          end
+
+          let(:power_of_attorney_request) do
+            data
           end
 
           after do |example|
