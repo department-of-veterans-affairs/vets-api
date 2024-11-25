@@ -221,6 +221,20 @@ module ClaimsApi
       end
 
       ##
+      # StandardDataService
+      #
+      module StandardDataService
+        DEFINITION =
+          Bean.new(
+            path: 'StandardDataService',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      ##
       # StandardDataWebServiceBean
       #
       module StandardDataWebServiceBean
