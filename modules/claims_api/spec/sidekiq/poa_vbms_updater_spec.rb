@@ -6,20 +6,25 @@ require 'bgs_service/corporate_update_web_service'
 RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   subject { described_class }
 
-  before do
-    Sidekiq::Job.clear_all
-  end
-
-  let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:auth_headers) do
-    headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-    headers['va_eauth_pnid'] = '796104437'
-    headers
-  end
-
-  context 'when the claims_api_poa_vbms_updater_uses_local_bgs flipper is disabled' do
+  [true, false].each do |flipped|
     before do
-      Flipper.disable :claims_api_poa_vbms_updater_uses_local_bgs
+      Sidekiq::Job.clear_all
+
+      if flipped
+        Flipper.enable(:claims_api_poa_vbms_updater_uses_local_bgs)
+        @clazz = ClaimsApi::CorporateUpdateWebService
+
+      else
+        Flipper.disable(:claims_api_poa_vbms_updater_uses_local_bgs)
+        @clazz = BGS::Services
+      end
+    end
+
+    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:auth_headers) do
+      headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+      headers['va_eauth_pnid'] = '796104437'
+      headers
     end
 
     context 'when address change is present and allowed' do
@@ -93,23 +98,6 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
     end
   end
 
-  context 'when the claims_api_poa_vbms_updater_uses_local_bgs flipper is enabled' do
-    before do
-      Flipper.enable :claims_api_poa_vbms_updater_uses_local_bgs
-    end
-
-    context 'when address change is present and allowed' do
-      let(:allow_poa_c_add) { 'Y' }
-      let(:consent_address_change) { true }
-
-      it 'updates a the BIRLS record for a qualifying POA submittal' do
-        poa = create_poa
-        create_mock_local_bgs_service
-        subject.new.perform(poa.id)
-      end
-    end
-  end
-
   private
 
   def create_poa
@@ -123,7 +111,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   def create_mock_lighthouse_service
-    corporate_update_stub = BGS::Services.new(external_uid: 'uid', external_key: 'key').corporate_update
+    corporate_update_stub = @clazz.new(external_uid: 'uid', external_key: 'key').corporate_update
     expect(corporate_update_stub).to receive(:update_poa_access).with(
       participant_id: user.participant_id,
       poa_code: '074',
@@ -135,19 +123,8 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
     expect(BGS::Services).to receive(:new).and_return(service_double)
   end
 
-  def create_mock_local_bgs_service
-    corporate_update_stub = ClaimsApi::CorporateUpdateWebService.new(external_uid: 'uid', external_key: 'key')
-    expect(corporate_update_stub).to receive(:update_poa_access).with(
-      participant_id: user.participant_id,
-      poa_code: '074',
-      allow_poa_access: 'y',
-      allow_poa_c_add:
-    ).and_return({ return_code: 'GUIE50000' })
-    expect(ClaimsApi::CorporateUpdateWebService).to receive(:new).and_return(corporate_update_stub)
-  end
-
   def create_mock_lighthouse_service_bgs_failure
-    allow_any_instance_of(BGS::Services).to receive(:corporate_update) do |_instance|
+    allow_any_instance_of(@clazz).to receive(:corporate_update) do |_instance|
       corporate_update_stub = instance_double('BGS::CorporateUpdate')
       allow(corporate_update_stub).to receive(:update_poa_access)
         .with(
@@ -159,7 +136,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       corporate_update_stub
     end
 
-    allow(BGS::Services).to receive(:new) do
+    allow(@clazz).to receive(:new) do
       services_double = instance_double('BGS::Services')
       allow(services_double).to receive(:corporate_update)
         .and_raise(BGS::ShareError.new('updatePoaAccess: No POA found on system of record'))
