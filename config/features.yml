@@ -237,6 +237,10 @@ features:
     actor_type: user
     description: When enabled, sends poa forms to BD via the refactored logic
     enable_in_development: true
+  claims_api_use_person_web_service:
+    actor_type: user
+    description: Uses person web service rather than local bgs
+    enable_in_development: true
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends 526 forms to BD via the refactored logic
@@ -856,10 +860,6 @@ features:
   in_progress_form_reminder_526ez:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
-    enable_in_development: true
-  va_notify_user_account_job:
-    actor_type: user
-    description: Enable/disable UserAccountJob in VANotify (replacement for IcnJob)
     enable_in_development: true
   letters_check_discrepancies:
     actor_type: user
