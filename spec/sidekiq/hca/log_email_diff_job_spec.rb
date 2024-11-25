@@ -8,6 +8,7 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
 
   describe 'hca_log_email_diff_in_progress_form enabled' do
     before do
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:hca_log_email_diff_in_progress_form).and_return(true)
       in_progress_form.update!(user_uuid: user.uuid)
       allow(User).to receive(:find).with(user.uuid).and_return(user)
@@ -100,6 +101,7 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
 
   describe 'hca_log_email_diff_in_progress_form disabled' do
     before do
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:hca_log_email_diff_in_progress_form).and_return(false)
       in_progress_form.update!(user_uuid: user.uuid)
       allow(User).to receive(:find).with(user.uuid).and_return(user)

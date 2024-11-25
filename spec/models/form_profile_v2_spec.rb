@@ -85,7 +85,7 @@ RSpec.describe FormProfile, type: :model do
           'address' => address,
           'dateOfBirth' => user.birth_date,
           'name' => full_name,
-          'ssn' => FormIdentityInformation.new(ssn: user.ssn).hyphenated_ssn,
+          'ssn' => user.ssn,
           'email' => user.va_profile_email,
           'phoneNumber' => us_phone
         }
@@ -586,6 +586,19 @@ RSpec.describe FormProfile, type: :model do
         'suffix' => user.suffix
       },
       'veteranAddress' => address,
+      'email' => user.va_profile_email,
+      'phone' => us_phone,
+      'mobilePhone' => mobile_phone,
+      'internationalPhone' => '3035551234',
+      'serviceBranch' => {
+        'army' => true,
+        'airForce' => true
+      },
+      'activeServiceDateRange' => {
+        'from' => '1984-08-01',
+        'to' => '2014-08-31'
+      },
+      'serviceNumber' => '796111863',
       'veteranSocialSecurityNumber' => user.ssn,
       'veteranDateOfBirth' => user.birth_date
     }
