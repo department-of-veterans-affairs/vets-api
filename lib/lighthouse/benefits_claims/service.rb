@@ -21,13 +21,9 @@ module BenefitsClaims
       end
     end
 
-    def get_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      claims = config.get("#{@icn}/claims", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+    def get_claims
+      claims = config.get("#{@icn}/claims").body
       claims['data'] = filter_by_status(claims['data'])
-      # Manual status override for PMR Pending items
-      # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
-      # This should be removed when the items are re-categorized by BGS
-      claims['data'].each { |claim| override_pmr_pending(claim) }
       claims
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
@@ -35,8 +31,9 @@ module BenefitsClaims
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
-    def get_claim(id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      claim = config.get("#{@icn}/claims/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+    def get_claim(id)
+      claim = config.get("#{@icn}/claims/#{id}").body
+
       # Manual status override for PMR Pending items
       # See https://github.com/department-of-veterans-affairs/va-mobile-app/issues/9671
       # This should be removed when the items are re-categorized by BGS
@@ -48,15 +45,7 @@ module BenefitsClaims
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
-    def get_power_of_attorney(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
-      config.get("#{@icn}/power-of-attorney", lighthouse_client_id, lighthouse_rsa_key_path, options).body
-    rescue Faraday::TimeoutError
-      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
-    rescue Faraday::ClientError, Faraday::ServerError => e
-      raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
-    end
-
-    def submit5103(id, tracked_item_id = nil, options = {})
+    def submit5103(id, tracked_item_id = nil)
       config.post("#{@icn}/claims/#{id}/5103", {
                     data: {
                       type: 'form/5103',
@@ -66,26 +55,33 @@ module BenefitsClaims
                         ]
                       }
                     }
-                  }, nil, nil, options).body
+                  }).body
     rescue Faraday::TimeoutError
       raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
     rescue Faraday::ClientError, Faraday::ServerError => e
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
-    def get_intent_to_file(type, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+    def get_power_of_attorney
+      config.get("#{@icn}/power-of-attorney").body
+    rescue Faraday::TimeoutError
+      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
+    end
+
+    def get_intent_to_file(type)
       endpoint = 'benefits_claims/intent_to_file'
       path = "#{@icn}/intent-to-file/#{type}"
-      config.get(path, lighthouse_client_id, lighthouse_rsa_key_path, options).body
+      config.get(path).body
     rescue Faraday::ClientError, Faraday::ServerError => e
-      handle_error(e, lighthouse_client_id, endpoint)
+      handle_error(e, endpoint)
     end
 
     # For type "survivor", the request must include claimantSsn and be made by a valid Veteran Representative.
     # If the Representative is not a Veteran or a VA employee, this method is currently not available to them,
     # and they should use the Benefits Intake API as an alternative.
-    def create_intent_to_file(type, claimant_ssn, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil,
-                              options = {})
+    def create_intent_to_file(type, claimant_ssn)
       if claimant_ssn.blank? && type == 'survivor'
         raise ArgumentError, 'BenefitsClaims::Service: No SSN provided for survivor type create request.'
       end
@@ -102,11 +98,10 @@ module BenefitsClaims
               claimantSsn: claimant_ssn
             }
           }
-        },
-        lighthouse_client_id, lighthouse_rsa_key_path, options
+        }
       ).body
     rescue Faraday::ClientError, Faraday::ServerError => e
-      handle_error(e, lighthouse_client_id, endpoint)
+      handle_error(e, endpoint)
     end
 
     # submit form526 to Lighthouse API endpoint:
@@ -114,60 +109,42 @@ module BenefitsClaims
     # /services/claims/v2/veterans/{veteranId}/526/generatePdf,
     # or /services/claims/v2/veterans/{veteranId}/526 (asynchronous)
     # @param [hash || Requests::Form526] body: a hash representing the form526
-    # attributes in the Lighthouse request schema
-    # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
-    # @param [string] lighthouse_rsa_key_path: absolute path to the rsa key file
-    # @param [hash] options: options to override aud_claim_url, params, and auth_params
     # @option options [hash] :body_only only return the body from the request
     # @option options [string] :aud_claim_url option to override the aud_claim_url for LH Veteran Verification APIs
     # @option options [hash] :auth_params a hash to send in auth params to create the access token
     # @option options [hash] :generate_pdf call the generatePdf endpoint to receive the 526 pdf
     # @option options [hash] :asynchronous call the asynchronous endpoint
     # @option options [hash] :transaction_id submission endpoint tracking
-    def submit526(body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+    def submit526(body, options = {})
       endpoint, path = submit_endpoint(options)
 
       body = prepare_submission_body(body, options[:transaction_id])
 
-      response = config.post(
-        path,
-        body,
-        lighthouse_client_id, lighthouse_rsa_key_path, options
-      )
+      response = config.post(path, body)
 
       submit_response(response, options[:body_only])
     rescue Faraday::ClientError, Faraday::ServerError => e
-      handle_error(e, lighthouse_client_id, endpoint)
+      handle_error(e, endpoint)
     end
 
     # submit form526 to Lighthouse API endpoint:
     # /services/claims/v2/veterans/{veteranId}/526/validate
     # @param [hash || Requests::Form526] body: a hash representing the form526
-    # attributes in the Lighthouse request schema
-    # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
-    # @param [string] lighthouse_rsa_key_path: absolute path to the rsa key file
-    # @param [hash] options: options to override aud_claim_url, params, and auth_params
     # @option options [hash] :body_only only return the body from the request
     #
     # NOTE: This method is similar to submit526. The only difference is the path and endpoint values
     #
-    def validate526(body, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+    def validate526(body, options = {})
       endpoint = '{icn}/526/validate'
       path = "#{@icn}/526/validate"
       body = prepare_submission_body(body, options[:transaction_id])
 
-      response = config.post(
-        path,
-        body,
-        lighthouse_client_id,
-        lighthouse_rsa_key_path,
-        options
-      )
+      response = config.post(path, body)
 
       submit_response(response, options[:body_only])
     rescue  Faraday::ClientError,
             Faraday::ServerError => e
-      handle_error(e, lighthouse_client_id, endpoint)
+      handle_error(e, endpoint)
     end
 
     private
@@ -263,7 +240,7 @@ module BenefitsClaims
     end
 
     def override_pmr_pending(claim)
-      tracked_items = claim['attributes']['trackedItems']
+      tracked_items = claim.dig('attributes', 'tracked_items')
       return unless tracked_items
 
       tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each do |i|
@@ -273,11 +250,11 @@ module BenefitsClaims
       tracked_items
     end
 
-    def handle_error(error, lighthouse_client_id, endpoint)
+    def handle_error(error, endpoint)
       Lighthouse::ServiceException.send_error(
         error,
         self.class.to_s.underscore,
-        lighthouse_client_id,
+        nil,
         "#{config.base_api_path}/#{endpoint}"
       )
     end

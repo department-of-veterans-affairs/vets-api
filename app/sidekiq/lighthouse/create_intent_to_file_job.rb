@@ -66,7 +66,7 @@ module Lighthouse
       itf_log_monitor.track_create_itf_begun(itf_type, form&.created_at&.to_s, form&.user_account_id)
 
       service = BenefitsClaims::Service.new(veteran_icn)
-      service.create_intent_to_file(itf_type, '')
+      service.create_intent_to_file(itf_type)
 
       itf_log_monitor.track_create_itf_success(itf_type, form&.created_at&.to_s, form&.user_account_id)
     rescue => e
