@@ -73,6 +73,16 @@ RSpec.describe Vye::DGIB::Service do
   end
 
   describe '#get_verify_claimant' do
+    let(:claimant_id) { 600_010_259 }
+    let(:verified_period_begin_date) { '2022-01-01' }
+    let(:verified_period_end_date) { '2022-01-31' }
+    let(:verified_through_date) { '2022-01-31' }
+    let(:verification_method) { 'Initial' }
+    let(:response_type) { '200' }
+    let(:json_body) { 'modules/vye/spec/fixtures/claimant_lookup_response.json' }
+    let(:response_body) { JSON.parse(File.read(json_body)) }
+    let(:successful_mocked_response) { double('faraday_response', status: 200, body: response_body, ok?: true) }
+
     before do
       allow(service).to receive(:verify_claimant)
         .with(
