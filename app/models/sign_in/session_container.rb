@@ -22,7 +22,7 @@ module SignIn
       presence: true
     )
 
-    def initialize(session:, # rubocop:disable Metrics/ParameterLists
+    def initialize(session:,
                    refresh_token:,
                    access_token:,
                    anti_csrf_token:,

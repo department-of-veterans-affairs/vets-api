@@ -37,7 +37,7 @@ module ClaimsApi
     # Upload document of mapped claim
     #
     # @return success or failure
-    def upload(claim:, pdf_path:, doc_type: 'L122', action: 'post', original_filename: nil, # rubocop:disable Metrics/ParameterLists
+    def upload(claim:, pdf_path:, doc_type: 'L122', action: 'post', original_filename: nil,
                pctpnt_vet_id: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist,
@@ -120,7 +120,6 @@ module ClaimsApi
     # Generate form body to upload a document
     #
     # @return {parameters, file}
-    # rubocop:disable Metrics/ParameterLists
     def generate_upload_body(claim:, doc_type:, pdf_path:, action:, original_filename: nil,
                              pctpnt_vet_id: nil)
       payload = {}
@@ -151,7 +150,6 @@ module ClaimsApi
       end
       birls_file_num
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, action:)
       # https://confluence.devops.va.gov/display/VAExternal/Document+Types
