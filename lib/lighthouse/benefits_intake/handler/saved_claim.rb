@@ -16,7 +16,6 @@ module BenefitsIntake
         end
 
       end
-
     end
   end
 end
