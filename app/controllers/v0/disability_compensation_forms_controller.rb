@@ -52,6 +52,8 @@ module V0
     end
 
     def submit_all_claim
+      temp_separation_location_fix
+
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
@@ -172,5 +174,17 @@ module V0
       end
       false
     end
+
+    # TEMPORARY
+    # Turn separation location into string
+    # 11/18/2024 BRD EVSS -> Lighthouse migration caused separation location to turn into an integer,
+    # while SavedClaim (vets-json-schema) is expecting a string
+    def temp_separation_location_fix
+      separation_location_code =
+        form_content['form526']['serviceInformation']['separationLocation']['separationLocationCode'].to_s
+      form_content['form526']['serviceInformation']['separationLocation']['separationLocationCode'] =
+        separation_location_code
+    end
+    # END TEMPORARY
   end
 end
