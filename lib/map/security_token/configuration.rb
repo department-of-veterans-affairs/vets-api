@@ -66,6 +66,10 @@ module MAP
         'icn'
       end
 
+      def max_token_duration
+        900
+      end
+
       def logging_prefix
         '[MAP][SecurityToken][Service]'
       end
