@@ -32,7 +32,8 @@ module Pensions
         require_relative '../benefits_intake/submission_handler'
 
         # Register our Pension Benefits Intake Submission Handler
-        ::BenefitsIntake::SubmissionStatusJob.register_handler(Pensions::FORM_ID, Pensions::BenefitsIntake::SubmissionHandler)
+        ::BenefitsIntake::SubmissionStatusJob.register_handler(Pensions::FORM_ID,
+                                                               Pensions::BenefitsIntake::SubmissionHandler)
       end
     end
   end

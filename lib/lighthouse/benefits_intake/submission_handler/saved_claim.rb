@@ -5,7 +5,6 @@ require 'zero_silent_failures/monitor'
 module BenefitsIntake
   module SubmissionHandler
     class SavedClaim
-
       def initialize(saved_claim_id)
         @claim = claim_class.find(saved_claim_id)
         @context = {
@@ -30,7 +29,7 @@ module BenefitsIntake
 
       private
 
-      attr_reader :additional_context, :call_location, :claim, :context, :monitor
+      attr_reader :additional_context, :call_location, :claim, :context
 
       def claim_class
         ::SavedClaim
@@ -65,7 +64,6 @@ module BenefitsIntake
       def on_stale
         true
       end
-
     end
   end
 end

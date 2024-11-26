@@ -19,8 +19,8 @@ module BenefitsIntake
 
     # any status not listed will result in 'pending'
     STATUS_RESULT_MAP = {
-      expired: 'failure', # Indicates that documents were not successfully uploaded within the 15-minute window.
-      error: 'failure',   # Indicates that there was an error. Refer to the error code and detail for further information.
+      expired: 'failure', # Indicates that documents were not successfully uploaded within the 15-minute window
+      error: 'failure',   # Indicates that there was an error. Refer to the code and detail for further information
       vbms: 'success',    # Submission was successfully uploaded into a Veteran's eFolder within VBMS
       success: 'pending', # Submission was successfully received into Lighthouse systems
       pending: 'pending', # Submission is being processed
@@ -44,12 +44,10 @@ module BenefitsIntake
     {
       '686C-674' => Dependents::BenefitsIntake::SubmissionHandler,
       '28-8832' => PCPG::BenefitsIntake::SubmissionHandler,
-      '28-1900' => VRE::BenefitsIntake::SubmissionHandler,
+      '28-1900' => VRE::BenefitsIntake::SubmissionHandler
     }.each do |form_id, handler_class|
-      self.register_handler(form_id, handler_class)
+      register_handler(form_id, handler_class)
     end
-
-    attr_reader :batch_size
 
     def initialize(batch_size: BATCH_SIZE)
       @batch_size = batch_size
@@ -74,7 +72,8 @@ module BenefitsIntake
 
     def log(level, msg, **payload)
       this = self.class.name
-      Rails.logger.public_send(level, '%s: %s' % [this, msg.to_s], class: this, **payload)
+      message = format('%<this>s: %<msg>s', { this: this, msg: msg.to_s })
+      Rails.logger.public_send(level, message, class: this, **payload)
     end
 
     def batch_process(pending_attempts)
@@ -86,7 +85,7 @@ module BenefitsIntake
 
         response = intake_service.bulk_status(uuids: batch_uuids)
 
-        log(:info, "bulk status response", response:)
+        log(:info, 'bulk status response', response:)
         raise response.body unless response.success?
 
         next unless (data = response.body['data'])
@@ -98,12 +97,13 @@ module BenefitsIntake
     end
 
     def pending_attempts_hash
-      @pah ||= FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission).index_by(&:benefits_intake_uuid)
+      @pah ||= FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission)
+                                    .index_by(&:benefits_intake_uuid)
     end
 
     # @see https://developer.va.gov/explore/api/benefits-intake/docs
     def handle_response(response_data)
-      response_data.each { |submission|
+      response_data.each do |submission|
         uuid = submission['id']
 
         next unless pending_attempts_hash[uuid]
@@ -116,24 +116,25 @@ module BenefitsIntake
         monitor_attempt_status(uuid, status)
 
         handle_attempt_result(uuid, status)
-      }
+      end
     end
 
     def update_attempt_record(uuid, status, submission)
       form_submission_attempt = pending_attempts_hash[uuid]
       lighthouse_updated_at = submission.dig('attributes', 'updated_at')
 
-      if status == 'expired'
+      case status
+      when 'expired'
         # Indicates that documents were not successfully uploaded within the 15-minute window.
         error_message = 'expired'
         form_submission_attempt.fail!
 
-      elsif status == 'error'
+      when 'error'
         # Indicates that there was an error. Refer to the error code and detail for further information.
         error_message = "#{submission.dig('attributes', 'code')}: #{submission.dig('attributes', 'detail')}"
         form_submission_attempt.fail!
 
-      elsif status == 'vbms'
+      when 'vbms'
         # Submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.vbms!
       end
@@ -178,7 +179,7 @@ module BenefitsIntake
 
       queue_time = (Time.zone.now - form_submission_attempt.created_at).truncate
       result = STATUS_RESULT_MAP[status.to_sym] || 'pending'
-      result = 'stale' if (queue_time > STALE_SLA.days && result == 'pending')
+      result = 'stale' if queue_time > STALE_SLA.days && result == 'pending'
 
       [form_submission_attempt, result]
     end
@@ -188,4 +189,3 @@ module BenefitsIntake
 
   # end module BenefitsIntake
 end
-

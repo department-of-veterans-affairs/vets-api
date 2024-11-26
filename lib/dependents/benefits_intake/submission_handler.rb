@@ -15,7 +15,6 @@ module Dependents
       def monitor
         @monitor ||= Dependents::Monitor.new
       end
-
     end
   end
 end

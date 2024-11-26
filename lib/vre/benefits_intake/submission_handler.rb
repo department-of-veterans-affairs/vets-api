@@ -15,7 +15,6 @@ module VRE
       def monitor
         @monitor ||= VRE::Monitor.new
       end
-
     end
   end
 end

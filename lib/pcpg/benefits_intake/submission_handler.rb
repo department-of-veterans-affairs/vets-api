@@ -15,7 +15,6 @@ module PCPG
       def monitor
         @monitor ||= PCPG::Monitor.new
       end
-
     end
   end
 end
