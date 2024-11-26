@@ -111,6 +111,10 @@ module Veteran
         end
       end
 
+      def user_type
+        user_types.first
+      end
+
       private
 
       #
