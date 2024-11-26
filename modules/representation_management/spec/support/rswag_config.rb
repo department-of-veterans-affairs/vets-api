@@ -98,7 +98,8 @@ class RepresentationManagement::RswagConfig
 
   def error
     {
-      type: :string
+      type: :string,
+      example: "Veteran first name can't be blank"
     }
   end
 

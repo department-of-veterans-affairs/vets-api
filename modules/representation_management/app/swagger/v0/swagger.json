@@ -84,7 +84,8 @@
         }
       },
       "Error": {
-        "type": "string"
+        "type": "string",
+        "example": "Veteran first name can't be blank"
       },
       "PowerOfAttorneyResponse": {
         "type": "object",
@@ -210,7 +211,7 @@
           "422": {
             "description": "unprocessable entity response",
             "content": {
-              "application/pdf": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Errors"
                 }
@@ -443,7 +444,7 @@
           "422": {
             "description": "unprocessable entity response",
             "content": {
-              "application/pdf": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/Errors"
                 }

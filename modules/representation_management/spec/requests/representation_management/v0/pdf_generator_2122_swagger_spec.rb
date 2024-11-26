@@ -18,12 +18,12 @@ RSpec.describe 'PDF Generator 21-22', openapi_spec: 'modules/representation_mana
     post('Generate a PDF for form 21-22') do
       tags 'PDF Generation'
       consumes 'application/json'
-      produces 'application/pdf'
       operationId 'createPdfForm2122'
 
       parameter SwaggerSharedComponents::V0.body_examples[:pdf_generator2122_parameter]
 
       response '200', 'PDF generated successfully' do
+        produces 'application/pdf'
         let(:pdf_generator2122) do
           SwaggerSharedComponents::V0.body_examples[:pdf_generator2122]
         end
@@ -31,6 +31,7 @@ RSpec.describe 'PDF Generator 21-22', openapi_spec: 'modules/representation_mana
       end
 
       response '422', 'unprocessable entity response' do
+        produces 'application/json'
         let(:pdf_generator2122) do
           params = SwaggerSharedComponents::V0.body_examples[:pdf_generator2122]
           params[:veteran][:name].delete(:first)
