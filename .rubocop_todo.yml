@@ -447,9 +447,6 @@ Metrics/BlockLength:
 Metrics/CyclomaticComplexity:
   Max: 29
 
-Metrics/ParameterLists:
-  Max: 6
-
 # Offense count: 181
 # Configuration parameters: AllowedMethods, AllowedPatterns.
 Metrics/PerceivedComplexity:

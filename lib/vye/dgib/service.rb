@@ -50,6 +50,7 @@ module Vye
         end
       end
 
+      # rubocop:disable Metrics/ParameterLists
       def verify_claimant(
         claimant_id,
         verified_period_begin_date,
@@ -67,6 +68,7 @@ module Vye
                                                     verification_method:,
                                                     app_communication: { response_type: }
                                                   })
+        # rubocop:enable Metrics/ParameterLists
 
         with_monitoring do
           headers = request_headers
