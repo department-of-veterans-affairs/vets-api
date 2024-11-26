@@ -1846,6 +1846,6 @@ vaos:
     audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
     access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
     api_url: "https://api.wellhive.com"
-    base_path: "/care-navigation/v1"
+    base_path: "care-navigation/v1"
     scopes: "care-nav"
 

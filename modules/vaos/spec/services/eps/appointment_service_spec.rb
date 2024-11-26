@@ -3,6 +3,8 @@
 require 'rails_helper'
 
 describe Eps::AppointmentService do
+  subject(:service) { described_class.new(user) }
+
   let(:user) { double('User', account_uuid: '1234') }
   let(:successful_appt_response) do
     double('Response', status: 200, body: { 'count' => 1,
@@ -14,7 +16,6 @@ describe Eps::AppointmentService do
                                               }
                                             ] })
   end
-  let(:service) { described_class.new(user) }
   let(:patient_id) { 'test-patient-id' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
@@ -27,11 +28,13 @@ describe Eps::AppointmentService do
 
     context 'when requesting appointments for a given patient_id' do
       before do
-        allow(service).to receive(:get_appointments).and_return(successful_appt_response)
+        allow(service).to receive(:perform).and_return(successful_appt_response)
       end
 
       it 'returns the appointments scheduled' do
-        expect(service.get_appointments(patient_id:)).to eq(successful_appt_response)
+        exp_response = OpenStruct.new(successful_appt_response.body)
+
+        expect(service.get_appointments(patient_id:)).to eq(exp_response)
       end
     end
 
@@ -45,7 +48,7 @@ describe Eps::AppointmentService do
       end
 
       before do
-        allow(service).to receive(:get_appointments).and_raise(exception)
+        allow(service).to receive(:perform).and_raise(exception)
       end
 
       it 'throws exception' do
