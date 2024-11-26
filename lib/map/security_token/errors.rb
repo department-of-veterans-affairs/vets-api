@@ -4,6 +4,7 @@ module MAP
   module SecurityToken
     module Errors
       class ApplicationMismatchError < StandardError; end
+      class InvalidTokenDurationError < StandardError; end
       class MissingICNError < StandardError; end
     end
   end
