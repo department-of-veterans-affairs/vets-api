@@ -12,6 +12,8 @@ image:
   testRepository: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/vets-api-postman
   tag:
   pullPolicy: Always
+git_container_repo:
+git_container_version:
 vsp_environment:
 affinityWeight:
 mockData:

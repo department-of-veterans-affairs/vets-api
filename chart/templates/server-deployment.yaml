@@ -51,7 +51,7 @@ spec:
       {{- if $root.Values.mockData.enabled }}
       initContainers:
         - name: vets-api-mockdata
-          image: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/git:latest
+          image: "{{ $root.Values.git_container_repo }}:{{ $root.Values.git_container_version }}"
           args:
             - clone
             - --single-branch
