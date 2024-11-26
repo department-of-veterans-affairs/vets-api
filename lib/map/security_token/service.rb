@@ -41,9 +41,12 @@ module MAP
                            config.token_path,
                            token_params(application, icn),
                            { 'Content-Type' => 'application/x-www-form-urlencoded' })
-        parsed_response = parse_response(response, application, icn)
-        if parsed_response[:expiration] > (Time.zone.now + 900)
+        current_time = Time.zone.now
+        parsed_response = parse_response(response, application, icn, current_time)
+        if parsed_response[:expiration] > (current_time + config.max_token_duration)
           raise Errors::InvalidTokenDurationError, "#{config.logging_prefix} token failed, token duration exceeds maximum"
+        else
+          parsed_response
         end
       end
 
@@ -58,12 +61,12 @@ module MAP
         raise e, "#{message}, status: #{status}, application: #{application}, icn: #{icn}, context: #{context}"
       end
 
-      def parse_response(response, application, icn)
+      def parse_response(response, application, icn, current_time)
         response_body = response.body
 
         {
           access_token: response_body['access_token'],
-          expiration: Time.zone.now + response_body['expires_in']
+          expiration: current_time + response_body['expires_in']
         }
       rescue => e
         message = "#{config.logging_prefix} token failed, response unknown"
