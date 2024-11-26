@@ -240,7 +240,7 @@ features:
     actor_type: user
     description: When enabled, sends poa forms to BD via the refactored logic
     enable_in_development: true
- claims_api_526_validations_v1_local_bgs:
+  claims_api_526_validations_v1_local_bgs:
     actor_type: user
     description: Enables the method calls in the v1 526 validations use local_bgs
     enable_in_development: true

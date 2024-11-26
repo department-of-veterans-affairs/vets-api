@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../../../rails_helper'
+require 'bgs_service/standard_data_service'
 
 RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
   let(:headers) do
@@ -2274,34 +2275,45 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       context "when 'disabilites.secondaryDisabilities.classificationCode' is invalid" do
         let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
 
-        before do
-          expect_any_instance_of(BGS::StandardDataService)
-            .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
-        end
+        [true, false].each do |flipped|
+          context "when feature flag is #{flipped}" do
+            before do
+              if flipped
+                Flipper.enable(:claims_api_526_validations_v1_local_bgs)
+                expect_any_instance_of(ClaimsApi::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              else
+                Flipper.disable(:claims_api_526_validations_v1_local_bgs)
+                expect_any_instance_of(BGS::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              end
+            end
 
-        it 'raises an exception' do
-          mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/brd/countries') do
-              json_data = JSON.parse data
-              params = json_data
-              disabilities = [
-                {
-                  disabilityActionType: 'NONE',
-                  name: 'PTSD (post traumatic stress disorder)',
-                  diagnosticCode: 9999,
-                  secondaryDisabilities: [
+            it 'raises an exception' do
+              mock_acg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  disabilities = [
                     {
-                      disabilityActionType: 'SECONDARY',
-                      name: 'PTSD',
-                      serviceRelevance: 'Caused by a service-connected disability.',
-                      classificationCode: '2222'
+                      disabilityActionType: 'NONE',
+                      name: 'PTSD (post traumatic stress disorder)',
+                      diagnosticCode: 9999,
+                      secondaryDisabilities: [
+                        {
+                          disabilityActionType: 'SECONDARY',
+                          name: 'PTSD',
+                          serviceRelevance: 'Caused by a service-connected disability.',
+                          classificationCode: '2222'
+                        }
+                      ]
                     }
                   ]
-                }
-              ]
-              params['data']['attributes']['disabilities'] = disabilities
-              post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response).to have_http_status(:bad_request)
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:bad_request)
+                end
+              end
             end
           end
         end
@@ -2310,34 +2322,45 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       context "when 'disabilites.secondaryDisabilities.classificationCode' does not match name" do
         let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
 
-        before do
-          expect_any_instance_of(BGS::StandardDataService)
-            .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
-        end
+        [true, false].each do |flipped|
+          context "when feature flag is #{flipped}" do
+            before do
+              if flipped
+                Flipper.enable(:claims_api_526_validations_v1_local_bgs)
+                expect_any_instance_of(ClaimsApi::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              else
+                Flipper.disable(:claims_api_526_validations_v1_local_bgs)
+                expect_any_instance_of(BGS::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              end
+            end
 
-        it 'raises an exception' do
-          mock_acg(scopes) do |auth_header|
-            VCR.use_cassette('claims_api/brd/countries') do
-              json_data = JSON.parse data
-              params = json_data
-              disabilities = [
-                {
-                  disabilityActionType: 'NONE',
-                  name: 'PTSD (post traumatic stress disorder)',
-                  diagnosticCode: 9999,
-                  secondaryDisabilities: [
+            it 'raises an exception' do
+              mock_acg(scopes) do |auth_header|
+                VCR.use_cassette('claims_api/brd/countries') do
+                  json_data = JSON.parse data
+                  params = json_data
+                  disabilities = [
                     {
-                      disabilityActionType: 'SECONDARY',
-                      name: 'PTSD',
-                      serviceRelevance: 'Caused by a service-connected disability.',
-                      classificationCode: '1111'
+                      disabilityActionType: 'NONE',
+                      name: 'PTSD (post traumatic stress disorder)',
+                      diagnosticCode: 9999,
+                      secondaryDisabilities: [
+                        {
+                          disabilityActionType: 'SECONDARY',
+                          name: 'PTSD',
+                          serviceRelevance: 'Caused by a service-connected disability.',
+                          classificationCode: '1111'
+                        }
+                      ]
                     }
                   ]
-                }
-              ]
-              params['data']['attributes']['disabilities'] = disabilities
-              post path, params: params.to_json, headers: headers.merge(auth_header)
-              expect(response).to have_http_status(:bad_request)
+                  params['data']['attributes']['disabilities'] = disabilities
+                  post path, params: params.to_json, headers: headers.merge(auth_header)
+                  expect(response).to have_http_status(:bad_request)
+                end
+              end
             end
           end
         end
@@ -2458,52 +2481,65 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
     describe "'disabilites' validations" do
       describe "'disabilities.classificationCode' validations" do
-        let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
+        [true, false].each do |flipped|
+          context "when feature flag is #{flipped}" do
+            before do
+              if flipped
+                Flipper.enable(:claims_api_526_validations_v1_local_bgs)
+                expect_any_instance_of(ClaimsApi::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              else
+                Flipper.disable(:claims_api_526_validations_v1_local_bgs)
+                expect_any_instance_of(BGS::StandardDataService)
+                  .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
+              end
+            end
 
-        before do
-          expect_any_instance_of(BGS::StandardDataService)
-            .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
-        end
+            let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
 
-        context "when 'disabilites.classificationCode' is valid" do
-          it 'returns a successful response' do
-            mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/claims/claims') do
-                VCR.use_cassette('claims_api/brd/countries') do
-                  json_data = JSON.parse data
-                  params = json_data
-                  disabilities = [
-                    {
-                      disabilityActionType: 'NEW',
-                      name: 'PTSD (post traumatic stress disorder)',
-                      classificationCode: '1111'
-                    }
-                  ]
-                  params['data']['attributes']['disabilities'] = disabilities
-                  post path, params: params.to_json, headers: headers.merge(auth_header)
-                  expect(response).to have_http_status(:ok)
+            context "when 'disabilites.classificationCode' is valid" do
+              it 'returns a successful response' do
+                mock_acg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/bgs/claims/claims') do
+                    VCR.use_cassette('claims_api/brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      disabilities = [
+                        {
+                          disabilityActionType: 'NEW',
+                          name: 'PTSD (post traumatic stress disorder)',
+                          classificationCode: '1111'
+                        }
+                      ]
+                      params['data']['attributes']['disabilities'] = disabilities
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:ok)
+                    end
+                  end
                 end
               end
             end
-          end
-        end
 
-        context "when 'disabilites.classificationCode' is invalid" do
-          it 'responds with a bad request' do
-            mock_acg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/brd/countries') do
-                json_data = JSON.parse data
-                params = json_data
-                disabilities = [
-                  {
-                    disabilityActionType: 'NEW',
-                    name: 'PTSD (post traumatic stress disorder)',
-                    classificationCode: '2222'
-                  }
-                ]
-                params['data']['attributes']['disabilities'] = disabilities
-                post path, params: params.to_json, headers: headers.merge(auth_header)
-                expect(response).to have_http_status(:bad_request)
+            context "when 'disabilites.classificationCode' is invalid" do
+              it 'responds with a bad request' do
+                mock_acg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api/brd/countries') do
+                    VCR.use_cassette('claims_api/bgs/stadard_service_data') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      disabilities = [
+                        {
+                          disabilityActionType: 'NEW',
+                          name: 'PTSD (post traumatic stress disorder)',
+                          classificationCode: '2222'
+                        }
+                      ]
+                      params['data']['attributes']['disabilities'] = disabilities
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:bad_request)
+                    end
+                  end
+                end
               end
             end
           end

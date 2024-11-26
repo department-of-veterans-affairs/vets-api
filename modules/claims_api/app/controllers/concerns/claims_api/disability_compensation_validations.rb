@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'brd/brd'
+require 'bgs_service/standard_data_service'
 
 module ClaimsApi
   module DisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
@@ -424,7 +425,15 @@ module ClaimsApi
     def bgs_classification_ids
       return @bgs_classification_ids if @bgs_classification_ids.present?
 
-      contention_classification_type_codes = bgs_service.data.get_contention_classification_type_code_list
+      contention_classification_type_codes = if Flipper.enabled?(:claims_api_526_validations_v1_local_bgs)
+                                               contention_service = ClaimsApi::StandardDataService.new(
+                                                 external_uid: Settings.bgs.external_uid,
+                                                 external_key: Settings.bgs.external_key
+                                               )
+                                               contention_service.data.get_contention_classification_type_code_list
+                                             else
+                                               bgs_service.data.get_contention_classification_type_code_list
+                                             end
       @bgs_classification_ids = contention_classification_type_codes.pluck(:clsfcn_id)
     end
 
