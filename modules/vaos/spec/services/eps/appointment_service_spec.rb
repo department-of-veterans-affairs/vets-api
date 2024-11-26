@@ -22,13 +22,12 @@ describe Eps::AppointmentService do
   describe 'get_appointments' do
     before do
       allow(Rails.cache).to receive(:fetch).and_return(memory_store)
-      allow(service).to receive(:with_monitoring).and_yield
       Rails.cache.clear
     end
 
     context 'when requesting appointments for a given patient_id' do
       before do
-        allow(service).to receive(:perform).and_return(successful_appt_response)
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_appt_response)
       end
 
       it 'returns the appointments scheduled' do
@@ -48,7 +47,7 @@ describe Eps::AppointmentService do
       end
 
       before do
-        allow(service).to receive(:perform).and_raise(exception)
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
       end
 
       it 'throws exception' do
