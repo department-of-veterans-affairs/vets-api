@@ -36,6 +36,7 @@ module Swagger
               property :first_name, type: :string, example: 'Abigail'
               property :middle_name, type: :string, example: 'Jane'
               property :last_name, type: :string, example: 'Brown'
+              property :preferred_name, type: %i[string null], example: 'Abby'
               property :birth_date, type: :string, example: '1900-01-01'
               property :gender, type: :string, example: 'F'
               property :zip,

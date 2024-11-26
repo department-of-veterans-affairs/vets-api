@@ -49,7 +49,7 @@ class Prescription < Common::Base
   attribute :facility_api_name, String
   attribute :ordered_date, Common::UTCTime, sortable: { order: 'DESC' }
   attribute :quantity, Integer
-  attribute :expiration_date, Common::UTCTime
+  attribute :expiration_date, Common::UTCTime, filterable: %w[eq lteq gteq]
   attribute :prescription_number, String
   attribute :sig, String
   attribute :prescription_name, String, sortable: { order: 'ASC', default: true }
