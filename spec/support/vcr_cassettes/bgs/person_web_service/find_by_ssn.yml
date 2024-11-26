@@ -21,7 +21,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 22 Nov 2024 18:45:14 GMT
+      - Thu, 21 Nov 2024 21:19:08 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -837,7 +837,7 @@ http_interactions:
         </port>
         </service>
         </definitions>
-  recorded_at: Fri, 22 Nov 2024 18:45:14 GMT
+  recorded_at: Thu, 21 Nov 2024 21:19:08 GMT
 - request:
     method: post
     uri: "<BGS_BASE_URL>/PersonWebServiceBean/PersonWebService"
@@ -852,11 +852,12 @@ http_interactions:
             <vaws:CLIENT_MACHINE>10.0.0.205</vaws:CLIENT_MACHINE>
             <vaws:STN_ID>281</vaws:STN_ID>
             <vaws:applicationName>VAgovAPI</vaws:applicationName>
-            <vaws:ExternalUid>123</vaws:ExternalUid>
-            <vaws:ExternalKey>1@2.com</vaws:ExternalKey>
+
+            <vaws:ExternalUid>796378881</vaws:ExternalUid>
+            <vaws:ExternalKey>796378881</vaws:ExternalKey>
           </vaws:VaServiceHeaders>
         </wsse:Security>
-        </env:Header><env:Body><tns:findPersonBySSN><ssn>796104437</ssn></tns:findPersonBySSN></env:Body></env:Envelope>
+        </env:Header><env:Body><tns:findPersonBySSN><ssn>796378881</ssn></tns:findPersonBySSN></env:Body></env:Envelope>
     headers:
       Host:
       - ".vba.va.gov"
@@ -865,7 +866,7 @@ http_interactions:
       Content-Type:
       - text/xml;charset=UTF-8
       Content-Length:
-      - '1261'
+      - '1269'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
@@ -878,7 +879,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 22 Nov 2024 18:45:14 GMT
+      - Thu, 21 Nov 2024 21:19:08 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -894,7 +895,7 @@ http_interactions:
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdTAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTMuNS4wAAA=</work:WorkContext></env:Header><S:Body><ns0:findPersonBySSNResponse
-        xmlns:ns0="http://person.services.vetsnet.vba.va.gov/"><PersonDTO><birthCityNm>TAMPA</birthCityNm><birthStateCd>FL</birthStateCd><brthdyDt>1950-10-04T00:00:00-06:00</brthdyDt><deathDt>2022-01-01T00:00:00-06:00</deathDt><deathDtEnterdDt>2022-09-16T12:24:00-05:00</deathDtEnterdDt><deathDtUpdatdDt>2022-09-16T12:24:00-05:00</deathDtUpdatdDt><deathHistInd>Y</deathHistInd><deathNotfcnSourceTypeCd>CORP</deathNotfcnSourceTypeCd><emailAddr>user228@gmail.com</emailAddr><empInd>N</empInd><fileNbr>796104437</fileNbr><firstNm>MARK</firstNm><firstNmKey>-2</firstNmKey><genderCd>M</genderCd><insFileNbr></insFileNbr><jrnDt>2024-11-18T08:18:37-06:00</jrnDt><jrnExtnlApplcnNm>VAgovAPI</jrnExtnlApplcnNm><jrnExtnlKeyTxt>1@2.com</jrnExtnlKeyTxt><jrnExtnlUserId>123</jrnExtnlUserId><jrnLctnId>281</jrnLctnId><jrnObjId>VAGOVAPI  -
-        BUPD</jrnObjId><jrnPersonId>218919619</jrnPersonId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAGOVAPI</jrnUserId><lastNm>POLARBEAR</lastNm><lastNmKey>-2</lastNmKey><middleNm>T</middleNm><middleNmKey>-1</middleNmKey><mltyPersonInd>Y</mltyPersonInd><personDeathCauseTypeNm>Unknown</personDeathCauseTypeNm><potntlDngrsInd>N</potntlDngrsInd><ptcpntDTO><blockAutoEnrlmtCd>U</blockAutoEnrlmtCd><blockCaddInd>U</blockCaddInd><ptcpntId>13367440</ptcpntId><ptcpntTypeNm>Person</ptcpntTypeNm></ptcpntDTO><ptcpntId>13367440</ptcpntId><serousEmplmtHndcapInd>N</serousEmplmtHndcapInd><ssnNbr>796104437</ssnNbr><ssnVrfctnStatusTypeCd>4</ssnVrfctnStatusTypeCd><stationOfJurisdiction>317</stationOfJurisdiction><suffixNm>JR</suffixNm><suffixNmKey>-1</suffixNmKey><termnlDigitNbr>37</termnlDigitNbr><vetInd>Y</vetInd></PersonDTO></ns0:findPersonBySSNResponse></S:Body></S:Envelope>
-  recorded_at: Fri, 22 Nov 2024 18:45:14 GMT
+        xmlns:ns0="http://person.services.vetsnet.vba.va.gov/"><PersonDTO><birthCityNm>SALINAS</birthCityNm><birthStateCd>KS</birthStateCd><brthdyDt>1954-12-15T00:00:00-06:00</brthdyDt><deathDtEnterdDt>2022-10-03T15:35:53-05:00</deathDtEnterdDt><deathDtUpdatdDt>2022-10-03T15:35:53-05:00</deathDtUpdatdDt><deathHistInd>Y</deathHistInd><deathNotfcnSourceTypeCd>CORP</deathNotfcnSourceTypeCd><depNbr>0</depNbr><emailAddr>valid@somedomain.com</emailAddr><empInd>N</empInd><fileNbr>796378881</fileNbr><firstNm>JESSE</firstNm><firstNmKey>-2</firstNmKey><genderCd>M</genderCd><insFileNbr></insFileNbr><jrnDt>2024-11-21T15:18:35-06:00</jrnDt><jrnExtnlApplcnNm>VAgovAPI</jrnExtnlApplcnNm><jrnExtnlKeyTxt>lighthouse-vets-api</jrnExtnlKeyTxt><jrnExtnlUserId>lighthouse-vets-api</jrnExtnlUserId><jrnLctnId>281</jrnLctnId><jrnObjId>VAGOVAPI  -
+        BUPD</jrnObjId><jrnPersonId>218935360</jrnPersonId><jrnStatusTypeCd>U</jrnStatusTypeCd><jrnUserId>VAGOVAPI</jrnUserId><lastNm>GRAY</lastNm><lastNmKey>-1</lastNmKey><middleNm>ADSUSEONLY</middleNm><middleNmKey>-1</middleNmKey><mltyPersonInd>Y</mltyPersonInd><potntlDngrsInd>N</potntlDngrsInd><ptcpntDTO><blockAutoEnrlmtCd>U</blockAutoEnrlmtCd><blockCaddInd>U</blockCaddInd><ptcpntId>600045026</ptcpntId><ptcpntTypeNm>Person</ptcpntTypeNm></ptcpntDTO><ptcpntId>600045026</ptcpntId><serousEmplmtHndcapInd>N</serousEmplmtHndcapInd><spinaBifidaInd>N</spinaBifidaInd><ssnNbr>796378881</ssnNbr><ssnVrfctnStatusTypeCd>0</ssnVrfctnStatusTypeCd><stationOfJurisdiction>317</stationOfJurisdiction><termnlDigitNbr>81</termnlDigitNbr><vetInd>Y</vetInd></PersonDTO></ns0:findPersonBySSNResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 21 Nov 2024 21:19:08 GMT
 recorded_with: VCR 6.3.1
