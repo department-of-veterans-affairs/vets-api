@@ -142,7 +142,6 @@ module ClaimsApi
       payload[:file] = Faraday::UploadIO.new(pdf_path.to_s, 'application/pdf')
       payload
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def determine_birls_file_number(doc_type, auth_headers)
       if %w[L122].include?(doc_type)
@@ -152,6 +151,7 @@ module ClaimsApi
       end
       birls_file_num
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def generate_file_name(doc_type:, veteran_name:, claim_id:, original_filename:, action:)
       # https://confluence.devops.va.gov/display/VAExternal/Document+Types
