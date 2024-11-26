@@ -140,13 +140,9 @@ class LighthouseSupplementalDocumentUploadProvider
   def handle_lighthouse_response(api_response)
     response_body = api_response.body
 
-    if lighthouse_success_response?(response_body)
-      lighthouse_request_id = response_body.dig('data', 'requestId')
-      create_lighthouse_polling_record(lighthouse_request_id)
-      log_upload_success(lighthouse_request_id)
-    else
-      log_upload_failure(response_body)
-    end
+    lighthouse_document_request_id = response_body['data']['requestId']
+    create_lighthouse_polling_record(lighthouse_document_request_id)
+    log_upload_success(lighthouse_request_id)
   end
 
   # @param response_body [JSON] Lighthouse API response returned from the UploadSupplementalDocumentService

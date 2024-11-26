@@ -108,7 +108,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     end
 
     context 'when there is an exception thrown when the upload is attempted' do
-      let(:error_message) { 'Something Broke'}
+      let(:error_message) { 'Something Broke' }
 
       before do
         # Skip upload attempt logging
@@ -295,6 +295,33 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         )
 
         provider.submit_upload_document(lighthouse_document, file_body)
+      end
+    end
+
+    # We expect 200 successful upload responses to match a certain shape from Lighthouse but if they don't for whatever
+    # reason, we want an exception to be raised loudly instead of logging a failed upload
+    context 'when we get a 200 response from Lighthouse but response body does not match the expected upload success' do
+      before do
+        allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+          .with(file_body, lighthouse_document)
+          .and_return(faraday_response)
+
+        allow(faraday_response).to receive(:body).and_return(
+          # Simulate missing Lighthouse request ID
+          {
+            'data' =>
+            {
+              'foo' => 'Did not expect me did you?!??'
+            }
+          }
+        )
+      end
+
+      it 'fails loudly' do
+        # Test falls through to raising validation error when creating
+        # Lighthouse526DocumentUpload polling record without request ID
+        expect { provider.submit_upload_document(lighthouse_document, file_body) }
+          .to raise_error(ActiveRecord::RecordInvalid)
       end
     end
 
