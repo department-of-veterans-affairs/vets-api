@@ -6,6 +6,6 @@ module BenefitsDocuments
       PENDING: 'IN_PROGRESS',
       FAILED: 'FAILED',
       SUCCESS: 'SUCCESS'
-  }.freeze
+    }.freeze
   end
 end
