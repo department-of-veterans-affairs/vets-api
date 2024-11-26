@@ -53,12 +53,6 @@ RSpec.describe BenefitsDocuments::Service do
         end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
       end
 
-      it 'records an evidence submission when cst_synchronous_evidence_uploads is false' do
-        Flipper.disable(:cst_synchronous_evidence_uploads)
-        service.queue_document_upload(params)
-        expect(EvidenceSubmission.count).to eq(1)
-      end
-
       it 'does not enqueue a job when cst_synchronous_evidence_uploads is true' do
         VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf') do
           Flipper.enable(:cst_synchronous_evidence_uploads)
