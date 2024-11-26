@@ -56,7 +56,7 @@ module BenefitsDocuments
 
       unless claim_id
         raise Common::Exceptions::InternalServerError,
-              ArgumentError.new("Claim with id #{claim_id} not found")
+              ArgumentError.new('Claim id is required')
       end
 
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
