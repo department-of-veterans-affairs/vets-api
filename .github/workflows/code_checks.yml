@@ -179,20 +179,6 @@ jobs:
           labels: |
             test-passing
 
-      - name: Add omit-backend-approval label
-        if: |
-          github.event_name == 'pull_request' && github.event.pull_request.draft == false &&
-          (
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'mobile') ||
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'lighthouse') ||
-            contains(toJSON(github.event.pull_request.requested_teams.*.name), 'identity')
-          )
-        uses: actions-ecosystem/action-add-labels@v1
-        with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            omit-backend-approval
-
       - name: Add require-backend-approval label
         uses: actions-ecosystem/action-add-labels@v1
         if: |
