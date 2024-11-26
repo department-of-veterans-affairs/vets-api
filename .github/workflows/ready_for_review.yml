@@ -45,17 +45,6 @@ jobs:
         run: |
           echo "ready_for_review=true" >> $GITHUB_OUTPUT
 
-      # If require-backend-approval label is present, get reviews
-      - name: Check backend-review-group approval status
-        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
-        id: check_backend_review_group_approval_status
-        uses: octokit/request-action@v2.x
-        with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      #
       - name: Get backend-review-group members
         if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: get_team_members
@@ -64,6 +53,15 @@ jobs:
           route: GET /orgs/department-of-veterans-affairs/teams/backend-review-group/members
         env:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
+
+      - name: Get PR reviews
+        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
+        id: get_pr_reviews
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify backend-review-group approval
         if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
