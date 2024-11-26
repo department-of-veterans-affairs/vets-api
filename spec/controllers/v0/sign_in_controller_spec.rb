@@ -742,6 +742,10 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
 
         context 'and code in state payload matches an existing state code' do
+          before { Timecop.freeze }
+
+          after { Timecop.return }
+
           context 'when type in state JWT is logingov' do
             let(:type) { SignIn::Constants::Auth::LOGINGOV }
             let(:response) { OpenStruct.new(access_token: token) }
@@ -1137,11 +1141,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
               before do
                 allow(SecureRandom).to receive(:uuid).and_return(client_code)
-                Timecop.freeze
-              end
-
-              after do
-                Timecop.return
               end
 
               shared_context 'dslogon successful callback' do
