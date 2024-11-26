@@ -6,6 +6,7 @@ describe Eps::BaseService do
   let(:user) { double('User', account_uuid: '1234') }
   let(:service) { described_class.new(user) }
   let(:mock_token_response) { double('Response', body: { 'access_token' => 'mock_token' }) }
+  let(:blank_token_response) { double('Response', body: { 'access_token' => '' }) }
 
   describe '#headers' do
     before do
@@ -38,8 +39,24 @@ describe Eps::BaseService do
         allow(service).to receive(:get_token).and_return(mock_token_response)
       end
 
-      it 'fetches and caches new token' do
-        expect(service.token).to eq('mock_token')
+      context 'when get_token returns a valid response' do
+        before do
+          allow(service).to receive(:get_token).and_return(mock_token_response)
+        end
+
+        it 'fetches and caches new token' do
+          expect(service.token).to eq('mock_token')
+        end
+      end
+
+      context 'when get_token returns a blank response' do
+        before do
+          allow(service).to receive(:get_token).and_return(blank_token_response)
+        end
+
+        it 'raises error' do
+          expect { service.token }.to raise_error(Eps::BaseService::TokenError, 'Invalid token response')
+        end
       end
     end
 
@@ -83,7 +100,7 @@ describe Eps::BaseService do
         :post,
         'http://test.url',
         expected_params,
-        { 'Content-Type' => 'application/x-www-form-urlencoded' }.freeze
+        { 'Content-Type' => 'application/x-www-form-urlencoded' }
       )
 
       service.get_token

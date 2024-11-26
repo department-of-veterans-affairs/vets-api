@@ -6,7 +6,7 @@ module Eps
 
     STATSD_KEY_PREFIX = 'api.eps'
     REDIS_TOKEN_KEY = REDIS_CONFIG[:eps_access_token][:namespace]
-    REDIS_TOKEN_TTL = REDIS_CONFIG[:eps_access_token][:ttl]
+    REDIS_TOKEN_TTL = REDIS_CONFIG[:eps_access_token][:each_ttl]
 
     def headers
       {
@@ -39,7 +39,7 @@ module Eps
     private
 
     def parse_token_response(response)
-      raise TokenError, 'Invalid token response' if response.body.nil? || !response.body['access_token']
+      raise TokenError, 'Invalid token response' if response.body.nil? || response.body['access_token'].blank?
 
       response.body['access_token']
     end
@@ -54,7 +54,7 @@ module Eps
     end
 
     def token_headers
-      { 'Content-Type' => 'application/x-www-form-urlencoded' }.freeze
+      { 'Content-Type' => 'application/x-www-form-urlencoded' }
     end
 
     class TokenError < StandardError; end
