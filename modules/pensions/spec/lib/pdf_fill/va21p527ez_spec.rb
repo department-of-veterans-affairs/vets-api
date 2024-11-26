@@ -194,7 +194,10 @@ describe Pensions::PdfFill::Va21p527ez do
 
   describe '#expand_claim_certification_and_signature' do
     it 'defaults to today' do
-      allow(Time.zone.now).to receive(:strftime).and_return('2024-11-25')
+      date = Time.new(2024, 11, 25, 2, 2, 2, 'UTC')
+      zone = double('zone')
+      allow(zone).to receive(:now).and_return(date)
+      allow(Time).to receive(:zone).and_return(zone)
       form_data = {}
       form = described_class.new(form_data)
       form.expand_claim_certification_and_signature
