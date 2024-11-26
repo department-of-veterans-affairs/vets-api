@@ -8,7 +8,7 @@ require_relative '../../../support/swagger_shared_components/v1'
 require 'bgs/power_of_attorney_verifier'
 
 Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do
-  let(:pws) { ClaimsApi::LocalBGS }
+  let(:pws) { ClaimsApi::PersonWebService }
 
   path '/forms/2122' do
     get 'Gets schema for POA form.' do
