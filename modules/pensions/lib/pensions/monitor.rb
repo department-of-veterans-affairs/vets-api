@@ -341,7 +341,6 @@ module Pensions
         error: e&.message,
         tags:
       }
-      puts(e)
       track_request('error', 'Lighthouse::PensionBenefitIntakeJob custom date failed',
                     "#{SUBMISSION_STATS_KEY}.custom_date_failed",
                     call_location: caller_locations.first, **additional_context)
