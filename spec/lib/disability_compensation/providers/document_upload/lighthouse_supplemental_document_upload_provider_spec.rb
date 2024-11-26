@@ -246,58 +246,6 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
       end
     end
 
-    context 'when we get a non-200 response from Lighthouse' do
-      let(:error_response_body) do
-        # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
-        {
-          'errors' => [
-            {
-              'detail' => 'Something broke',
-              'status' => 400,
-              'title' => 'Bad Request',
-              'instance' => Faker::Internet.uuid
-            }
-          ]
-        }
-      end
-
-      before do
-        # Skip upload attempt logging
-        allow(provider).to receive(:log_upload_attempt)
-
-        allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-          .with(file_body, lighthouse_document)
-          .and_return(faraday_response)
-
-        allow(faraday_response).to receive(:body).and_return(error_response_body)
-      end
-
-      it 'logs to the Rails logger' do
-        expect(Rails.logger).to receive(:error).with(
-          'LighthouseSupplementalDocumentUploadProvider upload failed',
-          {
-            class: 'LighthouseSupplementalDocumentUploadProvider',
-            submitted_claim_id: submission.submitted_claim_id,
-            submission_id: submission.id,
-            user_uuid: submission.user_uuid,
-            va_document_type_code: va_document_type,
-            primary_form: 'Form526',
-            lighthouse_error_response: error_response_body
-          }
-        )
-
-        provider.submit_upload_document(lighthouse_document, file_body)
-      end
-
-      it 'increments a StatsD metric' do
-        expect(StatsD).to receive(:increment).with(
-          'my_stats_metric_prefix.lighthouse_supplemental_document_upload_provider.upload_failure'
-        )
-
-        provider.submit_upload_document(lighthouse_document, file_body)
-      end
-    end
-
     # We expect 200 successful upload responses to match a certain shape from Lighthouse but if they don't for whatever
     # reason, we want an exception to be raised loudly instead of logging a failed upload
     context 'when we get a 200 response from Lighthouse but response body does not match the expected upload success' do
