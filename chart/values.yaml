@@ -1,4 +1,4 @@
-ssmPath: /dsva-vagov/vets-api/dev/
+ssmPath:
 parameters:
   - SETTINGS__HOSTNAME
   - SETTINGS__VIRTUAL_HOSTS
