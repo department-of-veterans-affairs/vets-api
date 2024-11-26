@@ -14,7 +14,6 @@ maintenance:
 modules_appeals_api:
   legacy_appeals_enabled: true
   schema_dir: config/schemas
-  supplemental_claims_enabled: true
 mvi:
   pii_logging: false
 session_cookie:
