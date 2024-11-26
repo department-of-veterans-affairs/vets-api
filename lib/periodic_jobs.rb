@@ -189,7 +189,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('*/3 * * * *', 'VBADocuments::UploadScanner')
 
   # Clean up submitted documents from S3
-  mgr.register('*/5 * * * *', 'VBADocuments::UploadRemover')
+  mgr.register('2-59/5 * * * *', 'VBADocuments::UploadRemover')
 
   # Daily/weekly report of unsuccessful benefits intake submissions
   mgr.register('0 0 * * 1-5', 'VBADocuments::ReportUnsuccessfulSubmissions')
