@@ -225,8 +225,9 @@ module DecisionReview
         next if old_uploads_metadata.dig(upload_id, 'status') == status
 
         if status == ERROR_STATUS
-          Rails.logger.info("#{log_prefix} evidence status error",
-                            { guid: record.guid, lighthouse_upload_id: upload_id, detail: upload['detail'] })
+          error_type = get_error_type(upload['detail'])
+          params = { guid: record.guid, lighthouse_upload_id: upload_id, detail: upload['detail'], error_type: }
+          Rails.logger.info("#{log_prefix} evidence status error", params)
           tags = [service_tag, 'function: evidence submission to Lighthouse']
           StatsD.increment('silent_failure', tags:)
         end
@@ -246,6 +247,25 @@ module DecisionReview
       return {} if metadata.nil?
 
       JSON.parse(metadata).fetch('uploads', []).index_by { |upload| upload['id'] }
+    end
+
+    def get_error_type(detail)
+      case detail
+      when /.*Unidentified Mail: We could not associate part or all of this submission with a Vet*/i
+        'unidentified-mail'
+      when /.*ERR-EMMS-FAILED, Corrupted File detected.*/i
+        'corrupted-file'
+      when /.*ERR-EMMS-FAILED, Images failed to process.*/i
+        'image-processing-failure'
+      when /.*Errors: Batch Submitted with all blank Images.*/i
+        'blank-images'
+      when /.*Unsupported or Corrupted File type.*/i
+        'unsupported-file-type'
+      when /.ERR-EMMS-FAILED, EffectiveReceivedDate cannot be in the future.*/i
+        'effective-received-date-error'
+      else
+        'unknown'
+      end
     end
   end
 end
