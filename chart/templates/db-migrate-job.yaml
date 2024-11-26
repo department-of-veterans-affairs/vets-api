@@ -19,12 +19,8 @@ spec:
           command: ["bundle"]
           args:  ["exec", "rails", "db:migrate"]
           volumeMounts:
-            - name: vets-api-mockdata
-              mountPath: /app/config/vets-api-mockdata
             - name: ddsocket
               mountPath: /var/run/datadog
-            - name: clamav-volume
-              mountPath: /app/clamav_tmp
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
           env:
             - name: GIT_REVISION
@@ -51,10 +47,6 @@ spec:
       securityContext:
         fsGroup: {{ .Values.fsGroup }}
       volumes:
-        - name: vets-api-mockdata
-          emptyDir: { }
-        - name: clamav-volume
-          emptyDir: { }
         - name: ddsocket
           hostPath:
             path: /var/run/datadog
