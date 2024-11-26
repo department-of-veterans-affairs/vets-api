@@ -356,4 +356,32 @@ describe BBInternal::Client do
       end
     end
   end
+
+  describe '#get_demographic_info' do
+    it 'retrieves the patient demographic information' do
+      VCR.use_cassette 'mr_client/bb_internal/get_demographic_info' do
+        demographic_info = client.get_demographic_info
+
+        expect(demographic_info).to be_a(Hash)
+        expect(demographic_info).to have_key('content')
+        expect(demographic_info['content']).to be_an(Array)
+        expect(demographic_info['content']).not_to be_empty
+
+        first_record = demographic_info['content'].first
+        expect(first_record).to be_a(Hash)
+        expect(first_record).to have_key('firstName')
+        expect(first_record['firstName']).to be_a(String)
+        expect(first_record).to have_key('lastName')
+        expect(first_record['lastName']).to be_a(String)
+        expect(first_record).to have_key('dateOfBirthString')
+        expect(first_record['dateOfBirthString']).to be_a(String)
+        expect(first_record).to have_key('gender')
+        expect(first_record['gender']).to be_a(String)
+        expect(first_record).to have_key('permCity')
+        expect(first_record['permCity']).to be_a(String)
+        expect(first_record).to have_key('permState')
+        expect(first_record['permState']).to be_a(String)
+      end
+    end
+  end
 end

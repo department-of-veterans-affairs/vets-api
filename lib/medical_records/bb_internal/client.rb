@@ -225,6 +225,14 @@ module BBInternal
       response.body
     end
 
+    # Retrieves the patient demographic information
+    # @return [Hash] A hash containing the patient's demographic information
+    #
+    def get_demographic_info
+      response = perform(:get, 'bluebutton/external/phrdemographic', nil, token_headers)
+      response.body
+    end
+
     private
 
     ##
