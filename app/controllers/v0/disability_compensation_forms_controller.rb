@@ -180,6 +180,10 @@ module V0
     # 11/18/2024 BRD EVSS -> Lighthouse migration caused separation location to turn into an integer,
     # while SavedClaim (vets-json-schema) is expecting a string
     def temp_separation_location_fix
+      separation_location = form_content['form526']['serviceInformation']['separationLocation']
+
+      return nil if separation_location.blank?
+
       separation_location_code =
         form_content['form526']['serviceInformation']['separationLocation']['separationLocationCode'].to_s
       form_content['form526']['serviceInformation']['separationLocation']['separationLocationCode'] =
