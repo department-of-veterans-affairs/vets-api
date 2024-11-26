@@ -198,11 +198,11 @@
             "properties": {
               "id": {
                 "type": "string",
-                "example": "123456"
+                "example": "0bfddcc5-fe3c-4ffb-a4c7-70f5e23bde23"
               },
               "type": {
                 "type": "string",
-                "example": "representative"
+                "example": "individual"
               },
               "attributes": {
                 "type": "object",
@@ -284,7 +284,12 @@
                   },
                   "individual_type": {
                     "type": "string",
-                    "example": "Attorney"
+                    "enum": [
+                      "attorney",
+                      "claims_agent",
+                      "representative"
+                    ],
+                    "example": "attorney"
                   },
                   "accredited_organizations": {
                     "type": "object",
@@ -311,7 +316,7 @@
             "properties": {
               "id": {
                 "type": "string",
-                "example": "123456"
+                "example": "0bfddcc5-fe3c-4ffb-a4c7-70f5e23bde23"
               },
               "type": {
                 "type": "string",

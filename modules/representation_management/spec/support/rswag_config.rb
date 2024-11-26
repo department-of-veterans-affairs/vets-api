@@ -149,7 +149,9 @@ class RepresentationManagement::RswagConfig
       full_name: { type: :string, example: 'John Doe' },
       phone: { type: :string, example: '555-555-5555' },
       email: { type: :string, example: 'john.doe@example.com' },
-      individual_type: { type: :string, example: 'Attorney' },
+      individual_type: {        type: :string,
+                                enum: %w[attorney claims_agent representative],
+                                example: 'attorney' },
       accredited_organizations: {
         type: :object,
         properties: {
@@ -160,7 +162,7 @@ class RepresentationManagement::RswagConfig
         }
       }
     )
-    accredited_data_structure('representative', attributes)
+    accredited_data_structure('individual', attributes)
   end
 
   def accredited_organization_schema
@@ -181,7 +183,7 @@ class RepresentationManagement::RswagConfig
         data: {
           type: :object,
           properties: {
-            id: { type: :string, example: '123456' },
+            id: { type: :string, example: '0bfddcc5-fe3c-4ffb-a4c7-70f5e23bde23' },
             type: { type: :string, example: type },
             attributes: {
               type: :object,
