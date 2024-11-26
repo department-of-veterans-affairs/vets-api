@@ -23,7 +23,7 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal
     enable_in_development: true
-  aedp_VADX:
+  aedp_vadx:
     actor_type: user
     description: Enables the VADX experimental features in the AEDP application
     enable_in_development: true
