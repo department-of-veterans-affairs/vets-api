@@ -17,7 +17,7 @@ module Pensions
       include ActiveSupport::NumberHelper
 
       # The Form ID
-      FORM_ID = '21P-527EZ'
+      FORM_ID = Pensions::FORM_ID
 
       # The PDF Template
       TEMPLATE = "#{Pensions::MODULE_PATH}/lib/pdf_fill/pdfs/21P-527EZ.pdf".freeze

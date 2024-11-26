@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
-require 'burials/monitor'
 require 'lighthouse/benefits_intake/service'
-require 'pensions/monitor'
-require 'pensions/notification_email'
-require 'va_notify/notification_email/burial'
-require 'pcpg/monitor'
-require 'dependents/monitor'
-require 'vre/monitor'
+require 'dependents/benefits_intake/submission_handler'
+require 'pcpg/benefits_intake/submission_handler'
+require 'vre/benefits_intake/submission_handler'
 
 # Datadog Dashboard
 # https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking
@@ -36,14 +32,21 @@ module BenefitsIntake
     # @see register_handler
     FORM_HANDLERS = {} # rubocop:disable Style/MutableConstant
 
-    ##
     # Registers a form class with a specific form ID.
     #
     # @param form_id [String] The form ID to register.
-    # @param form_class [Class] The class associated with the form ID.
-    #
+    # @param form_handler [Class] The class associated with the form ID.
     def self.register_handler(form_id, form_handler)
       FORM_HANDLERS[form_id] = form_handler
+    end
+
+    # Registers handlers for various form IDs.
+    {
+      '686C-674' => Dependents::BenefitsIntake::SubmissionHandler,
+      '28-8832' => PCPG::BenefitsIntake::SubmissionHandler,
+      '28-1900' => VRE::BenefitsIntake::SubmissionHandler,
+    }.each do |form_id, handler_class|
+      self.register_handler(form_id, handler_class)
     end
 
     attr_reader :batch_size
@@ -55,10 +58,10 @@ module BenefitsIntake
     def perform(form_id = nil)
       log(:info, 'started')
 
-      pending_attempts = FormSubmissionAttempt.where(aasm_state: 'pending')
+      pending_attempts = FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission)
 
       # filter running this job to a specific form_id/form_type
-      pending_attempts.select! { |pa| pa.form_type == form_id } if form_id
+      pending_attempts.select! { |pa| pa.form_submission.form_type == form_id } if form_id
 
       batch_process(pending_attempts) unless pending_attempts.empty?
 
@@ -95,7 +98,7 @@ module BenefitsIntake
     end
 
     def pending_attempts_hash
-      @pah ||= FormSubmissionAttempt.where(aasm_state: 'pending').index_by(&:benefits_intake_uuid)
+      @pah ||= FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission).index_by(&:benefits_intake_uuid)
     end
 
     # @see https://developer.va.gov/explore/api/benefits-intake/docs
@@ -133,6 +136,7 @@ module BenefitsIntake
       elsif status == 'vbms'
         # Submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.vbms!
+      end
 
       form_submission_attempt.update(lighthouse_updated_at:, error_message:)
     end
@@ -160,11 +164,13 @@ module BenefitsIntake
 
     def handle_attempt_result(uuid, status)
       form_submission_attempt, result = attempt_status_result(uuid, status)
-      form_id = form_submission_attempt.form_submission.form_type
       saved_claim_id = form_submission_attempt.form_submission.saved_claim_id
 
       call_location = caller_locations.first
-      FORM_HANDLERS[form_id]&.handle(result, saved_claim_id, call_location:)
+      context = { benefits_intake_uuid: uuid }
+      FORM_HANDLERS[form_id]&.new(saved_claim_id)&.handle(result, call_location:, **context)
+    rescue => e
+      log(:error, 'ERROR handling result', message: e.message)
     end
 
     def attempt_status_result(uuid, status)
@@ -176,72 +182,6 @@ module BenefitsIntake
 
       [form_submission_attempt, result]
     end
-
-    # TODO: refactor - avoid require of module code, near duplication of process
-    # rubocop:disable Metrics/MethodLength
-    def monitor_failure(form_id, saved_claim_id, bi_uuid)
-      context = {
-        form_id: form_id,
-        claim_id: saved_claim_id,
-        benefits_intake_uuid: bi_uuid
-      }
-      call_location = caller_locations.first
-
-      if %w[21P-530V2 21P-530].include?(form_id)
-        claim = SavedClaim::Burial.find(saved_claim_id)
-        if claim
-          Burials::NotificationEmail.new(claim).deliver(:error)
-          Burials::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
-        else
-          Burials::Monitor.new.log_silent_failure(context, nil, call_location:)
-        end
-      end
-
-      if %w[21P-527EZ].include?(form_id)
-        claim = Pensions::SavedClaim.find(saved_claim_id)
-        if claim
-          Pensions::NotificationEmail.new(claim).deliver(:error)
-          Pensions::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
-        else
-          Pensions::Monitor.new.log_silent_failure(context, nil, call_location:)
-        end
-      end
-
-      # Dependents
-      if %w[686C-674].include?(form_id)
-        claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-        if claim
-          claim.send_failure_email
-          Dependents::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
-        else
-          Dependents::Monitor.new.log_silent_failure(context, nil, call_location:)
-        end
-      end
-
-      # PCPG
-      if %w[28-8832].include?(form_id)
-        claim = SavedClaim::EducationCareerCounselingClaim.find(saved_claim_id)
-        if claim
-          claim.send_failure_email
-          PCPG::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
-        else
-          PCPG::Monitor.new.log_silent_failure(ocntext, nil, call_location:)
-        end
-      end
-
-      # VRE
-      if %w[28-1900].include?(form_id)
-        claim = SavedClaim::VeteranReadinessEmploymentClaim.find(saved_claim_id)
-        if claim
-          claim.send_failure_email
-          VRE::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
-        else
-          VRE::Monitor.new.log_silent_failure(context, nil, call_location:)
-        end
-      end
-    end
-    # rubocop:enable Metrics/MethodLength
-
 
     # end class SubmissionStatusJob
   end
