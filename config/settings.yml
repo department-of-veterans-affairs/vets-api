@@ -1448,8 +1448,8 @@ genisis:
 dgi:
   # add med_api here? Will need to reach out to that team
   jwt:
-    public_key_path: ""
-    private_key_path: ""
+    public_key_path: "modules/meb_api/spec/fixtures/dgi_public_test.pem"
+    private_key_path: "modules/meb_api/spec/fixtures/dgi_private_test.pem"
   vye:
     jwt:
       # May not need the public path
