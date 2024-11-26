@@ -68,8 +68,9 @@ module ClaimsApi
                                               lighthouse_id: nil,
                                               upstream_id: bgs_details[:benefit_claim_id])
           end
+          ssn = auth_headers['va_eauth_pnid']
           structure.merge!(errors: get_errors(lighthouse_claim))
-          structure.merge!(supporting_documents: build_supporting_docs(bgs_claim))
+          structure.merge!(supporting_documents: build_supporting_docs(bgs_claim, ssn))
           structure.merge!(tracked_items: map_bgs_tracked_items(bgs_claim))
         end
 
