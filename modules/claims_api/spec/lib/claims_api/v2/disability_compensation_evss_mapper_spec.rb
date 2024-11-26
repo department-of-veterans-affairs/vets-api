@@ -249,7 +249,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         reserves_addition = evss_data[:serviceInformation][:reservesNationalGuardService]
 
         expect(reserves_addition[:title10Activation][:title10ActivationDate]).to eq('2023-10-01')
-        expect(reserves_addition[:title10Activation][:anticipatedSeparationDate]).to eq('2024-10-31')
+        expect(reserves_addition[:title10Activation][:anticipatedSeparationDate]).to eq('2025-10-31')
         expect(reserves_addition[:obligationTermOfServiceFromDate]).to eq('2019-06-04')
         expect(reserves_addition[:obligationTermOfServiceToDate]).to eq('2020-06-04')
         expect(reserves_addition[:unitName]).to eq('National Guard Unit Name')
