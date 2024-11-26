@@ -12,11 +12,8 @@ maintenance:
   services:
     bgs: P5Q2OCZ
 modules_appeals_api:
-  higher_level_review_pii_expunge_enabled: false
   legacy_appeals_enabled: true
-  notice_of_disagreement_pii_expunge_enabled: false
   schema_dir: config/schemas
-  supplemental_claim_updater_enabled: false
   supplemental_claims_enabled: true
 mvi:
   pii_logging: false
