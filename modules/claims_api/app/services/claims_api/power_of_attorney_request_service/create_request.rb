@@ -136,8 +136,7 @@ module ClaimsApi
 
       # rubocop: disable Metrics/MethodLength
       def create_vnp_mailing_address(address, vnp_ptcpnt_id)
-        ClaimsApi::VnpPtcpntAddrsService
-          .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
+        vnp_ptcpnt_addrs_service
           .vnp_ptcpnt_addrs_create(
             {
               vnp_ptcpnt_addrs_id: nil,
@@ -182,8 +181,7 @@ module ClaimsApi
 
       # rubocop: disable Metrics/MethodLength
       def create_vnp_email_address(email, vnp_ptcpnt_id)
-        ClaimsApi::VnpPtcpntAddrsService
-          .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
+        vnp_ptcpnt_addrs_service
           .vnp_ptcpnt_addrs_create(
             {
               vnp_ptcpnt_addrs_id: nil,
@@ -281,6 +279,11 @@ module ClaimsApi
       end
       # rubocop: enable Metrics/MethodLength
       # rubocop: enable Naming/VariableNumber
+
+      def vnp_ptcpnt_addrs_service
+        @vnp_ptcpnt_addrs_service ||= ClaimsApi::VnpPtcpntAddrsService
+                                      .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
+      end
 
       def bgs_jrn_fields
         {
