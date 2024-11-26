@@ -18,6 +18,7 @@ module Auth
       # @param [String] aud_claim_url - The claim URL used as the 'aud' portion of the JWT
       # @param [String] rsa_key - RSA key used to encode the authentication JWT
       # @param [String] service_name - name to use when caching access token in Redis (Optional)
+      # rubocop:disable Metrics/ParameterLists
       def initialize(token_url, api_scopes, client_id, aud_claim_url, rsa_key, service_name = nil)
         @url = token_url
         @scopes = api_scopes
@@ -30,11 +31,13 @@ module Auth
         super()
       end
 
+      # rubocop:enable Metrics/ParameterLists
       ##
       # Request an access token
       #
       # @return [String] the access token needed to make requests
       #
+
       def get_token(auth_params = {})
         if @service_name.nil?
           res = get_new_token(auth_params)

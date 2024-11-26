@@ -37,7 +37,7 @@ module ClaimsApi
     # Upload document of mapped claim
     #
     # @return success or failure
-    def upload(claim:, pdf_path:, doc_type: 'L122', action: 'post', original_filename: nil,
+    def upload(claim:, pdf_path:, doc_type: 'L122', action: 'post', original_filename: nil, # rubocop:disable Metrics/ParameterLists
                pctpnt_vet_id: nil)
       unless File.exist? pdf_path
         ClaimsApi::Logger.log('benefits_documents', detail: "Error uploading doc to BD: #{pdf_path} doesn't exist,
@@ -120,6 +120,7 @@ module ClaimsApi
     # Generate form body to upload a document
     #
     # @return {parameters, file}
+    # rubocop:disable Metrics/ParameterLists
     def generate_upload_body(claim:, doc_type:, pdf_path:, action:, original_filename: nil,
                              pctpnt_vet_id: nil)
       payload = {}
@@ -141,6 +142,7 @@ module ClaimsApi
       payload[:file] = Faraday::UploadIO.new(pdf_path.to_s, 'application/pdf')
       payload
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def determine_birls_file_number(doc_type, auth_headers)
       if %w[L122].include?(doc_type)

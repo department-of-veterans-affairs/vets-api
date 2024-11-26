@@ -58,6 +58,7 @@ module VBADocuments
       generate_consumer_stats(expired, errored, processing, success, vbms, all)
     end
 
+    # rubocop:disable Metrics/ParameterLists
     def generate_consumer_stats(expired, errored, processing, success, vbms, all)
       @stats['consumer_stats'] = []
 
@@ -77,6 +78,7 @@ module VBADocuments
         }
       end
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def generate_page_count_stats
       page_counts = records_in_date_range.where("uploaded_pdf->'total_pages' is not null")

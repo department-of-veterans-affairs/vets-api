@@ -21,6 +21,7 @@ module SAML
       user.identity
     end
 
+    # rubocop:disable Metrics/ParameterLists
     def build_saml_response(
       authn_context:, level_of_assurance:,
       attributes: nil, issuer: nil, existing_attributes: nil, in_response_to: nil
@@ -50,7 +51,7 @@ module SAML
           )
         end
       end
-
+      # rubocop:enable Metrics/ParameterLists
       saml_response = SAML::Responses::Login.new(document_partial(authn_context).to_s)
       allow(saml_response).to receive_messages(issuer_text: issuer, assertion_encrypted?: true, attributes:,
                                                validate: true, decrypted_document: document_partial(authn_context),
