@@ -160,6 +160,8 @@ cronJobs: {}
 # Setting up clamav incorrectly can lead to a PRODUCTION shut down.
 clamav:
   enabled: false
+  requestedCPU: "100m"
+  requestedMemory: "3Gi"
   image:
     tag: a915eb9e3f541a6cd85e567672b9c3b8e1734244-2024-11-25-17
     value: "008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/clamav"

@@ -189,8 +189,8 @@ spec:
                   - freshclam --config-file /etc/clamav/freshclam.conf
           resources:
             requests:
-              cpu: "100m"
-              memory: "3Gi"
+              cpu: "{{ $root.Values.clamav.requestedCPU }}"
+              memory: "{{ $root.Values.clamav.requestedMemory }}"
           volumeMounts:
             - name: clamav-volume
               mountPath: /vets-api
