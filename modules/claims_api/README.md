@@ -25,7 +25,7 @@ To remove documentation for both environments, use the default `document: false`
 The implementation of `production: false` required additional changes to the [rswag_override](https://github.com/department-of-veterans-affairs/vets-api/blob/master/spec/rswag_override.rb) file. Due to this, the [rswag](https://github.com/rswag/rswag) repo should be checked periodically to update the `example_group_finished` method if needed.
 
 ## Seeds
-Run `rake veteran:load_sample_vso_data ` to load Veteran organizations and a Veteran representative.
+Run `rake veteran:load_sample_vso_data ` to load Veteran organizations and a Veteran representative
 
 ## License
 [CC0 1.0 Universal Summary](https://creativecommons.org/publicdomain/zero/1.0/legalcode).
