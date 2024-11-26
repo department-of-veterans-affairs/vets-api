@@ -7,6 +7,7 @@ require 'bgs_service/vnp_proc_service_v2'
 require 'bgs_service/vnp_ptcpnt_addrs_service'
 require 'bgs_service/vnp_ptcpnt_phone_service'
 require 'bgs_service/vnp_ptcpnt_service'
+require 'concurrent-ruby'
 
 module ClaimsApi
   module PowerOfAttorneyRequestService
@@ -27,24 +28,57 @@ module ClaimsApi
 
       def call
         @vnp_proc_id = create_vnp_proc[:vnp_proc_id]
-        create_vnp_form
-        @veteran_vnp_ptcpnt_id = create_vnp_ptcpnt(@veteran_participant_id)[:vnp_ptcpnt_id]
+
+        # Parallelize create_vnp_form and create_vnp_ptcpnt
+        form_promise = Concurrent::Promise.execute do
+          create_vnp_form
+        end
+
+        ptcpnt_promise = Concurrent::Promise.execute do
+          create_vnp_ptcpnt(@veteran_participant_id)
+        end
+
+        # Wait for both promises and store the participant ID
+        form_promise.value!
+        @veteran_vnp_ptcpnt_id = ptcpnt_promise.value![:vnp_ptcpnt_id]
+
         create_vonapp_data(@form_data[:veteran], @veteran_vnp_ptcpnt_id)
+
         if @has_claimant
           @claimant_vnp_ptcpnt_id = create_vnp_ptcpnt(@claimant_participant_id)[:vnp_ptcpnt_id]
           create_vonapp_data(@form_data[:claimant], @claimant_vnp_ptcpnt_id)
         end
+
         create_veteran_representative
       end
 
       private
 
       def create_vonapp_data(person, vnp_ptcpnt_id)
-        create_vnp_person(person, vnp_ptcpnt_id)
-        create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
-        create_vnp_email_address(person[:email], vnp_ptcpnt_id) if person[:email]
+        promises = []
 
-        create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id) if person[:phone]
+        promises << Concurrent::Promise.execute do
+          create_vnp_person(person, vnp_ptcpnt_id)
+        end
+
+        promises << Concurrent::Promise.execute do
+          create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
+        end
+
+        if person[:email]
+          promises << Concurrent::Promise.execute do
+            create_vnp_email_address(person[:email], vnp_ptcpnt_id)
+          end
+        end
+
+        if person[:phone]
+          promises << Concurrent::Promise.execute do
+            create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
+          end
+        end
+
+        # Wait for all promises to complete and raise any errors that occurred
+        promises.each(&:value!)
       end
 
       def create_vnp_proc
