@@ -117,7 +117,7 @@ class LighthouseSupplementalDocumentUploadProvider
       'LighthouseSupplementalDocumentUploadProvider upload failed',
       {
         **base_logging_info,
-        error_info: exception.message
+        error_info: exception.errors
       }
     )
 
