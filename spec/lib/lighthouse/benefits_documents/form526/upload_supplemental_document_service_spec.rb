@@ -57,18 +57,16 @@ RSpec.describe BenefitsDocuments::Form526::UploadSupplementalDocumentService do
       )
     end
 
-    it 'logs the error via Lighthouse::ServiceException and re-raises the error' do
+    it 'logs the error via Lighthouse::ServiceException and does not swallow the exception' do
       VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400') do
         expect(Lighthouse::ServiceException).to receive(:send_error).with(
           an_instance_of(Faraday::BadRequestError),
           'benefits_documents/form526/upload_supplemental_document_service',
           nil,
           'services/benefits-documents/v1/documents'
-        )
+        ).and_raise(Common::Exceptions::BadRequest)
 
-        expect do
-          subject.call(file_body, lighthouse_document)
-        end.to raise_error(Faraday::BadRequestError)
+        expect { subject.call(file_body, lighthouse_document) }.to raise_error(Common::Exceptions::BadRequest)
       end
     end
   end
