@@ -99,23 +99,21 @@ module ClaimsApi
       end
 
       def create_vnp_ptcpnt(participant_id)
-        ClaimsApi::VnpPtcpntService
-          .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
-          .vnp_ptcpnt_create(
-            {
-              vnp_proc_id: @vnp_proc_id,
-              vnp_ptcpnt_id: nil,
-              fraud_ind: nil,
-              legacy_poa_cd: nil,
-              misc_vendor_ind: nil,
-              ptcpnt_short_nm: nil,
-              ptcpnt_type_nm: PTCPNT_TYPE,
-              tax_idfctn_nbr: nil,
-              tin_waiver_reason_type_cd: nil,
-              ptcpnt_fk_ptcpnt_id: nil,
-              corp_ptcpnt_id: participant_id
-            }.merge(bgs_jrn_fields)
-          )
+        vnp_ptcpnt_service.vnp_ptcpnt_create(
+          {
+            vnp_proc_id: @vnp_proc_id,
+            vnp_ptcpnt_id: nil,
+            fraud_ind: nil,
+            legacy_poa_cd: nil,
+            misc_vendor_ind: nil,
+            ptcpnt_short_nm: nil,
+            ptcpnt_type_nm: PTCPNT_TYPE,
+            tax_idfctn_nbr: nil,
+            tin_waiver_reason_type_cd: nil,
+            ptcpnt_fk_ptcpnt_id: nil,
+            corp_ptcpnt_id: participant_id
+          }.merge(bgs_jrn_fields)
+        )
       end
 
       def create_vnp_person(person, vnp_ptcpnt_id)
@@ -279,6 +277,11 @@ module ClaimsApi
       end
       # rubocop: enable Metrics/MethodLength
       # rubocop: enable Naming/VariableNumber
+
+      def vnp_ptcpnt_service
+        @vnp_ptcpnt_service ||= ClaimsApi::VnpPtcpntService
+                                .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
+      end
 
       def vnp_ptcpnt_addrs_service
         @vnp_ptcpnt_addrs_service ||= ClaimsApi::VnpPtcpntAddrsService
