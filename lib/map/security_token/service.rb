@@ -26,7 +26,7 @@ module MAP
       rescue Common::Exceptions::GatewayTimeout => e
         Rails.logger.error("#{config.logging_prefix} token failed, gateway timeout", application:, icn:)
         raise e
-      rescue Errors::ApplicationMismatchError => e
+      rescue Errors::ApplicationMismatchError, Errors::InvalidTokenDurationError => e
         Rails.logger.error(e.message, application:, icn:)
         raise e
       rescue Errors::MissingICNError => e
@@ -41,7 +41,10 @@ module MAP
                            config.token_path,
                            token_params(application, icn),
                            { 'Content-Type' => 'application/x-www-form-urlencoded' })
-        parse_response(response, application, icn)
+        parsed_response = parse_response(response, application, icn)
+        if parsed_response[:expiration] > (Time.zone.now + 900)
+          raise Errors::InvalidTokenDurationError, "#{config.logging_prefix} token failed, token duration exceeds maximum"
+        end
       end
 
       def parse_and_raise_error(e, icn, application)
