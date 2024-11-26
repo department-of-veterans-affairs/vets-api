@@ -44,7 +44,6 @@ module Lighthouse
 
     # TODO: Flesh out perform function
     def perform(user_account_uuid)
-      byebug
       successful_documents_before_polling = EvidenceSubmission.completed.count
       failed_documents_before_polling = EvidenceSubmission.failed.count
 
