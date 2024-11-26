@@ -69,22 +69,6 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     end
   end
 
-  describe 'validate_upload_document' do
-    context 'when the document is a valid LighthouseDocument' do
-      it 'returns true' do
-        allow_any_instance_of(LighthouseDocument).to receive(:valid?).and_return(true)
-        expect(provider.validate_upload_document(lighthouse_document)).to eq(true)
-      end
-    end
-
-    context 'when the document is an invalid LighthouseDocument' do
-      it 'returns false' do
-        allow_any_instance_of(LighthouseDocument).to receive(:valid?).and_return(false)
-        expect(provider.validate_upload_document(lighthouse_document)).to eq(false)
-      end
-    end
-  end
-
   describe 'submit_upload_document' do
     it 'uploads the document via the UploadSupplementalDocumentService' do
       expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)

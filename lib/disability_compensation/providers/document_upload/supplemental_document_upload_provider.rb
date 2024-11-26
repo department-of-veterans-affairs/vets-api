@@ -14,10 +14,6 @@ module SupplementalDocumentUploadProvider
     raise_not_implemented_error
   end
 
-  def self.validate_upload_document(_document)
-    raise_not_implemented_error
-  end
-
   def self.submit_upload_document(_document, _file_body)
     raise_not_implemented_error
   end
