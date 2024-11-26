@@ -50,5 +50,12 @@ spec:
           securityContext:
             fsGroup: {{ $root.Values.fsGroup }}
           volumes:
+            - name: vets-api-mockdata
+              emptyDir: { }
+            - name: clamav-volume
+              emptyDir: { }
+            - name: ddsocket
+              hostPath:
+                path: /var/run/datadog
 {{ toYaml $root.Values.common.volumes | indent 12 }}
 {{- end }}

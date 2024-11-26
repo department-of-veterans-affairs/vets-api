@@ -40,9 +40,33 @@ spec:
       securityContext:
         fsGroup: {{ $root.Values.fsGroup }}
       volumes:
+        - name: vets-api-mockdata
+          emptyDir: { }
+        - name: clamav-volume
+          emptyDir: { }
+        - name: ddsocket
+          hostPath:
+            path: /var/run/datadog
 {{ toYaml $root.Values.common.volumes | indent 8 }}
       {{- if $root.Values.mockData.enabled }}
       initContainers:
+        - name: vets-api-mockdata
+          image: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/git:latest
+          args:
+            - clone
+            - --single-branch
+            - --
+            - https://$(GITHUB_TOKEN)@github.com/department-of-veterans-affairs/vets-api-mockdata.git
+            - /data
+          env:
+            - name: GITHUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: github-token
+                  key: github-token
+          volumeMounts:
+            - name: vets-api-mockdata
+              mountPath: /data
 {{ toYaml $root.Values.common.initContainers | indent 8 }}
       {{- end }}
       containers:
@@ -130,14 +154,46 @@ spec:
         {{- if $root.Values.clamav.enabled  }}
         - name: clamav
           image: "{{ $root.Values.clamav.image.value }}:{{ $root.Values.clamav.image.tag }}"
-          imagePullPolicy: {{ $root.Values.image.pullPolicy }}
+          imagePullPolicy: {{ $root.Values.clamav.image.pullPolicy }}
           ports:
-{{ toYaml $root.Values.clamav.ports | indent 12 }}
-{{ toYaml $root.Values.clamav.probes | indent 10 }}
+            - containerPort: 3310
+              name: clamavport
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: clamavport
+            failureThreshold: {{ $root.Values.clamav.readinessProbe.failureThreshold }}
+            initialDelaySeconds: 30
+            periodSeconds: {{ $root.Values.clamav.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ $root.Values.clamav.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ $root.Values.clamav.readinessProbe.successThreshold }}
+          startupProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  clamscan --version || echo "ClamAV failed to start"
+                  echo -n "clamav.startup.success:1|c" | nc -u -w1 localhost 8125
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 10
+            timeoutSeconds: 30
+            successThreshold: 1
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - freshclam --config-file /etc/clamav/freshclam.conf
           resources:
-{{ toYaml $root.Values.clamav.resources | indent 12 }}
+            requests:
+              cpu: "100m"
+              memory: "3Gi"
           volumeMounts:
-{{ toYaml $root.Values.clamav.volumeMounts | indent 12 }}
+            - name: clamav-volume
+              mountPath: /vets-api
         {{- end }}
         {{- if $root.Values.web.socatProxyEnabled }}
 {{ toYaml $root.Values.common.socatProxy | indent 8 }}

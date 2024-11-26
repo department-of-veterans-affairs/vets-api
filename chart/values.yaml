@@ -161,11 +161,14 @@ cronJobs: {}
 clamav:
   enabled: false
   image:
-    tag:
-    value:
-  volumeMounts:
-  ports:
-  probes:
+    tag: a915eb9e3f541a6cd85e567672b9c3b8e1734244-2024-11-25-17
+    value: "008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/clamav"
+    pullPolicy: Always
+  readinessProbe:
+    failureThreshold: 5
+    periodSeconds: 5
+    timeoutSeconds: 5
+    successThreshold: 1
   resources: {}
 
 
