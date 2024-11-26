@@ -31,7 +31,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
   end
 
   let(:faraday_response) { instance_double(Faraday::Response) }
-  let(:lighthouse_request_id) { Faker::Number.number(digits: 8) }
+  let(:lighthouse_document_request_id) { Faker::Number.number(digits: 8) }
 
   # Mock Lighthouse API response
   before do
@@ -43,7 +43,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
       {
         'data' => {
           'success' => true,
-          'requestId' => lighthouse_request_id
+          'requestId' => lighthouse_document_request_id
         }
       }
     )
@@ -99,7 +99,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         form526_submission_id: submission.id,
         # Polling record type mapped to L023 used in tests
         document_type: Lighthouse526DocumentUpload::BDD_INSTRUCTIONS_DOCUMENT_TYPE,
-        lighthouse_document_request_id: lighthouse_request_id
+        lighthouse_document_request_id: lighthouse_document_request_id
       }
 
       expect do
@@ -172,7 +172,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         aasm_state: 'pending',
         form526_submission_id: submission.id,
         document_type: Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE,
-        lighthouse_document_request_id: lighthouse_request_id,
+        lighthouse_document_request_id: lighthouse_document_request_id,
         form_attachment: supporting_evidence_attachment
       }
 
@@ -230,7 +230,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526',
-            lighthouse_request_id:
+            lighthouse_document_request_id:
           }
         )
 

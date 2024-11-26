@@ -109,12 +109,12 @@ class LighthouseSupplementalDocumentUploadProvider
     StatsD.increment("#{@statsd_metric_prefix}.#{STATSD_PROVIDER_METRIC}.#{STATSD_ATTEMPT_METRIC}")
   end
 
-  def log_upload_success(lighthouse_request_id)
+  def log_upload_success(lighthouse_document_request_id)
     Rails.logger.info(
       'LighthouseSupplementalDocumentUploadProvider upload successful',
       {
         **base_logging_info,
-        lighthouse_request_id:
+        lighthouse_document_request_id:
       }
     )
 
@@ -142,7 +142,7 @@ class LighthouseSupplementalDocumentUploadProvider
 
     lighthouse_document_request_id = response_body['data']['requestId']
     create_lighthouse_polling_record(lighthouse_document_request_id)
-    log_upload_success(lighthouse_request_id)
+    log_upload_success(lighthouse_document_request_id)
   end
 
   # @param response_body [JSON] Lighthouse API response returned from the UploadSupplementalDocumentService
@@ -152,12 +152,12 @@ class LighthouseSupplementalDocumentUploadProvider
 
   # Creates a Lighthouse526DocumentUpload polling record
   #
-  # @param lighthouse_request_id [String] unique ID Lighthouse provides us in the API response for polling later
-  def create_lighthouse_polling_record(lighthouse_request_id)
+  # @param lighthouse_document_request_id [String] unique ID Lighthouse provides us in the API response for polling later
+  def create_lighthouse_polling_record(lighthouse_document_request_id)
     Lighthouse526DocumentUpload.create!(
       form526_submission: @form526_submission,
       document_type: polling_record_document_type,
-      lighthouse_document_request_id: lighthouse_request_id,
+      lighthouse_document_request_id: lighthouse_document_request_id,
       # The Lighthouse526DocumentUpload form_attachment association is
       # required for uploads of type Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE
       **form_attachment_params
