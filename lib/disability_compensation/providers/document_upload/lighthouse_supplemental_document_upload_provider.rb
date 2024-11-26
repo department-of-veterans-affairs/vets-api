@@ -143,7 +143,8 @@ class LighthouseSupplementalDocumentUploadProvider
 
   # Creates a Lighthouse526DocumentUpload polling record
   #
-  # @param lighthouse_document_request_id [String] unique ID Lighthouse provides us in the API response for polling later
+  # @param lighthouse_document_request_id [String] unique ID Lighthouse provides us
+  # in the API response for polling later
   def create_lighthouse_polling_record(lighthouse_document_request_id)
     Lighthouse526DocumentUpload.create!(
       form526_submission: @form526_submission,

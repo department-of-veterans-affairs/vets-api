@@ -74,7 +74,8 @@ RSpec.describe BenefitsDocuments::Form526::UploadSupplementalDocumentService do
   end
 
   describe 'Lighthouse::ServiceException handling' do
-    # Lighthouse::ServiceException can either raise an error or return an error object so we need to account for both cases
+    # Lighthouse::ServiceException can either raise an error or return an error object,
+    # so we need to account for both cases
     context 'when the service exception class returns an error object' do
       before do
         allow(Lighthouse::ServiceException).to receive(:send_error)
