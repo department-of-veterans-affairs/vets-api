@@ -27,13 +27,14 @@ module VANotify
       user_account = UserAccount.find(user_account_id)
       notify_client = VaNotify::Service.new(api_key, callback_options)
 
-      notify_client.send_email(
+      response = notify_client.send_email(
         {
           recipient_identifier: { id_value: user_account.icn, id_type: 'ICN' },
           template_id:, personalisation:
         }.compact
       )
       StatsD.increment('api.vanotify.user_account_job.success')
+      response
     rescue Common::Exceptions::BackendServiceException => e
       handle_backend_exception(e, user_account, template_id, personalisation)
     end

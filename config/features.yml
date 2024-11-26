@@ -80,6 +80,9 @@ features:
     actor_type: user
     description: Send 10-10CG submission failure email to Veteran using VANotify.
     enable_in_development: true
+  caregiver_retry_form_validation:
+    actor_type: user
+    description: Enables 1010CG to retry schema validation
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -217,6 +220,10 @@ features:
     actor_type: user
     description: Enables users to access the claim letters page
     enable_in_development: true
+  claims_api_flash_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables flash updater to use local_bgs
+    enable_in_development: true
   claims_api_local_bgs_refactor:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
@@ -236,6 +243,10 @@ features:
   claims_api_poa_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends poa forms to BD via the refactored logic
+    enable_in_development: true
+  claims_api_use_person_web_service:
+    actor_type: user
+    description: Uses person web service rather than local bgs
     enable_in_development: true
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
@@ -488,6 +499,10 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
+  disability_526_ee_process_als_flash:
+    actor_type: user
+    description: enables adding applicable flashes to disability_526 prior to submission.
+    enable_in_development: true
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -546,6 +561,10 @@ features:
   discharge_wizard_features:
     actor_type: user
     description: Iteration of new features for discharge wizard
+    enable_in_development: true
+  dispute_debt:
+    actor_type: user
+    description: Enables the Dispute Debt feature
     enable_in_development: true
   facilities_ppms_suppress_all:
     actor_type: user
@@ -757,6 +776,10 @@ features:
     actor_type: user
     description: Enables form email notifications upon certain state changes (error and received)
     enable_in_development: true
+  simple_forms_notification_callbacks:
+    actor_type: user
+    description: Enables form email notification callback for Simple Forms
+    enable_in_development: true
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
@@ -845,10 +868,6 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
-  va_notify_user_account_job:
-    actor_type: user
-    description: Enable/disable UserAccountJob in VANotify (replacement for IcnJob)
-    enable_in_development: true
   letters_check_discrepancies:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
@@ -896,9 +915,17 @@ features:
     actor_type: user
     descriptiom: Enables access to MHV Account Creation API
     enable_in_development: true
+  mhv_accelerated_delivery_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching MR data from LightHouse
+    enable_in_development: false
   mhv_accelerated_delivery_allergies_enabled:
     actor_type: user
     description: Control fetching OH allergies data
+    enable_in_development: false
+  mhv_accelerated_delivery_vital_signs_enabled:
+    actor_type: user
+    description: Control fetching OH vitals data
     enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
@@ -945,6 +972,9 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging optgroups in recipient dropdown on Start a new message page
     enable_in_development: true
+  mhv_secure_messaging_recipient_combobox:
+    actor_type: user
+    description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -1158,9 +1188,6 @@ features:
   my_va_lighthouse_uploads_report:
     actor_type: user
     description: Use lighthouse /uploads/report endpoint for Form status
-  my_va_form_submission_statuses:
-    actor_type: user
-    description: Enables users to view the status of submitted forms.
   my_va_form_submission_pdf_link:
     actor_type: user
     description: Enables users to view PDF link within submitted forms cards
@@ -1381,10 +1408,6 @@ features:
     actor_type: user
     description: Toggle for new vaos service va appointments.
     enable_in_development: true
-  va_online_scheduling_facilities_service_v2:
-    actor_type: user
-    description: Toggle for new mobile facility service v2 endpoints
-    enable_in_development: true
   va_online_scheduling_vaos_v2_next:
     actor_type: user
     enable_in_development: true
@@ -1409,14 +1432,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for proof of concept to help Veteran contact a facility when the type of care is not available
-  va_online_scheduling_after_visit_summary:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for After visit summary feature.
-  va_online_scheduling_start_scheduling_link:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for Start Scheduling action link.
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
