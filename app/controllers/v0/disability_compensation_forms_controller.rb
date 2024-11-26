@@ -185,8 +185,8 @@ module V0
       return nil if separation_location.blank?
 
       separation_location_code =
-        form_content['form526']['serviceInformation']['separationLocation']['separationLocationCode'].to_s
-      form_content['form526']['serviceInformation']['separationLocation']['separationLocationCode'] =
+        separation_location['separationLocationCode'].to_s
+      separation_location['separationLocationCode'] =
         separation_location_code
     end
     # END TEMPORARY
