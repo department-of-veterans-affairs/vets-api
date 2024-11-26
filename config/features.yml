@@ -80,6 +80,9 @@ features:
     actor_type: user
     description: Send 10-10CG submission failure email to Veteran using VANotify.
     enable_in_development: true
+  caregiver_retry_form_validation:
+    actor_type: user
+    description: Enables 1010CG to retry schema validation
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
