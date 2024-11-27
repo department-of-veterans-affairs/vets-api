@@ -234,7 +234,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Send Decision Review emails to Veteran for failed form/evidence submissions
   mgr.register('5 1 * * *', 'DecisionReview::FailureNotificationEmailJob')
 
-  # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
+  # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS. The jobs get skipped on federal holidays.
   unless Holidays.on(Time.zone.today, :us, :observed).any?
     mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
     mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
