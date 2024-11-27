@@ -134,12 +134,23 @@ module SimpleFormsApi
       first_name_from_user_account = get_first_name_from_user_account
       return unless first_name_from_user_account
 
-      VANotify::UserAccountJob.perform_at(
-        at,
-        user_account.id,
-        template_id,
-        get_personalization(first_name_from_user_account)
-      )
+      if Flipper.enabled?(:simple_forms_notification_callbacks)
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user_account.id,
+          template_id,
+          get_personalization(first_name_from_user_account),
+          Settings.vanotify.services.va_gov.api_key,
+          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+        )
+      else
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user_account.id,
+          template_id,
+          get_personalization(first_name_from_user_account)
+        )
+      end
     end
 
     def send_email_now(template_id)
