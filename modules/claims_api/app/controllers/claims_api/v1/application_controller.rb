@@ -5,6 +5,7 @@ require 'bgs/power_of_attorney_verifier'
 require 'token_validation/v2/client'
 require 'claims_api/claim_logger'
 require 'mpi/errors/errors'
+require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
 module ClaimsApi
   module V1
@@ -147,7 +148,7 @@ module ClaimsApi
       end
 
       def local_bgs_service
-        @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+        @local_bgs_service ||= ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
           external_uid: target_veteran.participant_id,
           external_key: target_veteran.participant_id
         )
