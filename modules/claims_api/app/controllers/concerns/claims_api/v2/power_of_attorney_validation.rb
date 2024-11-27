@@ -117,10 +117,10 @@ module ClaimsApi
       end
 
       def validate_address_country(address)
-        if address['country'].nil?
+        if address['countryCode'].nil?
           collect_error_messages(
             source: '/claimant/address/country',
-            detail: "If claimant is present 'country' must be filled in"
+            detail: "If claimant is present 'countryCode' must be filled in"
           )
         end
       end

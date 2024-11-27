@@ -35,7 +35,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   addressLine1: '123',
                   city: 'city',
                   stateCode: 'OR',
-                  country: 'US',
+                  countryCode: 'US',
                   zipCode: '12345'
                 }
               },
@@ -88,7 +88,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                     addressLine1: '123 anystreet',
                     city: 'anytown',
                     stateCode: 'OR',
-                    country: 'USA',
+                    countryCode: 'US',
                     zipCode: '12345'
                   },
                   relationship: 'Child'
@@ -620,7 +620,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                       addressLine1: '2688 S Camino Real',
                       city: 'Palm Springs',
                       stateCode: 'CA',
-                      country: 'US',
+                      countryCode: 'US',
                       zipCode: '92264'
                     },
                     phone: {
