@@ -8,8 +8,6 @@ module GI
   class SearchClient < GI::Client
     configuration GI::SearchConfiguration
 
-    FLIGHT_PROGRAM_TYPE = 'FLGT'
-
     def get_institution_search_results_v0(params = {})
       response = perform(:get, 'v0/institutions', params)
       gids_response(response)
@@ -18,9 +16,7 @@ module GI
     def get_institution_program_search_results_v0(params = {})
       # Mock response if querying for flight school programs
       # TO-DO: Remove after flight school program data becomes accessible
-      if params[:type] == FLIGHT_PROGRAM_TYPE
-        config.instance_variable_set(:@program_type_flight, true)
-      end
+      config.instance_variable_set(:@program_type_flight, true) if params[:type] == 'FLGT'
 
       response = perform(:get, 'v0/institution_programs', params)
       gids_response(response)
