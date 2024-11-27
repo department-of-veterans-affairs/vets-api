@@ -91,7 +91,7 @@ module SimpleFormsApi
         form.track_user_identity(confirmation_number)
 
         if confirmation_number && Flipper.enabled?(:simple_forms_email_confirmations)
-          send_confirmation_email(parsed_form_data, get_form_id, confirmation_number)
+          send_intent_received_email(parsed_form_data, confirmation_number, expiration_date)
         end
 
         json_for210966(confirmation_number, expiration_date, existing_intents)
@@ -288,6 +288,22 @@ module SimpleFormsApi
         notification_email = SimpleFormsApi::NotificationEmail.new(
           config,
           notification_type: :confirmation,
+          user: @current_user
+        )
+        notification_email.send
+      end
+
+      def send_intent_received_email(parsed_form_data, confirmation_number, expiration_date)
+        config = {
+          form_data: parsed_form_data,
+          form_number: 'vba_21_0966_intent_api',
+          confirmation_number:,
+          date_submitted: Time.zone.today.strftime('%B %d, %Y'),
+          expiration_date:
+        }
+        notification_email = SimpleFormsApi::NotificationEmail.new(
+          config,
+          notification_type: :received,
           user: @current_user
         )
         notification_email.send
