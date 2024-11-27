@@ -17,6 +17,7 @@ module DebtsApi
       end
 
       def transform_and_submit
+        binding.pry
         output = full_transform_service.transform
         render json: service.submit_financial_status_report(output.to_h)
       end
@@ -192,6 +193,7 @@ module DebtsApi
           :'view:streamlined_waiver',
           :'view:streamlined_waiver_asset_update',
           :'view:review_page_navigation_toggle',
+          :'view:show_updated_expense_pages',
           questions: %i[
             has_repayments has_credit_card_bills has_recreational_vehicle
             has_vehicle has_real_estate spouse_has_benefits is_married
@@ -317,6 +319,7 @@ module DebtsApi
             ]
           ],
           expenses: [
+            :monthly_housing_expenses,
             expense_records: %i[name amount],
             credit_card_bills: %i[
               purpose creditor_name original_amount unpaid_balance
