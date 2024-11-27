@@ -23,6 +23,10 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal
     enable_in_development: true
+  aedp_vadx:
+    actor_type: user
+    description: Enables the VADX experimental features in the AEDP application
+    enable_in_development: true
   all_claims_add_disabilities_enhancement:
     actor_type: user
     description: Enables enhancement to the 21-526EZ "Add Disabilities" page being implemented by the Conditions Team.
@@ -80,6 +84,9 @@ features:
     actor_type: user
     description: Send 10-10CG submission failure email to Veteran using VANotify.
     enable_in_development: true
+  caregiver_retry_form_validation:
+    actor_type: user
+    description: Enables 1010CG to retry schema validation
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -163,9 +170,6 @@ features:
   champva_unique_temp_file_names:
     actor_type: user
     description: Enables unique temp file names for CHAMPVA PDF files
-  champva_file_recreate:
-    actor_type: user
-    description: Enhances file creation reliability by adding retry functionality in the vets-api tmp folder
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
@@ -217,6 +221,10 @@ features:
     actor_type: user
     description: Enables users to access the claim letters page
     enable_in_development: true
+  claims_api_flash_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables flash updater to use local_bgs
+    enable_in_development: true
   claims_api_local_bgs_refactor:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
@@ -236,6 +244,10 @@ features:
   claims_api_poa_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends poa forms to BD via the refactored logic
+    enable_in_development: true
+  claims_api_use_person_web_service:
+    actor_type: user
+    description: Uses person web service rather than local bgs
     enable_in_development: true
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
@@ -519,6 +531,9 @@ features:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
     enable_in_development: true
+  disability_compensation_temp_separation_location_code_string:
+    actor_type: user
+    description: enables forcing separation location code to be a string in submit_all_claim endpoint.
   disability_compensation_form4142_supplemental:
     actor_type: user
     description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
@@ -856,10 +871,6 @@ features:
   in_progress_form_reminder_526ez:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
-    enable_in_development: true
-  va_notify_user_account_job:
-    actor_type: user
-    description: Enable/disable UserAccountJob in VANotify (replacement for IcnJob)
     enable_in_development: true
   letters_check_discrepancies:
     actor_type: user
