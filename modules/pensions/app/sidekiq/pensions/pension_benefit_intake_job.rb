@@ -97,7 +97,7 @@ module Pensions
       @claim = Pensions::SavedClaim.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
-      @intake_service = BenefitsIntake::Service.new
+      @intake_service = ::BenefitsIntake::Service.new
     end
 
     ##
@@ -167,7 +167,7 @@ module Pensions
       address = form['claimantAddress'] || form['veteranAddress']
 
       # also validates/maniuplates the metadata
-      BenefitsIntake::Metadata.generate(
+      ::BenefitsIntake::Metadata.generate(
         form['veteranFullName']['first'],
         form['veteranFullName']['last'],
         form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
@@ -206,7 +206,7 @@ module Pensions
     # Being VANotify job to send email to veteran
     #
     def send_confirmation_email
-      Pensions::NotificationEmail.new(@claim).deliver(:confirmation)
+      Pensions::NotificationEmail.new(@claim.id).deliver(:confirmation)
     rescue => e
       @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
     end

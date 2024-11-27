@@ -72,7 +72,7 @@ module BenefitsIntake
 
     def log(level, msg, **payload)
       this = self.class.name
-      message = format('%<this>s: %<msg>s', { this: this, msg: msg.to_s })
+      message = format('%<class>s: %<msg>s', { class: this, msg: msg.to_s })
       Rails.logger.public_send(level, message, class: this, **payload)
     end
 

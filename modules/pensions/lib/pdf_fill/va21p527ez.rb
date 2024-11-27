@@ -5,8 +5,6 @@ require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
-require 'pensions/version'
-
 # rubocop:disable Metrics/ClassLength
 module Pensions
   module PdfFill

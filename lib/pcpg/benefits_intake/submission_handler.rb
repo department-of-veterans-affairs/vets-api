@@ -5,13 +5,16 @@ require 'pcpg/monitor'
 
 module PCPG
   module BenefitsIntake
+    # @see BenefitsIntake::SubmissionHandler::SavedClaim
     class SubmissionHandler < ::BenefitsIntake::SubmissionHandler::SavedClaim
       private
 
+      # BenefitsIntake::SubmissionHandler::SavedClaim#claim_class
       def claim_class
         SavedClaim::EducationCareerCounselingClaim
       end
 
+      # BenefitsIntake::SubmissionHandler::SavedClaim#monitor
       def monitor
         @monitor ||= PCPG::Monitor.new
       end

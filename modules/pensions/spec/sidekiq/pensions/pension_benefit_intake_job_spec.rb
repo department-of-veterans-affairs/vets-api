@@ -175,7 +175,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     it 'errors and logs but does not reraise' do
-      expect(Pensions::NotificationEmail).to receive(:new).with claim
+      expect(Pensions::NotificationEmail).to receive(:new).with(claim.id)
       expect(notification).to receive(:deliver).with(:confirmation)
       expect(monitor).to receive(:track_send_confirmation_email_failure)
       job.send(:send_confirmation_email)

@@ -192,7 +192,7 @@ module Lighthouse
     def send_confirmation_email
       @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
 
-      Burials::NotificationEmail.new(@claim).deliver(:confirmation) if %w[21P-530V2 21P-530].include?(@claim&.form_id)
+      Burials::NotificationEmail.new(@claim.id).deliver(:confirmation) if %w[21P-530V2 21P-530].include?(@claim&.form_id)
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
                         generate_log_details(e))
