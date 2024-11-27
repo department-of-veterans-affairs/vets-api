@@ -8904,14 +8904,6 @@
                     "required": [
                       "attributes"
                     ],
-                    "example": {
-                      "type": "form/21-22",
-                      "attributes": {
-                        "serviceOrganization": {
-                          "poaCode": "A1Q"
-                        }
-                      }
-                    },
                     "properties": {
                       "attributes": {
                         "$schema": "http://json-schema.org/draft-07/schema#",
@@ -9319,6 +9311,44 @@
                               }
                             }
                           }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "POA for Veteran": {
+                  "value": {
+                    "data": {
+                      "type": "form/21-22",
+                      "attributes": {
+                        "serviceOrganization": {
+                          "poaCode": "A1Q"
+                        }
+                      }
+                    }
+                  }
+                },
+                "POA for Dependent Claimant": {
+                  "value": {
+                    "data": {
+                      "type": "form/21-22",
+                      "attributes": {
+                        "serviceOrganization": {
+                          "poaCode": "A1Q"
+                        },
+                        "claimant": {
+                          "firstName": "Mary",
+                          "lastName": "Lincoln",
+                          "address": {
+                            "numberAndStreet": "123 anystreet",
+                            "city": "anytown",
+                            "state": "OR",
+                            "country": "USA",
+                            "zipFirstFive": "12345"
+                          },
+                          "relationship": "Spouse"
                         }
                       }
                     }
