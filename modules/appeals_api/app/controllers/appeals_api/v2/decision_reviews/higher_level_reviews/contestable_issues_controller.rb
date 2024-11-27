@@ -33,10 +33,22 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviews::ContestableIssuesCont
   private
 
   def validate_receipt_date_header!
-    unless Date.parse(request_headers['X-VA-Receipt-Date']).after?(AMA_ACTIVATION_DATE)
+    begin
+      unless Date.parse(request_headers['X-VA-Receipt-Date']).after?(AMA_ACTIVATION_DATE)
+        error = {
+          title: I18n.t('appeals_api.errors.titles.validation_error'),
+          detail: I18n.t('appeals_api.errors.receipt_date_too_early'),
+          source: {
+            header: 'X-VA-Receipt-Date'
+          },
+          status: '422'
+        }
+        render json: { errors: [error] }, status: :unprocessable_entity
+      end
+    rescue Date::Error # If date cannot be parsed
       error = {
         title: I18n.t('appeals_api.errors.titles.validation_error'),
-        detail: I18n.t('appeals_api.errors.receipt_date_too_early'),
+        detail: 'Receipt date has an invalid format.',
         source: {
           header: 'X-VA-Receipt-Date'
         },
