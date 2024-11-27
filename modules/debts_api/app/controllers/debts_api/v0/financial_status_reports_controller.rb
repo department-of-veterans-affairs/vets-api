@@ -319,11 +319,11 @@ module DebtsApi
           ],
           expenses: [
             :monthly_housing_expenses,
-            expense_records: %i[name amount],
-            credit_card_bills: %i[
-              purpose creditor_name original_amount unpaid_balance
-              amount_due_monthly date_started amount_past_due
-            ]
+            { expense_records: %i[name amount],
+              credit_card_bills: %i[
+                purpose creditor_name original_amount unpaid_balance
+                amount_due_monthly date_started amount_past_due
+              ] }
           ],
           utility_records: %i[name amount],
           other_expenses: %i[name amount],
