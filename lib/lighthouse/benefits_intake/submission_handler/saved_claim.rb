@@ -5,7 +5,6 @@ require 'zero_silent_failures/monitor'
 module BenefitsIntake
   module SubmissionHandler
     class SavedClaim
-
       # constructor
       # @param saved_claim_id [Integer] the database id of the claim
       def initialize(saved_claim_id)
