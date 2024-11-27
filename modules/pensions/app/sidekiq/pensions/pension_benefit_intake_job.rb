@@ -97,6 +97,8 @@ module Pensions
       @claim = Pensions::SavedClaim.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
+      set_signature_date
+
       @intake_service = ::BenefitsIntake::Service.new
     end
 
@@ -120,9 +122,15 @@ module Pensions
     # @return [String] path to stamped PDF
     #
     def process_document(file_path)
-      document = PDFUtilities::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
+      document = PDFUtilities::DatestampPdf.new(file_path).run(
+        text: 'VA.GOV',
+        timestamp: @claim.created_at,
+        x: 5,
+        y: 5
+      )
       document = PDFUtilities::DatestampPdf.new(document).run(
         text: 'FDC Reviewed - VA.gov Submission',
+        timestamp: @claim.created_at,
         x: 429,
         y: 770,
         text_only: true
@@ -220,6 +228,20 @@ module Pensions
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
       @pension_monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
+    end
+
+    ##
+    # Sets the signature date to the claim.created_at,
+    # so that retried claims will be considered signed on the date of submission.
+    # Signature date will be set to current date if not provided.
+    #
+    def set_signature_date
+      form_data = JSON.parse(@claim.form)
+      form_data['signatureDate'] = @claim.created_at&.strftime('%Y-%m-%d')
+      @claim.form = form_data.to_json
+      @claim.save
+    rescue => e
+      @pension_monitor.track_claim_signature_error(@claim, @intake_service, @user_account_uuid, e)
     end
   end
 end

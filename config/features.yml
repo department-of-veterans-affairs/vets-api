@@ -23,6 +23,10 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal
     enable_in_development: true
+  aedp_vadx:
+    actor_type: user
+    description: Enables the VADX experimental features in the AEDP application
+    enable_in_development: true
   all_claims_add_disabilities_enhancement:
     actor_type: user
     description: Enables enhancement to the 21-526EZ "Add Disabilities" page being implemented by the Conditions Team.
@@ -166,9 +170,6 @@ features:
   champva_unique_temp_file_names:
     actor_type: user
     description: Enables unique temp file names for CHAMPVA PDF files
-  champva_file_recreate:
-    actor_type: user
-    description: Enhances file creation reliability by adding retry functionality in the vets-api tmp folder
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
@@ -219,6 +220,10 @@ features:
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
+    enable_in_development: true
+  claims_api_flash_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables flash updater to use local_bgs
     enable_in_development: true
   claims_api_local_bgs_refactor:
     actor_type: user
@@ -526,6 +531,9 @@ features:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
     enable_in_development: true
+  disability_compensation_temp_separation_location_code_string:
+    actor_type: user
+    description: enables forcing separation location code to be a string in submit_all_claim endpoint.
   disability_compensation_form4142_supplemental:
     actor_type: user
     description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
