@@ -8,7 +8,7 @@ module GI
     # Mock response if querying for flight school programs
     # TO-DO: Remove after flight school program data becomes accessible
     def use_mocks?
-      (@program_type_flight && Settings.gids.use_mocks) || false
+      (@program_type_flight && Settings.gids.search.use_mocks) || false
     end
   end
 end
