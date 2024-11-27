@@ -132,7 +132,6 @@ module IvcChampva
                       end
           metadata = IvcChampva::MetadataValidator.validate(form.metadata)
           file_paths = form.handle_attachments(file_path)
-          byebug
 
           [file_paths, metadata.merge({ 'attachment_ids' => attachment_ids })]
         end
