@@ -26,7 +26,6 @@ module IvcChampva
         File.rename(file_path, file_path_uuid)
         attachments = get_attachments
         file_paths = [file_path_uuid]
-        byebug
 
         if attachments.count.positive?
           supporting_doc_index = 0
