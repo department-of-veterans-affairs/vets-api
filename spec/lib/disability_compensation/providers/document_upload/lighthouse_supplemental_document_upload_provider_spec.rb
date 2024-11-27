@@ -108,14 +108,14 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
     end
 
     context 'when there is an exception thrown when the upload is attempted' do
-      let(:error_message) { 'Something Broke' }
+      let(:exception_errors) { [{ detail: 'Something Broke' }] }
 
       before do
         # Skip upload attempt logging
         allow(provider).to receive(:log_upload_attempt)
 
         allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-          .and_raise(StandardError.new(error_message))
+          .and_raise(Common::Exceptions::BadRequest.new(errors: exception_errors))
       end
 
       it 'increments a StatsD failure metric and re-raises the error' do
@@ -124,7 +124,7 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
         )
 
         expect { provider.submit_upload_document(lighthouse_document, file_body) }
-          .to raise_error(StandardError, error_message)
+          .to raise_error(Common::Exceptions::BadRequest)
       end
 
       it 'logs the failure to the Rails logger and re-raises the error' do
@@ -137,12 +137,12 @@ RSpec.describe LighthouseSupplementalDocumentUploadProvider do
             user_uuid: submission.user_uuid,
             va_document_type_code: va_document_type,
             primary_form: 'Form526',
-            error_info: error_message
+            error_info: exception_errors
           }
         )
 
         expect { provider.submit_upload_document(lighthouse_document, file_body) }
-          .to raise_error(StandardError, error_message)
+          .to raise_error(Common::Exceptions::BadRequest)
       end
     end
   end

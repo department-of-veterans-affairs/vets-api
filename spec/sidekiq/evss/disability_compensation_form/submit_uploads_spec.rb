@@ -279,7 +279,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
                 va_document_type_code: 'L451',
                 primary_form: 'Form526',
                 error_info: exception_errors
-
               }
             )
 
