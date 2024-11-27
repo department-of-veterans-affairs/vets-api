@@ -385,7 +385,7 @@ http_interactions:
   recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1038&pageSize=0
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1038
     body:
       encoding: US-ASCII
       string: ''
@@ -438,7 +438,7 @@ http_interactions:
   recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1081&pageSize=0
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1081
     body:
       encoding: US-ASCII
       string: ''
@@ -491,7 +491,7 @@ http_interactions:
   recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1049&pageSize=0
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1049
     body:
       encoding: US-ASCII
       string: ''
@@ -544,7 +544,7 @@ http_interactions:
   recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1020&pageSize=0
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=1020
     body:
       encoding: US-ASCII
       string: ''
@@ -597,7 +597,7 @@ http_interactions:
   recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=4275&pageSize=0
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983/clinics?clinicIds=4275
     body:
       encoding: US-ASCII
       string: ''
@@ -650,7 +650,7 @@ http_interactions:
   recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/983GC/clinics?clinicIds=1081&pageSize=0
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/983GC/clinics?clinicIds=1081
     body:
       encoding: US-ASCII
       string: ''
@@ -703,7 +703,7 @@ http_interactions:
   recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/984/clinics?clinicIds=4275&pageSize=0
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/984/clinics?clinicIds=4275
     body:
       encoding: US-ASCII
       string: ''
@@ -756,7 +756,7 @@ http_interactions:
   recorded_at: Thu, 31 Aug 2023 22:51:37 GMT
 - request:
     method: get
-    uri: https://veteran.apps.va.gov/vaos/v1/locations/984GA/clinics?clinicIds=4275&pageSize=0
+    uri: https://veteran.apps.va.gov/vaos/v1/locations/984GA/clinics?clinicIds=4275
     body:
       encoding: US-ASCII
       string: ''
