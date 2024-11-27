@@ -46,6 +46,15 @@ class LighthouseSupplementalDocumentUploadProvider
     )
   end
 
+  # Takes the necessary validation steps to ensure the document metadata is sufficient
+  # for submission to Lighthouse
+  #
+  # @param lighthouse_document [LighthouseDocument]
+  # @return [boolean]
+  def validate_upload_document(lighthouse_document)
+    lighthouse_document.valid?
+  end
+
   # Uploads the supplied file to the Lighthouse Benefits Documents API
   #
   # @param lighthouse_document [LighthouseDocument]

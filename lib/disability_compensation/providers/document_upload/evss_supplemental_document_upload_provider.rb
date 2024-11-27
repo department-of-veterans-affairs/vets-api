@@ -35,6 +35,15 @@ class EVSSSupplementalDocumentUploadProvider
     )
   end
 
+  # Takes the necessary validation steps to ensure the document metadata is sufficient
+  # for submission to EVSS
+  #
+  # @param evss_claim_document [EVSSClaimDocument]
+  # @retrun [boolean]
+  def validate_upload_document(evss_claim_document)
+    evss_claim_document.valid?
+  end
+
   # Initializes and uploads via our EVSS Document Service API wrapper
   #
   # @param evss_claim_document
