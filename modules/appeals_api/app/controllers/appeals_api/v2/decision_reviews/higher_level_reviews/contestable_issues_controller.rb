@@ -48,7 +48,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviews::ContestableIssuesCont
   rescue Date::Error # If date cannot be parsed
     error = {
       title: I18n.t('appeals_api.errors.titles.validation_error'),
-      detail: 'Receipt date has an invalid format.',
+      detail: 'Receipt date has an invalid format. Use yyyy-mm-dd.',
       source: {
         header: 'X-VA-Receipt-Date'
       },
