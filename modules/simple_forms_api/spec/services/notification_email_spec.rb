@@ -127,7 +127,7 @@ describe SimpleFormsApi::NotificationEmail do
             subject.send(at: time)
 
             expect(VANotify::UserAccountJob).to have_received(:perform_at).with(time, user_account.id, anything,
-                                                                                anything)
+                                                                                anything, anything, anything)
           end
         end
 
