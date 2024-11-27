@@ -244,5 +244,5 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
 
   # Daily job for Vye: clears deactivated BDNs every evening.
-  mgr.register('0 20 * * 1-5', 'Vye::ClearDeactivatedBdns') unless Holidays.on(Time.zone.today, :us, :observed).any?
+  mgr.register('00 20 * * 1-5', 'Vye::SundownSweep::ClearDeactivatedBdns')
 }
