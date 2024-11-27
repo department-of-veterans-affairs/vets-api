@@ -4394,7 +4394,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "94cf4190-cb60-462f-9f9f-18e96a98f679",
+                        "id": "fcc53ace-c32e-4547-b6d1-e54f7750446b",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4579,7 +4579,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-11-27"
+                              "anticipatedSeparationDate": "2024-11-29"
                             },
                             "confinements": [
                               {
@@ -4625,7 +4625,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "2afcf5be-3233-4f3d-b575-c163867c2538",
+                        "id": "6fcf0316-48bd-438d-8eb4-02ccdfce8f6d",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4789,7 +4789,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2024-11-27",
+                                "activeDutyEndDate": "2024-11-29",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -4810,7 +4810,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-11-27"
+                              "anticipatedSeparationDate": "2024-11-29"
                             },
                             "confinements": [
                               {
@@ -8053,7 +8053,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2024-11-27",
+                              "activeDutyEndDate": "2024-11-29",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -8074,7 +8074,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-11-27"
+                            "anticipatedSeparationDate": "2024-11-29"
                           },
                           "confinements": [
                             {
@@ -9838,7 +9838,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "416efb54-617a-4ace-b396-a3f00a15b951",
+                    "id": "7634fecb-97a6-4be7-86e4-f4a04170efee",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -10022,7 +10022,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-10-31"
+                          "anticipatedSeparationDate": "2025-10-31"
                         },
                         "confinements": [
                           {
@@ -13580,8 +13580,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-11-25",
-                      "expirationDate": "2025-11-25",
+                      "creationDate": "2024-11-27",
+                      "expirationDate": "2025-11-27",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14477,7 +14477,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0235eeb5-f965-4063-9379-72c177bdd474",
+                    "id": "dba0da5c-b8f8-4ff8-9ed3-3a445d051368",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14792,7 +14792,7 @@
                                   "addressLine1",
                                   "city",
                                   "stateCode",
-                                  "country",
+                                  "countryCode",
                                   "zipCode"
                                 ],
                                 "properties": {
@@ -14818,10 +14818,11 @@
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -14912,9 +14913,10 @@
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address. Required if claimant information provided.",
+                                  "countryCode": {
+                                    "description": "Country code of the address. Required if claimant information provided.",
                                     "type": "string",
+                                    "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "USA"
                                   },
                                   "zipCode": {
@@ -15031,10 +15033,11 @@
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -15094,7 +15097,7 @@
                           "addressLine1": "123",
                           "addressLine2": "2a",
                           "city": "city",
-                          "country": "US",
+                          "countryCode": "US",
                           "stateCode": "OR",
                           "zipCode": "12345",
                           "zipCodeSuffix": "6789"
@@ -15108,7 +15111,7 @@
                           "addressLine1": "123",
                           "addressLine2": "2a",
                           "city": "city",
-                          "country": "US",
+                          "countryCode": "US",
                           "stateCode": "OR",
                           "zipCode": "12345",
                           "zipCodeSuffix": "6789"
@@ -15128,7 +15131,7 @@
                             "addressLine1": "123",
                             "addressLine2": "2a",
                             "city": "city",
-                            "country": "US",
+                            "countryCode": "US",
                             "stateCode": "OR",
                             "zipCode": "12345",
                             "zipCodeSuffix": "6789"
@@ -15142,7 +15145,7 @@
                             "addressLine1": "123",
                             "addressLine2": "2a",
                             "city": "city",
-                            "country": "US",
+                            "countryCode": "US",
                             "stateCode": "OR",
                             "zipCode": "12345",
                             "zipCodeSuffix": "6789"
@@ -15161,7 +15164,7 @@
                             "addressLine1": "123",
                             "addressLine2": "2a",
                             "city": "city",
-                            "country": "US",
+                            "countryCode": "US",
                             "stateCode": "OR",
                             "zipCode": "12345",
                             "zipCodeSuffix": "6789"
@@ -15175,7 +15178,7 @@
                             "addressLine1": "123",
                             "addressLine2": "2a",
                             "city": "city",
-                            "country": "US",
+                            "countryCode": "US",
                             "stateCode": "OR",
                             "zipCode": "12345",
                             "zipCodeSuffix": "6789"
@@ -15187,7 +15190,7 @@
                             "addressLine1": "123 anystreet",
                             "city": "anytown",
                             "stateCode": "OR",
-                            "country": "USA",
+                            "countryCode": "US",
                             "zipCode": "12345"
                           },
                           "relationship": "Spouse"
@@ -15249,7 +15252,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "ca3654c9-d900-4767-8e3e-2593b89ed609",
+                    "id": "262b36c5-7d3d-4633-8a3f-e87bc8a923b8",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15546,7 +15549,7 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "country",
+                                  "countryCode",
                                   "stateCode",
                                   "zipCode"
                                 ],
@@ -15573,10 +15576,11 @@
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -15678,10 +15682,11 @@
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address. Required if claimant information provided.",
+                                  "countryCode": {
+                                    "description": "Country code of the address. Required if claimant information provided.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
@@ -15813,7 +15818,7 @@
                           "addressLine1": "123",
                           "city": "city",
                           "stateCode": "OR",
-                          "country": "US",
+                          "countryCode": "US",
                           "zipCode": "12345"
                         }
                       },
@@ -15835,7 +15840,7 @@
                             "addressLine1": "123",
                             "city": "city",
                             "stateCode": "OR",
-                            "country": "US",
+                            "countryCode": "US",
                             "zipCode": "12345"
                           }
                         },
@@ -15856,7 +15861,7 @@
                             "addressLine1": "123",
                             "city": "city",
                             "stateCode": "OR",
-                            "country": "US",
+                            "countryCode": "US",
                             "zipCode": "12345"
                           }
                         },
@@ -15870,7 +15875,7 @@
                             "addressLine1": "123 anystreet",
                             "city": "anytown",
                             "stateCode": "OR",
-                            "country": "USA",
+                            "countryCode": "US",
                             "zipCode": "12345"
                           },
                           "relationship": "Spouse"
@@ -16238,7 +16243,7 @@
                                   "addressLine1",
                                   "city",
                                   "stateCode",
-                                  "country",
+                                  "countryCode",
                                   "zipCode"
                                 ],
                                 "properties": {
@@ -16264,10 +16269,11 @@
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -16358,9 +16364,10 @@
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address. Required if claimant information provided.",
+                                  "countryCode": {
+                                    "description": "Country code of the address. Required if claimant information provided.",
                                     "type": "string",
+                                    "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "USA"
                                   },
                                   "zipCode": {
@@ -16477,10 +16484,11 @@
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -16540,7 +16548,7 @@
                           "addressLine1": "123",
                           "addressLine2": "2a",
                           "city": "city",
-                          "country": "US",
+                          "countryCode": "US",
                           "stateCode": "OR",
                           "zipCode": "12345",
                           "zipCodeSuffix": "6789"
@@ -16554,7 +16562,7 @@
                           "addressLine1": "123",
                           "addressLine2": "2a",
                           "city": "city",
-                          "country": "US",
+                          "countryCode": "US",
                           "stateCode": "OR",
                           "zipCode": "12345",
                           "zipCodeSuffix": "6789"
@@ -16904,7 +16912,7 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "country",
+                                  "countryCode",
                                   "stateCode",
                                   "zipCode"
                                 ],
@@ -16931,10 +16939,11 @@
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -17036,10 +17045,11 @@
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address. Required if claimant information provided.",
+                                  "countryCode": {
+                                    "description": "Country code of the address. Required if claimant information provided.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
                                     "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
@@ -17171,7 +17181,7 @@
                           "addressLine1": "123",
                           "city": "city",
                           "stateCode": "OR",
-                          "country": "US",
+                          "countryCode": "US",
                           "zipCode": "12345"
                         }
                       },
@@ -17245,10 +17255,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f02c432d-5009-4744-be2b-fb6ace6014b5",
+                    "id": "f1a69201-e32b-4189-b76a-2121c2077c46",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-11-25",
+                      "dateRequestAccepted": "2024-11-27",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
