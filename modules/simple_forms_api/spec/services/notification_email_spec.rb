@@ -26,6 +26,15 @@ describe SimpleFormsApi::NotificationEmail do
         it 'fails' do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
+
+        context 'error email', if: notification_type == :error do
+          it 'increments StatsD' do
+            allow(StatsD).to receive(:increment)
+
+            expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
+          end
+        end
       end
 
       context 'missing form_number' do
@@ -37,6 +46,15 @@ describe SimpleFormsApi::NotificationEmail do
         it 'fails' do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
+
+        context 'error email', if: notification_type == :error do
+          it 'increments StatsD' do
+            allow(StatsD).to receive(:increment)
+
+            expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
+          end
+        end
       end
 
       context 'missing confirmation_number' do
@@ -47,6 +65,15 @@ describe SimpleFormsApi::NotificationEmail do
         it 'fails' do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
+
+        context 'error email', if: notification_type == :error do
+          it 'increments StatsD' do
+            allow(StatsD).to receive(:increment)
+
+            expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
+          end
+        end
       end
 
       context 'missing date_submitted' do
@@ -56,6 +83,35 @@ describe SimpleFormsApi::NotificationEmail do
 
         it 'fails' do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+        end
+
+        context 'error email', if: notification_type == :error do
+          it 'increments StatsD' do
+            allow(StatsD).to receive(:increment)
+
+            expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
+          end
+        end
+      end
+
+      context 'form not supported' do
+        let(:config) do
+          { form_data: {}, form_number: 'nonsense', confirmation_number: 'confirmation_number',
+            date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        end
+
+        it 'fails' do
+          expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+        end
+
+        context 'error email', if: notification_type == :error do
+          it 'increments StatsD' do
+            allow(StatsD).to receive(:increment)
+
+            expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
+          end
         end
       end
     end
@@ -88,6 +144,25 @@ describe SimpleFormsApi::NotificationEmail do
           subject.send
 
           expect(VANotify::EmailJob).to have_received(:perform_async)
+        end
+
+        context 'did not send to VA Notify because of no first name', if: notification_type == :error do
+          let(:profile) { double(given_names: []) }
+          let(:mpi_profile) { double(profile:, error: nil) }
+
+          it 'increments StatsD' do
+            data['witness_full_name']['first'] = nil
+            allow(VANotify::EmailJob).to receive(:perform_async)
+            allow(VANotify::UserAccountJob).to receive(:perform_at)
+            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(mpi_profile)
+            allow(StatsD).to receive(:increment)
+
+            subject = described_class.new(config, notification_type:)
+            subject.send
+
+            expect(VANotify::EmailJob).not_to have_received(:perform_async)
+            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
+          end
         end
       end
 
