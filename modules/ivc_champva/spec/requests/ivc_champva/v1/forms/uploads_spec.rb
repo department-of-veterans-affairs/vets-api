@@ -186,64 +186,62 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
-  if Flipper.enabled?(:champva_file_recreate, @user)
-    describe '#handle_file_uploads' do
-      let(:controller) { IvcChampva::V1::UploadsController.new }
+  describe '#handle_file_uploads' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
 
-      forms.each do |form_file|
-        form_id = form_file.gsub('vha_', '').gsub('.json', '').upcase
-        form_numbers_and_classes[form_id]
+    forms.each do |form_file|
+      form_id = form_file.gsub('vha_', '').gsub('.json', '').upcase
+      form_numbers_and_classes[form_id]
 
-        context "with form #{form_id}" do
-          let(:form_id) { form_id }
-          let(:parsed_form_data) do
-            JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form_file).read)
-          end
-          let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
-          let(:metadata) { { 'attachment_ids' => %w[id1 id2] } }
-          let(:file_uploader) { instance_double(IvcChampva::FileUploader) }
+      context "with form #{form_id}" do
+        let(:form_id) { form_id }
+        let(:parsed_form_data) do
+          JSON.parse(Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', form_file).read)
+        end
+        let(:file_paths) { ['/path/to/file1.pdf', '/path/to/file2.pdf'] }
+        let(:metadata) { { 'attachment_ids' => %w[id1 id2] } }
+        let(:file_uploader) { instance_double(IvcChampva::FileUploader) }
 
+        before do
+          allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
+          allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
+        end
+
+        context 'when file uploads succeed' do
           before do
-            allow(controller).to receive(:get_file_paths_and_metadata).and_return([file_paths, metadata])
-            allow(IvcChampva::FileUploader).to receive(:new).and_return(file_uploader)
+            allow(file_uploader).to receive(:handle_uploads).and_return([[200], nil])
           end
 
-          context 'when file uploads succeed' do
-            before do
-              allow(file_uploader).to receive(:handle_uploads).and_return([[200], nil])
-            end
+          it 'returns success statuses and no error message' do
+            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+            expect(statuses).to eq([200])
+            expect(error_message).to be_nil
+          end
+        end
 
-            it 'returns success statuses and no error message' do
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-              expect(statuses).to eq([200])
-              expect(error_message).to be_nil
-            end
+        context 'when file uploads fail with specific error message' do
+          before do
+            allow(file_uploader).to receive(:handle_uploads).and_return([['No such file or directory @ rb_sysopen'],
+                                                                         'File not found'])
           end
 
-          context 'when file uploads fail with specific error message' do
-            before do
-              allow(file_uploader).to receive(:handle_uploads).and_return([['No such file or directory @ rb_sysopen'],
-                                                                           'File not found'])
-            end
+          it 'retries the file uploads and returns the final statuses and error message' do
+            allow(file_uploader).to receive(:handle_uploads).and_return([[200], nil])
+            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+            expect(statuses).to eq([200])
+            expect(error_message).to be_nil
+          end
+        end
 
-            it 'retries the file uploads and returns the final statuses and error message' do
-              allow(file_uploader).to receive(:handle_uploads).and_return([[200], nil])
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-              expect(statuses).to eq([200])
-              expect(error_message).to be_nil
-            end
+        context 'when file uploads fail with other errors' do
+          before do
+            allow(file_uploader).to receive(:handle_uploads).and_return([[400], 'Upload failed'])
           end
 
-          context 'when file uploads fail with other errors' do
-            before do
-              allow(file_uploader).to receive(:handle_uploads).and_return([[400], 'Upload failed'])
-            end
-
-            it 'returns the error statuses and error message' do
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-              expect(statuses).to eq([400])
-              expect(error_message).to eq('Upload failed')
-            end
+          it 'returns the error statuses and error message' do
+            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+            expect(statuses).to eq([400])
+            expect(error_message).to eq('Upload failed')
           end
         end
       end
