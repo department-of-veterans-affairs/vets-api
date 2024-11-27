@@ -32,6 +32,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviews::ContestableIssuesCont
 
   private
 
+  # rubocop:disable Metrics/MethodLength
   def validate_receipt_date_header!
     begin
       unless Date.parse(request_headers['X-VA-Receipt-Date']).after?(AMA_ACTIVATION_DATE)
@@ -57,6 +58,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviews::ContestableIssuesCont
       render json: { errors: [error] }, status: :unprocessable_entity
     end
   end
+  # rubocop:enable Metrics/MethodLength
 
   def decision_review_type
     'higher_level_reviews'
