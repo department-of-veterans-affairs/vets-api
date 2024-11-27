@@ -23,6 +23,10 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal
     enable_in_development: true
+  aedp_vadx:
+    actor_type: user
+    description: Enables the VADX experimental features in the AEDP application
+    enable_in_development: true
   all_claims_add_disabilities_enhancement:
     actor_type: user
     description: Enables enhancement to the 21-526EZ "Add Disabilities" page being implemented by the Conditions Team.
