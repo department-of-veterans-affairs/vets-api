@@ -8,7 +8,10 @@ module GI
     # Mock response if querying for flight school programs
     # TO-DO: Remove after flight school program data becomes accessible
     def use_mocks?
-      (@program_type_flight && Settings.gids.search.use_mocks) || false
+      return false unless instance_variable_defined?(:@program_type_flight)
+
+      querying_by_flight = remove_instance_variable(:@program_type_flight)
+      querying_by_flight && Settings.gids.search.use_mocks || false
     end
   end
 end
