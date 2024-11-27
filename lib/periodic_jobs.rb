@@ -2,8 +2,6 @@
 
 require 'holidays'
 
-Holidays.load_custom(Rails.root.join('config', 'custom_holidays.yml').to_s)
-
 # @see https://crontab.guru/
 # @see https://en.wikipedia.org/wiki/Cron
 PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
@@ -237,8 +235,10 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('5 1 * * *', 'DecisionReview::FailureNotificationEmailJob')
 
   # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
-  mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
-  mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
+  unless Holidays.on(Time.zone.today, :us, :observed).any?
+    mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
+    mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
+  end
 
   # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
   mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
