@@ -26,6 +26,9 @@ dogstatsd:
 evss:
   s3:
     uploads_enabled: true
+  versions:
+    claims: 3.6
+    common: 11.6
 expiry_scanner:
   slack:
     channel_id: C24RH0W11
@@ -42,3 +45,245 @@ google_analytics_cvu:
   type: service_account
 hca:
   ca: []
+lighthouse:
+  letters_generator:
+    path: /services/va-letter-generator/v1/
+    access_token:
+      path: oauth2/va-letter-generator/system/v1/token
+iam_ssoe:
+  timeout: 20
+gids:
+  open_timeout: 10
+  read_timeout: 10
+  search:
+    open_timeout: 10
+    read_timeout: 10
+mcp:
+  notifications:
+    batch_size: 10 
+    job_interval: 10
+vba_documents:
+  webhooks:
+    registration_next_run_minutes: 15
+    registration_rescue_in_minutes: 60
+chip:
+  redis_timeout:	30
+dmc:
+  fsr_payment_window: 30
+va_profile:
+  veteran_status:
+    timeout:	30																					
+mhv:
+  medical_records:
+    app_id:	103
+form_10_10cg:
+  carma:
+    mulesoft:
+      timeout: 120
+      async_timeout: 600
+check_in:
+  lorota_v2:
+    redis_token_expiry: 43200
+  authentication:
+    max_auth_retry_limit: 3
+    retry_attempt_expiry: 604800 # 7 Days
+shrine:
+  claims:
+    path: "/"
+    upload_options:
+      acl: private
+      server_side_encryption: AES256
+    type: s3
+    
+lgy:
+  app_id:	VAGOVSERVICE																	
+genisis:
+  form_submission_path: "/formdata"
+map_services:
+  check_in_client_id: bc75b71c7e67
+  sign_up_service_client_id: c7d6e0fc9a39
+sign_in:
+  vaweb_client_id: vaweb
+mcp:
+  vbs_v2:
+    service_name: VBS
+  vbs:
+    service_name: VBS
+covid_vaccine:
+  allowed_facilities:
+    [
+      "402",
+      "405",
+      "436",
+      "437",
+      "438",
+      "442",
+      "459",
+      "459GE",
+      "460",
+      "463",
+      "501",
+      "502",
+      "503",
+      "504",
+      "506",
+      "508",
+      "509",
+      "512",
+      "512A5",
+      "512GD",
+      "515",
+      "516",
+      "517",
+      "518",
+      "519",
+      "520",
+      "521",
+      "523",
+      "523A4",
+      "523A5",
+      "526",
+      "528",
+      "528A4",
+      "528A5",
+      "528A6",
+      "528A7",
+      "528A8",
+      "529A4",
+      "531",
+      "534",
+      "537",
+      "538",
+      "539",
+      "540",
+      "541",
+      "542",
+      "544",
+      "546",
+      "548",
+      "549",
+      "550",
+      "552",
+      "553",
+      "554",
+      "556",
+      "557",
+      "558",
+      "561",
+      "561A4",
+      "562",
+      "564",
+      "565",
+      "568",
+      "570",
+      "573",
+      "573A4",
+      "575",
+      "578",
+      "580",
+      "581",
+      "583",
+      "585",
+      "586",
+      "589",
+      "589A4",
+      "589A5",
+      "589A6",
+      "589A7",
+      "590",
+      "593",
+      "595",
+      "596",
+      "596A4",
+      "598",
+      "600",
+      "603",
+      "605",
+      "607",
+      "608",
+      "610",
+      "610A4",
+      "612A4",
+      "612GF",
+      "613",
+      "614",
+      "618",
+      "619",
+      "619A4",
+      "620",
+      "620A4",
+      "621",
+      "623",
+      "626",
+      "626A4",
+      "629",
+      "630",
+      "630A4",
+      "630A5",
+      "631",
+      "632",
+      "635",
+      "636",
+      "636A4",
+      "636A6",
+      "636A8",
+      "637",
+      "640",
+      "640A4",
+      "642",
+      "644",
+      "646",
+      "646A4",
+      "648",
+      "648A4",
+      "649",
+      "650",
+      "652",
+      "653",
+      "654",
+      "655",
+      "656",
+      "657",
+      "657A4",
+      "657A5",
+      "658",
+      "659",
+      "660",
+      "662",
+      "663",
+      "663A4",
+      "664",
+      "666",
+      "667",
+      "668",
+      "671",
+      "671A4",
+      "672",
+      "672B0",
+      "672BZ",
+      "672GA",
+      "672GB",
+      "672GC",
+      "672GE",
+      "672QA",
+      "672QB",
+      "672QC",
+      "673",
+      "674",
+      "674A4",
+      "675",
+      "676",
+      "678",
+      "679",
+      "687",
+      "688",
+      "689",
+      "691",
+      "691A4",
+      "692",
+      "693",
+      "695",
+      "740",
+      "756",
+      "757",
+    ]
