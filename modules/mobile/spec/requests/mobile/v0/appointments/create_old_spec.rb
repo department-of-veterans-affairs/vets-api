@@ -22,9 +22,8 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
       receive(:get_clinic).and_return(mock_clinic)
     allow_any_instance_of(VAOS::V2::MobileFacilityService).to \
       receive(:get_facility).and_return(mock_facility)
-    Flipper.enable(:va_online_scheduling_use_vpg)
-    Flipper.enable(:va_online_scheduling_enable_OH_requests)
-    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
+    Flipper.disable(:va_online_scheduling_use_vpg)
+    Flipper.disable(:va_online_scheduling_enable_OH_requests)
   end
 
   after(:all) do
@@ -53,9 +52,9 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
       end
 
       context 'when user has access' do
-        context 'using VPG' do
+        context 'using VAOS' do
           it 'returns created' do
-            VCR.use_cassette('mobile/appointments/post_appointments_va_booked_200_JACQUELINE_M_vpg',
+            VCR.use_cassette('mobile/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                              match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
                 post '/mobile/v0/appointment', params: {}, headers: sis_headers
@@ -67,18 +66,18 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
       end
     end
 
-    context 'using VPG' do
+    context 'using VAOS' do
       it 'clears the cache' do
         expect(Mobile::V0::Appointment).to receive(:clear_cache).once
 
-        VCR.use_cassette('mobile/appointments/post_appointments_va_proposed_clinic_200_vpg',
+        VCR.use_cassette('mobile/appointments/post_appointments_va_proposed_clinic_200',
                          match_requests_on: %i[method uri]) do
           post '/mobile/v0/appointment', params: va_proposed_request_body, headers: sis_headers
         end
       end
 
       it 'returns a descriptive 400 error when given invalid params' do
-        VCR.use_cassette('mobile/appointments/post_appointments_400_vpg', match_requests_on: %i[method uri]) do
+        VCR.use_cassette('mobile/appointments/post_appointments_400', match_requests_on: %i[method uri]) do
           post '/mobile/v0/appointment', params: {}, headers: sis_headers
           expect(response).to have_http_status(:bad_request)
           expect(JSON.parse(response.body)['errors'][0]['status']).to eq('400')
@@ -90,10 +89,9 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
     end
 
     context 'for CC facility' do
-      context 'for VPG' do
+      context 'for VAOS' do
         it 'creates the cc appointment' do
-          VCR.use_cassette('mobile/appointments/post_appointments_cc_200_2222022_vpg',
-                           match_requests_on: %i[method uri]) do
+          VCR.use_cassette('mobile/appointments/post_appointments_cc_200_2222022', match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
               post '/mobile/v0/appointment', params: community_cares_request_body, headers: sis_headers
               expect(response).to have_http_status(:created)
@@ -105,19 +103,18 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
     end
 
     context 'for va facility' do
-      context 'using VPG' do
+      context 'using VAOS' do
         it 'creates the va appointment - proposed' do
-          VCR.use_cassette('mobile/appointments/post_appointments_va_proposed_clinic_200_vpg',
+          VCR.use_cassette('mobile/appointments/post_appointments_va_proposed_clinic_200',
                            match_requests_on: %i[method uri]) do
             post '/mobile/v0/appointment', params: {}, headers: sis_headers
-
             expect(response).to have_http_status(:created)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
           end
         end
 
         it 'creates the va appointment - booked' do
-          VCR.use_cassette('mobile/appointments/post_appointments_va_booked_200_JACQUELINE_M_vpg',
+          VCR.use_cassette('mobile/appointments/post_appointments_va_booked_200_JACQUELINE_M',
                            match_requests_on: %i[method uri]) do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
               post '/mobile/v0/appointment', params: {}, headers: sis_headers
