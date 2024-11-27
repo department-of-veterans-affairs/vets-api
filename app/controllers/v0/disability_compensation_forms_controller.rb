@@ -52,7 +52,8 @@ module V0
     end
 
     def submit_all_claim
-      temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string)
+      temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string,
+                                                       @current_user)
 
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
