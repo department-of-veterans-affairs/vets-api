@@ -21,14 +21,6 @@ jobs:
         with:
           bundler-cache: true
 
-      # - name: Remove Review label
-      #   if:  github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
-      #   uses: actions-ecosystem/action-remove-labels@v1
-      #   with:
-      #     number: ${{ github.event.pull_request.number }}
-      #     labels: |
-      #       ready-for-backend-review
-
       - name: Run bundle-audit (checks gems for CVE issues)
         run: bundle exec bundle-audit check --update --ignore CVE-2024-27456
 
@@ -43,16 +35,14 @@ jobs:
         uses: actions-ecosystem/action-add-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
-          labels: |
-            lint-failure
+          labels: lint-failure
 
       - name: Remove Lint Failure label
         if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'lint-failure')
         uses: actions-ecosystem/action-remove-labels@v1
         with:
           number: ${{ github.event.pull_request.number }}
-          labels: |
-            lint-failure
+          labels: lint-failure
   tests:
     name: Test
     env:
@@ -93,22 +83,6 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      # - name: Remove Review label
-      #   if:  github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
-      #   uses: actions-ecosystem/action-remove-labels@v1
-      #   with:
-      #     number: ${{ github.event.pull_request.number }}
-      #     labels: |
-      #       ready-for-backend-review
-
-      # - name: Remove Test Passing label
-      #   if: github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'test-passing')
-      #   uses: actions-ecosystem/action-remove-labels@v1
-      #   with:
-      #     number: ${{ github.event.pull_request.number }}
-      #     labels: |
-      #       test-passing
 
       - name: Build Docker Image
         uses: docker/build-push-action@v6
