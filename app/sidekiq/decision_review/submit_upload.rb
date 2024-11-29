@@ -10,9 +10,21 @@ module DecisionReview
 
     STATSD_KEY_PREFIX = 'worker.decision_review.submit_upload'
 
-    sidekiq_options retry: 13
+    # Increasing to 17 retries, approximately 3 days, for ~39 hour COLA maintenance
+    sidekiq_options retry: 17
 
-    sidekiq_retries_exhausted do |_msg, _ex|
+    sidekiq_retries_exhausted do |msg, _ex|
+      error_message = msg['error_message']
+      message = 'DecisionReview::SubmitUpload retries exhausted'
+      job_id = msg['jid']
+      appeal_submission_upload_id = msg['args'].first
+      appeal_submission = AppealSubmissionUpload.find(appeal_submission_upload_id).appeal_submission
+      service_name = DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_submission.type_of_appeal]
+
+      tags = ["service:#{service_name}", 'function: evidence submission to Lighthouse']
+      StatsD.increment('silent_failure', tags:)
+
+      ::Rails.logger.error({ error_message:, message:, appeal_submission_upload_id:, job_id: })
       StatsD.increment("#{STATSD_KEY_PREFIX}.permanent_error")
     end
 

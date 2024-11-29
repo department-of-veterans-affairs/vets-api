@@ -17,11 +17,17 @@ class FormSubmissionAttempt < ApplicationRecord
 
   HOUR_TO_SEND_NOTIFICATIONS = 9
 
+  def self.latest_attempts
+    select('DISTINCT ON (form_submission_id) form_submission_id, benefits_intake_uuid')
+      .order('form_submission_id, created_at DESC')
+  end
+
   aasm do
     after_all_transitions :log_status_change
 
     state :pending, initial: true
     state :failure, :success, :vbms
+    state :manually
 
     event :fail do
       after do
@@ -56,6 +62,10 @@ class FormSubmissionAttempt < ApplicationRecord
     event :remediate do
       transitions from: :failure, to: :vbms
     end
+
+    event :manual do
+      transitions from: :failure, to: :manually
+    end
   end
 
   def log_status_change
@@ -67,16 +77,20 @@ class FormSubmissionAttempt < ApplicationRecord
       to_state: aasm.to_state,
       event: aasm.current_event
     }
-    if aasm.current_event == 'fail!'
+
+    case aasm.current_event
+    when 'fail!'
       log_hash[:message] = 'Form Submission Attempt failed'
       Rails.logger.error(log_hash)
-    elsif aasm.current_event == 'vbms!'
+    when 'vbms!'
       log_hash[:message] = 'Form Submission Attempt went to vbms'
-      Rails.logger.info(log_hash)
+    when 'manual!'
+      log_hash[:message] = 'Form Submission Attempt is being manually remediated'
     else
       log_hash[:message] = 'Form Submission Attempt State change'
-      Rails.logger.info(log_hash)
     end
+
+    Rails.logger.info(log_hash) if aasm.current_event != 'fail!'
   end
 
   private

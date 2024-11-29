@@ -407,7 +407,7 @@ class User < Common::RedisStore
   end
 
   def vaprofile_contact_info
-    @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
+    @vaprofile_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
   def va_profile_v2_email
@@ -454,6 +454,18 @@ class User < Common::RedisStore
 
   def relationships
     @relationships ||= get_relationships_array
+  end
+
+  def create_mhv_account_async
+    return unless can_create_mhv_account?
+
+    MHV::AccountCreatorJob.perform_async(user_verification_id)
+  end
+
+  def can_create_mhv_account?
+    return false unless Flipper.enabled?(:mhv_account_creation_after_login, user_account)
+
+    loa3? && va_patient? && !needs_accepted_terms_of_use
   end
 
   private

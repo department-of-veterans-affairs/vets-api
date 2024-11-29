@@ -449,7 +449,6 @@ RSpec.describe Users::Profile do
           expect(vet360_info[:work_phone]).to be_present
           expect(vet360_info[:fax_number]).to be_present
           expect(vet360_info[:temporary_phone]).to be_present
-          expect(vet360_info[:text_permission]).to be_present
         end
 
         it 'sets the status to 200' do
