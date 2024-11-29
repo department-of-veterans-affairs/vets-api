@@ -11,7 +11,7 @@ module GI
       return false unless instance_variable_defined?(:@program_type_flight)
 
       querying_by_flight = remove_instance_variable(:@program_type_flight)
-      querying_by_flight && Settings.gids.search.use_mocks || false
+      (querying_by_flight && Settings.gids.search.use_mocks) || false
     end
   end
 end
