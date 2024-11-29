@@ -123,6 +123,40 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       result = controller.supporting_document_ids
       expect(result).to eq([1, 2])
     end
+
+    it 'orders supporting document ids by date created' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      # Mocking PersistentAttachments::MilitaryRecords to return controlled data
+      record1 = double('Record1', created_at: 1.day.ago, id: 'doc0', file: double(id: 'file0'))
+      record2 = double('Record2', created_at: Time.zone.now, id: 'doc1', file: double(id: 'file1'))
+
+      allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code1').and_return(record1)
+      allow(PersistentAttachments::MilitaryRecords).to receive(:find_by).with(guid: 'code2').and_return(record2)
+
+      parsed_form_data = {
+        'form_number' => '10-10D',
+        'supporting_docs' => [
+          { 'attachment_id' => 'doc1', 'confirmation_code' => 'code2' },
+          { 'attachment_id' => 'doc0', 'confirmation_code' => 'code1' }
+        ]
+      }
+
+      # Create an instance of the controller
+      controller = IvcChampva::V1::UploadsController.new
+
+      # Call the private method using `send`
+      attachment_ids = controller.send(:supporting_document_ids, parsed_form_data)
+
+      # Mock metadata generation to align with the sorted order
+      metadata = { 'metadata' => {}, 'attachment_ids' => attachment_ids }
+
+      expect(metadata).to eq({
+                               'metadata' => {},
+                               'attachment_ids' => %w[doc0 doc1] # Ensure this matches the sorted order
+                             })
+    end
   end
 
   describe '#get_file_paths_and_metadata' do
