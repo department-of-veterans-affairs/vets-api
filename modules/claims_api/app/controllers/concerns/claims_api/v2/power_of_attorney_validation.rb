@@ -7,9 +7,9 @@ module ClaimsApi
   module V2
     module PowerOfAttorneyValidation
       include ClaimsApi::DependentClaimantValidation
-
-      def validate_form_2122_and_2122a_submission_values(user_profile:, veteran_participant_id: nil, poa_code: nil,
-                                                         base: nil)
+      def validate_form_2122_and_2122a_submission_values(user_profile:, veteran_participant_id: nil,
+                                                         poa_code: nil, base: nil)
+        validate_address_values
         validate_claimant_fields(user_profile)
         if [veteran_participant_id, user_profile, poa_code, base].all?(&:present?)
           validate_dependent_claimant(veteran_participant_id:, user_profile:, poa_code:, base:)
@@ -38,6 +38,32 @@ module ClaimsApi
                                                             claimant_last_name: claimant.family_name,
                                                             claimant_participant_id: claimant.participant_id,
                                                             poa_code:)
+      end
+
+      # the Claimant object is already being validatated below,
+      # so that code has been adjusted and it is being left out of this workflow
+      def validate_address_values
+        address_objects = { veteran: 'veteran', representative: 'representative' }
+
+        address_objects.each do |key, base|
+          address = form_attributes.dig(key.to_s, 'address')
+
+          validate_zip(address, base) if address.present?
+        end
+      end
+
+      def validate_zip(address, base)
+        country = address['country']&.downcase
+        return unless country == 'us'
+
+        zip_code = address['zipCode']
+
+        if zip_code.blank?
+          collect_error_messages(
+            source: "/#{base}/address/zipCode",
+            detail: "If 'countryCode' is 'US' then 'zipCode' is required."
+          )
+        end
       end
 
       def validate_claimant(service:, base:)
@@ -78,7 +104,8 @@ module ClaimsApi
           collect_error_messages(
             source: '/claimant/address/',
             detail: "If claimant is present 'address' must be filled in " \
-                    ' with required fields addressLine1, city, stateCode, country and zipCode'
+                    "with required fields addressLine1, city, stateCode and country. If the stateCode is 'US' " \
+                    'then zipCode is also required.'
           )
         else
           validate_address_line_one(address)
@@ -126,10 +153,10 @@ module ClaimsApi
       end
 
       def validate_address_zip_code(address)
-        if address['zipCode'].nil?
+        if address['zipCode'].blank? && address['country'].downcase == 'us'
           collect_error_messages(
             source: '/claimant/address/zipCode',
-            detail: "If claimant is present 'zipCode' must be filled in"
+            detail: "If 'countryCode' is 'US' then 'zipCode' is required."
           )
         end
       end
@@ -171,12 +198,11 @@ module ClaimsApi
 
       def collect_error_messages(detail: 'Missing or invalid attribute', source: '/',
                                  title: 'Unprocessable Entity', status: '422')
-
         errors_array.push({ detail:, source:, title:, status: })
       end
 
       def raise_error_collection
-        errors_array.uniq! { |e| e[:detail] }
+        errors_array.uniq! { |e| [e[:source], e[:detail]] }
         errors_array
       end
     end
