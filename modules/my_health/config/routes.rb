@@ -27,6 +27,24 @@ MyHealth::Engine.routes.draw do
         get :status, on: :collection
       end
       resources :military_service, only: %i[index]
+      resources :self_entered, only: [], defaults: { format: :json } do
+        get :vitals, on: :collection
+        get :allergies, on: :collection
+        get :family_history, on: :collection
+        get :vaccines, on: :collection
+        get :test_entries, on: :collection
+        get :medical_events, on: :collection
+        get :military_history, on: :collection
+        get :providers, on: :collection
+        get :health_insurance, on: :collection
+        get :treatment_facilities, on: :collection
+        get :food_journal, on: :collection
+        get :activity_journal, on: :collection
+        get :medications, on: :collection
+      end
+      resources :patient, only: %i[index] do
+        get :demographic, on: :collection
+      end
       resources :imaging, only: %i[index], defaults: { format: :json } do
         get 'request', on: :member, action: :request_download
         get :status, on: :collection, action: :request_status

@@ -20,7 +20,7 @@ module MyHealth
     protected
 
     def client
-      use_oh_data_path = Flipper.enabled?(:mhv_accelerated_delivery_allergies_enabled, @current_user) &&
+      use_oh_data_path = Flipper.enabled?(:mhv_accelerated_delivery_enabled, @current_user) &&
                          params[:use_oh_data_path].to_i == 1
       if @client.nil?
         @client ||= if use_oh_data_path

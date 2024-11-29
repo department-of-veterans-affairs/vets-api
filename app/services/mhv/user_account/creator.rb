@@ -32,7 +32,7 @@ module MHV
       def create_mhv_user_account!
         account = MHVUserAccount.new(mhv_account_creation_response)
         account.validate!
-
+        MPIData.find(icn)&.destroy
         account
       end
 

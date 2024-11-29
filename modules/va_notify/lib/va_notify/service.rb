@@ -108,7 +108,7 @@ module VaNotify
       notification = VANotify::Notification.new(
         notification_id: response.id,
         source_location: find_caller_locations,
-        callback: callback_options[:callback],
+        callback_klass: callback_options[:callback],
         callback_metadata: callback_options[:callback_metadata]
       )
 
@@ -131,14 +131,15 @@ module VaNotify
     end
 
     def find_caller_locations
-      va_notify_classes = [
+      ignored_files = [
         'modules/va_notify/lib/va_notify/service.rb',
         'va_notify/app/sidekiq/va_notify/email_job.rb',
-        'va_notify/app/sidekiq/va_notify/user_account_job.rb'
+        'va_notify/app/sidekiq/va_notify/user_account_job.rb',
+        'lib/sidekiq/processor.rb'
       ]
 
       caller_locations.each do |location|
-        next if va_notify_classes.any? { |path| location.path.include?(path) }
+        next if ignored_files.any? { |path| location.path.include?(path) }
 
         return "#{location.path}:#{location.lineno} in #{location.label}"
       end

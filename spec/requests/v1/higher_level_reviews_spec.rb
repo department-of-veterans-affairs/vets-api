@@ -18,7 +18,8 @@ RSpec.describe 'V1::HigherLevelReviews', type: :request do
       http: {
         status_code: 200,
         body: '[Redacted]'
-      }
+      },
+      version: 'V1'
     }
   end
   let(:error_log_args) do
@@ -33,7 +34,8 @@ RSpec.describe 'V1::HigherLevelReviews', type: :request do
       http: {
         status_code: 422,
         body: response_error_body
-      }
+      },
+      version: 'V1'
     }
   end
 

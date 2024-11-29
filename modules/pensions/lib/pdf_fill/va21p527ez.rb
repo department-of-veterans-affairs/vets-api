@@ -1707,8 +1707,9 @@ module Pensions
       # SECTION XII: CLAIM CERTIFICATION AND SIGNATURE
       def expand_claim_certification_and_signature
         @form_data['noRapidProcessing'] = to_checkbox_on_off(@form_data['noRapidProcessing'])
-        # form was signed today
-        @form_data['signatureDate'] = split_date(Time.zone.now.strftime('%Y-%m-%d'))
+        # signed on provided date (generally SavedClaim.created_at) or default to today
+        signature_date = @form_data['signatureDate'] || Time.zone.now.strftime('%Y-%m-%d')
+        @form_data['signatureDate'] = split_date(signature_date)
       end
 
       # Convert a date to a string

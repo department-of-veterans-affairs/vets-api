@@ -57,12 +57,14 @@ module VAOS
             # get the clinic details using the station id and clinic id
             location_id = appt.location_id
             clinic_ids = appt.clinic
-            clinic = systems_service.get_facility_clinics(location_id:, clinic_ids:)&.first
+            clinic = mobile_facility_service.get_clinic_with_cache(station_id: location_id, clinic_id: clinic_ids)
 
             # if clinic details are not returned, log 'not found' message
             clinic.nil? ? log_no_clinic_details_found(location_id, clinic_ids) : sorted_clinics.push(clinic)
           end
         end
+        # remove duplicate clinics
+        sorted_clinics = sorted_clinics.uniq
 
         render json: VAOS::V2::ClinicsSerializer.new(sorted_clinics)
       end

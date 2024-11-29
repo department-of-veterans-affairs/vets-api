@@ -23,6 +23,10 @@ module Lighthouse
           faraday.use :breakers
           faraday.use Faraday::Response::RaiseError
 
+          # This is necessary to pass multiple date query params to Lighthouse
+          # e.g. "date=foo&date=bar"
+          faraday.options.params_encoder = Faraday::FlatParamsEncoder
+
           # Uncomment this if you want curl command equivalent or response output to log
           # faraday.request(:curl, ::Logger.new(STDOUT), :warn) unless Rails.env.production?
           # faraday.response(:logger, ::Logger.new(STDOUT), bodies: true) unless Rails.env.production?

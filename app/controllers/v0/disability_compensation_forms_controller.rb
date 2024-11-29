@@ -52,6 +52,9 @@ module V0
     end
 
     def submit_all_claim
+      temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string,
+                                                       @current_user)
+
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
@@ -172,5 +175,21 @@ module V0
       end
       false
     end
+
+    # TEMPORARY
+    # Turn separation location into string
+    # 11/18/2024 BRD EVSS -> Lighthouse migration caused separation location to turn into an integer,
+    # while SavedClaim (vets-json-schema) is expecting a string
+    def temp_separation_location_fix
+      if form_content.is_a?(Hash) && form_content['form526'].is_a?(Hash)
+        separation_location_code = form_content.dig('form526', 'serviceInformation', 'separationLocation',
+                                                    'separationLocationCode')
+        unless separation_location_code.nil?
+          form_content['form526']['serviceInformation']['separationLocation']['separationLocationCode'] =
+            separation_location_code.to_s
+        end
+      end
+    end
+    # END TEMPORARY
   end
 end

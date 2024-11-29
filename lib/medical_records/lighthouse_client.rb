@@ -21,14 +21,22 @@ module MedicalRecords
       @icn = icn
     end
 
+    def lighthouse_client
+      @lighthouse_client ||= Lighthouse::VeteransHealth::Client.new(@icn)
+    end
+
     def authenticate
       # FIXME: Explore doing this in a less janky way.
       # This is called by the MHV Controller Concern, but is not needed for this client
       # because it is handled in Lighthouse::VeteransHealth::Client::retrieve_bearer_token
     end
 
-    def lighthouse_client
-      @lighthouse_client ||= Lighthouse::VeteransHealth::Client.new(@icn)
+    def list_vitals(from_date = nil, to_date = nil)
+      params = { category: 'vital-signs' }
+      params[:date] = ["ge#{from_date}", "le#{to_date}"] if from_date && to_date
+      bundle = lighthouse_client.list_observations(params)
+      bundle = Oj.load(bundle[:body].to_json, symbol_keys: true)
+      sort_bundle(bundle, :recordedDate, :desc)
     end
 
     def list_allergies

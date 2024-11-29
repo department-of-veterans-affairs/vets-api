@@ -2,8 +2,8 @@
 
 module SimpleFormsApi
   class NotificationEmail
-    attr_reader :form_number, :confirmation_number, :date_submitted, :lighthouse_updated_at, :notification_type, :user,
-                :user_account, :form_data
+    attr_reader :form_number, :confirmation_number, :date_submitted, :expiration_date, :lighthouse_updated_at,
+                :notification_type, :user, :user_account, :form_data
 
     TEMPLATE_IDS = {
       'vba_21_0845' => {
@@ -19,7 +19,10 @@ module SimpleFormsApi
       'vba_21_0966' => {
         confirmation: Settings.vanotify.services.va_gov.template_id.form21_0966_confirmation_email,
         error: Settings.vanotify.services.va_gov.template_id.form21_0966_error_email,
-        received: nil
+        received: Settings.vanotify.services.va_gov.template_id.form21_0966_received_email
+      },
+      'vba_21_0966_intent_api' => {
+        received: Settings.vanotify.services.va_gov.template_id.form21_0966_itf_api_received_email
       },
       'vba_21_0972' => {
         confirmation: Settings.vanotify.services.va_gov.template_id.form21_0972_confirmation_email,
@@ -66,6 +69,7 @@ module SimpleFormsApi
       @form_number = config[:form_number]
       @confirmation_number = config[:confirmation_number]
       @date_submitted = config[:date_submitted]
+      @expiration_date = config[:expiration_date]
       @lighthouse_updated_at = config[:lighthouse_updated_at]
       @notification_type = notification_type
       @user = user
@@ -90,11 +94,16 @@ module SimpleFormsApi
 
     def check_missing_keys(config)
       missing_keys = %i[form_data form_number confirmation_number date_submitted].select { |key| config[key].nil? }
+      if config[:form_number] == 'vba_21_0966_intent_api' && config[:expiration_date].nil?
+        missing_keys << :expiration_date
+      end
       raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
     end
 
     def flipper?
-      Flipper.enabled?(:"form#{form_number.gsub('vba_', '')}_confirmation_email")
+      number = form_number
+      number = 'vba_21_0966' if form_number.start_with? 'vba_21_0966'
+      Flipper.enabled?(:"form#{number.gsub('vba_', '')}_confirmation_email")
     end
 
     def enqueue_email(at, template_id)
@@ -103,24 +112,43 @@ module SimpleFormsApi
 
       # async job and form data includes email
       if email_from_form_data && first_name_from_form_data
-        VANotify::EmailJob.perform_at(
-          at,
-          email_from_form_data,
-          template_id,
-          get_personalization(first_name_from_form_data)
-        )
+        async_job_with_form_data(email_from_form_data, first_name_from_form_data, at, template_id)
       # async job and we have a UserAccount
       elsif user_account
-        first_name_from_user_account = get_first_name_from_user_account
-        return unless first_name_from_user_account
+        async_job_with_user_account(user_account, at, template_id)
+      end
+    end
 
-        VANotify::UserAccountJob.perform_at(
+    def async_job_with_form_data(email, first_name, at, template_id)
+      if Flipper.enabled?(:simple_forms_notification_callbacks)
+        VANotify::EmailJob.perform_at(
           at,
-          user_account.id,
+          email,
           template_id,
-          get_personalization(first_name_from_user_account)
+          get_personalization(first_name),
+          Settings.vanotify.services.va_gov.api_key,
+          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+        )
+      else
+        VANotify::EmailJob.perform_at(
+          at,
+          email,
+          template_id,
+          get_personalization(first_name)
         )
       end
+    end
+
+    def async_job_with_user_account(user_account, at, template_id)
+      first_name_from_user_account = get_first_name_from_user_account
+      return unless first_name_from_user_account
+
+      VANotify::UserAccountJob.perform_at(
+        at,
+        user_account.id,
+        template_id,
+        get_personalization(first_name_from_user_account)
+      )
     end
 
     def send_email_now(template_id)
@@ -153,7 +181,7 @@ module SimpleFormsApi
         form21_0845_contact_info[0]
       when 'vba_21p_0847', 'vba_21_0972'
         form_data['preparer_email']
-      when 'vba_21_0966'
+      when 'vba_21_0966', 'vba_21_0966_intent_api'
         form21_0966_email_address
       when 'vba_21_4142'
         form_data.dig('veteran', 'email')
@@ -177,7 +205,7 @@ module SimpleFormsApi
         form21_0845_contact_info[1]
       when 'vba_21p_0847'
         form_data.dig('preparer_name', 'first')
-      when 'vba_21_0966'
+      when 'vba_21_0966', 'vba_21_0966_intent_api'
         form21_0966_first_name
       when 'vba_21_0972'
         form_data.dig('preparer_full_name', 'first')
@@ -218,7 +246,7 @@ module SimpleFormsApi
     end
 
     def get_personalization(first_name)
-      if @form_number == 'vba_21_0966'
+      if @form_number.start_with? 'vba_21_0966'
         default_personalization(first_name).merge(form21_0966_personalization)
       else
         default_personalization(first_name)
@@ -329,18 +357,31 @@ module SimpleFormsApi
     end
 
     def form21_0966_personalization
+      intent_to_file_benefits, intent_to_file_benefits_links = get_intent_to_file_benefits_variables
+      {
+        'intent_to_file_benefits' => intent_to_file_benefits,
+        'intent_to_file_benefits_links' => intent_to_file_benefits_links,
+        'itf_api_expiration_date' => expiration_date
+      }
+    end
+
+    def get_intent_to_file_benefits_variables
       benefits = @form_data['benefit_selection']
-      intent_to_file_benefits = if benefits['compensation'] && benefits['pension']
-                                  'Disability Compensation (VA Form 21-526EZ) and Pension (VA Form 21P-527EZ)'
-                                elsif benefits['compensation']
-                                  'Disability Compensation (VA Form 21-526EZ)'
-                                elsif benefits['pension']
-                                  'Pension (VA Form 21P-527EZ)'
-                                elsif benefits['survivor']
-                                  'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                    ' (VA Form 21P-534 or VA Form 21P-534EZ)'
-                                end
-      { 'intent_to_file_benefits' => intent_to_file_benefits }
+      if benefits['compensation'] && benefits['pension']
+        ['disability compensation and Veterans pension benefits',
+         '[File for disability compensation (VA Form 21-526EZ)]' \
+         '(https://www.va.gov/disability/file-disability-claim-form-21-526ez/introduction) and [Apply for Veterans ' \
+         'Pension benefits (VA Form 21P-527EZ)](https://www.va.gov/find-forms/about-form-21p-527ez/)']
+      elsif benefits['compensation']
+        ['disability compensation',
+         '[File for disability compensation (VA Form 21-526EZ)](https://www.va.gov/disability/file-disability-claim-form-21-526ez/introduction)']
+      elsif benefits['pension']
+        ['Veterans pension benefits',
+         '[Apply for Veterans Pension benefits (VA Form 21P-527EZ)](https://www.va.gov/find-forms/about-form-21p-527ez/)']
+      elsif benefits['survivor']
+        ['survivors pension benefits',
+         '[Apply for DIC, Survivors Pension, and/or Accrued Benefits (VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)']
+      end
     end
 
     def form40_10007_first_name
@@ -351,6 +392,10 @@ module SimpleFormsApi
       else
         form_data.dig('application', 'applicant', 'name', 'first')
       end
+    end
+
+    def statsd_tags
+      { 'service' => 'veteran-facing-forms', 'function' => "#{form_number} form submission to Lighthouse" }
     end
   end
 end

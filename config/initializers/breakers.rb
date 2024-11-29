@@ -21,6 +21,7 @@ require 'lighthouse/benefits_education/configuration'
 require 'mhv_ac/configuration'
 require 'mpi/configuration'
 require 'pagerduty/configuration'
+require 'post911_sob/dgib/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
@@ -62,6 +63,7 @@ Rails.application.reloader.to_prepare do
     HCA::Configuration.instance.breakers_service,
     MHVAC::Configuration.instance.breakers_service,
     MPI::Configuration.instance.breakers_service,
+    Post911SOB::DGIB::Configuration.instance.breakers_service,
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
     VAProfile::AddressValidation::Configuration.instance.breakers_service,

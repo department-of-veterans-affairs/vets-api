@@ -331,7 +331,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         context 'using VAOS' do
           before do
             Flipper.disable(:va_online_scheduling_use_vpg)
-            Flipper.enable(:va_online_scheduling_after_visit_summary)
           end
 
           it 'fetches appointment list and includes avs on past booked appointments' do
@@ -658,7 +657,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       context 'when the VAOS service returns a single appointment' do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.enable(:va_online_scheduling_after_visit_summary)
         end
 
         let(:avs_path) do

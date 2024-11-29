@@ -192,6 +192,7 @@ module DebtsApi
           :'view:streamlined_waiver',
           :'view:streamlined_waiver_asset_update',
           :'view:review_page_navigation_toggle',
+          :'view:show_updated_expense_pages',
           questions: %i[
             has_repayments has_credit_card_bills has_recreational_vehicle
             has_vehicle has_real_estate spouse_has_benefits is_married
@@ -317,11 +318,12 @@ module DebtsApi
             ]
           ],
           expenses: [
-            expense_records: %i[name amount],
-            credit_card_bills: %i[
-              purpose creditor_name original_amount unpaid_balance
-              amount_due_monthly date_started amount_past_due
-            ]
+            :monthly_housing_expenses,
+            { expense_records: %i[name amount],
+              credit_card_bills: %i[
+                purpose creditor_name original_amount unpaid_balance
+                amount_due_monthly date_started amount_past_due
+              ] }
           ],
           utility_records: %i[name amount],
           other_expenses: %i[name amount],

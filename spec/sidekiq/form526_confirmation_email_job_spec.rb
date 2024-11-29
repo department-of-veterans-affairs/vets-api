@@ -36,6 +36,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
           'email' => email_address,
           'submitted_claim_id' => '600191990',
           'date_submitted' => 'July 12, 2020',
+          'date_received' => 'July 15, 2020',
           'first_name' => 'firstname'
         }
       end
@@ -64,6 +65,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
           personalisation: {
             'claim_id' => '600191990',
             'date_submitted' => 'July 12, 2020',
+            'date_received' => 'July 15, 2020',
             'first_name' => 'firstname'
           }
         }

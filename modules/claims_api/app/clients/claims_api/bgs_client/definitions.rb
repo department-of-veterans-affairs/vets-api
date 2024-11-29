@@ -61,23 +61,6 @@ module ClaimsApi
           )
       end
 
-      module ClaimantWebService
-        DEFINITION =
-          Service.new(
-            bean: ClaimantServiceBean::DEFINITION,
-            path: 'ClaimantWebService'
-          )
-
-        module FindPoaByParticipantId
-          DEFINITION =
-            Action.new(
-              service: ClaimantWebService::DEFINITION,
-              name: 'findPOAByPtcpntId',
-              key: 'return'
-            )
-        end
-      end
-
       ##
       # EBenefitsBnftClaimStatusWebServiceBean
       #

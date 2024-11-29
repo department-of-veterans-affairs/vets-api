@@ -31,12 +31,8 @@ module CentralMail
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      monitor = Dependents::Monitor.new
-      monitor.track_submission_exhaustion(msg)
-
-      saved_claim_id, _, encrypted_user_struct = msg['args']
       if Flipper.enabled?(:dependents_trigger_action_needed_email)
-        CentralMail::SubmitCentralForm686cJob.trigger_failure_events(saved_claim_id, encrypted_user_struct)
+        CentralMail::SubmitCentralForm686cJob.trigger_failure_events(msg)
       end
     end
 
@@ -232,9 +228,15 @@ module CentralMail
       )
     end
 
-    def self.trigger_failure_events(saved_claim_id, encrypted_user_struct)
+    def self.trigger_failure_events(msg)
+      monitor = Dependents::Monitor.new
+      saved_claim_id, _, encrypted_user_struct = msg['args']
+      user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)) if encrypted_user_struct.present?
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-      claim.send_failure_email(encrypted_user_struct)
+      email = claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
+              user_struct.try(:va_profile_email)
+      monitor.track_submission_exhaustion(msg, email)
+      claim.send_failure_email(email)
     end
 
     private

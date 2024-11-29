@@ -19,7 +19,7 @@ module PCPG
       super('career-guidance-application')
     end
 
-    def track_submission_exhaustion(msg, claim = nil)
+    def track_submission_exhaustion(msg, claim = nil, email = nil)
       user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
       additional_context = {
         form_id: claim&.form_id,
@@ -27,9 +27,17 @@ module PCPG
         confirmation_number: claim&.confirmation_number,
         message: msg
       }
-      # log_silent_failure calls the ZSF method which increases a special StatsD metric
-      # and writes to the Rails log for additional ZSF tracking.
-      log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
+
+      if email
+        # if an email address is present it means an email has been sent by vanotify
+        # this means the silent failure is avoided.
+        log_silent_failure_avoided(additional_context, user_account_uuid, call_location: caller_locations.first)
+      else
+        # log_silent_failure calls the ZSF method which increases a special StatsD metric
+        # and writes to the Rails log for additional ZSF tracking.
+        # if no email is present, log silent failure
+        log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
+      end
 
       StatsD.increment("#{SUBMISSION_STATS_KEY}.exhausted")
       Rails.logger.error(
@@ -38,7 +46,7 @@ module PCPG
       )
     end
 
-    def track_benefits_intake_submission_exhaustion(msg, claim = nil)
+    def track_benefits_intake_submission_exhaustion(msg, claim = nil, email = nil)
       user_account_uuid = msg['args'].length <= 1 ? nil : msg['args'][1]
       additional_context = {
         form_id: claim&.form_id,
@@ -46,9 +54,14 @@ module PCPG
         confirmation_number: claim&.confirmation_number,
         message: msg
       }
-      # log_silent_failure calls the ZSF method which increases a special StatsD metric
-      # and writes to the Rails log for additional ZSF tracking.
-      log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
+
+      if email
+        log_silent_failure_avoided(additional_context, user_account_uuid, call_location: caller_locations.first)
+      else
+        # log_silent_failure calls the ZSF method which increases a special StatsD metric
+        # and writes to the Rails log for additional ZSF tracking.
+        log_silent_failure(additional_context, user_account_uuid, call_location: caller_locations.first)
+      end
 
       StatsD.increment("#{BENEFITS_INTAKE_SUBMISSION_STATS_KEY}.exhausted")
       Rails.logger.error(

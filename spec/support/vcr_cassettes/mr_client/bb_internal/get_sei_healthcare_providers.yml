@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/getcare/healthCareProvider/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 21 Nov 2024 00:21:44 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '[{"healthCareProviderId":14944763,"firstName":"Manni","lastName":"Fanni","providerType":"D","otherClinician":null,"workPhone":"801-456-4130","workPhoneExt":null,"emailAddress":null,"comments":null,"userProfileId":11375034},{"healthCareProviderId":15214404,"firstName":"Kin","lastName":"Patel","providerType":"P","otherClinician":null,"workPhone":"4102202049","workPhoneExt":null,"emailAddress":null,"comments":null,"userProfileId":11375034},{"healthCareProviderId":13984530,"firstName":"Keri","lastName":"HOLYOAK","providerType":"S","otherClinician":null,"workPhone":"801-999-9999","workPhoneExt":"123","emailAddress":"KERI@MSN.COM","comments":"ALJDFL","userProfileId":11375034}]'
+  recorded_at: Thu, 21 Nov 2024 00:21:44 GMT
+recorded_with: VCR 6.3.1

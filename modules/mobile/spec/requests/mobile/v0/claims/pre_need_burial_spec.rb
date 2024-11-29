@@ -23,14 +23,14 @@ RSpec.describe 'Mobile::V0::PreNeedBurial', type: :request do
                                               [{ 'title' => 'Validation error',
                                                  'detail' => "The property '#/application/veteran/militaryStatus' of " \
                                                              'type null did not match the following type: string in ' \
-                                                             'schema f7285ec8-ff50-51f5-b481-fc3d2ad5c1bc',
+                                                             'schema 5e610c8c-e49f-54bb-8079-710b31a7928c',
                                                  'code' => '109',
                                                  'status' => '422' },
                                                { 'title' => 'Validation error',
                                                  'detail' => "The property '#/application/veteran/militaryStatus' " \
                                                              'value nil did not match one of the following values: A' \
                                                              ', I, D, S, R, E, O, V, X in schema ' \
-                                                             'f7285ec8-ff50-51f5-b481-fc3d2ad5c1bc',
+                                                             '5e610c8c-e49f-54bb-8079-710b31a7928c',
                                                  'code' => '109',
                                                  'status' => '422' }] })
       end

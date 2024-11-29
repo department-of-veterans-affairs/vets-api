@@ -20,10 +20,7 @@ module Lighthouse
         claim = nil
       end
 
-      pcpg_monitor = PCPG::Monitor.new
-      pcpg_monitor.track_submission_exhaustion(msg, claim)
-
-      Lighthouse::SubmitCareerCounselingJob.trigger_failure_events(claim) if Flipper.enabled?(:pcpg_trigger_action_needed_email) # rubocop:disable Layout/LineLength
+      Lighthouse::SubmitCareerCounselingJob.trigger_failure_events(msg, claim) if Flipper.enabled?(:pcpg_trigger_action_needed_email) # rubocop:disable Layout/LineLength
     end
 
     def perform(claim_id, user_uuid = nil)
@@ -60,8 +57,11 @@ module Lighthouse
       )
     end
 
-    def self.trigger_failure_events(claim)
-      claim.send_failure_email if claim.present?
+    def self.trigger_failure_events(msg, claim)
+      pcpg_monitor = PCPG::Monitor.new
+      email = claim.parsed_form.dig('claimantInformation', 'emailAddress')
+      pcpg_monitor.track_submission_exhaustion(msg, claim, email)
+      claim.send_failure_email(email) if claim.present?
     end
   end
 end

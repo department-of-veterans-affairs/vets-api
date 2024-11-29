@@ -38,8 +38,7 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
   # part of the ZSF work, but with the initial timeline it handles the email as intended.
   # Future work will be integrating into the Va Notify common lib:
   # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/va_notify/notification_email.rb
-  def send_failure_email
-    email = parsed_form.dig('claimantInformation', 'emailAddress')
+  def send_failure_email(email)
     if email.present?
       VANotify::EmailJob.perform_async(
         email,

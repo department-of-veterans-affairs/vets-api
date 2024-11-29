@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/getcare/healthInsurance/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 21 Nov 2024 00:23:33 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '[{"healthInsuranceId":14944762,"comments":null,"companyName":"CeraVe","companyPhone":null,"firstNameOfInsured":"Sara","groupNumber":null,"insuranceIdNumber":"987654","lastNameOfInsured":"Chamg","preApprovalPhone":null,"primaryInd":false,"startDate":1522987200000,"stopDate":null,"userProfileId":11375034},{"healthInsuranceId":14073489,"comments":null,"companyName":"Holiday","companyPhone":null,"firstNameOfInsured":"Fred","groupNumber":null,"insuranceIdNumber":"987456","lastNameOfInsured":"Flintstone","preApprovalPhone":null,"primaryInd":false,"startDate":1489122000000,"stopDate":null,"userProfileId":11375034},{"healthInsuranceId":13984545,"comments":null,"companyName":"IHC","companyPhone":null,"firstNameOfInsured":"Brown","groupNumber":null,"insuranceIdNumber":"89457","lastNameOfInsured":"Brown","preApprovalPhone":null,"primaryInd":false,"startDate":1486702800000,"stopDate":null,"userProfileId":11375034}]'
+  recorded_at: Thu, 21 Nov 2024 00:23:33 GMT
+recorded_with: VCR 6.3.1

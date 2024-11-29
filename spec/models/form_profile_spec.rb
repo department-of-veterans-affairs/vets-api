@@ -100,7 +100,7 @@ RSpec.describe FormProfile, type: :model do
           'address' => address,
           'dateOfBirth' => user.birth_date,
           'name' => full_name,
-          'ssn' => FormIdentityInformation.new(ssn: user.ssn).hyphenated_ssn,
+          'ssn' => user.ssn,
           'email' => user.pciu_email,
           'phoneNumber' => us_phone
         }

@@ -70,7 +70,7 @@ describe ClaimsApi::LocalBGS do
         # 1: establish_ssl_connection - how long to establish the connection
         # 2: connection_post - how long does the post itself take for the request cycle
         # 3: parsed_response - how long to parse the response
-        expect(ClaimsApi::Logger).to receive(:log).exactly(3).times
+        expect(ClaimsApi::Logger).to receive(:log).exactly(4).times
         result = subject.find_poa_by_participant_id('does-not-matter')
         expect(result).to be_a Hash
         expect(result[:begin_date]).to eq '09/03/2024'
