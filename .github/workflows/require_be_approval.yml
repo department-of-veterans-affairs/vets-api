@@ -26,13 +26,13 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-      # Find Backend Labels, Approvals and Comments
-      - name: Find Approval  Comment
-        uses: peter-evans/find-comment@v3
-        id: find_backend_approval_comment
-        with:
-          issue-number: ${{ github.event.pull_request.number }}
-          body-includes: Backend-review-group approval confirmed.
+      # Find Backend Labels and Approvals
+      # - name: Find Approval  Comment
+      #   uses: peter-evans/find-comment@v3
+      #   id: find_backend_approval_comment
+      #   with:
+      #     issue-number: ${{ github.event.pull_request.number }}
+      #     body-includes: Backend-review-group approval confirmed.
 
       - name: Get backend-review-group members
         id: get_team_members

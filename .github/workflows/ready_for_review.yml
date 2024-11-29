@@ -3,10 +3,11 @@ on:
   pull_request:
      types: [labeled, unlabeled, synchronize, ready_for_review, review_requested]
   workflow_run:
-    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Code Health Report"]
+    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Code Health Report", "Audit Service Tags"]
     types: [completed]
 jobs:
   ready_for_review:
+    name: Ready for Review
     permissions: write-all
     runs-on: ubuntu-latest
     steps:
@@ -29,6 +30,7 @@ jobs:
       - name: Audit PR Labels
         id: audit_pr_labels
         if: |
+          !contains(github.event.pull_request.labels.*.name, 'audit-service-failure') &&
           !contains(github.event.pull_request.labels.*.name, 'code-health-failure') &&
           !contains(github.event.pull_request.labels.*.name, 'codeowners-addition-failure') &&
           !contains(github.event.pull_request.labels.*.name, 'codeowners-delete-failure') &&
@@ -36,14 +38,6 @@ jobs:
           !contains(github.event.pull_request.labels.*.name, 'test-failure')
         run: |
           echo "no_failures=true" >> $GITHUB_OUTPUT
-
-      # If test-passing label is present, ready_for_review=true
-      - name: Audit Test Passing Label
-        id: audit_passing_labels
-        if: |
-          contains(github.event.pull_request.labels.*.name, 'test-passing')
-        run: |
-          echo "ready_for_review=true" >> $GITHUB_OUTPUT
 
       - name: Get backend-review-group members
         if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
@@ -89,7 +83,6 @@ jobs:
         uses: actions-ecosystem/action-add-labels@v1
         if: |
           github.event.pull_request.draft == false &&
-          steps.audit_passing_labels.outputs.ready_for_review == 'true' &&
           steps.audit_pr_labels.outputs.no_failures == 'true' &&
           steps.verify_approval.outputs.approval_status == 'required'
         with:
@@ -100,13 +93,12 @@ jobs:
       - name: Remove Review label
         uses: actions-ecosystem/action-remove-labels@v1
         if: |
-          github.event.pull_request.draft == true ||
-          (
-            contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review') &&
-            steps.audit_passing_labels.outputs.ready_for_review != 'true' ||
+          ( 
+            github.event.pull_request.draft == true ||
             steps.audit_pr_labels.outputs.no_failures != 'true' ||
             steps.verify_approval.outputs.approval_status == 'confirmed'
-          )
+          ) &&
+          contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review')
         with:
           number: ${{ github.event.pull_request.number }}
           labels: |
