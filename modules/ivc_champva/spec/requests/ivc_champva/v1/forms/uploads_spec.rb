@@ -36,6 +36,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
       it 'uploads a PDF file to S3' do
         mock_form = double(first_name: 'Veteran', last_name: 'Surname', form_uuid: 'some_uuid')
+        allow(PersistentAttachments::MilitaryRecords).to receive(:find_by)
+          .and_return(double('Record1', created_at: 1.day.ago, id: 'some_uuid', file: double(id: 'file0')))
         allow(IvcChampvaForm).to receive(:first).and_return(mock_form)
         allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
 

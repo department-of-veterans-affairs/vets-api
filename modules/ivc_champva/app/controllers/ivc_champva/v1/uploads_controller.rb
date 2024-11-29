@@ -90,7 +90,7 @@ module IvcChampva
 
       def supporting_document_ids(parsed_form_data)
         cached_uploads = []
-        parsed_form_data['supporting_docs'].each do |d|
+        parsed_form_data['supporting_docs']&.each do |d|
           # Get the database record that corresponds to this file upload:
           record = PersistentAttachments::MilitaryRecords.find_by(guid: d['confirmation_code'])
           # Push to our array with some extra information so we can sort by date uploaded:
