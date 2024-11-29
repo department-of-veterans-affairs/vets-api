@@ -25,5 +25,4 @@ class FormProfiles::DisputeDebt < FormProfile
 
     file_number&.last(4)
   end
-
 end
