@@ -8,7 +8,7 @@ module Post911SOB
     class Response < Common::Base
       attribute :entitlement_transferred_out, Entitlement
 
-      def initialize(status, response = nil)
+      def initialize(response = nil)
         attributes = {
           entitlement_transferred_out: calculate_toe(response)
         }
