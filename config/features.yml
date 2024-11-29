@@ -1050,6 +1050,10 @@ features:
     actor_type: user
     description: Enables/disables filter feature for medications list
     enable_in_development: true
+  mhv_medications_display_grouping:
+    actor_type: user
+    description: Enables/disables grouping medications related work
+    enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
     description: For mobile app, enalbes use of strict models for parsing allergy intolerance
