@@ -1,3 +1,4 @@
+
 # frozen_string_literal: true
 
 require 'login/errors'
@@ -21,6 +22,7 @@ module Login
       Login::UserAcceptableVerifiedCredentialUpdater.new(user_account: @current_user.user_account).perform
       update_account_login_stats(login_type)
       id_mismatch_validations
+      create_mhv_account
 
       if Settings.test_user_dashboard.env == 'staging'
         TestUserDashboard::UpdateUser.new(current_user).call(Time.current)
