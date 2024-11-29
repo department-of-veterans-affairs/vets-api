@@ -78,13 +78,13 @@ module ClaimsApi
           collect_error_messages(
             source: '/claimant/address/',
             detail: "If claimant is present 'address' must be filled in " \
-                    ' with required fields addressLine1, city, stateCode, country and zipCode'
+                    'with required fields addressLine1, city, stateCode, countryCode and zipCode'
           )
         else
           validate_address_line_one(address)
           validate_address_city(address)
           validate_address_state_code(address)
-          validate_address_country(address)
+          validate_address_country_code(address)
           validate_address_zip_code(address)
         end
       end
@@ -116,10 +116,10 @@ module ClaimsApi
         end
       end
 
-      def validate_address_country(address)
+      def validate_address_country_code(address)
         if address['countryCode'].nil?
           collect_error_messages(
-            source: '/claimant/address/country',
+            source: '/claimant/address/countryCode',
             detail: "If claimant is present 'countryCode' must be filled in"
           )
         end
