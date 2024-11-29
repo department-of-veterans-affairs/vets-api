@@ -4,6 +4,7 @@ require 'central_mail/service'
 require 'common/exceptions'
 require 'evss/disability_compensation_form/metrics'
 require 'evss/disability_compensation_form/form4142_processor'
+require 'logging/call_location'
 require 'logging/third_party_transaction'
 require 'zero_silent_failures/monitor'
 
@@ -75,9 +76,14 @@ module CentralMail
       if Flipper.enabled?(:form526_send_4142_failure_notification)
         EVSS::DisabilityCompensationForm::Form4142DocumentUploadFailureEmail.perform_async(form526_submission_id)
       end
+      # NOTE: do NOT add any additional code here between the failure email being enqueued and the rescue block.
+      # The mailer prevents an upload from failing silently, since we notify the veteran and provide a workaround.
+      # The rescue will catch any errors in the sidekiq_retries_exhausted block and mark a "silent failure".
+      # This shouldn't happen if an email was sent; there should be no code here to throw an additional exception.
+      # The mailer should be the last thing that can fail.
     rescue => e
       cl = caller_locations.first
-      call_location = ZeroSilentFailures::Monitor::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
+      call_location = Logging::CallLocation.new(ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno)
       zsf_monitor = ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE)
       user_account_id = begin
         Form526Submission.find(form526_submission_id).user_account_id

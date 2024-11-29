@@ -42,7 +42,7 @@ module AskVAApi
             PreferredName: inquiry_params[:preferred_name],
             Suffix: @translator.call(:suffix, submitter_info[:suffix]),
             Gender: nil,
-            Pronouns: formatted_pronouns(inquiry_params[:pronouns]),
+            Pronouns: formatted_pronouns(inquiry_params[:pronouns]) || inquiry_params[:pronouns_not_listed_text],
             Country: country_data,
             Street: submitter_address[:street],
             City: submitter_address[:city],

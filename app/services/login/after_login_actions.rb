@@ -6,10 +6,11 @@ module Login
   class AfterLoginActions
     include Accountable
 
-    attr_reader :current_user
+    attr_reader :current_user, :client_id
 
-    def initialize(user)
+    def initialize(user, client_id)
       @current_user = user
+      @client_id = client_id
     end
 
     def perform
@@ -28,6 +29,12 @@ module Login
     end
 
     private
+
+    def create_mhv_account
+      return if client_id.in?(SAML::URLService::SKIP_MHV_ACCOUNT_CREATION_CLIENTS)
+
+      current_user.create_mhv_account_async
+    end
 
     def login_type
       @login_type ||= current_user.identity.sign_in[:service_name]

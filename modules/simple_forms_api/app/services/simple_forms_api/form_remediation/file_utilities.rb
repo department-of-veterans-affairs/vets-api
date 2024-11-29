@@ -32,12 +32,12 @@ module SimpleFormsApi
       end
 
       def add_files_to_zip(zipfile, temp_dir)
-        Dir.chdir(temp_dir) do
-          Dir['**', '*'].uniq.each do |file|
-            next if File.directory?(file)
+        temp_dir_files = Dir.glob(File.join(temp_dir, '**', '*')).uniq
+        temp_dir_files.each do |file|
+          next unless File.file?(file)
 
-            zipfile.add(file, File.join(temp_dir, file)) if File.file?(file)
-          end
+          relative_path = file.sub("#{temp_dir}/", '')
+          zipfile.add(relative_path, file)
         end
       end
 
@@ -78,12 +78,12 @@ module SimpleFormsApi
         File.write(File.join(dir_path, file_name), content)
       end
 
-      def unique_file_name(form_number, id)
-        "#{Time.zone.today.strftime('%-m.%d.%y')}_form_#{form_number}_vagov_#{id}"
+      def unique_file_name(form_number, id, date = Time.zone.today)
+        "#{date.strftime('%-m.%d.%y')}_form_#{form_number}_vagov_#{id}"
       end
 
-      def dated_directory_name(form_number)
-        "#{Time.zone.today.strftime('%-m.%d.%y')}-Form#{form_number}"
+      def dated_directory_name(form_number, date = Time.zone.today)
+        "#{date.strftime('%-m.%d.%y')}-Form#{form_number}"
       end
 
       def write_manifest(row, path)

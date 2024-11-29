@@ -15,7 +15,6 @@ module VAOS
       AVS_ERROR_MESSAGE = 'Error retrieving AVS link'
       MANILA_PHILIPPINES_FACILITY_ID = '358'
 
-      AVS_FLIPPER = :va_online_scheduling_after_visit_summary
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
       APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
@@ -326,9 +325,7 @@ module VAOS
 
         extract_appointment_fields(appointment)
 
-        if avs_applicable?(appointment, include[:avs]) && Flipper.enabled?(AVS_FLIPPER, user)
-          fetch_avs_and_update_appt_body(appointment)
-        end
+        fetch_avs_and_update_appt_body(appointment) if avs_applicable?(appointment, include[:avs])
 
         if cc?(appointment) && %w[proposed cancelled].include?(appointment[:status])
           find_and_merge_provider_name(appointment)
@@ -774,7 +771,7 @@ module VAOS
       end
 
       def appointments_base_path_vaos
-        "/vaos/v1/patients/#{user.icn}/appointments"
+        "/#{base_vaos_route}/patients/#{user.icn}/appointments"
       end
 
       def appointments_base_path_vpg
@@ -789,7 +786,7 @@ module VAOS
         if Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
           "/vpg/v1/patients/#{user.icn}/appointments/#{appointment_id}"
         else
-          "/vaos/v1/patients/#{user.icn}/appointments/#{appointment_id}"
+          "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appointment_id}"
         end
       end
 
@@ -820,7 +817,7 @@ module VAOS
       end
 
       def update_appointment_vaos(appt_id, status)
-        url_path = "/vaos/v1/patients/#{user.icn}/appointments/#{appt_id}"
+        url_path = "/#{base_vaos_route}/patients/#{user.icn}/appointments/#{appt_id}"
         params = VAOS::V2::UpdateAppointmentForm.new(status:).params
         perform(:put, url_path, params, headers)
       end

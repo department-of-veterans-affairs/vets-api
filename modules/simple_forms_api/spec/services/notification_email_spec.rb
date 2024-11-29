@@ -139,7 +139,8 @@ describe SimpleFormsApi::NotificationEmail do
 
             subject.send(at: time)
 
-            expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything)
+            expect(VANotify::EmailJob).to have_received(:perform_at).with(time, anything, anything, anything, anything,
+                                                                          anything)
           end
         end
       end
@@ -539,9 +540,14 @@ describe SimpleFormsApi::NotificationEmail do
               'applicant' => {
                 'applicant_relationship_to_claimant' => 'Self'
               },
+              'claimant' => {
+                'name' => {
+                  'first' => 'Freddy'
+                }
+              },
               'veteran' => {
                 'current_name' => {
-                  'first' => 'Freddy'
+                  'first' => 'Bob'
                 }
               }
             }
@@ -558,11 +564,14 @@ describe SimpleFormsApi::NotificationEmail do
           {
             'application' => {
               'applicant' => {
-                'applicant_relationship_to_claimant' => 'Authorized Agent/Rep'
+                'applicant_relationship_to_claimant' => 'Authorized Agent/Rep',
+                'name' => {
+                  'first' => 'Jason'
+                }
               },
               'claimant' => {
                 'name' => {
-                  'first' => 'Jason'
+                  'first' => 'Charles'
                 }
               }
             }
@@ -721,7 +730,35 @@ describe SimpleFormsApi::NotificationEmail do
       end
       let(:user) { create(:user, :loa3) }
 
-      context 'template_id is provided', unless: notification_type == :received do
+      it 'sends the email' do
+        allow(VANotify::EmailJob).to receive(:perform_async)
+
+        subject = described_class.new(config, notification_type:, user:)
+
+        subject.send
+
+        expect(VANotify::EmailJob).to have_received(:perform_async).with(
+          user.va_profile_email,
+          "form21_0966_#{notification_type}_email_template_id",
+          {
+            'first_name' => 'Veteran',
+            'date_submitted' => date_submitted,
+            'confirmation_number' => 'confirmation_number',
+            'lighthouse_updated_at' => nil,
+            'intent_to_file_benefits' => 'survivors pension benefits',
+            'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                               '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+            'itf_api_expiration_date' => nil
+          }
+        )
+      end
+
+      context 'preparer is surviving dependent' do
+        before do
+          data['preparer_identification'] = 'SURVIVING_DEPENDENT'
+          config[:form_data] = data
+        end
+
         it 'sends the email' do
           allow(VANotify::EmailJob).to receive(:perform_async)
 
@@ -730,23 +767,39 @@ describe SimpleFormsApi::NotificationEmail do
           subject.send
 
           expect(VANotify::EmailJob).to have_received(:perform_async).with(
-            user.va_profile_email,
+            'survivor@dependent.com',
             "form21_0966_#{notification_type}_email_template_id",
             {
-              'first_name' => 'Veteran',
+              'first_name' => 'I',
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
               'lighthouse_updated_at' => nil,
-              'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                           ' (VA Form 21P-534 or VA Form 21P-534EZ)'
+              'intent_to_file_benefits' => 'survivors pension benefits',
+              'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                                 '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+              'itf_api_expiration_date' => nil
             }
           )
         end
+      end
+    end
 
-        context 'preparer is surviving dependent' do
-          before do
-            data['preparer_identification'] = 'SURVIVING_DEPENDENT'
-            config[:form_data] = data
+    describe '21_0966 through Intent to File API', if: notification_type == :received do
+      let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
+      let(:expiration_date) { 1.year.from_now.strftime('%B %d, %Y') }
+      let(:data) do
+        fixture_path = Rails.root.join(
+          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0966.json'
+        )
+        JSON.parse(fixture_path.read)
+      end
+      let(:user) { create(:user, :loa3) }
+
+      context 'template_id is provided' do
+        context 'expiration_date is provided' do
+          let(:config) do
+            { form_data: data, form_number: 'vba_21_0966_intent_api',
+              confirmation_number: 'confirmation_number', date_submitted:, expiration_date: }
           end
 
           it 'sends the email' do
@@ -757,22 +810,70 @@ describe SimpleFormsApi::NotificationEmail do
             subject.send
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              'survivor@dependent.com',
-              "form21_0966_#{notification_type}_email_template_id",
+              user.va_profile_email,
+              'form21_0966_itf_api_received_email_template_id',
               {
-                'first_name' => 'I',
+                'first_name' => 'Veteran',
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
                 'lighthouse_updated_at' => nil,
-                'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                             ' (VA Form 21P-534 or VA Form 21P-534EZ)'
+                'intent_to_file_benefits' => 'survivors pension benefits',
+                'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                                   '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+                'itf_api_expiration_date' => expiration_date
               }
             )
+          end
+
+          context 'preparer is surviving dependent' do
+            before do
+              data['preparer_identification'] = 'SURVIVING_DEPENDENT'
+              config[:form_data] = data
+            end
+
+            it 'sends the email' do
+              allow(VANotify::EmailJob).to receive(:perform_async)
+
+              subject = described_class.new(config, notification_type:, user:)
+
+              subject.send
+
+              expect(VANotify::EmailJob).to have_received(:perform_async).with(
+                'survivor@dependent.com',
+                'form21_0966_itf_api_received_email_template_id',
+                {
+                  'first_name' => 'I',
+                  'date_submitted' => date_submitted,
+                  'confirmation_number' => 'confirmation_number',
+                  'lighthouse_updated_at' => nil,
+                  'intent_to_file_benefits' => 'survivors pension benefits',
+                  'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                                     '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+                  'itf_api_expiration_date' => expiration_date
+                }
+              )
+            end
+          end
+        end
+
+        context 'expiration_date is missing' do
+          let(:config) do
+            { form_data: data, form_number: 'vba_21_0966_intent_api',
+              confirmation_number: 'confirmation_number', date_submitted: }
+          end
+
+          it 'raises ArgumentError' do
+            expect { described_class.new(config, notification_type:, user:) }.to raise_error(ArgumentError)
           end
         end
       end
 
-      context 'template_id is missing', if: notification_type == :received do
+      context 'template_id is missing', unless: notification_type == :received do
+        let(:config) do
+          { form_data: data, form_number: 'vba_21_0966_intent_api',
+            confirmation_number: 'confirmation_number', date_submitted:, expiration_date: }
+        end
+
         let(:data) do
           fixture_path = Rails.root.join(
             'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_0966.json'

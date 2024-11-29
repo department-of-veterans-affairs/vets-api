@@ -71,6 +71,7 @@ module Users
         first_name: user.first_name,
         middle_name: user.middle_name,
         last_name: user.last_name,
+        preferred_name: user.preferred_name,
         birth_date: user.birth_date,
         gender: user.gender,
         zip: user.postal_code,

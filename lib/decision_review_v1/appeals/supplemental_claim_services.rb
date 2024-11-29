@@ -230,12 +230,12 @@ module DecisionReviewV1
       ##
       # Returns all of the data associated with a specific Supplemental Claim Evidence Submission.
       #
-      # @param uuid [uuid] supplemental Claim UUID Evidence Submission
+      # @param guid [guid] supplemental Claim UUID Evidence Submission
       # @return [Faraday::Response]
       #
-      def get_supplemental_claim_upload(uuid:)
+      def get_supplemental_claim_upload(guid:)
         with_monitoring_and_error_handling do
-          perform :get, "supplemental_claims/evidence_submissions/#{uuid}", nil
+          perform :get, "supplemental_claims/evidence_submissions/#{guid}", nil
         end
       end
 

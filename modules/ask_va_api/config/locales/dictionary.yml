@@ -1,0 +1,26 @@
+en:
+  ask_va_api:
+    veteran_relationship:
+      "ACCREDITED_REP": "VSO"
+      "FIDUCIARY": "Fiduciary"
+      "FUNERAL_DIR": "Funeral Director"
+      "TRAINING_OR_APPRENTICESHIP_SUP": "OJT/Apprenticeship Supervisor"
+      "SCO": "School Certifying Official"
+      "VA_EMPLOYEE": "VA Employee"
+      "WORK_STUDY_SUP": "Work Study Site Supervisor"
+      "Other": "Other (Business)"
+      "I'm the Veteran's spouse": "Spouse/Surviving Spouse"
+      "I'm the Veteran's child": "Child"
+      "I'm the Veteran's step child": "Child"
+      "I'm the Veteran's parent": "Parent"
+      "SPOUSE": "Spouse/Surviving Spouse"
+      "CHILD": "Child"
+      "STEPCHILD": "Child"
+      "PARENT": "Parent"
+      "NOT_LISTED": "Other (Personal)"
+    dependent_relationship:
+      "SPOUSE": "Spouse"
+      "CHILD": "Child"
+      "STEPCHILD": "Stepchild"
+      "PARENT": "Parent"
+      "NOT_LISTED": "Other"

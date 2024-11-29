@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'logging/call_location'
+require 'zero_silent_failures/monitor'
+
 class FormSubmissionAttempt < ApplicationRecord
   include AASM
 
@@ -121,7 +124,7 @@ class FormSubmissionAttempt < ApplicationRecord
     end
   rescue => e
     cl = caller_locations.first
-    call_location = ZeroSilentFailures::Monitor::CallLocation.new(
+    call_location = Logging::CallLocation.new(
       CentralMail::SubmitForm4142Job::ZSF_DD_TAG_FUNCTION, cl.path, cl.lineno
     )
     ZeroSilentFailures::Monitor.new(Form526Submission::ZSF_DD_TAG_SERVICE).log_silent_failure(
