@@ -144,7 +144,7 @@ jobs:
   update_labels:
     name: Update Test Status Labels
     needs: tests
-    if: github.event_name == 'pull_request'
+    if: always() && github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions: write-all
     steps:
