@@ -51,6 +51,17 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
         expect(response).to have_http_status(:ok)
       end
+
+      it 'returns a 500 error when supporting documents are submitted, but are missing from the database' do
+        allow_any_instance_of(Aws::S3::Client).to receive(:put_object).and_return(true)
+
+        # Actual supporting_docs should exist as records in the DB. This test
+        # ensures that if they aren't present we won't have a silent failure
+        data_with_docs = data.merge({ supporting_docs: [{ confirmation_code: 'NOT_IN_DATABASE' }] })
+        post '/ivc_champva/v1/forms', params: data_with_docs
+
+        expect(response).to have_http_status(:internal_server_error)
+      end
     end
   end
 
@@ -158,6 +169,19 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
                                'metadata' => {},
                                'attachment_ids' => %w[doc0 doc1] # Ensure this matches the sorted order
                              })
+    end
+
+    it 'throws an error when no matching supporting doc is present in the database' do
+      controller = IvcChampva::V1::UploadsController.new
+      parsed_form_data = {
+        'form_number' => '10-10D',
+        'supporting_docs' => [
+          { 'attachment_id' => 'doc0', 'confirmation_code' => 'NOT_IN_DATABASE' }
+        ]
+      }
+      expect do
+        controller.send(:supporting_document_ids, parsed_form_data)
+      end.to raise_error(NoMethodError)
     end
   end
 
