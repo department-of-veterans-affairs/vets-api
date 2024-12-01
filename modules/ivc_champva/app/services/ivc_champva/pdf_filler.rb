@@ -20,21 +20,13 @@ module IvcChampva
       @uuid = uuid if Flipper.enabled?(:champva_unique_temp_file_names, @user)
     end
 
-    # rubocop:disable Metrics/MethodLength
     def generate(current_loa = nil)
-      if Flipper.enabled?(:champva_unique_temp_file_names, @user)
-        generated_form_path = Rails.root.join("tmp/#{@uuid}_#{name}-tmp.pdf").to_s
-        stamped_template_path = Rails.root.join("tmp/#{@uuid}_#{name}-stamped.pdf").to_s
+      generated_form_path = Rails.root.join("tmp/#{@uuid}_#{name}-tmp.pdf").to_s
+      stamped_template_path = Rails.root.join("tmp/#{@uuid}_#{name}-stamped.pdf").to_s
 
-        tempfile = create_tempfile
-        FileUtils.touch(tempfile)
-        FileUtils.copy_file(tempfile.path, stamped_template_path)
-      else
-        template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
-        generated_form_path = "tmp/#{name}-tmp.pdf"
-        stamped_template_path = "tmp/#{name}-stamped.pdf"
-        FileUtils.copy(template_form_path, stamped_template_path)
-      end
+      tempfile = create_tempfile
+      FileUtils.touch(tempfile)
+      FileUtils.copy_file(tempfile.path, stamped_template_path)
 
       if File.exist? stamped_template_path
         begin
@@ -49,17 +41,14 @@ module IvcChampva
         raise "stamped template file does not exist: #{stamped_template_path}"
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     def create_tempfile
-      if Flipper.enabled?(:champva_unique_temp_file_names, @user)
-        # Tempfile workaround inspired by this:
-        #   https://github.com/actions/runner-images/issues/4443#issuecomment-965391736
-        template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
-        Tempfile.new(['', '.pdf'], Rails.root.join('tmp')).tap do |tmpfile|
-          IO.copy_stream(template_form_path, tmpfile)
-          tmpfile.close
-        end
+      # Tempfile workaround inspired by this:
+      #   https://github.com/actions/runner-images/issues/4443#issuecomment-965391736
+      template_form_path = "#{TEMPLATE_BASE}/#{form_number}.pdf"
+      Tempfile.new(['', '.pdf'], Rails.root.join('tmp')).tap do |tmpfile|
+        IO.copy_stream(template_form_path, tmpfile)
+        tmpfile.close
       end
     end
 
