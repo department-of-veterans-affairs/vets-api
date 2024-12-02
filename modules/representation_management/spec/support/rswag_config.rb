@@ -40,12 +40,12 @@ class RepresentationManagement::RswagConfig
 
   def schemas
     {
-      ErrorModel: error_model,
-      Errors: errors,
-      Error: error,
-      PowerOfAttorneyResponse: power_of_attorney_response,
-      VeteranServiceRepresentative: veteran_service_representative_schema,
-      VeteranServiceOrganization: veteran_service_organization_schema
+      errorModel: error_model,
+      errors: errors,
+      error: error,
+      powerOfAttorneyResponse: power_of_attorney_response,
+      veteranServiceRepresentative: veteran_service_representative_schema,
+      veteranServiceOrganization: veteran_service_organization_schema
     }
   end
 
@@ -92,7 +92,7 @@ class RepresentationManagement::RswagConfig
       properties: {
         errors: {
           type: :array,
-          items: { '$ref' => '#/components/schemas/Error' }
+          items: { '$ref' => '#/components/schemas/error' }
         }
       }
     }
@@ -177,7 +177,7 @@ class RepresentationManagement::RswagConfig
         properties: {
           data: {
             type: :array,
-            items: { '$ref' => '#/components/schemas/VeteranServiceOrganization' }
+            items: { '$ref' => '#/components/schemas/veteranServiceOrganization' }
           }
         }
       }

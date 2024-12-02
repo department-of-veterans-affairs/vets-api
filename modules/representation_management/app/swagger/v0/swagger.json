@@ -18,7 +18,7 @@
   ],
   "components": {
     "schemas": {
-      "ErrorModel": {
+      "errorModel": {
         "type": "object",
         "required": [
           "errors"
@@ -69,7 +69,7 @@
           }
         }
       },
-      "Errors": {
+      "errors": {
         "type": "object",
         "required": [
           "errors"
@@ -78,15 +78,15 @@
           "errors": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/Error"
+              "$ref": "#/components/schemas/error"
             }
           }
         }
       },
-      "Error": {
+      "error": {
         "type": "string"
       },
-      "PowerOfAttorneyResponse": {
+      "powerOfAttorneyResponse": {
         "type": "object",
         "properties": {
           "data": {
@@ -190,7 +190,7 @@
           }
         }
       },
-      "VeteranServiceRepresentative": {
+      "veteranServiceRepresentative": {
         "type": "object",
         "properties": {
           "data": {
@@ -297,7 +297,7 @@
                       "data": {
                         "type": "array",
                         "items": {
-                          "$ref": "#/components/schemas/VeteranServiceOrganization"
+                          "$ref": "#/components/schemas/veteranServiceOrganization"
                         }
                       }
                     }
@@ -308,7 +308,7 @@
           }
         }
       },
-      "VeteranServiceOrganization": {
+      "veteranServiceOrganization": {
         "type": "object",
         "properties": {
           "data": {
@@ -441,10 +441,10 @@
                   "items": {
                     "anyOf": [
                       {
-                        "$ref": "#/components/schemas/VeteranServiceRepresentative"
+                        "$ref": "#/components/schemas/veteranServiceRepresentative"
                       },
                       {
-                        "$ref": "#/components/schemas/VeteranServiceOrganization"
+                        "$ref": "#/components/schemas/veteranServiceOrganization"
                       }
                     ]
                   }
@@ -474,7 +474,7 @@
             "content": {
               "application/pdf": {
                 "schema": {
-                  "$ref": "#/components/schemas/Errors"
+                  "$ref": "#/components/schemas/errors"
                 }
               }
             }
@@ -706,7 +706,7 @@
                 "schema": {
                   "anyOf": [
                     {
-                      "$ref": "#/components/schemas/PowerOfAttorneyResponse"
+                      "$ref": "#/components/schemas/powerOfAttorneyResponse"
                     },
                     {
                       "type": "object",
@@ -724,7 +724,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorModel"
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
@@ -734,7 +734,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ErrorModel"
+                  "$ref": "#/components/schemas/errorModel"
                 }
               }
             }
