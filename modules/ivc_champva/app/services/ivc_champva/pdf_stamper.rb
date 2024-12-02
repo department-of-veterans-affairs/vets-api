@@ -62,7 +62,7 @@ module IvcChampva
 
       perform_multistamp(stamped_template_path, stamp_path)
     rescue => e
-      Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
+      Rails.logger.error 'IVC CHAMPVA forms api - Failed to generate stamped file', message: e.message
       raise
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
@@ -117,10 +117,12 @@ module IvcChampva
       raise StandardError, "An error occurred while verifying stamp: #{e}"
     end
 
-    def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration, *)
+    def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration, *args)
       raise StandardError, 'The provided stamp content was empty.' if stamp_text.blank?
 
-      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration, *) }
+      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration, *args) }
+    rescue => e
+      raise StandardError, "An error occurred while verifying multistamp stamp: #{e.message}"
     end
 
     def self.get_page_configuration(page, position)
