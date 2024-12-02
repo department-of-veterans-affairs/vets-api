@@ -11,7 +11,9 @@ module V0
       result = MAP::SecurityToken::Service.new.token(application: params[:application].to_sym, icn:, cache: false)
 
       render json: result, status: :ok
-    rescue Common::Client::Errors::ClientError, Common::Exceptions::GatewayTimeout
+    rescue Common::Client::Errors::ClientError,
+           Common::Exceptions::GatewayTimeout,
+           MAP::SecurityToken::Errors::InvalidTokenDurationError
       render json: sts_client_error, status: :bad_gateway
     rescue MAP::SecurityToken::Errors::ApplicationMismatchError
       render json: application_mismatch_error, status: :bad_request
