@@ -23,7 +23,6 @@ module IvcChampva
               { json: { error_message: 'Invalid JSON keys' }, status: :bad_request }
             end
 
-          monitor.track_update_status(data['form_uuid'], data['status'])
           render json: response[:json], status: response[:status]
         rescue JSON::ParserError => e
           render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
@@ -46,6 +45,7 @@ module IvcChampva
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
           send_email(form_uuid, ivc_forms.first) if form.email.present?
+          monitor.track_update_status(form_uuid, status)
 
           { json: {}, status: :ok }
         else
@@ -94,15 +94,15 @@ module IvcChampva
       def fetch_forms_by_uuid(form_uuid)
         @fetch_forms_by_uuid ||= IvcChampvaForm.where(form_uuid:)
       end
-    end
 
-    ##
-    # retreive a monitor for tracking
-    #
-    # @return [IvcChampva::Monitor]
-    #
-    def monitor
-      @monitor ||= IvcChampva::Monitor.new
+      ##
+      # retreive a monitor for tracking
+      #
+      # @return [IvcChampva::Monitor]
+      #
+      def monitor
+        @monitor ||= IvcChampva::Monitor.new
+      end
     end
   end
 end
