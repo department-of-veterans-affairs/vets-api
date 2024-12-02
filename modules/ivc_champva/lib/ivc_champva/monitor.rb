@@ -7,7 +7,7 @@ module IvcChampva
     STATS_KEY = 'api.ivc_champva_form'
 
     def initialize
-      super('ivc-champva-forms')
+      super('veteran-ivc-champva-forms')
     end
 
     # form_uuid: string of the uuid included in a form's metadata
@@ -28,7 +28,8 @@ module IvcChampva
         form_uuid:,
         status:
       }
-      track_request('info', "IVC ChampVA Forms - #{form_uuid} status updated to #{status}", "#{STATS_KEY}.update_status",
+      track_request('info', "IVC ChampVA Forms - #{form_uuid} status updated to #{status}",
+                    "#{STATS_KEY}.update_status",
                     call_location: caller_locations.first, **additional_context)
     end
   end
