@@ -43,10 +43,6 @@ module RES
     def format_payload_for_res
       form_data = claim_form_hash
 
-      time = Time.now # Current local time
-      cst_time = time.in_time_zone('Central Time (US & Canada)')
-      formatted_time = cst_time.strftime('%m/%d/%Y %I:%M %p CST')
-      puts formatted_time
       res_payload = {
         useEva: form_data['useEva'],
         receiveElectronicCommunication: form_data['receiveElectronicCommunication'],
@@ -60,7 +56,7 @@ module RES
         email: form_data['email'],
         documentId: form_data['documentId'],
         # RES asked specifically for UTC as MM/dd/yyyy hh:mm AM/PM EST
-        receivedDate: @claim.created_at.strftime('%m/%d/%Y %I:%M %p EST'),
+        receivedDate: @claim.created_at.to_date.strftime('%m/%d/%Y %I:%M %p EST'),
         veteranAddress: mapped_address_hash(form_data['veteranAddress'])
       }
 
