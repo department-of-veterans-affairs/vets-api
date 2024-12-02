@@ -190,7 +190,7 @@
           }
         }
       },
-      "veteran_service_representative": {
+      "VeteranServiceRepresentative": {
         "type": "object",
         "properties": {
           "data": {
@@ -297,7 +297,7 @@
                       "data": {
                         "type": "array",
                         "items": {
-                          "$ref": "#/components/schemas/veteran_service_organization"
+                          "$ref": "#/components/schemas/VeteranServiceOrganization"
                         }
                       }
                     }
@@ -308,7 +308,7 @@
           }
         }
       },
-      "veteran_service_organization": {
+      "VeteranServiceOrganization": {
         "type": "object",
         "properties": {
           "data": {
@@ -441,10 +441,10 @@
                   "items": {
                     "anyOf": [
                       {
-                        "$ref": "#/components/schemas/veteran_service_representative"
+                        "$ref": "#/components/schemas/VeteranServiceRepresentative"
                       },
                       {
-                        "$ref": "#/components/schemas/veteran_service_organization"
+                        "$ref": "#/components/schemas/VeteranServiceOrganization"
                       }
                     ]
                   }

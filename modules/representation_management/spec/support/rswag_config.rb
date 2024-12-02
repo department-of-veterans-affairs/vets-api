@@ -44,8 +44,8 @@ class RepresentationManagement::RswagConfig
       Errors: errors,
       Error: error,
       PowerOfAttorneyResponse: power_of_attorney_response,
-      veteran_service_representative: veteran_service_representative_schema,
-      veteran_service_organization: veteran_service_organization_schema
+      VeteranServiceRepresentative: veteran_service_representative_schema,
+      VeteranServiceOrganization: veteran_service_organization_schema
     }
   end
 
@@ -177,7 +177,7 @@ class RepresentationManagement::RswagConfig
         properties: {
           data: {
             type: :array,
-            items: { '$ref' => '#/components/schemas/veteran_service_organization' }
+            items: { '$ref' => '#/components/schemas/VeteranServiceOrganization' }
           }
         }
       }
