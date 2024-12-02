@@ -6,6 +6,12 @@ require_relative '../../lib/ivc_champva/monitor'
 RSpec.describe IvcChampva::Monitor do
   let(:monitor) { described_class.new }
 
+  before do
+    allow(Flipper).to receive(:enabled?)
+      .with(:champva_enhanced_monitor_logging, @current_user)
+      .and_return(true)
+  end
+
   context 'with params supplied' do
     describe '#track_update_status' do
       it 'logs sidekiq success' do

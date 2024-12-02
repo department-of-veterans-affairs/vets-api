@@ -51,7 +51,9 @@ module IvcChampva
         pega_status:
       )
 
-      monitor.track_insert_form(@metadata['uuid'], @form_id)
+      if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
+        monitor.track_insert_form(@metadata['uuid'], @form_id)
+      end
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error("Database Insertion Error for #{@metadata['uuid']}: #{e.message}")
     end

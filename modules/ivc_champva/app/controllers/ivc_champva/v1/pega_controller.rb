@@ -45,7 +45,10 @@ module IvcChampva
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
           send_email(form_uuid, ivc_forms.first) if form.email.present?
-          monitor.track_update_status(form_uuid, status)
+
+          if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
+            monitor.track_update_status(form_uuid, status)
+          end
 
           { json: {}, status: :ok }
         else
