@@ -10,6 +10,7 @@ module V0
   class ClaimDocumentsController < ApplicationController
     service_tag 'claims-shared'
     skip_before_action(:authenticate)
+    before_action :load_user
 
     def create
       uploads_monitor.track_document_upload_attempt(form_id, current_user)
