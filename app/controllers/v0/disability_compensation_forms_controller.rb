@@ -16,15 +16,16 @@ module V0
     before_action :validate_name_part, only: [:suggested_conditions]
 
     def rated_disabilities
+      invoker = 'V0::DisabilityCompensationFormsController#rated_disabilities'
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:rated_disabilities],
         provider: nil,
-        options: { icn: @current_user.icn.to_s, auth_headers: },
+        options: { icn: @current_user.icn.to_s, auth_headers:, invoker: },
         current_user: @current_user,
         feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
       )
 
-      response = api_provider.get_rated_disabilities
+      response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
 
       render json: RatedDisabilitiesSerializer.new(response)
     end
