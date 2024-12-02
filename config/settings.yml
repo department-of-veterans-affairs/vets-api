@@ -1365,8 +1365,11 @@ vanotify:
         form_10_7959f_1_email: form_10_7959f_1_email
         form_10_7959f_1_failure_email: form_10_7959f_1_failure_email
         form_10_7959f_2_email: form_10_7959f_2_email
+        form_10_7959f_2_failure_email: form_10_7959f_2_failure_email
         form_10_7959c_email: form_10_7959c_email
+        form_10_7959c_failure_email: form_10_7959c_failure_email
         form_10_7959a_email: form_10_7959a_email
+        form_10_7959a_failure_email: form_10_7959a_failure_email
     health_apps_1010:
       api_key: fake_secret
       template_id:
