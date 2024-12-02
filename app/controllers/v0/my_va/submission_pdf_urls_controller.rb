@@ -5,7 +5,8 @@ require 'simple_forms_api/form_remediation/configuration/vff_config'
 module V0
   module MyVA
     class SubmissionPdfUrlsController < ApplicationController
-      service_tag 'form-submission-pdf-urls'
+      before_action :check_flipper_flag
+      service_tag 'form-submission-pdf'
 
       VFF_FORMS = %w[20-10206 20-10207 21-0845 21-0966 21-0972 21-10210
                      21-4138 21-4142 21P-0847 26-4555 40-0247 40-10007].freeze
@@ -39,6 +40,11 @@ module V0
           :form_id,
           :submission_guid
         )
+      end
+
+      def check_flipper_flag
+        raise Common::Exceptions::Forbidden unless Flipper.enabled?(:my_va_form_submission_pdf_link,
+                                                                    current_user)
       end
     end
   end

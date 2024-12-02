@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
+require 'feature_flipper'
 
 MOCK_URL = 'https://example.com/file1.pdf'
 MOCK_GUID = '3b03b5a0-3ad9-4207-b61e-3a13ed1c8b80'
@@ -15,6 +16,7 @@ RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
 
   before do
     sign_in_as(user)
+    Flipper.enable('my_va_form_submission_pdf_link')
   end
 
   describe 'POST /v0/my_va/submission_pdf_urls' do
@@ -62,6 +64,17 @@ RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
       it 'raises Validation error when given extra params' do
         post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, guid: MOCK_GUID, extra: 'boo!' })
         expect(response).to have_http_status(:bad_request)
+      end
+    end
+
+    context 'when feature toggle is disabled' do
+      before do
+        Flipper.disable('my_va_form_submission_pdf_link')
+      end
+
+      it 'raises Forbidden error' do
+        post('/v0/my_va/submission_pdf_urls', params: { form_id: VALID_FORM_ID, guid: MOCK_GUID })
+        expect(response).to have_http_status(:forbidden)
       end
     end
   end
