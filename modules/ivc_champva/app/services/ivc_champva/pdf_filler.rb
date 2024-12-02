@@ -4,9 +4,7 @@ require 'common/file_helpers'
 
 module IvcChampva
   class PdfFiller
-    attr_accessor :form, :form_number, :name
-
-    attr_accessor :uuid if Flipper.enabled?(:champva_unique_temp_file_names, @user)
+    attr_accessor :form, :form_number, :name, :uuid
 
     TEMPLATE_BASE = Rails.root.join('modules', 'ivc_champva', 'templates')
 
@@ -17,7 +15,7 @@ module IvcChampva
       @form = form
       @form_number = form_number
       @name = name || form_number
-      @uuid = uuid if Flipper.enabled?(:champva_unique_temp_file_names, @user)
+      @uuid = uuid
     end
 
     def generate(current_loa = nil)
