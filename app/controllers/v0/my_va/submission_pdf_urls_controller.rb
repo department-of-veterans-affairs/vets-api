@@ -11,9 +11,9 @@ module V0
           form_id: request_params[:form_id],
           submission_guid: request_params[:submission_guid]
         ).fetch_url
-      
+
         raise Common::Exceptions::RecordNotFound, request_params[:submission_guid] unless url.is_a?(String)
-      
+
         render json: { url: }
       end
 

@@ -1,7 +1,10 @@
+# frozen_string_literal: true
+
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 class SubmissionPdfUrlService
-  VFF_FORMS = %w[20-10206 20-10207 21-0845 21-0966 21-0972 21-10210 21-4138 21-4142 21P-0847 26-4555 40-0247 40-10007].freeze
+  VFF_FORMS = %w[20-10206 20-10207 21-0845 21-0966 21-0972 21-10210 21-4138 21-4142 21P-0847 26-4555 40-0247
+                 40-10007].freeze
 
   def initialize(form_id:, submission_guid:)
     @form_id = form_id
