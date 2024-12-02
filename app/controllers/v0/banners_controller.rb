@@ -11,7 +11,7 @@ module V0
       return render json: { error: 'Path parameter is required' }, status: :unprocessable_entity if path.blank?
 
       banners = Banner.where(entity_bundle: banner_type).by_path(path)
-      render json: { banners:, path:, banner_type: }
+      render json: { banners: banners, path: path, banner_type: banner_type }
     end
 
     private
