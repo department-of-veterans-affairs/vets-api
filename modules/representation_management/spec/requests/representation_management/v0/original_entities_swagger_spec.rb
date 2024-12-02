@@ -44,7 +44,7 @@ RSpec.describe 'Original Entities',
       parameter name: :query, in: :query, type: :string, description: 'Search query'
 
       response '200', 'OK' do
-        let(:query) { 'zach' }
+        let(:query) { 'Bob' }
         schema type: :array,
                items: {
                  anyOf: [

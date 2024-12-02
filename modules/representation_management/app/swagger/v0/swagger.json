@@ -297,7 +297,7 @@
                       "data": {
                         "type": "array",
                         "items": {
-                          "$ref": "#/components/schemas/accredited_organization"
+                          "$ref": "#/components/schemas/veteran_service_organization"
                         }
                       }
                     }

@@ -177,7 +177,7 @@ class RepresentationManagement::RswagConfig
         properties: {
           data: {
             type: :array,
-            items: { '$ref' => '#/components/schemas/accredited_organization' }
+            items: { '$ref' => '#/components/schemas/veteran_service_organization' }
           }
         }
       }
