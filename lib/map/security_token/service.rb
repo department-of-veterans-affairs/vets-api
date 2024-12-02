@@ -41,13 +41,7 @@ module MAP
                            config.token_path,
                            token_params(application, icn),
                            { 'Content-Type' => 'application/x-www-form-urlencoded' })
-        current_time = Time.zone.now
-        parsed_response = parse_response(response, application, icn, current_time)
-        if parsed_response[:expiration] > (current_time + config.max_token_duration)
-          raise Errors::InvalidTokenDurationError, "#{config.logging_prefix} token failed, token duration exceeds maximum"
-        else
-          parsed_response
-        end
+        parse_response(response, application, icn)
       end
 
       def parse_and_raise_error(e, icn, application)
@@ -61,13 +55,19 @@ module MAP
         raise e, "#{message}, status: #{status}, application: #{application}, icn: #{icn}, context: #{context}"
       end
 
-      def parse_response(response, application, icn, current_time)
+      def parse_response(response, application, icn)
         response_body = response.body
+        if response_body['expires_in'].to_i > config.max_token_duration
+          raise Errors::InvalidTokenDurationError,
+                "#{config.logging_prefix} token failed, token duration exceeds maximum"
+        end
 
         {
           access_token: response_body['access_token'],
-          expiration: current_time + response_body['expires_in']
+          expiration: Time.zone.now + response_body['expires_in']
         }
+      rescue Errors::InvalidTokenDurationError => e
+        raise e
       rescue => e
         message = "#{config.logging_prefix} token failed, response unknown"
         Rails.logger.error(message, application:, icn:)
