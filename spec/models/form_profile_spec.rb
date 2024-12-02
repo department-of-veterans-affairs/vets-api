@@ -1034,6 +1034,30 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vdispute_debt_expected) do
+    {
+      'veteran' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12',
+        'homePhone' => '14445551212',
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        }
+      }
+    }
+  end
+
   let(:initialize_va_profile_prefill_military_information_expected) do
     expected_service_episodes_by_date = [
       {
@@ -1248,7 +1272,6 @@ RSpec.describe FormProfile, type: :model do
       else
         form_id
       end.tap do |schema_form_id|
-        binding.pry
         schema = strip_required(VetsJsonSchema::SCHEMAS[schema_form_id]).except('anyOf')
         schema_data = prefilled_data.deep_dup
         errors = JSON::Validator.fully_validate(
@@ -1419,7 +1442,7 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'returns a prefilled DisputeDebt form' do
-        expect_prefilled('dispute_debt')
+        expect_prefilled('DISPUTE-DEBT')
       end
     end
 
