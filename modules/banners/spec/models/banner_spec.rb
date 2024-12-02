@@ -25,7 +25,7 @@ Rspec.describe Banner, type: :model do
     expect(new_banner.errors[:headline]).to include("can't be blank")
   end
 
-  describe '.by_path' do
+  describe '.by_path_and_type' do
     let(:path) { '/va-facility-health-care' }
     let(:banner_type) { 'full_width_banner_alert' }
 
@@ -74,14 +74,14 @@ Rspec.describe Banner, type: :model do
              ])
     end
 
-    it 'returns banners that match the path type for both direct entityUrls and fieldOffice.entity.entityUrls' do
-      result = Banner.by_path(path)
+    it 'returns banners that match the path and banner type' do
+      result = Banner.by_path_and_type(path, banner_type)
 
       expect(result).to contain_exactly(matching_banner1, matching_banner2)
     end
 
-    it 'does not return banners that do not match the path' do
-      result = Banner.by_path(path)
+    it 'does not return banners that do not match the path or banner type' do
+      result = Banner.by_path_and_type(path, banner_type)
 
       expect(result).not_to include(non_matching_banner)
     end

@@ -6,18 +6,13 @@ module V0
     skip_before_action :authenticate
 
     def by_path
+      path = params[:path]
       # Default to 'full_width_banner_alert' banner (bundle) type.
       banner_type = params.fetch(:type, 'full_width_banner_alert')
-      return render json: { error: 'Path parameter is required' }, status: :unprocessable_entity if path.blank?
-
-      banners = Banner.where(entity_bundle: banner_type).by_path(path)
-      render json: { banners:, path:, banner_type: }
-    end
-
-    private
-
-    def path
-      params[:path]
+      banners = []
+      banners = Banner.by_path_and_type(path, banner_type) if path && banner_type
+      response = { banners: banners, path: path, banner_type: banner_type }
+      render json: response
     end
   end
 end
