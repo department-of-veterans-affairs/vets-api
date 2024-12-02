@@ -5,8 +5,8 @@ on:
     branches: master
 
 jobs:
-  check-approval-requirements:
-    name: Check Approval Requirements
+  require-backend-approval:
+    name: Require Backend Approval
     if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
     permissions: write-all
     runs-on: ubuntu-latest
