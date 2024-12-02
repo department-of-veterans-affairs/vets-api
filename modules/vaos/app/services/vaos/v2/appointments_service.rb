@@ -721,8 +721,7 @@ module VAOS
         modality = nil
         if appointment[:service_type] == 'covid'
           modality = 'vaInPersonVaccine'
-        elsif !appointment[:service_category].nil? &&
-              appointment[:service_category][0][:text] == 'COMPENSATION & PENSION'
+        elsif appointment.dig(:service_category, 0, :text) == 'COMPENSATION & PENSION'
           modality = 'claimExamAppointment'
         elsif appointment[:kind] == 'clinic'
           modality = 'vaInPerson'
