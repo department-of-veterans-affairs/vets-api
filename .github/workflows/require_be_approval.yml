@@ -1,4 +1,4 @@
-name: Require backend-review-group approval
+name: Require Backend-review-group Approval
 on:
   pull_request_review:
     types: [submitted]
