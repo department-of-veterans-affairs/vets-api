@@ -137,6 +137,25 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       expect(actual).to eq('HOUSING_WILL_BE_LOST_IN_30_DAYS')
     end
 
+    it 'removes a blank veteran.changeOfAddress.zipLastFour' do
+      change_of_address = {
+        'beginningDate' => (Time.zone.now + 1.month).to_date.to_s,
+        'endingDate' => (Time.zone.now + 6.months).to_date.to_s,
+        'addressChangeType' => 'TEMPORARY',
+        'addressLine1' => '1234 Couch Street',
+        'city' => 'New York City',
+        'state' => 'NY',
+        'type' => 'DOMESTIC',
+        'zipFirstFive' => '12345',
+        'zipLastFour' => '',
+        'country' => 'USA'
+      }
+
+      pending_record.form_data['veteran']['changeOfAddress'] = change_of_address
+      payload = JSON.parse(pending_record.to_internal)
+      expect(payload['form526']['veteran']['changeOfAddress']).not_to have_key('zipLastFour')
+    end
+
     context 'when homelessness risk situation type is "other" and "otherLivingSituation" is not provided' do
       it 'does not add "otherLivingSituation" to pass EVSS validation' do
         temp_form_data = pending_record.form_data
