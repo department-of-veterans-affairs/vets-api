@@ -4394,7 +4394,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "fcc53ace-c32e-4547-b6d1-e54f7750446b",
+                        "id": "1c4b30a7-520b-4eb4-b9de-ab1a26ee24d4",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4579,7 +4579,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-11-29"
+                              "anticipatedSeparationDate": "2024-12-04"
                             },
                             "confinements": [
                               {
@@ -4625,7 +4625,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "6fcf0316-48bd-438d-8eb4-02ccdfce8f6d",
+                        "id": "c4b3e30b-6c8a-459e-9e77-c5e2c413c18f",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4789,7 +4789,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2024-11-29",
+                                "activeDutyEndDate": "2024-12-04",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -4810,7 +4810,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-11-29"
+                              "anticipatedSeparationDate": "2024-12-04"
                             },
                             "confinements": [
                               {
@@ -8053,7 +8053,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2024-11-29",
+                              "activeDutyEndDate": "2024-12-04",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -8074,7 +8074,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-11-29"
+                            "anticipatedSeparationDate": "2024-12-04"
                           },
                           "confinements": [
                             {
@@ -9838,7 +9838,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7634fecb-97a6-4be7-86e4-f4a04170efee",
+                    "id": "c7bf5f3c-1781-44ae-af52-7ea31d970238",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13580,8 +13580,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-11-27",
-                      "expirationDate": "2025-11-27",
+                      "creationDate": "2024-12-02",
+                      "expirationDate": "2025-12-02",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14477,7 +14477,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "dba0da5c-b8f8-4ff8-9ed3-3a445d051368",
+                    "id": "a9fbe587-d95a-46b8-b1a6-65262ed11e91",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14813,7 +14813,7 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -14908,7 +14908,7 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address. Required if claimant information provided.",
+                                    "description": "State or province code for the address. Required if claimant information provided.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -15028,7 +15028,7 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -15252,7 +15252,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "262b36c5-7d3d-4633-8a3f-e87bc8a923b8",
+                    "id": "d57d6212-a5ec-4564-9acf-488a64a4496a",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15571,7 +15571,7 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -15677,7 +15677,7 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address. Required if claimant information provided.",
+                                    "description": "State or province code for the address. Required if claimant information provided.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -16264,7 +16264,7 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -16359,7 +16359,7 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address. Required if claimant information provided.",
+                                    "description": "State or province code for the address. Required if claimant information provided.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -16479,7 +16479,7 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -16934,7 +16934,7 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -17040,7 +17040,7 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address. Required if claimant information provided.",
+                                    "description": "State or province code for the address. Required if claimant information provided.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -17255,10 +17255,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f1a69201-e32b-4189-b76a-2121c2077c46",
+                    "id": "4ec954c8-b02c-4bc8-8d80-2ec540f966a6",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-11-27",
+                      "dateRequestAccepted": "2024-12-02",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
