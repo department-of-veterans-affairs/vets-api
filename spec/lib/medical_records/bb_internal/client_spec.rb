@@ -198,6 +198,163 @@ describe BBInternal::Client do
         expect(error.errors.first[:detail]).to eq('Patient not found')
       end
     end
+
+    describe '#get_sei_vital_signs_summary' do
+      it 'retrieves the SEI vital signs' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_vital_signs_summary' do
+          response = client.get_sei_vital_signs_summary
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('bloodPreassureReadings')
+          expect(response).to have_key('bloodSugarReadings')
+          expect(response).to have_key('bodyTemperatureReadings')
+          expect(response).to have_key('bodyWeightReadings')
+          expect(response).to have_key('cholesterolReadings')
+          expect(response).to have_key('heartRateReadings')
+          expect(response).to have_key('inrReadings')
+          expect(response).to have_key('lipidReadings')
+          expect(response).to have_key('painReadings')
+          expect(response).to have_key('pulseOximetryReadings')
+        end
+      end
+    end
+
+    describe '#get_sei_allergies' do
+      it 'retrieves the SEI allergies' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_allergies' do
+          response = client.get_sei_allergies
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+          expect(response['pojoObject'][0]).to have_key('allergiesId')
+        end
+      end
+    end
+
+    describe '#get_sei_family_health_history' do
+      it 'retrieves the SEI family health history' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_family_health_history' do
+          response = client.get_sei_family_health_history
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+          expect(response['pojoObject'][0]).to have_key('relationship')
+        end
+      end
+    end
+
+    describe '#get_sei_immunizations' do
+      it 'retrieves the SEI immunizations' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_immunizations' do
+          response = client.get_sei_immunizations
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+          expect(response['pojoObject'][0]).to have_key('immunizationId')
+        end
+      end
+    end
+
+    describe '#get_sei_test_entries' do
+      it 'retrieves the SEI test entries' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_test_entries' do
+          response = client.get_sei_test_entries
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+        end
+      end
+    end
+
+    describe '#get_sei_medical_events' do
+      it 'retrieves the SEI medical events' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_medical_events' do
+          response = client.get_sei_medical_events
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+          expect(response['pojoObject'][0]).to have_key('medicalEventId')
+        end
+      end
+    end
+
+    describe '#get_sei_military_history' do
+      it 'retrieves the SEI miltary history' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_military_history' do
+          response = client.get_sei_military_history
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+          expect(response['pojoObject'][0]).to have_key('serviceBranch')
+        end
+      end
+    end
+
+    describe '#get_sei_healthcare_providers' do
+      it 'retrieves the SEI healthcare providers' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_healthcare_providers' do
+          response = client.get_sei_healthcare_providers
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('healthCareProviderId')
+        end
+      end
+    end
+
+    describe '#get_sei_health_insurance' do
+      it 'retrieves the SEI health insurance' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_health_insurance' do
+          response = client.get_sei_health_insurance
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('healthInsuranceId')
+        end
+      end
+    end
+
+    describe '#get_sei_treatment_facilities' do
+      it 'retrieves the SEI treatment facilities' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_treatment_facilities' do
+          response = client.get_sei_treatment_facilities
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('treatmentFacilityId')
+        end
+      end
+    end
+
+    describe '#get_sei_food_journal' do
+      it 'retrieves the SEI food journal' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_food_journal' do
+          response = client.get_sei_food_journal
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('foodJournalId')
+        end
+      end
+    end
+
+    describe '#get_sei_activity_journal' do
+      it 'retrieves the SEI activity journal' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_activity_journal' do
+          response = client.get_sei_activity_journal
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('activityJournalId')
+        end
+      end
+    end
+
+    describe '#get_sei_medications' do
+      it 'retrieves the SEI activity journal' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_medications' do
+          response = client.get_sei_medications
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('medicationId')
+        end
+      end
+    end
   end
 
   describe '#get_demographic_info' do
