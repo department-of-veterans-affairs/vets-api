@@ -850,6 +850,7 @@ lib/caseflow @department-of-veterans-affairs/lighthouse-banana-peels @department
 lib/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/chip @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
 lib/claim_letters @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/claim_documents/monitor.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 lib/clamav @department-of-veterans-affairs/backend-review-group
 lib/common/client/base.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/common/client/concerns/mhv_fhir_session_client.rb @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1113,6 +1114,7 @@ spec/controllers/v0/benefits_claims_controller_spec.rb @department-of-veterans-a
 spec/controllers/v0/benefits_reference_data_controller_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/burial_claims_controller_spec.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/caregivers_assistance_claims_controller_spec.rb @department-of-veterans-affairs/vfs-10-10
+spec/controllers/v0/claim_documents_controller_spec.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/claim_letters_controller_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/contact_us @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/debt_letters_controller_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
@@ -1417,6 +1419,7 @@ spec/lib/carma @department-of-veterans-affairs/vfs-10-10 @department-of-veterans
 spec/lib/caseflow @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/chip @department-of-veterans-affairs/vsa-healthcare-health-quest-1-backend @department-of-veterans-affairs/patient-check-in @department-of-veterans-affairs/backend-review-group
+spec/lib/claim_documents/monitor_spec.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 spec/lib/claim_status_tool @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/common/client/concerns/mhv_fhir_session_client_spec.rb @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/common/client/concerns/mhv_jwt_session_client_spec.rb @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
