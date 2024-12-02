@@ -1248,6 +1248,7 @@ RSpec.describe FormProfile, type: :model do
       else
         form_id
       end.tap do |schema_form_id|
+        binding.pry
         schema = strip_required(VetsJsonSchema::SCHEMAS[schema_form_id]).except('anyOf')
         schema_data = prefilled_data.deep_dup
         errors = JSON::Validator.fully_validate(
@@ -1407,6 +1408,18 @@ RSpec.describe FormProfile, type: :model do
         VCR.use_cassette('mdot/get_supplies_200') do
           expect_prefilled('MDOT')
         end
+      end
+    end
+
+    context 'with a user that can prefill DisputeDebt' do
+      before do
+        allow_any_instance_of(BGS::People::Service).to(
+          receive(:find_person_by_participant_id).and_return(BGS::People::Response.new({ file_nbr: '796043735' }))
+        )
+      end
+
+      it 'returns a prefilled DisputeDebt form' do
+        expect_prefilled('dispute_debt')
       end
     end
 
