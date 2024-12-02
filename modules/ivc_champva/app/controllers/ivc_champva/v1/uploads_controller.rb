@@ -89,8 +89,22 @@ module IvcChampva
       end
 
       def supporting_document_ids(parsed_form_data)
-        parsed_form_data['supporting_docs']&.pluck('attachment_id')&.compact.presence ||
-          parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
+        cached_uploads = []
+        parsed_form_data['supporting_docs']&.each do |d|
+          # Get the database record that corresponds to this file upload:
+          record = PersistentAttachments::MilitaryRecords.find_by(guid: d['confirmation_code'])
+          # Push to our array with some extra information so we can sort by date uploaded:
+          cached_uploads.push({ attachment_id: d['attachment_id'],
+                                created_at: record.created_at,
+                                file_name: record.file.id })
+        end
+
+        # Sort by date created so we have the file's upload order and
+        # reduce down to just the attachment id strings:
+        attachment_ids = cached_uploads.sort_by { |h| h[:created_at] }.pluck(:attachment_id)&.compact.presence
+
+        # Return either the attachment IDs or `claim_id`s (in the case of form 10-7959a):
+        attachment_ids || parsed_form_data['supporting_docs']&.pluck('claim_id')&.compact.presence || []
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
