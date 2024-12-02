@@ -44,8 +44,8 @@ class RepresentationManagement::RswagConfig
       Errors: errors,
       Error: error,
       PowerOfAttorneyResponse: power_of_attorney_response,
-      accredited_individual: accredited_individual_schema,
-      accredited_organization: accredited_organization_schema
+      veteran_service_representative: veteran_service_representative_schema,
+      veteran_service_organization: veteran_service_organization_schema
     }
   end
 
@@ -162,14 +162,16 @@ class RepresentationManagement::RswagConfig
     }
   end
 
-  def accredited_individual_schema
+  def veteran_service_representative_schema
     attributes = address_properties.merge(
       first_name: { type: :string, example: 'John' },
       last_name: { type: :string, example: 'Doe' },
       full_name: { type: :string, example: 'John Doe' },
       phone: { type: :string, example: '555-555-5555' },
       email: { type: :string, example: 'john.doe@example.com' },
-      individual_type: { type: :string, example: 'Attorney' },
+      individual_type: {        type: :string,
+                                enum: %w[attorney claim_agents veteran_service_officer],
+                                example: 'attorney' },
       accredited_organizations: {
         type: :object,
         properties: {
@@ -180,10 +182,10 @@ class RepresentationManagement::RswagConfig
         }
       }
     )
-    accredited_data_structure('representative', attributes)
+    accredited_data_structure('individual', attributes)
   end
 
-  def accredited_organization_schema
+  def veteran_service_organization_schema
     attributes = address_properties.merge(
       poa_code: { type: :string, example: '123' },
       name: { type: :string, example: 'Organization Name' },

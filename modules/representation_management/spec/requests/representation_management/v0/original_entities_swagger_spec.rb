@@ -48,8 +48,8 @@ RSpec.describe 'Original Entities',
         schema type: :array,
                items: {
                  anyOf: [
-                   { '$ref' => '#/components/schemas/accredited_individual' },
-                   { '$ref' => '#/components/schemas/accredited_organization' }
+                   { '$ref' => '#/components/schemas/veteran_service_representative' },
+                   { '$ref' => '#/components/schemas/veteran_service_organization' }
                  ]
                }
         run_test!

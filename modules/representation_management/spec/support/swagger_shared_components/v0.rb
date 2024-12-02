@@ -4,18 +4,11 @@ module SwaggerSharedComponents
   class V0
     def self.body_examples
       {
-        original_entities: original_entities,
         original_entities_parameter:,
         pdf_generator2122:,
         pdf_generator2122_parameter:
       }
     end
-
-    # def self.original_entities
-    #   {
-    #     query: 'Bob'
-    #   }
-    # end
 
     def self.pdf_generator2122
       {
