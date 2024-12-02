@@ -82,6 +82,7 @@ jobs:
       backend_approval_required: ${{ steps.check_backend_requirement.outputs.backend_approval_required }}
     steps:
       - name: Check Backend Requirement
+        id: check_backend_requirement
         if: ${{ contains(fromJSON(env.pr_requested_teams), 'backend-review-group') }}
         run: |
           echo "backend_approval_required=true" >> $GITHUB_OUTPUT
