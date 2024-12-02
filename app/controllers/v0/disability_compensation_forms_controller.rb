@@ -182,7 +182,8 @@ module V0
     # while SavedClaim (vets-json-schema) is expecting a string
     def temp_separation_location_fix
       if form_content.is_a?(Hash) && form_content['form526'].is_a?(Hash)
-        separation_location_code = form_content.dig('form526', 'serviceInformation', 'separationLocation')
+        separation_location_code = form_content.dig('form526', 'serviceInformation', 'separationLocation',
+                                                    'separationLocationCode')
         unless separation_location_code.nil?
           form_content['form526']['serviceInformation']['separationLocation']['separationLocationCode'] =
             separation_location_code.to_s

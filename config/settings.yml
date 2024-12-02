@@ -345,24 +345,6 @@ modules_appeals_api:
       api_key: ""
     supplemental_claims:
       api_key: ""
-  # The token generation values below are only used for development rake tasks.
-  token_generation:
-    ccg:
-      config_uri: "https://dev-api.va.gov/oauth2/appeals/system/v1/.well-known/openid-configuration"
-      # Get a client ID by submitting your public jwk here - make sure to check the boxes for the APIs under
-      # "Client Credentials Grant APIs": https://developer.va.gov/onboarding/request-sandbox-access
-      client_id: ""
-      # Absolute path to the private key file matching the jwk:
-      private_key_path: ""
-    auth:
-      config_uri: "https://dev-api.va.gov/oauth2/appeals/v1/.well-known/openid-configuration"
-      # Get a client ID/secret by submitting this form - make sure to check the boxes for the APIs under
-      # "Authorization Code Flow APIs": https://developer.va.gov/onboarding/request-sandbox-access
-      client_id: ""
-      client_secret: ""
-      redirect_uri: ""
-      user_email: ""
-      user_password: ""
   slack:
     api_key: ""
     appeals_channel_id: ""
@@ -490,6 +472,8 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
+  search:
+    use_mocks: false
   lce:
     use_mocks: false
 
@@ -1847,6 +1831,7 @@ vaos:
     client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
     access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
-    api_url: "https://api.wellhive.com/care-navigation/v1"
+    api_url: "https://api.wellhive.com"
+    base_path: "care-navigation/v1"
     scopes: "care-nav"
 
