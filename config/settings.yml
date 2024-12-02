@@ -345,24 +345,6 @@ modules_appeals_api:
       api_key: ""
     supplemental_claims:
       api_key: ""
-  # The token generation values below are only used for development rake tasks.
-  token_generation:
-    ccg:
-      config_uri: "https://dev-api.va.gov/oauth2/appeals/system/v1/.well-known/openid-configuration"
-      # Get a client ID by submitting your public jwk here - make sure to check the boxes for the APIs under
-      # "Client Credentials Grant APIs": https://developer.va.gov/onboarding/request-sandbox-access
-      client_id: ""
-      # Absolute path to the private key file matching the jwk:
-      private_key_path: ""
-    auth:
-      config_uri: "https://dev-api.va.gov/oauth2/appeals/v1/.well-known/openid-configuration"
-      # Get a client ID/secret by submitting this form - make sure to check the boxes for the APIs under
-      # "Authorization Code Flow APIs": https://developer.va.gov/onboarding/request-sandbox-access
-      client_id: ""
-      client_secret: ""
-      redirect_uri: ""
-      user_email: ""
-      user_password: ""
   slack:
     api_key: ""
     appeals_channel_id: ""
@@ -490,6 +472,8 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
+  search:
+    use_mocks: false
   lce:
     use_mocks: false
 
@@ -1381,8 +1365,11 @@ vanotify:
         form_10_7959f_1_email: form_10_7959f_1_email
         form_10_7959f_1_failure_email: form_10_7959f_1_failure_email
         form_10_7959f_2_email: form_10_7959f_2_email
+        form_10_7959f_2_failure_email: form_10_7959f_2_failure_email
         form_10_7959c_email: form_10_7959c_email
+        form_10_7959c_failure_email: form_10_7959c_failure_email
         form_10_7959a_email: form_10_7959a_email
+        form_10_7959a_failure_email: form_10_7959a_failure_email
     health_apps_1010:
       api_key: fake_secret
       template_id:

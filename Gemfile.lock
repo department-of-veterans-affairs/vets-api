@@ -603,7 +603,7 @@ GEM
     jruby-openssl (0.15.1-java)
     json (2.7.5)
     json (2.7.5-java)
-    json-schema (5.0.1)
+    json-schema (5.1.0)
       addressable (~> 2.8)
     json_schema (0.21.0)
     json_schemer (2.3.0)
