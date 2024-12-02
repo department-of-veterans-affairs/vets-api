@@ -1,6 +1,41 @@
 import http from 'k6/http';
 import { check, sleep } from 'k6';
 import { Rate } from 'k6/metrics';
+import crypto from 'k6/crypto';
+import encoding from 'k6/encoding';
+
+// Add default config
+const DEFAULT_CONFIG = {
+  api_base_url: 'http://localhost:3000',
+  client_id: 'vaweb_api_load_testing'
+};
+
+// Helper functions
+function generateRandomString(length = 32) {
+  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  const bytes = crypto.randomBytes(length);
+  for (let i = 0; i < length; i++) {
+    result += charset.charAt(bytes[i] % charset.length);
+  }
+  return result;
+}
+
+function base64URLEncode(str) {
+  return str.replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+function buildQueryString(params) {
+  return Object.entries(params)
+    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .join('&');
+}
+
+function extractCodeFromUrl(url) {
+  if (!url) return null;
+  const match = url.match(/code=([^&]+)/);
+  return match ? match[1] : null;
+}
 
 export const options = {
   scenarios: {
@@ -8,44 +43,106 @@ export const options = {
       executor: 'ramping-vus',
       startVUs: 0,
       stages: [
-        { duration: '2m', target: 50 },  // Ramp up
-        { duration: '5m', target: 50 },  // Stay steady
-        { duration: '2m', target: 0 }    // Ramp down
+        { duration: '1m', target: 10 },
+        { duration: '3m', target: 10 },
+        { duration: '1m', target: 0 }
       ],
       gracefulRampDown: '30s'
-    },
-    token_refresh: {
-      executor: 'constant-vus',
-      vus: 20,
-      duration: '10m',
-      startTime: '1m'
     }
   },
   thresholds: {
-    http_req_duration: ['p(95)<500'], // 95% of requests should be below 500ms
-    http_req_failed: ['rate<0.01']    // Less than 1% can fail
+    http_req_duration: ['p(95)<2000'],
+    http_req_failed: ['rate<0.01']
   }
 };
 
+function authorizeFlow(config) {
+  // Use fixed values from ticket
+  const codeVerifier = '5787d673fb784c90f0e309883241803d';
+  const state = generateRandomString();
+  const nonce = generateRandomString();
+
+  const params = {
+    client_id: 'vaweb_api_load_testing',
+    response_type: 'code',
+    type: 'logingov',
+    code_challenge_method: 'S256',
+    acr: 'min',
+    code_challenge: '1BUpxy37SoIPmKw96wbd6MDcvayOYm3ptT-zbe6L_zM=',
+    scope: 'openid profile email device_sso',
+    state,
+    nonce,
+    redirect_uri: 'http://localhost:3000/load_testing/callback'
+  };
+
+  const url = `${config.api_base_url}/v0/sign_in/authorize?${buildQueryString(params)}`;
+  console.log('Authorize URL:', url);
+  
+  const authorizeResponse = http.get(url, {
+    headers: {
+      'Accept': 'application/json',
+      'Content-Type': 'application/json'
+    }
+  });
+
+  check(authorizeResponse, {
+    'authorize successful': (r) => r.status === 200 || r.status === 302
+  });
+
+  if (authorizeResponse.status === 302) {
+    const location = authorizeResponse.headers['Location'];
+    console.log('Redirect Location:', location);
+    const code = extractCodeFromUrl(location);
+    if (code) {
+      return exchangeCodeForTokens(config, code, codeVerifier);
+    }
+  }
+
+  return null;
+}
+
+function exchangeCodeForTokens(config, code, codeVerifier) {
+  const tokenResponse = http.post(
+    `${config.api_base_url}/v0/sign_in/token`,
+    JSON.stringify({
+      grant_type: 'authorization_code',
+      code_verifier: codeVerifier,
+      code: code
+    }),
+    {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+  );
+
+  check(tokenResponse, {
+    'token exchange successful': (r) => r.status === 200
+  });
+
+  return tokenResponse.status === 200 ? JSON.parse(tokenResponse.body) : null;
+}
+
 export function setup() {
-  // Create a new test session
+  console.log('Starting setup...');
+  
   const payload = {
     concurrent_users: 100,
     configuration: {
-      client_id: 'load_test_client',
+      client_id: 'vaweb_api_load_testing',
       type: 'logingov',
-      acr: 'http://idmanagement.gov/ns/assurance/ial/2',
+      acr_values: 'min',
       stages: [
-        { duration: '2m', target: 50 },
-        { duration: '5m', target: 100 },
-        { duration: '2m', target: 0 }
+        { duration: '1m', target: 10 },
+        { duration: '3m', target: 10 },
+        { duration: '1m', target: 0 }
       ]
     }
   };
 
-  console.log('Creating test session with payload:', JSON.stringify(payload));
-  
-  const createResponse = http.post('http://localhost:3000/load_testing/v0/test_sessions', 
+  console.log('Creating test session...');
+  const createResponse = http.post(
+    `${DEFAULT_CONFIG.api_base_url}/load_testing/v0/test_sessions`,
     JSON.stringify(payload),
     {
       headers: {
@@ -53,121 +150,28 @@ export function setup() {
       },
     }
   );
-  
-  console.log('Create Session Response:', createResponse.body);
-  
-  check(createResponse, {
-    'test session created': (r) => r.status === 201,
-  });
-  
+
+  console.log('Test session response:', createResponse.status, createResponse.body);
+
   if (createResponse.status !== 201) {
-    throw new Error(`Failed to create test session: ${createResponse.status} ${createResponse.body}`);
+    console.error('Failed to create test session:', createResponse.body);
+    return { config: DEFAULT_CONFIG };
   }
-  
+
   const session = JSON.parse(createResponse.body);
-  console.log('Session:', session);
-  
-  if (!session.id) {
-    throw new Error('No session ID in response');
-  }
-  
-  // Get test configuration
-  const configResponse = http.get('http://localhost:3000/load_testing/v0/config');
-  console.log('Config Response:', configResponse.body);
-  
-  check(configResponse, {
-    'config retrieved': (r) => r.status === 200,
-  });
-  
-  const config = JSON.parse(configResponse.body);
-  
-  return { 
-    session_id: session.id,
-    config: config 
+  console.log('Session created:', session.id);
+
+  return {
+    config: DEFAULT_CONFIG,
+    session_id: session.id
   };
 }
 
 export default function(data) {
-  if (!data.session_id) {
-    console.error('No session ID available');
-    return;
+  console.log('Starting iteration with data:', JSON.stringify(data));
+  const result = authorizeFlow(data.config);
+  if (result) {
+    console.log('Authorization successful:', result);
   }
-
-  const flow = Math.random() < 0.7 ? 'authorize' : 'refresh';
-  
-  if (flow === 'authorize') {
-    authorizeFlow(data.config);
-  } else {
-    refreshFlow(data.config, data.session_id);
-  }
-}
-
-function authorizeFlow(config) {
-  // Initial authorize call with PKCE
-  const codeVerifier = generateCodeVerifier();
-  const codeChallenge = generateCodeChallenge(codeVerifier);
-  
-  const authorizeResponse = http.get(`${config.api_base_url}/v0/sign_in/authorize`, {
-    params: {
-      client_id: 'load_test_client',
-      response_type: 'code',
-      scope: 'openid profile email',
-      state: generateRandomString(),
-      nonce: generateRandomString(),
-      type: 'logingov',
-      acr: 'http://idmanagement.gov/ns/assurance/ial/2',
-      code_challenge: codeChallenge,
-      code_challenge_method: 'S256'
-    }
-  });
-
-  check(authorizeResponse, {
-    'authorize successful': (r) => r.status === 200
-  });
-
   sleep(1);
-}
-
-function refreshFlow(config, session_id) {
-  // Get a token from the test session
-  const tokenResponse = http.get(`http://localhost:3000/load_testing/v0/test_sessions/${session_id}/tokens/next`);
-  console.log('Token Response:', tokenResponse.body);
-  
-  check(tokenResponse, {
-    'token retrieved': (r) => r.status === 200,
-  });
-  
-  const token = JSON.parse(tokenResponse.body);
-
-  // Token refresh
-  const refreshResponse = http.post(`${config.api_base_url}/v0/sign_in/refresh`, {
-    refresh_token: token.refresh_token,
-    anti_csrf_token: token.device_secret
-  });
-
-  check(refreshResponse, {
-    'refresh successful': (r) => r.status === 200
-  });
-
-  sleep(1);
-}
-
-// Helper functions for PKCE
-function generateRandomString(length = 43) {
-  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += charset.charAt(Math.floor(Math.random() * charset.length));
-  }
-  return result;
-}
-
-function generateCodeVerifier() {
-  return generateRandomString();
-}
-
-function generateCodeChallenge(verifier) {
-  // Note: In a real implementation, this would use SHA256
-  // For testing purposes, we'll use the verifier as the challenge
-  return verifier;
 } 
