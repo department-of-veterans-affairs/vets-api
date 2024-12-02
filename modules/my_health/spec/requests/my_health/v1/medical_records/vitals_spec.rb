@@ -83,4 +83,34 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vitals', type: :request do
       end
     end
   end
+
+  context 'Premium User when use_oh_data_path is true' do
+    let(:mhv_account_type) { 'Premium' }
+    let(:current_user) { build(:user, :mhv, va_patient:, mhv_account_type:, icn: '23000219') }
+
+    before do
+      sign_in_as(current_user)
+
+      allow(Flipper).to receive(:enabled?).with(:mhv_accelerated_delivery_enabled,
+                                                instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:mhv_medical_records_new_eligibility_check).and_return(false)
+    end
+
+    it 'responds to GET #index' do
+      VCR.use_cassette('mr_client/get_a_list_of_vitals_oh_data_path') do
+        get '/my_health/v1/medical_records/vitals?from=2019-11&to=2019-11&use_oh_data_path=1'
+      end
+
+      expect(response).to be_successful
+      expect(response.body).to be_a(String)
+
+      body = JSON.parse(response.body)
+      expect(body['entry']).to be_an(Array)
+      expect(body['entry'].size).to be 6
+
+      item = body['entry'][2]
+      expect(item['resource']['resourceType']).to eq('Observation')
+      expect(item['resource']['code']['text']).to eq('Body Weight')
+    end
+  end
 end

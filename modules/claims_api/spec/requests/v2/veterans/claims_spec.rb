@@ -4,6 +4,7 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
+require 'bgs_service/person_web_service'
 require 'concerns/claims_api/v2/claims_requests/supporting_documents'
 
 RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
@@ -38,12 +39,41 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
       profile: FactoryBot.build(:mpi_profile, icn: '667711332299')
     )
   end
+  let(:person_web_service) do
+    if Flipper.enabled? :claims_api_use_person_web_service
+      ClaimsApi::PersonWebService.new(
+        external_uid: target_veteran.participant_id,
+        external_key: target_veteran.participant_id
+      )
+    else
+      ClaimsApi::LocalBGS.new(
+        external_uid: target_veteran.participant_id,
+        external_key: target_veteran.participant_id
+      )
+    end
+  end
+  let(:target_veteran) do
+    OpenStruct.new(
+      icn: '1013062086V794840',
+      first_name: 'abraham',
+      last_name: 'lincoln',
+      loa: { current: 3, highest: 3 },
+      ssn: '796111863',
+      edipi: '8040545646',
+      participant_id: '600061742',
+      mpi: OpenStruct.new(
+        icn: '1013062086V794840',
+        profile: OpenStruct.new(ssn: '796111863')
+      )
+    )
+  end
 
   describe 'Claims' do
     before do
       allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return false
       allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
       allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
+      allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
     end
 
     describe 'index' do
@@ -845,8 +875,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                       allow(local_bgs_service)
                         .to receive_messages(find_benefit_claim_details_by_benefit_claim_id: bgs_claim,
-                                             find_by_ssn: nil, find_tracked_items: { dvlpmt_items: [] })
-
+                                             find_tracked_items: { dvlpmt_items: [] })
+                      allow(person_web_service).to receive(:find_by_ssn).with('123456789').and_return(nil)
                       get claim_by_id_path, headers: auth_header
 
                       json_response = JSON.parse(response.body)
@@ -898,7 +928,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                       allow(local_bgs_service)
                         .to receive_messages(find_benefit_claim_details_by_benefit_claim_id: bgs_claim,
-                                             find_by_ssn: nil, find_tracked_items: { dvlpmt_items: [] })
+                                             find_tracked_items: { dvlpmt_items: [] })
+                      allow(person_web_service).to receive(:find_by_ssn).with('1233456789').and_return(nil)
 
                       get claim_by_id_path, headers: auth_header
 
@@ -948,7 +979,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
 
                       allow(local_bgs_service)
                         .to receive_messages(find_benefit_claim_details_by_benefit_claim_id: bgs_claim,
-                                             find_by_ssn: nil, find_tracked_items: { dvlpmt_items: [] })
+                                             find_tracked_items: { dvlpmt_items: [] })
+                      allow(person_web_service).to receive(:find_by_ssn).with('796043735').and_return('796043735')
 
                       benefits_doc_api = double
                       allow_any_instance_of(ClaimsApi::V2::Veterans::ClaimsController)
