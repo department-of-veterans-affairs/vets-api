@@ -41,7 +41,7 @@ RSpec.describe 'Original Entities',
       produces 'application/json'
       operationId 'Original Entities'
 
-      parameter name: :query, in: :query, type: :string, description: 'Search query'
+      parameter name: :query, in: :query, type: :string, description: 'Search query', example: 'Bob'
 
       response '200', 'OK' do
         let(:query) { 'Bob' }

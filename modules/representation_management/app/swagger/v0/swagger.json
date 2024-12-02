@@ -425,6 +425,7 @@
             "name": "query",
             "in": "query",
             "description": "Search query",
+            "example": "Bob",
             "schema": {
               "type": "string"
             }
