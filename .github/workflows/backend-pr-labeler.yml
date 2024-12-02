@@ -104,6 +104,7 @@ jobs:
         id: audit_pr_labels
         run: |
           if \
+            ${{ contains(env.pr_labels, 'audit-service-failure') }} || \
             ${{ contains(env.pr_labels, 'code-health-failure') }} || \
             ${{ contains(env.pr_labels, 'codeowners-addition-failure') }} || \
             ${{ contains(env.pr_labels, 'codeowners-delete-failure') }} || \
