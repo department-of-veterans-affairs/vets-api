@@ -472,6 +472,8 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
+  search:
+    use_mocks: false
   lce:
     use_mocks: false
 
