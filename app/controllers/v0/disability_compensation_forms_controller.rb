@@ -20,7 +20,7 @@ module V0
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:rated_disabilities],
         provider: nil,
-        options: { icn: @current_user.icn.to_s, auth_headers:, invoker: },
+        options: { icn: @current_user.icn.to_s, auth_headers: },
         current_user: @current_user,
         feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
       )
