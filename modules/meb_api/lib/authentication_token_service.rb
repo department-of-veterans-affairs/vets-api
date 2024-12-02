@@ -6,9 +6,9 @@ module MebApi
     TYP = 'JWT'
     KID = 'vanotify'
     SIGNING_KEY = Settings.dgi.jwt.private_key_path
-    RSA_PRIVATE = OpenSSL::PKey::RSA.new(File.read(SIGNING_KEY)) if File.exist?(SIGNING_KEY)
+    RSA_PRIVATE = OpenSSL::PKey::RSA.new(File.read(SIGNING_KEY))
     DECODING_KEY = Settings.dgi.jwt.public_key_path
-    RSA_PUBLIC = OpenSSL::PKey::RSA.new(File.read(DECODING_KEY)) if File.exist?(DECODING_KEY)
+    RSA_PUBLIC = OpenSSL::PKey::RSA.new(File.read(DECODING_KEY))
 
     def self.call
       payload = {
