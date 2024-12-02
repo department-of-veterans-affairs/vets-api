@@ -55,8 +55,7 @@ module RES
         internationalNumber: form_data['internationalNumber'],
         email: form_data['email'],
         documentId: form_data['documentId'],
-        # RES asked specifically for UTC as MM/dd/yyyy hh:mm AM/PM EST
-        receivedDate: @claim.created_at.to_date.strftime('%m/%d/%Y %I:%M %p EST'),
+        receivedDate: @claim.created_at.iso8601, # e.g. "2024-12-02T17:36:52Z"
         veteranAddress: mapped_address_hash(form_data['veteranAddress'])
       }
 
