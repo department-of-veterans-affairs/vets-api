@@ -3,6 +3,15 @@
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
+shared_examples 'an error notification email' do
+  it 'increments StatsD' do
+    allow(StatsD).to receive(:increment)
+
+    expect { described_class.new(config, notification_type: :error) }.to raise_error(ArgumentError)
+    expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
+  end
+end
+
 describe SimpleFormsApi::NotificationEmail do
   %i[confirmation error received].each do |notification_type|
     describe '#initialize' do
@@ -27,14 +36,7 @@ describe SimpleFormsApi::NotificationEmail do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
 
-        context 'error email', if: notification_type == :error do
-          it 'increments StatsD' do
-            allow(StatsD).to receive(:increment)
-
-            expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
-            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
-          end
-        end
+        it_behaves_like 'an error notification email' if notification_type == :error
       end
 
       context 'missing form_number' do
@@ -47,14 +49,7 @@ describe SimpleFormsApi::NotificationEmail do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
 
-        context 'error email', if: notification_type == :error do
-          it 'increments StatsD' do
-            allow(StatsD).to receive(:increment)
-
-            expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
-            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
-          end
-        end
+        it_behaves_like 'an error notification email' if notification_type == :error
       end
 
       context 'missing confirmation_number' do
@@ -66,14 +61,7 @@ describe SimpleFormsApi::NotificationEmail do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
 
-        context 'error email', if: notification_type == :error do
-          it 'increments StatsD' do
-            allow(StatsD).to receive(:increment)
-
-            expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
-            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
-          end
-        end
+        it_behaves_like 'an error notification email' if notification_type == :error
       end
 
       context 'missing date_submitted' do
@@ -85,14 +73,7 @@ describe SimpleFormsApi::NotificationEmail do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
 
-        context 'error email', if: notification_type == :error do
-          it 'increments StatsD' do
-            allow(StatsD).to receive(:increment)
-
-            expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
-            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
-          end
-        end
+        it_behaves_like 'an error notification email' if notification_type == :error
       end
 
       context 'form not supported' do
@@ -105,14 +86,7 @@ describe SimpleFormsApi::NotificationEmail do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
 
-        context 'error email', if: notification_type == :error do
-          it 'increments StatsD' do
-            allow(StatsD).to receive(:increment)
-
-            expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
-            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
-          end
-        end
+        it_behaves_like 'an error notification email' if notification_type == :error
       end
     end
 
