@@ -603,7 +603,7 @@ GEM
     jruby-openssl (0.15.1-java)
     json (2.7.5)
     json (2.7.5-java)
-    json-schema (5.0.1)
+    json-schema (5.1.0)
       addressable (~> 2.8)
     json_schema (0.21.0)
     json_schemer (2.3.0)
@@ -729,7 +729,7 @@ GEM
     openssl (3.2.0-java)
       jruby-openssl (~> 0.14)
     operating_hours (0.1.0)
-    optimist (3.1.0)
+    optimist (3.2.0)
     os (1.1.4)
     ostruct (0.6.1)
     ox (2.14.18)
@@ -1041,7 +1041,7 @@ GEM
     stringio (3.1.2)
     strong_migrations (2.0.2)
       activerecord (>= 6.1)
-    super_diff (0.13.0)
+    super_diff (0.14.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff

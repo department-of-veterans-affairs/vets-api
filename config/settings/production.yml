@@ -42,3 +42,51 @@ google_analytics_cvu:
   type: service_account
 hca:
   ca: []
+lighthouse:
+  benefits_intake:
+    path: /services/vba_documents
+    use_mocks: false
+    version: v1
+  veteran_verification:
+    form526:
+      use_mocks: false
+maintenance:
+  services:
+    bgs: P5Q2OCZ
+modules_appeals_api:
+  legacy_appeals_enabled: true
+  schema_dir: config/schemas
+mvi:
+  pii_logging: false
+session_cookie:
+  secure: true
+sidekiq_admin_panel: false
+sidekiq:
+  github_organization: department-of-veterans-affairs
+va_profile:
+  contact_information:
+    cache_enabled: true
+    enabled: true
+    mock: false
+    timeout: 30
+  demographics:
+    cache_enabled: false
+    enabled: true
+    mock: false
+    timeout: 30
+  military_personnel:
+    cache_enabled: false
+    enabled: true
+    mock: false
+    timeout: 30
+  veteran_status:
+    mock: false
+vba_documents:
+  enable_validate_document_endpoint: true
+  s3:
+    enabled: true
+  slack:
+    daily_notification_hour: 7
+    in_flight_notification_hung_time_in_days: 14
+    renotification_in_minutes: 1440
+    update_stalled_notification_in_minutes: 180
