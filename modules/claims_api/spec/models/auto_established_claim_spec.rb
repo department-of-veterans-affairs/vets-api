@@ -139,8 +139,8 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
     it 'removes a blank veteran.changeOfAddress.zipLastFour' do
       change_of_address = {
-        'beginningDate' => (Time.zone.now + 1.month).to_date.to_s,
-        'endingDate' => (Time.zone.now + 6.months).to_date.to_s,
+        'beginningDate' => 1.month.from_now.to_date.to_s,
+        'endingDate' => 6.months.from_now.to_date.to_s,
         'addressChangeType' => 'TEMPORARY',
         'addressLine1' => '1234 Couch Street',
         'city' => 'New York City',
@@ -240,7 +240,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     end
 
     describe 'handles &amp in service branch for separation pay' do
-      it ' and retrieves payment' do
+      it 'and retrieves payment' do
         temp_form_data = pending_record.form_data
         temp_form_data.merge!(
           {
@@ -266,7 +266,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     end
 
     describe 'handles &amp in service branch for militaryRetiredPay' do
-      it ' and retrieves payment' do
+      it 'and retrieves payment' do
         temp_form_data = pending_record.form_data
         temp_form_data.merge!(
           {
@@ -292,7 +292,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     end
 
     describe 'handles & in service branch for militaryRetiredPay' do
-      it ' and retrieves payment' do
+      it 'and retrieves payment' do
         temp_form_data = pending_record.form_data
         temp_form_data.merge!(
           {
@@ -340,7 +340,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       context "when 'changeOfAddress' is provided" do
         let(:change_of_address) do
           {
-            'beginningDate' => (Time.zone.now + 1.month).to_date.to_s,
+            'beginningDate' => 1.month.from_now.to_date.to_s,
             'endingDate' => ending_date,
             'addressChangeType' => address_change_type,
             'addressLine1' => '1234 Couch Street',
@@ -351,7 +351,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
             'country' => 'USA'
           }
         end
-        let(:ending_date) { (Time.zone.now + 6.months).to_date.to_s }
+        let(:ending_date) { 6.months.from_now.to_date.to_s }
 
         context "when 'changeOfAddress.addressChangeType' is 'TEMPORARY'" do
           let(:address_change_type) { 'TEMPORARY' }
@@ -399,7 +399,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           let(:address_change_type) { 'PERMANENT' }
 
           context "and 'changeOfAddress.endingDate' is provided" do
-            let(:ending_date) { (Time.zone.now + 6.months).to_date.to_s }
+            let(:ending_date) { 6.months.from_now.to_date.to_s }
 
             it "removes the 'changeOfAddress.endingDate'" do
               pending_record.form_data['veteran']['changeOfAddress'] = change_of_address
@@ -598,13 +598,13 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
     context 'with no record' do
       it 'returns nil' do
-        expect(described_class.evss_id_by_token('thisisntatoken')).to be(nil)
+        expect(described_class.evss_id_by_token('thisisntatoken')).to be_nil
       end
     end
 
     context 'with record without evss id' do
       it 'returns nil' do
-        expect(described_class.evss_id_by_token(pending_record.token)).to be(nil)
+        expect(described_class.evss_id_by_token(pending_record.token)).to be_nil
       end
     end
   end
@@ -628,7 +628,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
   describe '#set_file_data!' do
     it 'stores the file_data and give me a full evss document' do
       file = Rack::Test::UploadedFile.new(
-        ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
+        Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
       )
 
       auto_form.set_file_data!(file, 'docType')
@@ -669,7 +669,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
     end
 
     context "when 'treatments.startDate' is not included" do
-      it "does not include 'treatment.startDate' after transformation " do
+      it "does not include 'treatment.startDate' after transformation" do
         treatments = [
           {
             'center' => {
@@ -804,7 +804,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
 
       context "when a 'disability.name' only has valid characters" do
         it 'nothing is changed' do
-          name_with_only_valid_characters = "abc \-'.,/()123"
+          name_with_only_valid_characters = "abc -'.,/()123"
           pending_record.form_data['disabilities'].first['name'] = name_with_only_valid_characters
 
           payload = JSON.parse(pending_record.to_internal)
@@ -844,7 +844,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
         it "does not erase the 'file_data' attribute" do
           auto_form = build(:auto_established_claim, :established, auth_headers: { some: 'data' })
           file = Rack::Test::UploadedFile.new(
-            ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
+            Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
           )
 
           auto_form.set_file_data!(file, 'docType')
