@@ -7,6 +7,8 @@ module Banners
   class Updater
     STATSD_KEY_PREFIX = 'banners.updater'
 
+    class BannerDataFetchError < StandardError; end
+
     # If banners are to be added in the future, include them here by adding
     # another #update_{type_of}_banners method for #perform to call
     def self.perform
@@ -70,8 +72,8 @@ module Banners
 
       begin
         JSON.parse(response.body).dig('data', 'nodeQuery', 'entities')
-      rescue JSON::ParserError
-        []
+      rescue JSON::ParserError => e
+        raise BannerDataFetchError, "Failed to parse VAMC banner data: #{e.message}"
       end
     end
   end
