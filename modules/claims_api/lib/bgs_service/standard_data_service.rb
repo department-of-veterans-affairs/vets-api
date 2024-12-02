@@ -6,10 +6,6 @@ module ClaimsApi
       'StandardDataService'
     end
 
-    def data
-      self
-    end
-
     def get_contention_classification_type_code_list
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <getContentionClassificationTypeCodeList/>

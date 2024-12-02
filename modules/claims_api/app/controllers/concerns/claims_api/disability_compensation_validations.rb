@@ -430,7 +430,7 @@ module ClaimsApi
                                                  external_uid: Settings.bgs.external_uid,
                                                  external_key: Settings.bgs.external_key
                                                )
-                                               contention_service.data.get_contention_classification_type_code_list
+                                               contention_service.get_contention_classification_type_code_list
                                              else
                                                bgs_service.data.get_contention_classification_type_code_list
                                              end
