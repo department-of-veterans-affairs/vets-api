@@ -8,7 +8,6 @@ module CARMA
       include Common::Client::Concerns::Monitoring
 
       STATSD_KEY_PREFIX = 'api.carma.mulesoft.auth'
-      AUTH_TOKEN_PATH = 'oauth2/ause1x1h6Zit9ziQL0j6/v1/token'
       GRANT_TYPE = 'client_credentials'
       SCOPE = 'DTCWriteResource'
 
@@ -19,7 +18,7 @@ module CARMA
       def new_bearer_token
         with_monitoring do
           response = perform(:post,
-                             AUTH_TOKEN_PATH,
+                             auth_token_path,
                              params,
                              token_headers,
                              { timeout: config.timeout })
@@ -54,6 +53,10 @@ module CARMA
 
       def client_secret
         config.settings.client_secret
+      end
+
+      def auth_token_path
+        config.settings.auth_token_path
       end
     end
   end
