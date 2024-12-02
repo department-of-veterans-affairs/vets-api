@@ -1066,7 +1066,6 @@ modules/vye @department-of-veterans-affairs/backend-review-group @department-of-
 postman/vets-api.pm-collection.json @department-of-veterans-affairs/backend-review-group
 postman/Dockerfile @department-of-veterans-affairs/backend-review-group
 public @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-rakelib/appeals_api_oauth.rake @department-of-veterans-affairs/backend-review-group
 rakelib/breakers_outage.rake @department-of-veterans-affairs/backend-review-group
 rakelib/connectivity.rake @department-of-veterans-affairs/octo-identity
 rakelib/covid_vaccine.rake @department-of-veterans-affairs/va-cto-health-products @department-of-veterans-affairs/backend-review-group
