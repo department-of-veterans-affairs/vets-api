@@ -31,7 +31,7 @@ module MHV
           start = Time.current
           request.call
         end
-        duration_ms = cache_hit == false ? ((Time.current - start) * 1000).round(2) : nil
+        duration_ms = cache_hit ? nil : (Time.current - start).seconds.in_milliseconds
 
         Rails.logger.info("#{config.logging_prefix} create_account success",
                           { icn:, account:, duration_ms:, from_cache: cache_hit }.compact)
