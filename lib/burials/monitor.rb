@@ -73,7 +73,7 @@ module Burials
         user_account_uuid: current_user&.user_account_uuid,
         tags:
       }
-      track_request('error', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt",
+      track_request('info', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt",
                     call_location: caller_locations.first, **additional_context)
     end
 
