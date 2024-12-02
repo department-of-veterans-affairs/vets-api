@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ivc_champva/monitor'
+
 module IvcChampva
   class FileUploader
     def initialize(form_id, metadata, file_paths, insert_db_row = false) # rubocop:disable Style/OptionalBooleanParameter
@@ -48,6 +50,8 @@ module IvcChampva
         s3_status: response_status,
         pega_status:
       )
+
+      monitor.track_insert_form(@metadata['uuid'], @form_id)
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error("Database Insertion Error for #{@metadata['uuid']}: #{e.message}")
     end
@@ -88,6 +92,15 @@ module IvcChampva
       return nil unless email.present? && email.match?(/\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i)
 
       email
+    end
+
+    ##
+    # retreive a monitor for tracking
+    #
+    # @return [IvcChampva::Monitor]
+    #
+    def monitor
+      @monitor ||= IvcChampva::Monitor.new
     end
   end
 end

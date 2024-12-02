@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ivc_champva/monitor'
+
 module IvcChampva
   module V1
     class PegaController < SignIn::ServiceAccountApplicationController
@@ -21,6 +23,7 @@ module IvcChampva
               { json: { error_message: 'Invalid JSON keys' }, status: :bad_request }
             end
 
+          monitor.track_update_status(data['form_uuid'], data['status'])
           render json: response[:json], status: response[:status]
         rescue JSON::ParserError => e
           render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
@@ -91,6 +94,15 @@ module IvcChampva
       def fetch_forms_by_uuid(form_uuid)
         @fetch_forms_by_uuid ||= IvcChampvaForm.where(form_uuid:)
       end
+    end
+
+    ##
+    # retreive a monitor for tracking
+    #
+    # @return [IvcChampva::Monitor]
+    #
+    def monitor
+      @monitor ||= IvcChampva::Monitor.new
     end
   end
 end
