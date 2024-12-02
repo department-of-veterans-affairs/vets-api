@@ -278,8 +278,7 @@ module ClaimsApi
       end
     end
 
-    # rubocop:disable Metrics/ParameterLists
-    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength
+    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
           f.use :breakers
@@ -313,7 +312,6 @@ module ClaimsApi
         transform_response ? transform_keys(parsed_response) : parsed_response
       end
     end
-    # rubocop:enable Metrics/ParameterLists
 
     def namespace(connection, endpoint)
       ClaimsApi::LocalBGSRefactored::FindDefinition

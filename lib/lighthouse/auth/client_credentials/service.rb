@@ -30,8 +30,8 @@ module Auth
         @tracker = AccessTokenTracker
         super()
       end
-
       # rubocop:enable Metrics/ParameterLists
+
       ##
       # Request an access token
       #

@@ -51,13 +51,14 @@ module SAML
           )
         end
       end
-      # rubocop:enable Metrics/ParameterLists
+
       saml_response = SAML::Responses::Login.new(document_partial(authn_context).to_s)
       allow(saml_response).to receive_messages(issuer_text: issuer, assertion_encrypted?: true, attributes:,
                                                validate: true, decrypted_document: document_partial(authn_context),
                                                in_response_to:)
       saml_response
     end
+    # rubocop:enable Metrics/ParameterLists
 
     def build_invalid_saml_response(in_response_to:, decrypted_document:, errors:, status_message:)
       saml_response = SAML::Responses::Login.new(decrypted_document.to_s)
