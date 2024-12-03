@@ -692,16 +692,16 @@ module VAOS
 
       def set_type(appointment)
         is_cerner = appointment[:id].start_with?('CERN')
-        if is_cerner
-          type = if appointment[:end].present?
+        type = if is_cerner
+                 if appointment[:end].present?
                    APPOINTMENT_TYPES[:va]
                  elsif appointment[:requested_periods].present?
                    appointment[:kind] == 'cc' ? APPOINTMENT_TYPES[:cc_request] : APPOINTMENT_TYPES[:request]
                  else
                    APPOINTMENT_TYPES[:request]
                  end
-        else
-          type = if appointment[:kind] == 'cc'
+               else
+                 if appointment[:kind] == 'cc'
                    if appointment[:start].present?
                      APPOINTMENT_TYPES[:cc_appointment]
                    elsif appointment[:requested_periods].present?
@@ -714,7 +714,8 @@ module VAOS
                  else
                    APPOINTMENT_TYPES[:va]
                  end
-        end
+               end
+        
         appointment[:type] = type
       end
 
