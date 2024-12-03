@@ -89,7 +89,7 @@ module ClaimsApi
           collect_error_messages(
             source: '/claimant/address/',
             detail: "If claimant is present 'address' must be filled in " \
-                    "with required fields addressLine1, city, stateCode and country. If the stateCode is 'US' " \
+                    "with required fields addressLine1, city, stateCode and country. If the country is 'US' " \
                     'then zipCode is also required.'
           )
         else
@@ -144,7 +144,7 @@ module ClaimsApi
         if address['zipCode'].blank?
           collect_error_messages(
             source: "/#{base}/address/zipCode",
-            detail: "If 'countryCode' is 'US' then 'zipCode' is required."
+            detail: "If 'country' is 'US' then 'zipCode' is required."
           )
         end
       end
