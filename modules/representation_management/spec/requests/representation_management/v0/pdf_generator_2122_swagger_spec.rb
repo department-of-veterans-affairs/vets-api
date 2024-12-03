@@ -37,7 +37,7 @@ RSpec.describe 'PDF Generator 21-22', openapi_spec: 'modules/representation_mana
           params[:veteran][:name].delete(:first)
           params
         end
-        schema '$ref' => '#/components/schemas/Errors'
+        schema '$ref' => '#/components/schemas/errors'
         run_test!
       end
     end
