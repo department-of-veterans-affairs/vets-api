@@ -446,6 +446,10 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :v2, defaults: { format: 'json' } do
+    resources :higher_level_reviews, only: %i[create show]
+  end
+
   root 'v0/example#index', module: 'v0'
 
   scope '/services' do

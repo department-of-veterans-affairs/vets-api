@@ -17,7 +17,7 @@ describe Eps::Configuration do
     context 'when VAOS_DEBUG is set and not in production' do
       it 'sets up the connection with a stdout logger to display requests in curl format' do
         allow(ENV).to receive(:[]).and_call_original
-        allow(ENV).to receive(:[]).with('VAOS_DEBUG').and_return('true')
+        allow(ENV).to receive(:[]).with('VAOS_EPS_DEBUG').and_return('true')
         allow(Rails.env).to receive(:production?).and_return(false)
 
         conn = Eps::Configuration.instance.connection
