@@ -140,8 +140,16 @@ module VANotify
     def self.call(notification)
       case notification.status
       when 'delivered'
+        # success
         StatsD.increment('api.vanotify.notifications.delivered')
       when 'permanent-failure'
+        # delivery failed
+        # possibly log error or increment metric and use the optional metadata - notification_record.metadata
+        StatsD.increment('api.vanotify.notifications.permanent_failure')
+        Rails.logger.error(notification_id: notification.notification_id, source: notification.source_location,
+                           status: notification.status, status_reason: notification.status_reason)
+      when 'temporary-failure'
+        # the api will continue attempting to deliver - success is still possible
         StatsD.increment('api.vanotify.notifications.permanent_failure')
         Rails.logger.error(notification_id: notification.notification_id, source: notification.source_location,
                            status: notification.status, status_reason: notification.status_reason)
@@ -159,13 +167,17 @@ end
 
 Here is an example:
 ```
-VANotify::EmailJob.perform_async(
-  email_address,
-  template_id,
-  template_params,
-  Settings.vanotify.services.va_gov.api_key,
-  { callback: 'ExampleTeam::NotificationCallbacks', metadata: 'option metadata here'}
-)
+if Flipper.enabled?(:{ExampleTeam}_notification_callbacks)
+  VANotify::EmailJob.perform_async(
+          user.va_profile_email,
+          template_id,
+          get_personalization(first_name),
+          Settings.vanotify.services.va_gov.api_key,
+          { callback: 'ExampleTeam::NotificationCallbacks', metadata: 'option metadata here - maybe form number?'}
+  )
+  else 
+    # existing notification sending logic
+end
 ```
 
 #### Behind the Scenes: How Callbacks Work
@@ -176,7 +188,7 @@ VANotify::EmailJob.perform_async(
 
 3. Delivery Processing: VA Notify attempts to deliver the notification using its internal delivery workflow. This includes retries for temporary issues and contact lookups if an ICN is used.
 
-4. Callback Triggered: As the delivery progresses, VA Notify sends status updates to the configured callback URL. Updates may include statuses like "delivered," "failed," or "temporary failure."
+4. Callback Triggered: As the delivery progresses, VA Notify sends status updates to the configured callback URL. Updates may include statuses like "delivered," "failed," or "temporary failure". This [table](https://github.com/department-of-veterans-affairs/vanotify-team/blob/main/Support/error_status_reason_mapping.md#error-table) shows some of the various statuses that can be returned for a notification's delivery status and status_reason (the codes are meant for internal use so you can ignore them).
 
 5. Handling Callback: Your application receives the callback and processes it to determine if further action is needed—such as notifying the user of a failed delivery, retrying, or marking the notification as successfully delivered.
 
