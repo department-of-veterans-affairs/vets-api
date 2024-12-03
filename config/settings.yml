@@ -1433,10 +1433,19 @@ genisis:
   pass: bogus
 
 # Settings for connecting AFS Veteran Services
+# For locahost we can use the existing certs as long as we don't call out
 dgi:
   jwt:
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
+  vye:
+    jwt:
+      public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
+      private_key_path: modules/vye/spec/fixtures/dgi_private_test.pem
+      public_ica11_rca2_key_path: ""
+    vets:
+      url: ""
+      mock: false
   vets:
     url: "https://jenkins.ld.afsp.io:32512/vets-service/v1/" # Docker setup for microservice
     mock: false
