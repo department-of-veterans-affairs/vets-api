@@ -1012,7 +1012,7 @@ RSpec.describe FormProfile, type: :model do
     Flipper.disable(:disability_compensation_remove_pciu)
   end
 
-  describe '#initialize_military_information', :skip_va_profile, :initiate_vaprofile do
+  describe '#initialize_military_information', :initiate_vaprofile, :skip_va_profile do
     context 'with military_information vaprofile' do
       it 'prefills military data from va profile' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
@@ -1078,7 +1078,7 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
-  describe '#va_profile_phone', :skip_va_profile, :skip_vet360, :initiate_vaprofile do
+  describe '#va_profile_phone', :initiate_vaprofile, :skip_va_profile, :skip_vet360 do
     def self.test_va_profile_phone(primary, expected)
       it "returns #{expected}" do
         allow_any_instance_of(FormProfile).to receive(:extract_va_profile_phone).and_return(primary)
