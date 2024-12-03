@@ -166,7 +166,7 @@ describe SimpleFormsApi::NotificationEmail do
           let(:user_account) { create(:user_account) }
 
           it 'sends the email at the specified time' do
-            time = double
+            time = Time.zone.now
             profile = double(given_names: ['Bob'])
             mpi_profile = double(profile:, error: nil)
             allow(VANotify::UserAccountJob).to receive(:perform_at)
@@ -175,8 +175,27 @@ describe SimpleFormsApi::NotificationEmail do
 
             subject.send(at: time)
 
-            expect(VANotify::UserAccountJob).to have_received(:perform_at).with(time, user_account.id, anything,
-                                                                                anything)
+            expect(VANotify::UserAccountJob).to have_received(:perform_at).with(
+              time,
+              user_account.id,
+              "form21_10210_#{notification_type}_email_template_id",
+              {
+                'confirmation_number' => 'confirmation_number',
+                'date_submitted' => time.strftime('%B %d, %Y'),
+                'first_name' => 'Bob',
+                'lighthouse_updated_at' => nil
+              },
+              'fake_secret',
+              {
+                callback_metadata: {
+                  form_number: 'vba_21_10210',
+                  notification_type:,
+                  statsd_tags: {
+                    'function' => 'vba_21_10210 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
+                  }
+                }
+              }
+            )
           end
         end
 
