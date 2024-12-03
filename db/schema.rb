@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_19_134025) do
+ActiveRecord::Schema[7.1].define(version: 2024_11_25_061506) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -267,6 +267,27 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_134025) do
     t.string "veteran_icn"
     t.jsonb "metadata", default: {}
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
+  end
+
+  create_table "ar_power_of_attorney_request_decisions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "type", null: false
+    t.text "declination_reason"
+  end
+
+  create_table "ar_power_of_attorney_request_expirations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  end
+
+  create_table "ar_power_of_attorney_request_replacements", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  end
+
+  create_table "ar_power_of_attorney_request_status_updates", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "status_updating_type", null: false
+    t.uuid "status_updating_id", null: false
+    t.datetime "created_at", null: false
+  end
+
+  create_table "ar_power_of_attorney_request_withdrawals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "reason"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
