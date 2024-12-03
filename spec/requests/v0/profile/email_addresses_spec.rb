@@ -12,7 +12,6 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
   describe 'ContactInformationV1' do
     before do
       Flipper.disable(:va_v3_contact_information_service)
-      Flipper.disable(:remove_pciu)
       Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
@@ -24,11 +23,6 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'POST /v0/profile/email_addresses/create_or_update' do
-      before do
-        Flipper.disable(:va_v3_contact_information_service)
-        Flipper.disable(:remove_pciu)
-      end
-
       let(:email) { build(:email, vet360_id: user.vet360_id) }
 
       it 'calls update_email' do
@@ -42,11 +36,6 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'POST /v0/profile/email_addresses' do
-      before do
-        Flipper.disable(:va_v3_contact_information_service)
-        Flipper.disable(:remove_pciu)
-      end
-
       let(:email) { build(:email, vet360_id: user.vet360_id) }
 
       context 'with a 200 response' do
@@ -149,11 +138,6 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'PUT /v0/profile/email_addresses' do
-      before do
-        Flipper.disable(:va_v3_contact_information_service)
-        Flipper.disable(:remove_pciu)
-      end
-
       let(:email) { build(:email, vet360_id: user.vet360_id) }
 
       context 'with a 200 response' do
@@ -252,8 +236,6 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
 
     describe 'DELETE /v0/profile/email_addresses' do
       before do
-        Flipper.disable(:va_v3_contact_information_service)
-        Flipper.disable(:remove_pciu)
         allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
         email.id = id_in_cassette
       end
@@ -287,7 +269,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
   end
 
-  describe 'ContactInformationV2', :skip_vet360 do
+  describe 'ContactInformationV2', :skip_vet360, :initiate_vaprofile do
     let(:contact_info) { VAProfileRedis::V2::ContactInformation.for_user(user) }
 
     before do
