@@ -8,7 +8,7 @@ RSpec.describe 'transactions' do
   let(:vet360_id) { '1' }
   let(:user) { build(:user, :loa3, vet360_id:) }
 
-  describe 'GET /v0/profile/status/:transaction_id' do
+  describe 'GET /v0/profile/status/:transaction_id', :skip_va_profile_user do
     let(:vet360_id) { '1' }
     let(:user) { build(:user, :loa3, vet360_id:) }
 
@@ -89,7 +89,7 @@ RSpec.describe 'transactions' do
     end
   end
 
-  describe 'GET /v0/profile/status/' do
+  describe 'GET /v0/profile/status/', :skip_va_profile_user do
     let(:vet360_id) { '1' }
     let(:user) { build(:user, :loa3, vet360_id:) }
 
