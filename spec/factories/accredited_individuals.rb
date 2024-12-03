@@ -34,9 +34,5 @@ FactoryBot.define do
     trait :with_location do
       location { 'POINT(-73.77623285 42.65140884)' }
     end
-
-    trait :with_phone do
-      phone { Faker::Number.number(digits: 10) }
-    end
   end
 end
