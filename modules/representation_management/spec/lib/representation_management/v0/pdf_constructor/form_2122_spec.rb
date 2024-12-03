@@ -26,7 +26,6 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
       veteran_va_file_number: '123456789',
       veteran_date_of_birth: '1980-12-31',
       veteran_service_number: '123456789',
-      veteran_insurance_numbers: [],
       veteran_address_line1: '123 Fake Veteran St',
       veteran_address_line2: '',
       veteran_city: 'Portland',

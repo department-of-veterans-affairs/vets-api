@@ -108,7 +108,7 @@
               "example": "DOMESTIC"
             },
             "state": {
-              "description": "State Veteran resides in.",
+              "description": "State or province Veteran resides in.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
@@ -250,7 +250,7 @@
               "type": "string"
             },
             "state": {
-              "description": "New state Veteran resides in.",
+              "description": "New state or province Veteran resides in.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
@@ -473,7 +473,7 @@
                 "example": "1990-01-02"
               },
               "separationLocationCode": {
-                "description": "Code for the facility the Veteran plans to separate from.  Required if 'servicePeriod.activeDutyEndDate' is in the future. [Code values available here.](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/claims_api/lib/claims_api/separation_location_code_values.json)",
+                "description": "Code for the facility the Veteran plans to separate from.  Required if 'servicePeriod.activeDutyEndDate' is in the future. Code must match the values returned by the /intake-sites endpoint on the [Benefits reference Data API](https://developer.va.gov/explore/benefits/docs/benefits_reference_data?version=current).",
                 "type": "string",
                 "example": "98283"
               }

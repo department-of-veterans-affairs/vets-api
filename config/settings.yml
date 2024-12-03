@@ -86,12 +86,10 @@ sign_in:
 
 terms_of_use:
   current_version: v1
-  provisioner_cookie_domain: localhost
   enabled_clients: vaweb, mhv, myvahealth
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
-  previous_master_key: "a798f118b400a1a7552597cc94f44c577919c76b3d26c1eed8ae0703f4240216"
 
 binaries:
   # you can specify a full path in settings.local.yml if necessary
@@ -105,8 +103,6 @@ clamav:
   # config/initializers/clamav.rb
   host: 'clamav'
   port: '3310'
-
-db_encryption_key: f01ff8ebd1a2b053ad697ae1f0d86adb
 
 database_url: postgis:///vets-api
 test_database_url: postgis:///vets-api-test
@@ -159,11 +155,7 @@ salesforce-gibft:
   url: "https://va--rdtcddev.cs33.my.salesforce.com/"
 
 salesforce-carma:
-  mock: true
   url: "https://fake-carma.salesforce.com"
-  consumer_key: 12345ABC.QQ_1234BBfake
-  signing_key_path: "spec/fixtures/carma/privatekey.pem" # A dummy private key used for test suite
-  username: fake-user@va.gov.carmafake
 
 salesforce:
   env: dev
@@ -171,7 +163,6 @@ salesforce:
 form_10_10cg:
   carma:
     mulesoft:
-      mock: false
       host: ~
       client_id: ~
       client_secret: ~
@@ -183,6 +174,7 @@ form_10_10cg:
         token_url: ~
         client_id: ~
         client_secret: ~
+        auth_token_path: ~
   poa:
     s3:
       aws_access_key_id: my-aws-key-id
@@ -353,24 +345,6 @@ modules_appeals_api:
       api_key: ""
     supplemental_claims:
       api_key: ""
-  # The token generation values below are only used for development rake tasks.
-  token_generation:
-    ccg:
-      config_uri: "https://dev-api.va.gov/oauth2/appeals/system/v1/.well-known/openid-configuration"
-      # Get a client ID by submitting your public jwk here - make sure to check the boxes for the APIs under
-      # "Client Credentials Grant APIs": https://developer.va.gov/onboarding/request-sandbox-access
-      client_id: ""
-      # Absolute path to the private key file matching the jwk:
-      private_key_path: ""
-    auth:
-      config_uri: "https://dev-api.va.gov/oauth2/appeals/v1/.well-known/openid-configuration"
-      # Get a client ID/secret by submitting this form - make sure to check the boxes for the APIs under
-      # "Authorization Code Flow APIs": https://developer.va.gov/onboarding/request-sandbox-access
-      client_id: ""
-      client_secret: ""
-      redirect_uri: ""
-      user_email: ""
-      user_password: ""
   slack:
     api_key: ""
     appeals_channel_id: ""
@@ -385,8 +359,6 @@ modules_appeals_api:
     daily_decision_review:
       enabled: false
     weekly_decision_review:
-      enabled: false
-    daily_error:
       enabled: false
     weekly_error:
       enabled: false
@@ -500,6 +472,8 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
+  search:
+    use_mocks: false
   lce:
     use_mocks: false
 
@@ -647,12 +621,6 @@ claims_api:
     content_type: 'application/vnd.api+json'
   report_enabled: false
   audit_enabled: false
-  s3:
-    enabled: false
-    aws_access_key_id: ~
-    aws_secret_access_key: ~
-    region: ~
-    bucket: ~
   disability_claims_mock_override: false
   schema_dir: config/schemas
   slack:
@@ -674,8 +642,10 @@ claims_api:
   poa_v2:
     disable_jobs: false
   vanotify:
-    representative_template_id: ~
-    service_organization_template_id: ~
+    accepted_representative_template_id: ~
+    accepted_service_organization_template_id: ~
+    declined_representative_template_id: ~
+    declined_service_organization_template_id: ~
     services:
       lighthouse:
         api_key: ~
@@ -832,7 +802,6 @@ iam_ssoe:
   client_id: "Mobile_App_API_Server_LOWERS"
   # oauth (rest) and sts (soap) services are on different hosts
   oauth_url: "https://int.fed.eauth.va.gov:444"
-  sts_url: "https://preprod.services.eauth.va.gov:9301"
   timeout: 20
 
 statsd:
@@ -854,7 +823,7 @@ maintenance:
     carma: P6XLE0T
     appeals: P9S4RFU
     arcgis: P45YBFA
-    coe: PXXXXXX
+    coe: PSY4HU1
     dslogon: P9DJJAV
     es: PH7OPR4
     evss: PZKWB6Y
@@ -1071,6 +1040,12 @@ lighthouse:
     aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3u00gw66b9Ojk2p7/v1/token
     use_mocks: false
     form526:
+      host: https://staging-api.va.gov
+      access_token:
+        client_id: ~
+        rsa_key: ~
+      use_mocks: true
+    status:
       host: https://staging-api.va.gov
       access_token:
         client_id: ~
@@ -1297,6 +1272,8 @@ vanotify:
         form21_674_action_needed_email: form21_674_action_needed_email_template_id
         form21_0966_confirmation_email: form21_0966_confirmation_email_template_id
         form21_0966_error_email: form21_0966_error_email_template_id
+        form21_0966_received_email: form21_0966_received_email_template_id
+        form21_0966_itf_api_received_email: form21_0966_itf_api_received_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_0972_error_email: form21_0972_error_email_template_id
         form21_0972_received_email: form21_0972_received_email_template_id
@@ -1381,17 +1358,22 @@ vanotify:
         evidence_submission_failure_email: fake_template_id
     ivc_champva:
       api_key: fake_secret
+      failure_email_threshold_days: 7
       template_id:
         form_10_10d_email: form_10_10d_email
         form_10_10d_failure_email: form_10_10d_failure_email
         form_10_7959f_1_email: form_10_7959f_1_email
         form_10_7959f_1_failure_email: form_10_7959f_1_failure_email
         form_10_7959f_2_email: form_10_7959f_2_email
+        form_10_7959f_2_failure_email: form_10_7959f_2_failure_email
         form_10_7959c_email: form_10_7959c_email
+        form_10_7959c_failure_email: form_10_7959c_failure_email
         form_10_7959a_email: form_10_7959a_email
+        form_10_7959a_failure_email: form_10_7959a_failure_email
     health_apps_1010:
       api_key: fake_secret
       template_id:
+        form1010_cg_failure_email: fake_template_id
         form1010_ez_failure_email: fake_template_id
         form1010_ezr_failure_email: fake_template_id
     # https://support.atlassian.com/bitbucket-cloud/docs/yaml-anchors/
@@ -1458,6 +1440,13 @@ dgi:
   vets:
     url: "https://jenkins.ld.afsp.io:32512/vets-service/v1/" # Docker setup for microservice
     mock: false
+  post911_sob:
+    jwt:
+      public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
+      private_key_path: spec/fixtures/post911_sob/dgib/private_test.pem
+    claimants:
+      url: ~
+      mock: false
 
 # Settings for the VEText integration (mobile push notifications)
 vetext_push:
@@ -1627,9 +1616,6 @@ rrd:
   alerts:
     recipients:
       - fake_email
-  event_tracking:
-    recipients:
-      - fake_email
   mas_tracking:
     recipients:
       - fake_email
@@ -1645,6 +1631,7 @@ virtual_regional_office:
   api_key: 9d3868d1-ec15-4889-8002-2bff1b50ba62
   evidence_pdf_path: evidence-pdf
   vagov_classification_path: contention-classification/va-gov-claim-classifier
+  expanded_classification_path: contention-classification/expanded-contention-classification
   max_cfi_path: employee-experience/max-ratings
   ep_merge_path: employee-experience-ep-merge-app/merge
 
@@ -1785,9 +1772,6 @@ brd:
 nod_vanotify_status_callback:
   bearer_token: bearer_token_secret
 
-pension_ipf_vanotify_status_callback:
-  bearer_token: bearer_token_secret
-
 travel_pay:
   sts:
     service_account_id: ~
@@ -1839,3 +1823,18 @@ schema_contract:
 
 form_mock_ae_design_patterns:
   prefill: true
+
+vaos:
+  eps:
+    key_path: /fake/client/key/path
+    mock: false
+    client_id: "fake_client_id"
+    kid: "fake_kid"
+    grant_type: "client_credentials"
+    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+    audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
+    access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
+    api_url: "https://api.wellhive.com"
+    base_path: "care-navigation/v1"
+    scopes: "care-nav"
+

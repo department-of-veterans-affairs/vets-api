@@ -100,7 +100,7 @@ RSpec.describe FormProfile, type: :model do
           'address' => address,
           'dateOfBirth' => user.birth_date,
           'name' => full_name,
-          'ssn' => FormIdentityInformation.new(ssn: user.ssn).hyphenated_ssn,
+          'ssn' => user.ssn,
           'email' => user.pciu_email,
           'phoneNumber' => us_phone
         }
@@ -664,27 +664,6 @@ RSpec.describe FormProfile, type: :model do
   end
 
   let(:v21_p_527_ez_expected) do
-    {
-      'veteranFullName' => {
-        'first' => user.first_name&.capitalize,
-        'middle' => user.middle_name&.capitalize,
-        'last' => user.last_name&.capitalize,
-        'suffix' => user.suffix
-      },
-      'veteranAddress' => {
-        'street' => street_check[:street],
-        'street2' => street_check[:street2],
-        'city' => user.address[:city],
-        'state' => user.address[:state],
-        'country' => user.address[:country],
-        'postal_code' => user.address[:postal_code][0..4]
-      },
-      'veteranSocialSecurityNumber' => user.ssn,
-      'veteranDateOfBirth' => user.birth_date
-    }
-  end
-
-  let(:v21_p_527_ez_expected_military) do
     {
       'veteranFullName' => {
         'first' => user.first_name&.capitalize,
@@ -1810,33 +1789,9 @@ RSpec.describe FormProfile, type: :model do
           FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
-            Flipper.disable(:pension_military_prefill)
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
                              allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
               expect_prefilled(form_id)
-            end
-          end
-        end
-
-        context 'with pension_military_prefill' do
-          it 'returns prefilled 21P-527EZ' do
-            Flipper.enable(:pension_military_prefill)
-            VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
-                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-              form_id = '21P-527EZ'
-              prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
-              schema = strip_required(VetsJsonSchema::SCHEMAS[form_id]).except('anyOf')
-              schema_data = prefilled_data.deep_dup
-              errors = JSON::Validator.fully_validate(
-                schema,
-                schema_data.deep_transform_keys { |key| key.camelize(:lower) }, validate_schema: true
-              )
-
-              expect(errors.empty?).to eq(true), "schema errors: #{errors}"
-
-              expect(prefilled_data).to eq(
-                form_profile.send(:clean!, public_send('v21_p_527_ez_expected_military'))
-              )
             end
           end
         end
