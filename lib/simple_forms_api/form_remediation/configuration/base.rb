@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api/form_remediation'
+require 'simple_forms_api/form_remediation/error'
 
 module SimpleFormsApi
   module FormRemediation
