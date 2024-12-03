@@ -8,10 +8,6 @@ class SavedClaim::Burial < SavedClaim
   # attribute name is passed from the FE as a flag, maintaining camel case
   attr_accessor :formV2 # rubocop:disable Naming/MethodName
 
-  after_initialize do
-    self.form_id = self.class::FORM.upcase
-  end
-
   def process_attachments!
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))
