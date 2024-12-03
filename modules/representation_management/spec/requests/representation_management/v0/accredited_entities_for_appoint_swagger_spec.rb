@@ -43,15 +43,15 @@ RSpec.describe 'Accredited Entities for Appoint',
       produces 'application/json'
       operationId 'accreditedEntitiesForAppoint'
 
-      parameter name: :query, in: :query, type: :string, description: 'Search query'
+      parameter name: :query, in: :query, type: :string, description: 'Search query', example: 'Bob'
 
       response '200', 'OK' do
         let(:query) { 'Bob' }
         schema type: :array,
                items: {
                  anyOf: [
-                   { '$ref' => '#/components/schemas/accredited_individual' },
-                   { '$ref' => '#/components/schemas/accredited_organization' }
+                   { '$ref' => '#/components/schemas/accreditedIndividual' },
+                   { '$ref' => '#/components/schemas/accreditedOrganization' }
                  ]
                }
         run_test!
