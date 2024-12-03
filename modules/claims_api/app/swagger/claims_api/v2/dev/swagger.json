@@ -1480,9 +1480,9 @@
                                   "properties": {
                                     "email": {
                                       "type": "string",
-                                      "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                      "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                       "description": "The most current email address of the Veteran.",
-                                      "maxLength": 50,
+                                      "maxLength": 80,
                                       "nullable": true
                                     },
                                     "agreeToEmailRelatedToClaim": {
@@ -2864,9 +2864,9 @@
                                 "properties": {
                                   "email": {
                                     "type": "string",
-                                    "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                    "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                     "description": "The most current email address of the Veteran.",
-                                    "maxLength": 50,
+                                    "maxLength": 80,
                                     "nullable": true
                                   },
                                   "agreeToEmailRelatedToClaim": {
@@ -4394,7 +4394,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "6bab009f-6df6-4b5e-a524-d1fd46922bad",
+                        "id": "74f5b5b1-88d7-4056-a6ba-53e8b95f60fc",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4579,7 +4579,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-11-28"
+                              "anticipatedSeparationDate": "2024-12-05"
                             },
                             "confinements": [
                               {
@@ -4625,7 +4625,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "4ba3b935-e07a-4f33-9ead-50e089ba5015",
+                        "id": "0208f0ee-5165-4ab1-8907-03f81a17706d",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4789,7 +4789,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2024-11-28",
+                                "activeDutyEndDate": "2024-12-05",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -4810,7 +4810,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-11-28"
+                              "anticipatedSeparationDate": "2024-12-05"
                             },
                             "confinements": [
                               {
@@ -5018,9 +5018,9 @@
                                   "properties": {
                                     "email": {
                                       "type": "string",
-                                      "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                      "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                       "description": "The most current email address of the Veteran.",
-                                      "maxLength": 50,
+                                      "maxLength": 80,
                                       "nullable": true
                                     },
                                     "agreeToEmailRelatedToClaim": {
@@ -6402,9 +6402,9 @@
                                 "properties": {
                                   "email": {
                                     "type": "string",
-                                    "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                    "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                     "description": "The most current email address of the Veteran.",
-                                    "maxLength": 50,
+                                    "maxLength": 80,
                                     "nullable": true
                                   },
                                   "agreeToEmailRelatedToClaim": {
@@ -8053,7 +8053,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2024-11-28",
+                              "activeDutyEndDate": "2024-12-05",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -8074,7 +8074,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-11-28"
+                            "anticipatedSeparationDate": "2024-12-05"
                           },
                           "confinements": [
                             {
@@ -8558,9 +8558,9 @@
                                 "properties": {
                                   "email": {
                                     "type": "string",
-                                    "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                    "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                     "description": "The most current email address of the Veteran.",
-                                    "maxLength": 50,
+                                    "maxLength": 80,
                                     "nullable": true
                                   },
                                   "agreeToEmailRelatedToClaim": {
@@ -9838,7 +9838,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "41784a24-ea38-4bce-ba3f-d9a93a4f3291",
+                    "id": "09ddf186-1252-436b-9b15-d30c2f74a129",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13580,8 +13580,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-11-26",
-                      "expirationDate": "2025-11-26",
+                      "creationDate": "2024-12-03",
+                      "expirationDate": "2025-12-03",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14477,7 +14477,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "cd03d9a5-fcec-42ca-bdf9-8cef435a39ba",
+                    "id": "f1784ab5-f1ad-4ca9-93ac-9ed639ce39a7",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -15249,7 +15249,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "9acc3cef-799a-4394-bca4-53e2a01b738b",
+                    "id": "51c35412-e8d2-47e1-946b-f5932566d14d",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -17245,10 +17245,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "2bf5ca7d-2424-4f10-bbd9-13024743ea31",
+                    "id": "5cbbe410-bfb4-452f-aecd-29ee47984c48",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-11-26",
+                      "dateRequestAccepted": "2024-12-03",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
