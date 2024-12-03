@@ -1442,8 +1442,8 @@ dgi:
   vye:
     jwt:
       # May not need the public path
-      public_key_path: ""
-      private_key_path: ""
+      public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
+      private_key_path: modules/vye/spec/fixtures/dgi_private_test.pem
       public_ica11_rca2_key_path: ""
     vets:
       url: ""

@@ -37,7 +37,6 @@ module Auth
       #
       # @return [String] the access token needed to make requests
       #
-
       def get_token(auth_params = {})
         if @service_name.nil?
           res = get_new_token(auth_params)
