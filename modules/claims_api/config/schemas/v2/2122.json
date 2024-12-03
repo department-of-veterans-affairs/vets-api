@@ -195,7 +195,7 @@
           "description": "Email address of the claimant.",
           "type": "string",
           "pattern": "^(?!.*\\s).+@.+\\..+|^$",
-          "maxLength": 61,
+          "maxLength": 30,
           "example": "claimant@example.com"
         },
         "relationship": {
