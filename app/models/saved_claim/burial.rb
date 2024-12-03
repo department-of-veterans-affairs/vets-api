@@ -5,9 +5,6 @@ require 'pension_burial/processing_office'
 class SavedClaim::Burial < SavedClaim
   FORM = '21P-530EZ'
 
-  # attribute name is passed from the FE as a flag, maintaining camel case
-  attr_accessor :formV2 # rubocop:disable Naming/MethodName
-
   def process_attachments!
     refs = attachment_keys.map { |key| Array(open_struct_form.send(key)) }.flatten
     files = PersistentAttachment.where(guid: refs.map(&:confirmationCode))

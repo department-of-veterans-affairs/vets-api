@@ -28,8 +28,7 @@ FactoryBot.define do
         },
         burialAllowance: true,
         plotAllowance: true,
-        transportation: true,
-        formV2: true
+        transportation: true
       }.to_json
     end
   end
