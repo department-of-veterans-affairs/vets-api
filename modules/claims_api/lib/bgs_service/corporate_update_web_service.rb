@@ -3,7 +3,7 @@
 module ClaimsApi
   class CorporateUpdateWebService < ClaimsApi::LocalBGS
     def bean_name
-      'CorporateUpdateServiceBean'
+      'CorporateUpdateServiceBean/CorporateUpdateWebService'
     end
 
     def update_poa_access(participant_id:, poa_code:, allow_poa_access: 'y', allow_poa_c_add: 'Y')
