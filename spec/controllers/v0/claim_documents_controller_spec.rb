@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::ClaimDocumentsController, type: :controller do
   let(:user) { create(:user) }
-  let(:file) { fixture_file_upload('doctors-note.gif') }
+  let(:file) { fixture_file_upload('doctors-note.jpg') }
   let(:password) { 'password' }
   let(:params) { { form_id: '21P-527EZ', file: file, password: password } }
   let(:attachment) { build(:persistent_attachment_va_form, file_data: file.to_json) }
