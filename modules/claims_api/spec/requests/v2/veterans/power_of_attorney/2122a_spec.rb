@@ -395,7 +395,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                   expect(response).to have_http_status(:unprocessable_entity)
                   response_body = JSON.parse(response.body)
                   expect(response_body['errors'][0]['detail']).to eq(
-                    "If claimant is present 'country' must be filled in"
+                    "If claimant is present 'countryCode' must be filled in"
                   )
                 end
               end
