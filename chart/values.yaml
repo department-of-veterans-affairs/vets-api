@@ -1,4 +1,4 @@
-ssmPath: /dsva-vagov/vets-api/dev/
+ssmPath:
 parameters:
   - SETTINGS__HOSTNAME
   - SETTINGS__VIRTUAL_HOSTS
@@ -12,6 +12,8 @@ image:
   testRepository: 008577686731.dkr.ecr.us-gov-west-1.amazonaws.com/dsva/vets-api-postman
   tag:
   pullPolicy: Always
+git_container_repo:
+git_container_version:
 vsp_environment:
 affinityWeight:
 mockData:
@@ -160,12 +162,17 @@ cronJobs: {}
 # Setting up clamav incorrectly can lead to a PRODUCTION shut down.
 clamav:
   enabled: false
+  requestedCPU: "100m"
+  requestedMemory: "3Gi"
   image:
     tag:
     value:
-  volumeMounts:
-  ports:
-  probes:
+    pullPolicy: Always
+  readinessProbe:
+    failureThreshold: 5
+    periodSeconds: 5
+    timeoutSeconds: 5
+    successThreshold: 1
   resources: {}
 
 

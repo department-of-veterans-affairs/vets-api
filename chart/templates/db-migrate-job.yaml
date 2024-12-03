@@ -19,6 +19,8 @@ spec:
           command: ["bundle"]
           args:  ["exec", "rails", "db:migrate"]
           volumeMounts:
+            - name: ddsocket
+              mountPath: /var/run/datadog
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
           env:
             - name: GIT_REVISION
@@ -45,6 +47,9 @@ spec:
       securityContext:
         fsGroup: {{ .Values.fsGroup }}
       volumes:
+        - name: ddsocket
+          hostPath:
+            path: /var/run/datadog
 {{ toYaml .Values.common.volumes | indent 8 }}
   backoffLimit: 1
 {{- end }}
