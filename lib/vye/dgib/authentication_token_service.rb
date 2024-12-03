@@ -13,7 +13,7 @@ module Vye
 
       def self.call
         payload = {
-          exp: Time.now.to_i + (5 * 60), # JWT expiration time (5 minutes)
+          exp: 5.minutes.from_now.to_i, # JWT expiration time (5 minutes)
           nbf: Time.now.to_i,
           realm_access: {
             roles: ['VYE']
