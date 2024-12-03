@@ -9,11 +9,6 @@ RSpec.describe 'AskVAApi::V0::AddressValidation', type: :request do
     build(:va_profile_address, :multiple_matches)
   end
 
-  before do
-    Flipper.disable(:remove_pciu)
-    Flipper.disable(:va_v3_contact_information_service)
-  end
-
   describe '#create' do
     context 'with an invalid address' do
       it 'returns an error' do
