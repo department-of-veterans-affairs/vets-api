@@ -182,7 +182,7 @@ class RepresentationManagement::RswagConfig
         }
       }
     )
-    accredited_data_structure('individual', attributes)
+    accredited_data_structure('representative', attributes)
   end
 
   def veteran_service_organization_schema
