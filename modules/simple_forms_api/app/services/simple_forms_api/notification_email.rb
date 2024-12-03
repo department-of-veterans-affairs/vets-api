@@ -63,7 +63,10 @@ module SimpleFormsApi
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
 
     def initialize(config, notification_type: :confirmation, user: nil, user_account: nil)
+      @notification_type = notification_type
+
       check_missing_keys(config)
+      check_if_form_is_supported(config)
 
       @form_data = config[:form_data]
       @form_number = config[:form_number]
@@ -71,23 +74,22 @@ module SimpleFormsApi
       @date_submitted = config[:date_submitted]
       @expiration_date = config[:expiration_date]
       @lighthouse_updated_at = config[:lighthouse_updated_at]
-      @notification_type = notification_type
       @user = user
       @user_account = user_account
     end
 
     def send(at: nil)
-      return unless SUPPORTED_FORMS.include?(form_number)
       return unless flipper?
 
       template_id = TEMPLATE_IDS[form_number][notification_type]
       return unless template_id
 
-      if at
-        enqueue_email(at, template_id)
-      else
-        send_email_now(template_id)
-      end
+      sent_to_va_notify = if at
+                            enqueue_email(at, template_id)
+                          else
+                            send_email_now(template_id)
+                          end
+      StatsD.increment('silent_failure', tags: statsd_tags) if error_notification? && !sent_to_va_notify
     end
 
     private
@@ -97,7 +99,17 @@ module SimpleFormsApi
       if config[:form_number] == 'vba_21_0966_intent_api' && config[:expiration_date].nil?
         missing_keys << :expiration_date
       end
-      raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}" if missing_keys.any?
+      if missing_keys.any?
+        StatsD.increment('silent_failure', tags: statsd_tags) if error_notification?
+        raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}"
+      end
+    end
+
+    def check_if_form_is_supported(config)
+      unless SUPPORTED_FORMS.include?(config[:form_number])
+        StatsD.increment('silent_failure', tags: statsd_tags) if error_notification?
+        raise ArgumentError, "Unsupported form: given form number was #{config[:form_number]}"
+      end
     end
 
     def flipper?
@@ -396,6 +408,10 @@ module SimpleFormsApi
 
     def statsd_tags
       { 'service' => 'veteran-facing-forms', 'function' => "#{form_number} form submission to Lighthouse" }
+    end
+
+    def error_notification?
+      notification_type == :error
     end
   end
 end

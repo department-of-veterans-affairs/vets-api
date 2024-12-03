@@ -67,7 +67,7 @@
               "maxLength": 18
             },
             "stateCode": {
-              "description": "State for the address.",
+              "description": "State or province code for the address.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
@@ -153,7 +153,7 @@
               "maxLength": 18
             },
             "stateCode": {
-              "description": "State for the address. Required if claimant information provided.",
+              "description": "State or province code for the address. Required if claimant information provided.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
@@ -264,7 +264,7 @@
               "maxLength": 18
             },
             "stateCode": {
-              "description": "State for the address.",
+              "description": "State or province code for the address.",
               "type": "string",
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
