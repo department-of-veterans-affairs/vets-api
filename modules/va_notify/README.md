@@ -169,11 +169,11 @@ Here is an example:
 ```
 if Flipper.enabled?(:{ExampleTeam}_notification_callbacks)
   VANotify::EmailJob.perform_async(
-          user.va_profile_email,
-          template_id,
-          get_personalization(first_name),
-          Settings.vanotify.services.va_gov.api_key,
-          { callback: 'ExampleTeam::NotificationCallbacks', metadata: 'option metadata here - maybe form number?'}
+    user.va_profile_email, # The user's email address
+    template_id,
+    get_personalization(first_name),
+    Settings.vanotify.services.va_gov.api_key,
+      { callback_metadata: { notification_type: 'error', form_number: 'ExampleForm1234', statsd_tags: } }
   )
   else 
     # existing notification sending logic
