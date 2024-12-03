@@ -184,7 +184,7 @@ RSpec.describe 'transactions' do
       sign_in_as(user)
     end
 
-    describe 'GET /v0/profile/status/:transaction_id v2', :initiate_vaprofile, :skip_vet360 do
+    describe 'GET /v0/profile/status/:transaction_id v2', :skip_vet360 do
       let(:vet360_id) { '1781151' }
       let(:user) { build(:user, :loa3, vet360_id:) }
 
@@ -267,7 +267,7 @@ RSpec.describe 'transactions' do
       end
     end
 
-    describe 'GET /v0/profile/status/ v2', :initiate_vaprofile, :skip_vet360 do
+    describe 'GET /v0/profile/status/ v2', :skip_vet360 do
       let(:user) { build(:user, :loa3) }
 
       context 'when transaction(s) exists' do
