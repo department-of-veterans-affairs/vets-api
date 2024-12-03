@@ -11,12 +11,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestsPolicy do
   let(:poa_requests) { [poa_request] }
 
   before do
-    allow(Settings).to receive_message_chain(
-      :accredited_representative_portal,
-      :pilot_user_email_poa_codes,
-      :to_h,
-      :stringify_keys!
-    ).and_return({ 'test@va.gov' => ['123'] })
+    allow(described_class).to receive(:poa_user_email_poa_codes).and_return({ 'test@va.gov' => ['123'] })
   end
 
   describe '#authorize' do
