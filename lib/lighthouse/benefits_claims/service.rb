@@ -255,7 +255,7 @@ module BenefitsClaims
         error,
         self.class.to_s.underscore,
         nil,
-        "#{config.base_api_path}/#{endpoint}"
+        "#{config.base_path}/#{endpoint}"
       )
     end
   end
