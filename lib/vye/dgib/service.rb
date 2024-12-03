@@ -59,7 +59,6 @@ module Vye
         verification_method,
         response_type
       )
-
         params = ActionController::Parameters.new({
                                                     claimant_id:,
                                                     verified_period_begin_date:,
