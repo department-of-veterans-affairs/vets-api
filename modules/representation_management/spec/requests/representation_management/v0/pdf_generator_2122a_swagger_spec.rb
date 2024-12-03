@@ -7,8 +7,9 @@ require_relative '../../../support/swagger_shared_components/v0'
 RSpec.describe 'PDF Generator 21-22a', openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json',
                                        type: :request do
   before do
-    create(:accredited_individual, :with_phone,
-           id: SwaggerSharedComponents::V0.representative[:id])
+    create(:accredited_individual,
+           id: SwaggerSharedComponents::V0.representative[:id],
+           phone: Faker::Number.number(digits: 10))
   end
 
   path '/representation_management/v0/pdf_generator2122a' do
