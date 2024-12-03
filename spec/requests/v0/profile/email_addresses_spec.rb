@@ -9,7 +9,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
 
-  describe 'ContactInformationV1' do
+  describe 'ContactInformationV1', :skip_va_profile_user do
     before do
       Flipper.disable(:va_v3_contact_information_service)
       Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
