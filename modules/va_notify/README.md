@@ -111,9 +111,11 @@ Using option #2:
 - Invoking the sidekiq job via `.perform_async` - because this is an async call it will not fail inline.
 - The sidekiq job could fail when it is picked by a sidekiq worker - if the job fails for any reason it will automatically [retry](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/va_notify/app/sidekiq/va_notify/email_job.rb#L7) If the job continues to fail it will eventually go to the dead queue (visible in the [sidekiq dashboard](https://api.va.gov/sidekiq/morgue) and this Datadog [dashboard](https://app.ddog-gov.com/sb/f327ad72-c02a-11ec-a50a-da7ad0900007-260dfe9b82780fef7f07b002e4355281)).
 
+---
+
 ### VA Notify Callback Integration Guide for Vets-API
 
-To effectively track the status of individual notifications, you need to set up service callbacks that VA Notify provides. These callbacks will allow you to determine if each notification you send was successfully delivered, or if it failed. The delivery status callbacks provide real-time feedback, enabling you to monitor the delivery process and handle any issues.
+To effectively track the status of individual notifications, VA Notify provides service callbacks. These callbacks enable you to determine whether a notification was successfully delivered or failed, allowing you to take appropriate action. This guide outlines two distinct approaches to integrating callback logic: Custom Callback Handler and Default Callback Class.
 
 #### Why Teams Need to Integrate with Callback Logic
 
@@ -127,13 +129,42 @@ A successful request to the VA Notify API does not guarantee that the recipient 
 
 - Ensure that alternative contact methods can be utilized in case of persistent issues.
 
+---
+
 #### How Teams Can Integrate with Callbacks
 
-To integrate with our callback system, follow these simple steps:
+**Option 1: Default Callback Class**
 
-1. Create a Callback Handler Class: Define a class in your module to handle callbacks, which must implement a class-level method `.call`.
+The Default Callback Class offers a standard, ready-to-use implementation for handling callbacks.
 
-Here is an example:
+Example Implementation
+
+Step 1: Set Up the Notification Trigger
+
+```
+VANotify::EmailJob.perform_async(
+  user.va_profile_email,
+  template_id,
+  get_personalization(first_name),
+  Settings.vanotify.services.va_gov.api_key,
+  { 
+    callback_metadata: { 
+      notification_type: 'error', 
+      form_number: 'ExampleForm1234', 
+      statsd_tags: { service: 'DefaultService', function: 'DefaultFunction' }
+    } 
+  }
+)
+```
+
+**Option 2: Custom Callback Handler**
+
+The Custom Callback Handler allows teams to create a bespoke solution tailored to their specific requirements. This approach offers complete control over how delivery statuses are processed and logged.
+
+Example Implementation
+
+Step 1: Create a Callback Handler Class: Define a class in your module to handle callbacks, which must implement a class-level method `.call`.
+
 ```
 module VANotify
   class <name>Callback
@@ -163,34 +194,45 @@ module VANotify
 end
 ```
 
-2. Integrate Callback Logic in Notification Triggers: Behind a feature flag, choose one of your notification triggers and update the way you are invoking VA Notify to pass in your callback data.
+Step 2: Integrate Callback Logic in Notification Triggers: Behind a feature flag, choose one of your notification triggers and update the way you are invoking VA Notify to pass in your callback data.
 
 Here is an example:
 ```
-if Flipper.enabled?(:{ExampleTeam}_notification_callbacks)
+if Flipper.enabled?(:custom_callback_handler)
   VANotify::EmailJob.perform_async(
-    user.va_profile_email, # The user's email address
+    user.va_profile_email,
     template_id,
     get_personalization(first_name),
     Settings.vanotify.services.va_gov.api_key,
-      { callback_metadata: { notification_type: 'error', form_number: 'ExampleForm1234', statsd_tags: } }
+    { callback_metadata: { handler_class: 'VANotify::CustomNotificationCallback', statsd_tags: { service: 'ExampleTeam' } } }
   )
-  else 
-    # existing notification sending logic
+else
+  # Default logic
 end
 ```
+---
 
 #### Behind the Scenes: How Callbacks Work
 
-1. Here's a high-level overview of what happens behind the scenes when using VA Notify callbacks:
+Here's a high-level overview of what happens behind the scenes when using VA Notify callbacks:
 
-2. Notification Sending: When a notification is sent via the VA Notify API, a notification_id is generated and returned. This ID should be saved to track the delivery status.
+1. Notification Sending: When a notification is sent via the VA Notify API, a notification_id is generated and returned. This ID should be saved to track the delivery status.
 
-3. Delivery Processing: VA Notify attempts to deliver the notification using its internal delivery workflow. This includes retries for temporary issues and contact lookups if an ICN is used.
+2. Delivery Processing: VA Notify attempts to deliver the notification using its internal delivery workflow. This includes retries for temporary issues and contact lookups if an ICN is used.
 
-4. Callback Triggered: As the delivery progresses, VA Notify sends status updates to the configured callback URL. Updates may include statuses like "delivered," "failed," or "temporary failure". This [table](https://github.com/department-of-veterans-affairs/vanotify-team/blob/main/Support/error_status_reason_mapping.md#error-table) shows some of the various statuses that can be returned for a notification's delivery status and status_reason (the codes are meant for internal use so you can ignore them).
+3. Callback Triggered: As the delivery progresses, VA Notify sends status updates to the configured callback URL. Updates may include statuses like "delivered," "failed," or "temporary failure".
 
-5. Handling Callback: Your application receives the callback and processes it to determine if further action is needed—such as notifying the user of a failed delivery, retrying, or marking the notification as successfully delivered.
+4. Processing Callback: Your application receives the callback and processes it to determine if further action is needed—such as notifying the user of a failed delivery, retrying, or marking the notification as successfully delivered.
+
+5. Monitoring: Metrics and logs capture the outcome for reporting and troubleshooting.
+
+---
+
+#### Delivery Status Reference
+
+Refer to the [VA Notify Error Status Mapping Table](https://github.com/department-of-veterans-affairs/vanotify-team/blob/main/Support/error_status_reason_mapping.md#error-table) for detailed status codes and their meanings.
+
+---
 
 #### Contact Us
 
