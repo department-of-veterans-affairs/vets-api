@@ -429,7 +429,6 @@ RSpec.describe Users::Profile do
     end
 
     describe '#vet360_contact_information' do
-      Flipper.disable(:remove_pciu)
       context 'with an loa1 user' do
         let(:user) { build(:user, :loa1) }
 

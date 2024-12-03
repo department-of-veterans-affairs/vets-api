@@ -14,8 +14,6 @@ RSpec.describe 'V0::User', type: :request do
     let!(:mhv_user_verification) { create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id) }
 
     before do
-      Flipper.disable(:va_v3_contact_information_service)
-      Flipper.disable(:remove_pciu)
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
       allow_any_instance_of(MHVAccountTypeService).to receive(:mhv_account_type).and_return('Premium')
       create(:account, idme_uuid: mhv_user.uuid)
@@ -29,7 +27,7 @@ RSpec.describe 'V0::User', type: :request do
       end
     end
 
-    context 'dont stub mpi', :skip_va_profile_user do
+    context 'dont stub mpi' do
       let(:mhv_user) { build(:user, :mhv, :no_mpi_profile) }
 
       it 'GET /v0/user - returns proper json' do
@@ -166,7 +164,6 @@ RSpec.describe 'V0::User', type: :request do
 
     context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', :skip_vet360 do
       before do
-        Flipper.disable(:remove_pciu)
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
         allow_any_instance_of(VAProfile::Service).to receive(:perform).and_raise(
@@ -262,8 +259,6 @@ RSpec.describe 'V0::User', type: :request do
 
     before do
       create(:user_verification, idme_uuid: user.idme_uuid)
-      Flipper.disable(:va_v3_contact_information_service)
-      Flipper.disable(:remove_pciu)
       VCR.use_cassette('va_profile/veteran_status/va_profile_veteran_status_200', allow_playback_repeats: true) do
         sign_in_as(user)
         allow_any_instance_of(User).to receive(:edipi).and_return(edipi)
@@ -331,7 +326,7 @@ RSpec.describe 'V0::User', type: :request do
         .not_to trigger_statsd_increment('api.external_http_request.MVI.success', times: 1, value: 1)
     end
 
-    context 'when breakers is used', :skip_va_profile_user do
+    context 'when breakers is used' do
       let(:user2) { create(:user, :loa3, :no_mpi_profile, icn: SecureRandom.uuid) }
       let(:edipi) { '1005127153' }
 
