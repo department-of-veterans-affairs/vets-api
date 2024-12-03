@@ -8,7 +8,7 @@ module ClaimsApi
 
     def find_benefit_claims_status_by_ptcpnt_id(id)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <fileNumber>#{id}</fileNumber>
+        <ptcpntId>#{id}</ptcpntId>
       EOXML
 
       make_request(endpoint: 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService',
@@ -17,7 +17,7 @@ module ClaimsApi
 
     def find_benefit_claim_details_by_benefit_claim_id(id)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <fileNumber>#{id}</fileNumber>
+        <bnftClaimId>#{id}</bnftClaimId>
       EOXML
 
       make_request(endpoint: 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService',
