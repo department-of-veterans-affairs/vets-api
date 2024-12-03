@@ -12,7 +12,10 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995 do
 
   describe '#after_submit' do
     let(:user) { create(:user) }
-
+    before do
+      Flipper.disable(:validate_saved_claims_with_json_schemer)
+    end
+    
     describe 'sends confirmation email for the 1995' do
       it 'with benefit selected' do
         allow(VANotify::EmailJob).to receive(:perform_async)

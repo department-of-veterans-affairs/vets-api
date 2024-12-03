@@ -17,6 +17,10 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
     let!(:attachment1) { FactoryBot.create(:pension_burial) }
     let!(:attachment2) { FactoryBot.create(:pension_burial) }
 
+    before do
+      Flipper.disable(:validate_saved_claims_with_json_schemer)
+    end
+
     let(:claim) do
       FactoryBot.create(
         :pensions_module_pension_claim,
