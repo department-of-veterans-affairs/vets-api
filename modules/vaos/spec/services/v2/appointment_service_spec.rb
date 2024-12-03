@@ -1630,4 +1630,49 @@ describe VAOS::V2::AppointmentsService do
       expect(appt[:preferred_dates]).not_to be_nil
     end
   end
+
+  describe '#set_type' do
+    it 'has a type of request for Cerner appointments without end dates' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = 'CERN1234'
+      appt[:end] = nil
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('REQUEST')
+    end
+
+    it 'is a VA appointment for Cerner appointments with a valid end date' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = 'CERN1234'
+      appt[:end] = :end_date
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('VA')
+    end
+
+    it 'is a cc appointment for appointments with kind = "cc" and a valid start date' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = :id
+      appt[:start] = :start_date
+      appt[:kind] = 'cc'
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('COMMUNITY_CARE_APPOINTMENT')
+    end
+
+    it 'is a cc request for appointments with kind = "cc" and at least one requested period' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = :id
+      appt[:kind] = 'cc'
+      appt[:requested_periods] = [{ start: '2024-06-26T12:00:00Z', end: '2024-06-26T13:00:00Z' }]
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('COMMUNITY_CARE_REQUEST')
+    end
+
+    it 'is a request for appointments with kind other than "cc" and at least one requested period' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = '1234'
+      appt[:kind] = 'telehealth'
+      appt[:requested_periods] = [{ start: '2024-06-26T12:00:00Z', end: '2024-06-26T13:00:00Z' }]
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('REQUEST')
+    end
+  end
 end
