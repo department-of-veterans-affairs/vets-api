@@ -70,7 +70,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
   end
 
   describe '#process_and_upload_to_lighthouse' do
-    let(:claim) { build(:burial_claim_v2) }
+    let(:claim) { build(:burial_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
 
     it 'returns a success' do
