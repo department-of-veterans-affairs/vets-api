@@ -2,26 +2,25 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestsPolicy
-    def initialize(user, poa_request)
+    def initialize(user, record)
       @user = user
-      @poa_request = poa_request
+      @record = record
     end
 
-    def pilot_users
-      Settings.accredited_representative_portal.pilot_users.to_h.stringify_keys
+    def pilot_user_email_poa_codes
+      Settings
+        .accredited_representative_portal
+        .pilot_user_email_poa_codes.to_h
+        .stringify_keys!
     end
 
     def authorize
       return false unless @user
 
-      allowed_codes = Array(pilot_users[@user.email])
-      return false unless allowed_codes
+      pilot_user_poa_codes = Set.new(pilot_user_email_poa_codes[@user&.email])
+      poa_requests_poa_codes = Set.new(Array.wrap(@record)) { |record| record.poa_code }
 
-      if @poa_request.is_a?(Array)
-        @poa_request.all? { |request| allowed_codes.include?(request.poa_code) }
-      else
-        allowed_codes.include?(@poa_request.poa_code)
-      end
+      pilot_user_poa_codes >= poa_requests_poa_codes
     end
   end
 end
