@@ -202,7 +202,7 @@
               },
               "type": {
                 "type": "string",
-                "example": "individual"
+                "example": "representative"
               },
               "attributes": {
                 "type": "object",
