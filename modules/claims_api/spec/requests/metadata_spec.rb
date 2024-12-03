@@ -42,9 +42,6 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
       context version do
         it 'returns correct response and status when healthy' do
           allow(MPI::Service).to receive(:service_is_up?).and_return(true)
-          allow_any_instance_of(BGS::Services).to receive(:vet_record).and_return(Struct.new(:healthy?).new(true))
-          allow_any_instance_of(BGS::Services).to receive(:contention).and_return(Struct.new(:healthy?).new(true))
-          allow_any_instance_of(BGS::Services).to receive(:corporate_update).and_return(Struct.new(:healthy?).new(true))
           allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:healthcheck).and_return(200)
           allow_any_instance_of(Faraday::Connection).to receive(:get).and_return(Struct.new(:status).new(200))
           get "/services/claims/#{version}/upstream_healthcheck"
@@ -72,6 +69,7 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
             end
           end
         end
+
         local_bgs_claims_status_services = %i[ebenefitsbenftclaim]
         local_bgs_claims_status_methods = %i[find_benefit_claims_status_by_ptcpnt_id]
         local_bgs_claims_status_services.each do |local_bgs_claims_status_service|
@@ -85,17 +83,6 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
               result = JSON.parse(response.body)
               expect(result["localbgs-#{local_bgs_claims_status_service}"]['success']).to eq(false)
             end
-          end
-        end
-
-        bgs_services = %i[vet_record corporate_update contention].freeze
-        bgs_services.each do |service|
-          it "returns the correct status when the BGS #{service} is not healthy" do
-            allow_any_instance_of(BGS::Services).to receive(service.to_sym)
-              .and_return(Struct.new(:healthy?).new(false))
-            get "/services/claims/#{version}/upstream_healthcheck"
-            result = JSON.parse(response.body)
-            expect(result["bgs-#{service}"]['success']).to eq(false)
           end
         end
       end
