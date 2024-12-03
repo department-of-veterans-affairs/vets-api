@@ -306,15 +306,16 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         }
       )
 
-      expect(subject).to validate(
-        :post,
-        '/v0/claim_attachments',
-        422,
-        '_data' => {
-          'form_id' => '21P-530EZ',
-          file: fixture_file_upload('spec/fixtures/files/empty_file.txt')
-        }
-      )
+        expect(subject).to validate(
+          :post,
+          '/v0/claim_attachments',
+          422,
+          '_data' => {
+            'form_id' => '21P-530EZ',
+            file: fixture_file_upload('spec/fixtures/files/empty_file.txt')
+          }
+        )
+      end
     end
 
     it 'supports checking stem_claim_status' do
