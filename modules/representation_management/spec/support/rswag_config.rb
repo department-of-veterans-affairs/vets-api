@@ -40,10 +40,12 @@ class RepresentationManagement::RswagConfig
 
   def schemas
     {
-      ErrorModel: error_model,
-      Errors: errors,
-      Error: error,
-      PowerOfAttorneyResponse: power_of_attorney_response
+      errorModel: error_model,
+      errors: errors,
+      error: error,
+      powerOfAttorneyResponse: power_of_attorney_response,
+      veteranServiceRepresentative: veteran_service_representative_schema,
+      veteranServiceOrganization: veteran_service_organization_schema
     }
   end
 
@@ -90,7 +92,7 @@ class RepresentationManagement::RswagConfig
       properties: {
         errors: {
           type: :array,
-          items: { '$ref' => '#/components/schemas/Error' }
+          items: { '$ref' => '#/components/schemas/error' }
         }
       }
     }
@@ -157,6 +159,76 @@ class RepresentationManagement::RswagConfig
       zip_suffix: { type: :string, example: '1234' },
       phone: { type: :string, example: '555-1234' },
       email: { type: :string, example: 'contact@example.org' }
+    }
+  end
+
+  def veteran_service_representative_schema
+    attributes = address_properties.merge(
+      first_name: { type: :string, example: 'John' },
+      last_name: { type: :string, example: 'Doe' },
+      full_name: { type: :string, example: 'John Doe' },
+      phone: { type: :string, example: '555-555-5555' },
+      email: { type: :string, example: 'john.doe@example.com' },
+      individual_type: {        type: :string,
+                                enum: %w[attorney claim_agents veteran_service_officer],
+                                example: 'attorney' },
+      accredited_organizations: {
+        type: :object,
+        properties: {
+          data: {
+            type: :array,
+            items: { '$ref' => '#/components/schemas/veteranServiceOrganization' }
+          }
+        }
+      }
+    )
+    accredited_data_structure('representative', attributes)
+  end
+
+  def veteran_service_organization_schema
+    attributes = address_properties.merge(
+      poa_code: { type: :string, example: '123' },
+      name: { type: :string, example: 'Organization Name' },
+      phone: { type: :string, example: '555-555-5555' },
+      lat: { type: :number, format: :float, example: 37.7749, nullable: true },
+      long: { type: :number, format: :float, example: -122.4194, nullable: true }
+    )
+    accredited_data_structure('organization', attributes)
+  end
+
+  def accredited_data_structure(type, attributes)
+    {
+      type: :object,
+      properties: {
+        data: {
+          type: :object,
+          properties: {
+            id: { type: :string, example: '123456' },
+            type: { type: :string, example: type },
+            attributes: {
+              type: :object,
+              properties: attributes
+            }
+          }
+        }
+      }
+    }
+  end
+
+  def address_properties
+    {
+      address_line1: { type: :string, example: '123 Main St' },
+      address_line2: { type: :string, example: 'Apt 4', nullable: true },
+      address_line3: { type: :string, example: 'Suite 100', nullable: true },
+      address_type: { type: :string, example: 'Domestic' },
+      city: { type: :string, example: 'Anytown' },
+      country_name: { type: :string, example: 'USA', nullable: true },
+      country_code_iso3: { type: :string, example: 'USA', nullable: true },
+      province: { type: :string, example: 'New York', nullable: true },
+      international_postal_code: { type: :string, example: '', nullable: true },
+      state_code: { type: :string, example: 'NY' },
+      zip_code: { type: :string, example: '12345' },
+      zip_suffix: { type: :string, example: '6789', nullable: true }
     }
   end
 

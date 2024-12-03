@@ -7,10 +7,8 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   subject { described_class.new(user) }
 
   let(:user) { build(:user, :loa3) }
-  let(:vet360_id) { '1781151' }
 
   before do
-    allow(user).to receive_messages(vet360_id:, icn: '1234')
     Flipper.enable(:va_v3_contact_information_service)
   end
 
@@ -56,44 +54,8 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     end
   end
 
-  describe '#get_person error' do
-    let(:user) { build(:user, :loa3) }
-
-    before do
-      Flipper.enable(:va_v3_contact_information_service)
-      allow_any_instance_of(User).to receive(:vet360_id).and_return('6767671')
-      allow_any_instance_of(User).to receive(:idme_uuid).and_return(nil)
-    end
-
-    context 'when not successful' do
-      context 'with a 400 error' do
-        it 'returns nil person' do
-          VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
-            response = subject.get_person
-            expect(response).not_to be_ok
-            expect(response.person).to be_nil
-          end
-        end
-      end
-
-      it 'returns a status of 400' do
-        VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
-          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
-            instance_of(Common::Client::Errors::ClientError),
-            { vet360_id: user.vet360_id },
-            { va_profile: :person_not_found },
-            :warning
-          )
-          response = subject.get_person
-          expect(response).not_to be_ok
-          expect(response.person).to be_nil
-        end
-      end
-    end
-  end
-
   describe '#post_email' do
-    let(:email) { build(:email, :contact_info_v2, vet360_id: user.vet360_id, source_system_user: user.icn) }
+    let(:email) { build(:email, :contact_info_v2, source_system_user: user.icn) }
 
     context 'when successful' do
       it 'returns a status of 200' do
@@ -124,7 +86,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     let(:email) do
       build(
         :email, :contact_info_v2, id: 318_927, email_address: 'person43@example.com',
-                                  vet360_id: 1_781_151, source_system_user: user.icn
+                                  source_system_user: user.icn
       )
     end
 
@@ -154,7 +116,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   describe '#post_address' do
     let(:address) do
-      build(:va_profile_v3_address, vet360_id: user.vet360_id, source_system_user: user.icn)
+      build(:va_profile_v3_address, source_system_user: user.icn)
     end
 
     context 'when successful' do
@@ -191,7 +153,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   describe '#put_address' do
     let(:address) do
-      build(:va_profile_v3_address, :override, vet360_id: user.vet360_id, source_system_user: user.icn)
+      build(:va_profile_v3_address, :override, source_system_user: user.icn)
     end
 
     context 'when successful' do
@@ -229,7 +191,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   end
 
   describe '#put_telephone' do
-    let(:telephone) { build(:telephone, :contact_info_v2, vet360_id: user.vet360_id, source_system_user: user.icn) }
+    let(:telephone) { build(:telephone, :contact_info_v2, source_system_user: user.icn) }
 
     context 'when successful' do
       it 'returns a status of 200' do
@@ -246,7 +208,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   describe '#post_telephone' do
     let(:telephone) do
-      build(:telephone, :contact_info_v2, vet360_id: user.vet360_id, id: nil, source_system_user: user.icn)
+      build(:telephone, :contact_info_v2, id: nil, source_system_user: user.icn)
     end
 
     context 'when successful' do
@@ -612,15 +574,49 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         end
       end
 
-      context 'for initializing a vet360_id' do
-        it 'increments the StatsD VAProfile init_vet360_id counters' do
+      context 'for initializing va profile' do
+        it 'increments the StatsD VAProfile init_va_profile counters' do
           transaction_id = '153536a5-8b18-4572-a3d9-4030bea3ab5c'
 
           VCR.use_cassette('va_profile/v2/contact_information/person_transaction_status') do
             expect { subject.get_person_transaction_status(transaction_id) }.to trigger_statsd_increment(
-              "#{VAProfile::Service::STATSD_KEY_PREFIX}.init_vet360_id.success"
+              "#{VAProfile::Service::STATSD_KEY_PREFIX}.init_va_profile.success"
             )
           end
+        end
+      end
+    end
+  end
+
+  describe '#get_person error' do
+    let(:user) { build(:user, :loa3) }
+
+    before do
+      allow_any_instance_of(User).to receive(:icn).and_return('6767671')
+    end
+
+    context 'when not successful' do
+      context 'with a 400 error' do
+        it 'returns nil person' do
+          VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+            response = subject.get_person
+            expect(response).not_to be_ok
+            expect(response.person).to be_nil
+          end
+        end
+      end
+
+      it 'returns a status of 400' do
+        VCR.use_cassette('va_profile/v2/contact_information/person_error', VCR::MATCH_EVERYTHING) do
+          expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(
+            instance_of(Common::Client::Errors::ClientError),
+            { vet360_id: user.vet360_id },
+            { va_profile: :person_not_found },
+            :warning
+          )
+          response = subject.get_person
+          expect(response).not_to be_ok
+          expect(response.person).to be_nil
         end
       end
     end
