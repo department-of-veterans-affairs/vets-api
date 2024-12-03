@@ -223,7 +223,8 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
   let(:upload_response_error) do
     response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_upload_show_response_200.json'))
     response['data']['attributes']['status'] = 'error'
-    response['data']['attributes']['detail'] = 'Invalid PDF'
+    response['data']['attributes']['detail'] =
+      'Upstream status: Errors: ERR-EMMS-FAILED, Corrupted File detected. EMMS-GCIO-0, ...'
     instance_double(Faraday::Response, body: response)
   end
 
@@ -378,7 +379,9 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
               guid: anything, lighthouse_upload_id: upload_id, detail: anything)
       expect(Rails.logger).to have_received(:info)
         .with("#{log_prefix} evidence status error",
-              guid: guid2, lighthouse_upload_id: upload_id2, detail: 'Invalid PDF')
+              guid: guid2, lighthouse_upload_id: upload_id2,
+              detail: 'Upstream status: Errors: ERR-EMMS-FAILED, Corrupted File detected. EMMS-GCIO-0, ...',
+              error_type: 'corrupted-file')
       expect(StatsD).to have_received(:increment)
         .with('silent_failure', tags: [service_tag,
                                        'function: evidence submission to Lighthouse'])

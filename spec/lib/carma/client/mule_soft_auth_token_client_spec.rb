@@ -13,6 +13,7 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
       token_url: 'my/token/url',
       client_id: 'id',
       client_secret: 'secret',
+      auth_token_path: 'auth/token/path',
       timeout:
     )
   end
@@ -57,7 +58,7 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
         expect(client).to receive(:perform)
           .with(
             :post,
-            CARMA::Client::MuleSoftAuthTokenClient::AUTH_TOKEN_PATH,
+            config.settings.auth_token_path,
             token_params, token_headers, options
           )
           .and_return(mock_token_response)
@@ -71,7 +72,7 @@ describe CARMA::Client::MuleSoftAuthTokenClient do
 
       it 'raises error' do
         expect(client).to receive(:perform)
-          .with(:post, CARMA::Client::MuleSoftAuthTokenClient::AUTH_TOKEN_PATH, token_params, token_headers, options)
+          .with(:post, config.settings.auth_token_path, token_params, token_headers, options)
           .and_return(mock_error_token_response)
 
         expect do

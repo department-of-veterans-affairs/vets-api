@@ -2,7 +2,7 @@
 
 require 'pension_burial/processing_office'
 
-class SavedClaim::Burial < CentralMailClaim
+class SavedClaim::Burial < SavedClaim
   FORM = '21P-530'
 
   # attribute name is passed from the FE as a flag, maintaining camel case

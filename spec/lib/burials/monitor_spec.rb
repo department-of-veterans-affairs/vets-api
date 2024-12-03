@@ -66,7 +66,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          'info',
           log,
           "#{claim_stats_key}.attempt",
           call_location: anything,

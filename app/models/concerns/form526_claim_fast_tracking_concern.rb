@@ -405,7 +405,7 @@ module Form526ClaimFastTrackingConcern
   end
 
   def log_flashes
-    if flashes.includes?('Amyotrophic Lateral Sclerosis')
+    if flashes.include?('Amyotrophic Lateral Sclerosis')
       Rails.logger.info('Flash Prototype Added', { submitted_claim_id:, flash: 'Amyotrophic Lateral Sclerosis' })
     end
   rescue => e

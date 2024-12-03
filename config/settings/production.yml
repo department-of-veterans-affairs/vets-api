@@ -1,2 +1,92 @@
+betamocks:
+  recording: false
+central_mail:
+  upload:
+    enabled: true
+check_in:
+  authentication:
+    retry_attempt_expiry: 604800
+  chip_api_v2:
+    mock: false
+    timeout: 30
+  lorota_v2:
+    mock: false
+  travel_reimbursement_api:
+    redis_token_expiry: 3540
+clamav:
+  mock: false
+coverband:
+  github_organization: department-of-veterans-affairs
+decision_review:
+  mock: false
+  pdf_validation:
+    enabled: true
+dogstatsd:
+  enabled: true
+evss:
+  s3:
+    uploads_enabled: true
+expiry_scanner:
+  slack:
+    channel_id: C24RH0W11
+flipper:
+  github_organization: department-of-veterans-affairs
+  mute_logs: false
+form_10_10cg:
+  poa:
+    s3:
+      enabled: true
+form526_backup:
+  submission_method: single
+google_analytics_cvu:
+  type: service_account
 hca:
   ca: []
+lighthouse:
+  benefits_intake:
+    path: /services/vba_documents
+    use_mocks: false
+    version: v1
+  veteran_verification:
+    form526:
+      use_mocks: false
+maintenance:
+  services:
+    bgs: P5Q2OCZ
+modules_appeals_api:
+  legacy_appeals_enabled: true
+  schema_dir: config/schemas
+mvi:
+  pii_logging: false
+session_cookie:
+  secure: true
+sidekiq_admin_panel: false
+sidekiq:
+  github_organization: department-of-veterans-affairs
+va_profile:
+  contact_information:
+    cache_enabled: true
+    enabled: true
+    mock: false
+    timeout: 30
+  demographics:
+    cache_enabled: false
+    enabled: true
+    mock: false
+    timeout: 30
+  military_personnel:
+    cache_enabled: false
+    enabled: true
+    mock: false
+    timeout: 30
+  veteran_status:
+    mock: false
+vba_documents:
+  enable_validate_document_endpoint: true
+  s3:
+    enabled: true
+  slack:
+    daily_notification_hour: 7
+    in_flight_notification_hung_time_in_days: 14
+    renotification_in_minutes: 1440
+    update_stalled_notification_in_minutes: 180
