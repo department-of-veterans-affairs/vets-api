@@ -1012,7 +1012,7 @@ RSpec.describe FormProfile, type: :model do
     Flipper.disable(:disability_compensation_remove_pciu)
   end
 
-  describe '#initialize_military_information', :initiate_vaprofile, :skip_va_profile do
+  describe '#initialize_military_information', :skip_va_profile do
     context 'with military_information vaprofile' do
       it 'prefills military data from va profile' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
@@ -1047,7 +1047,7 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
-  describe '#initialize_va_profile_prefill_military_information', :initiate_vaprofile do
+  describe '#initialize_va_profile_prefill_military_information' do
     context 'when va profile is down in production' do
       it 'logs exception and returns empty hash' do
         expect(form_profile).to receive(:log_exception_to_sentry).with(
@@ -1078,7 +1078,7 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
-  describe '#va_profile_phone', :initiate_vaprofile, :skip_va_profile, :skip_vet360 do
+  describe '#va_profile_phone', :skip_va_profile, :skip_vet360 do
     def self.test_va_profile_phone(primary, expected)
       it "returns #{expected}" do
         allow_any_instance_of(FormProfile).to receive(:extract_va_profile_phone).and_return(primary)
@@ -1099,7 +1099,7 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
-  describe '#prefill_form', :initiate_vaprofile do
+  describe '#prefill_form' do
     def can_prefill_vaprofile(yes)
       expect(user).to receive(:authorize).at_least(:once).with(:va_profile, :access?).and_return(yes)
     end
@@ -1786,7 +1786,7 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
-  describe '.mappings_for_form', :initiate_vaprofile do
+  describe '.mappings_for_form' do
     context 'with multiple form profile instances' do
       let(:instance1) { FormProfile.new(form_id: '1010ez', user:) }
       let(:instance2) { FormProfile.new(form_id: '1010ez', user:) }

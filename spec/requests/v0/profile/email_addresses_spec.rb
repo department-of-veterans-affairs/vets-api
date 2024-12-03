@@ -11,7 +11,8 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
 
   describe 'ContactInformationV1', :skip_va_profile_user do
     before do
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info

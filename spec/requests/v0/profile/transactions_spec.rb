@@ -176,7 +176,7 @@ RSpec.describe 'transactions' do
     end
   end
 
-  describe 'contact information v2' do
+  describe 'contact information v2', :skip_vet360 do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
