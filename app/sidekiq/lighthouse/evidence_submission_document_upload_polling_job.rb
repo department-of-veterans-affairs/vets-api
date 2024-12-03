@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+require 'lighthouse/benefits_documents/documents_status_polling_service'
+require 'lighthouse/benefits_documents/update_documents_status_service'
+
 module Lighthouse
   class EvidenceSubmissionDocumentUploadPollingJob
     include Sidekiq::Job
@@ -43,7 +46,7 @@ module Lighthouse
     # end
 
     # TODO: Flesh out perform function
-    def perform(user_account_uuid)
+    def perform
       successful_documents_before_polling = EvidenceSubmission.completed.count
       failed_documents_before_polling = EvidenceSubmission.failed.count
 

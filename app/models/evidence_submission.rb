@@ -14,4 +14,16 @@ class EvidenceSubmission < ApplicationRecord
   scope :completed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]) }
   scope :pending, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]) }
   scope :failed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]) }
+
+  def completed?
+    upload_status == BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]
+  end
+
+  def failed?
+    upload_status == BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
+  end
+
+  def pending?
+    upload_status == BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
+  end
 end

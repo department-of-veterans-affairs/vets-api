@@ -1,0 +1,103 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://sandbox-api.va.gov/services/benefits-documents/v1/uploads/status
+    body:
+      encoding: US-ASCII
+      string: '{"data":{"requestIds":["1","2"]}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/x-www-form-urlencoded
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 26 Nov 2024 23:46:36 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Reset:
+      - '26'
+      Ratelimit-Limit:
+      - '60'
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      Pragma:
+      - no-cache
+      - no-cache
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Frame-Options:
+      - SAMEORIGIN
+      Cache-Control:
+      - no-cache, no-store
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{
+  "data": {
+    "statuses": [
+      {
+        "requestId": 1,
+        "time": {
+          "startTime": 1502199000,
+          "endTime": 1502199000
+        },
+        "status": "FAILED",
+        "steps": [
+          {
+            "name": "BENEFITS_GATEWAY_SERVICE",
+            "nextStepName": "BENEFITS_GATEWAY_SERVICE",
+            "description": "string",
+            "status": "NOT_STARTED"
+          }
+        ],
+        "error": {
+          "detail": "string",
+          "step": "BENEFITS_GATEWAY_SERVICE"
+        }
+      },
+      {
+        "requestId": 2,
+        "time": {
+          "startTime": 1502199000,
+          "endTime": 1502199000
+        },
+        "status": "FAILED",
+        "steps": [
+          {
+            "name": "BENEFITS_GATEWAY_SERVICE",
+            "nextStepName": "BENEFITS_GATEWAY_SERVICE",
+            "description": "string",
+            "status": "NOT_STARTED"
+          }
+        ],
+        "error": {
+          "detail": "string",
+          "step": "BENEFITS_GATEWAY_SERVICE"
+        }
+      }
+    ],
+    "requestIdsNotFound": []
+  }
+}'
+  recorded_at: Tue, 26 Nov 2024 23:46:36 GMT
+recorded_with: VCR 6.2.0
