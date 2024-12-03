@@ -14,6 +14,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                                               instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:form526_send_0781_failure_notification).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }

@@ -29,6 +29,7 @@ RSpec.describe Form526Submission do
 
   before do
     Flipper.disable(:disability_compensation_production_tester)
+    Flipper.disable(:validate_saved_claims_with_json_schemer)
   end
 
   describe 'associations' do
@@ -1288,6 +1289,7 @@ RSpec.describe Form526Submission do
           allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:disability_526_call_received_email_from_polling,
                                                     anything).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
           expect do
             subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
           end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
@@ -1298,6 +1300,7 @@ RSpec.describe Form526Submission do
           allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
           allow(Flipper).to receive(:enabled?).with(:disability_526_call_received_email_from_polling,
                                                     anything).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
           expect do
             subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
           end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
