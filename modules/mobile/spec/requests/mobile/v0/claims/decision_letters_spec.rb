@@ -13,17 +13,12 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
 
   before do
     allow(VBMS::Client).to receive(:from_env_vars).and_return(FakeVBMS.new)
-    Flipper.enable(:mobile_claims_log_decision_letter_sent)
-    Flipper.disable(:mobile_filter_doc_27_decision_letters_out)
-    Flipper.disable(:cst_include_ddl_5103_letters)
-    Flipper.disable(:cst_include_ddl_sqd_letters)
-  end
-
-  after do
-    Flipper.disable(:mobile_claims_log_decision_letter_sent)
-    Flipper.disable(:mobile_filter_doc_27_decision_letters_out)
-    Flipper.disable(:cst_include_ddl_5103_letters)
-    Flipper.disable(:cst_include_ddl_sqd_letters)
+    allow(Flipper).to receive(:enabled?).with(:mobile_claims_log_decision_letter_sent, nil).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mobile_filter_doc_27_decision_letters_out).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:cst_include_ddl_5103_letters, nil).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:cst_include_ddl_sqd_letters, nil).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:cst_include_ddl_boa_letters, nil).and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:mobile_claims_log_decision_letter_sent).and_return(false)
   end
 
   # This endpoint's upstream service mocks it's own data for test env. HTTP client is not exposed by the
@@ -42,8 +37,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
     context 'with a valid response' do
       context 'with mobile_filter_doc_27_decision_letters_out flag enabled' do
         it 'returns expected decision letters' do
-          Flipper.enable(:mobile_filter_doc_27_decision_letters_out)
-
+          allow(Flipper).to receive(:enabled?).with(:mobile_filter_doc_27_decision_letters_out).and_return(true)
           get '/mobile/v0/claims/decision-letters', headers: sis_headers
           assert_schema_conform(200)
           decision_letters = response.parsed_body['data']
@@ -59,7 +53,7 @@ RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
 
       context 'with mobile_filter_doc_27_decision_letters_out flag disabled' do
         it 'returns expected decision letters' do
-          Flipper.disable(:mobile_filter_doc_27_decision_letters_out)
+          allow(Flipper).to receive(:enabled?).with(:mobile_filter_doc_27_decision_letters_out).and_return(false)
 
           get '/mobile/v0/claims/decision-letters', headers: sis_headers
           assert_schema_conform(200)
