@@ -18,6 +18,24 @@
   ],
   "components": {
     "schemas": {
+      "error": {
+        "type": "string",
+        "example": "Veteran first name can't be blank"
+      },
+      "errors": {
+        "type": "object",
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      },
       "errorModel": {
         "type": "object",
         "required": [
@@ -68,23 +86,6 @@
             }
           }
         }
-      },
-      "errors": {
-        "type": "object",
-        "required": [
-          "errors"
-        ],
-        "properties": {
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/error"
-            }
-          }
-        }
-      },
-      "error": {
-        "type": "string"
       },
       "powerOfAttorneyResponse": {
         "type": "object",
@@ -185,6 +186,108 @@
                   "state_code",
                   "zip_code"
                 ]
+              }
+            }
+          }
+        }
+      },
+      "veteranServiceOrganization": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "123456"
+              },
+              "type": {
+                "type": "string",
+                "example": "organization"
+              },
+              "attributes": {
+                "type": "object",
+                "properties": {
+                  "address_line1": {
+                    "type": "string",
+                    "example": "123 Main St"
+                  },
+                  "address_line2": {
+                    "type": "string",
+                    "example": "Apt 4",
+                    "nullable": true
+                  },
+                  "address_line3": {
+                    "type": "string",
+                    "example": "Suite 100",
+                    "nullable": true
+                  },
+                  "address_type": {
+                    "type": "string",
+                    "example": "Domestic"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Anytown"
+                  },
+                  "country_name": {
+                    "type": "string",
+                    "example": "USA",
+                    "nullable": true
+                  },
+                  "country_code_iso3": {
+                    "type": "string",
+                    "example": "USA",
+                    "nullable": true
+                  },
+                  "province": {
+                    "type": "string",
+                    "example": "New York",
+                    "nullable": true
+                  },
+                  "international_postal_code": {
+                    "type": "string",
+                    "example": "",
+                    "nullable": true
+                  },
+                  "state_code": {
+                    "type": "string",
+                    "example": "NY"
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "example": "12345"
+                  },
+                  "zip_suffix": {
+                    "type": "string",
+                    "example": "6789",
+                    "nullable": true
+                  },
+                  "poa_code": {
+                    "type": "string",
+                    "example": "123"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Organization Name"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "555-555-5555"
+                  },
+                  "lat": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 37.7749,
+                    "nullable": true
+                  },
+                  "long": {
+                    "type": "number",
+                    "format": "float",
+                    "example": -122.4194,
+                    "nullable": true
+                  }
+                }
               }
             }
           }
@@ -301,108 +404,6 @@
                         }
                       }
                     }
-                  }
-                }
-              }
-            }
-          }
-        }
-      },
-      "veteranServiceOrganization": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "example": "123456"
-              },
-              "type": {
-                "type": "string",
-                "example": "organization"
-              },
-              "attributes": {
-                "type": "object",
-                "properties": {
-                  "address_line1": {
-                    "type": "string",
-                    "example": "123 Main St"
-                  },
-                  "address_line2": {
-                    "type": "string",
-                    "example": "Apt 4",
-                    "nullable": true
-                  },
-                  "address_line3": {
-                    "type": "string",
-                    "example": "Suite 100",
-                    "nullable": true
-                  },
-                  "address_type": {
-                    "type": "string",
-                    "example": "Domestic"
-                  },
-                  "city": {
-                    "type": "string",
-                    "example": "Anytown"
-                  },
-                  "country_name": {
-                    "type": "string",
-                    "example": "USA",
-                    "nullable": true
-                  },
-                  "country_code_iso3": {
-                    "type": "string",
-                    "example": "USA",
-                    "nullable": true
-                  },
-                  "province": {
-                    "type": "string",
-                    "example": "New York",
-                    "nullable": true
-                  },
-                  "international_postal_code": {
-                    "type": "string",
-                    "example": "",
-                    "nullable": true
-                  },
-                  "state_code": {
-                    "type": "string",
-                    "example": "NY"
-                  },
-                  "zip_code": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "zip_suffix": {
-                    "type": "string",
-                    "example": "6789",
-                    "nullable": true
-                  },
-                  "poa_code": {
-                    "type": "string",
-                    "example": "123"
-                  },
-                  "name": {
-                    "type": "string",
-                    "example": "Organization Name"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "555-555-5555"
-                  },
-                  "lat": {
-                    "type": "number",
-                    "format": "float",
-                    "example": 37.7749,
-                    "nullable": true
-                  },
-                  "long": {
-                    "type": "number",
-                    "format": "float",
-                    "example": -122.4194,
-                    "nullable": true
                   }
                 }
               }
@@ -707,7 +708,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Errors"
+                  "$ref": "#/components/schemas/errors"
                 }
               }
             }

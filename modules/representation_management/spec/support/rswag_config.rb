@@ -40,12 +40,12 @@ class RepresentationManagement::RswagConfig
 
   def schemas
     {
-      errorModel: error_model,
-      errors: errors,
       error: error,
+      errors: errors,
+      errorModel: error_model,
       powerOfAttorneyResponse: power_of_attorney_response,
-      veteranServiceRepresentative: veteran_service_representative_schema,
-      veteranServiceOrganization: veteran_service_organization_schema
+      veteranServiceOrganization: veteran_service_organization_schema,
+      veteranServiceRepresentative: veteran_service_representative_schema
     }
   end
 
