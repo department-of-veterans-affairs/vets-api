@@ -60,12 +60,33 @@ module BBInternal
     ##
     # Get a list of MHV radiology reports from CVIX for the current user. These results do not
     # include VIA reports.
+    # 
+    # study_id is mapped to a new UUID and stored in Redis for later retrieval.
+    # This is to prevent the study_id from being exposed to the client.
+    # The client will use the UUID to request the study.
     #
     # @return [Hash] The radiology study list from MHV
     #
     def list_imaging_studies
       response = perform(:get, "bluebutton/study/#{session.patient_id}", nil, token_headers)
-      response.body
+      data = response.body
+
+      id_uuid_map = {}
+
+      modified_data = data.map do |obj|
+        study_id = obj['studyIdUrn']
+        new_uuid = SecureRandom.uuid
+        id_uuid_map[new_uuid] = study_id
+        obj['studyIdUrn'] = new_uuid
+        obj
+      end
+
+      namespace = REDIS_CONFIG[:medical_records_store][:namespace]
+      redis = Redis::Namespace.new(namespace, redis: $redis)
+      redis.set("study_data_#{session.patient_id}", id_uuid_map.to_json, nx: true,
+                                                                         ex: REDIS_CONFIG[:medical_records_store][:each_ttl])
+
+      modified_data
     end
 
     ##
