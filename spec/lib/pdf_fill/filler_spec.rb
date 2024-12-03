@@ -7,10 +7,6 @@ require 'lib/pdf_fill/fill_form_examples'
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
-  before do
-    Flipper.enable(:va_burial_v2)
-  end
-
   describe '#combine_extras' do
     subject do
       described_class.combine_extras(old_file_path, extras_generator)
