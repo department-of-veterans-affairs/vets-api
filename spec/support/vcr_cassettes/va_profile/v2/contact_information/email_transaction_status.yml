@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: <VAPROFILE_URL>/contact-information-hub/contact-information/v2/emails/status/5b4550b3-2bcb-4fef-8906-35d0b4b310a8
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/emails/status/5b4550b3-2bcb-4fef-8906-35d0b4b310a8
     body:
       encoding: US-ASCII
       string: ''
@@ -57,6 +57,6 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"5b4550b3-2bcb-4fef-8906-35d0b4b310a8","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"sourceDate":"2024-05-21T05:03:23Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","emailId":8087,"emailAddressText":"person43@example.com"},"txOutput":[{"txAuditId":"5b4550b3-2bcb-4fef-8906-35d0b4b310a8","sourceSystem":"VETSGOV","sourceDate":"2024-05-21T05:03:23Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2024-05-21T05:03:23Z","vaProfileId":1,"emailId":8087,"emailAddressText":"person43@example.com"}]}'
+      string: '{"txAuditId":"5b4550b3-2bcb-4fef-8906-35d0b4b310a8","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"sourceDate":"2024-05-21T05:03:23Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","emailId":8087,"emailAddressText":"person43@example.com"},"txOutput":[{"txAuditId":"5b4550b3-2bcb-4fef-8906-35d0b4b310a8","sourceSystem":"VETSGOV","sourceDate":"2024-05-21T05:03:23Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","effectiveStartDate":"2024-05-21T05:03:23Z","vaProfileId":1,"emailId":8087,"emailAddressText":"person43@example.com"}]}'
   recorded_at: Fri, 06 Sep 2024 18:19:30 GMT
 recorded_with: VCR 6.3.1
