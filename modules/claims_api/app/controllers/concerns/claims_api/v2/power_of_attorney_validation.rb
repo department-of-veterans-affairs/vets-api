@@ -7,9 +7,10 @@ module ClaimsApi
   module V2
     module PowerOfAttorneyValidation
       include ClaimsApi::DependentClaimantValidation
+
       def validate_form_2122_and_2122a_submission_values(user_profile:, veteran_participant_id: nil,
                                                          poa_code: nil, base: nil)
-        validate_address_values
+        validate_non_claimant_address_values
         validate_claimant_fields(user_profile)
         if [veteran_participant_id, user_profile, poa_code, base].all?(&:present?)
           validate_dependent_claimant(veteran_participant_id:, user_profile:, poa_code:, base:)
@@ -42,27 +43,11 @@ module ClaimsApi
 
       # the Claimant object is already being validatated below,
       # so that code has been adjusted and it is being left out of this workflow
-      def validate_address_values
-        address_objects = { veteran: 'veteran', representative: 'representative' }
+      def validate_non_claimant_address_values
+        %w[veteran representative].each do |base|
+          address = form_attributes.dig(base, 'address')
 
-        address_objects.each do |key, base|
-          address = form_attributes.dig(key.to_s, 'address')
-
-          validate_zip(address, base) if address.present?
-        end
-      end
-
-      def validate_zip(address, base)
-        country = address['country']&.downcase
-        return unless country == 'us'
-
-        zip_code = address['zipCode']
-
-        if zip_code.blank?
-          collect_error_messages(
-            source: "/#{base}/address/zipCode",
-            detail: "If 'countryCode' is 'US' then 'zipCode' is required."
-          )
+          validate_address_zip_code(address, base) if address.present?
         end
       end
 
@@ -112,7 +97,7 @@ module ClaimsApi
           validate_address_city(address)
           validate_address_state_code(address)
           validate_address_country(address)
-          validate_address_zip_code(address)
+          validate_address_zip_code(address, 'claimant')
         end
       end
 
@@ -152,10 +137,13 @@ module ClaimsApi
         end
       end
 
-      def validate_address_zip_code(address)
-        if address['zipCode'].blank? && address['country'].downcase == 'us'
+      def validate_address_zip_code(address, base)
+        country = address['country']&.downcase
+        return unless country == 'us'
+
+        if address['zipCode'].blank?
           collect_error_messages(
-            source: '/claimant/address/zipCode',
+            source: "/#{base}/address/zipCode",
             detail: "If 'countryCode' is 'US' then 'zipCode' is required."
           )
         end

@@ -3685,7 +3685,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "90357ec6-e5b7-4308-858b-d762743db12d",
+                        "id": "e9601789-6464-499a-a646-cf82632ad135",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3916,7 +3916,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "e1db764b-4261-4dc5-97b3-9f2e96f0ca38",
+                        "id": "a289481a-8de0-4a60-9596-4050bd8c9336",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -9129,7 +9129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "c0a562c0-572e-4c49-9d21-66b93547c6cb",
+                    "id": "fdfd0213-d0b3-4e67-90d8-79ee67d1cccb",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13768,7 +13768,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "40f663bb-9fc0-4001-a183-395c406594ff",
+                    "id": "6563ef4b-5b84-49ce-af8a-84ca4d83fae3",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14114,7 +14114,7 @@
                                     "example": "USA"
                                   },
                                   "zipCode": {
-                                    "description": "Zip code (First 5 digits) of the address.Required if 'country' is 'US'.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'country' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -14208,7 +14208,7 @@
                                     "example": "USA"
                                   },
                                   "zipCode": {
-                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'country' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -14327,7 +14327,7 @@
                                     "example": "USA"
                                   },
                                   "zipCode": {
-                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'country' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -14539,7 +14539,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "05e15b1b-680a-4df4-8078-91d408f7242e",
+                    "id": "691c0d73-fbca-42a3-b7ea-2ec07294265d",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15558,7 +15558,7 @@
                                     "example": "USA"
                                   },
                                   "zipCode": {
-                                    "description": "Zip code (First 5 digits) of the address.Required if 'country' is 'US'.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'country' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -15652,7 +15652,7 @@
                                     "example": "USA"
                                   },
                                   "zipCode": {
-                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'country' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -15771,7 +15771,7 @@
                                     "example": "USA"
                                   },
                                   "zipCode": {
-                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'country' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -16532,7 +16532,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b36a7c49-43cf-41a3-ac4f-12fdc7130dec",
+                    "id": "fb64434b-9a0e-4114-af2a-5d8b2cba7764",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2024-12-03",
