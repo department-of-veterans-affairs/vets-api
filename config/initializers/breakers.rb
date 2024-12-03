@@ -6,7 +6,7 @@ require 'caseflow/configuration'
 require 'central_mail/configuration'
 require 'debt_management_center/debts_configuration'
 require 'decision_review/configuration'
-require 'vye/dgib/configuration'
+require 'vye/dgib/service'
 require 'dgi/automation/configuration'
 require 'dgi/eligibility/configuration'
 require 'dgi/status/configuration'
@@ -85,7 +85,7 @@ Rails.application.reloader.to_prepare do
     SearchTypeahead::Configuration.instance.breakers_service,
     SearchClickTracking::Configuration.instance.breakers_service,
     VAOS::Configuration.instance.breakers_service,
-    Vye::DGIB::Configuration.instance.breakers_service,
+    Vye::DGIB::Service.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,
     CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
     VEText::Configuration.instance.breakers_service,
