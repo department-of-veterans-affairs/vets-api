@@ -49,6 +49,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
         before do
           allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
+          allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
         end
 
         context 'when fully_validate_schema returns errors' do
@@ -121,6 +122,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
         before do
           allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(true)
+          allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
         end
 
         context 'when fully_validate returns errors' do

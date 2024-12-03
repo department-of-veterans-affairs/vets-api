@@ -152,13 +152,43 @@ class SavedClaim < ApplicationRecord
   private
 
   def validate_schema(schema)
+    if Flipper.enabled?(:validate_saved_claims_with_json_schemer)
+      validate_schema_with_json_schemer(schema)
+    else
+      validate_schema_with_json_schema(schema)
+    end
+  end
+
+  def validate_form(schema, clear_cache)
+    if Flipper.enabled?(:validate_saved_claims_with_json_schemer)
+      validate_form_with_json_schemer(schema)
+    else
+      validate_form_with_json_schema(schema, clear_cache)
+    end
+  end
+
+  def validate_schema_with_json_schemer(schema)
+    errors = JSONSchemer.validate_schema(schema).to_a
+    return if errors.empty?
+
+    raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
+  end
+
+  def validate_schema_with_json_schema(schema)
     JSON::Validator.fully_validate_schema(schema, { errors_as_objects: true })
   rescue => e
     Rails.logger.error('Error during schema validation!', { error: e.message, backtrace: e.backtrace, schema: })
     raise
   end
 
-  def validate_form(schema, clear_cache)
+  def validate_form_with_json_schemer(schema)
+    errors = JSONSchemer.schema(schema).validate(parsed_form).to_a
+    return if errors.empty?
+
+    raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
+  end
+
+  def validate_form_with_json_schema(schema, clear_cache)
     JSON::Validator.fully_validate(schema, parsed_form, { errors_as_objects: true, clear_cache: })
   rescue => e
     PersonalInformationLog.create(data: { schema:, parsed_form:, params: { errors_as_objects: true, clear_cache: } },
@@ -166,6 +196,10 @@ class SavedClaim < ApplicationRecord
     Rails.logger.error('Error during form validation!',
                        { error: e.message, backtrace: e.backtrace, schema:, clear_cache: })
     raise
+  end
+
+  def remove_pii_from_json_schemer_errors(errors)
+    errors.map { |error| error.slice 'data_pointer', 'schema', 'root_schema' }
   end
 
   def attachment_keys
