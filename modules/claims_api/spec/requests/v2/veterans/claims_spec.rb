@@ -41,17 +41,10 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
     )
   end
   let(:person_web_service) do
-    if Flipper.enabled? :claims_api_use_person_web_service
-      ClaimsApi::PersonWebService.new(
-        external_uid: target_veteran.participant_id,
-        external_key: target_veteran.participant_id
-      )
-    else
-      ClaimsApi::LocalBGS.new(
-        external_uid: target_veteran.participant_id,
-        external_key: target_veteran.participant_id
-      )
-    end
+    ClaimsApi::PersonWebService.new(
+      external_uid: target_veteran.participant_id,
+      external_key: target_veteran.participant_id
+    )
   end
   let(:target_veteran) do
     OpenStruct.new(
@@ -74,7 +67,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
       allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return false
       allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
       allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_use_birls_id).and_return false
-      allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
+      allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
     end
 
     describe 'index' do

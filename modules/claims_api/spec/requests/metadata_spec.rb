@@ -55,8 +55,8 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
           expect(result['mpi']['success']).to eq(false)
         end
 
-        local_bgs_services = %i[claimant person org intenttofile trackeditem].freeze
-        local_bgs_methods = %i[find_poa_by_participant_id find_by_ssn find_poa_history_by_ptcpnt_id
+        local_bgs_services = %i[claimant org intenttofile trackeditem].freeze
+        local_bgs_methods = %i[find_poa_by_participant_id find_poa_history_by_ptcpnt_id
                                insert_intent_to_file find_tracked_items].freeze
         local_bgs_services.each do |local_bgs_service|
           it "returns the correct status when the local bgs #{local_bgs_service} is not healthy" do
@@ -82,6 +82,22 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
               get "/services/claims/#{version}/upstream_healthcheck"
               result = JSON.parse(response.body)
               expect(result["localbgs-#{local_bgs_claims_status_service}"]['success']).to eq(false)
+            end
+          end
+        end
+
+        local_bgs_person_services = %i[person]
+        local_bgs_person_methods = %i[find_by_ssn]
+        local_bgs_person_services.each do |local_bgs_person_service|
+          it "returns the correct status when the local bgs #{local_bgs_person_service} is not healthy" do
+            local_bgs_person_methods.each do |local_bgs_person_method|
+              allow_any_instance_of(ClaimsApi::PersonWebService).to receive(
+                local_bgs_person_method.to_sym
+              )
+                .and_return(Struct.new(:healthy?).new(false))
+              get "/services/claims/#{version}/upstream_healthcheck"
+              result = JSON.parse(response.body)
+              expect(result["localbgs-#{local_bgs_person_service}"]['success']).to eq(false)
             end
           end
         end
