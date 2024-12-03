@@ -235,22 +235,37 @@ RSpec.describe HealthCareApplication, type: :model do
   end
 
   describe '.user_attributes' do
+    subject(:user_attributes) do
+      described_class.user_attributes(form)
+    end
+
+    let(:form) { health_care_application.parsed_form }
+
     it 'creates a mvi compatible hash of attributes' do
       expect(
-        described_class.user_attributes(
-          health_care_application.parsed_form
-        ).to_h
+        user_attributes.to_h
       ).to eq(
-        first_name: 'FirstName', middle_name: 'MiddleName',
-        last_name: 'ZZTEST', birth_date: '1923-01-02',
+        first_name: 'FirstName',
+        middle_name: 'MiddleName',
+        last_name: 'ZZTEST',
+        birth_date: '1923-01-02',
         ssn: '111111234'
       )
     end
 
+    it 'creates user_attributes with uuid' do
+      allow(SecureRandom).to receive(:uuid).and_return('my-uuid')
+      expect(
+        user_attributes.uuid
+      ).to eq('my-uuid')
+    end
+
     context 'with a nil form' do
+      let(:form) { nil }
+
       it 'raises a validation error' do
         expect do
-          described_class.user_attributes(nil)
+          user_attributes
         end.to raise_error(Common::Exceptions::ValidationErrors)
       end
     end
