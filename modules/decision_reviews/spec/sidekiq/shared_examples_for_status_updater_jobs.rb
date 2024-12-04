@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'decision_reviews/v1/service'
-require 'decision_review_v1/service'
 
 SUBCLASS_INFO = {
   SavedClaim::SupplementalClaim => { service_method: 'get_supplemental_claim',
@@ -281,16 +280,16 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
       subclass.create(guid: guid2, form: '{}')
       subclass.create(guid: guid3, form: '{}')
 
-      appeal_submission = create(:appeal_submission, submitted_appeal_uuid: guid1)
-      create(:appeal_submission_upload, appeal_submission:, lighthouse_upload_id: upload_id)
+      appeal_submission = create(:appeal_submission_module, submitted_appeal_uuid: guid1)
+      create(:appeal_submission_upload_module, appeal_submission:, lighthouse_upload_id: upload_id)
 
-      appeal_submission2 = create(:appeal_submission, submitted_appeal_uuid: guid2)
-      create(:appeal_submission_upload, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id2)
+      appeal_submission2 = create(:appeal_submission_module, submitted_appeal_uuid: guid2)
+      create(:appeal_submission_upload_module, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id2)
 
       # One upload vbms, other one still processing
-      appeal_submission3 = create(:appeal_submission, submitted_appeal_uuid: guid3)
-      create(:appeal_submission_upload, appeal_submission: appeal_submission3, lighthouse_upload_id: upload_id3)
-      create(:appeal_submission_upload, appeal_submission: appeal_submission3, lighthouse_upload_id: upload_id4)
+      appeal_submission3 = create(:appeal_submission_module, submitted_appeal_uuid: guid3)
+      create(:appeal_submission_upload_module, appeal_submission: appeal_submission3, lighthouse_upload_id: upload_id3)
+      create(:appeal_submission_upload_module, appeal_submission: appeal_submission3, lighthouse_upload_id: upload_id4)
 
       expect(service).to receive(evidence_service_method).with(guid: upload_id)
                                                          .and_return(upload_response_vbms)
@@ -351,13 +350,13 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
 
     it 'does not increment metrics for unchanged evidence status or existing final statuses' do
       subclass.create(guid: guid1, form: '{}', metadata: metadata1.to_json)
-      appeal_submission = create(:appeal_submission, submitted_appeal_uuid: guid1)
-      create(:appeal_submission_upload, appeal_submission:, lighthouse_upload_id: upload_id)
+      appeal_submission = create(:appeal_submission_module, submitted_appeal_uuid: guid1)
+      create(:appeal_submission_upload_module, appeal_submission:, lighthouse_upload_id: upload_id)
 
       subclass.create(guid: guid2, form: '{}', metadata: metadata2.to_json)
-      appeal_submission2 = create(:appeal_submission, submitted_appeal_uuid: guid2)
-      create(:appeal_submission_upload, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id2)
-      create(:appeal_submission_upload, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id3)
+      appeal_submission2 = create(:appeal_submission_module, submitted_appeal_uuid: guid2)
+      create(:appeal_submission_upload_module, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id2)
+      create(:appeal_submission_upload_module, appeal_submission: appeal_submission2, lighthouse_upload_id: upload_id3)
 
       expect(service).to receive(service_method).with(guid1).and_return(response_pending)
       expect(service).to receive(service_method).with(guid2).and_return(response_error)
