@@ -68,8 +68,6 @@ module SimpleFormsApi
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
           attachment.save
           render json: PersistentAttachmentSerializer.new(attachment)
-        else
-          render json: { error: 'Unsupported form ID' }, status: :unprocessable_entity
         end
       end
 
