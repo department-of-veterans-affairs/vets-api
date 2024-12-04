@@ -7,7 +7,6 @@ central_mail:
 
 check_in:
   authentication:
-    max_auth_retry_limit: 3
     retry_attempt_expiry: 604800 # 7 Days
   chip_api_v2:
     mock: false
