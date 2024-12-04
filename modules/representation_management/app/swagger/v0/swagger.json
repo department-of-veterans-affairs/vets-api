@@ -239,7 +239,8 @@
         }
       },
       "error": {
-        "type": "string"
+        "type": "string",
+        "example": "Veteran first name can't be blank"
       },
       "errors": {
         "type": "object",
