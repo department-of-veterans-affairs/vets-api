@@ -6,7 +6,7 @@
           "addressLine1":  "123",
           "addressLine2": "2a",
           "city": "city",
-          "country":  "US",
+          "countryCode":  "US",
           "stateCode":"OR",
           "zipCode": "12345",
           "zipCodeSuffix":"6789"
@@ -20,7 +20,7 @@
           "addressLine1":  "123",
           "addressLine2": "2a",
           "city": "city",
-          "country":  "US",
+          "countryCode":  "US",
           "stateCode":"OR",
           "zipCode": "12345",
           "zipCodeSuffix":"6789"

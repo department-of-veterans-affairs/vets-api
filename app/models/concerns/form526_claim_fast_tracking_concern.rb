@@ -98,6 +98,10 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  def flashes
+    form.dig('form526', 'form526', 'flashes') || []
+  end
+
   def disabilities
     form.dig('form526', 'form526', 'disabilities')
   end
@@ -114,8 +118,8 @@ module Form526ClaimFastTrackingConcern
     begin
       is_claim_fully_classified = update_contention_classification_all!
     rescue => e
-      Rails.logger.error "Contention Classification failed #{e.message}."
-      Rails.logger.error e.backtrace.join('\n')
+      Rails.logger.error("Contention Classification failed #{e.message}.")
+      Rails.logger.error(e.backtrace.join('\n'))
     end
 
     prepare_for_ep_merge! if is_claim_fully_classified
@@ -242,6 +246,7 @@ module Form526ClaimFastTrackingConcern
   def send_post_evss_notifications!
     conditionally_notify_mas
     conditionally_merge_ep
+    log_flashes
     Rails.logger.info('Submitted 526Submission to eVSS', id:, saved_claim_id:, submitted_claim_id:)
   end
 
@@ -345,7 +350,8 @@ module Form526ClaimFastTrackingConcern
   # fetch, memoize, and return all of the veteran's rated disabilities from EVSS
   def all_rated_disabilities
     settings = Settings.lighthouse.veteran_verification.form526
-    icn = UserAccount.where(id: user_account_id).first&.icn
+    icn = account&.icn
+    invoker = 'Form526ClaimFastTrackingConcern#all_rated_disabilities'
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
       provider: nil,
@@ -356,7 +362,11 @@ module Form526ClaimFastTrackingConcern
     )
 
     @all_rated_disabilities ||= begin
-      response = api_provider.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
+      response = api_provider.get_rated_disabilities(
+        settings.access_token.client_id,
+        settings.access_token.rsa_key,
+        { invoker: }
+      )
       response.rated_disabilities
     end
   end
@@ -396,7 +406,15 @@ module Form526ClaimFastTrackingConcern
     vro_client = VirtualRegionalOffice::Client.new
     vro_client.merge_end_products(pending_claim_id:, ep400_id: submitted_claim_id)
   rescue => e
-    Rails.logger.error "EP merge request failed #{e.message}.", backtrace: e.backtrace
+    Rails.logger.error("EP merge request failed #{e.message}.", backtrace: e.backtrace)
+  end
+
+  def log_flashes
+    if flashes.include?('Amyotrophic Lateral Sclerosis')
+      Rails.logger.info('Flash Prototype Added', { submitted_claim_id:, flash: 'Amyotrophic Lateral Sclerosis' })
+    end
+  rescue => e
+    Rails.logger.error("Failed to log Flash Prototypes #{e.message}.", backtrace: e.backtrace)
   end
 end
 # rubocop:enable Metrics/ModuleLength
