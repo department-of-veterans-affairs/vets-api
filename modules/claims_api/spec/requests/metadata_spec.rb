@@ -4,6 +4,7 @@ require 'rails_helper'
 require 'bgs/services'
 require 'mpi/service'
 require 'bgs_service/e_benefits_bnft_claim_status_web_service'
+require 'bgs_service/person_web_service'
 
 RSpec.describe 'ClaimsApi::Metadata', type: :request do
   describe '#get /metadata' do
@@ -86,19 +87,17 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
           end
         end
 
-        local_bgs_person_services = %i[person]
+        person_web_service = 'person'
         local_bgs_person_methods = %i[find_by_ssn]
-        local_bgs_person_services.each do |local_bgs_person_service|
-          it "returns the correct status when the local bgs #{local_bgs_person_service} is not healthy" do
-            local_bgs_person_methods.each do |local_bgs_person_method|
-              allow_any_instance_of(ClaimsApi::PersonWebService).to receive(
-                local_bgs_person_method.to_sym
-              )
-                .and_return(Struct.new(:healthy?).new(false))
-              get "/services/claims/#{version}/upstream_healthcheck"
-              result = JSON.parse(response.body)
-              expect(result["localbgs-#{local_bgs_person_service}"]['success']).to eq(false)
-            end
+        it "returns the correct status when the local bgs #{person_web_service} is not healthy" do
+          local_bgs_person_methods.each do |local_bgs_person_method|
+            allow_any_instance_of(ClaimsApi::PersonWebService).to receive(
+              local_bgs_person_method.to_sym
+            )
+              .and_return(Struct.new(:healthy?).new(false))
+            get "/services/claims/#{version}/upstream_healthcheck"
+            result = JSON.parse(response.body)
+            expect(result["localbgs-#{person_web_service}"]['success']).to eq(false)
           end
         end
       end
