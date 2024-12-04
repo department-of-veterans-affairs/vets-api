@@ -50,8 +50,6 @@ module SimpleFormsApi
         raise Exceptions::ScrubbedUploadsSubmitError.new(params), e
       end
 
-      # puts "Validation response status: #{validate_response.status}"
-      # puts "Validation response reason phrase: #{validate_response.reason_phrase}\n"
       def submit_supporting_documents
         if %w[40-0247 20-10207 40-10007].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
@@ -74,8 +72,7 @@ module SimpleFormsApi
           render json: { error: 'Unsupported form ID' }, status: :unprocessable_entity
         end
       end
-      
-      
+
       def get_intents_to_file
         existing_intents = intent_service.existing_intents
         render json: {
@@ -107,13 +104,13 @@ module SimpleFormsApi
         form.track_user_identity(confirmation_number)
 
         if confirmation_number && Flipper.enabled?(:simple_forms_email_confirmations)
-          send_confirmation_email(parsed_form_data, get_form_id, confirmation_number)
+          send_intent_received_email(parsed_form_data, confirmation_number, expiration_date)
         end
 
         json_for210966(confirmation_number, expiration_date, existing_intents)
-      rescue Common::Exceptions::UnprocessableEntity, Net::ReadTimeout => e
+      rescue Common::Exceptions::UnprocessableEntity, Exceptions::BenefitsClaimsApiDownError => e
         # Common::Exceptions::UnprocessableEntity: There is an authentication issue with the Intent to File API
-        # Faraday::TimeoutError: The Intent to File API is down or timed out
+        # Exceptions::BenefitsClaimsApiDownError: The Intent to File API is down or timed out
         # In either case, we revert to sending a PDF to Central Mail through the Benefits Intake API
         prepare_params_for_benefits_intake_and_log_error(e)
         submit_form_to_benefits_intake
@@ -133,7 +130,6 @@ module SimpleFormsApi
       end
 
       def submit_form_to_benefits_intake
-        form_id = get_form_id
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
@@ -146,20 +142,28 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, uuid: confirmation_number }
         )
 
-        presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
-                             upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
-                           end
+        if status == 200
+          if Flipper.enabled?(:simple_forms_email_confirmations)
+            send_confirmation_email(parsed_form_data, confirmation_number)
+          end
 
-        if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
-          send_confirmation_email(parsed_form_data, form_id, confirmation_number)
+          presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
+                               upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
+                             end
         end
 
-        json = get_json(confirmation_number || nil, form_id, presigned_s3_url)
+        build_response(confirmation_number, presigned_s3_url, status)
+      rescue SimpleFormsApi::FormRemediation::Error => e
+        Rails.logger.error('Simple forms api - error uploading form submission to S3 bucket', error: e)
+        build_response(confirmation_number, presigned_s3_url, status)
+      end
+
+      def build_response(confirmation_number, presigned_s3_url, status)
+        json = get_json(confirmation_number || nil, presigned_s3_url || nil)
         { json:, status: }
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
-        form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
         if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && @current_user
@@ -189,8 +193,7 @@ module SimpleFormsApi
       end
 
       def prepare_for_upload(form, file_path)
-        Rails.logger.info('Simple forms api - preparing to request upload location from Lighthouse',
-                          form_id: get_form_id)
+        Rails.logger.info('Simple forms api - preparing to request upload location from Lighthouse', form_id:)
         location, uuid = lighthouse_service.request_upload
         stamp_pdf_with_uuid(form, uuid, file_path)
         attempt = create_form_submission_attempt(uuid)
@@ -229,7 +232,7 @@ module SimpleFormsApi
           metadata: metadata.to_json,
           document: file_path,
           upload_url: location,
-          attachments: get_form_id == 'vba_20_10207' ? form.get_attachments : nil
+          attachments: form_id == 'vba_20_10207' ? form.get_attachments : nil
         }.compact
 
         lighthouse_service.perform_upload(**upload_params)
@@ -237,7 +240,7 @@ module SimpleFormsApi
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
-        attachments = get_form_id == 'vba_20_10207' ? form.get_attachments : []
+        attachments = form_id == 'vba_20_10207' ? form.get_attachments : []
         s3_client = config.s3_client.new(
           config:, type: :submission, id:, submission:, attachments:, file_path:, metadata:
         )
@@ -252,14 +255,14 @@ module SimpleFormsApi
         @current_user&.icn
       end
 
-      def get_form_id
+      def form_id
         form_number = params[:form_number]
         raise 'missing form_number in params' unless form_number
 
         FORM_NUMBER_MAP[form_number]
       end
 
-      def get_json(confirmation_number, form_id, pdf_url)
+      def get_json(confirmation_number, pdf_url)
         { confirmation_number: }.tap do |json|
           json[:pdf_url] = pdf_url if pdf_url.present?
           json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
@@ -294,7 +297,7 @@ module SimpleFormsApi
         } }
       end
 
-      def send_confirmation_email(parsed_form_data, form_id, confirmation_number)
+      def send_confirmation_email(parsed_form_data, confirmation_number)
         config = {
           form_data: parsed_form_data,
           form_number: form_id,
@@ -308,7 +311,22 @@ module SimpleFormsApi
         )
         notification_email.send
       end
+
+      def send_intent_received_email(parsed_form_data, confirmation_number, expiration_date)
+        config = {
+          form_data: parsed_form_data,
+          form_number: 'vba_21_0966_intent_api',
+          confirmation_number:,
+          date_submitted: Time.zone.today.strftime('%B %d, %Y'),
+          expiration_date:
+        }
+        notification_email = SimpleFormsApi::NotificationEmail.new(
+          config,
+          notification_type: :received,
+          user: @current_user
+        )
+        notification_email.send
+      end
     end
   end
 end
-
