@@ -2636,7 +2636,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
     describe 'profile/status', :skip_va_profile_user do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+                                                  instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:contact_info_change_email, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
 
