@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/healthhistory/healthHistory/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 21 Nov 2024 00:14:58 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '4955'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"success":true,"failure":false,"pojoObject":[{"id":14168647,"relationship":"UMS","firstName":"lucy","living":true,"comments":"","awAsthma":false,"awBronchitis":false,"awCOPD":false,"awEmphysema":false,"awPneumonia":false,"awSoB":false,"awTuberculosis":false,"awOther":false,"alAllergies":true,"alLupus":false,"alOther":false,"alcSocial":false,"alcOneDrink":false,"alcSixDrinks":false,"alcTwoShots":false,"blAnemia":false,"blBruising":false,"blClotting":false,"blLeukemia":false,"blSickleCell":false,"blOther":false,"baArthritis":false,"baFibromyalgia":false,"baJointPain":false,"baLymeDisease":false,"baOther":true,"caBreast":false,"caBowel":false,"caColon":false,"caLung":false,"caOvarian":false,"caSkin":false,"caStomach":false,"caProstate":false,"caOther":false,"chChickenPox":false,"chDiphtheria":false,"chMeasles":false,"chMumps":false,"chWhoopingCough":false,"chOther":false,"dbType1":false,"dbType2":false,"dbType3":false,"gbDisease":true,"gbStones":false,"gbOther":false,"hntCataracts":false,"hntDizziness":false,"hntDyslexia":false,"hntGlaucoma":false,"hntHearingLoss":false,"hntMigraineHeadaches":false,"hntRetinitisPigmentosa":false,"hntOther":false,"heAngina":false,"heCongestiveFailure":false,"heAttack":false,"heMurmur":false,"heHighCholesterol":false,"heHighPressure":false,"heMitralValveProlapse":false,"heRhythmAbnormality":false,"heStroke":false,"heOther":false,"kiInfections":false,"kiStones":false,"kiRenalFailure":false,"kiOther":false,"liHepatitisA":false,"liHepatitisB":false,"liHepatitisC":false,"liCirrhosis":false,"liOther":false,"mdAnxiety":false,"mdBipolar":false,"mdDepression":true,"mdParanoia":false,"mdPTSD":false,"mdSchizophrenia":false,"mdOther":false,"nvEpilepsy":false,"nvMultipleSclerosis":false,"nvNumbness":false,"nvParalysis":false,"nvSeizures":false,"nvOther":false,"nbOnePerMonth":false,"nbOnePerWeek":false,"nbOnePerDay":false,"pnBack":false,"pnJoint":false,"pnMuscle":false,"pnLeg":false,"pnOther":false,"skEczema":false,"skPsoriasis":true,"skOther":false,"slInsomnia":false,"slApnea":false,"slOther":false,"smCurrent":false,"smOnePackPerDay":false,"smTenYears":false,"smTwentyYears":false,"stdChlamydia":false,"stdGonorrhea":false,"stdHerpes":false,"stdSyphilis":false,"stdOther":false,"stmIBS":false,"stmNausea":false,"stmPain":false,"stmSevereIndigestion":false,"stmUlcers":false,"stmOther":false,"thGoiter":false,"thTumor":false,"thOther":false,"wtOverweight":false,"wtUnderweight":false,"oplock":0,"userprofileId":11375034,"otherHealthIssues":[]},{"id":15125365,"relationship":"BRTH","firstName":"Johnny","living":true,"comments":"","awAsthma":true,"awBronchitis":false,"awCOPD":false,"awEmphysema":false,"awPneumonia":false,"awSoB":false,"awTuberculosis":false,"awOther":false,"alAllergies":true,"alLupus":false,"alOther":false,"alcSocial":false,"alcOneDrink":false,"alcSixDrinks":false,"alcTwoShots":false,"blAnemia":false,"blBruising":false,"blClotting":false,"blLeukemia":false,"blSickleCell":false,"blOther":false,"baArthritis":false,"baFibromyalgia":false,"baJointPain":false,"baLymeDisease":false,"baOther":false,"caBreast":false,"caBowel":false,"caColon":false,"caLung":false,"caOvarian":false,"caSkin":false,"caStomach":false,"caProstate":false,"caOther":false,"chChickenPox":false,"chDiphtheria":false,"chMeasles":false,"chMumps":false,"chWhoopingCough":false,"chOther":false,"dbType1":false,"dbType2":false,"dbType3":false,"gbDisease":false,"gbStones":false,"gbOther":false,"hntCataracts":false,"hntDizziness":false,"hntDyslexia":false,"hntGlaucoma":false,"hntHearingLoss":false,"hntMigraineHeadaches":false,"hntRetinitisPigmentosa":false,"hntOther":false,"heAngina":false,"heCongestiveFailure":false,"heAttack":false,"heMurmur":false,"heHighCholesterol":false,"heHighPressure":false,"heMitralValveProlapse":false,"heRhythmAbnormality":false,"heStroke":false,"heOther":false,"kiInfections":false,"kiStones":false,"kiRenalFailure":false,"kiOther":false,"liHepatitisA":false,"liHepatitisB":false,"liHepatitisC":false,"liCirrhosis":false,"liOther":false,"mdAnxiety":false,"mdBipolar":false,"mdDepression":false,"mdParanoia":false,"mdPTSD":false,"mdSchizophrenia":false,"mdOther":false,"nvEpilepsy":false,"nvMultipleSclerosis":false,"nvNumbness":false,"nvParalysis":false,"nvSeizures":false,"nvOther":false,"nbOnePerMonth":false,"nbOnePerWeek":false,"nbOnePerDay":false,"pnBack":false,"pnJoint":false,"pnMuscle":false,"pnLeg":false,"pnOther":false,"skEczema":false,"skPsoriasis":false,"skOther":false,"slInsomnia":false,"slApnea":false,"slOther":false,"smCurrent":false,"smOnePackPerDay":false,"smTenYears":false,"smTwentyYears":false,"stdChlamydia":false,"stdGonorrhea":false,"stdHerpes":false,"stdSyphilis":false,"stdOther":false,"stmIBS":false,"stmNausea":false,"stmPain":false,"stmSevereIndigestion":false,"stmUlcers":false,"stmOther":false,"thGoiter":false,"thTumor":false,"thOther":false,"wtOverweight":false,"wtUnderweight":false,"oplock":0,"userprofileId":11375034,"otherHealthIssues":[]}]}'
+  recorded_at: Thu, 21 Nov 2024 00:14:58 GMT
+recorded_with: VCR 6.3.1
