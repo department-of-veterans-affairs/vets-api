@@ -3685,7 +3685,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "cf6332f4-abfb-4794-b006-fd0bb048e53f",
+                        "id": "f6cc643c-ae2d-4e3f-a985-eff72b9c0e13",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3870,7 +3870,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-12-04"
+                              "anticipatedSeparationDate": "2024-12-06"
                             },
                             "confinements": [
                               {
@@ -3916,7 +3916,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "efca2042-3808-4078-b2cb-96ddd38f5612",
+                        "id": "300dab5e-21d3-4723-8eb2-e422eddd1af9",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4080,7 +4080,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2024-12-04",
+                                "activeDutyEndDate": "2024-12-06",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -4101,7 +4101,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-12-04"
+                              "anticipatedSeparationDate": "2024-12-06"
                             },
                             "confinements": [
                               {
@@ -7344,7 +7344,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2024-12-04",
+                              "activeDutyEndDate": "2024-12-06",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -7365,7 +7365,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-12-04"
+                            "anticipatedSeparationDate": "2024-12-06"
                           },
                           "confinements": [
                             {
@@ -9129,7 +9129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1b1af0b5-9733-4c0e-9975-5733e6d8988b",
+                    "id": "d85f57bf-4394-4f62-9dbd-5dcfbb9e79a4",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -12871,8 +12871,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-12-02",
-                      "expirationDate": "2025-12-02",
+                      "creationDate": "2024-12-04",
+                      "expirationDate": "2025-12-04",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -13669,7 +13669,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:165:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:166:in `representative'"
                       }
                     }
                   ]
@@ -13768,7 +13768,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "b0c6f72f-b4ce-4c9b-8390-9a9bf7a7c4a0",
+                    "id": "962e299d-695c-48ba-9414-f85a00be7f95",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14083,8 +14083,7 @@
                                   "addressLine1",
                                   "city",
                                   "stateCode",
-                                  "countryCode",
-                                  "zipCode"
+                                  "countryCode"
                                 ],
                                 "properties": {
                                   "addressLine1": {
@@ -14116,7 +14115,7 @@
                                     "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -14211,7 +14210,7 @@
                                     "example": "USA"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -14259,7 +14258,7 @@
                                 "description": "Email address of the claimant.",
                                 "type": "string",
                                 "pattern": "^(?!.*\\s).+@.+\\..+|^$",
-                                "maxLength": 61,
+                                "maxLength": 30,
                                 "example": "claimant@example.com"
                               },
                               "relationship": {
@@ -14331,7 +14330,7 @@
                                     "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -14543,7 +14542,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "3a88e584-45ee-4ad1-9962-b264cb4d217a",
+                    "id": "bd7eb43f-d007-4161-a548-7c068c7ebc8e",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -14840,9 +14839,8 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "countryCode",
                                   "stateCode",
-                                  "zipCode"
+                                  "countryCode"
                                 ],
                                 "properties": {
                                   "addressLine1": {
@@ -14874,7 +14872,7 @@
                                     "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -14980,7 +14978,7 @@
                                     "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -15031,7 +15029,7 @@
                                 "description": "Email address of the claimant.",
                                 "type": "string",
                                 "pattern": "^(?!.*\\s).+@.+\\..+|^$",
-                                "maxLength": 61,
+                                "maxLength": 30,
                                 "example": "claimant@example.com"
                               },
                               "relationship": {
@@ -15534,8 +15532,7 @@
                                   "addressLine1",
                                   "city",
                                   "stateCode",
-                                  "countryCode",
-                                  "zipCode"
+                                  "countryCode"
                                 ],
                                 "properties": {
                                   "addressLine1": {
@@ -15567,7 +15564,7 @@
                                     "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -15662,7 +15659,7 @@
                                     "example": "USA"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -15710,7 +15707,7 @@
                                 "description": "Email address of the claimant.",
                                 "type": "string",
                                 "pattern": "^(?!.*\\s).+@.+\\..+|^$",
-                                "maxLength": 61,
+                                "maxLength": 30,
                                 "example": "claimant@example.com"
                               },
                               "relationship": {
@@ -15782,7 +15779,7 @@
                                     "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -16203,9 +16200,8 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "countryCode",
                                   "stateCode",
-                                  "zipCode"
+                                  "countryCode"
                                 ],
                                 "properties": {
                                   "addressLine1": {
@@ -16237,7 +16233,7 @@
                                     "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -16343,7 +16339,7 @@
                                     "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -16394,7 +16390,7 @@
                                 "description": "Email address of the claimant.",
                                 "type": "string",
                                 "pattern": "^(?!.*\\s).+@.+\\..+|^$",
-                                "maxLength": 61,
+                                "maxLength": 30,
                                 "example": "claimant@example.com"
                               },
                               "relationship": {
@@ -16546,10 +16542,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "416b5707-375e-4a71-97e2-956f04632c68",
+                    "id": "a2fb31f5-c7b8-474f-8187-0e3fba309b9b",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-12-02",
+                      "dateRequestAccepted": "2024-12-04",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
