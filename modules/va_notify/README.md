@@ -204,7 +204,7 @@ if Flipper.enabled?(:custom_callback_handler)
     template_id,
     get_personalization(first_name),
     Settings.vanotify.services.va_gov.api_key,
-    { callback_metadata: { handler_class: 'VANotify::CustomNotificationCallback', statsd_tags: { service: 'ExampleTeam' } } }
+    { callback_klass: 'VANotify::CustomNotificationCallback', callback_metadata: {  statsd_tags: { service: 'ExampleTeam' } } }
   )
 else
   # Default logic
