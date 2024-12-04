@@ -87,9 +87,9 @@ module BBInternal
         if existing_uuid
           obj['studyIdUrn'] = existing_uuid
         else
-        new_uuid = SecureRandom.uuid
-        id_uuid_map[new_uuid] = study_id
-        obj['studyIdUrn'] = new_uuid
+          new_uuid = SecureRandom.uuid
+          id_uuid_map[new_uuid] = study_id
+          obj['studyIdUrn'] = new_uuid
         end
         obj
       end
@@ -284,8 +284,12 @@ module BBInternal
       redis
     end
 
+    def get_study_data_from_cache
+      bb_redis.get(study_data_key)
+    end
+
     def get_study_id_from_cache (id)
-      study_data = bb_redis.get(study_data_key)
+      study_data = get_study_data_from_cache
 
       if study_data
         study_data_hash = JSON.parse(study_data)
