@@ -113,6 +113,7 @@ module VaNotify
       )
 
       if notification.save
+        log_notification_success(notification)
         notification
       else
         log_notification_failed_to_save(notification)
@@ -126,6 +127,17 @@ module VaNotify
         'VANotify notification record failed to save',
         {
           error_messages: notification.errors
+        }
+      )
+    end
+
+    def log_notification_success(notification)
+      Rails.logger.info(
+        "VANotify notification: #{notification.id} saved",
+        {
+          source_location: notification.source_location,
+          callback_metadata: notification.callback_metadata,
+          callback_klass: notification.callback_klass
         }
       )
     end
