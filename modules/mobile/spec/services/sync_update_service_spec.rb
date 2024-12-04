@@ -7,12 +7,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
   let(:service) { Mobile::V0::Profile::SyncUpdateService.new(user) }
 
   # DO THIS
-  describe '#save_and_await_response' do
-    before do
-      Flipper.disable(:va_v3_contact_information_service)
-      Flipper.disable(:remove_pciu)
-    end
-
+  describe '#save_and_await_response', :skip_va_profile_user do
     let(:params) { build(:va_profile_address, vet360_id: user.vet360_id, validation_key: nil) }
 
     context 'when it succeeds after one incomplete status check' do
