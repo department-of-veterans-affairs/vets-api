@@ -64,6 +64,72 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               end
             end
 
+            describe 'address validations' do
+              let(:request_body) do
+                Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                'power_of_attorney', '2122', 'valid.json').read
+              end
+              let(:user_profile) do
+                MPI::Responses::FindProfileResponse.new(
+                  status: :ok,
+                  profile: MPI::Models::MviProfile.new(
+                    given_names: %w[Not Under],
+                    family_name: 'Test',
+                    participant_id: '123',
+                    ssn: '123456789'
+                  )
+                )
+              end
+
+              describe 'conditionally required zipCode' do
+                context 'when the country provided is US' do
+                  it 'returns a 422 when no zipCode is included in the veteran data' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(scopes) do |auth_header|
+                        allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                          .and_return({ person_poa_history: nil })
+
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['veteran']['address']['zipCode'] = ''
+                        body = json.to_json
+
+                        post appoint_organization_path, params: body, headers: auth_header
+
+                        response_body = JSON.parse(response.body)
+
+                        expect(response).to have_http_status(:unprocessable_entity)
+                        expect(response_body['errors'][0]['status']).to eq('422')
+                        expect(response_body['errors'][0]['detail'])
+                          .to eq("If 'countryCode' is 'US' then 'zipCode' is required.")
+                      end
+                    end
+                  end
+                end
+
+                context 'when the country provided is not US' do
+                  it 'returns a 202 when no zipCode is included in the veteran data' do
+                    VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                      mock_ccg(scopes) do |auth_header|
+                        expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                          .and_return(bgs_poa)
+                        allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                          .and_return({ person_poa_history: nil })
+
+                        json = JSON.parse(request_body)
+                        json['data']['attributes']['veteran']['address']['countryCode'] = 'AL'
+                        json['data']['attributes']['veteran']['address']['zipCode'] = ''
+                        body = json.to_json
+
+                        post appoint_organization_path, params: body, headers: auth_header
+
+                        expect(response).to have_http_status(:accepted)
+                      end
+                    end
+                  end
+                end
+              end
+            end
+
             describe 'lighthouse_claims_api_poa_dependent_claimants feature' do
               let(:request_body) do
                 Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -262,6 +328,85 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 expect(response).to have_http_status(:unprocessable_entity)
                 expect(response_body['status']).to eq('422')
                 expect(response_body['detail']).to eq('Must have either first or last name')
+              end
+            end
+          end
+
+          describe 'when validating the conditionally required zipCode' do
+            let(:request_body) do
+              Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                              'power_of_attorney', '2122', 'valid.json').read
+            end
+
+            context "when the country is 'US'" do
+              let(:claimant_data) do
+                {
+                  claimantId: '456',
+                  address: {
+                    addressLine1: '123 anystreet',
+                    city: 'anytown',
+                    stateCode: 'OR',
+                    countryCode: 'US',
+                    zipCode: ''
+                  },
+                  relationship: 'Child'
+                }
+              end
+
+              it 'returns a 422 with no zipCode' do
+                VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                  mock_ccg(scopes) do |auth_header|
+                    allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                      .and_return({ person_poa_history: nil })
+
+                    json = JSON.parse(request_body)
+                    json['data']['attributes']['claimant'] = claimant_data
+                    request_data = json.to_json
+
+                    post appoint_organization_path, params: request_data, headers: auth_header
+
+                    response_body = JSON.parse(response.body)['errors'][0]
+
+                    expect(response).to have_http_status(:unprocessable_entity)
+                    expect(response_body['status']).to eq('422')
+                    expect(response_body['detail']).to eq("If 'countryCode' is 'US' then 'zipCode' is required.")
+                  end
+                end
+              end
+            end
+
+            context "when the country is not 'US'" do
+              let(:claimant_data) do
+                {
+                  claimantId: '456',
+                  address: {
+                    addressLine1: '123 anystreet',
+                    city: 'anytown',
+                    stateCode: 'OR',
+                    countryCode: 'AL',
+                    zipCode: ''
+                  },
+                  relationship: 'Child'
+                }
+              end
+
+              it 'returns a 202 with no zipCode' do
+                VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                  mock_ccg(scopes) do |auth_header|
+                    expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                      .and_return(bgs_poa)
+                    allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                      .and_return({ person_poa_history: nil })
+
+                    json = JSON.parse(request_body)
+                    json['data']['attributes']['claimant'] = claimant_data
+                    request_data = json.to_json
+
+                    post appoint_organization_path, params: request_data, headers: auth_header
+
+                    expect(response).to have_http_status(:accepted)
+                  end
+                end
               end
             end
           end
