@@ -94,24 +94,25 @@ module BBInternal
     # the images into MHV for later retrieval from vets-api as DICOM or JPGs.
     #
     # @param [String] icn - The patient's ICN
-    # @param [String] study_id - The radiology study to request
+    # @param [String] id - The uuid of the radiology study to request
     #
     # @return [Hash] The status of the image request, including percent complete
     #
-    def request_study(study_id)
-      response = perform(:get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil,
-                         token_headers)
+    def request_study(id)
+      study_id = get_study_id_from_cache(id)
+      response = perform(:get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil, token_headers)
       response.body
     end
 
     ##
     # Get a list of images for the provided CVIX radiology study
     #
-    # @param [String] study_id - The radiology study from which to retrieve images
+    # @param [String] id - The uuid of the radiology study from which to retrieve images
     #
     # @return [Hash] The list of images from MHV
     #
-    def list_images(study_id)
+    def list_images(id)
+      study_id = get_study_id_from_cache(id)
       response = perform(:get, "bluebutton/studyjob/zip/preview/list/#{session.patient_id}/studyidUrn/#{study_id}", nil,
                          token_headers)
       response.body
@@ -261,6 +262,24 @@ module BBInternal
     #
     def session_config_key
       :mhv_mr_bb_session_lock
+    end
+    def get_study_id_from_cache (id)
+      study_data = bb_redis.get(study_data_key)
+
+      if study_data
+        study_data_hash = JSON.parse(study_data)
+        id = id.to_s        
+        study_id = study_data_hash[id]
+        
+        if study_id
+          study_id
+        else
+          raise Common::Exceptions::RecordNotFound, id
+        end
+      else
+        #throw 400 for FE to know to refetch the list
+        raise Common::Exceptions::InvalidResource, "Study data map"
+      end
     end
 
     ##
