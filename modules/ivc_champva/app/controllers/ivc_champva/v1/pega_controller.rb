@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ivc_champva/monitor'
+
 module IvcChampva
   module V1
     class PegaController < SignIn::ServiceAccountApplicationController
@@ -43,6 +45,10 @@ module IvcChampva
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
           send_email(form_uuid, ivc_forms.first) if form.email.present?
+
+          if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
+            monitor.track_update_status(form_uuid, status)
+          end
 
           { json: {}, status: :ok }
         else
@@ -90,6 +96,15 @@ module IvcChampva
 
       def fetch_forms_by_uuid(form_uuid)
         @fetch_forms_by_uuid ||= IvcChampvaForm.where(form_uuid:)
+      end
+
+      ##
+      # retreive a monitor for tracking
+      #
+      # @return [IvcChampva::Monitor]
+      #
+      def monitor
+        @monitor ||= IvcChampva::Monitor.new
       end
     end
   end

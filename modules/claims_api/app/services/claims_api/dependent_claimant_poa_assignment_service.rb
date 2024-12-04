@@ -125,9 +125,11 @@ module ClaimsApi
     end
 
     def dependent_claims
-      local_bgs = ClaimsApi::LocalBGS.new(external_uid: @dependent_participant_id,
-                                          external_key: @dependent_participant_id)
-      res = local_bgs.find_benefit_claims_status_by_ptcpnt_id(@dependent_participant_id)
+      bgs_claim_status_service = ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
+        external_uid: @dependent_participant_id,
+        external_key: @dependent_participant_id
+      )
+      res = bgs_claim_status_service.find_benefit_claims_status_by_ptcpnt_id(@dependent_participant_id)
       benefit_claims = Array.wrap(res&.dig(:benefit_claims_dto, :benefit_claim))
 
       return benefit_claims if benefit_claims.present? && benefit_claims.is_a?(Array) && benefit_claims.first.present?

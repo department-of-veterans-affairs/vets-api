@@ -7,6 +7,7 @@ require 'lighthouse/veteran_verification/service'
 class LighthouseRatedDisabilitiesProvider
   include RatedDisabilitiesProvider
 
+  # @param [string] :icn icn of the user
   def initialize(icn)
     @service = VeteranVerification::Service.new
     @icn = icn
@@ -23,15 +24,17 @@ class LighthouseRatedDisabilitiesProvider
   # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
   # @param [string] lighthouse_rsa_key_path: path to the private RSA key used to create the lighthouse_client_id
   # @return [DisabilityCompensation::ApiProvider::RatedDisabilitiesResponse] a list of individual disability ratings
-  def get_rated_disabilities(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil)
-    data = get_data(lighthouse_client_id, lighthouse_rsa_key_path)
+  # @option options [string] :invoker where this method was called from
+  def get_rated_disabilities(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+    data = get_data(lighthouse_client_id, lighthouse_rsa_key_path, options)
     transform(data['data']['attributes']['individual_ratings'])
   end
 
   # @param [string] lighthouse_client_id: the lighthouse_client_id requested from Lighthouse
   # @param [string] lighthouse_rsa_key_path: path to the private RSA key used to create the lighthouse_client_id
-  def get_data(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil)
-    @service.get_rated_disabilities(@icn, lighthouse_client_id, lighthouse_rsa_key_path)
+  # @option options [string] :invoker where this method was called from
+  def get_data(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {})
+    @service.get_rated_disabilities(@icn, lighthouse_client_id, lighthouse_rsa_key_path, options)
   end
 
   def transform(data)
