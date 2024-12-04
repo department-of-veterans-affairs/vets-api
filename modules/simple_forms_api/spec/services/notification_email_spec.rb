@@ -3,6 +3,15 @@
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
+shared_examples 'an error notification email' do
+  it 'increments StatsD' do
+    allow(StatsD).to receive(:increment)
+
+    expect { described_class.new(config, notification_type: :error) }.to raise_error(ArgumentError)
+    expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
+  end
+end
+
 describe SimpleFormsApi::NotificationEmail do
   %i[confirmation error received].each do |notification_type|
     describe '#initialize' do
@@ -26,6 +35,8 @@ describe SimpleFormsApi::NotificationEmail do
         it 'fails' do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
+
+        it_behaves_like 'an error notification email' if notification_type == :error
       end
 
       context 'missing form_number' do
@@ -37,6 +48,8 @@ describe SimpleFormsApi::NotificationEmail do
         it 'fails' do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
+
+        it_behaves_like 'an error notification email' if notification_type == :error
       end
 
       context 'missing confirmation_number' do
@@ -47,6 +60,8 @@ describe SimpleFormsApi::NotificationEmail do
         it 'fails' do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
+
+        it_behaves_like 'an error notification email' if notification_type == :error
       end
 
       context 'missing date_submitted' do
@@ -57,6 +72,21 @@ describe SimpleFormsApi::NotificationEmail do
         it 'fails' do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
+
+        it_behaves_like 'an error notification email' if notification_type == :error
+      end
+
+      context 'form not supported' do
+        let(:config) do
+          { form_data: {}, form_number: 'nonsense', confirmation_number: 'confirmation_number',
+            date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        end
+
+        it 'fails' do
+          expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
+        end
+
+        it_behaves_like 'an error notification email' if notification_type == :error
       end
     end
 
@@ -89,6 +119,25 @@ describe SimpleFormsApi::NotificationEmail do
 
           expect(VANotify::EmailJob).to have_received(:perform_async)
         end
+
+        context 'did not send to VA Notify because of no first name', if: notification_type == :error do
+          let(:profile) { double(given_names: []) }
+          let(:mpi_profile) { double(profile:, error: nil) }
+
+          it 'increments StatsD' do
+            data['witness_full_name']['first'] = nil
+            allow(VANotify::EmailJob).to receive(:perform_async)
+            allow(VANotify::UserAccountJob).to receive(:perform_at)
+            allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(mpi_profile)
+            allow(StatsD).to receive(:increment)
+
+            subject = described_class.new(config, notification_type:)
+            subject.send
+
+            expect(VANotify::EmailJob).not_to have_received(:perform_async)
+            expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
+          end
+        end
       end
 
       context 'flipper is off' do
@@ -117,7 +166,7 @@ describe SimpleFormsApi::NotificationEmail do
           let(:user_account) { create(:user_account) }
 
           it 'sends the email at the specified time' do
-            time = double
+            time = Time.zone.now
             profile = double(given_names: ['Bob'])
             mpi_profile = double(profile:, error: nil)
             allow(VANotify::UserAccountJob).to receive(:perform_at)
@@ -126,8 +175,27 @@ describe SimpleFormsApi::NotificationEmail do
 
             subject.send(at: time)
 
-            expect(VANotify::UserAccountJob).to have_received(:perform_at).with(time, user_account.id, anything,
-                                                                                anything)
+            expect(VANotify::UserAccountJob).to have_received(:perform_at).with(
+              time,
+              user_account.id,
+              "form21_10210_#{notification_type}_email_template_id",
+              {
+                'confirmation_number' => 'confirmation_number',
+                'date_submitted' => time.strftime('%B %d, %Y'),
+                'first_name' => 'Bob',
+                'lighthouse_updated_at' => nil
+              },
+              'fake_secret',
+              {
+                callback_metadata: {
+                  form_number: 'vba_21_10210',
+                  notification_type:,
+                  statsd_tags: {
+                    'function' => 'vba_21_10210 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
+                  }
+                }
+              }
+            )
           end
         end
 
