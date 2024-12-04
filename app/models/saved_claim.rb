@@ -165,7 +165,7 @@ class SavedClaim < ApplicationRecord
 
   def validate_schema_with_json_schemer(schema)
     errors = JSONSchemer.validate_schema(schema).to_a
-    return if errors.empty?
+    return [] if errors.empty?
 
     raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
   end
@@ -179,7 +179,7 @@ class SavedClaim < ApplicationRecord
 
   def validate_form_with_json_schemer(schema)
     errors = JSONSchemer.schema(schema).validate(parsed_form).to_a
-    return if errors.empty?
+    return [] if errors.empty?
 
     raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
   end
