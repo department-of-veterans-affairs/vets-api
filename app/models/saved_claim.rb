@@ -99,6 +99,8 @@ class SavedClaim < ApplicationRecord
     unless validation_errors.empty?
       Rails.logger.error('SavedClaim form did not pass validation', { guid:, errors: validation_errors })
     end
+
+    schema_errors.empty? && validation_errors.empty?
   end
 
   def to_pdf(file_name = nil)
@@ -167,16 +169,7 @@ class SavedClaim < ApplicationRecord
     errors = JSONSchemer.validate_schema(schema).to_a
     return [] if errors.empty?
 
-    raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
-  rescue => e
-    PersonalInformationLog.create!(
-      error_class: "#{self.class.name}#validate_schema_with_json_schemer exception #{e.class}",
-      data: {
-        schema:, errors:,
-        error: Class.new.include(FailedRequestLoggable).exception_hash(e)
-      }
-    )
-    raise
+    reformatted_schemer_errors(errors)
   end
 
   def validate_schema_with_json_schema(schema)
@@ -190,16 +183,7 @@ class SavedClaim < ApplicationRecord
     errors = JSONSchemer.schema(schema).validate(parsed_form).to_a
     return [] if errors.empty?
 
-    raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
-  rescue => e
-    PersonalInformationLog.create!(
-      error_class: "#{self.class.name}#validate_schema_with_json_schemer exception #{e.class}",
-      data: {
-        schema:, errors:,
-        error: Class.new.include(FailedRequestLoggable).exception_hash(e)
-      }
-    )
-    raise
+    reformatted_schemer_errors(errors)
   end
 
   def validate_form_with_json_schema(schema, clear_cache)
@@ -212,8 +196,13 @@ class SavedClaim < ApplicationRecord
     raise
   end
 
-  def remove_pii_from_json_schemer_errors(errors)
-    errors.map { |error| error.slice 'data_pointer', 'schema', 'root_schema' }
+  def reformatted_schemer_errors(errors)
+    errors.map { |error| error.slice 'data_pointer', 'error' }
+    errors.each do |error|
+      error[:fragment] = error['data_pointer']
+      error[:message] = error['error']
+    end
+    errors
   end
 
   def attachment_keys
