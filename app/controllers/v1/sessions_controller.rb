@@ -32,10 +32,13 @@ module V1
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SSOeSettingsService and SAML::URLService
+    # rubocop:disable Metrics/MethodLength
     def new
       type = params[:type]
       client_id = params[:application] || 'vaweb'
       operation = params[:operation]
+
+      validate_operation_params(operation) unless operation.nil?
 
       # As a temporary measure while we have the ability to authenticate either through SessionsController
       # or through SignInController, we will delete all SignInController cookies when authenticating with SSOe
@@ -63,6 +66,7 @@ module V1
       end
       new_stats(type, client_id, operation)
     end
+    # rubocop:enable Metrics/MethodLength
 
     def ssoe_slo_callback
       Rails.logger.info("SessionsController version:v1 ssoe_slo_callback, user_uuid=#{@current_user&.uuid}")
@@ -446,6 +450,12 @@ module V1
                                                 user: current_user,
                                                 params:,
                                                 loa3_context: LOA::IDME_LOA3)
+    end
+
+    def validate_operation_params(operation)
+      unless SignIn::Constants::Auth::OPERATION_TYPES.include?(operation)
+        raise SignIn::Errors::MalformedParamsError.new message: 'Operation is not valid'
+      end
     end
   end
 end
