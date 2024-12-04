@@ -81,10 +81,7 @@ module BBInternal
         obj
       end
 
-      namespace = REDIS_CONFIG[:medical_records_store][:namespace]
-      redis = Redis::Namespace.new(namespace, redis: $redis)
-      redis.set("study_data_#{session.patient_id}", id_uuid_map.to_json, nx: true,
-                                                                         ex: REDIS_CONFIG[:medical_records_store][:each_ttl])
+      bb_redis.set(study_data_key, id_uuid_map.to_json, nx: false, ex: 259_200)
 
       modified_data
     end
@@ -263,6 +260,17 @@ module BBInternal
     def session_config_key
       :mhv_mr_bb_session_lock
     end
+
+    def study_data_key
+      "study_data-#{session.patient_id}"
+    end
+
+    def bb_redis
+      namespace = REDIS_CONFIG[:bb_internal_store][:namespace]
+      redis = Redis::Namespace.new(namespace, redis: $redis)
+      redis
+    end
+
     def get_study_id_from_cache (id)
       study_data = bb_redis.get(study_data_key)
 
