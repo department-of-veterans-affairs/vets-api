@@ -1185,6 +1185,20 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#cerner?' do
+    it 'raises an ArgumentError if appt is nil' do
+      expect { subject.send(:cerner?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
+    end
+
+    it 'returns true for appointments with a "CERN" prefix' do
+      expect(subject.send(:cerner?, { id: 'CERN99999' })).to eq(true)
+    end
+
+    it 'returns false for appointments without a "CERN" prefix' do
+      expect(subject.send(:cerner?, { id: '99999' })).to eq(false)
+    end
+  end
+
   describe '#no_service_cat?' do
     it 'raises an ArgumentError if appt is nil' do
       expect { subject.send(:no_service_cat?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
@@ -1668,7 +1682,7 @@ describe VAOS::V2::AppointmentsService do
 
     it 'is a request for appointments with kind other than "cc" and at least one requested period' do
       appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
-      appt[:id] = '1234'
+      appt[:id] = :id
       appt[:kind] = 'telehealth'
       appt[:requested_periods] = [{ start: '2024-06-26T12:00:00Z', end: '2024-06-26T13:00:00Z' }]
       subject.send(:set_type, appt)
