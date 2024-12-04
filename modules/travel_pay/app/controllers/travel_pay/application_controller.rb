@@ -9,6 +9,7 @@ module TravelPay
     protect_from_forgery with: :exception
 
     before_action :authenticate
+    after_action :scrub_logs
 
     ##
     # This before_action is feature flag driven and should be retired
@@ -29,6 +30,22 @@ module TravelPay
     before_action :block_if_flag_disabled
 
     protected
+
+    def scrub_logs
+      logger.filter = lambda do |log|
+        if (log.name =~ /TravelPay/) && (log.payload[:action].eql? 'show')
+          log.payload[:params]['id'] = 'SCRUBBED_CLAIM_ID'
+          log.payload[:path] = log.payload[:path].gsub(%r{(.+claims/)(.+)}, '\1SCRUBBED_CLAIM_ID')
+
+          # Conditional because no referer if directly using the API
+          if log.named_tags.key? :referer
+            log.named_tags[:referer] = log.named_tags[:referer].gsub(%r{(.+claims/)(.+)(.+)}, '\1SCRUBBED_CLAIM_ID')
+          end
+        end
+        # After the log has been scrubbed, make sure it is logged:
+        true
+      end
+    end
 
     def before_logger
       logger.info('travel-pay') { Utils::Logger.build(self).before }

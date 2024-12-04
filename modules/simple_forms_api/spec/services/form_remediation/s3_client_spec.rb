@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'simple_forms_api/form_remediation/error'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
@@ -71,7 +72,10 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
     allow(CarrierWave::SanitizedFile).to receive(:new).with(file_double).and_return(carrier_wave_file)
     allow(CSV).to receive(:open).and_return(true)
     allow(SimpleFormsApi::FormRemediation::SubmissionArchive).to(receive(:new).and_return(submission_archive_double))
-    allow(submission_archive_double).to receive(:build!).and_return([local_archive_path, manifest_entry])
+    allow(submission_archive_double).to receive_messages(
+      build!: [local_archive_path, manifest_entry],
+      retrieval_data: [local_archive_path, manifest_entry]
+    )
     allow(SimpleFormsApi::FormRemediation::Uploader).to receive_messages(new: uploader)
     allow(uploader).to receive(:get_s3_link).with(s3_archive_path).and_return('/s3_url/stuff.pdf')
     allow(uploader).to receive_messages(get_s3_file: s3_file, store!: carrier_wave_file)
@@ -84,6 +88,11 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
       let(:type) { archive_type }
 
       describe '.fetch_presigned_url' do
+        subject(:fetch_presigned_url) { described_class.fetch_presigned_url(benefits_intake_uuid, config:, type:) }
+
+        it 'returns the s3 link' do
+          expect(fetch_presigned_url).to eq('/s3_url/stuff.pdf')
+        end
       end
 
       describe '#initialize' do
@@ -174,7 +183,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
             before { allow(File).to receive(:directory?).and_raise('oops') }
 
             it 'raises the error' do
-              expect { upload }.to raise_exception(RuntimeError, 'oops')
+              expect { upload }.to raise_exception(SimpleFormsApi::FormRemediation::Error, a_string_including('oops'))
             end
           end
         end

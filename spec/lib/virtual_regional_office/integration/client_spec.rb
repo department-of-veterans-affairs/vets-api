@@ -24,7 +24,9 @@ RSpec.describe VirtualRegionalOffice::Client, :vcr do
                 contention_type: 'NEW' },
               { contention_text: 'additional free text entry',
                 contention_type: 'NEW',
-                diagnostic_code: 9999 }
+                diagnostic_code: 9999 },
+              { contention_text: 'acl tear in right knee',
+                contention_type: 'NEW' }
             ] }
         )
       end
@@ -49,6 +51,11 @@ RSpec.describe VirtualRegionalOffice::Client, :vcr do
                 'classification_name' => nil,
                 'diagnostic_code' => 9999,
                 'contention_type' => 'NEW'
+              },
+              {
+                'classification_code' => nil,
+                'classification_name' => nil,
+                'contention_type' => 'NEW'
               }
             ]
           )
@@ -65,6 +72,64 @@ RSpec.describe VirtualRegionalOffice::Client, :vcr do
           expect(StatsD).to have_received(:increment).with('api.vro.classify_vagov_contentions.fail',
                                                            { tags: expected_failure_tags })
           expect(StatsD).to have_received(:increment).with('api.vro.classify_vagov_contentions.total')
+        end
+      end
+    end
+  end
+
+  describe '#classify_vagov_contentions_expanded' do
+    context 'when the expanded classification feature flag is enabled' do
+      subject do
+        client.classify_vagov_contentions_expanded(
+          { claim_id: 366,
+            form526_submission_id: 366,
+            contentions: [
+              { contention_text: 'Asthma bronchial',
+                contention_type: 'INCREASE',
+                diagnostic_code: 6602 },
+              { contention_text: 'plantar fasciitis',
+                contention_type: 'NEW' },
+              { contention_text: 'additional free text entry',
+                contention_type: 'NEW',
+                diagnostic_code: 9999 },
+              { contention_text: 'acl tear in right knee',
+                contention_type: 'NEW' }
+            ] }
+        )
+      end
+
+      it 'returns a classification and logs monitor metric' do
+        VCR.use_cassette('virtual_regional_office/expanded_classification') do
+          expect(subject.body['contentions']).to eq(
+            [
+              { 'classification_code' => 9012,
+                'classification_name' => 'Respiratory',
+                'diagnostic_code' => 6602,
+                'contention_type' => 'INCREASE' },
+              {
+                'classification_code' => 8994,
+                'classification_name' => 'Musculoskeletal - Foot',
+                'diagnostic_code' => nil,
+                'contention_type' => 'NEW'
+
+              },
+              {
+                'classification_code' => nil,
+                'classification_name' => nil,
+                'diagnostic_code' => 9999,
+                'contention_type' => 'NEW'
+              },
+              {
+                'classification_code' => 8997,
+                'classification_name' => 'Musculoskeletal - Knee',
+                'contention_type' => 'NEW'
+              }
+            ]
+          )
+          expect(StatsD).not_to have_received(:increment).with(
+            'api.vro.classify_vagov_contentions_expanded.fail', anything
+          )
+          expect(StatsD).to have_received(:increment).with('api.vro.classify_vagov_contentions_expanded.total')
         end
       end
     end

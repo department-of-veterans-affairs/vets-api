@@ -7,6 +7,7 @@ require 'evss/failure_notification'
 
 class EVSS::DocumentUpload
   include Sidekiq::Job
+  extend SentryLogging
   extend Logging::ThirdPartyTransaction::MethodWrapper
 
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
@@ -32,7 +33,7 @@ class EVSS::DocumentUpload
   )
 
   # retry for one day
-  sidekiq_options retry: 14, queue: 'low'
+  sidekiq_options retry: 16, queue: 'low'
   # Set minimum retry time to ~1 hour
   sidekiq_retry_in do |count, _exception|
     rand(3600..3660) if count < 9
@@ -60,6 +61,7 @@ class EVSS::DocumentUpload
     ::Rails.logger.error('EVSS::DocumentUpload exhaustion handler email error',
                          { message: e.message })
     StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
+    log_exception_to_sentry(e)
   end
 
   def perform(auth_headers, user_uuid, document_hash)

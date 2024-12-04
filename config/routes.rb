@@ -297,6 +297,7 @@ Rails.application.routes.draw do
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
+      resource :vet_verification_status, only: :show
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do
@@ -373,6 +374,8 @@ Rails.application.routes.draw do
     resources :form1010_ezrs, only: %i[create]
 
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
+
+    get 'banners', to: 'banners#by_path'
   end
   # end /v0
 
@@ -386,10 +389,6 @@ Rails.application.routes.draw do
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
-    end
-
-    namespace :facilities, module: 'facilities' do
-      resources :va, only: %i[index show]
     end
 
     namespace :gi, module: 'gids' do
@@ -443,9 +442,12 @@ Rails.application.routes.draw do
     resources :supplemental_claims, only: %i[create show]
 
     scope format: false do
-      resources :nod_callbacks, only: [:create]
-      resources :pension_ipf_callbacks, only: [:create]
+      resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
     end
+  end
+
+  namespace :v2, defaults: { format: 'json' } do
+    resources :higher_level_reviews, only: %i[create show]
   end
 
   root 'v0/example#index', module: 'v0'
@@ -464,7 +466,6 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
-  mount Banners::Engine, at: '/banners'
   mount CheckIn::Engine, at: '/check_in'
   mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'

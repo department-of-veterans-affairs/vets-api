@@ -27,7 +27,7 @@ RSpec.shared_context 'shared data' do
         suffix: 'Jr.',
         date_of_birth: '2000-01-01'
       },
-      their_relationship_to_veteran: 'CHILD',
+      more_about_your_relationship_to_veteran: 'CHILD',
       is_question_about_veteran_or_someone_else: 'Veteran',
       relationship_to_veteran: "I'm a family member of a Veteran",
       select_category: 'Health care',
@@ -76,7 +76,7 @@ RSpec.shared_context 'shared data' do
           suffix: 'Jr.',
           date_of_birth: '2000-01-01'
         },
-        their_relationship_to_veteran: 'CHILD',
+        more_about_your_relationship_to_veteran: 'CHILD',
         is_question_about_veteran_or_someone_else: 'Veteran',
         relationship_to_veteran: "I'm a family member of a Veteran",
         select_category: 'Health care',
@@ -141,7 +141,6 @@ RSpec.shared_context 'shared data' do
                           LastName: nil,
                           PreferredName: 'Submitter',
                           Suffix: nil,
-                          Gender: nil,
                           Pronouns: 'he/him/his',
                           Country: { Name: nil, CountryCode: nil },
                           Street: nil,

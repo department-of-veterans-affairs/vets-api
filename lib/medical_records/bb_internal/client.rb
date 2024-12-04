@@ -17,6 +17,35 @@ module BBInternal
     configuration BBInternal::Configuration
     client_session BBInternal::ClientSession
 
+    ################################################################################
+    # User Management APIs
+    ################################################################################
+
+    # Retrieves the patient information by user ID.
+    # @return [Hash] A hash containing the patient's details
+    #
+    def get_patient
+      response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
+      patient = response.body
+
+      raise Common::Exceptions::ServiceError.new(detail: 'Patient not found') if patient.blank?
+
+      patient
+    end
+
+    # Retrieves the BBMI notification setting for the user.
+    # @return [Hash] containing:
+    #   - flag [Boolean]: Indicates whether the BBMI notification setting is enabled (true) or disabled (false)
+    #
+    def get_bbmi_notification_setting
+      response = perform(:get, 'usermgmt/notification/bbmi', nil, token_headers)
+      response.body
+    end
+
+    ################################################################################
+    # Blue Button Medical Imaging (BBMI) APIs
+    ################################################################################
+
     ##
     # Get a list of MHV radiology reports from VIA for the current user. These results do not
     # include CVIX reports.
@@ -127,6 +156,83 @@ module BBInternal
       response.body
     end
 
+    ################################################################################
+    # Self-Entered Information (SEI) APIs
+    ################################################################################
+
+    def get_sei_vital_signs_summary
+      response = perform(:get, "vitals/summary/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_allergies
+      response = perform(:get, "healthhistory/allergy/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_family_health_history
+      response = perform(:get, "healthhistory/healthHistory/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_immunizations
+      response = perform(:get, "healthhistory/immunization/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_test_entries
+      response = perform(:get, "healthhistory/testEntry/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_medical_events
+      response = perform(:get, "healthhistory/medicalEvent/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_military_history
+      response = perform(:get, "healthhistory/militaryHistory/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_healthcare_providers
+      response = perform(:get, "getcare/healthCareProvider/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_health_insurance
+      response = perform(:get, "getcare/healthInsurance/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_treatment_facilities
+      response = perform(:get, "getcare/treatmentFacility/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_food_journal
+      response = perform(:get, "journal/journals/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_activity_journal
+      response = perform(:get, "journal/activityjournals/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_medications
+      response = perform(:get, "pharmacy/medications/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    # Retrieves the patient demographic information
+    # @return [Hash] A hash containing the patient's demographic information
+    #
+    def get_demographic_info
+      response = perform(:get, 'bluebutton/external/phrdemographic', nil, token_headers)
+      response.body
+    end
+
     private
 
     ##
@@ -147,22 +253,13 @@ module BBInternal
       @session = super
 
       # Supplement session with patientId
-      session.patient_id = get_patient_id
+      patient = get_patient
+      session.patient_id = patient['ipas']&.first&.dig('patientId')
       # Put ICN back into the session
       session.icn = icn
 
       session.save
       session
-    end
-
-    def get_patient_id
-      response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
-
-      patient_id = response.body['ipas']&.first&.dig('patientId')
-
-      raise Common::Exceptions::ServiceError.new(detail: 'Patient ID not found for user') if patient_id.blank?
-
-      patient_id
     end
 
     ##

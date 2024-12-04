@@ -266,7 +266,10 @@ module BenefitsClaims
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
 
-      tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each { |i| i['status'] = 'NEEDED_FROM_OTHERS' }
+      tracked_items.select { |i| i['displayName'] == 'PMR Pending' }.each do |i|
+        i['status'] = 'NEEDED_FROM_OTHERS'
+        i['displayName'] = 'Private Medical Record'
+      end
       tracked_items
     end
 

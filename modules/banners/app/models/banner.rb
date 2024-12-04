@@ -15,4 +15,39 @@ class Banner < ApplicationRecord
   validates :email_updates_button, inclusion: { in: [true, false] }
   validates :find_facilities_cta, inclusion: { in: [true, false] }
   validates :limit_subpage_inheritance, inclusion: { in: [true, false] }
+
+  scope :by_path, lambda { |path|
+    normalized_path = path.sub(%r{^/?}, '')
+
+    # Direct path matches.
+    exact_path_conditions = where('banners.context @> ?',
+                                  [
+                                    { entity:
+                                     { entityUrl:
+                                      { path: path } } }
+                                  ].to_json)
+                            .or(where('banners.context @> ?',
+                                      [
+                                        { entity:
+                                          { fieldOffice:
+                                            { entity:
+                                              { entityUrl:
+                                                { path: path } } } } }
+                                      ].to_json))
+
+    # Subpage inheritance check: Matches on any `fieldOffice` entity path where `limit_subpage_inheritance` is false.
+    subpage_pattern = "#{normalized_path.split('/').first}/%"
+    subpage_condition = where('banners.context @> ?',
+                              [
+                                { entity:
+                                  { fieldOffice:
+                                    { entity:
+                                      { entityUrl:
+                                        { path: subpage_pattern } } } } }
+                              ].to_json)
+                        .where(limit_subpage_inheritance: false)
+
+    # Look for both exact paths and subpage matches
+    exact_path_conditions.or(subpage_condition)
+  }
 end
