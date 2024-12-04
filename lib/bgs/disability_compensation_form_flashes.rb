@@ -56,7 +56,7 @@ module BGS
     def als?
       feature_enabled = Flipper.enabled?(:disability_526_ee_process_als_flash, @user)
       add_als = ClaimFastTracking::FlashPicker.als?(@claimed_disabilities)
-      Rails.logger.info('FlashPicker for ALS', { feature_enabled:, add_als: })
+      Rails.logger.info('FlashPicker for ALS', { feature_enabled: }) if add_als
       feature_enabled && add_als
     rescue => e
       Rails.logger.error("Failed to determine need for ALS flash: #{e.message}.", backtrace: e.backtrace)
