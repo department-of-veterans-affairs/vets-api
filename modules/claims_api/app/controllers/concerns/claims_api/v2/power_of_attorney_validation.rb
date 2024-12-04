@@ -96,7 +96,7 @@ module ClaimsApi
           validate_address_line_one(address)
           validate_address_city(address)
           validate_address_state_code(address)
-          validate_address_country(address)
+          validate_address_country_code(address)
           validate_address_zip_code(address, 'claimant')
         end
       end
@@ -128,17 +128,17 @@ module ClaimsApi
         end
       end
 
-      def validate_address_country(address)
-        if address['country'].nil?
+      def validate_address_country_code(address)
+        if address['countryCode'].nil?
           collect_error_messages(
-            source: '/claimant/address/country',
+            source: '/claimant/address/countryCode',
             detail: "If claimant is present 'countryCode' must be filled in"
           )
         end
       end
 
       def validate_address_zip_code(address, base)
-        country = address['country']&.downcase
+        country = address['countryCode']&.downcase
         return unless country == 'us'
 
         if address['zipCode'].blank?

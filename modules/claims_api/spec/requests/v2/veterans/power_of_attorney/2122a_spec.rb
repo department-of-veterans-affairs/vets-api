@@ -33,7 +33,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                   addressLine1: '123',
                   city: 'city',
                   stateCode: 'OR',
-                  country: 'US',
+                  countryCode: 'US',
                   zipCode: '12345'
                 }
               },
@@ -44,7 +44,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                 address: {
                   addressLine1: '123',
                   city: 'city',
-                  country: 'US',
+                  countryCode: 'US',
                   zipCode: '12345'
                 }
               }
@@ -62,7 +62,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                   addressLine1: '123',
                   city: 'city',
                   stateCode: 'OR',
-                  country: 'US',
+                  countryCode: 'US',
                   zipCode: '12345'
                 }
               },
@@ -74,7 +74,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                   addressLine1: '123',
                   city: 'city',
                   stateCode: 'OR',
-                  country: 'US',
+                  countryCode: 'US',
                   zipCode: '12345'
                 }
               },
@@ -84,7 +84,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                   addressLine1: '123',
                   city: 'city',
                   stateCode: 'OR',
-                  country: 'US',
+                  countryCode: 'US',
                   zipCode: '12345'
                 },
                 relationship: 'spouse'
@@ -147,7 +147,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                     addressLine1: '123 anystreet',
                     city: 'anytown',
                     stateCode: 'OR',
-                    country: 'USA',
+                    countryCode: 'US',
                     zipCode: '12345'
                   },
                   relationship: 'Child'
@@ -310,7 +310,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
               it 'returns a 202' do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:representative][:address][:zipCode] = ''
-                  claimant_data[:data][:attributes][:representative][:address][:country] = 'AL'
+                  claimant_data[:data][:attributes][:representative][:address][:countryCode] = 'AL'
                   allow_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
                   allow_any_instance_of(local_bgs)
                     .to receive(:find_poa_history_by_ptcpnt_id).and_return({ person_poa_history: nil })
@@ -386,9 +386,9 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                 end
               end
 
-              it 'returns a 422 if claimant.address.country is not provided' do
+              it 'returns a 422 if claimant.address.countryCode is not provided' do
                 mock_ccg(scopes) do |auth_header|
-                  claimant_data[:data][:attributes][:claimant][:address][:country] = nil
+                  claimant_data[:data][:attributes][:claimant][:address][:countryCode] = nil
                   VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
                   end
@@ -464,7 +464,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                 address: {
                   addressLine1: '123',
                   city: 'city',
-                  country: 'US',
+                  countryCode: 'US',
                   zipCode: '12345'
                 }
               },
@@ -474,7 +474,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                 address: {
                   addressLine1: '123',
                   city: 'city',
-                  country: 'US',
+                  countryCode: 'US',
                   zipCode: '12345'
                 }
               }
@@ -790,7 +790,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                           addressLine1: '2688 S Camino Real',
                           city: 'Palm Springs',
                           stateCode: 'CA',
-                          country: 'US',
+                          countryCode: 'US',
                           zipCode: '92264'
                         },
                         phone: {
