@@ -21,9 +21,8 @@
           "required": [
             "addressLine1",
             "city",
-            "countryCode",
             "stateCode",
-            "zipCode"
+            "countryCode"
           ],
           "properties": {
             "addressLine1": {
@@ -55,7 +54,7 @@
               "example": "US"
             },
             "zipCode": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
@@ -156,7 +155,7 @@
               "example": "US"
             },
             "zipCode": {
-              "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
+              "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
