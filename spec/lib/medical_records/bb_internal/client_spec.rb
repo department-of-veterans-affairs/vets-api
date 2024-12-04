@@ -27,8 +27,8 @@ describe BBInternal::Client do
       }.to_json
     end
     let(:namespace) { REDIS_CONFIG[:bb_internal_store][:namespace] }
-    let(:study_data_key) { "study_data-11382904" }
-  
+    let(:study_data_key) { 'study_data-11382904' }
+
     before do
       allow(Redis::Namespace).to receive(:new).with(namespace, redis: $redis).and_return(redis)
       allow(redis).to receive(:get).with(study_data_key).and_return(cached_data)
@@ -61,7 +61,6 @@ describe BBInternal::Client do
     include_context 'redis setup'
 
     it 'requests a study by study_id' do
-      study_id = '453-2487450'
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
         result = client.request_study(id)
         expect(result).to be_a(Hash)
