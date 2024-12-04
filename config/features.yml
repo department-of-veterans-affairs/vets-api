@@ -173,6 +173,9 @@ features:
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
+  champva_enhanced_monitor_logging:
+    actor_type: user
+    description: Enables using the new IVC CHAMPVA Monitoring logging class for enhanced Stats D info.
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -577,9 +580,6 @@ features:
   facilities_ppms_suppress_all:
     actor_type: user
     description: Hide all ppms search options
-  facilities_ppms_suppress_community_care:
-    actor_type: user
-    description: Hide ppms community care searches
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
@@ -1216,9 +1216,6 @@ features:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
     enable_in_development: true
-  saved_claim_schema_validation_disable:
-    actor_type: user
-    description: Disables validating a saved_claim schema before validating the form data with the schema.
   schema_contract_appointments_index:
     actor_type: user
     description: Enables schema validation for the appointments service index fetch.
@@ -1888,6 +1885,9 @@ features:
   show_yellow_ribbon_table:
     actor_type: user
     description: Used to show yellow ribbon table in Comparison Tool
+  banner_update_alternative_banners:
+    actor_type: user
+    description: Used to toggle the DB updating of alternative banners
   banner_use_alternative_banners:
     actor_type: user
     description: Used to toggle use of alternative banners.
