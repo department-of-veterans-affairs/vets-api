@@ -2278,12 +2278,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         [true, false].each do |flipped|
           context "when feature flag is #{flipped}" do
             before do
+              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
               if flipped
-                Flipper.enable(:claims_api_526_validations_v1_local_bgs)
                 expect_any_instance_of(ClaimsApi::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
               else
-                Flipper.disable(:claims_api_526_validations_v1_local_bgs)
                 expect_any_instance_of(BGS::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
               end
@@ -2325,12 +2324,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         [true, false].each do |flipped|
           context "when feature flag is #{flipped}" do
             before do
+              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
               if flipped
-                Flipper.enable(:claims_api_526_validations_v1_local_bgs)
                 expect_any_instance_of(ClaimsApi::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
               else
-                Flipper.disable(:claims_api_526_validations_v1_local_bgs)
                 expect_any_instance_of(BGS::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
               end
@@ -2484,12 +2482,11 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         [true, false].each do |flipped|
           context "when feature flag is #{flipped}" do
             before do
+              allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
               if flipped
-                Flipper.enable(:claims_api_526_validations_v1_local_bgs)
                 expect_any_instance_of(ClaimsApi::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
               else
-                Flipper.disable(:claims_api_526_validations_v1_local_bgs)
                 expect_any_instance_of(BGS::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
               end
