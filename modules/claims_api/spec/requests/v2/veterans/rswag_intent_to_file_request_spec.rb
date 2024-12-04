@@ -60,7 +60,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
             Timecop.freeze(Time.zone.parse('2022-01-01T08:00:00Z'))
 
             mock_ccg(scopes) do
-              expect_any_instance_of(ClaimsApi::LocalBGS)
+              expect_any_instance_of(ClaimsApi::IntentToFileWebService)
                 .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(bgs_response)
 
               submit_request(example.metadata)
@@ -116,7 +116,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
 
           before do |example|
             mock_ccg(scopes) do
-              expect_any_instance_of(ClaimsApi::LocalBGS)
+              expect_any_instance_of(ClaimsApi::IntentToFileWebService)
                 .to receive(:find_intent_to_file_by_ptcpnt_id_itf_type_cd).and_return(nil)
 
               submit_request(example.metadata)
@@ -194,7 +194,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           before do |example|
-            allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:insert_intent_to_file).and_return(
+            allow_any_instance_of(ClaimsApi::IntentToFileWebService).to receive(:insert_intent_to_file).and_return(
               stub_response
             )
 
