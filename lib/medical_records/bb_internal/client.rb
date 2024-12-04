@@ -60,7 +60,7 @@ module BBInternal
     ##
     # Get a list of MHV radiology reports from CVIX for the current user. These results do not
     # include VIA reports.
-    # 
+    #
     # study_id is mapped to a new UUID and stored in Redis for later retrieval.
     # This is to prevent the study_id from being exposed to the client.
     # The client will use the UUID to request the study.
@@ -80,10 +80,10 @@ module BBInternal
 
       modified_data = data.map do |obj|
         study_id = obj['studyIdUrn']
-    
+
         # Find the key by value in the hash
-        existing_uuid, _ = study_data_hash.find { |_, v| v == study_id.to_s } if study_data_hash
-        
+        existing_uuid, = study_data_hash.find { |_, v| v == study_id.to_s } if study_data_hash
+
         if existing_uuid
           obj['studyIdUrn'] = existing_uuid
         else
@@ -110,7 +110,8 @@ module BBInternal
     #
     def request_study(id)
       study_id = get_study_id_from_cache(id)
-      response = perform(:get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil, token_headers)
+      response = perform(:get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil,
+                         token_headers)
       response.body
     end
 
@@ -280,30 +281,25 @@ module BBInternal
 
     def bb_redis
       namespace = REDIS_CONFIG[:bb_internal_store][:namespace]
-      redis = Redis::Namespace.new(namespace, redis: $redis)
-      redis
+      Redis::Namespace.new(namespace, redis: $redis)
     end
 
     def get_study_data_from_cache
       bb_redis.get(study_data_key)
     end
 
-    def get_study_id_from_cache (id)
+    def get_study_id_from_cache(id)
       study_data = get_study_data_from_cache
 
       if study_data
         study_data_hash = JSON.parse(study_data)
-        id = id.to_s        
+        id = id.to_s
         study_id = study_data_hash[id]
-        
-        if study_id
-          study_id
-        else
-          raise Common::Exceptions::RecordNotFound, id
-        end
+
+        study_id || raise(Common::Exceptions::RecordNotFound, id)
       else
-        #throw 400 for FE to know to refetch the list
-        raise Common::Exceptions::InvalidResource, "Study data map"
+        # throw 400 for FE to know to refetch the list
+        raise Common::Exceptions::InvalidResource, 'Study data map'
       end
     end
 
