@@ -48,7 +48,6 @@ describe Common::CacheAside do
       let(:person) { build :person_v2 }
 
       before do
-        Flipper.enable(:va_v3_contact_information_service)
         allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
       end
 

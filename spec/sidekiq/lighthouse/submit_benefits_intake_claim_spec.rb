@@ -82,6 +82,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
 
     it 'processes a record and add stamps' do
       record = double
+      allow(record).to receive_messages({ created_at: nil, form_id: '21P-530' })
       datestamp_double1 = double
       datestamp_double2 = double
 
@@ -102,15 +103,16 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
 
     it 'processes a 21P-530V2 record and add stamps' do
       record = double
+      allow(record).to receive_messages({ created_at: claim.created_at, form_id: '21P-530V2' })
       datestamp_double1 = double
       datestamp_double2 = double
       datestamp_double3 = double
       timestamp = claim.created_at
-      form_id = '21P-530V2'
 
       expect(record).to receive(:to_pdf).and_return('path1')
       expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp:).and_return('path2')
+      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5,
+                                                      timestamp: timestamp).and_return('path2')
       expect(PDFUtilities::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
       expect(datestamp_double2).to receive(:run).with(
         text: 'FDC Reviewed - va.gov Submission',
@@ -132,11 +134,12 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_return(path)
 
-      expect(job.process_record(record, timestamp, form_id)).to eq(path)
+      expect(job.process_record(record)).to eq(path)
     end
 
     it 'handles an invalid record' do
       record = double
+      allow(record).to receive_messages({ created_at: nil, form_id: '21P-530' })
       datestamp_double1 = double
       datestamp_double2 = double
 
@@ -158,11 +161,11 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
 
     it 'handles an invalid 21P-530V2 record' do
       record = double
+      allow(record).to receive_messages({ created_at: claim.created_at, form_id: '21P-530V2' })
       datestamp_double1 = double
       datestamp_double2 = double
       datestamp_double3 = double
       timestamp = claim.created_at
-      form_id = '21P-530V2'
 
       expect(record).to receive(:to_pdf).and_return('path1')
       expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
@@ -190,7 +193,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.document_upload_error')
 
       expect do
-        job.process_record(record, timestamp, form_id)
+        job.process_record(record)
       end.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
     end
   end
