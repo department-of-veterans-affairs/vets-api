@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module SimpleFormsApiSubmission
+module SimpleFormsApi::Submission
   class MetadataValidator
     def self.validate(metadata, zip_code_is_us_based: true)
       validate_first_name(metadata)
