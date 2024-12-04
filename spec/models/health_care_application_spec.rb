@@ -433,13 +433,15 @@ RSpec.describe HealthCareApplication, type: :model do
 
     def self.expect_job_submission(job)
       it "submits using the #{job}" do
+        user = build(:user, edipi: 'my_edipi', icn: 'my_icn')
         allow_any_instance_of(HealthCareApplication).to receive(:id).and_return(1)
+        allow_any_instance_of(HealthCareApplication).to receive(:user).and_return(user)
         expect_any_instance_of(HealthCareApplication).to receive(:save!)
 
         expect(job).to receive(:perform_async) do |
             user_identifier, encrypted_form, health_care_application_id, google_analytics_client_id
           |
-          expect(user_identifier).to eq(nil)
+          expect(user_identifier).to eq({ 'icn' => user.icn, 'edipi' => user.edipi })
           expect(HCA::BaseSubmissionJob.decrypt_form(encrypted_form)).to eq(health_care_application.parsed_form)
           expect(health_care_application_id).to eq(1)
           expect(google_analytics_client_id).to eq(nil)
@@ -447,6 +449,10 @@ RSpec.describe HealthCareApplication, type: :model do
 
         expect(health_care_application.process!).to eq(health_care_application)
       end
+    end
+
+    context 'with an email' do
+      expect_job_submission(HCA::SubmissionJob)
     end
 
     context 'with no email' do
@@ -525,10 +531,6 @@ RSpec.describe HealthCareApplication, type: :model do
 
         expect_job_submission(HCA::AnonSubmissionJob)
       end
-    end
-
-    context 'with an email' do
-      expect_job_submission(HCA::SubmissionJob)
     end
   end
 
