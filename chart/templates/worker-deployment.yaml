@@ -39,9 +39,9 @@ spec:
         fsGroup: {{ $root.Values.fsGroup }}
       volumes:
         - name: vets-api-mockdata
-          emptyDir: { }
+          emptyDir: {}
         - name: clamav-volume
-          emptyDir: { }
+          emptyDir: {}
         - name: ddsocket
           hostPath:
             path: /var/run/datadog
@@ -101,6 +101,12 @@ spec:
           resources:
 {{ toYaml .Values.worker.resources | indent 12 }}
           volumeMounts:
+            - name: clamav-volume
+              mountPath: /app/clamav_tmp
+            - name: vets-api-mockdata
+              mountPath: /app/config/vets-api-mockdata
+            - name: ddsocket
+              mountPath: /var/run/datadog
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
           env:
             - name: POD_NAME
