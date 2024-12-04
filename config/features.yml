@@ -828,7 +828,7 @@ features:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
   form1010d:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
   form107959c:
     actor_type: user
