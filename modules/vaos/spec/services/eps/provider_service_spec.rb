@@ -84,8 +84,44 @@ describe Eps::ProviderService do
       it 'raises an error' do
         expect do
           service.get_provider_service(provider_id:)
-        end.to raise_error(Common::Exceptions::BackendServiceException,
-                           /VA900/)
+        end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+  end
+
+  describe '#get_networks' do
+    context 'when the request is successful' do
+      let(:response) do
+        double('Response', status: 200, body: { count: 1,
+                                                networks: [
+                                                  { id: 'network-5vuTac8v', name: 'Care Navigation' },
+                                                  { id: 'network-2Awee9b5', name: 'Take Care Navigation' }
+                                                ] })
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+      end
+
+      it 'returns an OpenStruct with the response body' do
+        result = service.get_networks
+
+        expect(result).to eq(OpenStruct.new(response.body))
+      end
+    end
+
+    context 'when the request fails' do
+      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
+      let(:exception) do
+        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
+      end
+
+      it 'raises an error' do
+        expect { service.get_networks }.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end
   end

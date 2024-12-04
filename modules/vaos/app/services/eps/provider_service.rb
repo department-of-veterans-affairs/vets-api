@@ -23,5 +23,16 @@ module Eps
                          {}, headers)
       OpenStruct.new(response.body)
     end
+
+    ##
+    # Get networks from EPS
+    #
+    # @return OpenStruct response from EPS networks endpoint
+    #
+    def get_networks
+      response = perform(:get, "/#{config.base_path}/networks", {}, headers)
+
+      OpenStruct.new(response.body)
+    end
   end
 end
