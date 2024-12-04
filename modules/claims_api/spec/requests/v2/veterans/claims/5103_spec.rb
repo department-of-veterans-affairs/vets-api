@@ -89,7 +89,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
               bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = '867530910'
               bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_clmant_id] = target_veteran[:participant_id]
 
-              expect_any_instance_of(ClaimsApi::LocalBGS)
+              expect_any_instance_of(ClaimsApi::EbenefitsBnftClaimStatusWebService)
                 .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
 
               mock_ccg(scopes) do |auth_header|
@@ -98,7 +98,6 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
                     .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
 
                   post sub_path, headers: auth_header
-
                   expect(response).to have_http_status(:accepted)
                 end
               end
@@ -109,7 +108,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
               bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = '867530910'
               bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_clmant_id] = '867530910'
 
-              expect_any_instance_of(ClaimsApi::LocalBGS)
+              expect_any_instance_of(ClaimsApi::EbenefitsBnftClaimStatusWebService)
                 .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
 
               mock_ccg(scopes) do |auth_header|
@@ -154,7 +153,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
                 details[:ptcpnt_vet_id] = no_first_last_name_target_veteran[:participant_id]
                 details[:ptcpnt_clmant_id] = target_veteran[:participant_id]
 
-                expect_any_instance_of(ClaimsApi::LocalBGS)
+                expect_any_instance_of(ClaimsApi::EbenefitsBnftClaimStatusWebService)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
@@ -197,7 +196,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims::5103', type: :request do
                 details[:ptcpnt_vet_id] = no_first_name_target_veteran[:participant_id]
                 details[:ptcpnt_clmant_id] = target_veteran[:participant_id]
 
-                expect_any_instance_of(ClaimsApi::LocalBGS)
+                expect_any_instance_of(ClaimsApi::EbenefitsBnftClaimStatusWebService)
                   .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
                 mock_ccg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/benefit_claim/update_5103_200') do
