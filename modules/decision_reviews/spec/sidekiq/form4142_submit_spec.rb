@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require 'decision_reviews/v1/service'
-require 'decision_review_v1/service'
 require 'decision_reviews/v1/helpers'
 
 RSpec.describe DecisionReviews::Form4142Submit, type: :job do
@@ -47,7 +46,7 @@ RSpec.describe DecisionReviews::Form4142Submit, type: :job do
   describe 'perform' do
     let(:submitted_appeal_uuid) { 'e076ea91-6b99-4912-bffc-a8318b9b403f' }
     let(:appeal_submission) do
-      create(:appeal_submission, :with_one_upload, submitted_appeal_uuid:, type_of_appeal: 'SC')
+      create(:appeal_submission_module, :with_one_upload_module, submitted_appeal_uuid:, type_of_appeal: 'SC')
     end
     let(:user) { build(:user, :loa3) }
     let(:request_body) { VetsJsonSchema::EXAMPLES.fetch('SC-CREATE-REQUEST-BODY-FOR-VA-GOV') }
