@@ -41,8 +41,6 @@ module ClaimsApi
                                                             poa_code:)
       end
 
-      # the Claimant object is already being validatated below,
-      # so that code has been adjusted and it is being left out of this workflow
       def validate_non_claimant_address_values
         %w[veteran representative].each do |base|
           address = form_attributes.dig(base, 'address')
