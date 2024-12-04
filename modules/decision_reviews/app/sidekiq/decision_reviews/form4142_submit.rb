@@ -7,7 +7,7 @@ require 'decision_reviews/v1/helpers'
 module DecisionReviews
   class Form4142Submit
     include Sidekiq::Job
-    include DecisionReviews::V1::Appeals::Helpers
+    include DecisionReviews::V1::Helpers
 
     STATSD_KEY_PREFIX = 'worker.decision_review.form4142_submit'
 
@@ -25,7 +25,7 @@ module DecisionReviews
       ::Rails.logger.error(
         {
           error_message:,
-          message: 'DecisionReview::Form4142Submit retries exhausted',
+          message: 'DecisionReviews::Form4142Submit retries exhausted',
           form_id: DecisionReviews::V1::FORM4142_ID,
           parent_form_id: DecisionReviews::V1::SUPP_CLAIM_FORM_ID,
           appeal_submission_id:,
@@ -46,7 +46,7 @@ module DecisionReviews
     end
 
     def decrypt_form(encrypted_payload)
-      JSON.parse(DecisionReviews::V1::Appeals::Helpers::DR_LOCKBOX.decrypt(encrypted_payload))
+      JSON.parse(DecisionReviews::V1::Helpers::DR_LOCKBOX.decrypt(encrypted_payload))
     end
 
     def perform(appeal_submission_id, encrypted_payload, submitted_appeal_uuid)
@@ -97,7 +97,7 @@ module DecisionReviews
       params = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
                  appeal_type:,
                  notification_id: }
-      Rails.logger.info('DecisionReview::Form4142Submit retries exhausted email queued', params)
+      Rails.logger.info('DecisionReviews::Form4142Submit retries exhausted email queued', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted.email_queued")
 
       tags = ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
@@ -111,7 +111,7 @@ module DecisionReviews
       params = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
                  appeal_type:,
                  message: e.message }
-      Rails.logger.error('DecisionReview::Form4142Submit retries exhausted email error', params)
+      Rails.logger.error('DecisionReviews::Form4142Submit retries exhausted email error', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted.email_error", tags: ["appeal_type:#{appeal_type}"])
     end
     private_class_method :record_email_send_failure

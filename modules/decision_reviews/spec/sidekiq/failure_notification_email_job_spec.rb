@@ -134,7 +134,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
                                                                               template_id: 'fake_hlr_template_id' })
 
             logger_params = [
-              'DecisionReview::FailureNotificationEmailJob form email queued',
+              'DecisionReviews::FailureNotificationEmailJob form email queued',
               { submitted_appeal_uuid: guid1, appeal_type: 'SC', notification_id: }
             ]
             expect(Rails.logger).to have_received(:info).with(*logger_params)
@@ -320,13 +320,13 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
               .with(identifier: user_uuid2, identifier_type: 'idme').once
 
             logger_params = [
-              'DecisionReview::FailureNotificationEmailJob evidence email queued',
+              'DecisionReviews::FailureNotificationEmailJob evidence email queued',
               { submitted_appeal_uuid: guid1, lighthouse_upload_id: upload_guid1, appeal_type: 'NOD', notification_id: }
             ]
             expect(Rails.logger).to have_received(:info).with(*logger_params)
 
             logger_params2 = [
-              'DecisionReview::FailureNotificationEmailJob evidence email queued',
+              'DecisionReviews::FailureNotificationEmailJob evidence email queued',
               {
                 submitted_appeal_uuid: guid3,
                 lighthouse_upload_id: upload_guid5,
@@ -423,7 +423,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
                                                                               template_id: 'fake_hlr_template_id' })
 
             logger_params = [
-              'DecisionReview::FailureNotificationEmailJob secondary form email queued',
+              'DecisionReviews::FailureNotificationEmailJob secondary form email queued',
               { submitted_appeal_uuid: guid1,
                 lighthouse_upload_id: secondary_form1.guid, appeal_type: 'SC', notification_id: }
             ]
@@ -480,7 +480,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           expect { subject.new.perform }.not_to raise_exception
 
           logger_params = [
-            'DecisionReview::FailureNotificationEmailJob form error',
+            'DecisionReviews::FailureNotificationEmailJob form error',
             { submitted_appeal_uuid: guid1, appeal_type: 'SC', message: }
           ]
           expect(Rails.logger).to have_received(:error).with(*logger_params)
@@ -529,7 +529,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           expect { subject.new.perform }.not_to raise_exception
 
           logger_params = [
-            'DecisionReview::FailureNotificationEmailJob evidence error',
+            'DecisionReviews::FailureNotificationEmailJob evidence error',
             { submitted_appeal_uuid: guid1, lighthouse_upload_id:, appeal_type: 'SC', message: }
           ]
           expect(Rails.logger).to have_received(:error).with(*logger_params)
@@ -564,7 +564,7 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           expect { subject.new.perform }.not_to raise_exception
 
           logger_params = [
-            'DecisionReview::FailureNotificationEmailJob secondary form error',
+            'DecisionReviews::FailureNotificationEmailJob secondary form error',
             { submitted_appeal_uuid: guid1, lighthouse_upload_id:, appeal_type: 'SC', message: }
           ]
           expect(Rails.logger).to have_received(:error).with(*logger_params)

@@ -1,29 +1,31 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'decision_reviews/v1/service'
+require 'decision_review_v1/service'
 
 SUBCLASS_INFO = {
   SavedClaim::SupplementalClaim => { service_method: 'get_supplemental_claim',
                                      evidence_service_method: 'get_supplemental_claim_upload',
                                      statsd_prefix: 'worker.decision_review.saved_claim_sc_status_updater',
-                                     log_prefix: 'DecisionReview::SavedClaimScStatusUpdaterJob',
+                                     log_prefix: 'DecisionReviews::SavedClaimScStatusUpdaterJob',
                                      service_tag: 'service:supplemental-claims' },
   SavedClaim::HigherLevelReview => { service_method: 'get_higher_level_review',
                                      evidence_service_method: nil,
                                      statsd_prefix: 'worker.decision_review.saved_claim_hlr_status_updater',
-                                     log_prefix: 'DecisionReview::SavedClaimHlrStatusUpdaterJob',
+                                     log_prefix: 'DecisionReviews::SavedClaimHlrStatusUpdaterJob',
                                      service_tag: 'service:higher-level-review' },
   SavedClaim::NoticeOfDisagreement => { service_method: 'get_notice_of_disagreement',
                                         evidence_service_method: 'get_notice_of_disagreement_upload',
                                         statsd_prefix: 'worker.decision_review.saved_claim_nod_status_updater',
-                                        log_prefix: 'DecisionReview::SavedClaimNodStatusUpdaterJob',
+                                        log_prefix: 'DecisionReviews::SavedClaimNodStatusUpdaterJob',
                                         service_tag: 'service:board-appeal' }
 }.freeze
 
 RSpec.shared_context 'status updater job context' do |subclass|
   subject { described_class }
 
-  let(:service) { instance_double(DecisionReviewV1::Service) }
+  let(:service) { instance_double(DecisionReviews::V1::Service) }
 
   let(:guid1) { SecureRandom.uuid }
   let(:guid2) { SecureRandom.uuid }
@@ -55,7 +57,7 @@ RSpec.shared_context 'status updater job context' do |subclass|
   end
 
   before do
-    allow(DecisionReviewV1::Service).to receive(:new).and_return(service)
+    allow(DecisionReviews::V1::Service).to receive(:new).and_return(service)
     allow(StatsD).to receive(:increment)
     allow(Rails.logger).to receive(:error)
   end

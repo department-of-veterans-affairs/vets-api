@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'decision_reviews/v1/constants'
+
 module DecisionReviews
   module V1
     module LoggingUtils
