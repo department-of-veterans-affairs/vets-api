@@ -64,6 +64,9 @@ module BBInternal
     # study_id is mapped to a new UUID and stored in Redis for later retrieval.
     # This is to prevent the study_id from being exposed to the client.
     # The client will use the UUID to request the study.
+    # UUID map is stored in Redis with a TTL of 3 days.
+    # On method call, if the studyId soe not exist in the map, a new UUID is generated and stored in the map.
+    # Otherwise, the existing UUID is used.
     #
     # @return [Hash] The radiology study list from MHV
     #
@@ -71,13 +74,23 @@ module BBInternal
       response = perform(:get, "bluebutton/study/#{session.patient_id}", nil, token_headers)
       data = response.body
 
-      id_uuid_map = {}
+      study_data_cached = get_study_data_from_cache
+      study_data_hash = JSON.parse(study_data_cached) if study_data_cached
+      id_uuid_map = study_data_hash || {}
 
       modified_data = data.map do |obj|
         study_id = obj['studyIdUrn']
+    
+        # Find the key by value in the hash
+        existing_uuid, _ = study_data_hash.find { |_, v| v == study_id.to_s } if study_data_hash
+        
+        if existing_uuid
+          obj['studyIdUrn'] = existing_uuid
+        else
         new_uuid = SecureRandom.uuid
         id_uuid_map[new_uuid] = study_id
         obj['studyIdUrn'] = new_uuid
+        end
         obj
       end
 
