@@ -1,0 +1,51 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: http://fakeapi.com/v2/notifications/email
+    body:
+      encoding: UTF-8
+      string: '{"email_address":"test@email.com","template_id":"1234","personalisation":{"foo":"bar"}}'
+    headers:
+      Accept:
+      - "*/*"
+      Content-Type:
+      - application/json
+      User-Agent:
+      - NOTIFY-API-RUBY-CLIENT/5.1.2
+      Authorization:
+      - Bearer BEARER_TOKEN_HERE
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: BAD REQUEST
+    headers:
+      Date:
+      - Wed, 26 Aug 2020 18:35:50 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '143'
+      Connection:
+      - keep-alive
+      Server:
+      - gunicorn/20.0.4
+      Access-Control-Allow-Origin:
+      - "*"
+      Access-Control-Allow-Headers:
+      - Content-Type,Authorization
+      Access-Control-Allow-Methods:
+      - GET,PUT,POST,DELETE
+      X-B3-Traceid:
+      - None
+      X-B3-Spanid:
+      - None
+    body:
+      encoding: UTF-8
+      string: "{\n  \"errors\": [\n    {\n      \"error\": \"BadRequestError\", \n
+        \     \"message\": \"Missing personalisation: baz\"\n    }\n  ], \n  \"status_code\":
+        400\n}\n"
+  recorded_at: Wed, 26 Aug 2020 18:35:50 GMT
+recorded_with: VCR 6.0.0
