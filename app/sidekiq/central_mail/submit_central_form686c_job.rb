@@ -170,14 +170,14 @@ module CentralMail
       veteran_information = form['veteran_information'].presence || claim.parsed_form['veteran_information']
       form_pdf_metadata = get_hash_and_pages(form_path)
       address = form['veteran_contact_information']['veteran_address']
-      receive_date = claim.created_at.in_time_zone('Central Time (US & Canada)')
+      is_usa = address['country_name'] == 'USA'
       metadata = {
         'veteranFirstName' => veteran_information['full_name']['first'],
         'veteranLastName' => veteran_information['full_name']['last'],
         'fileNumber' => veteran_information['file_number'] || veteran_information['ssn'],
-        'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
+        'receiveDt' => claim.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => claim.guid,
-        'zipCode' => address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
+        'zipCode' => is_usa ? address['zip_code'] : FOREIGN_POSTALCODE,
         'source' => 'va.gov',
         'hashV' => form_pdf_metadata[:hash],
         'numberAttachments' => attachment_paths.size,
