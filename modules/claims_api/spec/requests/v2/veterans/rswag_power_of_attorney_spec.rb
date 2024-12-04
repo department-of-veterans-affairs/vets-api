@@ -11,6 +11,18 @@ describe 'PowerOfAttorney',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   let(:local_bgs) { ClaimsApi::LocalBGS }
 
+  claimant_data = {
+    'claimantId' => '1013093331V548481',
+    'address' => {
+      'addressLine1' => '123 anystreet',
+      'city' => 'anytown',
+      'stateCode' => 'OR',
+      'countryCode' => 'US',
+      'zipCode' => '12345'
+    },
+    'relationship' => 'Spouse'
+  }
+
   path '/veterans/{veteranId}/power-of-attorney' do
     get 'Find current Power of Attorney for a Veteran.' do
       tags 'Power of Attorney'
@@ -210,18 +222,6 @@ describe 'PowerOfAttorney',
       let(:scopes) { %w[system/claim.read system/claim.write] }
       let(:poa_code) { '067' }
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
-
-      claimant_data = {
-        'claimantId' => '1013093331V548481',
-        'address' => {
-          'addressLine1' => '123 anystreet',
-          'city' => 'anytown',
-          'stateCode' => 'OR',
-          'country' => 'USA',
-          'zipCode' => '12345'
-        },
-        'relationship' => 'Spouse'
-      }
 
       request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                                     'power_of_attorney', '2122a', 'valid.json').read)
@@ -424,18 +424,6 @@ describe 'PowerOfAttorney',
       let(:scopes) { %w[system/claim.write] }
       let(:organization_poa_code) { '083' }
       let(:bgs_poa) { { person_org_name: "#{organization_poa_code} name-here" } }
-
-      claimant_data = {
-        'claimantId' => '1013093331V548481',
-        'address' => {
-          'addressLine1' => '123 anystreet',
-          'city' => 'anytown',
-          'stateCode' => 'OR',
-          'country' => 'USA',
-          'zipCode' => '12345'
-        },
-        'relationship' => 'Spouse'
-      }
 
       request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                                     'power_of_attorney', '2122', 'valid.json').read)

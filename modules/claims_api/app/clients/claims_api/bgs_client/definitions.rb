@@ -95,7 +95,7 @@ module ClaimsApi
       ##
       # EBenefitsBnftClaimStatusWebServiceBean
       #
-      module EBenefitsBenefitClaimStatusWebServiceBean
+      module EBenefitsBnftClaimStatusWebService
         DEFINITION =
           Bean.new(
             path: 'EBenefitsBnftClaimStatusWebServiceBean',
@@ -104,23 +104,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module EBenefitsBenefitClaimStatusWebService
-        DEFINITION =
-          Service.new(
-            bean: EBenefitsBenefitClaimStatusWebServiceBean::DEFINITION,
-            path: 'EBenefitsBnftClaimStatusWebService'
-          )
-
-        module FindBenefitClaimsStatusByParticipantId
-          DEFINITION =
-            Action.new(
-              service: EBenefitsBenefitClaimStatusWebService::DEFINITION,
-              name: 'findBenefitClaimsStatusByPtcpntId',
-              key: 'BenefitClaimsDTO'
-            )
-        end
       end
 
       ##
