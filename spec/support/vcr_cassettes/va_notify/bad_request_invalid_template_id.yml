@@ -14,7 +14,7 @@ http_interactions:
       User-Agent:
       - NOTIFY-API-RUBY-CLIENT/5.1.2
       Authorization:
-        - Bearer BEARER_TOKEN_HERE
+      - Bearer BEARER_TOKEN_HERE
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
