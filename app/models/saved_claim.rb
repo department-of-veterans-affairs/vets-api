@@ -170,12 +170,12 @@ class SavedClaim < ApplicationRecord
     raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
   rescue => e
     PersonalInformationLog.create!(
-        error_class: "#{self.class.name}#validate_schema_with_json_schemer exception #{e.class}",
-        data: {
-          schema:, errors:,
-          error: Class.new.include(FailedRequestLoggable).exception_hash(e)
-        }
-      )
+      error_class: "#{self.class.name}#validate_schema_with_json_schemer exception #{e.class}",
+      data: {
+        schema:, errors:,
+        error: Class.new.include(FailedRequestLoggable).exception_hash(e)
+      }
+    )
     raise
   end
 
@@ -193,12 +193,12 @@ class SavedClaim < ApplicationRecord
     raise Common::Exceptions::SchemaValidationErrors, remove_pii_from_json_schemer_errors(errors)
   rescue => e
     PersonalInformationLog.create!(
-        error_class: "#{self.class.name}#validate_schema_with_json_schemer exception #{e.class}",
-        data: {
-          schema:, errors:,
-          error: Class.new.include(FailedRequestLoggable).exception_hash(e)
-        }
-      )
+      error_class: "#{self.class.name}#validate_schema_with_json_schemer exception #{e.class}",
+      data: {
+        schema:, errors:,
+        error: Class.new.include(FailedRequestLoggable).exception_hash(e)
+      }
+    )
     raise
   end
 
