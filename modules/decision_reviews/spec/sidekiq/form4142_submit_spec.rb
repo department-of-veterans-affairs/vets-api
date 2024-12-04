@@ -6,7 +6,7 @@ require 'decision_review_v1/service'
 require 'decision_reviews/v1/helpers'
 
 RSpec.describe DecisionReviews::Form4142Submit, type: :job do
-  include DecisionReviews::V1::Appeals::Helpers
+  include DecisionReviews::V1::Helpers
 
   subject { described_class }
 

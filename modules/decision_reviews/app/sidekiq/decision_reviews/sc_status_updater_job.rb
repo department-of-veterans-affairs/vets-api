@@ -15,7 +15,7 @@ module DecisionReviews
     end
 
     def log_prefix
-      'DecisionReview::SavedClaimScStatusUpdaterJob'
+      'DecisionReviews::SavedClaimScStatusUpdaterJob'
     end
 
     def service_tag

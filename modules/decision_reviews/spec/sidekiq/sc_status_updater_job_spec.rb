@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'decision_reviews/v1/service'
-require 'sidekiq/decision_review/shared_examples_for_status_updater_jobs'
+require './modules/decision_reviews/spec/sidekiq/shared_examples_for_status_updater_jobs'
 
-RSpec.describe DecisionReview::ScStatusUpdaterJob, type: :job do
+RSpec.describe DecisionReviews::ScStatusUpdaterJob, type: :job do
   subject { described_class }
 
   include_context 'status updater job context', SavedClaim::SupplementalClaim

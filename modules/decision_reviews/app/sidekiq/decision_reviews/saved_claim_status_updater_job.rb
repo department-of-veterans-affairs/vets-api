@@ -103,7 +103,7 @@ module DecisionReviews
     end
 
     def decision_review_service
-      @service ||= DecisionReviewV1::Service.new
+      @service ||= DecisionReviews::V1::Service.new
     end
 
     def get_status_and_attributes(record)

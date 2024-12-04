@@ -20,7 +20,7 @@ module DecisionReviews
       nil
     rescue => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.error")
-      Rails.logger.error('DecisionReview::DeleteSavedClaimRecordsJob perform exception', e.message)
+      Rails.logger.error('DecisionReviews::DeleteSavedClaimRecordsJob perform exception', e.message)
     end
 
     private
