@@ -80,9 +80,12 @@ module ClaimsApi
       #
       module IntentToFileWebService
         DEFINITION =
-          Service.new(
-            bean: IntentToFileWebServiceBean::DEFINITION,
-            path: 'IntentToFileWebService'
+          Bean.new(
+            path: 'IntentToFileWebServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://intenttofile.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
           )
       end
 

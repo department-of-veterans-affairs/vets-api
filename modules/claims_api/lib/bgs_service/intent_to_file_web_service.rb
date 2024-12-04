@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class IntentToFileWebService < ClaimsAPI::LocalBGS
+  class IntentToFileWebService < ClaimsApi::LocalBGS
     def bean_name
       'IntentToFileWebServiceBean/IntentToFileWebService'
     end
