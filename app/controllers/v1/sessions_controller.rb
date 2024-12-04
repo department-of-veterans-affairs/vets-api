@@ -408,8 +408,15 @@ module V1
     end
 
     def after_login_actions
-      Login::AfterLoginActions.new(@current_user).perform
+      Login::AfterLoginActions.new(@current_user, skip_mhv_account_creation).perform
       log_persisted_session_and_warnings
+    end
+
+    def skip_mhv_account_creation
+      skip_mhv_account_creation_client = url_service.tracker.payload_attr(:application) == SAML::User::MHV_ORIGINAL_CSID
+      skip_mhv_account_creation_type = url_service.tracker.payload_attr(:type) == 'custom'
+
+      skip_mhv_account_creation_client || skip_mhv_account_creation_type
     end
 
     def log_persisted_session_and_warnings

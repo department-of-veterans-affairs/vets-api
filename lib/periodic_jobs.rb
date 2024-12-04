@@ -48,6 +48,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
   mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
 
+  # Update alternative Banners data every 10 minutes
+  mgr.register('*/10 * * * *', 'Banners::UpdateAllJob')
+
   # Update static data cache
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
 
@@ -189,7 +192,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('*/3 * * * *', 'VBADocuments::UploadScanner')
 
   # Clean up submitted documents from S3
-  mgr.register('*/5 * * * *', 'VBADocuments::UploadRemover')
+  mgr.register('2-59/5 * * * *', 'VBADocuments::UploadRemover')
 
   # Daily/weekly report of unsuccessful benefits intake submissions
   mgr.register('0 0 * * 1-5', 'VBADocuments::ReportUnsuccessfulSubmissions')
@@ -207,7 +210,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::FlipperStatusAlert')
 
   # Rotates Lockbox/KMS record keys and _ciphertext fields every October 12th (when the KMS key auto-rotate)
-  mgr.register('10 5 * * *', 'KmsKeyRotation::BatchInitiatorJob')
+  mgr.register('10 1 * * *', 'KmsKeyRotation::BatchInitiatorJob')
 
   # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
   mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
@@ -224,7 +227,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Hourly jobs that update DR SavedClaims with delete_date
   mgr.register('20 * * * *', 'DecisionReview::HlrStatusUpdaterJob')
   mgr.register('30 * * * *', 'DecisionReview::NodStatusUpdaterJob')
-  mgr.register('40 * * * *', 'DecisionReview::ScStatusUpdaterJob')
+  mgr.register('50 * * * *', 'DecisionReview::ScStatusUpdaterJob')
 
   # Clean SavedClaim records that are past delete date
   mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
@@ -238,4 +241,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
   mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
+
+  # Daily job for Vye: clears deactivated BDNs every evening.
+  mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 }

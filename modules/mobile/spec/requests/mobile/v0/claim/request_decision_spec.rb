@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../../../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::Claim::RequestDecision', :skip_json_api_validation, type: :request do
+  include CommitteeHelper
+
   describe 'GET /v0/claim/:id/request-decision' do
     let!(:user) { sis_user(icn: '1008596379V859838') }
 
@@ -18,7 +21,7 @@ RSpec.describe 'Mobile::V0::Claim::RequestDecision', :skip_json_api_validation, 
       VCR.use_cassette('mobile/lighthouse_claims/request_decision/200_response') do
         post '/mobile/v0/claim/600397108/request-decision', headers: sis_headers
       end
-      expect(response).to have_http_status(:accepted)
+      assert_schema_conform(202)
       expect(response.parsed_body.dig('data', 'jobId')).to eq('success')
     end
 
@@ -26,7 +29,7 @@ RSpec.describe 'Mobile::V0::Claim::RequestDecision', :skip_json_api_validation, 
       VCR.use_cassette('mobile/lighthouse_claims/request_decision/200_failure_response') do
         post '/mobile/v0/claim/600397108/request-decision', headers: sis_headers
       end
-      expect(response).to have_http_status(:accepted)
+      assert_schema_conform(202)
       expect(response.parsed_body.dig('data', 'jobId')).to eq('failure')
     end
 
@@ -34,7 +37,7 @@ RSpec.describe 'Mobile::V0::Claim::RequestDecision', :skip_json_api_validation, 
       VCR.use_cassette('mobile/lighthouse_claims/request_decision/404_response') do
         post '/mobile/v0/claim/600397108/request-decision', headers: sis_headers
       end
-      expect(response).to have_http_status(:not_found)
+      assert_schema_conform(404)
     end
   end
 end

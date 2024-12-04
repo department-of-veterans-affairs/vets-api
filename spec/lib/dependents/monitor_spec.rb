@@ -62,5 +62,20 @@ RSpec.describe Dependents::Monitor do
 
       monitor.track_submission_exhaustion(msg)
     end
+
+    it 'logs sidekiq job exhaustion with failure avoided' do
+      msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
+
+      log = "Failed all retries on CentralMail::SubmitCentralForm686cJob, last error: #{msg['error_message']}"
+      payload = {
+        message: msg
+      }
+
+      expect(monitor).to receive(:log_silent_failure_avoided).with(payload, nil, anything)
+      expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
+      expect(Rails.logger).to receive(:error).with(log)
+
+      monitor.track_submission_exhaustion(msg, user_struct.va_profile_email)
+    end
   end
 end

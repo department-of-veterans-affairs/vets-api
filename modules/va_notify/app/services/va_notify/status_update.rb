@@ -9,7 +9,7 @@ module VANotify
 
       return if callback_info_missing?
 
-      klass = constantized_class(notification.callback)
+      klass = constantized_class(notification.callback_klass)
       if klass.respond_to?(:call)
         begin
           klass.call(notification)
@@ -35,7 +35,7 @@ module VANotify
     end
 
     def callback_info_missing?
-      if notification.callback.blank?
+      if notification.callback_klass.blank?
         Rails.logger.info(message: "VANotify - no callback provided for notification: #{notification.id}")
         true
       else
