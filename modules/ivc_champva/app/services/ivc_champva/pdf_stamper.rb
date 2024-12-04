@@ -47,6 +47,7 @@ module IvcChampva
       end
     end
 
+    # rubocop: disable Metrics/MethodLength
     if Flipper.enabled?(:champva_multiple_stamp_retry, @user)
       def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
         attempt ||= 0
@@ -78,6 +79,7 @@ module IvcChampva
           Common::FileHelpers.delete_file_if_exists(stamp_path)
         end
       end
+      # rubocop: enable Metrics/MethodLength
     else
       def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
         stamp_path = Common::FileHelpers.random_file_path
@@ -91,7 +93,6 @@ module IvcChampva
             end
           end
         end
-        byebug
         perform_multistamp(stamped_template_path, stamp_path)
       rescue => e
         Rails.logger.error 'IVC CHAMPVA forms api - Failed to generate stamped file', message: e.message
