@@ -350,7 +350,8 @@ module Form526ClaimFastTrackingConcern
   # fetch, memoize, and return all of the veteran's rated disabilities from EVSS
   def all_rated_disabilities
     settings = Settings.lighthouse.veteran_verification.form526
-    icn = UserAccount.where(id: user_account_id).first&.icn
+    icn = account&.icn
+    invoker = 'Form526ClaimFastTrackingConcern#all_rated_disabilities'
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
       provider: nil,
@@ -361,7 +362,11 @@ module Form526ClaimFastTrackingConcern
     )
 
     @all_rated_disabilities ||= begin
-      response = api_provider.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
+      response = api_provider.get_rated_disabilities(
+        settings.access_token.client_id,
+        settings.access_token.rsa_key,
+        { invoker: }
+      )
       response.rated_disabilities
     end
   end
