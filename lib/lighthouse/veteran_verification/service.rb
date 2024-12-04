@@ -82,7 +82,7 @@ module VeteranVerification
     end
 
     def log_reason(reason)
-      ::Rails.logger.info('Vet Verification Status Success', { not_confirmed_reason: reason})
+      ::Rails.logger.info('Vet Verification Status Success', { not_confirmed_reason: reason })
     end
   end
 end
