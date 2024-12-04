@@ -122,7 +122,6 @@ module RepresentationManagement
       end
     end
 
-    # Methods that truncate their output:
     def veteran_state_code_truncated
       veteran_state_code[0..1]
     end

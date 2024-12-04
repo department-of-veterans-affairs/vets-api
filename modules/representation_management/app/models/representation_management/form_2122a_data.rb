@@ -23,5 +23,13 @@ module RepresentationManagement
     validates :veteran_service_branch,
               inclusion: { in: VETERAN_SERVICE_BRANCHES },
               if: -> { veteran_service_branch.present? }
+
+    def representative_first_name_truncated
+      representative.first_name[0..11]
+    end
+
+    def representative_last_name_truncated
+      representative.last_name[0..17]
+    end
   end
 end
