@@ -10,6 +10,8 @@ module ClaimsApi
       matthew.christianson@adhocteam.us
       rockwell.rice@oddball.io
       tyler.coleman@oddball.io
+      Janet.Coutinho@va.gov
+      Michael.Harlow@va.gov
     ].freeze
 
     def build(date_from, date_to, data)
