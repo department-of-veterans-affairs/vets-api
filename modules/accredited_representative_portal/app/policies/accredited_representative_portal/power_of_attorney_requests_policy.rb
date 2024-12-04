@@ -7,6 +7,14 @@ module AccreditedRepresentativePortal
       @record = record
     end
 
+    def index?
+      authorize
+    end
+
+    def show?
+      authorize
+    end
+
     def pilot_user_email_poa_codes
       Settings
         .accredited_representative_portal
