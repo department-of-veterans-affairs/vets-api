@@ -8,14 +8,13 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
 
   [true, false].each do |flipped|
     before do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_special_issues_updater_uses_local_bgs).and_return(flipped)
       Sidekiq::Job.clear_all
-      if flipped
-        Flipper.enable(:claims_api_special_issues_updater_uses_local_bgs)
-        @clazz = ClaimsApi::ContentionService
-      else
-        Flipper.disable(:claims_api_special_issues_updater_uses_local_bgs)
-        @clazz = BGS::ContentionService
-      end
+      @clazz = if flipped
+                 ClaimsApi::ContentionService
+               else
+                 BGS::ContentionService
+               end
     end
 
     let(:user) do
