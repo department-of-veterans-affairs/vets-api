@@ -166,14 +166,27 @@ module Form526ClaimFastTrackingConcern
   def classify_vagov_contentions(params)
     user = OpenStruct.new({ flipper_id: user_uuid })
     vro_client = VirtualRegionalOffice::Client.new
-
-    response = if Flipper.enabled?(:disability_526_expanded_contention_classification, user)
-                 vro_client.classify_vagov_contentions_expanded(params)
-               else
-                 vro_client.classify_vagov_contentions(params)
-               end
-
+    begin 
+    if Flipper.enabled?(:disability_526_expanded_contention_classification, user)
+      params.merge!(is_ab_testing_claim: true)
+      puts "calling first with #{params}"
+      response = vro_client.classify_vagov_contentions_expanded(params)
+      puts "calling the second with #{params}"
+      #vro_client.classify_vagov_contentions(params)
+      Thread.new do
+        puts "calling second with #{params}"
+        vro_client.classify_vagov_contentions(params)
+      end
+    else
+      params.merge!(is_ab_testing_claim: false)
+      response = vro_client.classify_vagov_contentions(params)
+    end
+    puts "response #{response.body}"
     response.body
+  rescue e
+      puts "Error #{e}"
+      raise e
+   end 
   end
 
   def format_contention_for_vro(disability)
@@ -202,7 +215,9 @@ module Form526ClaimFastTrackingConcern
 
     contentions_array = disabilities.map { |disability| format_contention_for_vro(disability) }
     params = { claim_id: saved_claim_id, form526_submission_id: id, contentions: contentions_array }
+    puts "about to call it"
     classifier_response = classify_vagov_contentions(params)
+    puts "classifier response #{classifier_response}"
     log_claim_level_metrics(classifier_response)
     classifier_response['contentions'].each do |contention|
       classification = nil
