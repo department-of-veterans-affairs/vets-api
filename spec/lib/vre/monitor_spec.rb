@@ -31,6 +31,7 @@ RSpec.describe VRE::Monitor do
     before do
       Flipper.disable(:validate_saved_claims_with_json_schemer)
     end
+
     it 'logs sidekiq job exhaustion failure avoided' do
       msg = { 'args' => [claim.id, encrypted_user], error_message: 'Error!' }
 

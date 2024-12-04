@@ -15,12 +15,6 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
     stub_virus_scan
 
     let!(:attachment1) { FactoryBot.create(:pension_burial) }
-    let!(:attachment2) { FactoryBot.create(:pension_burial) }
-
-    before do
-      Flipper.disable(:validate_saved_claims_with_json_schemer)
-    end
-
     let(:claim) do
       FactoryBot.create(
         :pensions_module_pension_claim,
@@ -51,6 +45,11 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
           statementOfTruthSignature: 'Test User'
         }.to_json
       )
+    end
+    let!(:attachment2) { FactoryBot.create(:pension_burial) }
+
+    before do
+      Flipper.disable(:validate_saved_claims_with_json_schemer)
     end
 
     describe '#process_attachments!' do
