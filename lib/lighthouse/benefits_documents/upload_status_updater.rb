@@ -87,26 +87,15 @@ module BenefitsDocuments
 
     # Returns true if document is still processing in Lighthouse, and initiated more than a set number of hours ago
     def processing_timeout?
-      return false if @lighthouse_document_status_response.dig('time', 'endTime')
+      return false if completed?
 
-      start_time < PROCESSING_TIMEOUT_WINDOW_IN_HOURS.hours.ago.utc
+      @lighthouse_document_status_response.created_at < PROCESSING_TIMEOUT_WINDOW_IN_HOURS.hours.ago.utc
     end
 
     private
 
     def status_changed?
       @lighthouse_document_status_response != @lighthouse_document_upload.upload_status
-    end
-
-    # Lighthouse returns date times as UNIX timestamps in milliseconds
-    def start_time
-      unix_start_time = @lighthouse_document_status_response.dig('time', 'startTime')
-      Time.at(unix_start_time / 1000).utc.to_datetime
-    end
-
-    def end_time
-      unix_end_time = @lighthouse_document_status_response.dig('time', 'endTime')
-      Time.at(unix_end_time / 1000).utc.to_datetime
     end
 
     def failed?
@@ -130,12 +119,15 @@ module BenefitsDocuments
       # @lighthouse_document_upload.update!(lighthouse_processing_ended_at: end_time)
 
       if completed?
-        @lighthouse_document_upload.update(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS['SUCCESS'])
+        @lighthouse_document_upload.update(
+          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS['SUCCESS'],
+          delete_date: (DateTime.current + 60).utc
+        )
       else
         @lighthouse_document_upload.update!(
           upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS['FAILED'],
-          failed_date: DateTime.now.utc
-          # error_message: @lighthouse_document_status['error']
+          failed_date: DateTime.now.utc,
+          error_message: @lighthouse_document_status['error']
         )
       end
     end

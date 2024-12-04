@@ -636,6 +636,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_10_29_143650) do
     t.string "va_notify_status"
     t.datetime "delete_date"
     t.datetime "acknowledgement_date"
+    t.string "error_message"
     t.string "tracked_item_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false

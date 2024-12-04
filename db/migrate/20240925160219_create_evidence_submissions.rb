@@ -13,10 +13,9 @@ class CreateEvidenceSubmissions < ActiveRecord::Migration[7.1]
       t.string :va_notify_id
       t.string :va_notify_status
       t.date :delete_date
-      # TODO: add failed_date and acknowledgement_date
       t.datetime :acknowledgement_date
       t.datetime :failed_date
-      # TODO: add error_message field
+      t.string :error_message
       t.string :tracked_item_id
 
       t.timestamps
