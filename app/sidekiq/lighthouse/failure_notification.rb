@@ -17,7 +17,7 @@ class Lighthouse::FailureNotification
     ::Rails.logger.info('Lighthouse::FailureNotification email could not be sent')
   end
 
-  def self.notify_client
+  def notify_client
     VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
   end
 
@@ -32,5 +32,6 @@ class Lighthouse::FailureNotification
   rescue => e
     ::Rails.logger.error('Lighthouse::FailureNotification email error',
                          { message: e.message })
+    log_exception_to_sentry(e)
   end
 end
