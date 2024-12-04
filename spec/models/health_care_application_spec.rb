@@ -458,36 +458,64 @@ RSpec.describe HealthCareApplication, type: :model do
       end
 
       context 'with async_compatible not set' do
-        it 'submits sync' do
-          result = { formSubmissionId: '123' }
-          expect_any_instance_of(HCA::Service).to receive(
-            :submit_form
-          ).with(health_care_application.send(:parsed_form)).and_return(
-            result
-          )
+        let(:service_instance) { instance_double(HCA::Service) }
+        let(:parsed_form) { health_care_application.send(:parsed_form) }
+        let(:success_result) { { formSubmissionId: '123' } }
 
-          expect(health_care_application.process!).to eq(result)
+        before do
+          allow(HCA::Service).to receive(:new).and_return(service_instance)
         end
 
-        context 'with a submission failure' do
-          it 'increments statsd' do
-            expect do
-              expect do
-                health_care_application.process!
-              end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
-            end.to trigger_statsd_increment('api.1010ez.sync_submission_failed')
+        context 'successful submission' do
+          before do
+            allow(service_instance).to receive(:submit_form)
+              .with(parsed_form)
+              .and_return(success_result)
           end
 
-          it 'increments short form statsd key if its a short form' do
-            health_care_application.form = health_care_application_short_form.to_json
-            health_care_application.instance_variable_set(:@parsed_form, nil)
+          it 'successfully submits synchronously' do
+            expect(health_care_application.process!).to eq(success_result)
+          end
+        end
+
+        context 'exception is raised in process!' do
+          let(:client_error) { Common::Client::Errors::ClientError.new('error message flerp') }
+
+          before do
+            allow(StatsD).to receive(:increment)
+            allow(service_instance).to receive(:submit_form)
+              .and_raise(client_error)
+          end
+
+          it 'logs exception to Sentry and raises BackendServiceException' do
+            expect_any_instance_of(SentryLogging).to receive(:log_exception_to_sentry).with(client_error)
+            expect do
+              health_care_application.process!
+            end.to raise_error(Common::Exceptions::BackendServiceException)
+          end
+
+          it 'increments statsd' do
+            expect(StatsD).to receive(:increment).with('api.1010ez.sync_submission_failed')
 
             expect do
+              health_care_application.process!
+            end.to raise_error(Common::Exceptions::BackendServiceException)
+          end
+
+          context 'short form' do
+            before do
+              health_care_application.form = health_care_application_short_form.to_json
+              health_care_application.instance_variable_set(:@parsed_form, nil)
+            end
+
+            it 'increments statsd and short_form statsd' do
+              expect(StatsD).to receive(:increment).with('api.1010ez.sync_submission_failed')
+              expect(StatsD).to receive(:increment).with('api.1010ez.sync_submission_failed_short_form')
+
               expect do
                 health_care_application.process!
-              end.to raise_error(VCR::Errors::UnhandledHTTPRequestError)
-            end.to trigger_statsd_increment('api.1010ez.sync_submission_failed')
-              .and trigger_statsd_increment('api.1010ez.sync_submission_failed_short_form')
+              end.to raise_error(Common::Exceptions::BackendServiceException)
+            end
           end
         end
       end
