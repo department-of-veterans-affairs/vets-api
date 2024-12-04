@@ -580,9 +580,6 @@ features:
   facilities_ppms_suppress_all:
     actor_type: user
     description: Hide all ppms search options
-  facilities_ppms_suppress_community_care:
-    actor_type: user
-    description: Hide ppms community care searches
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
