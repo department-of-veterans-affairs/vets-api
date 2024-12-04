@@ -61,8 +61,8 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
     it { expect(subject_with_claimant).to validate_length_of(:claimant_country).is_equal_to(2) }
     it { expect(subject_with_claimant).to validate_presence_of(:claimant_state_code) }
     it { expect(subject_with_claimant).to validate_length_of(:claimant_state_code).is_at_least(2) }
-    # it { expect(subject).to allow_value('Kansas').for(:claimant_state_code) }
-    # it { expect(subject).not_to allow_value('K').for(:claimant_state_code) }
+    it { expect(subject_with_claimant).to allow_value('Kansas').for(:claimant_state_code) }
+    it { expect(subject_with_claimant).not_to allow_value('K').for(:claimant_state_code) }
     it { expect(subject_with_claimant).to validate_presence_of(:claimant_zip_code) }
     it { expect(subject_with_claimant).to validate_length_of(:claimant_zip_code).is_equal_to(5) }
     it { expect(subject_with_claimant).to allow_value('12345').for(:claimant_zip_code) }
