@@ -28,11 +28,7 @@ describe VAProfile::V3::AddressValidation::Service do
   end
 
   before do
-    Flipper.enable(:va_v3_contact_information_service)
-  end
-
-  after do
-    Flipper.disable(:va_v3_contact_information_service)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
   end
 
   describe '#address_suggestions' do
