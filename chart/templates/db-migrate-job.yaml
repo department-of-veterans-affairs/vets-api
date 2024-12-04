@@ -19,6 +19,10 @@ spec:
           command: ["bundle"]
           args:  ["exec", "rails", "db:migrate"]
           volumeMounts:
+            - name: clamav-volume
+              mountPath: /app/clamav_tmp
+            - name: vets-api-mockdata
+              mountPath: /app/config/vets-api-mockdata
             - name: ddsocket
               mountPath: /var/run/datadog
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
@@ -47,6 +51,10 @@ spec:
       securityContext:
         fsGroup: {{ .Values.fsGroup }}
       volumes:
+        - name: vets-api-mockdata
+          emptyDir: {}
+        - name: clamav-volume
+          emptyDir: {}
         - name: ddsocket
           hostPath:
             path: /var/run/datadog
