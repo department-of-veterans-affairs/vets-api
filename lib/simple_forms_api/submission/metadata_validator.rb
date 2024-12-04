@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  module Submission; end
+  module Submission
 
   class MetadataValidator
     def self.validate(metadata, zip_code_is_us_based: true)
@@ -71,4 +71,5 @@ module SimpleFormsApi
       raise ArgumentError, "#{error_label} is not a string" if value.class != String
     end
   end
+end
 end
