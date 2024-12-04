@@ -35,7 +35,7 @@ module V1
     def new
       type = params[:type]
       client_id = params[:application] || 'vaweb'
-      operation = params[:operation] || 'non_interstitial'
+      operation = params[:operation]
 
       # As a temporary measure while we have the ability to authenticate either through SessionsController
       # or through SignInController, we will delete all SignInController cookies when authenticating with SSOe
@@ -308,7 +308,12 @@ module V1
     end
 
     def new_stats(type, client_id, operation)
-      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
+      tags = if params[:operation].present?
+               ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
+             else
+               ["type:#{type}", VERSION_TAG, "client_id:#{client_id}"]
+             end
+
       StatsD.increment(STATSD_SSO_NEW_KEY, tags:)
       Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
     end
