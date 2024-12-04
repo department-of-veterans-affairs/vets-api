@@ -47,8 +47,7 @@
             "addressLine1",
             "city",
             "stateCode",
-            "country",
-            "zipCode"
+            "countryCode"
           ],
           "properties" : {
             "addressLine1": {
@@ -73,13 +72,14 @@
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
-            "country": {
-              "description": "Country of the address.",
+            "countryCode": {
+              "description": "Country code of the address.",
               "type": "string",
-              "example": "USA"
+              "pattern": "^[a-z,A-Z]{2}$",
+              "example": "US"
             },
             "zipCode": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
@@ -101,7 +101,10 @@
             "phoneNumber"
           ],
           "properties": {
-            "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
+            "countryCode": { 
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
             "areaCode": {
               "description": "Area code of the phone number.",
               "type": "string", "pattern": "^[2-9][0-9]{2}$",
@@ -159,13 +162,14 @@
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
-            "country": {
-              "description": "Country of the address. Required if claimant information provided.",
+            "countryCode": {
+              "description": "Country code of the address. Required if claimant information provided.",
               "type": "string",
+              "pattern": "^[a-z,A-Z]{2}$",
               "example": "USA"
             },
             "zipCode": {
-              "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
+              "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
@@ -187,7 +191,10 @@
             "phoneNumber"
           ],
           "properties": {
-            "countryCode":     { "type": "string", "pattern": "^[0-9]+$" },
+            "countryCode": { 
+              "type": "string",
+              "pattern": "^[0-9]+$"
+            },
             "areaCode": {
               "description": "Area code of the phone number.",
               "type": "string", "pattern": "^[2-9][0-9]{2}$",
@@ -195,7 +202,8 @@
             },
             "phoneNumber": {
               "description": "Phone number.",
-              "type": "string", "pattern": "^[0-9]{1,14}$",
+              "type": "string",
+              "pattern": "^[0-9]{1,14}$",
               "example": "555-5555"
             },
             "phoneNumberExt":  { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
@@ -270,13 +278,14 @@
               "pattern": "^[a-z,A-Z]{2}$",
               "example": "OR"
             },
-            "country": {
-              "description": "Country of the address.",
+            "countryCode": {
+              "description": "Country code of the address.",
               "type": "string",
-              "example": "USA"
+              "pattern": "^[a-z,A-Z]{2}$",
+              "example": "US"
             },
             "zipCode": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"

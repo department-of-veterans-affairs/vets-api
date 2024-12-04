@@ -5,7 +5,6 @@ require 'claim_letters/claim_letter_test_data'
 module ClaimStatusTool
   class ClaimLetterDownloader
     FILENAME = 'ClaimLetter'
-    DEFAULT_ALLOWED_DOCTYPES = %w[184].freeze
     DOCTYPE_TO_TYPE_DESCRIPTION = {
       '27' => 'Board decision',
       '34' => 'Request for specific evidence or information',
@@ -21,7 +20,7 @@ module ClaimStatusTool
       '1605' => 'Copy of request for non-medical records sent to a non-VA organization'
     }.freeze
 
-    def initialize(user, allowed_doctypes = DEFAULT_ALLOWED_DOCTYPES)
+    def initialize(user, allowed_doctypes = default_allowed_doctypes)
       @user = user
       @client = VBMS::Client.from_env_vars(env_name: Settings.vbms.env) unless Rails.env.development? || Rails.env.test?
       @allowed_doctypes = allowed_doctypes
@@ -67,6 +66,34 @@ module ClaimStatusTool
     end
 
     private
+
+    # 27: Board Of Appeals Decision Letter
+    # 34: Correspondence
+    # 184: Notification Letter (e.g. VA 20-8993, VA 21-0290, PCGL)
+    # 408: VA Examination Letter
+    # 700: MAP-D Development letter
+    # 704: Standard 5103 Notice
+    # 706: 5103/DTA Letter
+    # 858: Custom 5103 Notice
+    # 859: Subsequent Development letter
+    # 864: General Records Request (Medical)
+    # 942: Final Attempt Letter
+    # 1605: General Records Request (Non-Medical)
+    def default_allowed_doctypes
+      doctypes = %w[184]
+      doctypes << '27' if Flipper.enabled?(:cst_include_ddl_boa_letters, @current_user)
+      doctypes << '704' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
+      doctypes << '706' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
+      doctypes << '858' if Flipper.enabled?(:cst_include_ddl_5103_letters, @current_user)
+      doctypes << '34' if Flipper.enabled?(:cst_include_ddl_sqd_letters, @current_user)
+      doctypes << '408' if Flipper.enabled?(:cst_include_ddl_sqd_letters, @current_user)
+      doctypes << '700' if Flipper.enabled?(:cst_include_ddl_sqd_letters, @current_user)
+      doctypes << '859' if Flipper.enabled?(:cst_include_ddl_sqd_letters, @current_user)
+      doctypes << '864' if Flipper.enabled?(:cst_include_ddl_sqd_letters, @current_user)
+      doctypes << '942' if Flipper.enabled?(:cst_include_ddl_sqd_letters, @current_user)
+      doctypes << '1605' if Flipper.enabled?(:cst_include_ddl_sqd_letters, @current_user)
+      doctypes
+    end
 
     def file_number
       # In staging, some users don't have a participant_id
