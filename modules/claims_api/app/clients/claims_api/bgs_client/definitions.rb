@@ -78,41 +78,12 @@ module ClaimsApi
       ##
       # IntentToFileWebServiceBean
       #
-      module IntentToFileWebServiceBean
-        DEFINITION =
-          Bean.new(
-            path: 'IntentToFileWebServiceBean',
-            namespaces: Namespaces.new(
-              target: 'http://intenttofile.services.vetsnet.vba.va.gov/',
-              data: nil
-            )
-          )
-      end
-
       module IntentToFileWebService
         DEFINITION =
           Service.new(
             bean: IntentToFileWebServiceBean::DEFINITION,
             path: 'IntentToFileWebService'
           )
-
-        module InsertIntentToFile
-          DEFINITION =
-            Action.new(
-              service: IntentToFileWebService::DEFINITION,
-              name: 'insertIntentToFile',
-              key: 'IntentToFileDTO'
-            )
-        end
-
-        module FindIntentToFileByPtcpntIdItfTypeCd
-          DEFINITION =
-            Action.new(
-              service: IntentToFileWebService::DEFINITION,
-              name: 'findIntentToFileByPtcpntIdItfTypeCd',
-              key: 'return'
-            )
-        end
       end
 
       ##
