@@ -67,7 +67,10 @@ module IvcChampva
       if supporting_documents
         confirmation_codes = []
         supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
-        PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
+        # Ensure we create the PDFs in the same order the attachments were uploaded
+        PersistentAttachment.where(guid: confirmation_codes)
+                            &.sort_by { |pa| pa[:created_at] }
+                            &.map { |attachment| attachments << attachment.to_pdf }
       end
 
       attachments

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VAProfileRedis::V2::Cache, :skip_vet360 do
-  let(:user) { build(:user, :loa3, vet360_id: '1781151') }
+  let(:user) { build(:user, :loa3) }
 
   describe 'ContactInformationServiceV2' do
     before do
