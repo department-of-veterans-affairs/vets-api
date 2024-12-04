@@ -166,8 +166,8 @@ Example Implementation
 Step 1: Create a Callback Handler Class: Define a class in your module to handle callbacks, which must implement a class-level method `.call`.
 
 ```
-module VANotify
-  class <name>Callback
+module ExampleTeam
+  class CustomNotificationCallback
     def self.call(notification)
       case notification.status
       when 'delivered'
@@ -204,7 +204,7 @@ if Flipper.enabled?(:custom_callback_handler)
     template_id,
     get_personalization(first_name),
     Settings.vanotify.services.va_gov.api_key,
-    { callback_klass: 'VANotify::CustomNotificationCallback', callback_metadata: {  statsd_tags: { service: 'ExampleTeam' } } }
+    { callback_klass: 'ExampleTeam::CustomNotificationCallback', callback_metadata: {  statsd_tags: { service: 'ExampleTeam' } } }
   )
 else
   # Default logic
@@ -238,4 +238,4 @@ Refer to the [VA Notify Error Status Mapping Table](https://github.com/departmen
 
 If you need any further clarification or help during the integration process, feel free to reach out:
 
-- Slack Channel: #va-notify-public
+- Slack Channel: [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT)
