@@ -122,7 +122,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .with(force_authn: true)
               expect { call_endpoint }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["type:#{type}", 'version:v1', 'client_id:vaweb', 'operation:non_interstitial'],
+                                             tags: ["type:#{type}", 'version:v1', 'client_id:vaweb',
+                                                    'operation:non_interstitial'],
                                              **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
                                               tags: ["type:#{type}",
