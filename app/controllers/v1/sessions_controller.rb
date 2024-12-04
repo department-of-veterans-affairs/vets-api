@@ -35,6 +35,7 @@ module V1
     def new
       type = params[:type]
       client_id = params[:application] || 'vaweb'
+      operation = params[:operation] || 'non_interstitial'
 
       # As a temporary measure while we have the ability to authenticate either through SessionsController
       # or through SignInController, we will delete all SignInController cookies when authenticating with SSOe
@@ -58,9 +59,9 @@ module V1
 
         redirect_to url.to_s
       else
-        render_login(type)
+        render_login(type, operation)
       end
-      new_stats(type, client_id)
+      new_stats(type, client_id, operation)
     end
 
     def ssoe_slo_callback
@@ -178,12 +179,12 @@ module V1
       end
     end
 
-    def render_login(type)
+    def render_login(type, operation)
       login_url, post_params = login_params(type)
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',
-                               locals: { url: login_url, params: post_params },
+                               locals: { url: login_url, params: post_params, operation: operation },
                                format: :html
       render body: result, content_type: 'text/html'
       set_sso_saml_cookie!
@@ -306,8 +307,8 @@ module V1
       end
     end
 
-    def new_stats(type, client_id)
-      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}"]
+    def new_stats(type, client_id, operation)
+      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
       StatsD.increment(STATSD_SSO_NEW_KEY, tags:)
       Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
     end
