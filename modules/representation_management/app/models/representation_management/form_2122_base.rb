@@ -69,7 +69,7 @@ module RepresentationManagement
     validates :veteran_address_line2, length: { maximum: 5 }, if: -> { veteran_address_line2.present? }
     validates :veteran_city, presence: true, length: { maximum: 18 }
     validates :veteran_country, presence: true, length: { is: 2 }
-    validates :veteran_state_code, presence: true, length: { is: 2 }
+    validates :veteran_state_code, presence: true, length: { minimum: 2 }
     validates :veteran_zip_code, presence: true, length: { is: 5 }, format: { with: FIVE_DIGIT_NUMBER }
     validates :veteran_zip_code_suffix, length: { is: 4 }, format: { with: FOUR_DIGIT_NUMBER },
                                         if: -> { veteran_zip_code_suffix.present? }
@@ -92,7 +92,7 @@ module RepresentationManagement
       validates :claimant_address_line2, length: { maximum: 5 }
       validates :claimant_city, presence: true, length: { maximum: 18 }
       validates :claimant_country, presence: true, length: { is: 2 }
-      validates :claimant_state_code, presence: true, length: { is: 2 }
+      validates :claimant_state_code, presence: true, length: { minimum: 2 }
       validates :claimant_zip_code, presence: true, length: { is: 5 }, format: { with: FIVE_DIGIT_NUMBER }
       validates :claimant_zip_code_suffix, length: { is: 4 }, format: { with: FOUR_DIGIT_NUMBER },
                                            if: -> { claimant_zip_code_suffix.present? }
@@ -120,6 +120,11 @@ module RepresentationManagement
       else
         representative.phone_number
       end
+    end
+
+    # Methods that truncate their output:
+    def veteran_state_code_truncated
+      veteran_state_code[0..1]
     end
 
     private

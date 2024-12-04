@@ -30,7 +30,9 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
     it { expect(subject).to validate_presence_of(:veteran_country) }
     it { expect(subject).to validate_length_of(:veteran_country).is_equal_to(2) }
     it { expect(subject).to validate_presence_of(:veteran_state_code) }
-    it { expect(subject).to validate_length_of(:veteran_state_code).is_equal_to(2) }
+    it { expect(subject).to validate_length_of(:veteran_state_code).is_at_least(2) }
+    it { expect(subject).to allow_value('Kansas').for(:veteran_state_code) }
+    it { expect(subject).not_to allow_value('K').for(:veteran_state_code) }
     it { expect(subject).to validate_presence_of(:veteran_zip_code) }
     it { expect(subject).to validate_length_of(:veteran_zip_code).is_equal_to(5) }
     it { expect(subject).to allow_value('12345').for(:veteran_zip_code) }
@@ -58,7 +60,9 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
     it { expect(subject_with_claimant).to validate_presence_of(:claimant_country) }
     it { expect(subject_with_claimant).to validate_length_of(:claimant_country).is_equal_to(2) }
     it { expect(subject_with_claimant).to validate_presence_of(:claimant_state_code) }
-    it { expect(subject_with_claimant).to validate_length_of(:claimant_state_code).is_equal_to(2) }
+    it { expect(subject_with_claimant).to validate_length_of(:claimant_state_code).is_at_least(2) }
+    # it { expect(subject).to allow_value('Kansas').for(:claimant_state_code) }
+    # it { expect(subject).not_to allow_value('K').for(:claimant_state_code) }
     it { expect(subject_with_claimant).to validate_presence_of(:claimant_zip_code) }
     it { expect(subject_with_claimant).to validate_length_of(:claimant_zip_code).is_equal_to(5) }
     it { expect(subject_with_claimant).to allow_value('12345').for(:claimant_zip_code) }
@@ -116,6 +120,18 @@ RSpec.describe RepresentationManagement::Form2122Base, type: :model do
           subject.representative_id = representative.representative_id
           expect(subject.representative_individual_type).to be_nil
         end
+      end
+    end
+
+    describe 'veteran_state_code_truncated' do
+      it 'truncates the state code to 2 characters if it is longer' do
+        subject.veteran_state_code = 'Kansas'
+        expect(subject.veteran_state_code_truncated).to eq('Ka')
+      end
+
+      it 'does not truncate the state code if it is 2 characters' do
+        subject.veteran_state_code = 'KS'
+        expect(subject.veteran_state_code_truncated).to eq('KS')
       end
     end
 
