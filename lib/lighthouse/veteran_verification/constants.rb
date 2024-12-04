@@ -2,6 +2,9 @@
 
 module VeteranVerification
   module Constants
+    STATSD_VET_VERIFICATION_TOTAL_KEY = 'api.lighthouse.vet_verification_status.total'
+    STATSD_VET_VERIFICATION_FAIL_KEY = 'api.lighthouse.vet_verification_status.fail'
+
     ERROR_MESSAGE = [
       'We’re sorry. There’s a problem with our system. We can’t show your Veteran status card right now. Try again ' \
       'later.'

@@ -47,7 +47,10 @@ module VeteranVerification
 
       transform_response(response)
     rescue => e
+      StatsD.increment(VeteranVerification::Constants::STATSD_VET_VERIFICATION_FAIL_KEY)
       handle_error(e, lighthouse_client_id, endpoint)
+    ensure
+      StatsD.increment(VeteranVerification::Constants::STATSD_VET_VERIFICATION_TOTAL_KEY)
     end
 
     def handle_error(error, lighthouse_client_id, endpoint, options = {})
@@ -73,7 +76,13 @@ module VeteranVerification
         else
           VeteranVerification::Constants::NOT_FOUND_MESSAGE
         end
+
+      log_reason(reason)
       response
+    end
+
+    def log_reason(reason)
+      ::Rails.logger.info('Vet Verification Status Success', { not_confirmed_reason: reason})
     end
   end
 end
