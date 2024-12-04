@@ -175,7 +175,7 @@ module ExampleTeam
         StatsD.increment('api.vanotify.notifications.delivered')
       when 'permanent-failure'
         # delivery failed
-        # possibly log error or increment metric and use the optional metadata - notification_record.metadata
+        # possibly log error or increment metric and use the optional metadata - notification_record.callback_metadata
         StatsD.increment('api.vanotify.notifications.permanent_failure')
         Rails.logger.error(notification_id: notification.notification_id, source: notification.source_location,
                            status: notification.status, status_reason: notification.status_reason)
