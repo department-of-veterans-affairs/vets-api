@@ -71,7 +71,7 @@ module IvcChampva
             attempt += 1
             retry
           else
-            Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
+            Rails.logger.error 'IVC CHAMPVA forms api - Failed to generate stamped file', message: e.message
             raise
           end
         ensure
@@ -94,7 +94,7 @@ module IvcChampva
         byebug
         perform_multistamp(stamped_template_path, stamp_path)
       rescue => e
-        Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
+        Rails.logger.error 'IVC CHAMPVA forms api - Failed to generate stamped file', message: e.message
         raise
       ensure
         Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
