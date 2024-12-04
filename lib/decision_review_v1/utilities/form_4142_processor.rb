@@ -3,7 +3,7 @@
 require 'pdf_fill/filler'
 require 'pdf_utilities/datestamp_pdf'
 require 'decision_review_v1/utilities/constants'
-require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api/submission/metadata_validator'
 
 module DecisionReviewV1
   module Processor
@@ -71,9 +71,7 @@ module DecisionReviewV1
           'numberPages' => PDF::Reader.new(@pdf_path).pages.size
         }
 
-        SimpleFormsApiSubmission::MetadataValidator.validate(
-          metadata, zip_code_is_us_based: country_is_us
-        ).to_json
+        SimpleFormsApi::Submission::MetadataValidator.validate(metadata, zip_code_is_us_based: country_is_us).to_json
       end
 
       def submission_date

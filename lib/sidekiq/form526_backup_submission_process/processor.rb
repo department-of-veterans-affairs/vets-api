@@ -12,7 +12,7 @@ require 'decision_review_v1/utilities/form_4142_processor'
 require 'pdf_utilities/datestamp_pdf'
 require 'pdf_fill/filler'
 require 'logging/third_party_transaction'
-require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api/submission/metadata_validator'
 require 'disability_compensation/factories/api_provider_factory'
 
 module Sidekiq
@@ -200,7 +200,7 @@ module Sidekiq
           'claimDate' => submission.created_at.iso8601,
           'forceOfframp' => 'true'
         }
-        SimpleFormsApiSubmission::MetadataValidator.validate(metadata)
+        SimpleFormsApi::Submission::MetadataValidator.validate(metadata)
       end
 
       def send_to_central_mail_through_lighthouse_claims_intake_api!

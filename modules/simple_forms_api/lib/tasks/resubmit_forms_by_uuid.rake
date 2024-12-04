@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_intake/service'
-require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api/submission/metadata_validator'
 
 # Invoke this as follows (tested on ZShell):
 #   rails "simple_forms_api:resubmit_forms_by_uuid[abc-123 def-456]"
@@ -20,8 +20,9 @@ namespace :simple_forms_api do
       form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
       filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
       file_path = filler.generate(timestamp: form_submission.created_at)
-      metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
-                                                                      zip_code_is_us_based: form.zip_code_is_us_based)
+      metadata = SimpleFormsApi::Submission::MetadataValidator.validate(
+        form.metadata, zip_code_is_us_based: form.zip_code_is_us_based
+      )
       form.handle_attachments(file_path) if %w[vba_40_0247 vba_20_10207 vba_40_10007].include? form_id
 
       # Attempt to re-submit

@@ -205,8 +205,7 @@ module CentralMail
         'fileNumber' => filenumber
       }
 
-      SimpleFormsApiSubmission::MetadataValidator
-        .validate(metadata, zip_code_is_us_based: usa_based?)
+      SimpleFormsApi::Submission::MetadataValidator.validate(metadata, zip_code_is_us_based: usa_based?)
     end
 
     def determine_zip

@@ -74,9 +74,8 @@ module SimpleFormsApi
       end
 
       def validate_metadata(form)
-        SimpleFormsApiSubmission::MetadataValidator.validate(
-          form.metadata,
-          zip_code_is_us_based: form.zip_code_is_us_based
+        SimpleFormsApi::Submission::MetadataValidator.validate(
+          form.metadata, zip_code_is_us_based: form.zip_code_is_us_based
         )
       rescue => e
         config.handle_error('Metadata validation failed', e)

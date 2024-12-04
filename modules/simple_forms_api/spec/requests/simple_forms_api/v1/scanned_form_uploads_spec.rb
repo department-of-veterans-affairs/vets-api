@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api/submission/metadata_validator'
 require 'common/file_helpers'
 
 RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do

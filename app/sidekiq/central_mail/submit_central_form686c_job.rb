@@ -4,7 +4,7 @@ require 'central_mail/service'
 require 'benefits_intake_service/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pdf_info'
-require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api/submission/metadata_validator'
 require 'dependents/monitor'
 
 module CentralMail
@@ -185,9 +185,9 @@ module CentralMail
         'numberPages' => form_pdf_metadata[:pages]
       }
 
-      validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: is_usa)
+      valid_metadata = SimpleFormsApi::Submission::MetadataValidator.validate(metadata, zip_code_is_us_based: is_usa)
 
-      validated_metadata.merge(generate_attachment_metadata(attachment_paths))
+      valid_metadata.merge(generate_attachment_metadata(attachment_paths))
     end
 
     def generate_metadata_lh

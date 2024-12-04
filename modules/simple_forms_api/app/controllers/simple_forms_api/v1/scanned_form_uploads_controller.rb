@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_intake/service'
-require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api/submission/metadata_validator'
 
 module SimpleFormsApi
   module V1
@@ -52,7 +52,7 @@ module SimpleFormsApi
           'docType' => params[:form_number],
           'businessLine' => 'CMP'
         }
-        SimpleFormsApiSubmission::MetadataValidator.validate(raw_metadata)
+        SimpleFormsApi::Submission::MetadataValidator.validate(raw_metadata)
       end
 
       def upload_pdf(file_path, metadata)

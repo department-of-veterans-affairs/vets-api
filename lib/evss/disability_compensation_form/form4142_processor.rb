@@ -8,7 +8,7 @@ require 'pdf_fill/forms/va210781'
 require 'pdf_fill/forms/va218940'
 require 'pdf_fill/forms/va1010cg'
 require 'pdf_utilities/datestamp_pdf'
-require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api/submission/metadata_validator'
 
 module EVSS
   module DisabilityCompensationForm
@@ -86,9 +86,7 @@ module EVSS
           'numberPages' => PDF::Reader.new(@pdf_path).pages.size
         }
 
-        SimpleFormsApiSubmission::MetadataValidator.validate(
-          metadata, zip_code_is_us_based: country_is_us
-        ).to_json
+        SimpleFormsApi::Submission::MetadataValidator.validate(metadata, zip_code_is_us_based: country_is_us).to_json
       end
 
       def submission_date

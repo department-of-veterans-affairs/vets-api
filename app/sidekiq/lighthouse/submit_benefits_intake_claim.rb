@@ -6,7 +6,7 @@ require 'pension_burial/tag_sentry'
 require 'burials/monitor'
 require 'pcpg/monitor'
 require 'benefits_intake_service/service'
-require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api/submission/metadata_validator'
 require 'pdf_info'
 require 'va_notify/notification_email/burial'
 

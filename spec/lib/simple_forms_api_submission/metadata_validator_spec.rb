@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api/submission/metadata_validator'
 
-describe SimpleFormsApiSubmission::MetadataValidator do
+describe SimpleFormsApi::Submission::MetadataValidator do
   describe 'metadata is valid' do
     it 'returns unmodified metadata' do
       metadata = {

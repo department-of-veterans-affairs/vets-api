@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'ddtrace'
-require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api/submission/metadata_validator'
 require 'lgy/service'
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
@@ -163,8 +163,9 @@ module SimpleFormsApi
                     else
                       filler.generate
                     end
-        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
-                                                                        zip_code_is_us_based: form.zip_code_is_us_based)
+        metadata = SimpleFormsApi::Submission::MetadataValidator.validate(
+          form.metadata, zip_code_is_us_based: form.zip_code_is_us_based
+        )
 
         form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007].include?(form_id)
 

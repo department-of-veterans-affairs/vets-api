@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'simple_forms_api_submission/metadata_validator'
+require 'simple_forms_api/submission/metadata_validator'
 require 'common/file_helpers'
 require 'lighthouse/benefits_intake/service'
 require 'lgy/service'
@@ -38,7 +38,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   before do
     allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:new).and_return(mock_s3_client)
     allow(mock_s3_client).to receive(:upload).and_return(pdf_url)
-    allow(SimpleFormsApiSubmission::MetadataValidator).to receive(:validate)
+    allow(SimpleFormsApi::Submission::MetadataValidator).to receive(:validate)
   end
 
   describe '#submit' do
@@ -82,7 +82,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           it 'validates metadata and responds with status OK' do
             post '/simple_forms_api/v1/simple_forms', params: data
 
-            expect(SimpleFormsApiSubmission::MetadataValidator).to have_received(:validate)
+            expect(SimpleFormsApi::Submission::MetadataValidator).to have_received(:validate)
             expect(response).to have_http_status(:ok)
           end
 
