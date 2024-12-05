@@ -256,6 +256,73 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
             end
           end
 
+          describe 'conditionally required zipCode' do
+            context 'when the country is US' do
+              it 'returns a 422 if representative.address.zipCode is not provided' do
+                mock_ccg(scopes) do |auth_header|
+                  claimant_data[:data][:attributes][:representative][:address][:zipCode] = ''
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                  end
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'][0]['detail']).to eq(
+                    "If 'countryCode' is 'US' then 'zipCode' is required."
+                  )
+                end
+              end
+
+              it 'returns a 422 for all objects not including zipCode' do
+                mock_ccg(scopes) do |auth_header|
+                  claimant_data[:data][:attributes][:representative][:address][:zipCode] = ''
+                  claimant_data[:data][:attributes][:veteran][:address][:zipCode] = ''
+                  claimant_data[:data][:attributes][:claimant][:address][:zipCode] = ''
+
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                  end
+                  expect(response).to have_http_status(:unprocessable_entity)
+                  response_body = JSON.parse(response.body)
+                  expect(response_body['errors'].count).to eq(3)
+                  expect(response_body['errors'][0]['detail']).to eq(
+                    "If 'countryCode' is 'US' then 'zipCode' is required."
+                  )
+                  expect(response_body['errors'][0]['source']['pointer']).to eq(
+                    'data/attributes/veteran/address/zipCode'
+                  )
+                  expect(response_body['errors'][1]['detail']).to eq(
+                    "If 'countryCode' is 'US' then 'zipCode' is required."
+                  )
+                  expect(response_body['errors'][1]['source']['pointer']).to eq(
+                    'data/attributes/representative/address/zipCode'
+                  )
+                  expect(response_body['errors'][2]['detail']).to eq(
+                    "If 'countryCode' is 'US' then 'zipCode' is required."
+                  )
+                  expect(response_body['errors'][2]['source']['pointer']).to eq(
+                    'data/attributes/claimant/address/zipCode'
+                  )
+                end
+              end
+            end
+
+            context 'when the country is not US' do
+              it 'returns a 202' do
+                mock_ccg(scopes) do |auth_header|
+                  claimant_data[:data][:attributes][:representative][:address][:zipCode] = ''
+                  claimant_data[:data][:attributes][:representative][:address][:countryCode] = 'AL'
+                  allow_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+                  allow_any_instance_of(local_bgs)
+                    .to receive(:find_poa_history_by_ptcpnt_id).and_return({ person_poa_history: nil })
+                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
+                    post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
+                  end
+                  expect(response).to have_http_status(:accepted)
+                end
+              end
+            end
+          end
+
           context 'when claimant data is included' do
             shared_context 'claimant data setup' do
               before do
@@ -329,20 +396,6 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                   response_body = JSON.parse(response.body)
                   expect(response_body['errors'][0]['detail']).to eq(
                     "If claimant is present 'countryCode' must be filled in"
-                  )
-                end
-              end
-
-              it 'returns a 422 if claimant.address.zipCode is not provided' do
-                mock_ccg(scopes) do |auth_header|
-                  claimant_data[:data][:attributes][:claimant][:address][:zipCode] = nil
-                  VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
-                    post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
-                  end
-                  expect(response).to have_http_status(:unprocessable_entity)
-                  response_body = JSON.parse(response.body)
-                  expect(response_body['errors'][0]['detail']).to eq(
-                    "If claimant is present 'zipCode' must be filled in"
                   )
                 end
               end
