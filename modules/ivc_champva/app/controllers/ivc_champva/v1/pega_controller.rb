@@ -58,7 +58,7 @@ module IvcChampva
           # rubocop:disable Style/IfInsideElse
           # Temporarily disabling rubocop because of flipper
           if Flipper.enabled?(:champva_confirmation_email_bugfix, @user)
-            send_email(form_uuid, ivc_forms.first) if form.email.present? && form.pega_status == 'Processed'
+            send_email(form_uuid, ivc_forms.first) if form.email.present? && status == 'Processed'
             # Possible values for form.pega_status are 'Processed', 'Not Processed'
           else
             send_email(form_uuid, ivc_forms.first) if form.email.present?

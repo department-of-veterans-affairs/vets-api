@@ -149,6 +149,7 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
     context 'Feature champva_confirmation_email_bugfix=true' do
       before do
         allow(Flipper).to receive(:enabled?).with(:champva_confirmation_email_bugfix, @current_user).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:champva_enhanced_monitor_logging, @current_user).and_return(false)
       end
 
       let(:valid_payload_with_status_of_not_processed) do
