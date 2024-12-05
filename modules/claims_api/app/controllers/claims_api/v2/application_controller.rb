@@ -10,7 +10,6 @@ require 'claims_api/error/error_handler'
 require 'claims_api/v2/benefits_documents/service'
 require 'evss/disability_compensation_auth_headers'
 require 'bgs_service/e_benefits_bnft_claim_status_web_service'
-require 'bgs_service/intent_to_file_web_service'
 
 module ClaimsApi
   module V2
@@ -93,14 +92,6 @@ module ClaimsApi
         @e_benefits_bnt_claim_status_service ||= ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
           external_uid: target_veteran.participant_id,
           external_key: target_veteran.participant_id
-        )
-      end
-
-      def bgs_itf_service
-        external_key = target_veteran.participant_id.to_s
-        @bgs_itf_service ||= ClaimsApi::IntentToFileWebService.new(
-          external_uid: external_key,
-          external_key:
         )
       end
 

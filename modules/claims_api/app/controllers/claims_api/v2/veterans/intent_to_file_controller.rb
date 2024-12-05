@@ -178,6 +178,14 @@ module ClaimsApi
             type: bgs_itf[:itf_type_cd]
           }
         end
+
+        def bgs_itf_service
+          external_key = target_veteran.participant_id.to_s
+          @bgs_itf_service ||= ClaimsApi::IntentToFileWebService.new(
+            external_uid: external_key,
+            external_key:
+          )
+        end
       end
     end
   end
