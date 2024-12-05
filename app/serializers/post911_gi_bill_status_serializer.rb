@@ -16,12 +16,14 @@ class Post911GIBillStatusSerializer
   attribute :original_entitlement
   attribute :used_entitlement
   attribute :remaining_entitlement
-  attribute :entitlement_transferred_out
+  attribute :entitlement_transferred_out, if: Proc.new { |_record| Flipper.enabled?(:sob_updated_design)}
   attribute :active_duty
   attribute :veteran_is_eligible
   attribute :enrollments
 
-  def initialize(lighthouse_response, dgib_response)
+  def initialize(lighthouse_response, dgib_response = nil)
+    return super(lighthouse_response) unless dgib_response
+
     attributes = lighthouse_response.attributes.merge(dgib_response.attributes)
     resource = OpenStruct.new(**attributes)
     super(resource)

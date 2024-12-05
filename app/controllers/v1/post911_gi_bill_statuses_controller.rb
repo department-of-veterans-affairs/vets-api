@@ -3,6 +3,7 @@
 require 'formatters/date_formatter'
 require 'lighthouse/benefits_education/service'
 require 'post911_sob/dgib/client'
+require 'dgi/claimant/service'
 
 module V1
   class Post911GIBillStatusesController < ApplicationController
@@ -15,15 +16,14 @@ module V1
 
     BENEFIT_TYPE = 'Chapter33'
 
-    skip_before_action :authenticate
-
     def show
       lighthouse_response = lighthouse_service.get_gi_bill_status
-      dgib_response = dgib_service.get_entitlement_transferred_out
+      dgib_response = dgib_service.get_entitlement_transferred_out if Flipper.enabled?(:sob_updated_design)
       render json: Post911GIBillStatusSerializer.new(lighthouse_response, dgib_response)
     rescue Breakers::OutageException => e
       raise e
     rescue => e
+      byebug
       handle_error(e)
     ensure
       StatsD.increment(STATSD_GI_BILL_TOTAL_KEY)
@@ -63,7 +63,7 @@ module V1
     end
 
     def lighthouse_service
-      BenefitsEducation::Service.new(@current_user&.icm)
+      BenefitsEducation::Service.new('1012667122V019349')
     end
 
     def dgib_service
