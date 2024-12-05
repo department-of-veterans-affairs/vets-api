@@ -60,22 +60,22 @@ module BenefitsDocuments
 
       # Ensure start time and latest status response from API are saved, regardless if document is still in progress
       @lighthouse_document_upload.update!(
-        # lighthouse_processing_started_at: start_time,
         upload_status: @lighthouse_document_status_response['status']
       )
 
       log_status
 
-      add_acknowledgement_date if failed?
+      process_failure if failed?
 
       finalize_upload if completed? || failed?
 
       # @lighthouse_document_upload.update!(status_last_polled_at: DateTime.now.utc)
     end
 
-    def add_acknowledgement_date
+    def process_failure
       @lighthouse_document_upload.update!(
-        acknowledgement_date: (DateTime.current + 30).utc
+        acknowledgement_date: (DateTime.current + 30).utc,
+        error_message: @lighthouse_document_status_response['error']
       )
     end
 
@@ -89,7 +89,7 @@ module BenefitsDocuments
     def processing_timeout?
       return false if completed?
 
-      @lighthouse_document_status_response.created_at < PROCESSING_TIMEOUT_WINDOW_IN_HOURS.hours.ago.utc
+      @lighthouse_document_upload.created_at < PROCESSING_TIMEOUT_WINDOW_IN_HOURS.hours.ago.utc
     end
 
     private
@@ -120,14 +120,14 @@ module BenefitsDocuments
 
       if completed?
         @lighthouse_document_upload.update(
-          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS['SUCCESS'],
+          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
           delete_date: (DateTime.current + 60).utc
         )
       else
         @lighthouse_document_upload.update!(
-          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS['FAILED'],
+          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
           failed_date: DateTime.now.utc,
-          error_message: @lighthouse_document_status['error']
+          error_message: @lighthouse_document_status_response['error']
         )
       end
     end
