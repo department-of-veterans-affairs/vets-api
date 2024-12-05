@@ -87,19 +87,16 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
           end
         end
 
-        local_bgs_itf_services = %i[intenttofile]
         local_bgs_itf_methods = %i[insert_intent_to_file]
-        local_bgs_itf_services.each do |local_bgs_itf_service|
-          it "returns the correct status when the local bgs #{local_bgs_itf_service} is not healthy" do
-            local_bgs_itf_methods.each do |local_bgs_itf_method|
-              allow_any_instance_of(ClaimsApi::IntentToFileWebService).to receive(
-                local_bgs_itf_method.to_sym
-              )
-                .and_return(Struct.new(:healthy?).new(false))
-              get "/services/claims/#{version}/upstream_healthcheck"
-              result = JSON.parse(response.body)
-              expect(result["localbgs-#{local_bgs_itf_service}"]['success']).to eq(false)
-            end
+        it 'returns the correct status when the local bgs intenttofile is not healthy' do
+          local_bgs_itf_methods.each do |local_bgs_itf_method|
+            allow_any_instance_of(ClaimsApi::IntentToFileWebService).to receive(
+              local_bgs_itf_method.to_sym
+            )
+              .and_return(Struct.new(:healthy?).new(false))
+            get "/services/claims/#{version}/upstream_healthcheck"
+            result = JSON.parse(response.body)
+            expect(result['localbgs-intenttofile']['success']).to eq(false)
           end
         end
       end
