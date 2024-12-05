@@ -307,11 +307,20 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
         context 'when file uploads fail with "unable to find file" error' do
           before do
+            # Simulate that handle_uploads raises an exception
             allow(file_uploader).to receive(:handle_uploads).and_raise(StandardError.new('Unable to find file'))
           end
 
           it 'returns error statuses and error message' do
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+            statuses = nil
+            error_message = nil
+
+            begin
+              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+            rescue => e
+              puts "Exception raised: #{e.class} - #{e.message}"
+              expect(e).to be_nil # This will fail if an exception is raised
+            end
 
             expect(statuses).to eq([])
             expect(error_message).to eq('Error handling file uploads')
