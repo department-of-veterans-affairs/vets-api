@@ -6,6 +6,12 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationPolicy do
   let(:user) { double('User') }
   let(:record) { double('Record') }
   let(:policy) { described_class.new(user, record) }
+  let(:mock_logger) { instance_double(SemanticLogger::Logger, warn: nil) }
+
+  before do
+    # Mock the logger used by the policy
+    allow(Rails).to receive(:logger).and_return(mock_logger)
+  end
 
   describe '#initialize' do
     it 'assigns the user and record' do
@@ -23,6 +29,33 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationPolicy do
       expect(policy.update?).to eq(false)
       expect(policy.edit?).to eq(false)
       expect(policy.destroy?).to eq(false)
+    end
+  end
+
+  describe 'logging for default methods' do
+    it 'logs a warning for #index?' do
+      policy.index?
+      expect(mock_logger).to have_received(:warn).with(/is using the default #index\? implementation/)
+    end
+
+    it 'logs a warning for #show?' do
+      policy.show?
+      expect(mock_logger).to have_received(:warn).with(/is using the default #show\? implementation/)
+    end
+
+    it 'logs a warning for #create?' do
+      policy.create?
+      expect(mock_logger).to have_received(:warn).with(/is using the default #create\? implementation/)
+    end
+
+    it 'logs a warning for #update?' do
+      policy.update?
+      expect(mock_logger).to have_received(:warn).with(/is using the default #update\? implementation/)
+    end
+
+    it 'logs a warning for #destroy?' do
+      policy.destroy?
+      expect(mock_logger).to have_received(:warn).with(/is using the default #destroy\? implementation/)
     end
   end
 

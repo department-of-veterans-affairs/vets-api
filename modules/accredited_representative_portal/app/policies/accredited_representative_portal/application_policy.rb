@@ -10,14 +10,17 @@ module AccreditedRepresentativePortal
     end
 
     def index?
+      override_warning
       false
     end
 
     def show?
+      override_warning
       false
     end
 
     def create?
+      override_warning
       false
     end
 
@@ -26,6 +29,7 @@ module AccreditedRepresentativePortal
     end
 
     def update?
+      override_warning
       false
     end
 
@@ -34,7 +38,17 @@ module AccreditedRepresentativePortal
     end
 
     def destroy?
+      override_warning
       false
+    end
+
+    private
+
+    def override_warning
+      Rails.logger.warn(
+        "#{self.class} is using the default ##{caller_locations(1, 1)[0].label} implementation. " +
+        "Consider overriding it."
+      )
     end
 
     class Scope
