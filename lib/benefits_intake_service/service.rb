@@ -197,4 +197,3 @@ module BenefitsIntakeService
     end
   end
 end
-
