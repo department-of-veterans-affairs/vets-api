@@ -2,6 +2,10 @@
 
 module VeteranVerification
   module Constants
+    ERROR_MESSAGE = [
+      'We’re sorry. There’s a problem with our system. We can’t show your Veteran status card right now. Try again ' \
+      'later.'
+    ].freeze
     NOT_FOUND_MESSAGE = [
       'We’re sorry. There’s a problem with your discharge status records. We can’t provide a Veteran status ' \
       'card for you right now.',

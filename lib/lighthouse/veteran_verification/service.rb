@@ -64,8 +64,11 @@ module VeteranVerification
       attributes = response['data']['attributes']
       return response if attributes['veteran_status'] != 'not confirmed' || attributes.exclude?('not_confirmed_reason')
 
+      reason = attributes['not_confirmed_reason']
       response['data']['message'] =
-        if attributes['not_confirmed_reason'] == 'NOT_TITLE_38'
+        if reason == 'ERROR'
+          VeteranVerification::Constants::ERROR_MESSAGE
+        elsif reason == 'NOT_TITLE_38'
           VeteranVerification::Constants::NOT_ELIGIBLE_MESSAGE
         else
           VeteranVerification::Constants::NOT_FOUND_MESSAGE
