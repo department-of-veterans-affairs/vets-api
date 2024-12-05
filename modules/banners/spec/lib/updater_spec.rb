@@ -97,4 +97,72 @@ RSpec.describe Banners::Updater do
       updater.send(:log_failure, 'test')
     end
   end
+
+  describe '#destroy_missing_banners' do
+    let!(:banner1) { create(:banner, entity_id: '1') }
+    let!(:banner2) { create(:banner, entity_id: '2') }
+    let!(:banner3) { create(:banner, entity_id: '3') }
+
+    it 'destroys banners whose entity_ids are not in the keep list' do
+      expect {
+        updater.send(:destroy_missing_banners, ['1', '2'])
+      }.to change(Banner, :count).by(-1)
+
+      expect(Banner.find_by(entity_id: '3')).to be_nil
+      expect(Banner.find_by(entity_id: '1')).to be_present
+      expect(Banner.find_by(entity_id: '2')).to be_present
+    end
+
+    it 'destroys all banners when keep list is empty' do
+      expect {
+        updater.send(:destroy_missing_banners, [])
+      }.to change(Banner, :count).by(-3)
+
+      expect(Banner.count).to eq(0)
+    end
+
+    it 'handles non-existent entity_ids gracefully' do
+      expect {
+        updater.send(:destroy_missing_banners, ['1', '999'])
+      }.to change(Banner, :count).by(-2)
+
+      expect(Banner.find_by(entity_id: '1')).to be_present
+      expect(Banner.where.not(entity_id: '1')).to be_empty
+    end
+  end
+
+  describe '#connection' do
+    before do
+      allow(Settings).to receive_messages(
+        banners: OpenStruct.new(
+          drupal_url: 'https://test.va.gov/graphql',
+          drupal_username: 'test',
+          drupal_password: 'test'
+        )
+      )
+    end
+
+    it 'creates a Faraday connection with correct config' do
+      connection = updater.send(:connection)
+
+      expect(connection).to be_a(Faraday::Connection)
+      expect(connection.url_prefix.to_s).to eq('https://test.va.gov/graphql')
+    end
+  end
+
+  describe '#faraday_options' do
+    let(:options) { updater.send(:faraday_options) }
+
+    it 'returns correct SSL options' do
+      expect(options[:ssl][:verify]).to be false
+    end
+
+    context 'in non-production' do
+      it 'includes proxy settings' do
+        expect(options[:proxy]).to include(
+          uri: URI.parse('socks://localhost:2001')
+        )
+      end
+    end
+  end
 end
