@@ -95,8 +95,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
             it 'returns a meaningful 422' do
               VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                 mock_ccg(scopes) do |auth_header|
-                  detail = "If claimant is present 'address' must be filled in  with required fields addressLine1, " \
-                           'city, stateCode, country and zipCode'
+                  detail = "If claimant is present 'address' must be filled in with required fields addressLine1, " \
+                           "city, stateCode and countryCode. If the countryCode is 'US' then zipCode is also required."
 
                   post request_path, params: request_body, headers: auth_header
 

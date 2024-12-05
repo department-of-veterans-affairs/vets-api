@@ -6,7 +6,7 @@ module ConfigHelper
   module_function
 
   def setup_action_mailer(config)
-    config.action_mailer.preview_path = Rails.root.join('spec', 'mailers', 'previews')
+    config.action_mailer.preview_paths = [Rails.root.join('spec', 'mailers', 'previews')]
     config.action_mailer.show_previews = Rails.env.development? || FeatureFlipper.staging_email?
 
     if FeatureFlipper.send_email?
