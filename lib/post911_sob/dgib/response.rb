@@ -10,7 +10,7 @@ module Post911SOB
       attribute :entitlement_transferred_out, Entitlement
 
       def initialize(response = nil)
-        transfers = response&.body.fetch('items', [])
+        transfers = response&.body&.fetch('items') || []
         attributes = {
           entitlement_transferred_out: calculate_ch33_toe(transfers)
         }
