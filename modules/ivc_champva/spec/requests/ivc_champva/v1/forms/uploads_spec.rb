@@ -308,6 +308,21 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             expect(result).to eq([expected_statuses, expected_error_message])
           end
         end
+
+        context 'when a document is loaded and is missing' do
+          before do
+            allow(file_uploader).to receive(:handle_uploads).and_return([['No such file '],
+                                                                         'File not found'])
+          end
+
+          it 'retries the file uploads and returns the error message' do
+            allow(file_uploader).to receive(:handle_uploads).and_return([[200], nil])
+
+            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+            expect(statuses).to eq([200])
+            expect(error_message).to be_nil
+          end
+        end   
       end
     end
   end
