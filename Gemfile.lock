@@ -526,13 +526,8 @@ GEM
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
-    google-protobuf (4.28.3)
+    google-protobuf (4.29.1)
       bigdecimal
-      rake (>= 13)
-    google-protobuf (4.28.3-java)
-      bigdecimal
-      ffi (~> 1)
-      ffi-compiler (~> 1)
       rake (>= 13)
     googleauth (1.11.2)
       faraday (>= 1.0, < 3.a)
@@ -696,6 +691,8 @@ GEM
     nkf (0.2.0-java)
     nokogiri (1.16.8)
       mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
+    nokogiri (1.16.8-java)
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal
