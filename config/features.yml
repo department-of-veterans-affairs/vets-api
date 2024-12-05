@@ -170,9 +170,6 @@ features:
   champva_multiple_stamp_retry:
     actor_type: user
     description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
-  champva_unique_temp_file_names:
-    actor_type: user
-    description: Enables unique temp file names for CHAMPVA PDF files
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
