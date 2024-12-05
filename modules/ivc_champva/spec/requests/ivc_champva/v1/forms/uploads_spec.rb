@@ -293,15 +293,19 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
         end
 
-        context 'when file uploads fail with other errors' do
+        context 'when file uploads fail with other errors retry once' do
+          subject(:result) { controller.send(:handle_file_uploads, form_id, parsed_form_data) }
+
+          let(:failure_response) { [[400], 'Upload failed'] }
+          let(:expected_statuses) { [400] }
+          let(:expected_error_message) { 'Upload failed' }
+
           before do
-            allow(file_uploader).to receive(:handle_uploads).and_return([[400], 'Upload failed'])
+            allow(file_uploader).to receive(:handle_uploads).and_return(failure_response)
           end
 
           it 'returns the error statuses and error message' do
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            expect(statuses).to eq([400])
-            expect(error_message).to eq('Upload failed')
+            expect(result).to eq([expected_statuses, expected_error_message])
           end
         end
       end
