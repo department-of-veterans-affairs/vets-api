@@ -4,6 +4,7 @@ module AccreditedRepresentativePortal
   class ApplicationController < SignIn::ApplicationController
     include SignIn::AudienceValidator
     include Authenticable
+    include Pundit::Authorization
 
     service_tag 'accredited-representative-portal' # ARP DataDog monitoring: https://bit.ly/arp-datadog-monitoring
     validates_access_token_audience Settings.sign_in.arp_client_id
@@ -11,7 +12,13 @@ module AccreditedRepresentativePortal
     before_action :verify_pilot_enabled_for_user
     around_action :handle_exceptions
 
+    rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
     private
+
+    def user_not_authorized
+      render HttpErrorResponseBuilder.error_response(:unauthorized)
+    end
 
     def handle_exceptions
       yield
