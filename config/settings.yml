@@ -1837,4 +1837,5 @@ vaos:
     api_url: "https://api.wellhive.com"
     base_path: "care-navigation/v1"
     scopes: "care-nav"
+    fake_patient_id: "fake_patient_id"
 

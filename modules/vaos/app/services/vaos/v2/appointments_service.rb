@@ -65,8 +65,8 @@ module VAOS
           }
         end
       rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError,
-             Common::Exceptions::GatewayTimeout, MAP::SecurityToken::Errors::ApplicationMismatchError,
-             MAP::SecurityToken::Errors::MissingICNError => e
+        Common::Exceptions::GatewayTimeout, MAP::SecurityToken::Errors::ApplicationMismatchError,
+        MAP::SecurityToken::Errors::MissingICNError => e
         {
           data: {},
           meta: pagination(pagination_params).merge({
@@ -98,14 +98,14 @@ module VAOS
         params.compact_blank!
         with_monitoring do
           response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
+            Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
                        perform(:post, appointments_base_path_vpg, params, headers)
                      else
                        perform(:post, appointments_base_path_vaos, params, headers)
                      end
 
           if request_object_body[:kind] == 'clinic' &&
-             booked?(request_object_body) # a direct scheduled appointment
+            booked?(request_object_body) # a direct scheduled appointment
             modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
           end
 
@@ -126,7 +126,7 @@ module VAOS
       def update_appointment(appt_id, status)
         with_monitoring do
           if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
-             Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+            Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
@@ -204,6 +204,51 @@ module VAOS
         facility_info[:timezone]&.[](:time_zone_id)
       end
 
+      def normalize_eps_appointment(appt)
+        {
+          id: appt[:id].to_s,
+          status: map_state_to_status(appt[:state]),
+          patientIcn: appt[:patientId],
+          created: appt.dig(:appointmentDetails, :lastRetrieved),
+          requestedPeriods: [
+            {
+              start: appt.dig(:appointmentDetails, :start),
+              end: calculate_end_time(appt.dig(:appointmentDetails, :start))
+            }
+          ].compact,
+          locationId: appt[:locationId],
+          clinic: appt[:clinic],
+          contact: appt[:contact]
+        }.compact
+      end
+
+      def map_state_to_status(state)
+        case state&.downcase
+        when 'draft'
+          'proposed'
+        when 'submitted'
+          'booked'
+        else
+          'proposed'
+        end
+      end
+
+      def calculate_end_time(start_time)
+        return nil unless start_time
+
+        Time.parse(start_time) + 60.minutes
+      end
+
+      def merge_appointments(new_appointments, basic_appointments)
+        normalized_new = new_appointments[:appointments].map { |appt| normalize_eps_appointment(appt) }
+        basic_data = basic_appointments[:data].is_a?(Array) ? basic_appointments[:data] : [basic_appointments[:data]]
+        existing_ids = basic_data.map { |a| a[:referralId] }.to_set
+        merged_data = basic_data + normalized_new.reject { |a| existing_ids.include?(a[:referralId]) }
+        sorted_data = merged_data.sort_by { |appt| appt.dig(:requestedPeriods, 0, :start) || '' }
+
+        { data: sorted_data }
+      end
+
       memoize :get_facility_timezone_memoized
 
       private
@@ -234,6 +279,7 @@ module VAOS
           { message:, status:, icn: sanitized_icn, context: }
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
