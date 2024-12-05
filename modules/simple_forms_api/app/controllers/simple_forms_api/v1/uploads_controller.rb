@@ -61,12 +61,12 @@ module SimpleFormsApi
               service = BenefitsIntakeService::Service.new
               service.valid_document?(document: file_path)
             rescue BenefitsIntakeService::Service::InvalidDocumentError => e
-              puts "Invalid document error"
               render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
               return
             end
           end
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+
           attachment.save
           render json: PersistentAttachmentSerializer.new(attachment)
         end
