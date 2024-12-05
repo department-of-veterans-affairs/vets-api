@@ -28,6 +28,9 @@ AppealsApi::Engine.routes.draw do
 
   namespace :v2, defaults: { format: 'json' } do
     namespace :decision_reviews do
+      get :healthcheck, to: '/appeals_api/metadata#healthcheck'
+      get :upstream_healthcheck, to: '/appeals_api/metadata#decision_reviews_upstream_healthcheck'
+
       get 'contestable_issues/:decision_review_type', to: 'contestable_issues#index'
 
       namespace :higher_level_reviews do
