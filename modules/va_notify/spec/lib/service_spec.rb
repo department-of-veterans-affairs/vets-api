@@ -157,7 +157,12 @@ describe VaNotify::Service do
 
             expect(Rails.logger).to have_received(:info).with(
               "VANotify notification: #{notification.id} saved",
-              { callback_klass: 'TestCallback', callback_metadata: 'optional_metadata', source_location: anything }
+              {
+                callback_klass: 'TestCallback',
+                callback_metadata: 'optional_metadata',
+                source_location: anything,
+                template_id: '1234'
+              }
             )
             expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
             expect(notification.callback_klass).to eq('TestCallback')
@@ -177,7 +182,7 @@ describe VaNotify::Service do
 
           expect(Rails.logger).to receive(:error).with(
             'VANotify notification record failed to save',
-            { error_messages: notification.errors.full_messages }
+            { error_messages: notification.errors.full_messages, template_id: '1234' }
           )
 
           subject.send_email(send_email_parameters)
@@ -231,7 +236,7 @@ describe VaNotify::Service do
 
           expect(Rails.logger).to receive(:error).with(
             'VANotify notification record failed to save',
-            { error_messages: notification.errors.full_messages }
+            { error_messages: notification.errors.full_messages, template_id: '1234' }
           )
 
           subject.send_sms(send_sms_parameters)
