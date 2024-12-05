@@ -258,26 +258,14 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
         end
 
         context 'when Lighthouse returns an error response' do
-          let(:error_response_body) do
-            # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
-            {
-              'errors' => [
-                {
-                  'detail' => 'Something broke',
-                  'status' => 400,
-                  'title' => 'Bad Request',
-                  'instance' => Faker::Internet.uuid
-                }
-              ]
-            }
-          end
+          let(:exception_errors) { [{ detail: 'Something Broke' }] }
 
           before do
-            allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-              .with(file.read, expected_lighthouse_document)
-              .and_return(faraday_response)
+            # Skip additional logging that occurs in Lighthouse::ServiceException handling
+            allow(Rails.logger).to receive(:error)
 
-            allow(faraday_response).to receive(:body).and_return(error_response_body)
+            allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+              .and_raise(Common::Exceptions::BadRequest.new(errors: exception_errors))
           end
 
           it 'logs the Lighthouse error response' do
@@ -290,11 +278,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
                 user_uuid: submission.user_uuid,
                 va_document_type_code: 'L451',
                 primary_form: 'Form526',
-                lighthouse_error_response: error_response_body
+                error_info: exception_errors
               }
             )
 
-            perform_upload
+            expect { perform_upload }.to raise_error(Common::Exceptions::BadRequest)
           end
 
           it 'increments the correct status failure metric' do
@@ -302,7 +290,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
               "#{expected_statsd_metrics_prefix}.upload_failure"
             )
 
-            perform_upload
+            expect { perform_upload }.to raise_error(Common::Exceptions::BadRequest)
           end
         end
       end
