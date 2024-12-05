@@ -15,6 +15,7 @@ module SignIn
       validate_terms_of_use if client_config.enforced_terms.present?
       anti_csrf_check if anti_csrf_enabled_client?
       detect_token_theft
+      validate_mpi_profile
       update_session! if parent_refresh_token_in_session?
       create_new_tokens
     end
@@ -57,6 +58,16 @@ module SignIn
 
     def parent_refresh_token_in_session?
       session.hashed_refresh_token == double_parent_refresh_token_hash
+    end
+
+    def validate_mpi_profile
+      mpi_service = MPI::Service.new
+      mpi_profile = mpi_service.find_profile_by_identifier(identifier: session.user_account&.icn,
+                                                           identifier_type: MPI::Constants::ICN)&.profile
+      return unless mpi_profile
+
+      raise Errors::MPILockedAccountError.new message: 'Death Flag Detected' unless mpi_profile.deceased_date.nil?
+      raise Errors::MPILockedAccountError.new message: 'Theft Flag Detected' unless mpi_profile.id_theft_flag == false
     end
 
     def create_new_tokens
