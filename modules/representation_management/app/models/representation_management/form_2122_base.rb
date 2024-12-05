@@ -122,6 +122,10 @@ module RepresentationManagement
       veteran_state_code[0..1]
     end
 
+    def claimant_state_code_truncated
+      claimant_state_code[0..1]
+    end
+
     def veteran_zip_code_expanded
       if veteran_zip_code_suffix.blank?
         [veteran_zip_code[0..4], veteran_zip_code[5..8]]
