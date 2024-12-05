@@ -2,6 +2,7 @@
 
 require 'common/models/base'
 require 'post911_sob/dgib/entitlement'
+require 'post911_sob/dgib/client'
 
 module Post911SOB
   module DGIB
@@ -9,8 +10,9 @@ module Post911SOB
       attribute :entitlement_transferred_out, Entitlement
 
       def initialize(response = nil)
+        transfers = response&.body.fetch('items', [])
         attributes = {
-          entitlement_transferred_out: calculate_toe(response)
+          entitlement_transferred_out: calculate_ch33_toe(transfers)
         }
         super(attributes)
         # TO-DO: Serialize status if necessary
@@ -18,10 +20,9 @@ module Post911SOB
 
       private
 
-      def calculate_toe(response)
-        # TO-DO: Filter TOEs by 'Chapter33' benefit type
-        # TO-DO: Calculate sum of entitlement amounts transferred out
-        # TO-DO: Return zero value if no transfers
+      def calculate_ch33_toe(transfers)
+        ch33_transfers = transfers.select { |t| t['benefitType'] == Post911SOB::DGIB::Client::BENEFIT_TYPE }
+        ch33_transfers.inject(0) { |sum, t| sum + t['transferOut'] }
       end
     end
   end

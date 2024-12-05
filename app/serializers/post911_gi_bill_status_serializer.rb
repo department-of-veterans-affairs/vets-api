@@ -22,8 +22,8 @@ class Post911GIBillStatusSerializer
   attribute :enrollments
 
   def initialize(lighthouse_response, dgib_response)
-    # TO-DO: Successfully merge TOE data
-    resource = lighthouse_response.attributes.merge(dgib_response.attributes)
+    attributes = lighthouse_response.attributes.merge(dgib_response.attributes)
+    resource = OpenStruct.new(**attributes)
     super(resource)
   end
 end

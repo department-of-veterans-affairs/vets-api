@@ -3,7 +3,6 @@
 require 'formatters/date_formatter'
 require 'lighthouse/benefits_education/service'
 require 'post911_sob/dgib/client'
-require 'meb_api/'
 
 module V1
   class Post911GIBillStatusesController < ApplicationController
@@ -15,6 +14,8 @@ module V1
     STATSD_GI_BILL_FAIL_KEY = 'api.lighthouse.gi_bill_status.fail'
 
     BENEFIT_TYPE = 'Chapter33'
+
+    skip_before_action :authenticate
 
     def show
       lighthouse_response = lighthouse_service.get_gi_bill_status
@@ -62,7 +63,7 @@ module V1
     end
 
     def lighthouse_service
-      BenefitsEducation::Service.new(@current_user&.icn)
+      BenefitsEducation::Service.new('1012667122V019349')
     end
 
     def dgib_service
@@ -70,7 +71,8 @@ module V1
     end
 
     def claimant_id
-      meb_api_service.get_claimant_info(BENEFIT_TYPE)
+      '1234'
+      # meb_api_service.get_claimant_info(BENEFIT_TYPE)
     end
 
     def meb_api_service

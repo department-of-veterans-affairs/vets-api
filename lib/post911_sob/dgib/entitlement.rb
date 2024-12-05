@@ -8,8 +8,12 @@ module Post911SOB
       attribute :months, Integer
       attribute :days, Integer
 
-      def initialize(attributes)
-        # TO-DO: Logic to parse months, days from integer amount (if necessary)
+      def initialize(days)
+        attributes = {
+          months: days / 30,
+          days: days % 30
+        }
+        super(attributes)
       end
     end
   end
