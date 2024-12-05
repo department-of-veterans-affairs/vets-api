@@ -36,11 +36,15 @@ module RepresentationManagement
               if: -> { veteran_service_branch.present? }
 
     def representative_field_truncated(field)
-      representative.public_send(field)[0..TRUNCATION_LIMITS[field] - 1]
+      if representative.public_send(field)
+        representative.public_send(field)[0..TRUNCATION_LIMITS[field] - 1]
+      else
+        ''
+      end
     end
 
     def representative_zip_code_expanded
-      if representative.zip_suffix.blank
+      if representative.zip_suffix.blank?
         [representative.zip_code[0..4], representative.zip_code[5..8]]
       else
         [representative.zip_code, representative.zip_suffix]
