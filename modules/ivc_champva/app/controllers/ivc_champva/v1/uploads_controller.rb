@@ -57,21 +57,25 @@ module IvcChampva
 
           begin
             file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-            statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+            file_uploader = FileUploader.new(form_id, metadata, file_paths, true)
+            statuses, error_message = file_uploader.handle_uploads
           rescue => e
-            if e.message.downcase.include?('No such file') || (e.message.downcase.include?('unable to find file') && attempt < max_attempts)
-              attempt += 1
-              Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}. Retrying in 2 seconds..."
+            attempt += 1
+            error_message_downcase = e.message.downcase
+            Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
+
+            if (error_message_downcase.include?('failed to generate stamped file') || error_message_downcase.include?('unable to find file')) && attempt <= max_attempts
+              Rails.logger.error 'Retrying in 2 seconds...'
               sleep 2
               retry
             else
-              Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
               return [[], 'Error handling file uploads']
             end
           end
 
           [statuses, error_message]
         end
+
       else
         def handle_file_uploads(form_id, parsed_form_data)
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
