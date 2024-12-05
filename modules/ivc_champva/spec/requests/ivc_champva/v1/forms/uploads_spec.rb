@@ -246,6 +246,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  # rubocop:disable Layout/LineLength
   describe '#handle_file_uploads' do
     let(:controller) { IvcChampva::V1::UploadsController.new }
 
@@ -324,4 +325,5 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       end
     end
   end
+  # rubocop:enable Layout/LineLength
 end
