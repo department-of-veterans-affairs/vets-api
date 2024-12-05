@@ -322,7 +322,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             expect(statuses).to eq([200])
             expect(error_message).to be_nil
           end
-        end   
+        end
       end
     end
   end
