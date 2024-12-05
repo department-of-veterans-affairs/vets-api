@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-namespace :burials_v2 do
-  desc 'Perform migration of 21p-530 in progress forms to v2'
+namespace :burials_ez do
+  desc 'Perform migration of 21p-530V2 in progress forms to EZ'
   task update: :environment do
     InProgressForm.where(form_id: '21P-530V2').find_in_batches do |group|
       sleep(0.05) # short pause between batches

@@ -46,6 +46,7 @@ module PdfFill
     # Registers form classes for various form IDs.
     {
       '21P-0969' => PdfFill::Forms::Va21p0969,
+      '21P-530V2' => PdfFill::Forms::Va21p530ez,
       '21P-530EZ' => PdfFill::Forms::Va21p530ez,
       '21-4142' => PdfFill::Forms::Va214142,
       '21-0781a' => PdfFill::Forms::Va210781a,
