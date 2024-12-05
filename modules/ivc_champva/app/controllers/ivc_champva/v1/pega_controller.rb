@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ivc_champva/monitor'
+
 module IvcChampva
   module V1
     class PegaController < SignIn::ServiceAccountApplicationController
@@ -10,19 +12,27 @@ module IvcChampva
         Datadog::Tracing.trace('Start PEGA Status Update') do
           data = JSON.parse(params.to_json)
 
+          tags = ['service:veteran-ivc-champva-forms', 'function:form submission to Pega']
+
           unless data.is_a?(Hash)
+            # Log the failure due to invalid JSON format
+            StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
             render json: JSON.generate({ status: 500, error: 'Invalid JSON format: Expected a JSON object' })
+            return
           end
 
           response =
             if valid_keys?(data)
               update_data(data['form_uuid'], data['file_names'], data['status'], data['case_id'])
             else
+              StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
               { json: { error_message: 'Invalid JSON keys' }, status: :bad_request }
             end
 
           render json: response[:json], status: response[:status]
         rescue JSON::ParserError => e
+          # Log the JSON parsing error
+          StatsD.increment('silent_failure_avoided_no_confirmation', tags: tags)
           render json: { error_message: "JSON parsing error: #{e.message}" }, status: :internal_server_error
         end
       end
@@ -52,6 +62,10 @@ module IvcChampva
             send_email(form_uuid, ivc_forms.first) if form.email.present?
           end
           # rubocop:enable Style/IfInsideElse
+
+          if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
+            monitor.track_update_status(form_uuid, status)
+          end
 
           { json: {}, status: :ok }
         else
@@ -99,6 +113,15 @@ module IvcChampva
 
       def fetch_forms_by_uuid(form_uuid)
         @fetch_forms_by_uuid ||= IvcChampvaForm.where(form_uuid:)
+      end
+
+      ##
+      # retreive a monitor for tracking
+      #
+      # @return [IvcChampva::Monitor]
+      #
+      def monitor
+        @monitor ||= IvcChampva::Monitor.new
       end
     end
   end

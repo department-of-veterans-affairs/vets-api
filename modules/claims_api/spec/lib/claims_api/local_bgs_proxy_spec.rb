@@ -12,12 +12,8 @@ describe ClaimsApi::LocalBGSProxy do
   end
 
   expected_instance_methods = {
-    all: %i[id],
-    claims_count: %i[id],
     construct_itf_body: %i[options],
     convert_nil_values: %i[options],
-    find_benefit_claim_details_by_benefit_claim_id: %i[id],
-    find_benefit_claims_status_by_ptcpnt_id: %i[id],
     find_by_ssn: %i[ssn],
     find_intent_to_file_by_ptcpnt_id_itf_type_cd: %i[id type],
     find_poa_by_participant_id: %i[id],
@@ -30,7 +26,6 @@ describe ClaimsApi::LocalBGSProxy do
     to_camelcase: [claim: nil],
     transform_bgs_claim_to_evss: %i[claim],
     transform_bgs_claims_to_evss: %i[claims],
-    update_from_remote: %i[id],
     validate_opts!: %i[opts required_keys]
   }
 

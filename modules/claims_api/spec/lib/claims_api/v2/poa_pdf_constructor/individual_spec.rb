@@ -86,7 +86,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
         firstName: 'Lillian',
         middleInitial: 'A',
         lastName: 'Disney',
-        email: 'lillian@disney.com',
+        email: 'LILLian@disney.com',
         relationship: 'Spouse',
         address: {
           addressLine1: '2688 S Camino Real',

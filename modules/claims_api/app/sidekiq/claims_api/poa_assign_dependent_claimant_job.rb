@@ -8,6 +8,7 @@ module ClaimsApi
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
 
       service = dependent_claimant_poa_assignment_service(
+        poa.id,
         poa.form_data,
         poa.auth_headers
       )
@@ -42,8 +43,9 @@ module ClaimsApi
       raise e
     end
 
-    def dependent_claimant_poa_assignment_service(data, auth_headers)
+    def dependent_claimant_poa_assignment_service(poa_id, data, auth_headers)
       ClaimsApi::DependentClaimantPoaAssignmentService.new(
+        poa_id:,
         poa_code: find_poa_code(data),
         veteran_participant_id: auth_headers['va_eauth_pid'],
         dependent_participant_id: auth_headers.dig('dependent', 'participant_id'),
