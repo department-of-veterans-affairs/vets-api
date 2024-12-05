@@ -167,6 +167,9 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
+  champva_multiple_stamp_retry:
+    actor_type: user
+    description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
   champva_unique_temp_file_names:
     actor_type: user
     description: Enables unique temp file names for CHAMPVA PDF files
