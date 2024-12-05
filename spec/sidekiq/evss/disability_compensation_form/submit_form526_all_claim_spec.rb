@@ -706,9 +706,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:prepare_for_ep_merge!).and_return(nil)
             allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:pending_eps?).and_return(false)
             allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:classify_vagov_contentions)
-                                                                        .and_return(nil)
+              .and_return(nil)
             allow_any_instance_of(VeteranVerification::Service).to receive(:get_rated_disabilities)
-                                                                .and_raise(error_class.new(status:))
+              .and_raise(error_class.new(status:))
             expect_retryable_error(error_class)
           end
         end
