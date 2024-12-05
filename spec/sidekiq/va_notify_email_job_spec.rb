@@ -32,7 +32,7 @@ RSpec.describe VANotifyEmailJob, type: :model do
         VCR.use_cassette('va_notify/bad_request_invalid_template_id') do
           job = described_class.new
           expect(job).to receive(:log_exception_to_sentry).with(
-            instance_of(Common::Exceptions::BackendServiceException),
+            instance_of(VANotify::BadRequest),
             {
               args: {
                 template_id:,
