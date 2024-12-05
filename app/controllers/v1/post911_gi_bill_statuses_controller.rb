@@ -63,7 +63,7 @@ module V1
     end
 
     def lighthouse_service
-      BenefitsEducation::Service.new('1012667122V019349')
+      BenefitsEducation::Service.new(@current_user&.icm)
     end
 
     def dgib_service
@@ -71,8 +71,7 @@ module V1
     end
 
     def claimant_id
-      '1234'
-      # meb_api_service.get_claimant_info(BENEFIT_TYPE)
+      meb_api_service.get_claimant_info(BENEFIT_TYPE)
     end
 
     def meb_api_service
