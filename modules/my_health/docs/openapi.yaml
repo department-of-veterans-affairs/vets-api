@@ -183,7 +183,7 @@ paths:
                 type: object
                 description: >
                   The schema can be found at
-                  <a target="_blank" href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Imaging Studies</a>.
+                  <a target="_blank" href=''>Imaging Studies</a>.
           description: OK
         "401":
           content:
@@ -210,7 +210,7 @@ paths:
                 type: object
                 description: >
                   The schema can be found at
-                  <a target="_blank" href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Imaging Studies</a>.
+                  <a target="_blank" href=''>Imaging Studies</a>.
           description: OK
         "400":
           content:
@@ -249,7 +249,7 @@ paths:
                 type: object
                 description: >
                   The schema can be found at
-                  <a target="_blank" href='https://department-of-veterans-affairs.github.io/mhv-fhir-phr-mapping/StructureDefinition-VA.MHV.PHR.imaging.html'>Imaging Studies</a>.
+                  <a target="_blank" href=''>Imaging Studies</a>.
           description: OK
         "400":
           content:
