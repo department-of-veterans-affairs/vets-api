@@ -7,6 +7,7 @@ module RepresentationManagement
                                   USPHS].freeze
     TRUNCATION_LIMITS = {
       first_name: 12,
+      middle_initial: 1,
       last_name: 18,
       address_line1: 30,
       address_line2: 5,
@@ -36,6 +37,14 @@ module RepresentationManagement
 
     def representative_field_truncated(field)
       representative.public_send(field)[0..TRUNCATION_LIMITS[field] - 1]
+    end
+
+    def representative_zip_code_expanded
+      if representative.zip_suffix.blank
+        [representative.zip_code[0..4], representative.zip_code[5..8]]
+      else
+        [representative.zip_code, representative.zip_suffix]
+      end
     end
   end
 end
