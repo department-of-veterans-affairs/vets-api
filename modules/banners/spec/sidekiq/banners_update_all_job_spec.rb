@@ -81,9 +81,7 @@ RSpec.describe Banners::UpdateAllJob, type: :job do
       end
 
       it 'logs the failure and raises the error' do
-        expect {
-          described_class.sidekiq_retries_exhausted_block.call(msg, nil)
-        }.to raise_error(StandardError, 'Logging error')
+        expect { described_class.sidekiq_retries_exhausted_block.call(msg, nil) }.to raise_error(StandardError, 'Logging error')
 
         expect(Rails.logger).to have_received(:error).with(
           'Failure in Banners::UpdateAllJob#sidekiq_retries_exhausted',
