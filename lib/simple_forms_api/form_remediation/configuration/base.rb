@@ -81,8 +81,12 @@ module SimpleFormsApi
         # Extracts the class name from the call stack by matching the file path to extract
         # the namespace and class name
         def caller_class
-          matches = caller_locations.map { |location| location.path.match(%r{modules/.+/app/services/(.+)/(.+)\.rb}) }
-          files = matches.compact.first.captures
+          matches = caller_locations&.map { |location| location.path.match(%r{modules/.+/app/services/(.+)/(.+)\.rb}) }
+          return 'SimpleFormsApi::FormRemediation' if matches&.empty?
+
+          files = matches.compact.first&.captures
+          return 'SimpleFormsApi::FormRemediation' unless files&.any?
+
           class_name = files.map(&:camelize).join('::')
           return class_name if Object.const_defined?(class_name)
 
