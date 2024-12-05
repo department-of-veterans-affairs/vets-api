@@ -2,6 +2,7 @@
 
 require 'swagger_helper'
 require 'rails_helper'
+# require 'bgs_service/intent_to_file_web_service'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
@@ -373,7 +374,7 @@ describe 'IntentToFile', openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
           end
 
           before do |example|
-            allow_any_instance_of(BGS::IntentToFileWebService).to receive(:insert_intent_to_file).and_return(
+            allow_any_instance_of(ClaimsApi::IntentToFileWebService).to receive(:insert_intent_to_file).and_return(
               stub_response
             )
 
