@@ -23,14 +23,19 @@ module V0
 
       delete_cookies if token_cookies
 
+      final_scope = Settings.logingov.scope || scope || 'openid profile email'
+      Rails.logger.info("[SignInController] Final Scope: #{final_scope}")
+      
       acr_for_type = SignIn::AcrTranslator.new(acr:, type:).perform
-      state = SignIn::StatePayloadJwtEncoder.new(code_challenge:,
-                                                 code_challenge_method:,
-                                                 acr:,
-                                                 client_config: client_config(client_id),
-                                                 type:,
-                                                 client_state:,
-                                                 scope:).perform
+      state = SignIn::StatePayloadJwtEncoder.new(
+        code_challenge:,
+        code_challenge_method:,
+        acr:,
+        client_config: client_config(client_id),
+        type:,
+        client_state:,
+        scope: final_scope
+      ).perform
       context = { type:, client_id:, acr:, operation: }
 
       sign_in_logger.info('authorize', context)

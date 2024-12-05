@@ -3,19 +3,18 @@ module LoadTesting
     class TestSessionsController < ApplicationController
       include ActionController::Live
       
-      # Add timeout for slow requests
       rescue_from Timeout::Error do |e|
         render json: { error: 'Request timed out' }, status: :request_timeout
       end
 
       def create
-        Timeout.timeout(5) do  # 5 second timeout
+        Timeout.timeout(5) do
           configuration = {
-            client_id: params[:client_id],
-            type: params[:type],
-            acr: params[:acr],
-            stages: params[:stages]
-          }
+            client_id: params.dig(:configuration, :client_id),
+            type: params.dig(:configuration, :type),
+            acr_values: params.dig(:configuration, :acr_values),
+            stages: params.dig(:configuration, :stages)
+          }.compact
 
           test_session = LoadTesting::TestSession.new(
             concurrent_users: params[:concurrent_users],
@@ -64,10 +63,7 @@ module LoadTesting
       def test_session_params
         params.permit(
           :concurrent_users,
-          :client_id,
-          :type,
-          :acr,
-          stages: [:duration, :target]
+          configuration: [:client_id, :type, :acr_values, stages: [:duration, :target]]
         )
       end
     end

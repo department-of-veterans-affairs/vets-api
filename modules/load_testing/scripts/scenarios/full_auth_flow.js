@@ -8,6 +8,7 @@ import encoding from 'k6/encoding';
 const DEFAULT_CONFIG = {
   api_base_url: 'http://localhost:3000',
   client_id: 'vaweb_api_load_testing',
+  redirect_uri: 'http://localhost:3000/v0/sign_in/callback',
   test_routes: [
     '/v0/user',
     '/v0/profile'
@@ -147,7 +148,7 @@ function authorizeFlow(config) {
   sleep(sleepTime);
 
   const params = {
-    client_id: 'vaweb_api_load_testing',
+    client_id: config.client_id,
     response_type: 'code',
     type: AUTH_TYPES.LOGINGOV,
     code_challenge_method: 'S256',
@@ -156,7 +157,7 @@ function authorizeFlow(config) {
     scope: 'openid profile email',
     state,
     nonce,
-    redirect_uri: 'http://localhost:3000/load_testing/callback',
+    redirect_uri: config.redirect_uri,
     operation: 'authorize'
   };
 
