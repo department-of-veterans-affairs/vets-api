@@ -2,6 +2,16 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestsPolicy < ApplicationPolicy
+    def index?
+      authorize
+    end
+
+    def show?
+      authorize
+    end
+
+    private
+
     def pilot_user_email_poa_codes
       Settings
         .accredited_representative_portal
