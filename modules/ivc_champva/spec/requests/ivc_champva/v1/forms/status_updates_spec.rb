@@ -162,8 +162,6 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
       end
 
       let(:email_instance) { instance_double(IvcChampva::Email) }
-      #let(:email_instance) { instance_double(IvcChampva::Email).as_null_object }
-      #let(:email_instance) { double(IvcChampva::Email) }
 
       context 'with valid payload and status of Not Processed' do
         before do
@@ -213,14 +211,10 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
             email_sent: false
           )
 
-          # an email should not be sent
-          #expect(IvcChampva::Email).to receive(:new).twice
-          #expect(IvcChampva::Email).to receive(:new).exactly(0).times
-          expect(IvcChampva::Email).not_to receive(:new)
-          #expect(email_instance).to receive(:send_email).twice
-          #expect(email_instance).not_to receive(:send_email)
-
           post '/ivc_champva/v1/forms/status_updates', params: valid_payload_with_status_of_not_processed
+
+          # an email should not be sent
+          expect(email_instance).not_to have_received(:send_email)
 
           ivc_forms = [IvcChampvaForm.all]
           status_array = ivc_forms.map { |form| form.pluck(:pega_status) }
@@ -230,7 +224,7 @@ RSpec.describe 'IvcChampva::V1::Forms::StatusUpdates', type: :request do
           # only 2/3 should be updated
           expect(status_array.flatten.compact!).to eq(['Not Processed', 'Not Processed'])
           expect(case_id_array.flatten.compact!).to eq(%w[ABC-1234 ABC-1234])
-          #expect(email_sent_array.flatten).to eq([true, true, true])
+          expect(email_sent_array.flatten).to eq([false, false, false])
           expect(response).to have_http_status(:ok)
         end
       end

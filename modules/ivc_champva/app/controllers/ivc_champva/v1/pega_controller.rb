@@ -42,7 +42,16 @@ module IvcChampva
 
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
-          send_email(form_uuid, ivc_forms.first) if form.email.present?
+
+          # rubocop:disable Style/IfInsideElse
+          # Temporarily disabling rubocop because of flipper
+          if Flipper.enabled?(:champva_confirmation_email_bugfix, @user)
+            send_email(form_uuid, ivc_forms.first) if form.email.present? && form.pega_status == 'Processed'
+            # Possible values for form.pega_status are 'Processed', 'Not Processed'
+          else
+            send_email(form_uuid, ivc_forms.first) if form.email.present?
+          end
+          # rubocop:enable Style/IfInsideElse
 
           { json: {}, status: :ok }
         else
@@ -52,8 +61,6 @@ module IvcChampva
         end
       end
 
-      # rubocop:disable Metrics/MethodLength
-      # Temporary, this will be under the line limit once the champva_confirmation_email_bugfix toggle is removed
       def send_email(form_uuid, form)
         return if form.email_sent
 
@@ -68,15 +75,6 @@ module IvcChampva
             created_at: form.created_at.strftime('%B %d, %Y')
           }
 
-        # rubocop:disable Style/SoleNestedConditional
-        # Temporary, there will not be a nested conditional when the champva_confirmation_email_bugfix toggle is removed
-        if Flipper.enabled?(:champva_confirmation_email_bugfix, @user)
-          # Possible values of pega_status are 'Processed' or 'Not Processed'
-          # When the status is anything other than 'Processed', set the template_id so that we send a failure email
-          form_data[:template_id] = "#{form[:form_number]}-FAILURE" if form.pega_status != 'Processed'
-        end
-        # rubocop:enable Style/SoleNestedConditional
-
         ActiveRecord::Base.transaction do
           if IvcChampva::Email.new(form_data).send_email
             fetch_forms_by_uuid(form_uuid).update_all(email_sent: true) # rubocop:disable Rails/SkipsModelValidations
@@ -85,7 +83,6 @@ module IvcChampva
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       def valid_keys?(data)
         true if VALID_KEYS.all? { |key| data.key?(key) }
