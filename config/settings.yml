@@ -67,8 +67,8 @@ session_cookie:
   secure: false
 
 sign_in:
-  jwt_encode_key: "spec/fixtures/sign_in/privatekey.pem"
-  jwt_old_encode_key: "spec/fixtures/sign_in/privatekey_old.pem"
+  jwt_encode_key: 'spec/fixtures/sign_in/privatekey.pem'
+  jwt_old_encode_key: 'spec/fixtures/sign_in/privatekey_old.pem'
   cookies_secure: false
   info_cookie_domain: localhost
   auto_uplevel: true
@@ -101,8 +101,8 @@ clamav:
   mock: false
   # host & port here are only used in development here:
   # config/initializers/clamav.rb
-  host: "clamav"
-  port: "3310"
+  host: 'clamav'
+  port: '3310'
 
 database_url: postgis:///vets-api
 test_database_url: postgis:///vets-api-test
@@ -617,8 +617,8 @@ ask_va_api:
 claims_api:
   pdf_generator_526:
     url: ~
-    path: "/form-526ez-pdf-generator/v1/forms/"
-    content_type: "application/vnd.api+json"
+    path: '/form-526ez-pdf-generator/v1/forms/'
+    content_type: 'application/vnd.api+json'
   report_enabled: false
   audit_enabled: false
   disability_claims_mock_override: false
@@ -1553,8 +1553,8 @@ chip:
   mock: true
   mobile_app:
     tenant_id: 6f1c8b41-9c77-469d-852d-269c51a7d380
-    username: "testuser"
-    password: "12345"
+    username: 'testuser'
+    password: '12345'
 
 check_in:
   vaos:
@@ -1766,8 +1766,8 @@ avs:
   api_jwt: abcd1234abcd1234abcd1234abcd1234abcd1234
 
 brd:
-  api_key: "fake_key"
-  base_name: "https://something.fake.va.gov"
+  api_key: 'fake_key'
+  base_name: 'https://something.fake.va.gov'
 
 nod_vanotify_status_callback:
   bearer_token: bearer_token_secret
@@ -1818,8 +1818,8 @@ vye:
     bucket: ~
 
 schema_contract:
-  appointments_index: "modules/vaos/app/schemas/appointments_index.json"
-  test_index: "spec/fixtures/schema_contract/test_schema.json"
+  appointments_index: 'modules/vaos/app/schemas/appointments_index.json'
+  test_index: 'spec/fixtures/schema_contract/test_schema.json'
 
 form_mock_ae_design_patterns:
   prefill: true
