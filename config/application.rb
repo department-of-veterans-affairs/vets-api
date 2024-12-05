@@ -49,9 +49,6 @@ module VetsAPI
     # 7.0
     config.action_controller.raise_on_open_redirects = false
 
-    # DEPRECATION WARNING: ActiveSupport::TimeWithZone.name has been deprecated and
-    # from Rails 7.1 will use the default Ruby implementation.
-    config.active_support.remove_deprecated_time_with_zone_name = false
     # RAILS 7 CONFIG END
 
     # Only loads a smaller set of middleware suitable for API only apps.

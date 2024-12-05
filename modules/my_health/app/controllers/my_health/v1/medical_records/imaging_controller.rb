@@ -15,7 +15,7 @@ module MyHealth
         end
 
         def request_status
-          render_resource(bb_client.request_status)
+          render_resource(bb_client.get_study_status)
         end
 
         def images
