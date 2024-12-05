@@ -60,7 +60,7 @@ module VAForms
           UPDATE va_forms_forms SET tags ='8940' 	, ranking=54	 WHERE lower(va_forms_forms.form_name)='21-8940';
           UPDATE va_forms_forms SET tags ='40-1330' 	, ranking=55	 WHERE lower(va_forms_forms.form_name)='40-1330';
           UPDATE va_forms_forms SET tags ='22-1995' 	, ranking=56	 WHERE lower(va_forms_forms.form_name)='22-1995';
-          UPDATE va_forms_forms SET tags ='530' 	, ranking=57	 WHERE lower(va_forms_forms.form_name)='21p-530ez';
+          UPDATE va_forms_forms SET tags ='530V2' 	, ranking=57	 WHERE lower(va_forms_forms.form_name)='21p-530ez';
           UPDATE va_forms_forms SET tags ='10-0137' 	, ranking=58	 WHERE lower(va_forms_forms.form_name)='10-0137';
           UPDATE va_forms_forms SET tags ='674' 	, ranking=59	 WHERE lower(va_forms_forms.form_name)='21-674';
           UPDATE va_forms_forms SET tags ='21p-534' 	, ranking=60	 WHERE lower(va_forms_forms.form_name)='21p-534ez';
