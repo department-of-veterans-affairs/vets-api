@@ -34,22 +34,6 @@ module RepresentationManagement
               inclusion: { in: VETERAN_SERVICE_BRANCHES },
               if: -> { veteran_service_branch.present? }
 
-    def representative_first_name_truncated
-      representative.first_name[0..11]
-    end
-
-    def representative_last_name_truncated
-      representative.last_name[0..17]
-    end
-
-    def representative_address_line1_truncated
-      representative.address_line1[0..29]
-    end
-
-    def representative_address_line2_truncated
-      representative.address_line2[0..4]
-    end
-
     def representative_field_truncated(field)
       representative.public_send(field)[0..TRUNCATION_LIMITS[field] - 1]
     end
