@@ -1,12 +1,7 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class PowerOfAttorneyRequestsPolicy
-    def initialize(user, record)
-      @user = user
-      @record = record
-    end
-
+  class PowerOfAttorneyRequestsPolicy < ApplicationPolicy
     def index?
       authorize
     end
@@ -14,6 +9,8 @@ module AccreditedRepresentativePortal
     def show?
       authorize
     end
+
+    private
 
     def pilot_user_email_poa_codes
       Settings
