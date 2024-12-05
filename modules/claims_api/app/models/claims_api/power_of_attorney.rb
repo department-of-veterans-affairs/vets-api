@@ -12,6 +12,8 @@ module ClaimsApi
     has_kms_key
     has_encrypted :auth_headers, :form_data, :source_data, key: :kms_key, **lockbox_options
 
+    has_many :power_of_attorney_requests, dependent: :nullify
+
     PENDING = 'pending'
     SUBMITTED = 'submitted'
     UPLOADED = 'uploaded'
