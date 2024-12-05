@@ -59,7 +59,7 @@ module SimpleFormsApi
           if %w[40-0247 40-10007].include?(params[:form_id])
             begin
               service = BenefitsIntakeService::Service.new
-              validated_file_path = service.valid_document?(document: file_path)
+              service.valid_document?(document: file_path)
             rescue BenefitsIntakeService::Service::InvalidDocumentError => e
               puts "Invalid document error"
               render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
