@@ -2,7 +2,7 @@
 
 require 'swagger_helper'
 require 'rails_helper'
-# require 'bgs_service/intent_to_file_web_service'
+require 'bgs_service/intent_to_file_web_service'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 
