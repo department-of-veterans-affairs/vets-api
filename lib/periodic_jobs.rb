@@ -107,6 +107,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # TODO: Document this job
   mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailySpoolFiles')
+  mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailyExcelFiles')
 
   # Deletes old, completed AsyncTransaction records
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')

@@ -2,58 +2,71 @@
 
 module EducationForm::Forms
   class VA10282 < Base
-    def veteran_full_name
+    def initialize(education_benefits_claim)
+      @education_benefits_claim = education_benefits_claim
+      @applicant = education_benefits_claim.parsed_form
     end
 
-    def veteran_desc
+    def name
+      "#{first_name} #{last_name}"
     end
 
-    def email
+    def first_name
+      @applicant.veteranFullName.first
     end
 
-    def mobile_phone
+    def last_name
+      @applicant.veteranFullName.last
     end
 
-    def home_phone
+    def military_affiliation
+      @applicant.veteranDesc
+    end
+
+    def phone_number
+      @applicant&.contactInfo&.phone || 'Not provided'
+    end
+
+    def email_address
+      @applicant.contactInfo.email
     end
 
     def country
+      @applicant.country
     end
 
     def state
+      @applicant.state
     end
 
-    def race_and_gender
-    end
-
-    def ethnicity
-    end
-
-    def orgin_race
+    def race_ethnicity
+      @applicant.originRace
     end
 
     def gender
+      @applicant.raceAndGender
     end
 
-    def highest_level_of_education
+    def education_level
+      @applicant.highestLevelOfEducation.level
     end
 
-    def currently_employed
+    def employment_status
+      @applicant.currentlyEmployed
     end
 
-    def current_annual_salary
+    def salary
+      @applicant.currentAnnualSalary
     end
 
-    def is_working_in_tech_industry
-    end
+    def technology_industry
+      return nil unless @applicant.isWorkingInTechIndustry
 
-    def tech_industry_focus_area
-    end
-
-    def form_type
+      @applicant.techIndustryFocusArea
     end
 
     def header_form_type
+      'V10282'
     end
   end
 end
