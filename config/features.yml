@@ -167,9 +167,6 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
-  champva_unique_temp_file_names:
-    actor_type: user
-    description: Enables unique temp file names for CHAMPVA PDF files
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
