@@ -104,9 +104,9 @@ RSpec.describe Banners::Updater do
     let!(:banner3) { create(:banner, entity_id: '3') }
 
     it 'destroys banners whose entity_ids are not in the keep list' do
-      expect {
-        updater.send(:destroy_missing_banners, ['1', '2'])
-      }.to change(Banner, :count).by(-1)
+      expect do
+        updater.send(:destroy_missing_banners, %w[1 2])
+      end.to change(Banner, :count).by(-1)
 
       expect(Banner.find_by(entity_id: '3')).to be_nil
       expect(Banner.find_by(entity_id: '1')).to be_present
@@ -114,17 +114,17 @@ RSpec.describe Banners::Updater do
     end
 
     it 'destroys all banners when keep list is empty' do
-      expect {
+      expect do
         updater.send(:destroy_missing_banners, [])
-      }.to change(Banner, :count).by(-3)
+      end.to change(Banner, :count).by(-3)
 
       expect(Banner.count).to eq(0)
     end
 
     it 'handles non-existent entity_ids gracefully' do
-      expect {
-        updater.send(:destroy_missing_banners, ['1', '999'])
-      }.to change(Banner, :count).by(-2)
+      expect do
+        updater.send(:destroy_missing_banners, %w[1 999])
+      end.to change(Banner, :count).by(-2)
 
       expect(Banner.find_by(entity_id: '1')).to be_present
       expect(Banner.where.not(entity_id: '1')).to be_empty
