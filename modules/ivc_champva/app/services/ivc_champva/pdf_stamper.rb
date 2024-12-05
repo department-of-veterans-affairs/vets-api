@@ -47,59 +47,25 @@ module IvcChampva
       end
     end
 
-    # rubocop: disable Metrics/MethodLength
-    if Flipper.enabled?(:champva_multiple_stamp_retry, @user)
-      def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
-        attempt ||= 0
-        stamp_path = Common::FileHelpers.random_file_path
-
-        begin
-          # Generate the stamp PDF using Prawn with the provided configurations
-          Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
-            page_configuration.each do |config|
-              case config[:type]
-              when :text
-                pdf.draw_text signature_text, at: config[:position], size: font_size
-              when :new_page
-                pdf.start_new_page
-              end
-            end
-          end
-
-          perform_multistamp(stamped_template_path, stamp_path)
-        rescue => e
-          if e.message.include?('Error: Failed to open stamp PDF file') && attempt < 1
-            attempt += 1
-            retry
-          else
-            Rails.logger.error 'IVC CHAMPVA forms api - Failed to generate stamped file', message: e.message
-            raise
-          end
-        ensure
-          Common::FileHelpers.delete_file_if_exists(stamp_path)
-        end
-      end
-      # rubocop: enable Metrics/MethodLength
-    else
-      def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
-        stamp_path = Common::FileHelpers.random_file_path
-        Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
-          page_configuration.each do |config|
-            case config[:type]
-            when :text
-              pdf.draw_text signature_text, at: config[:position], size: font_size
-            when :new_page
-              pdf.start_new_page
-            end
+    def self.multistamp(stamped_template_path, signature_text, page_configuration, font_size = 16)
+      stamp_path = Common::FileHelpers.random_file_path
+      Prawn::Document.generate(stamp_path, margin: [0, 0]) do |pdf|
+        page_configuration.each do |config|
+          case config[:type]
+          when :text
+            pdf.draw_text signature_text, at: config[:position], size: font_size
+          when :new_page
+            pdf.start_new_page
           end
         end
-        perform_multistamp(stamped_template_path, stamp_path)
-      rescue => e
-        Rails.logger.error 'IVC CHAMPVA forms api - Failed to generate stamped file', message: e.message
-        raise
-      ensure
-        Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
       end
+
+      perform_multistamp(stamped_template_path, stamp_path)
+    rescue => e
+      Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
+      raise
+    ensure
+      Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
     end
 
     def self.stamp(desired_stamp, stamped_template_path, append_to_stamp: false, text_only: true)
