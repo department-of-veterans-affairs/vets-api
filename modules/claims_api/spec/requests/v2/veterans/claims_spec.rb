@@ -1236,44 +1236,28 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
       end
 
       describe "handling the 'supporting_documents'" do
-        let(:bgs_claim_response_with_docs) { build(:bgs_response_with_supp_docs).to_h }
-        let(:docs) do
-          { messages: 'null',
-            documents:
-         [{ content: 'null',
-            corporate_document_id: 111_738,
-            tracked_item_id: 'null',
-            document_id: '{B629A707-5093-44E9-AD95-D03FA55C5080}',
-            document_size: 0,
-            subject: 'null',
-            remove_me: false,
-            allow_download: true,
-            file_name: 'roleBasedSysAdmin.pdf' }] }
-        end
-
         context 'it has documents' do
           it "returns a claim with 'supporting_documents'" do
             mock_ccg(scopes) do |auth_header|
-              VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
-                VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
-                  bgs_claim_response[:supporting_documents] = docs
-                  allow_any_instance_of(ClaimsApi::V2::ClaimsRequests::SupportingDocuments).to receive(
-                    :get_file_number
-                  ).and_return(file_number)
-                  expect_any_instance_of(bnft_claim_web_service)
-                    .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
-                  expect(ClaimsApi::AutoEstablishedClaim)
-                    .to receive(:get_by_id_and_icn).and_return(nil)
-                  get claim_by_id_path, headers: auth_header
-                  debugger
+              VCR.use_cassette('claims_api/v2/claims_show') do
+                allow_any_instance_of(ClaimsApi::V2::ClaimsRequests::SupportingDocuments).to receive(
+                  :get_file_number
+                ).and_return(file_number)
 
-                  json_response = JSON.parse(response.body)
-                  first_doc_id = json_response['data']['attributes'].dig('supportingDocuments', 0, 'documentId')
-                  expect(response).to have_http_status(:ok)
-                  expect(json_response).to be_an_instance_of(Hash)
-                  expect(json_response['data']['claimType']).to eq('Compensation')
-                  expect(first_doc_id).to eq('{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}')
-                end
+                expect_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+                  .to receive(:get_auth_token).and_return('some-value-here')
+                expect(ClaimsApi::AutoEstablishedClaim)
+                  .to receive(:get_by_id_and_icn).and_return(nil)
+
+                get claim_by_id_path, headers: auth_header
+
+                json_response = JSON.parse(response.body)
+
+                first_doc_id = json_response['data']['attributes'].dig('supportingDocuments', 0, 'documentId')
+                expect(response).to have_http_status(:ok)
+                expect(json_response).to be_an_instance_of(Hash)
+                expect(json_response['data']['attributes']['claimType']).to eq('Compensation')
+                expect(first_doc_id).to eq('6A40E389-EB12-473C-8C23-D1D6C996C544')
               end
             end
           end
