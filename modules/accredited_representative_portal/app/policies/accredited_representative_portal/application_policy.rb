@@ -46,8 +46,8 @@ module AccreditedRepresentativePortal
 
     def override_warning
       Rails.logger.warn(
-        "#{self.class} is using the default ##{caller_locations(1, 1)[0].label} implementation. " +
-        "Consider overriding it."
+        "#{self.class} is using the default ##{caller_locations(1, 1)[0].label} implementation. \
+ Consider overriding it."
       )
     end
 
