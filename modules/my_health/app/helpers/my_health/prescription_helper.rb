@@ -105,6 +105,64 @@ module MyHealth
         false
       end
 
+      #STEPS FOR GROUPING MEDS
+
+        # check if current med has any associated rxs by prescription_number whithin the list
+        # group all associated rxs into an array
+
+        # determine which grouped rx will be the main object that houses all the other objects
+          #the most recent, which is the rx with the farthest letter from A so if prescription_numbers are 1234a, 5678b, 91011c, then the main rx will the the one that ends with c which is 91011c
+        # add all other associated rxs to new field called grouped medications
+
+        # if no associated rxs are found, add med to list with empty gouped meds field
+        # check if current med has already been added, if so, then skip med and do not add to new list since its already on there
+
+      def grouping_list(resource)
+        grouped_list = Hash.new
+
+        #method that returns rx with no suffix
+        def rx_number_w_no_suffix(rx)
+          rx_num = rx.attributes[:prescription_number]
+          rx_num_no_suffix = rx_num.length > 6 ? rx_num[0..6] : rx_num
+        end
+        #method that gathers all the meds with the same prescription_number and puts them all into a list
+
+        def group_and_sort_associated_rxs(list, prescription_number)
+          associated_rxs = Array.new
+          #for some reason, .select is throwing this error: ""undefined method `attributes' for an instance of Array""
+          associated_rxs = list.data.attributes.select { |rx|
+            if rx.attributes[:prescription_number].include? prescription_number
+              rx
+            end
+          }
+
+          #sort by suffix of prescription number. truncate the first 7 numbers and perform a sort on the letters
+          # associated_rxs.sort_by[:prescription_number][0..-7].reverse
+        end
+
+        grouped_list = resource.map { |rx|
+          prescription_number = rx_number_w_no_suffix(rx)
+          grouped_and_sorted_list = group_and_sort_associated_rxs(resource, prescription_number)
+          #sort list where rx without suffix is last and reverse alphabetical order where a is last and z is first in the list
+          #make the most recent(first item on list) the head of the grouped medicaitons ie most_recent: {grouped_medications: [grouped_list]}
+          #add group_rx_w_associated_rxs to new grouping list
+          #dont forget to skip already added rxs and not add them to the list, since they are already a part of a grouped list within an rx
+        }
+
+        resource[:data] = resource.data.map { |rx|
+
+          if rx[:prescription_id] == resource.data.first().attributes[:prescription_id]
+            puts rx.attributes.to_s
+          end
+
+          #test to see if I can add anything to the grouped medications attribute
+          puts rx.attributes[:grouped_medications]
+          rx.attributes[:grouped_medications] = rx.attributes
+        }
+
+        resource
+      end
+
       private
 
       def within_cut_off_date?(date)

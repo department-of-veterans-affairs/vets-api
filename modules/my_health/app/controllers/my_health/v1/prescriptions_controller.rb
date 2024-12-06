@@ -14,6 +14,8 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
+        # add feature flag condition here
+        resource = grouping_list(resource) : resource
         resource.data = filter_non_va_meds(resource.data)
         filter_count = set_filter_metadata(resource.data)
         renewal_params = 'Active,Expired'
