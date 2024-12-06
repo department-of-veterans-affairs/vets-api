@@ -30,63 +30,78 @@ Rspec.describe Banner, type: :model do
     let(:banner_type) { 'full_width_banner_alert' }
 
     let!(:matching_banner1) do
-      create(:banner, entity_bundle: banner_type, limit_subpage_inheritance: false, context: [
-               {
-                 entity: {
-                   entityUrl: { path: path },
-                   fieldOffice: {
-                     entity: {
-                       entityUrl: { path: '/some-other-path' }
-                     }
-                   }
-                 }
-               }
-             ])
+      create(:banner,
+        entity_bundle: banner_type,
+        limit_subpage_inheritance: false,
+        context: [
+          {
+            entity: {
+              entityUrl: { path: path },
+              fieldOffice: {
+                entity: {
+                  entityUrl: { path: '/some-other-path' }
+                }
+              }
+            }
+          }
+        ]
+      )
     end
 
     let!(:matching_banner2) do
-      create(:banner, entity_bundle: banner_type, limit_subpage_inheritance: false, context: [
-               {
-                 entity: {
-                   entityUrl: { path: '/some-other-path' },
-                   fieldOffice: {
-                     entity: {
-                       entityUrl: { path: path }
-                     }
-                   }
-                 }
-               }
-             ])
+      create(:banner,
+        entity_bundle: banner_type,
+        limit_subpage_inheritance: false,
+        context: [
+          {
+            entity: {
+              entityUrl: { path: '/some-other-path' },
+              fieldOffice: {
+                entity: {
+                  entityUrl: { path: path }
+                }
+              }
+            }
+          }
+        ]
+      )
     end
 
     let!(:matching_non_inheriting_banner) do
-      create(:banner, entity_bundle: banner_type, limit_subpage_inheritance: true, context: [
-        {
-                 entity: {
-                   entityUrl: { path: path },
-                   fieldOffice: {
-                     entity: {
-                       entityUrl: { path: '/some-other-path' }
-                     }
-                   }
-                 }
-               }
-             ])
+      create(:banner,
+        entity_bundle: banner_type,
+        limit_subpage_inheritance: true,
+        context: [
+          {
+            entity: {
+                entityUrl: { path: path },
+                fieldOffice: {
+                  entity: {
+                    entityUrl: { path: '/some-other-path' }
+                  }
+                }
+              }
+          }
+        ]
+      )
     end
 
     let!(:non_matching_banner) do
-      create(:banner, entity_bundle: 'different_type', context: [
-               {
-                 entity: {
-                   entityUrl: { path: '/some-other-path' },
-                   fieldOffice: {
-                     entity: {
-                       entityUrl: { path: '/another-path' }
-                     }
-                   }
-                 }
-               }
-             ])
+      create(:banner,
+        entity_bundle: 'different_type',
+        context: [
+          {
+            entity: {
+              entityUrl: { path: '/some-other-path' },
+              fieldOffice: {
+                entity: {
+                  entityUrl: { path: '/another-path' }
+                }
+              }
+            }
+          }
+        ]
+      )
     end
 
     it 'returns banners that match the path type for both direct entityUrls and fieldOffice.entity.entityUrls' do

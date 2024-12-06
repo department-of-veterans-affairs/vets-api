@@ -35,24 +35,23 @@ class Banner < ApplicationRecord
                                                 { path: path } } } } }
                                       ].to_json))
 
-    # Subpage inheritance check: Matches on any `entityUrl` or `fieldOffice` entity path where `limit_subpage_inheritance` is false.
+    # Subpage inheritance check: Matches on any `entityUrl` where `limit_subpage_inheritance` is false.
     subpage_pattern = "/#{normalized_path.split('/').first}"
     subpage_condition = where('banners.context @> ?',
+                              [
+                                { entity:
+                                  { entityUrl:
+                                  { path: subpage_pattern } } }
+                              ].to_json)
+                        .or(where('banners.context @> ?',
                                   [
                                     { entity:
-                                     { entityUrl:
-                                      { path: subpage_pattern } } }
-                                  ].to_json)
-                            .or(where('banners.context @> ?',
-                                      [
+                                      { fieldOffice:
                                         { entity:
-                                          { fieldOffice:
-                                            { entity:
-                                              { entityUrl:
-                                                { path: subpage_pattern } } } } }
-                                      ].to_json))
-                          .where(limit_subpage_inheritance: false)
-
+                                          { entityUrl:
+                                            { path: subpage_pattern } } } } }
+                                  ].to_json))
+                        .where(limit_subpage_inheritance: false)
 
     # Look for both exact paths and subpage matches
     exact_path_conditions.or(subpage_condition)
