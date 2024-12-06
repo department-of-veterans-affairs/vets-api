@@ -31,77 +31,73 @@ Rspec.describe Banner, type: :model do
 
     let!(:matching_banner1) do
       create(:banner,
-        entity_bundle: banner_type,
-        limit_subpage_inheritance: false,
-        context: [
-          {
-            entity: {
-              entityUrl: { path: path },
-              fieldOffice: {
-                entity: {
-                  entityUrl: { path: '/some-other-path' }
-                }
-              }
-            }
-          }
-        ]
-      )
+             entity_bundle: banner_type,
+             limit_subpage_inheritance: false,
+             context: [
+               {
+                 entity: {
+                   entityUrl: { path: path },
+                   fieldOffice: {
+                     entity: {
+                       entityUrl: { path: '/some-other-path' }
+                     }
+                   }
+                 }
+               }
+             ])
     end
 
     let!(:matching_banner2) do
       create(:banner,
-        entity_bundle: banner_type,
-        limit_subpage_inheritance: false,
-        context: [
-          {
-            entity: {
-              entityUrl: { path: '/some-other-path' },
-              fieldOffice: {
-                entity: {
-                  entityUrl: { path: path }
-                }
-              }
-            }
-          }
-        ]
-      )
+             entity_bundle: banner_type,
+             limit_subpage_inheritance: false,
+             context: [
+               {
+                 entity: {
+                   entityUrl: { path: '/some-other-path' },
+                   fieldOffice: {
+                     entity: {
+                       entityUrl: { path: path }
+                     }
+                   }
+                 }
+               }
+             ])
     end
 
     let!(:matching_non_inheriting_banner) do
       create(:banner,
-        entity_bundle: banner_type,
-        limit_subpage_inheritance: true,
-        context: [
-          {
-            entity: {
-                entityUrl: { path: path },
-                fieldOffice: {
-                  entity: {
-                    entityUrl: { path: '/some-other-path' }
-                  }
-                }
-              }
-          }
-        ]
-      )
+             entity_bundle: banner_type,
+             limit_subpage_inheritance: true,
+             context: [
+               {
+                 entity: {
+                   entityUrl: { path: path },
+                   fieldOffice: {
+                     entity: {
+                       entityUrl: { path: '/some-other-path' }
+                     }
+                   }
+                 }
+               }
+             ])
     end
 
     let!(:non_matching_banner) do
       create(:banner,
-        entity_bundle: 'different_type',
-        context: [
-          {
-            entity: {
-              entityUrl: { path: '/some-other-path' },
-              fieldOffice: {
-                entity: {
-                  entityUrl: { path: '/another-path' }
-                }
-              }
-            }
-          }
-        ]
-      )
+             entity_bundle: 'different_type',
+             context: [
+               {
+                 entity: {
+                   entityUrl: { path: '/some-other-path' },
+                   fieldOffice: {
+                     entity: {
+                       entityUrl: { path: '/another-path' }
+                     }
+                   }
+                 }
+               }
+             ])
     end
 
     it 'returns banners that match the path type for both direct entityUrls and fieldOffice.entity.entityUrls' do
@@ -111,7 +107,7 @@ Rspec.describe Banner, type: :model do
     end
 
     it 'returns banners that match the path type for subpages, but not if limit_subpage_inheritance?' do
-      result = Banner.by_path(path + '/locations/specific-va-facility')
+      result = Banner.by_path("#{path}/locations/specific-va-facility")
 
       expect(result).to contain_exactly(matching_banner1, matching_banner2)
       expect(result).not_to include(matching_non_inheriting_banner)
