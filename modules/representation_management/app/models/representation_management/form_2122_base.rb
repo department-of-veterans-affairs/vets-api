@@ -130,7 +130,7 @@ module RepresentationManagement
       if veteran_zip_code_suffix.blank?
         [veteran_zip_code[0..4], veteran_zip_code[5..8]]
       else
-        [veteran_zip_code, veteran_zip_code_suffix]
+        [veteran_zip_code[0..4], veteran_zip_code_suffix[0..3]]
       end
     end
 
@@ -138,7 +138,7 @@ module RepresentationManagement
       if claimant_zip_code_suffix.blank?
         [claimant_zip_code[0..4], claimant_zip_code[5..8]]
       else
-        [claimant_zip_code, claimant_zip_code_suffix]
+        [claimant_zip_code[0..4], claimant_zip_code_suffix[0..3]]
       end
     end
 

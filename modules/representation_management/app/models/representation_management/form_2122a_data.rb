@@ -47,7 +47,7 @@ module RepresentationManagement
       if representative.zip_suffix.blank?
         [representative.zip_code[0..4], representative.zip_code[5..8]]
       else
-        [representative.zip_code, representative.zip_suffix]
+        [representative.zip_code[0..4], representative.zip_suffix[0..3]]
       end
     end
   end
