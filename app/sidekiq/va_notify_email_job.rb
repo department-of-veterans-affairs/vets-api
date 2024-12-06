@@ -17,7 +17,7 @@ class VANotifyEmailJob
         personalisation:
       }.compact
     )
-  rescue Common::Exceptions::BackendServiceException => e
+  rescue VANotify::Error => e
     if e.status_code == 400
       log_exception_to_sentry(
         e,
