@@ -150,7 +150,8 @@ module VaNotify
         'modules/va_notify/lib/va_notify/service.rb',
         'va_notify/app/sidekiq/va_notify/email_job.rb',
         'va_notify/app/sidekiq/va_notify/user_account_job.rb',
-        'lib/sidekiq/processor.rb'
+        'lib/sidekiq/processor.rb',
+        'lib/sidekiq/middleware/chain.rb'
       ]
 
       caller_locations.each do |location|
