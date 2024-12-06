@@ -12,7 +12,8 @@ module VAProfile
     end
 
     def connection
-      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
+      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options,
+                                       ssl: { verify: false }) do |faraday|
         faraday.use      :breakers
         faraday.use      Faraday::Response::RaiseError
 
