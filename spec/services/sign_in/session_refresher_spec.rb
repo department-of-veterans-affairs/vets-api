@@ -46,8 +46,19 @@ RSpec.describe SignIn::SessionRefresher do
       let(:anti_csrf) { false }
       let(:refresh_token_duration) { SignIn::Constants::RefreshToken::VALIDITY_LENGTH_SHORT_MINUTES }
       let(:enforced_terms) { nil }
+      let(:identifier) { user_account.icn }
+      let(:deceased_date) { nil }
+      let(:id_theft_flag) { false }
+      let(:mpi_profile) { build(:mpi_profile, icn: user_account.icn, deceased_date:, id_theft_flag:) }
+      let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
-      before { Timecop.freeze(Time.zone.now.floor) }
+      before do
+        Timecop.freeze(Time.zone.now.floor)
+        allow_any_instance_of(MPI::Service)
+          .to receive(:find_profile_by_identifier)
+          .with(identifier:, identifier_type: MPI::Constants::ICN)
+          .and_return(find_profile_response)
+      end
 
       after { Timecop.return }
 
@@ -275,6 +286,26 @@ RSpec.describe SignIn::SessionRefresher do
           let(:expected_error_message) { 'No valid Session found' }
 
           it 'raises a session not authorized error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+
+        context 'and the account has an MPI death flag' do
+          let(:deceased_date) { '20050215' }
+          let(:expected_error) { SignIn::Errors::MPILockedAccountError }
+          let(:expected_error_message) { 'Death Flag Detected' }
+
+          it 'raises an MPI Locked Account error' do
+            expect { subject }.to raise_error(expected_error, expected_error_message)
+          end
+        end
+
+        context 'and the account has an MPI theft flag' do
+          let(:id_theft_flag) { true }
+          let(:expected_error) { SignIn::Errors::MPILockedAccountError }
+          let(:expected_error_message) { 'Theft Flag Detected' }
+
+          it 'raises an MPI Locked Account error' do
             expect { subject }.to raise_error(expected_error, expected_error_message)
           end
         end
