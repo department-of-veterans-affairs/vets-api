@@ -872,7 +872,7 @@ paths:
                       properties:
                         type:
                           type: string
-                          example: relationships
+                          example: relationship
                         attributes:
                           $ref: "#/components/schemas/PatientProviderRelationship"
         "400":
