@@ -7,7 +7,7 @@ module Vye
     def perform
       ClearDeactivatedBdns.perform_async
       DeleteProcessedS3Files.perform_async
-      PurgeStaleVerifications.perform_async
+      # NOTE: PurgeStaleVerifications logic included in ClearDeactivatedBdns step
     end
   end
 end
