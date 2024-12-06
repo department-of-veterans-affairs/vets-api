@@ -1253,7 +1253,7 @@
       "post": {
         "summary": "Enqueue the Next Steps Email from VA Notify",
         "tags": [
-          "PDF Generation"
+          "Next Steps Email"
         ],
         "operationId": "nextStepsEmail",
         "parameters": [
