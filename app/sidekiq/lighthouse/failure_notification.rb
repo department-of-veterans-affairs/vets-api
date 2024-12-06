@@ -2,6 +2,7 @@
 
 class Lighthouse::FailureNotification
   include Sidekiq::Job
+  include SentryLogging
 
   NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
   MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
