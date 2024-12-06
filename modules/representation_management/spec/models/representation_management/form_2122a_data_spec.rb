@@ -52,7 +52,7 @@ RSpec.describe RepresentationManagement::Form2122aData, type: :model do
       expect(subject.representative_zip_code_expanded).to eq(%w[12345 6789])
     end
 
-    it 'returns the zip code and suffix if the suffix is not present' do
+    it 'returns the expanded zip code if the suffix is not present' do
       representative = create(:accredited_individual, zip_code: '123456789')
       subject.representative_id = representative.id
       expect(subject.representative_zip_code_expanded).to eq(%w[12345 6789])
