@@ -1285,7 +1285,6 @@ module ClaimsApi
 
       def collect_error_messages(detail: 'Missing or invalid attribute', source: '/',
                                  title: 'Unprocessable Entity', status: '422')
-
         errors_array.push({ detail:, source:, title:, status: })
       end
 

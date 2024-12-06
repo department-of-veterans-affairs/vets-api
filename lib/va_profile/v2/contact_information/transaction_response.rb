@@ -76,7 +76,7 @@ module VAProfile
                     'originating_source_system',
                     'source_system_user',
                     'effective_start_date',
-                    'vet360_id'
+                    'va_profile_id'
                   ),
                   errors: @response_body['tx_messages']
                 }
