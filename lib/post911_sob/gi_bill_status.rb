@@ -23,13 +23,13 @@ module Post911SOB
     attribute :active_duty, Boolean
     attribute :enrollments, Array[BenefitsEducation::Enrollment]
 
-    def initialize(lighthouse_response:, dgib_response: nil)
-      toe = dgib_response&.entitlement_transferred_out
+    def initialize(lighthouse_response: nil, dgib_response: nil)
+      attributes = lighthouse_response.try(:attributes) || {}
       entitlement_transferred_out = {
-        months: toe&.months,
-        days: toe&.days
+        months: dgib_response&.entitlement_transferred_out&.months,
+        days: dgib_response&.entitlement_transferred_out&.days
       }
-      attributes = lighthouse_response.attributes.merge(entitlement_transferred_out:)
+      attributes.merge!(entitlement_transferred_out:)
       super(attributes)
       # Do we need to serialize status if it is combination of two responses?
     end

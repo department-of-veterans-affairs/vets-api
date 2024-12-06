@@ -9,6 +9,8 @@ describe Post911GIBillStatusSerializer, type: :serializer do
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 
+  before(:all) { Flipper.enable(:sob_updated_design) }
+
   it 'includes :id' do
     expect(data['id']).to be_blank
   end
@@ -88,6 +90,17 @@ describe Post911GIBillStatusSerializer, type: :serializer do
     it 'includes :amendments with attributes' do
       expected_attributes = gi_bill_status.enrollments.first.amendments.first.attributes.keys.map(&:to_s)
       expect(enrollment['amendments'].first.keys).to eq expected_attributes
+    end
+  end
+
+  context 'entitlement_transferred_out' do
+    it 'includes :entitlement_transferred_out when flipper enabled' do
+      expect_entitlement(attributes['entitlement_transferred_out'], gi_bill_status.entitlement_transferred_out)
+    end
+
+    it "doesn't include: entitlement_transferred_out when flipper disabled" do
+      Flipper.disable(:sob_updated_design)
+      expect(attributes.has_key?('entitlement_transferred_out')).to be false
     end
   end
 

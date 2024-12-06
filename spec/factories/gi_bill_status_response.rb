@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
+require 'post911_sob/gi_bill_status'
+
 FactoryBot.define do
-  factory :gi_bill_status_response, class: 'BenefitsEducation::Response' do
+  factory :gi_bill_status_response, class: 'Post911SOB::GIBillStatus' do
     first_name { 'John' }
     last_name { 'Doe' }
     name_suffix { 'Jr' }
@@ -13,9 +15,10 @@ FactoryBot.define do
     percentage_benefit { 100 }
     original_entitlement { { months: 0, days: 21 } }
     used_entitlement { { months: 0, days: 11 } }
+    remaining_entitlement { { months: 0, days: 12 } }
+    entitlement_transferred_out { { months: 0, days: 15 }}
     active_duty { true }
     veteran_is_eligible { true }
-    remaining_entitlement { { months: 0, days: 12 } }
     enrollments {
       [{
         begin_date: '2012-11-01T04:00:00.000+00:00',
@@ -43,6 +46,6 @@ FactoryBot.define do
         }]
       }]
     }
-    initialize_with { new(status: 200, response: {}) }
+    initialize_with { new(lighthouse_response: {}) }
   end
 end
