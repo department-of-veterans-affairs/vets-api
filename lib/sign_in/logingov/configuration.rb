@@ -87,7 +87,7 @@ module SignIn
       end
 
       def log_credential
-        true
+        false
       end
 
       def service_name
