@@ -4,6 +4,8 @@ module MyHealth
   module V1
     module MedicalRecords
       class ImagingController < MrController
+        include ActionController::Live
+
         before_action :set_study_id, only: %i[request_download images image dicom]
 
         def index
@@ -30,6 +32,10 @@ module MyHealth
         end
 
         def dicom
+          # Disable ETag manually to omit the "Content-Length" header for this streaming resource.
+          # Otherwise the download/save dialog doesn't appear until after the file fully downloads.
+          headers['ETag'] = nil
+
           response.headers['Content-Type'] = 'application/zip'
           stream_data do |stream|
             bb_client.get_dicom(@study_id, header_callback, stream)
