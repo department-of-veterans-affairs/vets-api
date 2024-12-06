@@ -80,12 +80,6 @@ module EVSS
 
         return if fail_submission_feature_enabled?(submission)
 
-        # This instantiates the service as defined by the inheriting object
-        # TODO: this meaningless variable assignment is required for the specs to pass, which
-        # indicates a problematic coupling of implementation and test logic.  This should eventually
-        # be addressed to make this service and test more robust and readable.
-        service = service(submission.auth_headers)
-
         with_tracking('Form526 Submission', submission.saved_claim_id, submission.id, submission.bdd?,
                       service_provider) do
           submission.mark_birls_id_as_tried!
@@ -93,7 +87,7 @@ module EVSS
           return unless successfully_prepare_submission_for_evss?(submission)
 
           begin
-            response = choose_service_provider(submission, service)
+            response = choose_service_provider(submission)
             response_handler(response)
             send_post_evss_notifications(submission, true)
           rescue => e
@@ -106,12 +100,9 @@ module EVSS
       private
 
       # send submission data to either EVSS or Lighthouse (LH)
-      def choose_service_provider(submission, service)
-        if submission.claims_api? # not needed once fully migrated to LH
-          send_submission_data_to_lighthouse(submission, submission.account.icn)
-        else
-          service.submit_form526(submission.form_to_json(Form526Submission::FORM_526))
-        end
+      def choose_service_provider(submission)
+        # 100% form version 2022/TE - always send to lighthouse
+        send_submission_data_to_lighthouse(submission, submission.account.icn)
       end
 
       def conditionally_handle_errors(e)
@@ -167,6 +158,7 @@ module EVSS
                                                body: { claim_id: submitted_claim_id },
                                                status: raw_response.status
                                              })
+        ## TODO: Rename this class. it's now generic
         EVSS::DisabilityCompensationForm::FormSubmitResponse.new(raw_response_struct.status, raw_response_struct)
       end
 
