@@ -103,7 +103,8 @@ module EducationForm
             end
             csv << row_data
           rescue => e
-            log_exception(DailySpoolFileError.new("Failed to add row #{index + 1}: #{e.message}\nRecord: #{record.inspect}"))
+            log_exception(DailyExcelFileError.new("Failed to add row #{index + 1}:\n"))
+            log_exception(DailyExcelFileError.new("#{e.message}\nRecord: #{record.inspect}"))
             next
           end
         end
@@ -112,14 +113,14 @@ module EducationForm
         log_info('Successfully created CSV file')
       rescue => e
         StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
+        log_exception(DailyExcelFileError.new('Error creating CSV files.'))
         if retry_count < MAX_RETRIES
-          log_exception(DailyExcelFileError.new('Error creating CSV files.'))
           log_exception(DailyExcelFileError.new("Retry count: #{retry_count}. Retrying..... "))
           retry_count += 1
           sleep(5)
           retry
         else
-          log_exception(DailyExcelFileError.new("Error creating CSV files. Job failed after #{MAX_RETRIES} retries \n\n#{e}"))
+          log_exception(DailyExcelFileError.new("Job failed after #{MAX_RETRIES} retries \n\n#{e}"))
         end
       end
 
