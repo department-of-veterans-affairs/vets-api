@@ -1766,6 +1766,10 @@ features:
     actor_type: user
     description: Enable Burial form v2 re-design
     enable_in_development: true
+  burial_confirmation_page:
+    actor_type: user
+    description: Toggle showing the updated confirmation page
+    enable_in_development: true
   burial_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
