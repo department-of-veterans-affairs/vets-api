@@ -3,14 +3,11 @@
 require 'rails_helper'
 require 'lighthouse/benefits_documents/constants'
 
-# VCR.configure do |c|
-#   c.allow_http_connections_when_no_cassette = true
-# end
-
 RSpec.describe Lighthouse::EvidenceSubmissionDocumentUploadPollingJob, type: :job do
   let(:job) { described_class.perform_async }
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }
+  let(:current_date_time) { DateTime.current.utc }
   let(:pending_params) do
     {
       claim_id: 'claim-id1',
@@ -83,15 +80,17 @@ RSpec.describe Lighthouse::EvidenceSubmissionDocumentUploadPollingJob, type: :jo
 
     it 'polls and updates status for each failed EvidenceSubmission to "failed"' do
       VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_status_polling_failed') do
-        job
-        described_class.drain
+        Timecop.freeze(current_date_time) do
+          job
+          described_class.drain
+        end
       end
       pending_es = EvidenceSubmission.where(request_id: 1).first
       pending_es2 = EvidenceSubmission.where(request_id: 2).first
       expect(pending_es.failed?).to eq(true)
       expect(pending_es2.failed?).to eq(true)
-      expect(pending_es.acknowledgement_date).to eq((DateTime.current + 30).utc)
-      expect(pending_es2.acknowledgement_date).to eq((DateTime.current + 30).utc)
+      expect(pending_es.acknowledgement_date).to eq((current_date_time + 30.days).utc)
+      expect(pending_es2.acknowledgement_date).to eq((current_date_time + 30.days).utc)
     end
   end
 end
