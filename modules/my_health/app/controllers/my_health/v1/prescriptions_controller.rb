@@ -5,6 +5,7 @@ module MyHealth
     class PrescriptionsController < RxController
       include Filterable
       include MyHealth::PrescriptionHelper::Filtering
+      include MyHealth::RxGroupingHelper
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
       # @param refill_status - one refill status to filter on
@@ -15,7 +16,8 @@ module MyHealth
       def index
         resource = collection_resource
         # add feature flag condition here
-        resource = grouping_list(resource) : resource
+        # resource = true ? grouping_list(resource) : resource
+        resource.data = group_prescriptions(resource.data)
         resource.data = filter_non_va_meds(resource.data)
         filter_count = set_filter_metadata(resource.data)
         renewal_params = 'Active,Expired'
