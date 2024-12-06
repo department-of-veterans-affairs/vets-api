@@ -18,7 +18,6 @@ class Banner < ApplicationRecord
 
   scope :by_path, lambda { |path|
     normalized_path = path.sub(%r{^/?}, '')
-    root_path = '/' + normalized_path.split('/').first
 
     # Direct path matches.
     exact_path_conditions = where('banners.context @> ?',
@@ -36,12 +35,13 @@ class Banner < ApplicationRecord
                                                 { path: path } } } } }
                                       ].to_json))
 
-    # Root Path matches.
-    root_path_conditions = where('banners.context @> ?',
+    # Subpage inheritance check: Matches on any `entityUrl` or `fieldOffice` entity path where `limit_subpage_inheritance` is false.
+    subpage_pattern = "/#{normalized_path.split('/').first}"
+    subpage_condition = where('banners.context @> ?',
                                   [
                                     { entity:
                                      { entityUrl:
-                                      { path: root_path } } }
+                                      { path: subpage_pattern } } }
                                   ].to_json)
                             .or(where('banners.context @> ?',
                                       [
@@ -49,23 +49,12 @@ class Banner < ApplicationRecord
                                           { fieldOffice:
                                             { entity:
                                               { entityUrl:
-                                                { path: root_path } } } } }
+                                                { path: subpage_pattern } } } } }
                                       ].to_json))
                           .where(limit_subpage_inheritance: false)
 
-    # Subpage inheritance check: Matches on any `fieldOffice` entity path where `limit_subpage_inheritance` is false.
-    subpage_pattern = "#{normalized_path.split('/').first}/%"
-    subpage_condition = where('banners.context @> ?',
-                              [
-                                { entity:
-                                  { fieldOffice:
-                                    { entity:
-                                      { entityUrl:
-                                        { path: subpage_pattern } } } } }
-                              ].to_json)
-                        .where(limit_subpage_inheritance: false)
 
     # Look for both exact paths and subpage matches
-    exact_path_conditions.or(root_path_conditions).or(subpage_condition)
+    exact_path_conditions.or(subpage_condition)
   }
 end
