@@ -61,27 +61,10 @@ module ClaimsApi
           )
       end
 
-      module ClaimantWebService
-        DEFINITION =
-          Service.new(
-            bean: ClaimantServiceBean::DEFINITION,
-            path: 'ClaimantWebService'
-          )
-
-        module FindPoaByParticipantId
-          DEFINITION =
-            Action.new(
-              service: ClaimantWebService::DEFINITION,
-              name: 'findPOAByPtcpntId',
-              key: 'return'
-            )
-        end
-      end
-
       ##
       # EBenefitsBnftClaimStatusWebServiceBean
       #
-      module EBenefitsBenefitClaimStatusWebServiceBean
+      module EBenefitsBnftClaimStatusWebService
         DEFINITION =
           Bean.new(
             path: 'EBenefitsBnftClaimStatusWebServiceBean',
@@ -90,23 +73,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module EBenefitsBenefitClaimStatusWebService
-        DEFINITION =
-          Service.new(
-            bean: EBenefitsBenefitClaimStatusWebServiceBean::DEFINITION,
-            path: 'EBenefitsBnftClaimStatusWebService'
-          )
-
-        module FindBenefitClaimsStatusByParticipantId
-          DEFINITION =
-            Action.new(
-              service: EBenefitsBenefitClaimStatusWebService::DEFINITION,
-              name: 'findBenefitClaimsStatusByPtcpntId',
-              key: 'BenefitClaimsDTO'
-            )
-        end
       end
 
       ##
@@ -368,6 +334,27 @@ module ClaimsApi
       end
 
       ##
+      # VetRecordService
+      ##
+      module VetRecordServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VetRecordServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VetRecordWebService
+        DEFINITION =
+          Service.new(
+            bean: VetRecordServiceBean::DEFINITION,
+            path: 'VetRecordWebService'
+          )
+      end
+
       # VnpAtchmsWebServiceBean
       #
       module VnpAtchmsWebServiceBean
