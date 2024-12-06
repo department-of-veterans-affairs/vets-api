@@ -39,6 +39,8 @@ module IvcChampva
 
       private
 
+      # rubocop:disable Metrics/MethodLength
+      # Temporarily disabling rubocop because of flipper
       def update_data(form_uuid, file_names, status, case_id)
         ivc_forms = forms_query(form_uuid, file_names)
 
@@ -52,7 +54,16 @@ module IvcChampva
 
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
-          send_email(form_uuid, ivc_forms.first) if form.email.present?
+
+          # rubocop:disable Style/IfInsideElse
+          # Temporarily disabling rubocop because of flipper
+          if Flipper.enabled?(:champva_confirmation_email_bugfix, @user)
+            send_email(form_uuid, ivc_forms.first) if form.email.present? && status == 'Processed'
+            # Possible values for form.pega_status are 'Processed', 'Not Processed'
+          else
+            send_email(form_uuid, ivc_forms.first) if form.email.present?
+          end
+          # rubocop:enable Style/IfInsideElse
 
           if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
             monitor.track_update_status(form_uuid, status)
@@ -65,6 +76,7 @@ module IvcChampva
             status: :not_found }
         end
       end
+      # rubocop:enable Metrics/MethodLength
 
       def send_email(form_uuid, form)
         return if form.email_sent
