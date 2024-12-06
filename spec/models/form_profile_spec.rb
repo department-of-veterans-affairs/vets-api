@@ -1034,6 +1034,30 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vdispute_debt_expected) do
+    {
+      'veteran' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12',
+        'homePhone' => '14445551212',
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        }
+      }
+    }
+  end
+
   let(:initialize_va_profile_prefill_military_information_expected) do
     expected_service_episodes_by_date = [
       {
@@ -1407,6 +1431,18 @@ RSpec.describe FormProfile, type: :model do
         VCR.use_cassette('mdot/get_supplies_200') do
           expect_prefilled('MDOT')
         end
+      end
+    end
+
+    context 'with a user that can prefill DisputeDebt' do
+      before do
+        allow_any_instance_of(BGS::People::Service).to(
+          receive(:find_person_by_participant_id).and_return(BGS::People::Response.new({ file_nbr: '796043735' }))
+        )
+      end
+
+      it 'returns a prefilled DisputeDebt form' do
+        expect_prefilled('DISPUTE-DEBT')
       end
     end
 
