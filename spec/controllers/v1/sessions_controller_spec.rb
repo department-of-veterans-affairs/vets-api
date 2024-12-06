@@ -157,6 +157,36 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
         end
 
+        context 'when type is idme_verified' do
+          context 'and the operation param is valid' do
+            let(:params) { { type: 'idme_verified', clientId: '123123', operation: 'interstitial_verify' } }
+
+            it 'does not raise an error and triggers statsd' do
+              expect { call_endpoint }
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ['type:idme_verified',
+                                                    'version:v1',
+                                                    'client_id:vaweb',
+                                                    'operation:interstitial_verify'],
+                                             **once)
+              expect(response).to have_http_status(:success)
+            end
+          end
+
+          context 'and the operation param is invalid' do
+            subject(:call_endpoint) { get(:new, params: params) }
+
+            let(:params) { { type: 'idme_verified', clientId: '123123', operation: 'asdf' } }
+
+            it 'raises a MalformedParamsError' do
+              call_endpoint
+              expect(response).to have_http_status(:internal_server_error)
+              parsed_response = response.parsed_body
+              expect(parsed_response['errors'].first['meta']).to include({ 'exception' => 'Operation is not valid' })
+            end
+          end
+        end
+
         context 'when type is custom' do
           context 'logingov inbound ssoe' do
             let(:params) { { type: 'custom', csp_type: 'logingov', ial: IAL::TWO, client_id: '123123' } }
