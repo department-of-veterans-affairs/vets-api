@@ -10,6 +10,12 @@ describe Mobile::V0::Profile::SyncUpdateService do
   describe '#save_and_await_response', :skip_va_profile_user do
     let(:params) { build(:va_profile_address, vet360_id: user.vet360_id, validation_key: nil) }
 
+    # Delete comment if test pass
+    # before do
+    #   allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
+    #   allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+    # end
+
     context 'when it succeeds after one incomplete status check' do
       let(:transaction) do
         VCR.use_cassette('mobile/profile/get_address_status_complete') do

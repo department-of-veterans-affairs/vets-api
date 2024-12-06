@@ -7,13 +7,11 @@ require 'gi/client'
 
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
-
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1781151') }
   let(:form_profile) do
     described_class.new(form_id: 'foo', user:)
   end
   let(:va_profile_address) { form_profile.send :vet360_mailing_address_hash }
-
   let(:us_phone) { form_profile.send :va_profile_phone }
   let(:mobile_phone) { form_profile.send :va_profile_mobile_phone }
   let(:full_name) do
@@ -1001,9 +999,21 @@ RSpec.describe FormProfile, type: :model do
     Flipper.enable(:remove_pciu)
     Flipper.enable(:va_v3_contact_information_service)
     Flipper.enable(:disability_compensation_remove_pciu)
+    user.vet360_contact_info
+    described_class.instance_variable_set(:@mappings, nil)
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+    Flipper.enable(:remove_pciu)
+    Flipper.enable(:va_v3_contact_information_service)
+    Flipper.enable(:disability_compensation_remove_pciu)
     described_class.instance_variable_set(:@mappings, nil)
     Flipper.disable(:disability_526_toxic_exposure)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+  end
+
+  after do
+    Flipper.disable(:remove_pciu)
+    Flipper.disable(:va_v3_contact_information_service)
+    Flipper.disable(:disability_compensation_remove_pciu)
   end
 
   after do
@@ -1680,7 +1690,7 @@ RSpec.describe FormProfile, type: :model do
         allow_any_instance_of(BGS::People::Service).to(
           receive(:find_person_by_participant_id).and_return(BGS::People::Response.new({ file_nbr: '1234567890' }))
         )
-        allow_any_instance_of(VAProfile::Models::Address).to(
+        allow_any_instance_of(VAProfile::Models::V3::Address).to(
           receive(:address_line3).and_return('suite 500')
         )
       end

@@ -3,13 +3,13 @@
 require 'rails_helper'
 
 RSpec.describe V0::Profile::AddressValidationController, type: :controller do
-  describe 'contact information v1' do
+  describe 'contact information v1', :skip_va_profile_user do
     let(:user) { FactoryBot.build(:user) }
     let(:multiple_match_addr) { build(:va_profile_address, :multiple_matches) }
     let(:invalid_address) { build(:va_profile_validation_address).to_h }
 
     before do
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
     end
 
     shared_examples 'invalid address' do
@@ -131,11 +131,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
     let(:invalid_address) { build(:va_profile_v3_validation_address).to_h }
 
     before do
-      Flipper.enable(:va_v3_contact_information_service)
-    end
-
-    after do
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     end
 
     shared_examples 'invalid address' do

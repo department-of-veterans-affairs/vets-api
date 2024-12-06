@@ -9,11 +9,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   let(:user) { build(:user, :loa3) }
 
   before do
-    Flipper.enable(:va_v3_contact_information_service)
-  end
-
-  after do
-    Flipper.disable(:va_v3_contact_information_service)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
   end
 
   describe '#get_person' do

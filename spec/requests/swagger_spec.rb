@@ -1086,7 +1086,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       before do
         create(:in_progress_form, form_id: FormProfiles::VA526ez::FORM_ID, user_uuid: mhv_user.uuid)
         # TODO: remove Flipper feature toggle when lighthouse provider is implemented
-        Flipper.disable('disability_compensation_lighthouse_rated_disabilities_provider_foreground')
         Flipper.disable('disability_compensation_prevent_submission_job')
         Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
         Flipper.disable('disability_compensation_production_tester')
@@ -2638,7 +2637,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       before do
         allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
                                                   instance_of(User)).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:contact_info_change_email, instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
 
         # vet360_id appears in the API request URI so we need it to match the cassette
@@ -2731,6 +2729,11 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         Flipper.enable(:va_v3_contact_information_service)
         Flipper.enable(:remove_pciu)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+      end
+
+      after do
+        Flipper.disable(:va_v3_contact_information_service)
+        Flipper.disable(:remove_pciu)
       end
 
       describe 'profiles v2', :skip_vet360, :initiate_vaprofile do

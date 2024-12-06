@@ -11,7 +11,6 @@ RSpec.describe 'transactions' do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
-      allow(Flipper).to receive(:enabled?).with(:contact_info_change_email, instance_of(User)).and_return(true)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
       sign_in_as(user)
