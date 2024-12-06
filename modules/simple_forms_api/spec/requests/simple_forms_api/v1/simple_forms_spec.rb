@@ -5,6 +5,7 @@ require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 require 'lighthouse/benefits_intake/service'
 require 'lgy/service'
+require 'benefits_intake_service/service'
 
 RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   forms = [
@@ -520,28 +521,67 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     before do
       sign_in
     end
-
-    it 'renders the attachment as json' do
+  
+    let(:valid_file) { fixture_file_upload('doctors-note.gif') }
+    let(:invalid_file) { fixture_file_upload('too_large.pdf') }
+  
+    it 'renders the attachment as json when the document is valid' do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
-      file = fixture_file_upload('doctors-note.gif')
-
-      # Define data for both form IDs
+  
+      # Stub the BenefitsIntakeService for validation
+      valid_service = double(valid_document?: true)
+      allow(BenefitsIntakeService::Service).to receive(:new).and_return(valid_service)
+  
       data_sets = [
-        { form_id: '40-0247', file: },
-        { form_id: '40-10007', file: }
+        { form_id: '40-0247', file: valid_file },
+        { form_id: '40-10007', file: valid_file }
       ]
-
+  
       data_sets.each do |data|
         expect do
           post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
         end.to change(PersistentAttachment, :count).by(1)
-
+  
         expect(response).to have_http_status(:ok)
         resp = JSON.parse(response.body)
         expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
         expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
       end
+    end
+  
+    it 'returns an error when the document validation fails' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+  
+      invalid_service = double
+      allow(invalid_service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError, 'Invalid file format')
+      allow(BenefitsIntakeService::Service).to receive(:new).and_return(invalid_service)
+  
+      data = { form_id: '40-0247', file: invalid_file }
+  
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.not_to change(PersistentAttachment, :count)
+  
+      expect(response).to have_http_status(:unprocessable_entity)
+      resp = JSON.parse(response.body)
+      expect(resp['error']).to eq('Document validation failed: Invalid file format')
+    end
+  
+    it 'returns an error when the attachment is invalid' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+  
+      allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:valid?).and_return(false)
+  
+      data = { form_id: '40-0247', file: valid_file }
+  
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.not_to change(PersistentAttachment, :count)
+  
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 
