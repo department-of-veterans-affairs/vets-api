@@ -21,14 +21,16 @@ module VAOS
       COMMENT = 'comment'
 
       def index
-        appointments[:data].each do |appt|
+        merged_appointments = appointments_service.merge_appointments(eps_appointments, appointments)
+
+        merged_appointments.each do |appt|
           set_facility_error_msg(appt) if include_index_params[:facilities]
           scrape_appt_comments_and_log_details(appt, index_method_logging_name, PAP_COMPLIANCE_TELE)
           log_appt_creation_time(appt)
         end
 
         serializer = VAOS::V2::VAOSSerializer.new
-        serialized = serializer.serialize(appointments[:data], 'appointments')
+        serialized = serializer.serialize(merged_appointments, 'appointments')
 
         if !appointments[:meta][:failures]&.empty?
           StatsDMetric.new(key: STATSD_KEY).save
@@ -82,6 +84,11 @@ module VAOS
           VAOS::V2::AppointmentsService.new(current_user)
       end
 
+      def eps_appointments_service
+        @eps_appointments_service ||=
+          Eps::AppointmentService.new(current_user)
+      end
+
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(current_user)
@@ -90,6 +97,11 @@ module VAOS
       def appointments
         @appointments ||=
           appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_index_params)
+      end
+
+      def eps_appointments
+        @eps_appointments ||=
+          eps_appointments_service.get_appointments(patient_id: Settings.vaos.eps.fake_patient_id)
       end
 
       def appointment
@@ -261,6 +273,7 @@ module VAOS
           )
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       def start_date
