@@ -13,7 +13,7 @@ RSpec.describe 'PeriodicJobs', type: :job do
       manager.tz = ActiveSupport::TimeZone.new('America/New_York')
       load Rails.root.join('lib', 'periodic_jobs.rb').to_s
       # Call the original PERIODIC_JOBS lambda with our mock manager
-      require_relative '../../lib/periodic_jobs'
+      require_relative 'lib/periodic_jobs'
       PERIODIC_JOBS.call(manager)
     })
 
