@@ -5,6 +5,7 @@ require 'sentry_logging'
 module Form1095
   class New1095BsJob
     include Sidekiq::Job
+    include SentryLogging
 
     sidekiq_options(unique_for: 4.hours)
 
