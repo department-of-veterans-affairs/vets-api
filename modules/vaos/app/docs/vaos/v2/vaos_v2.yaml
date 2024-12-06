@@ -1045,6 +1045,8 @@ components:
         avsPath:
           type: string
           description: URL path for the After Visit Summary, for past booked appointments.
+        modality:
+          "$ref": "#/components/schemas/AppointmentModality"
     AppointmentExtensions:
       type: object
       properties:
@@ -1076,6 +1078,18 @@ components:
       enum:
         - facilities
         - clinics
+    AppointmentModality:
+      type: string
+      enum:
+        - vaInPerson
+        - vaInPersonVaccine
+        - vaVideoCareAtHome
+        - vaVideoCareOnGfe
+        - vaVideoCareAtAVaLocation
+        - vaVideoCareAtAnAtlasLocation
+        - vaPhone
+        - communityCare
+        - claimExamAppointment
     AppointmentStatus:
       type: string
       enum:
