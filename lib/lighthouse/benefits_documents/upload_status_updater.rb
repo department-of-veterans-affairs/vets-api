@@ -4,26 +4,24 @@ require 'lighthouse/benefits_documents/constants'
 
 module BenefitsDocuments
   class UploadStatusUpdater
-    # Parses the status of a Lighthouse526DocumentUpload submitted to Lighthouse
+    # Parses the status of a LighthouseDocumentUpload [EvidenceSubmission] submitted to Lighthouse
     # using metadata from the Lighthouse Benefits Documents API '/uploads/status' endpoint.
     # Provides methods to determine if a document has completed all steps or failed,
     # abstracting away the details of the Lighthouse status data structure.
     #
-    # Additionally, updates the state of a Lighthouse526DocumentUpload in vets-api to reflect
+    # Additionally, updates the state of a LighthouseDocumentUpload [EvidenceSubmission] in vets-api to reflect
     # the current status of a document as it transitions from Lighthouse > VBMS > BGS
     #
     # Documentation on the Lighthouse '/uploads/status' endpoint is available here:
     # https://dev-developer.va.gov/explore/api/benefits-documents/docs?version=current
 
-    # LIGHTHOUSE_DOCUMENT_COMPLETE_STATUS = 'SUCCESS'
-    # LIGHTHOUSE_DOCUMENT_FAILED_STATUS = 'FAILED'
     PROCESSING_TIMEOUT_WINDOW_IN_HOURS = 24
 
     # @param lighthouse_document_status [Hash] includes a single document's status progress
     # after it has been submitted to Lighthouse, while Lighthouse attempts to pass it on to
     # VBMS and then BGS. These data come from Lighthouse's '/uploads/status' endpoint.
     #
-    # @param lighthouse526_document_upload [Lighthouse526DocumentUpload] the VA.gov record of the document
+    # @param lighthouse_document_upload [EvidenceSubmission] the VA.gov record of the document
     # submitted to Lighthouse for tracking.
     #
     # example lighthouse_document_status hash:
@@ -67,16 +65,7 @@ module BenefitsDocuments
 
       process_failure if failed?
 
-      finalize_upload if completed? || failed?
-
-      # @lighthouse_document_upload.update!(status_last_polled_at: DateTime.now.utc)
-    end
-
-    def process_failure
-      @lighthouse_document_upload.update!(
-        acknowledgement_date: (DateTime.current + 30).utc,
-        error_message: @lighthouse_document_status_response['error']
-      )
+      process_upload if completed?
     end
 
     def get_failure_step
@@ -115,21 +104,20 @@ module BenefitsDocuments
       )
     end
 
-    def finalize_upload
-      # @lighthouse_document_upload.update!(lighthouse_processing_ended_at: end_time)
+    def process_failure
+      @lighthouse_document_upload.update!(
+        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
+        failed_date: DateTime.now.utc,
+        acknowledgement_date: (DateTime.current + 30.days).utc,
+        error_message: @lighthouse_document_status_response['error']
+      )
+    end
 
-      if completed?
-        @lighthouse_document_upload.update(
-          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
-          delete_date: (DateTime.current + 60).utc
-        )
-      else
-        @lighthouse_document_upload.update!(
-          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
-          failed_date: DateTime.now.utc,
-          error_message: @lighthouse_document_status_response['error']
-        )
-      end
+    def process_upload
+      @lighthouse_document_upload.update(
+        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
+        delete_date: (DateTime.current + 60.days).utc
+      )
     end
   end
 end

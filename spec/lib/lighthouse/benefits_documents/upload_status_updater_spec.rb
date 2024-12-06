@@ -8,6 +8,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
   let(:lighthouse_document_upload) { create(:bd_evidence_submission) }
   let(:lighthouse_document_upload_timeout) { create(:bd_evidence_submission_timeout) }
   let(:past_date_time) { DateTime.new(1985, 10, 26) }
+  let(:current_date_time) { DateTime.now.utc }
 
   describe '#update_status' do
     shared_examples 'status updater' do |status, error_message = nil|
@@ -33,9 +34,42 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
       end
 
       if error_message
-        it 'saves the error_message' do
-          expect { status_updater.update_status }.to change(lighthouse_document_upload, :error_message)
-            .to(error_message)
+        context "when there's an error" do
+          it 'saves the error_message' do
+            Timecop.freeze(current_date_time) do
+              expect { status_updater.update_status }.to change(lighthouse_document_upload, :error_message)
+                .to(error_message.to_s)
+            end
+          end
+
+          it 'updates status, failed_date, and acknowledgement_date' do
+            Timecop.freeze(current_date_time) do
+              expect { status_updater.update_status }
+                .to change(lighthouse_document_upload, :acknowledgement_date)
+                .from(nil)
+                .to((current_date_time + 30.days).utc)
+                .and change(lighthouse_document_upload, :failed_date)
+                .from(nil)
+                .to(current_date_time.utc)
+                .and change(lighthouse_document_upload, :upload_status)
+                .from(nil)
+                .to(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+            end
+          end
+        end
+      else # testing success status
+        context 'when completed successfully' do
+          it 'updates status, and delete_date' do
+            Timecop.freeze(current_date_time) do
+              expect { status_updater.update_status }
+                .to change(lighthouse_document_upload, :delete_date)
+                .from(nil)
+                .to((current_date_time + 60.days).utc)
+                .and change(lighthouse_document_upload, :upload_status)
+                .from(nil)
+                .to(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
+            end
+          end
         end
       end
     end
@@ -73,7 +107,6 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
   describe '#processing_timeout?' do
     shared_examples 'processing timeout' do |status, expected, expired|
       it "returns #{expected}" do
-        # Timecop.freeze(past_date_time.utc) do
         status_updater = described_class.new(
           {
             'status' => status
@@ -81,7 +114,6 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
           expired ? lighthouse_document_upload_timeout : lighthouse_document_upload
         )
         expect(status_updater.processing_timeout?).to eq(expected)
-        # end
       end
     end
 
