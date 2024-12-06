@@ -94,7 +94,7 @@ module V0
     rescue BenefitsIntake::Service::InvalidDocumentError => e
       @attachment.errors.add(:attachment, e.message)
       false
-    rescue PdfForms::PdftkError => e
+    rescue PdfForms::PdftkError
       @attachment.errors.add(:attachment, 'File is corrupt and cannot be uploaded')
       false
     end
