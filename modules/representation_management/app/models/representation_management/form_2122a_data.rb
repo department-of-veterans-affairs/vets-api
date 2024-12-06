@@ -36,8 +36,13 @@ module RepresentationManagement
               if: -> { veteran_service_branch.present? }
 
     def representative_field_truncated(field)
-      if representative.public_send(field)
-        representative.public_send(field)[0..TRUNCATION_LIMITS[field] - 1]
+      result = representative.public_send(field)
+      limit = TRUNCATION_LIMITS[field]
+
+      raise StandardError "#{field} does not have a truncation limit defined" unless limit
+
+      if result.present?
+        result[0..limit - 1]
       else
         ''
       end

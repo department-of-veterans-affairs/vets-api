@@ -41,6 +41,12 @@ RSpec.describe RepresentationManagement::Form2122aData, type: :model do
         expect(subject.representative_field_truncated(field)).to eq('A' * limit)
       end
     end
+
+    it 'raises StandardError if the field does not have a truncation limit defined' do
+      representative = create(:accredited_individual)
+      subject.representative_id = representative.id
+      expect { subject.representative_field_truncated(:address_line3) }.to raise_error(StandardError)
+    end
   end
 
   describe 'representative_zip_code_expanded' do
