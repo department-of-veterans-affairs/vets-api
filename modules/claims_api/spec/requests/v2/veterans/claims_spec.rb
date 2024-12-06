@@ -544,7 +544,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
     end
 
     describe 'show with validate_id_with_icn' do
-      let(:bgs_claim_response_with_docs) { build(:bgs_response_with_supp_docs).to_h }
+      let(:bgs_claim_response) { build(:bgs_response_with_one_lc_status).to_h }
 
       describe 'BGS attributes' do
         it 'are listed' do
@@ -553,9 +553,9 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
           mock_ccg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
               VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
-                bgs_claim_response_with_docs[:benefit_claim_details_dto][:ptcpnt_vet_id] = '600061742'
+                bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = '600061742'
                 expect_any_instance_of(bnft_claim_web_service)
-                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response_with_docs)
+                  .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
                 expect(ClaimsApi::AutoEstablishedClaim)
                   .to receive(:get_by_id_and_icn).and_return(lh_claim)
                 get claim_by_id_path, headers: auth_header
