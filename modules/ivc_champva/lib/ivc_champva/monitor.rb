@@ -32,5 +32,15 @@ module IvcChampva
                     "#{STATS_KEY}.update_status",
                     call_location: caller_locations.first, **additional_context)
     end
+
+    # form_id: string of the form's government ID (e.g., 10-10d)
+    def track_missing_status_email_sent(form_id)
+      additional_context = {
+        form_id:
+      }
+      track_request('info', "IVC ChampVA Forms - #{form_id} missing status failure email sent",
+                    "#{STATS_KEY}.form_missing_status_email_sent",
+                    call_location: caller_locations.first, **additional_context)
+    end
   end
 end
