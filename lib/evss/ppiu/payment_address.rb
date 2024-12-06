@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module EVSS
   module PPIU
@@ -33,7 +33,7 @@ module EVSS
     #   @return [String] For military addresses, the state code
     #
     class PaymentAddress
-      include Virtus.model
+      include Vets::Model
 
       attribute :type, String
       attribute :address_effective_date, DateTime
