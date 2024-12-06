@@ -38,7 +38,7 @@ module V1
       client_id = params[:application] || 'vaweb'
       operation = params[:operation]
 
-      validate_operation_params(operation)
+      validate_operation_params(operation) unless operation.nil?
 
       # As a temporary measure while we have the ability to authenticate either through SessionsController
       # or through SignInController, we will delete all SignInController cookies when authenticating with SSOe
