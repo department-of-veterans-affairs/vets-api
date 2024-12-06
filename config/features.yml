@@ -167,9 +167,6 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
-  champva_unique_temp_file_names:
-    actor_type: user
-    description: Enables unique temp file names for CHAMPVA PDF files
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
@@ -469,6 +466,15 @@ features:
     actor_type: user
     description: Enable sending an email if a 4142 submission is not successful in Lighthouse
     enable_in_development: true
+  decision_review_hlr_new_api:
+    actor_type: user
+    description: Enable to switch to new HLR modularized Decision Review endpoint
+  decision_review_nod_new_api:
+    actor_type: user
+    description: Enable to switch to new NOD modularized Decision Review endpoint
+  decision_review_sc_new_api:
+    actor_type: user
+    description: Enable to switch to new Supplemental Claim modularized Decision Review endpoint
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -580,9 +586,6 @@ features:
   facilities_ppms_suppress_all:
     actor_type: user
     description: Hide all ppms search options
-  facilities_ppms_suppress_community_care:
-    actor_type: user
-    description: Hide ppms community care searches
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
@@ -822,7 +825,7 @@ features:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
   form1010d:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
   form107959c:
     actor_type: user
