@@ -204,6 +204,7 @@ class FormProfile
     @contact_information = initialize_contact_information
     @military_information = initialize_military_information
     form = form_id == '1010EZ' ? '1010ez' : form_id
+
     if FormProfile.prefill_enabled_forms.include?(form)
       mappings = self.class.mappings_for_form(form_id)
 
@@ -281,9 +282,13 @@ class FormProfile
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
-    Rails.logger.info("User Vet360 Contact Info, Address? #{opt[:address].present?}
-      Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
-
+    if Flipper.enabled?(:remove_pciu, user)
+      Rails.logger.info("User VAProfile Contact Info, Vet360ID? #{user.vet360_id.present?},
+        Address? #{opt[:address].present?} Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
+    else
+      Rails.logger.info("User Vet360 Contact Info, Vet360ID? #{user.vet360_id.present?},
+        Address? #{opt[:address].present?} Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
+    end
     opt[:address] ||= user_address_hash
     opt[:email] ||= extract_pciu_data(:pciu_email)
     if opt[:home_phone].nil?
@@ -292,7 +297,6 @@ class FormProfile
     end
 
     format_for_schema_compatibility(opt)
-
     FormContactInformation.new(opt)
   end
 
@@ -301,7 +305,9 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
+    if Flipper.enabled?(:remove_pciu, user)
+      @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
+    elsif VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
     else
       Rails.logger.info('Vet360 Contact Info Null')
@@ -329,7 +335,6 @@ class FormProfile
       opt[:address][:street2] = apt[1]
       opt[:address][:street] = opt[:address][:street].gsub(/\W?\s+#{apt[1]}/, '').strip
     end
-
     %i[home_phone us_phone mobile_phone].each do |phone|
       opt[phone] = opt[phone].gsub(/\D/, '') if opt[phone]
     end
@@ -340,6 +345,37 @@ class FormProfile
   def extract_pciu_data(method)
     user&.send(method)
   rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException, EVSS::ErrorMiddleware::EVSSError
+    ''
+  end
+
+  def extract_va_profile_phone
+    vet360_contact_info&.home_phone
+  end
+
+  def extract_va_profile_mobile_phone
+    vet360_contact_info&.mobile_phone
+  end
+
+  def va_profile_phone
+    home = extract_va_profile_phone
+    return '' if home.blank?
+
+    home = home.area_code + home.phone_number unless home.is_a?(String)
+    return home if home.size == 10 || home.size > 11
+    return home[1..] if home.size == 11 && home[0] == '1'
+
+    ''
+  end
+
+  def va_profile_mobile_phone
+    mobile = extract_va_profile_mobile_phone
+    return '' if mobile.blank?
+
+    mobile = mobile.area_code + mobile.phone_number unless mobile.is_a?(String)
+
+    return mobile if mobile.size == 10
+    return mobile[1..] if mobile.size == 11 && mobile[0] == '1'
+
     ''
   end
 
@@ -423,7 +459,7 @@ class FormProfile
   end
 
   def clean_hash!(hash)
-    hash.deep_transform_keys! { |k| k.camelize(:lower) }
+    hash.deep_transform_keys! { |k| k.to_s.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
     hash.delete_if { |_k, v| v.blank? }
   end
