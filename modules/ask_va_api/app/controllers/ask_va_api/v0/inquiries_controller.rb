@@ -52,7 +52,7 @@ module AskVAApi
       end
 
       def create_reply
-        response = Correspondences::Creator.new(message: params[:reply], inquiry_id: params[:id], service: nil).call
+        response = Correspondences::Creator.new(params: reply_params, inquiry_id: params[:id], service: nil).call
         render json: response.to_json, status: :ok
       end
 
@@ -85,12 +85,15 @@ module AskVAApi
         ).to_h
       end
 
-      def fetch_parameters(key)
-        I18n.t("ask_va_api.parameters.inquiry.#{key}")
+      def reply_params
+        params.permit(
+          :reply,
+          files: fetch_parameters('nested_fields.files')
+        ).to_h
       end
 
-      def resource_path(options)
-        v0_inquiries_url(options)
+      def fetch_parameters(key)
+        I18n.t("ask_va_api.parameters.inquiry.#{key}")
       end
 
       class InvalidAttachmentError < StandardError; end

@@ -95,12 +95,12 @@ describe 'Contestable Issues', openapi_spec:, type: :request do
                           extract_desc: true
         end
 
-        describe 'bad X-VA-Receipt-Date' do
-          let(:'X-VA-Receipt-Date') { '1900-01-01' }
+        describe 'invalid X-VA-Receipt-Date' do
+          let(:'X-VA-Receipt-Date') { '2019-02-19' }
 
           it_behaves_like 'rswag example',
-                          cassette: 'caseflow/higher_level_reviews/bad_date',
-                          desc: 'Bad receipt date for HLR',
+                          cassette: 'caseflow/higher_level_reviews/contestable_issues',
+                          desc: 'Invalid receipt date',
                           extract_desc: true
         end
       end
