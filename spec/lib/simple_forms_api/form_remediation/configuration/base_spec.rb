@@ -2,7 +2,6 @@
 
 require 'rails_helper'
 require_relative '../../../../../lib/simple_forms_api/form_remediation/configuration/base'
-# require_relative '../../../../../lib/simple_forms_api/form_remediation/error'
 
 RSpec.describe SimpleFormsApi::FormRemediation::Configuration::Base do
   let(:instance) { described_class.new }
