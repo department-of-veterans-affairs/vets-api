@@ -7,8 +7,8 @@ module Burials
   # @see VANotify::NotificationEmail::SavedClaim
   class NotificationEmail < ::VANotify::NotificationEmail::SavedClaim
     # @see VANotify::NotificationEmail::SavedClaim#new
-    def initialize(saved_claim)
-      super(saved_claim, service_name: 'burials')
+    def initialize(saved_claim_id)
+      super(saved_claim_id, service_name: 'burials')
     end
 
     private
