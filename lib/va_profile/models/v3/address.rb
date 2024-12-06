@@ -24,11 +24,11 @@ module VAProfile
             addressPOU: @address_pou,
             addressType: @address_type.titleize,
             cityName: @city,
-            country:  {
+            country: {
               countryName: @country_name,
               countryCodeFIPS: @country_code_fips,
               countryCodeISO2: @country_code_iso2,
-              countryCodeISO3: @country_code_iso3,
+              countryCodeISO3: @country_code_iso3
             },
             county: {
               countyCode: @county_code,
@@ -40,7 +40,7 @@ module VAProfile
             },
             state: {
               stateName: @state_name,
-              stateCode: @state_code,
+              stateCode: @state_code
             },
             intPostalCode: @international_postal_code,
             zipCode5: @zip_code,
