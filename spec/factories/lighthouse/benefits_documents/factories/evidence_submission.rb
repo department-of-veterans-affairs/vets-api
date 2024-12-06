@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lighthouse/benefits_documents/constants'
+
 FactoryBot.define do
   factory :bd_evidence_submission, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account

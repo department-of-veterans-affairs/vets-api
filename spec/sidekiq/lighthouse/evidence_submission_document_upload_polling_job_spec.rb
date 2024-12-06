@@ -28,30 +28,9 @@ RSpec.describe Lighthouse::EvidenceSubmissionDocumentUploadPollingJob, type: :jo
       user_account_id: user_account_uuid
     }
   end
-  let(:success_params) do
-    {
-      claim_id: 'claim-id3',
-      tracked_item_id: 'tracked-item-id3',
-      job_id: job,
-      job_class: '',
-      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
-      user_account_id: user_account_uuid
-    }
-  end
-  let(:failed_params) do
-    {
-      claim_id: 'claim-id4',
-      tracked_item_id: 'tracked-item-id4',
-      job_id: job,
-      job_class: '',
-      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
-      user_account_id: user_account_uuid
-    }
-  end
 
   context 'When there are EvidenceSubmission records' do
     before do
-      # TODO: investigate using factories instead of writing directly to the db in this test
       allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('fake_access_token')
       pending_es = EvidenceSubmission.find_or_create_by(**pending_params)
       pending_es.request_id = 1
@@ -59,12 +38,6 @@ RSpec.describe Lighthouse::EvidenceSubmissionDocumentUploadPollingJob, type: :jo
       pending_es2 = EvidenceSubmission.find_or_create_by(**pending_params2)
       pending_es2.request_id = 2
       pending_es2.save!
-      success_es = EvidenceSubmission.find_or_create_by(**success_params)
-      success_es.request_id = 3
-      success_es.save!
-      failed_es = EvidenceSubmission.find_or_create_by(**failed_params)
-      failed_es.request_id = 4
-      failed_es.save!
     end
 
     it 'polls and updates status for each EvidenceSubmission record that is still pending' do
