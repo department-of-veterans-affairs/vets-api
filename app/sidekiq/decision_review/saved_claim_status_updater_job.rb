@@ -178,11 +178,7 @@ module DecisionReview
       # Skip logging and statsd metrics when there is no status change
       return if JSON.parse(record.metadata || '{}')['status'] == status
 
-      if status == ERROR_STATUS
-        Rails.logger.info("#{log_prefix} form status error", guid: record.guid)
-        tags = [service_tag, 'function: form submission to Lighthouse']
-        StatsD.increment('silent_failure', tags:)
-      end
+      Rails.logger.info("#{log_prefix} form status error", guid: record.guid) if status == ERROR_STATUS
 
       StatsD.increment("#{statsd_prefix}.status", tags: ["status:#{status}"])
     end
@@ -191,11 +187,7 @@ module DecisionReview
       # Skip logging and statsd metrics when there is no status change
       return if JSON.parse(form.status || '{}')['status'] == status
 
-      if status == ERROR_STATUS
-        Rails.logger.info("#{log_prefix} secondary form status error", guid: form.guid)
-        tags = ['service:supplemental-claims-4142', 'function: PDF submission to Lighthouse']
-        StatsD.increment('silent_failure', tags:)
-      end
+      Rails.logger.info("#{log_prefix} secondary form status error", guid: form.guid) if status == ERROR_STATUS
 
       StatsD.increment("#{statsd_prefix}_secondary_form.status", tags: ["status:#{status}"])
     end
@@ -228,8 +220,6 @@ module DecisionReview
           error_type = get_error_type(upload['detail'])
           params = { guid: record.guid, lighthouse_upload_id: upload_id, detail: upload['detail'], error_type: }
           Rails.logger.info("#{log_prefix} evidence status error", params)
-          tags = [service_tag, 'function: evidence submission to Lighthouse']
-          StatsD.increment('silent_failure', tags:)
         end
 
         StatsD.increment("#{statsd_prefix}_upload.status", tags: ["status:#{status}"])
