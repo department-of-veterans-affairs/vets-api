@@ -8,8 +8,8 @@ RSpec.describe 'V1::Post911GIBillStatus', type: :request do
   let(:user) { create(:user, icn: '1012667145V762142') }
 
   before do
+    Flipper.disable(:sob_updated_design)
     sign_in_as(user)
-    allow(Settings.evss).to receive(:mock_gi_bill_status).and_return(false)
   end
 
   context 'with a 200 response' do

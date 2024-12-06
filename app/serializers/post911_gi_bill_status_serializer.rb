@@ -20,12 +20,4 @@ class Post911GIBillStatusSerializer
   attribute :active_duty
   attribute :veteran_is_eligible
   attribute :enrollments
-
-  def initialize(lighthouse_response, dgib_response = nil)
-    return super(lighthouse_response) unless dgib_response
-
-    attributes = lighthouse_response.attributes.merge(dgib_response.attributes)
-    resource = OpenStruct.new(**attributes)
-    super(resource)
-  end
 end

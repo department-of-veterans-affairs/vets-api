@@ -4,6 +4,7 @@ require 'formatters/date_formatter'
 require 'lighthouse/benefits_education/service'
 require 'post911_sob/dgib/client'
 require 'dgi/claimant/service'
+require 'post911_sob/gi_bill_status'
 
 module V1
   class Post911GIBillStatusesController < ApplicationController
@@ -19,11 +20,11 @@ module V1
     def show
       lighthouse_response = lighthouse_service.get_gi_bill_status
       dgib_response = dgib_service.get_entitlement_transferred_out if Flipper.enabled?(:sob_updated_design)
-      render json: Post911GIBillStatusSerializer.new(lighthouse_response, dgib_response)
+      gi_bill_status = Post911SOB::GIBillStatus.new(lighthouse_response:, dgib_response:)
+      render json: Post911GIBillStatusSerializer.new(gi_bill_status)
     rescue Breakers::OutageException => e
       raise e
     rescue => e
-      byebug
       handle_error(e)
     ensure
       StatsD.increment(STATSD_GI_BILL_TOTAL_KEY)
@@ -63,7 +64,7 @@ module V1
     end
 
     def lighthouse_service
-      BenefitsEducation::Service.new(@current_user.icn)
+      BenefitsEducation::Service.new(@current_user&.icn)
     end
 
     def dgib_service
@@ -76,6 +77,12 @@ module V1
 
     def meb_api_service
       MebApi::DGI::Claimant::Service.new(@current_user)
+    end
+
+    def calculate_status(lighthouse_status, dgib_status = nil)
+      return lighthouse_status unless dgib_status
+
+      200
     end
   end
 end

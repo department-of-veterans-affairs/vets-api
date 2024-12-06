@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'common/models/base'
-require 'post911_sob/dgib/entitlement'
+require 'post911_sob/dgib/transfer_of_entitlement'
 require 'post911_sob/dgib/client'
 
 module Post911SOB
   module DGIB
     class Response < Common::Base
-      attribute :entitlement_transferred_out, Entitlement
+      attribute :entitlement_transferred_out, TransferOfEntitlement
 
       def initialize(response = nil)
         transfers = response&.body&.fetch('items') || []

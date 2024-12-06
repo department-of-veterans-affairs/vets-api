@@ -4,7 +4,7 @@ require 'common/models/base'
 
 module Post911SOB
   module DGIB
-    class Entitlement < Common::Base
+    class TransferOfEntitlement < Common::Base
       attribute :months, Integer
       attribute :days, Integer
 
