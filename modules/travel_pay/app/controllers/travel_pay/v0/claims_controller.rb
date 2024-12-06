@@ -34,6 +34,20 @@ module TravelPay
         render json: claim, status: :ok
       end
 
+      def create
+        unless Flipper.enabled?(:travel_pay_submit_mileage_expense, @current_user)
+          message = 'Travel Pay mileage expense submission unavailable per feature toggle'
+          raise Common::Exceptions::ServiceUnavailable, message:
+        end
+        
+        # tp api requests
+        #  get appt
+        #  make new claim
+        #  attach expense
+        #  submit claim
+        render json: {}, status: :ok
+      end
+
       private
 
       def claims_service

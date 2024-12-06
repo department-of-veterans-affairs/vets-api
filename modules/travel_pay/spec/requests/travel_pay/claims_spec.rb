@@ -101,4 +101,22 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       expect(response).to have_http_status(:service_unavailable)
     end
   end
+
+  describe '#create' do
+    before do
+      Flipper.enable(:travel_pay_submit_mileage_expense)
+    end
+    
+    it 'returns a ServiceUnavailable response if feature flag turned off' do
+      Flipper.disable(:travel_pay_submit_mileage_expense)
+
+      headers = { 'Authorization' => 'Bearer vagov_token' }
+      params = {}
+
+      post '/travel_pay/v0/claims', headers: headers, params: params
+      byebug
+
+      expect(response).to have_http_status(:service_unavailable)
+    end
+  end
 end
