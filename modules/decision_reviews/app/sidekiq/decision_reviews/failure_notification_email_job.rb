@@ -157,6 +157,10 @@ module DecisionReviews
       params = { submitted_appeal_uuid: submission.submitted_appeal_uuid, appeal_type:, message: e.message }
       Rails.logger.error('DecisionReviews::FailureNotificationEmailJob form error', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.form.error", tags: ["appeal_type:#{appeal_type}"])
+
+      tags = ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
+              'function: form submission to Lighthouse']
+      StatsD.increment('silent_failure', tags:)
     end
 
     def record_secondary_form_email_send_successful(secondary_form, notification_id)
@@ -183,6 +187,10 @@ module DecisionReviews
                  message: e.message }
       Rails.logger.error('DecisionReviews::FailureNotificationEmailJob secondary form error', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_form.error", tags: ["appeal_type:#{appeal_type}"])
+
+      tags = ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
+              'function: secondary form submission to Lighthouse']
+      StatsD.increment('silent_failure', tags:)
     end
 
     def record_evidence_email_send_successful(upload, notification_id)
@@ -213,6 +221,10 @@ module DecisionReviews
       }
       Rails.logger.error('DecisionReviews::FailureNotificationEmailJob evidence error', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.error", tags: ["appeal_type:#{appeal_type}"])
+
+      tags = ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
+              'function: evidence submission to Lighthouse']
+      StatsD.increment('silent_failure', tags:)
     end
 
     def enabled?
