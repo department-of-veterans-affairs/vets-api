@@ -28,6 +28,9 @@ module V1
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
     VERSION_TAG = 'version:v1'
     FIM_INVALID_MESSAGE_TIMESTAMP = 'invalid_message_timestamp'
+    OPERATION_TYPES = [AUTHORIZE = 'authorize',
+                       INTERSTITIAL_VERIFY = 'interstitial_verify',
+                       INTERSTITIAL_SIGNUP = 'interstitial_signup'].freeze
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -36,9 +39,9 @@ module V1
     def new
       type = params[:type]
       client_id = params[:application] || 'vaweb'
-      operation = params[:operation]
+      operation = params[:operation] || 'authorize'
 
-      validate_operation_params(operation) unless operation.nil?
+      validate_operation_params(operation)
 
       # As a temporary measure while we have the ability to authenticate either through SessionsController
       # or through SignInController, we will delete all SignInController cookies when authenticating with SSOe
@@ -312,11 +315,7 @@ module V1
     end
 
     def new_stats(type, client_id, operation)
-      tags = if params[:operation].present?
-               ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
-             else
-               ["type:#{type}", VERSION_TAG, "client_id:#{client_id}"]
-             end
+      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
 
       StatsD.increment(STATSD_SSO_NEW_KEY, tags:)
       Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
@@ -453,8 +452,9 @@ module V1
     end
 
     def validate_operation_params(operation)
-      unless SignIn::Constants::Auth::OPERATION_TYPES.include?(operation)
-        raise SignIn::Errors::MalformedParamsError.new message: 'Operation is not valid'
+      unless OPERATION_TYPES.include?(operation)
+        # raise SignIn::Errors::MalformedParamsError.new message: 'Operation is not valid'
+        raise Common::Exceptions::InvalidFieldValue.new('operation', params[:operation])
       end
     end
   end
