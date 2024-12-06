@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'bgs_service/local_bgs_proxy'
+require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
 describe ClaimsApi::EbenefitsBnftClaimStatusWebService do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
