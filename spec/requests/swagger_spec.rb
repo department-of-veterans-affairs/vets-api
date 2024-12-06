@@ -107,6 +107,12 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           CGI.escape(SignIn::RefreshTokenEncryptor.new(refresh_token: session_container.refresh_token).perform)
         end
         let(:refresh_token_param) { { refresh_token: } }
+        let(:mpi_profile) { build(:mpi_profile, icn: user_verification.user_account.icn) }
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+        before do
+          allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile_response)
+        end
 
         it 'refreshes the session and returns new tokens' do
           expect(subject).to validate(
