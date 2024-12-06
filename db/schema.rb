@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_19_134025) do
+ActiveRecord::Schema[7.1].define(version: 2024_12_06_170933) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -636,6 +636,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_134025) do
     t.index ["updated_at"], name: "index_evss_claims_on_updated_at"
     t.index ["user_account_id"], name: "index_evss_claims_on_user_account_id"
     t.index ["user_uuid"], name: "index_evss_claims_on_user_uuid"
+  end
+
+  create_table "excel_file_events", force: :cascade do |t|
+    t.integer "number_of_submissions"
+    t.string "filename"
+    t.datetime "successful_at", precision: nil
+    t.integer "retry_attempt", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["filename"], name: "index_excel_file_events_uniqueness", unique: true
   end
 
   create_table "feature_toggle_events", force: :cascade do |t|

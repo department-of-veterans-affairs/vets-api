@@ -42,7 +42,8 @@ module EducationForm
 
     def perform
       retry_count = 0
-
+      filename = "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}.csv"
+      excel_file_event = ExcelFileEvent.build_event(filename)
       begin
         records = EducationBenefitsClaim
                   .unprocessed
@@ -61,8 +62,13 @@ module EducationForm
           log_info("Processing #{records.count} application(s)")
         end
 
+        # Format the records and write to CSV file
         formatted_records = format_records(records)
-        write_csv_file(formatted_records)
+        write_csv_file(formatted_records, filename)
+
+        # Make records processed and add excel file event for rake job
+        records.each { |r| r.update(processed_at: Time.zone.now) }
+        excel_file_event.update(number_of_submissions: records.count, successful_at: Time.zone.now)
       rescue => e
         StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
         if retry_count < MAX_RETRIES
@@ -79,13 +85,10 @@ module EducationForm
       true
     end
 
-    def write_csv_file(records)
+    def write_csv_file(records, filename)
       retry_count = 0
 
       begin
-        @debug_records = records
-        filename = "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}.csv"
-
         CSV.open("tmp/#{filename}", 'wb') do |csv|
           # Add headers
           csv << HEADERS
