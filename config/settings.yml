@@ -1838,3 +1838,7 @@ vaos:
     base_path: "care-navigation/v1"
     scopes: "care-nav"
 
+banners:
+  drupal_username: banners_api
+  drupal_password: test
+  drupal_url: https://test.cms.va.gov/
