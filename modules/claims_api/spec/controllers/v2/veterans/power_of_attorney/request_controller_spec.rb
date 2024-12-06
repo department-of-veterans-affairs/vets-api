@@ -243,32 +243,32 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     let(:form_attributes) do
       {
         veteran: {
-          service_number: '123678453',
-          service_branch: 'ARMY',
+          serviceNumber: '123678453',
+          serviceBranch: 'ARMY',
           address: {
-            address_line1: '2719 Hyperion Ave',
-            address_line2: 'Apt 2',
+            addressLine1: '2719 Hyperion Ave',
+            addressLine2: 'Apt 2',
             city: 'Los Angeles',
             country: 'USA',
-            state_code: 'CA',
-            zip_code: '92264',
-            zip_code_suffix: '0200'
+            stateCode: 'CA',
+            zipCode: '92264',
+            zipCodeSuffix: '0200'
           },
           phone: {
-            area_code: '555',
-            phone_number: '5551234'
+            areaCode: '555',
+            phoneNumber: '5551234'
           },
           email: 'test@test.com',
-          insurance_number: '1234567890'
+          insuranceNumber: '1234567890'
         },
         poa: {
-          poa_code: '003',
-          registration_number: '12345',
-          job_title: 'MyJob'
+          poaCode: '003',
+          registrationNumber: '12345',
+          jobTitle: 'MyJob'
         },
-        record_consent: true,
-        consent_address_change: true,
-        consent_limits: %w[
+        recordConsent: true,
+        consentAddressChange: true,
+        consentLimits: %w[
           DRUG_ABUSE
           SICKLE_CELL
           HIV
@@ -358,12 +358,13 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       allow(create_request).to receive(:call).and_return(create_request_response)
     end
 
-    it 'returns a created status and procId in the response' do
+    it 'returns a created status, Lighthouse ID, and type in the response' do
       mock_ccg(scopes) do |auth_header|
         create_request_with(veteran_id:, form_attributes:, auth_header:)
 
         expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)['data']['attributes']['procId']).to eq('3857415')
+        expect(JSON.parse(response.body)['data']['attributes']['id']).not_to be_nil
+        expect(JSON.parse(response.body)['data']['attributes']['type']).to eq('power-of-attorney-request')
       end
     end
   end
