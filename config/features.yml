@@ -1525,6 +1525,10 @@ features:
     actor_type: user
     description: Enables the use of LH API instead of Profile API for the Veteran Status Card display
     enable_in_development: false
+  veteran_status_card_use_lighthouse_frontend:
+    actor_type: user
+    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display, story 1145
+    enable_in_development: false
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
