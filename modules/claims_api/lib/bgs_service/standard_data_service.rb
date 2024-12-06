@@ -3,7 +3,7 @@
 module ClaimsApi
   class StandardDataService < ClaimsApi::LocalBGS
     def bean_name
-      'StandardDataService'
+      'StandardDataService/StandardDataService'
     end
 
     def get_contention_classification_type_code_list
