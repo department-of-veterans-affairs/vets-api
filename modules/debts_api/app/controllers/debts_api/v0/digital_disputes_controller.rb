@@ -6,8 +6,13 @@ module DebtsApi
       service_tag 'financial-report'
 
       def create
-        # Just returning data back for now while we wait on our integration partner
-        render json: digital_disputes_params
+        digital_dispute = V0::DigitalDispute.new(digital_disputes_params, current_user)
+        if digital_dispute.valid?
+          # Just returning data back for now while we wait on our integration partner
+          render json: digital_dispute.sanitized_json
+        else
+          render json: { errors: digital_dispute.errors }, status: :unprocessable_entity
+        end
       end
 
       private

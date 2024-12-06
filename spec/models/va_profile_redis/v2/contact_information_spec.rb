@@ -26,6 +26,10 @@ describe VAProfileRedis::V2::ContactInformation do
     allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
   end
 
+  after do
+    Flipper.disable(:va_v3_contact_information_service)
+  end
+
   [404, 400].each do |status|
     context "with a #{status} from get_person", :skip_vet360 do
       let(:get_person_calls) { 'once' }

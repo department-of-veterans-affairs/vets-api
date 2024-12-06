@@ -182,7 +182,7 @@ RSpec.configure do |config|
     stub_mpi unless example.metadata[:skip_mvi]
     stub_va_profile unless example.metadata[:skip_va_profile]
     stub_vet360 unless example.metadata[:skip_vet360]
-    stub_vaprofile_user if example.metadata[:initiate_vaprofile] && example.metadata[:skip_vet360]
+    stub_vaprofile_user if example.metadata[:initiate_vaprofile]
 
     Sidekiq::Job.clear_all
   end

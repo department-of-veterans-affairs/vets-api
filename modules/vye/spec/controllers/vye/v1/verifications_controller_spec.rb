@@ -52,9 +52,9 @@ RSpec.describe Vye::V1::VerificationsController, type: :controller do
     end
 
     it 'sets the cert_through date based on current date relative to award end dates' do
-      # rubocop:disable RSpec/ConstantDefinitionInBlock
+      # rubocop:disable Lint/ConstantDefinitionInBlock
       VerificationTest = Struct.new(:act_end)
-      # rubocop:enable RSpec/ConstantDefinitionInBlock
+      # rubocop:enable Lint/ConstantDefinitionInBlock
       award_dates = [
         Time.zone.parse('2024-08-10'),
         Time.zone.parse('2024-10-15'),

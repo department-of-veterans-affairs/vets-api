@@ -55,6 +55,8 @@ module SimpleFormsApi
         @file_path = options[:file_path]
         @archive_path, @manifest_row = build_archive!(config:, type: upload_type, **options)
         @temp_directory_path = File.dirname(archive_path)
+      rescue => e
+        config.handle_error('Failed to assign defaults during S3Client initialization', e)
       end
 
       def log_initialization
@@ -75,6 +77,12 @@ module SimpleFormsApi
       end
 
       def update_manifest
+        form_number = manifest_row[1]
+        if form_number.blank?
+          config.handle_error('Manifest update failed: form_number is missing or invalid.')
+          return
+        end
+
         temp_dir = Rails.root.join("tmp/#{SecureRandom.hex}-manifest/").to_s
         create_directory!(temp_dir)
         begin

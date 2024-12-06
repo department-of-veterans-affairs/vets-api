@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/form_remediation/error'
+
 module SimpleFormsApi
   module FormRemediation
     module Configuration
@@ -62,15 +64,15 @@ module SimpleFormsApi
           Rails.logger.info({ message: }.merge(details))
         end
 
-        # Utility method, override to add your own team's preferred logging approach
+        # Utility method, override to add your own team's preferred error logging approach
         def log_error(message, error, **details)
           Rails.logger.error({ message:, error: error.message, backtrace: error.backtrace.first(5) }.merge(details))
         end
 
-        # Utility method, override to add your own team's preferred logging approach
+        # Utility method, override to add your own team's preferred error handling approach
         def handle_error(message, error, **details)
           log_error(message, error, **details)
-          raise error
+          raise SimpleFormsApi::FormRemediation::Error.new(message:, error:)
         end
       end
     end

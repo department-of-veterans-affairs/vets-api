@@ -186,7 +186,7 @@ module RepresentationManagement
           }
         end
 
-        # rubocop:disable Metrics/LineLength
+        # rubocop:disable Layout/LineLength
         # Disabled due to two extremely long keys.
         def appointment_options(data)
           {
@@ -208,7 +208,7 @@ module RepresentationManagement
             "#{PAGE2_KEY}.Provide_The_Names_Of_The_Individuals_Here[0]": data.consent_team_members&.to_sentence
           }
         end
-        # rubocop:enable Metrics/LineLength
+        # rubocop:enable Layout/LineLength
 
         def header_options(data)
           {

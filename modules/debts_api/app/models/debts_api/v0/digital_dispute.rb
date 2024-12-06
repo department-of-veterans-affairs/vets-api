@@ -18,6 +18,10 @@ module DebtsApi
       self.attributes = attributes.to_h.merge(user_icn: user.icn)
     end
 
+    def sanitized_json
+      as_json(except: [:user_icn])
+    end
+
     private
 
     def validate_contact_information

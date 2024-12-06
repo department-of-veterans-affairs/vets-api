@@ -33,6 +33,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
   let(:pdf_url) { 'https://s3.com/presigned-goodness' }
   let(:mock_s3_client) { instance_double(SimpleFormsApi::FormRemediation::S3Client) }
+  let(:lighthouse_service) { instance_double(BenefitsIntake::Service) }
 
   before do
     allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:new).and_return(mock_s3_client)
@@ -41,7 +42,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   end
 
   describe '#submit' do
-    context 'going to Lighthouse Benefits Intake API' do
+    context 'submitting to Lighthouse Benefits Intake API' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
       let(:random_string) { 'some-unique-simple-forms-file-seed' }
@@ -171,7 +172,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             end
           end
 
-          context 'fails to go to Lighthouse Benefits Claims API because of UnprocessableEntity error' do
+          context 'fails to submit to Lighthouse Benefits Claims API because of UnprocessableEntity error' do
             before do
               VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/422_response')
             end
@@ -205,7 +206,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       context 'request with attached documents' do
         let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
-        let(:lighthouse_service) { double }
         let(:confirmation_number) { 'some_confirmation_number' }
 
         before do
@@ -315,7 +315,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
     end
 
-    context 'going to Lighthouse Benefits Claims API' do
+    context 'submitting to Lighthouse Benefits Claims API' do
       before do
         allow(Common::VirusScan).to receive(:scan).and_return(true)
         VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
@@ -356,7 +356,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
     end
 
-    context 'going to SAHSHA API' do
+    context 'submitting to SAHSHA API' do
       let(:reference_number) { 'some-reference-number' }
       let(:body_status) { 'ACCEPTED' }
       let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'bgs/services'
 require 'mpi/service'
 require 'bgs_service/local_bgs'
 
@@ -35,28 +34,6 @@ class MpiCheck < BaseCheck
 
   def name
     'MPI'
-  end
-end
-
-class BgsCheck < BaseCheck
-  def initialize(service)
-    @service = service
-  end
-
-  def check
-    service = BGS::Services.new(
-      external_uid: 'healthcheck_uid',
-      external_key: 'healthcheck_key'
-    )
-    service.send(@service).healthy? ? process_success : process_failure
-  rescue
-    process_failure
-  end
-
-  protected
-
-  def name
-    "BGS #{@service}"
   end
 end
 
@@ -159,11 +136,10 @@ def faraday_client
 end
 
 OkComputer::Registry.register 'mpi', MpiCheck.new
-OkComputer::Registry.register 'bgs-vet_record', BgsCheck.new('vet_record')
-OkComputer::Registry.register 'bgs-corporate_update', BgsCheck.new('corporate_update')
-OkComputer::Registry.register 'bgs-contention', BgsCheck.new('contention')
 OkComputer::Registry.register 'localbgs-claimant',
                               FaradayBGSCheck.new('ClaimantServiceBean/ClaimantWebService')
+OkComputer::Registry.register 'localbgs-corporate_update',
+                              FaradayBGSCheck.new('CorporateUpdateServiceBean/CorporateUpdateWebService')
 OkComputer::Registry.register 'localbgs-person',
                               FaradayBGSCheck.new('PersonWebServiceBean/PersonWebService')
 OkComputer::Registry.register 'localbgs-org',

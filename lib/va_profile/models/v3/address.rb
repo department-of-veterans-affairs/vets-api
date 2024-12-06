@@ -14,7 +14,8 @@ module VAProfile
         # @param body [Hash] the decoded response body from VAProfile
         # @return [VAProfile::Models::V3::Address] the model built from the response body
         # rubocop:disable Metrics/MethodLength
-        def in_json
+        # in_json_v2 will replace in_json when Contact Information V1 Service has depreciated
+        def in_json_v2
           address_attributes = {
             addressId: @id,
             addressLine1: @address_line1,
@@ -38,7 +39,6 @@ module VAProfile
             originatingSourceSystem: SOURCE_SYSTEM,
             sourceSystemUser: @source_system_user,
             sourceDate: @source_date,
-            vet360Id: @vet360_id,
             effectiveStartDate: @effective_start_date,
             effectiveEndDate: @effective_end_date
           }
@@ -88,7 +88,8 @@ module VAProfile
             state_code: body['state_code'],
             transaction_id: body['tx_audit_id'],
             updated_at: body['update_date'],
-            vet360_id: body['vet360_id'],
+            vet360_id: body['vet360_id'] || body['va_profile_id'],
+            va_profile_id: body['va_profile_id'] || body['vet360_id'],
             zip_code: body['zip_code5'],
             zip_code_suffix: body['zip_code4']
           )

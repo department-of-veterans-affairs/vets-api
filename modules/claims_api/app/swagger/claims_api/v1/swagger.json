@@ -3045,7 +3045,7 @@
                                     "example": "DOMESTIC"
                                   },
                                   "state": {
-                                    "description": "State Veteran resides in.",
+                                    "description": "State or province Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -3197,7 +3197,7 @@
                                     "type": "string"
                                   },
                                   "state": {
-                                    "description": "New state Veteran resides in.",
+                                    "description": "New state or province Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -5303,7 +5303,7 @@
                                     "example": "DOMESTIC"
                                   },
                                   "state": {
-                                    "description": "State Veteran resides in.",
+                                    "description": "State or province Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -5455,7 +5455,7 @@
                                     "type": "string"
                                   },
                                   "state": {
-                                    "description": "New state Veteran resides in.",
+                                    "description": "New state or province Veteran resides in.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
@@ -8953,14 +8953,14 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -9093,14 +9093,14 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -9229,14 +9229,14 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -10821,14 +10821,14 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -10961,14 +10961,14 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
                                     "description": "Zipcode (First 5 digits) of the address.",
@@ -11097,14 +11097,14 @@
                                     "example": "Portland"
                                   },
                                   "state": {
-                                    "description": "State for the address.",
+                                    "description": "State or province for the address.",
                                     "type": "string",
                                     "example": "OR"
                                   },
                                   "country": {
                                     "description": "Country of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "example": "US"
                                   },
                                   "zipFirstFive": {
                                     "description": "Zipcode (First 5 digits) of the address.",

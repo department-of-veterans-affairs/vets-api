@@ -20,5 +20,8 @@ en:
         pdf_download_expired: "PDF for %{type} with id %{id} cannot be downloaded because the form data was deleted from the server after the PII retention period expired"
         pdf_download_in_error: "PDF for %{type} with id %{id} cannot be downloaded because there was an error in the submission process"
         pdf_download_not_ready: "PDF for %{type} with id %{id} cannot be downloaded yet because the appeal is still being submitted"
+        receipt_date_too_early: 'Receipt date cannot be before 2019-02-20'
         sc_incorrect_claimant_type: "If '/data/attributes/claimant' field is supplied, 'data/attributes/claimantType' must not be 'veteran'"
         sc_outside_submission_window: "This submission is outside of the 7-day window for evidence submission"
+        titles:
+          validation_error: 'Validation error'

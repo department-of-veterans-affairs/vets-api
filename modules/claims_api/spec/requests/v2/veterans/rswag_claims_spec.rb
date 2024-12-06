@@ -7,8 +7,8 @@ require 'bgs_service/local_bgs'
 
 describe 'Claims',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
-  let(:bcs) do
-    ClaimsApi::LocalBGS
+  let(:local_claims_status_service) do
+    ClaimsApi::EbenefitsBnftClaimStatusWebService
   end
 
   before do
@@ -58,7 +58,7 @@ describe 'Claims',
           before do |example|
             mock_ccg(scopes) do
               VCR.use_cassette('claims_api/bgs/tracked_items/find_tracked_items') do
-                expect_any_instance_of(bcs)
+                expect_any_instance_of(local_claims_status_service)
                   .to receive(:find_benefit_claims_status_by_ptcpnt_id).and_return(bgs_response)
                 expect(ClaimsApi::AutoEstablishedClaim)
                   .to receive(:where).and_return([])
@@ -176,7 +176,7 @@ describe 'Claims',
               VCR.use_cassette('claims_api/bgs/tracked_item_service/claims_v2_show_tracked_items') do
                 VCR.use_cassette('claims_api/evss/documents/get_claim_documents') do
                   bgs_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = target_veteran.participant_id
-                  expect_any_instance_of(bcs)
+                  expect_any_instance_of(local_claims_status_service)
                     .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_response)
                   allow_any_instance_of(ClaimsApi::V2::ApplicationController)
                     .to receive(:target_veteran).and_return(target_veteran)
@@ -320,7 +320,9 @@ describe 'Claims',
           before do |example|
             mock_ccg(scopes) do
               expect(ClaimsApi::AutoEstablishedClaim).to receive(:get_by_id_and_icn).and_return(nil)
-              expect_any_instance_of(bcs).to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
+              expect_any_instance_of(local_claims_status_service).to receive(
+                :find_benefit_claim_details_by_benefit_claim_id
+              ).and_return(nil)
 
               submit_request(example.metadata)
             end
