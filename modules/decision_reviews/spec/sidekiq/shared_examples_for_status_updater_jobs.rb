@@ -152,9 +152,6 @@ RSpec.shared_examples 'status updater job with base forms' do |subclass|
         .with("#{log_prefix} form status error", guid: guid1)
       expect(Rails.logger).to have_received(:info)
         .with("#{log_prefix} form status error", guid: guid2)
-      expect(StatsD).to have_received(:increment)
-        .with('silent_failure', tags: [service_tag, 'function: form submission to Lighthouse'])
-        .exactly(1).time
     end
   end
 
@@ -383,10 +380,6 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
               guid: guid2, lighthouse_upload_id: upload_id2,
               detail: 'Upstream status: Errors: ERR-EMMS-FAILED, Corrupted File detected. EMMS-GCIO-0, ...',
               error_type: 'corrupted-file')
-      expect(StatsD).to have_received(:increment)
-        .with('silent_failure', tags: [service_tag,
-                                       'function: evidence submission to Lighthouse'])
-        .exactly(1).time
     end
   end
 end

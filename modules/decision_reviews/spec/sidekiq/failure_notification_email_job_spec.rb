@@ -486,6 +486,8 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           expect(Rails.logger).to have_received(:error).with(*logger_params)
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.failure_notification_email.form.error', tags: ['appeal_type:SC'])
+          expect(StatsD).to have_received(:increment)
+            .with('silent_failure', tags: ['service:supplemental-claims', 'function: form submission to Lighthouse'])
         end
       end
 
@@ -535,6 +537,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           expect(Rails.logger).to have_received(:error).with(*logger_params)
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.failure_notification_email.evidence.error', tags: ['appeal_type:SC'])
+          expect(StatsD).to have_received(:increment)
+            .with('silent_failure',
+                  tags: ['service:supplemental-claims', 'function: evidence submission to Lighthouse'])
         end
       end
 
@@ -570,6 +575,9 @@ RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do
           expect(Rails.logger).to have_received(:error).with(*logger_params)
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.failure_notification_email.secondary_form.error', tags: ['appeal_type:SC'])
+          expect(StatsD).to have_received(:increment)
+            .with('silent_failure',
+                  tags: ['service:supplemental-claims', 'function: secondary form submission to Lighthouse'])
         end
       end
 
