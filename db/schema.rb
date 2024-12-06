@@ -1372,6 +1372,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_190908) do
     t.uuid "notification_id", null: false
     t.text "reference"
     t.text "to"
+    t.text "to_ciphertext"
+    t.text "encrypted_kms_key"
     t.text "status"
     t.datetime "completed_at"
     t.datetime "sent_at"
