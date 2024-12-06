@@ -14,14 +14,14 @@ RSpec.describe Banners::UpdateAllJob, type: :job do
   end
 
   describe '#perform' do
-    context 'when enabled' do
+    context 'when :banner_update_alternative_banners enabled' do
       it 'calls Banners.update_all' do
         job.perform
         expect(Banners).to have_received(:update_all)
       end
     end
 
-    context 'when disabled' do
+    context 'when :banner_update_alternative_banners disabled' do
       before do
         allow(Flipper).to receive(:enabled?).with(:banner_update_alternative_banners).and_return(false)
       end
