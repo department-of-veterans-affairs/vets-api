@@ -14,6 +14,10 @@ RSpec.describe EducationForm::Forms::VA1995 do
     test_spool_file('1995', application_name)
   end
 
+  before do
+    Flipper.disable(:validate_saved_claims_with_json_schemer)
+  end
+
   # run PROD_EMULATION=true rspec spec/sidekiq/education_form/forms/va1995_spec.rb to
   # emulate production (e.g. when removing feature flags)
   prod_emulation = true if ENV['PROD_EMULATION'].eql?('true')
