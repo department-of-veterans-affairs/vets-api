@@ -359,7 +359,7 @@ module Form526ClaimFastTrackingConcern
       provider: nil,
       options: { auth_headers:, icn: },
       # Flipper id is needed to check if the feature toggle works for this user
-      current_user: OpenStruct.new({ flipper_id: user_account_id }),
+      current_user: OpenStruct.new({ flipper_id: user_uuid }),
       feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND
     )
 
