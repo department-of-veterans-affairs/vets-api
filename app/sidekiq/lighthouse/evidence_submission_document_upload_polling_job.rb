@@ -47,8 +47,8 @@ module Lighthouse
 
     # TODO: Flesh out perform function
     def perform
-      successful_documents_before_polling = EvidenceSubmission.completed.count
-      failed_documents_before_polling = EvidenceSubmission.failed.count
+      # successful_documents_before_polling = EvidenceSubmission.completed.count
+      # failed_documents_before_polling = EvidenceSubmission.failed.count
 
       documents_to_poll = EvidenceSubmission.pending
       # StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_POLLED_KEY}", documents_to_poll.count)
@@ -65,10 +65,10 @@ module Lighthouse
         handle_error(response_struct, lighthouse_document_request_ids)
       end
 
-      documents_marked_success = Lighthouse526DocumentUpload.completed.count - successful_documents_before_polling
+      # documents_marked_success = Lighthouse526DocumentUpload.completed.count - successful_documents_before_polling
       # StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY}", documents_marked_success)
 
-      documents_marked_failed = Lighthouse526DocumentUpload.failed.count - failed_documents_before_polling
+      # documents_marked_failed = Lighthouse526DocumentUpload.failed.count - failed_documents_before_polling
       # StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY}", documents_marked_failed)
     end
 
