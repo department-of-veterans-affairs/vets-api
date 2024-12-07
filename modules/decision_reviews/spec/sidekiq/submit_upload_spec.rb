@@ -29,11 +29,6 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
     service
   end
 
-  let(:email_address) { 'testuser@test.com' }
-  let(:emails) { build(:email, email_address:) }
-  let(:person) { build(:person, emails:) }
-  let(:person_response) { instance_double(VAProfile::ContactInformation::PersonResponse, person:) }
-
   before do
     allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
     allow(MPI::Service).to receive(:new).and_return(mpi_service)
@@ -281,6 +276,22 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
         end
 
         let(:tags) { ['service:board-appeal', 'function: evidence submission to Lighthouse'] }
+        let(:email_address) { 'testuser@test.com' }
+        let(:form) do
+          {
+            data: {
+              attributes: {
+                veteran: {
+                  email: email_address
+                }
+              }
+            }
+          }.to_json
+        end
+
+        before do
+          SavedClaim::SupplementalClaim.create(guid: appeal_submission.submitted_appeal_uuid, form:)
+        end
 
         it 'increments statsd correctly when email is sent' do
           expect { described_class.new.sidekiq_retries_exhausted_block.call(msg) }
