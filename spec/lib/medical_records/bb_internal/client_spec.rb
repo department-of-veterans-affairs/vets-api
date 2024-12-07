@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'medical_records/bb_internal/client'
 require 'stringio'
 
+UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 describe BBInternal::Client do
   before(:all) do
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
@@ -20,10 +22,10 @@ describe BBInternal::Client do
   RSpec.shared_context 'redis setup' do
     let(:redis) { instance_double(Redis::Namespace) }
     let(:study_id) { '453-2487450' }
-    let(:id) { 'c9396040-23b7-44bc-a505-9127ed968b0d' }
+    let(:uuid) { 'c9396040-23b7-44bc-a505-9127ed968b0d' }
     let(:cached_data) do
       {
-        id => study_id
+        uuid => study_id
       }.to_json
     end
     let(:namespace) { REDIS_CONFIG[:bb_internal_store][:namespace] }
@@ -53,6 +55,10 @@ describe BBInternal::Client do
         studies = client.list_imaging_studies
         expect(studies).to be_an(Array)
         expect(studies.first).to have_key('studyIdUrn')
+        expect(studies.first).to have_key('studyIdUrn')
+
+        # Check if 'studyIdUrn' was replaced by a UUID
+        expect(studies.first['studyIdUrn']).to match(UUID_REGEX)
       end
     end
   end
@@ -62,9 +68,13 @@ describe BBInternal::Client do
 
     it 'requests a study by study_id' do
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
-        result = client.request_study(id)
+        result = client.request_study(uuid)
         expect(result).to be_a(Hash)
         expect(result).to have_key('status')
+        expect(result).to have_key('studyIdUrn')
+
+        # 'studyIdUrn' should match a specific UUID
+        expect(result['studyIdUrn']).to equal(uuid)
       end
     end
   end
@@ -74,7 +84,7 @@ describe BBInternal::Client do
 
     it 'lists the images for a given study' do
       VCR.use_cassette 'mr_client/bb_internal/list_images' do
-        images = client.list_images(id)
+        images = client.list_images(uuid)
         expect(images).to be_an(Array)
         expect(images.first).to be_a(String)
       end
@@ -173,6 +183,9 @@ describe BBInternal::Client do
         expect(first_study_job['status']).to be_a(String)
         expect(first_study_job).to have_key('studyIdUrn')
         expect(first_study_job['studyIdUrn']).to be_a(String)
+
+        # Check if 'studyIdUrn' was replaced by a UUID
+        expect(first_study_job['studyIdUrn']).to match(UUID_REGEX)
       end
     end
   end

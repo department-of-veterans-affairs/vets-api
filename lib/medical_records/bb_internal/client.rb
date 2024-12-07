@@ -61,42 +61,12 @@ module BBInternal
     # Get a list of MHV radiology reports from CVIX for the current user. These results do not
     # include VIA reports.
     #
-    # study_id is mapped to a new UUID and stored in Redis for later retrieval.
-    # This is to prevent the study_id from being exposed to the client.
-    # The client will use the UUID to request the study.
-    # UUID map is stored in Redis with a TTL of 3 days.
-    # On method call, if the studyId soe not exist in the map, a new UUID is generated and stored in the map.
-    # Otherwise, the existing UUID is used.
-    #
     # @return [Hash] The radiology study list from MHV
     #
     def list_imaging_studies
       response = perform(:get, "bluebutton/study/#{session.patient_id}", nil, token_headers)
       data = response.body
-
-      study_data_cached = get_study_data_from_cache
-      study_data_hash = JSON.parse(study_data_cached) if study_data_cached
-      id_uuid_map = study_data_hash || {}
-
-      modified_data = data.map do |obj|
-        study_id = obj['studyIdUrn']
-
-        # Find the key by value in the hash
-        existing_uuid, = study_data_hash.find { |_, v| v == study_id.to_s } if study_data_hash
-
-        if existing_uuid
-          obj['studyIdUrn'] = existing_uuid
-        else
-          new_uuid = SecureRandom.uuid
-          id_uuid_map[new_uuid] = study_id
-          obj['studyIdUrn'] = new_uuid
-        end
-        obj
-      end
-
-      bb_redis.set(study_data_key, id_uuid_map.to_json, nx: false, ex: 259_200)
-
-      modified_data
+      map_study_ids(data)
     end
 
     ##
@@ -109,10 +79,18 @@ module BBInternal
     # @return [Hash] The status of the image request, including percent complete
     #
     def request_study(id)
+      # Fetch the original studyIdUrn from the Redis cache
       study_id = get_study_id_from_cache(id)
+
+      # Perform the API call with the original studyIdUrn
       response = perform(:get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil,
                          token_headers)
-      response.body
+      data = response.body
+
+      # Transform the response to replace the studyIdUrn with the UUID
+      data['studyIdUrn'] = id if data.is_a?(Hash) && data['studyIdUrn'] == study_id
+
+      data
     end
 
     ##
@@ -180,13 +158,15 @@ module BBInternal
       response.body
     end
 
+    ##
     # check the status of a study job
     # @return [Array] - [{ status: "COMPLETE", studyIdUrn: "111-1234567" percentComplete: 100, fileSize: "1.01 MB",
     #   startDate: 1729777818853, endDate}]
     #
     def get_study_status
       response = perform(:get, "bluebutton/studyjob/#{session.patient_id}", nil, token_headers)
-      response.body
+      data = response.body
+      map_study_ids(data)
     end
 
     ################################################################################
@@ -301,6 +281,42 @@ module BBInternal
         # throw 400 for FE to know to refetch the list
         raise Common::Exceptions::InvalidResource, 'Study data map'
       end
+    end
+
+    ##
+    # Takes an array of objects with a studyIdUrn field. For each object, if the studyIdUrn is already mapped to a
+    # cached UUID in redis, simply replace all the studyIdUrn with its mapped value. If the value is not yet mapped
+    # in redis, create the mapped UUID first, then replace the studyIdUrn in the object. This is to prevent the
+    # study_id from being exposed to the client.
+    #
+    # @param [Array] data - An array which contains objects that have a studyIdUrn field.
+    #
+    # @return [Array] A modified array in which all the objects have has studyIdUrn mapped to a UUID.
+    #
+    def map_study_ids(data)
+      study_data_cached = get_study_data_from_cache
+      study_data_hash = JSON.parse(study_data_cached) if study_data_cached
+      id_uuid_map = study_data_hash || {}
+
+      modified_data = data.map do |obj|
+        study_id = obj['studyIdUrn']
+
+        existing_uuid, = study_data_hash.find { |_, v| v == study_id.to_s } if study_data_hash
+
+        if existing_uuid
+          obj['studyIdUrn'] = existing_uuid
+        else
+          new_uuid = SecureRandom.uuid
+          id_uuid_map[new_uuid] = study_id
+          obj['studyIdUrn'] = new_uuid
+        end
+        obj
+      end
+
+      # Store in redis with a ttl of 3 days
+      bb_redis.set(study_data_key, id_uuid_map.to_json, nx: false, ex: 259_200)
+
+      modified_data
     end
 
     ##
