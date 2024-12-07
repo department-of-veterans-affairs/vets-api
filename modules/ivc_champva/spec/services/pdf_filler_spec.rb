@@ -8,144 +8,104 @@ require IvcChampva::Engine.root.join('app', 'services', 'ivc_champva', 'pdf_stam
 describe IvcChampva::PdfFiller do
   forms = %w[vha_10_10d vha_10_7959f_1 vha_10_7959f_2 vha_10_7959c]
 
-  context 'Feature champva_unique_temp_file_names=true' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:champva_unique_temp_file_names).and_return(true)
+  describe '#initialize' do
+    context 'when the filler is instantiated without a form_number' do
+      it 'throws an error' do
+        form_number = forms.first
+        file_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', "#{form_number}.json")
+        expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
+        data = JSON.parse(File.read(file_path))
+        form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
+        expect do
+          described_class.new(form_number: nil, form: form)
+        end.to raise_error(RuntimeError, 'form_number is required')
+      end
     end
 
-    describe '#initialize' do
-      context 'when the filler is instantiated without a form_number' do
-        it 'throws an error' do
-          form_number = forms.first
-          file_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', "#{form_number}.json")
-          expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
-          data = JSON.parse(File.read(file_path))
-          form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-          expect do
-            described_class.new(form_number: nil, form: form)
-          end.to raise_error(RuntimeError, 'form_number is required')
-        end
-      end
-
-      context 'when the filler is instantiated without a form' do
-        it 'throws an error' do
-          form_number = forms.first
-          expect do
-            described_class.new(form_number: form_number, form: nil)
-          end.to raise_error(RuntimeError, 'form needs a data attribute')
-        end
+    context 'when the filler is instantiated without a form' do
+      it 'throws an error' do
+        form_number = forms.first
+        expect do
+          described_class.new(form_number: form_number, form: nil)
+        end.to raise_error(RuntimeError, 'form needs a data attribute')
       end
     end
   end
 
-  context 'Feature champva_unique_temp_file_names=false' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:champva_unique_temp_file_names).and_return(false)
+  describe '#generate' do
+    context 'when the stamped template file exists' do
+      it 'generates the form correctly' do
+        form_number = forms.first
+        uuid = 'eb8ec19d-3934-48c7-b878-dca41c6cd534'
+        file_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', "#{form_number}.json")
+        expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
+        data = JSON.parse(File.read(file_path))
+        form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
+        pdf_filler = described_class.new(form_number: form_number, form: form, uuid: uuid)
+
+        allow(File).to receive(:exist?).and_return(true)
+        allow(IvcChampva::PdfStamper).to receive(:stamp_pdf)
+        allow(PdfForms).to receive(:new).and_return(double(fill_form: true))
+        allow(Common::FileHelpers).to receive(:delete_file_if_exists)
+
+        expect(pdf_filler.generate).to match(%r{tmp/#{uuid}_#{form_number}-tmp\.pdf})
+      end
     end
 
-    describe '#initialize' do
-      context 'when the filler is instantiated without a form_number' do
-        it 'throws an error' do
-          form_number = forms.first
-          data = JSON.parse(File.read("modules/ivc_champva/spec/fixtures/form_json/#{form_number}.json"))
-          form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-          expect do
-            described_class.new(form_number: nil, form:)
-          end.to raise_error(RuntimeError, 'form_number is required')
-        end
-      end
+    context 'when the stamped template file does not exist' do
+      it 'raises an error' do
+        form_number = forms.first
+        file_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', "#{form_number}.json")
+        expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
+        data = JSON.parse(File.read(file_path))
+        form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
+        pdf_filler = described_class.new(form_number: form_number, form: form)
 
-      context 'when the filler is instantiated without a form' do
-        it 'throws an error' do
-          form_number = forms.first
-          expect do
-            described_class.new(form_number:, form: nil)
-          end.to raise_error(RuntimeError, 'form needs a data attribute')
-        end
+        allow(File).to receive(:exist?).and_return(false)
+
+        expect { pdf_filler.generate }.to raise_error(RuntimeError, /stamped template file does not exist/)
+      end
+    end
+
+    context 'when generating the form path' do
+      it 'ensures the generated form path is in the correct format' do
+        form_number = forms.first
+        uuid = 'b912b331-4c98-4816-bab9-01aa549e4a5c'
+        file_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', "#{form_number}.json")
+        expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
+        data = JSON.parse(File.read(file_path))
+        form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
+        pdf_filler = described_class.new(form_number: form_number, form: form, uuid: uuid)
+
+        allow(File).to receive(:exist?).and_return(true)
+        allow(IvcChampva::PdfStamper).to receive(:stamp_pdf)
+        allow(PdfForms).to receive(:new).and_return(double(fill_form: true))
+        allow(Common::FileHelpers).to receive(:delete_file_if_exists)
+
+        expect(pdf_filler.generate).to match(%r{tmp/#{uuid}_#{form_number}-tmp\.pdf})
       end
     end
   end
 
-  context 'ture champva_unique_temp_file_names=true' do
-    before do
-      allow(Flipper).to receive(:enabled?).with(:champva_unique_temp_file_names, nil).and_return(true)
-    end
+  describe '#create_tempfile' do
+    context 'when creating a tempfile' do
+      it 'creates and copies the template form correctly' do
+        form_number = forms.first
+        file_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', "#{form_number}.json")
+        expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
+        data = JSON.parse(File.read(file_path))
+        form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
+        pdf_filler = described_class.new(form_number: form_number, form: form)
 
-    describe '#generate' do
-      context 'when the stamped template file exists' do
-        it 'generates the form correctly' do
-          form_number = forms.first
-          uuid = 'eb8ec19d-3934-48c7-b878-dca41c6cd534'
-          file_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', "#{form_number}.json")
-          expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
-          data = JSON.parse(File.read(file_path))
-          form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-          pdf_filler = described_class.new(form_number: form_number, form: form, uuid: uuid)
+        template_path = "#{IvcChampva::PdfFiller::TEMPLATE_BASE}/#{form_number}.pdf"
+        tempfile = double('Tempfile')
 
-          allow(File).to receive(:exist?).and_return(true)
-          allow(IvcChampva::PdfStamper).to receive(:stamp_pdf)
-          allow(PdfForms).to receive(:new).and_return(double(fill_form: true))
-          allow(Common::FileHelpers).to receive(:delete_file_if_exists)
+        allow(Tempfile).to receive(:new).and_return(tempfile)
+        allow(IO).to receive(:copy_stream)
+        allow(tempfile).to receive(:close)
 
-          expect(pdf_filler.generate).to match(%r{tmp/#{uuid}_#{form_number}-tmp\.pdf})
-        end
-      end
-
-      context 'when the stamped template file does not exist' do
-        it 'raises an error' do
-          form_number = forms.first
-          file_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', "#{form_number}.json")
-          expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
-          data = JSON.parse(File.read(file_path))
-          form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-          pdf_filler = described_class.new(form_number: form_number, form: form)
-
-          allow(File).to receive(:exist?).and_return(false)
-
-          expect { pdf_filler.generate }.to raise_error(RuntimeError, /stamped template file does not exist/)
-        end
-      end
-
-      context 'when generating the form path' do
-        it 'ensures the generated form path is in the correct format' do
-          form_number = forms.first
-          uuid = 'b912b331-4c98-4816-bab9-01aa549e4a5c'
-          file_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', "#{form_number}.json")
-          expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
-          data = JSON.parse(File.read(file_path))
-          form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-          pdf_filler = described_class.new(form_number: form_number, form: form, uuid: uuid)
-
-          allow(File).to receive(:exist?).and_return(true)
-          allow(IvcChampva::PdfStamper).to receive(:stamp_pdf)
-          allow(PdfForms).to receive(:new).and_return(double(fill_form: true))
-          allow(Common::FileHelpers).to receive(:delete_file_if_exists)
-
-          expect(pdf_filler.generate).to match(%r{tmp/#{uuid}_#{form_number}-tmp\.pdf})
-        end
-      end
-    end
-
-    describe '#create_tempfile' do
-      context 'when creating a tempfile' do
-        it 'creates and copies the template form correctly' do
-          form_number = forms.first
-          file_path = Rails.root.join('modules', 'ivc_champva', 'spec', 'fixtures', 'form_json', "#{form_number}.json")
-          expect(File.exist?(file_path)).to be(true), "Fixture file not found: #{file_path}"
-          data = JSON.parse(File.read(file_path))
-          form = "IvcChampva::#{form_number.titleize.gsub(' ', '')}".constantize.new(data)
-          pdf_filler = described_class.new(form_number: form_number, form: form)
-
-          template_path = "#{IvcChampva::PdfFiller::TEMPLATE_BASE}/#{form_number}.pdf"
-          tempfile = double('Tempfile')
-
-          allow(Tempfile).to receive(:new).and_return(tempfile)
-          allow(IO).to receive(:copy_stream)
-          allow(tempfile).to receive(:close)
-
-          expect(IO).to receive(:copy_stream).with(template_path, tempfile)
-          pdf_filler.create_tempfile
-        end
+        expect(IO).to receive(:copy_stream).with(template_path, tempfile)
+        pdf_filler.create_tempfile
       end
     end
   end

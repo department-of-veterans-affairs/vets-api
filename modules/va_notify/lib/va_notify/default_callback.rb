@@ -10,7 +10,7 @@ module VANotify
     end
 
     def call
-      if metadata
+      if metadata.present?
         call_with_metadata
       else
         call_without_metadata
