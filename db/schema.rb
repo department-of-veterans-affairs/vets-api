@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_25_061506) do
+ActiveRecord::Schema[7.1].define(version: 2024_12_06_225126) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -269,6 +269,18 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_25_061506) do
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
   end
 
+  create_table "ar_power_of_attorney_forms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "ar_power_of_attorney_request_id"
+    t.text "data_ciphertext"
+    t.string "city_bidx"
+    t.string "state_bidx"
+    t.string "zipcode_bidx"
+    t.index ["ar_power_of_attorney_request_id"], name: "index_ar_poa_forms_on_ar_poa_request_id"
+    t.index ["city_bidx"], name: "index_ar_power_of_attorney_forms_on_city_bidx"
+    t.index ["state_bidx"], name: "index_ar_power_of_attorney_forms_on_state_bidx"
+    t.index ["zipcode_bidx"], name: "index_ar_power_of_attorney_forms_on_zipcode_bidx"
+  end
+
   create_table "ar_power_of_attorney_request_decisions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "type", null: false
     t.text "declination_reason"
@@ -288,6 +300,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_25_061506) do
 
   create_table "ar_power_of_attorney_request_withdrawals", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.text "reason"
+  end
+
+  create_table "ar_power_of_attorney_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "claimant_id"
+    t.uuid "latest_status_update_id"
+    t.datetime "created_at"
+    t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
+    t.index ["latest_status_update_id"], name: "index_ar_power_of_attorney_requests_on_latest_status_update_id"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -1077,6 +1097,32 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_25_061506) do
     t.index ["database", "captured_at"], name: "index_pghero_space_stats_on_database_and_captured_at"
   end
 
+  create_table "power_of_attorney_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_account_id", null: false
+    t.uuid "requested_individual_id"
+    t.uuid "requested_organization_id"
+    t.string "city_bidx"
+    t.string "state_bidx"
+    t.string "zip_code_bidx"
+    t.text "consent_limitation_data_ciphertext"
+    t.string "first_name_ciphertext"
+    t.string "last_name_ciphertext"
+    t.boolean "change_of_address_authorization", default: false, null: false
+    t.boolean "has_consent_limitations", default: false, null: false
+    t.string "status", null: false
+    t.datetime "expires_at"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["city_bidx"], name: "index_power_of_attorney_requests_on_city_bidx"
+    t.index ["requested_individual_id"], name: "index_power_of_attorney_requests_on_requested_individual_id"
+    t.index ["requested_organization_id"], name: "index_power_of_attorney_requests_on_requested_organization_id"
+    t.index ["state_bidx"], name: "index_power_of_attorney_requests_on_state_bidx"
+    t.index ["status"], name: "index_power_of_attorney_requests_on_status"
+    t.index ["user_account_id"], name: "index_power_of_attorney_requests_on_user_account_id"
+    t.index ["zip_code_bidx"], name: "index_power_of_attorney_requests_on_zip_code_bidx"
+  end
+
   create_table "preneed_submissions", id: :serial, force: :cascade do |t|
     t.string "tracking_number", null: false
     t.string "application_uuid"
@@ -1720,6 +1766,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_25_061506) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
+  add_foreign_key "ar_power_of_attorney_forms", "ar_power_of_attorney_requests"
+  add_foreign_key "ar_power_of_attorney_requests", "ar_power_of_attorney_request_status_updates", column: "latest_status_update_id"
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claim_va_notifications", "saved_claims"
   add_foreign_key "claims_api_claim_submissions", "claims_api_auto_established_claims", column: "claim_id"
@@ -1740,6 +1788,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_25_061506) do
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"
+  add_foreign_key "power_of_attorney_requests", "accredited_individuals", column: "requested_individual_id"
+  add_foreign_key "power_of_attorney_requests", "accredited_organizations", column: "requested_organization_id"
+  add_foreign_key "power_of_attorney_requests", "user_accounts"
   add_foreign_key "terms_of_use_agreements", "user_accounts"
   add_foreign_key "user_acceptable_verified_credentials", "user_accounts"
   add_foreign_key "user_credential_emails", "user_verifications"
