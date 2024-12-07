@@ -118,7 +118,8 @@ module BBInternal
     # @return [void] This method does not return a value. Instead, it yields chunks of the response
     # body via the provided yielder.
     #
-    def get_image(study_id, series, image, header_callback, yielder)
+    def get_image(id, series, image, header_callback, yielder)
+      study_id = get_study_id_from_cache(id)
       uri = URI.join(config.base_path,
                      "bluebutton/external/studyjob/image/studyidUrn/#{study_id}/series/#{series}/image/#{image}")
       streaming_get(uri, token_headers, header_callback, yielder)
@@ -132,7 +133,8 @@ module BBInternal
     # @return [void] This method does not return a value. Instead, it yields chunks of the response
     # body via the provided yielder.
     #
-    def get_dicom(study_id, header_callback, yielder)
+    def get_dicom(id, header_callback, yielder)
+      study_id = get_study_id_from_cache(id)
       uri = URI.join(config.base_path, "bluebutton/studyjob/zip/stream/#{session.patient_id}/studyidUrn/#{study_id}")
       streaming_get(uri, token_headers, header_callback, yielder)
     end
