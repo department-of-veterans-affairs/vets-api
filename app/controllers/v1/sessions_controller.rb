@@ -65,7 +65,7 @@ module V1
 
         redirect_to url.to_s
       else
-        render_login(type, operation)
+        render_login(type)
       end
       new_stats(type, client_id, operation)
     end
@@ -186,12 +186,12 @@ module V1
       end
     end
 
-    def render_login(type, operation)
+    def render_login(type)
       login_url, post_params = login_params(type)
       renderer = ActionController::Base.renderer
       renderer.controller.prepend_view_path(Rails.root.join('lib', 'saml', 'templates'))
       result = renderer.render template: 'sso_post_form',
-                               locals: { url: login_url, params: post_params, operation: operation },
+                               locals: { url: login_url, params: post_params },
                                format: :html
       render body: result, content_type: 'text/html'
       set_sso_saml_cookie!
