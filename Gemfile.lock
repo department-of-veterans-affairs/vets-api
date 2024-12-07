@@ -241,6 +241,7 @@ GEM
       base64
       gyoku (>= 0.4.0)
       nokogiri
+    argon2-kdf (0.2.0)
     ast (2.4.2)
     attr_extras (7.1.0)
     awesome_print (1.9.2)
@@ -273,6 +274,9 @@ GEM
     bigdecimal (3.1.8)
     bigdecimal (3.1.8-java)
     bindex (0.8.1)
+    blind_index (2.6.1)
+      activesupport (>= 7)
+      argon2-kdf (>= 0.2)
     blueprinter (1.1.2)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
@@ -1136,6 +1140,7 @@ DEPENDENCIES
   banners!
   betamocks!
   bgs_ext!
+  blind_index
   blueprinter
   bootsnap
   brakeman
