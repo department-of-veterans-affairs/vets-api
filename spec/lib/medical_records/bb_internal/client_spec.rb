@@ -92,26 +92,28 @@ describe BBInternal::Client do
   end
 
   describe '#get_image' do
+    include_context 'redis setup'
+
     it 'streams an image successfully' do
-      study_id = '453-2487450'
       series = '01'
       image = '01'
       yielder = StringIO.new
 
       VCR.use_cassette 'mr_client/bb_internal/get_image' do
-        client.get_image(study_id, series, image, ->(headers) {}, yielder)
+        client.get_image(uuid, series, image, ->(headers) {}, yielder)
         expect(yielder.string).not_to be_empty
       end
     end
   end
 
   describe '#get_dicom' do
+    include_context 'redis setup'
+
     it 'streams a DICOM zip successfully' do
-      study_id = '453-2487450'
       yielder = StringIO.new
 
       VCR.use_cassette 'mr_client/bb_internal/get_dicom' do
-        client.get_dicom(study_id, ->(headers) {}, yielder)
+        client.get_dicom(uuid, ->(headers) {}, yielder)
         expect(yielder.string).not_to be_empty
       end
     end
