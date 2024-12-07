@@ -73,7 +73,9 @@ module IvcChampva
 
         applicants_count = parsed_form_data[applicant_key]&.count.to_i
         total_applicants_count = applicants_count.to_f / additional_pdf_count
-        applicant_rounded_number = total_applicants_count.ceil
+        # Must always be at least 1, so that `attachment_ids` still contains the
+        # `form_id` even on forms that don't have an `applicants` array (e.g. FMP2)
+        applicant_rounded_number = total_applicants_count.ceil.zero? ? 1 : total_applicants_count.ceil
 
         form = form_class.new(parsed_form_data)
         # DataDog Tracking
