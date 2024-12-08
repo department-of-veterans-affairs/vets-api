@@ -19,8 +19,12 @@ module V1
 
     def show
       lighthouse_response = lighthouse_service.get_gi_bill_status
-      dgib_response = dgib_service.get_entitlement_transferred_out if Flipper.enabled?(:sob_updated_design)
-      gi_bill_status = Post911SOB::GIBillStatus.new(lighthouse_response:, dgib_response:)
+      gi_bill_status = if Flipper.enabled?(:sob_updated_design)
+                         dgib_response = dgib_service.get_entitlement_transferred_out
+                         Post911SOB::GIBillStatus.new(lighthouse_response:, dgib_response:)
+                       else
+                         lighthouse_response
+                       end
       render json: Post911GIBillStatusSerializer.new(gi_bill_status)
     rescue Breakers::OutageException => e
       raise e
