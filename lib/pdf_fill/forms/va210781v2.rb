@@ -17,7 +17,7 @@ module PdfFill
         'veteranFullName' => {
           'first' => {
             key: 'F[0].#subform[2].Veterans_Service_Members_First_Name[0]',
-            limit: 12,
+            limit: 12, # limit: 28 (with combs removed)
             question_num: 1,
             question_suffix: 'A',
             question_text: 'VETERAN/SERVICE MEMBER\'S NAME. First Name'
@@ -31,7 +31,7 @@ module PdfFill
           },
           'last' => {
             key: 'F[0].#subform[2].VeteransLastName[0]',
-            limit: 18,
+            limit: 18, # limit: 45 (with combs removed)
             question_num: 1,
             question_suffix: 'C',
             question_text: 'VETERAN/SERVICE MEMBER\'S NAME. Last Name'
@@ -106,22 +106,16 @@ module PdfFill
             question_text: 'TELEPHONE NUMBER (Include Area Code). Enter last four digits.'
           }
         },
-        'veteranIntPhone' => { # TODO: Confirm phone type as it is different than current 0781 (secondary phone)
+        'veteranIntPhone' => {
           key: 'F[0].#subform[2].International_Telephone_Number_If_Applicable[0]',
-          limit: 25, # TODO: This is a guess.  Need to confirm.
-          question_num: 6,
-          question_suffix: 'D',
-          question_text: 'Enter International Phone Number (If applicable).'
-        },
-        'veteranIntPhoneOverflow' => {
-          key: '',
+          limit: 25,
           question_num: 6,
           question_suffix: 'D',
           question_text: 'Enter International Phone Number (If applicable).'
         },
         'email' => {
           key: 'F[0].#subform[2].E_Mail_Address_Optional[0]',
-          limit: 97, # TODO: This is a guess.  Need to confirm.
+          limit: 75, # TODO: This is a guess.  Need to confirm.
           question_num: 7,
           question_text: 'E-Mail Address (Optional).'
         },
@@ -144,49 +138,28 @@ module PdfFill
             key: 'F[0].#subform[2].Other_Traumatic_Events[0]'
           }
         },
-        'eventDetails' => {
+        'eventsDetails' => {
           limit: 6,
           first_key: 'details',
           question_text: 'EVENT DETAILS',
           question_num: 9,
           'details' => {
             key: "F[0].#subform[2].Brief_Description_Of_The_Traumatic_Events[#{ITERATOR}]",
-            limit: 150,
-            question_num: 9,
-            question_suffix: 'A',
-            question_text: 'BRIEF DESCRIPTION OF THE TRAUMATIC EVENT(S)'
-          },
-          'detailsOverflow' => {
-            key: '',
-            question_num: 9,
-            question_suffix: 'A',
-            question_text: 'BRIEF DESCRIPTION OF THE TRAUMATIC EVENT(S)'
+            limit: 150
           },
           'location' => {
             key: "F[0].#subform[2].Location_Of_The_Traumatic_Events[#{ITERATOR}]",
-            limit: 84,
-            question_num: 9,
-            question_suffix: 'B',
-            question_text: 'LOCATION OF THE TRAUMATIC EVENT(S)'
-          },
-          'locationOverflow' => {
-            key: '',
-            question_num: 9,
-            question_suffix: 'B',
-            question_text: 'LOCATION OF THE TRAUMATIC EVENT(S)'
+            limit: 84
           },
           'timing' => {
             key: "F[0].#subform[2].Dates_The_Traumatic_Events_Occured[#{ITERATOR}]",
-            limit: 75,
-            question_num: 9,
-            question_suffix: 'C',
-            question_text: 'DATE(S) THE TRAUMATIC EVENT(S) OCCURRED'
+            limit: 75
           },
-          'timingOverflow' => {
+          'eventOverflow' => {
             key: '',
+            question_text: 'TRAUMATIC EVENT(S) INFORMATION',
             question_num: 9,
-            question_suffix: 'C',
-            question_text: 'DATE(S) THE TRAUMATIC EVENT(S) OCCURRED'
+            question_suffix: 'A'
           }
         },
         'behaviors' => { # question_num: 10A
@@ -558,36 +531,24 @@ module PdfFill
           question_num: 13,
           'facilityInfo' => {
             key: "F[0].#subform[5].Name_And_Location_Of_Treatment_Facility[#{ITERATOR}]",
-            limit: 100,
-            question_num: 13,
-            question_suffix: 'C',
-            question_text: 'NAME AND LOCATION OF THE TREATMENT FACILITY'
+            limit: 100
           },
           'treatmentMonth' => {
             key: "F[0].#subform[5].Date_Of_Treatment_Month[#{ITERATOR}]",
-            limit: 2,
-            question_num: 13,
-            question_suffix: 'D',
-            question_text: 'DATE(S) OF TREATMENT. Enter 2 digit Month.'
+            limit: 2
           },
           'treatmentYear' => {
             key: "F[0].#subform[5].Date_Of_Treatment_Year[#{ITERATOR}]",
-            limit: 4,
-            question_num: 13,
-            question_suffix: 'D',
-            question_text: 'DATE(S) OF TREATMENT. Enter 4 digit year.'
+            limit: 4
           },
           'noDates' => {
             key: "F[0].#subform[5].Check_Box_Do_Not_Have_Date_s[#{ITERATOR}]"
           },
-          'description1' => {
-            always_overflow: true
-          },
-          'treatmentOverflow' => {
+          'providerOverflow' => {
             key: '',
             question_text: 'TREATMENT INFORMATION',
             question_num: 13,
-            question_suffix: 'E'
+            question_suffix: 'C'
           }
         },
         'additionalInformation' => {
@@ -616,7 +577,8 @@ module PdfFill
           }
         },
         'signature' => {
-          key: 'F[0].#subform[5].Digital_Signature[0]', 
+          key: 'F[0].#subform[5].Signature[0]',
+          limit: 50, # TODO: This is a guess.  Need to confirm.
           question_num: 16,
           question_suffix: 'A',
           question_text: 'VETERAN/SERVICE MEMBER\'S SIGNATURE'
@@ -653,32 +615,17 @@ module PdfFill
         
         split_phone(@form_data, 'veteranPhone')
 
-        # special case: these fields were built as checkboxes instead of radios, so usual radio logic cannot be used.
-        treated = @form_data['traumaTreatment']
-        @form_data['treatment'] = treated ? 0 : 1
-        @form_data['noTreatment'] = treated ? 0 : 1
-
-        # special case: these fields were built as checkboxes instead of radios, so usual radio logic cannot be used.
-        reports = @form_data['reports']
-        @form_data['reportFiled'] = reports['yes'] ? 0 : nil
-        @form_data['noReportFiled'] = reports['no'] ? 1 : nil
-        @form_data['restrictedReport'] = reports['restricted'] ? 0 : nil
-        @form_data['unrestrictedReport'] = reports['unrestricted'] ? 1 : nil
-        @form_data['neitherReport'] = reports['neither'] ? 2 : nil
-        @form_data['policeReport'] = reports['police'] ? 3 : nil
-        @form_data['otherReport'] = reports['other'] ? 4 : nil
+        set_treatment_selection
+        set_reports_selection
 
         format_other_behavior_details
         format_police_report_location
 
-        event_details = @form_data['eventDetails']
-        provider_details = @form_data['treatmentProvidersDetails']
-        
-        expand_overflow(event_details, :format_event, 'eventOverflow')
-        expand_overflow(provider_details, :format_treatment, 'treatmentOverflow')
+        expand_collection('eventsDetails', :format_event, 'eventOverflow')
+        expand_collection('treatmentProvidersDetails', :format_provider, 'providerOverflow')
 
         expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
-        
+
         formatted_date = DateTime.parse(@form_data['signatureDate']).strftime("%Y-%m-%d")
         @form_data['signatureDate'] = split_date(formatted_date)
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
@@ -687,66 +634,6 @@ module PdfFill
       end
 
       private
-
-      def format_other_behavior_details
-        behavior = @form_data['behaviors']['otherBehavior']
-        return unless behavior.present?
-
-        details = @form_data['behaviorsDetails']['otherBehavior']
-        @form_data['behaviorsDetails']['otherBehavior'] = "#{behavior}: #{details}"
-      end
-
-      def format_police_report_location
-        report = @form_data['reportsDetails']['police']
-        return if report.blank?
-
-        @form_data['reportsDetails']['police'] = report.values.reject(&:empty?).join(', ')
-      end
-
-      def expand_overflow(collection, format_method, overflow_key)
-        return if collection.blank?
-
-        collection.each_with_index do |item, index|
-          formatted_overflow = send(format_method, item, index + 1)
-          next if formatted_overflow.nil?
-
-          item[overflow_key] = PdfFill::FormValue.new('', formatted_overflow.compact.join("\n\n"))
-        end
-      end
-
-      def format_event(event, index)
-        return if event.blank?
-
-        event_overflow = ["Event Number: #{index}"]
-        event_details = event['details'] || ''
-        event_location = event['location'] || ''
-        event_timing = event['timing'] || ''
-
-        event_overflow.push("Event Description: \n\n#{event_details}")
-        event_overflow.push("Event Location: \n\n#{event_location}")
-        event_overflow.push("Event Date(s): \n\n#{event_timing}")
-
-        event_overflow
-      end
-
-      def format_treatment(treatment, index)
-        return if treatment.blank?
-
-        treatment_overflow = ["Treatment Information Number: #{index}"]
-        facility_info = treatment['facilityInfo'] || ''
-        month = treatment['treatmentMonth'] || ''
-        year = treatment['treatmentYear'] || ''
-        no_date = treatment['noDates']
-
-        treatment_overflow.push("Treatment Facility Info: \n\n#{facility_info}")
-        treatment_overflow.push(no_date ? "Treatment Date: Don't have date" : "Treatment Date: #{month}-#{year}")
-
-        treatment_overflow
-      end
-
-      def sanitize_phone(phone)
-        phone.gsub('-', '')
-      end
 
       def split_phone(hash, key)
         phone = hash[key]
@@ -759,6 +646,93 @@ module PdfFill
           'third' => phone[6..9]
         }
       end
+
+      def sanitize_phone(phone)
+        phone.gsub('-', '')
+      end
+
+      def set_treatment_selection
+        treated = @form_data['traumaTreatment']
+        return if treated.nil?
+
+        @form_data['treatment'] = treated ? 0 : 1
+        @form_data['noTreatment'] = treated ? 0 : 1
+      end
+
+      def set_reports_selection
+        reports = @form_data['reports']
+        return if reports.nil?
+
+        @form_data['reportFiled'] = reports['yes'] ? 0 : nil
+        @form_data['noReportFiled'] = reports['no'] ? 1 : nil
+        @form_data['restrictedReport'] = reports['restricted'] ? 0 : nil
+        @form_data['unrestrictedReport'] = reports['unrestricted'] ? 1 : nil
+        @form_data['neitherReport'] = reports['neither'] ? 2 : nil
+        @form_data['policeReport'] = reports['police'] ? 3 : nil
+        @form_data['otherReport'] = reports['other'] ? 4 : nil
+      end
+
+      def format_other_behavior_details
+        other_behavior = @form_data['behaviors']&.[]('otherBehavior')
+        return unless other_behavior.present?
+
+        details = @form_data['behaviorsDetails']['otherBehavior']
+        @form_data['behaviorsDetails']['otherBehavior'] = "#{other_behavior}: #{details}"
+      end
+
+      def format_police_report_location
+        report = @form_data['reportsDetails']&.[]('police')
+        return if report.blank?
+
+        @form_data['reportsDetails']['police'] = report.values.reject(&:empty?).join(', ')
+      end
+
+      def expand_collection(collection, format_method, overflow_key)
+        collection = @form_data[collection]
+        return if collection.blank?
+      
+        collection.each_with_index do |item, index|
+          format_item_overflow(item, index + 1, format_method, overflow_key)
+        end
+      end
+      
+      def format_item_overflow(item, index, format_method, overflow_key)
+        item_overflow = send(format_method, item, index)
+      
+        return if item_overflow.blank?
+      
+        item[overflow_key] = PdfFill::FormValue.new('', item_overflow.compact.join("\n\n"))
+      end
+
+      def format_event(event, index)
+        return if event.blank?
+      
+        event_overflow = ["Event Number: #{index}"]
+        event_details = event['details'] || ''
+        event_location = event['location'] || ''
+        event_timing = event['timing'] || ''
+      
+        event_overflow.push("Event Description: \n\n#{event_details}")
+        event_overflow.push("Event Location: \n\n#{event_location}")
+        event_overflow.push("Event Date: \n\n#{event_timing}")
+      
+        event_overflow
+      end
+      
+      def format_provider(provider, index)
+        return if provider.blank?
+      
+        provider_overflow = ["Treatment Information Number: #{index}"]
+        facility_info = provider['facilityInfo']
+        month = provider['treatmentMonth'] || 'XX'
+        year = provider['treatmentYear'] || 'XXXX'
+        no_date = provider['noDates']
+      
+        provider_overflow.push("Treatment Facility Name and Location: \n\n#{facility_info}")
+        provider_overflow.push(no_date ? "Treatment Date: Don't have date" : "Treatment Date: #{month}-#{year}")
+      
+        provider_overflow
+      end      
     end
   end
 end
