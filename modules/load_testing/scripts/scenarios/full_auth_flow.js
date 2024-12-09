@@ -7,7 +7,7 @@ import encoding from 'k6/encoding';
 // Add default config
 const DEFAULT_CONFIG = {
   api_base_url: 'http://localhost:3000',
-  client_id: 'vaweb_api_load_testing',
+  client_id: 'load_test_client',
   redirect_uri: 'http://localhost:3000/v0/sign_in/callback',
   test_routes: [
     '/v0/user',
@@ -63,22 +63,26 @@ function extractCodeFromUrl(url) {
   return match ? match[1] : null;
 }
 
+// Add error rate metric
+const errorRate = new Rate('errors');
+
+// Update options for better control
 export const options = {
   scenarios: {
     browser_flow: {
-      executor: 'ramping-vus',
-      startVUs: 0,
-      stages: [
-        { duration: '30s', target: 1 },    // Start with just 1 VU
-        { duration: '3m', target: 1 },     // Maintain 1 VU
-        { duration: '30s', target: 0 }     // Ramp down
-      ],
-      gracefulRampDown: '30s'
+      executor: 'constant-arrival-rate',
+      rate: 30,  // 30 iterations per minute
+      timeUnit: '1m',
+      duration: '5m',
+      preAllocatedVUs: 1,
+      maxVUs: 10,
+      gracefulStop: '30s'
     }
   },
   thresholds: {
     http_req_duration: ['p(95)<2000'],
-    http_req_failed: ['rate<0.01']
+    http_req_failed: ['rate<0.01'],
+    errors: ['rate<0.1']
   }
 };
 
@@ -135,6 +139,129 @@ function extractRedirectUrl(html) {
     return metaRefreshMatch[1].replace(/&amp;/g, '&');
   }
   return null;
+}
+
+function handleLoginGovForm(html) {
+  console.log('Handling Login.gov form...');
+  
+  let currentResponse = null;  // Track the current response for cookies
+  
+  // First, check if we got a meta refresh
+  const metaRefreshUrl = extractRedirectUrl(html);
+  if (metaRefreshUrl) {
+    console.log('Following meta refresh to:', metaRefreshUrl);
+    currentResponse = http.get(metaRefreshUrl, {
+      headers: {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'
+      }
+    });
+    
+    // Wait for page load
+    sleep(1);
+    html = currentResponse.body;
+    console.log('Login page status:', currentResponse.status);
+  }
+  
+  // Now look for the login form and required fields
+  const formMatch = html.match(/<form[^>]+action="([^"]+)"[^>]*>/);
+  const csrfMatch = html.match(/<input[^>]+name="authenticity_token"[^>]+value="([^"]+)"/);
+  const requestIdMatch = html.match(/request_id=([^"&]+)/);
+  
+  if (!formMatch || !csrfMatch) {
+    console.error('Could not find form or CSRF token in login page');
+    console.log('Login page HTML snippet:', html.substring(0, 2000));
+    return null;
+  }
+
+  // Make form action URL absolute
+  let formAction = formMatch[1];
+  if (formAction === '/') {
+    formAction = 'https://idp.int.identitysandbox.gov/';
+  } else if (formAction.startsWith('/')) {
+    formAction = 'https://idp.int.identitysandbox.gov' + formAction;
+  }
+  const csrfToken = csrfMatch[1];
+  const requestId = requestIdMatch ? requestIdMatch[1] : '';
+
+  console.log('Found login form. Action:', formAction);
+  console.log('Request ID:', requestId);
+  console.log('CSRF Token:', csrfToken);
+
+  // Log the form HTML for inspection
+  console.log('Form HTML:', html.match(/<form[^>]+>[\s\S]*?<\/form>/)[0]);
+
+  // Build form data string
+  const formData = [
+    `user[email]=${encodeURIComponent(__ENV.LOGIN_EMAIL || 'va.api.user+idme.001@gmail.com')}`,
+    `user[password]=${encodeURIComponent(__ENV.LOGIN_PASSWORD || 'Password123!!!')}`,
+    `authenticity_token=${encodeURIComponent(csrfToken)}`,
+    'button=Sign+in',
+    'commit=Sign+in',
+    'platform_authenticator_available=id+platform_authenticator_available',
+    `request_id=${encodeURIComponent(requestId)}`,
+    'remember_device=false'
+  ].join('&');
+
+  console.log('Form data (without password):', formData.replace(/user\[password\]=[^&]+/, 'user[password]=REDACTED'));
+  console.log('Submitting login form to:', formAction);
+  const loginResponse = http.post(formAction, formData, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Origin': 'https://idp.int.identitysandbox.gov',
+      'Referer': metaRefreshUrl,
+      'Cookie': currentResponse ? extractCookies(currentResponse) : '',
+      'Host': 'idp.int.identitysandbox.gov',
+      'Upgrade-Insecure-Requests': '1',
+      'Accept-Language': 'en-US,en;q=0.5'
+    },
+    redirects: 0
+  });
+
+  console.log('Login form submission status:', loginResponse.status);
+  console.log('Login response headers:', JSON.stringify(loginResponse.headers, null, 2));
+  
+  // Check for login error
+  if (loginResponse.status === 200 && loginResponse.body.includes('usa-alert--error')) {
+    console.error('Login failed: Invalid credentials');
+    console.log('Login error page:', loginResponse.body.substring(0, 1000));
+    // Log the error message
+    const errorMatch = loginResponse.body.match(/<p class="usa-alert__text">([^<]+)<\/p>/);
+    if (errorMatch) {
+      console.error('Error message:', errorMatch[1]);
+    }
+    return null;
+  }
+
+  if (loginResponse.status === 302) {
+    const location = loginResponse.headers['Location'];
+    console.log('Login successful, following redirect:', location);
+    return http.get(location, {
+      headers: {
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Cookie': extractCookies(loginResponse)
+      }
+    });
+  }
+
+  return loginResponse;
+}
+
+// Add helper to extract request_id
+function extractRequestId(html) {
+  const match = html.match(/request_id=([^"&]+)/);
+  return match ? match[1] : '';
+}
+
+// Helper function to extract cookies
+function extractCookies(response) {
+  const cookies = response.headers['Set-Cookie'];
+  if (!cookies) return '';
+  
+  return Array.isArray(cookies) ? cookies.join('; ') : cookies;
 }
 
 function authorizeFlow(config) {
@@ -195,13 +322,29 @@ function authorizeFlow(config) {
         return null;
       }
 
-      if (redirectResponse.status === 302) {
-        const location = redirectResponse.headers['Location'];
-        console.log('Final redirect location:', location);
-        const code = extractCodeFromUrl(location);
-        if (code) {
-          console.log('Successfully extracted auth code');
-          return { code, codeVerifier, state };
+      if (redirectResponse.status === 200) {
+        // Handle Login.gov form
+        const loginResponse = handleLoginGovForm(redirectResponse.body);
+        if (loginResponse) {
+          if (loginResponse.status === 302) {
+            const location = loginResponse.headers['Location'];
+            console.log('Login successful, following redirect:', location);
+            const finalResponse = http.get(location, {
+              headers: {
+                'Accept': 'text/html'
+              }
+            });
+            console.log('Final response status:', finalResponse.status);
+            console.log('Final URL:', finalResponse.url);
+            const code = extractCodeFromUrl(finalResponse.url);
+            if (code) {
+              console.log('Successfully extracted auth code');
+              return { code, codeVerifier, state };
+            }
+          } else {
+            console.error('Unexpected login response status:', loginResponse.status);
+            console.log('Login response body:', loginResponse.body);
+          }
         }
       }
     }
@@ -314,25 +457,6 @@ function exchangeForVaGovTokens(config, tokens) {
 
   console.error('VA.gov Token Exchange Failed:', response.body);
   return null;
-}
-
-function extractCookies(response) {
-  const cookies = {};
-  const setCookies = response.headers['Set-Cookie'];
-  
-  if (Array.isArray(setCookies)) {
-    setCookies.forEach(cookie => {
-      if (cookie.includes('vagov_access_token=')) {
-        cookies.access_token = cookie.split(';')[0].split('=')[1];
-      } else if (cookie.includes('vagov_anti_csrf_token=')) {
-        cookies.csrf_token = cookie.split(';')[0].split('=')[1];
-      } else if (cookie.includes('vagov_refresh_token=')) {
-        cookies.refresh_token = cookie.split(';')[0].split('=')[1];
-      }
-    });
-  }
-
-  return cookies;
 }
 
 function refreshTokens(config, refreshToken) {

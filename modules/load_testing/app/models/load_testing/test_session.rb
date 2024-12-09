@@ -3,6 +3,8 @@ module LoadTesting
     validates :status, presence: true
     validates :concurrent_users, presence: true
     validates :configuration, presence: true
+
+    validate :validate_configuration_format
     
     has_many :test_tokens, class_name: 'LoadTesting::TestToken', dependent: :destroy
     
@@ -17,8 +19,28 @@ module LoadTesting
       where(status: ['pending', 'running'])
     end
 
-    after_initialize do |test_session|
-      Rails.logger.info "TestSession initialized with configuration: #{test_session.configuration.inspect}"
+    private
+
+    def validate_configuration_format
+      return if configuration.blank?
+
+      unless configuration['client_id'].present?
+        errors.add(:configuration, 'must include client_id')
+      end
+
+      unless configuration['type'].present?
+        errors.add(:configuration, 'must include type')
+      end
+
+      unless configuration['stages'].is_a?(Array)
+        errors.add(:configuration, 'must include stages array')
+      end
+
+      configuration['stages']&.each do |stage|
+        unless stage['duration'].present? && stage['target'].present?
+          errors.add(:configuration, 'each stage must include duration and target')
+        end
+      end
     end
   end
 end 

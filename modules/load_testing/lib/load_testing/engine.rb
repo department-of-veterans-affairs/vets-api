@@ -28,5 +28,21 @@ module LoadTesting
     config.load_testing.allowed_teams = ['identity']
     config.load_testing.max_concurrent_users = 1000
     config.load_testing.token_lifetime = 30.minutes
+
+    # Add this line to ensure jobs are loaded
+    config.autoload_paths += %W[#{config.root}/app/jobs]
+
+    config.autoload_paths += %W[
+      #{config.root}/lib
+      #{config.root}/lib/load_testing/authentication
+    ]
+
+    initializer 'load_testing.authentication' do |app|
+      require_relative 'authentication/service_retriever'
+      require_relative 'authentication/logingov'
+
+      # Register the Logingov authentication service
+      LoadTesting::Authentication::ServiceRetriever.register_service('logingov', LoadTesting::Authentication::Logingov)
+    end
   end
 end 

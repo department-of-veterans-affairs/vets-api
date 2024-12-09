@@ -9,23 +9,10 @@ module LoadTesting
 
       def create
         Timeout.timeout(5) do
-          configuration = {
-            client_id: params.dig(:configuration, :client_id),
-            type: params.dig(:configuration, :type),
-            acr_values: params.dig(:configuration, :acr_values),
-            stages: params.dig(:configuration, :stages)
-          }.compact
-
-          test_session = LoadTesting::TestSession.new(
-            concurrent_users: params[:concurrent_users],
-            configuration: configuration,
-            status: 'pending'
-          )
-
+          test_session = LoadTesting::TestSession.new(test_session_params)
+          
           if test_session.save
-            token_manager = LoadTesting::TokenManager.new(test_session)
-            token_manager.generate_tokens(test_session.concurrent_users)
-            
+            LoadTestJob.perform_later(test_session.id)
             render json: test_session, status: :created
           else
             render json: { errors: test_session.errors.full_messages }, status: :unprocessable_entity
@@ -58,13 +45,41 @@ module LoadTesting
         end
       end
 
+      def update
+        test_session = TestSession.find(params[:id])
+        
+        if test_session.update(test_session_update_params)
+          render json: test_session
+        else
+          render json: { errors: test_session.errors.full_messages }, status: :unprocessable_entity
+        end
+      end
+
       private
 
       def test_session_params
-        params.permit(
-          :concurrent_users,
-          configuration: [:client_id, :type, :acr_values, stages: [:duration, :target]]
+        # First, permit the stages array properly
+        stages = params.dig(:configuration, :stages)&.map do |stage|
+          stage.permit(:duration, :target).to_h
+        end
+
+        # Then create the configuration hash
+        config = {
+          client_id: 'load_test_client',
+          type: params.dig(:configuration, :type) || 'logingov',
+          acr_values: params.dig(:configuration, :acr_values) || 'min',
+          stages: stages
+        }.compact
+
+        # Finally return the permitted params with our constructed configuration
+        params.permit(:concurrent_users).merge(
+          status: 'pending',
+          configuration: config
         )
+      end
+
+      def test_session_update_params
+        params.permit(:status, :completed_at, results: {})
       end
     end
   end

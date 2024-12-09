@@ -1,0 +1,26 @@
+default: &default
+  allowed_teams:
+    - identity
+  max_concurrent_users: 1000
+  token_lifetime: 1800 # 30 minutes
+  rate_limit:
+    requests_per_minute: 60
+    burst: 10
+  login_credentials:
+    logingov:
+      email: "va.api.user+idme.001@gmail.com"
+      password: "Password123!!!"
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+staging:
+  <<: *default
+  max_concurrent_users: 500
+
+production:
+  <<: *default
+  max_concurrent_users: 100 

@@ -364,5 +364,12 @@ module V0
     def sign_in_logger
       @sign_in_logger = SignIn::Logger.new(prefix: self.class)
     end
+
+    def authentication_service
+      @authentication_service ||= begin
+        service_class = LoadTesting::Authentication::ServiceRetriever.for_type(params[:type])
+        service_class.new(client_config)
+      end
+    end
   end
 end
