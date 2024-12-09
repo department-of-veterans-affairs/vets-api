@@ -9,7 +9,8 @@ RSpec.describe 'PDF Generator 21-22a', openapi_spec: 'modules/representation_man
   before do
     create(:accredited_individual,
            id: SwaggerSharedComponents::V0.representative[:id],
-           phone: Faker::Number.number(digits: 10))
+           phone: Faker::Number.number(digits: 10),
+           zip_code: '12345')
   end
 
   path '/representation_management/v0/pdf_generator2122a' do
