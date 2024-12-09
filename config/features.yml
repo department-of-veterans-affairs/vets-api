@@ -890,6 +890,10 @@ features:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
     enable_in_development: true
+  lighthouse_claims_api_v2_add_person_proxy:
+    actor_type: user
+    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID 
+    enable_in_development: true
   lighthouse_claims_api_poa_dependent_claimants:
     actor_type: user
     description: Enable/disable dependent claimant support for POA requests
