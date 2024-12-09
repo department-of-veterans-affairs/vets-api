@@ -40,6 +40,7 @@ module EducationForm
                     unique_for: 30.minutes,
                     retry: 5
 
+    # rubocop:disable Metrics/MethodLength
     def perform
       retry_count = 0
       filename = "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}.csv"
@@ -72,13 +73,13 @@ module EducationForm
       rescue => e
         StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
         if retry_count < MAX_RETRIES
-          log_exception(DailySpoolFileError.new("Error creating excel files.\n\n#{e}
+          log_exception(DailyExcelFileError.new("Error creating excel files.\n\n#{e}
                                                  Retry count: #{retry_count}. Retrying..... "))
           retry_count += 1
           sleep(10 * retry_count) # exponential backoff for retries
           retry
         else
-          log_exception(DailySpoolFileError.new("Error creating excel files.
+          log_exception(DailyExcelFileError.new("Error creating excel files.
                                                  Job failed after #{MAX_RETRIES} retries \n\n#{e}"))
         end
       end
@@ -102,15 +103,14 @@ module EducationForm
               value.is_a?(Hash) ? value.to_s : value
             end
             csv << row_data
+
+            log_info('Successfully created CSV file')
           rescue => e
             log_exception(DailyExcelFileError.new("Failed to add row #{index + 1}:\n"))
             log_exception(DailyExcelFileError.new("#{e.message}\nRecord: #{record.inspect}"))
             next
           end
         end
-
-        log_info("Successfully added #{records.count} data rows")
-        log_info('Successfully created CSV file')
       rescue => e
         StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
         log_exception(DailyExcelFileError.new('Error creating CSV files.'))
@@ -123,9 +123,9 @@ module EducationForm
           log_exception(DailyExcelFileError.new("Job failed after #{MAX_RETRIES} retries \n\n#{e}"))
         end
       end
-
       true
     end
+    # rubocop:enable Metrics/MethodLength
 
     def format_records(records)
       records.map do |record|
