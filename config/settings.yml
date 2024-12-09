@@ -1840,6 +1840,9 @@ vaos:
     base_path: "care-navigation/v1"
     scopes: "care-nav"
 
+accredited_representative_portal:
+  pilot_users_email_poa_codes: ~
+  
 banners:
   drupal_username: banners_api
   drupal_password: test
