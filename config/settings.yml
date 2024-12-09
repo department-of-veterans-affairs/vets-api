@@ -1373,6 +1373,7 @@ vanotify:
         form_10_7959a_email: form_10_7959a_email
         form_10_7959a_failure_email: form_10_7959a_failure_email
         pega_team_missing_status_email: pega_team_missing_status_email
+        pega_team_zsf_email: pega_team_zsf_email
 
     health_apps_1010:
       api_key: fake_secret
