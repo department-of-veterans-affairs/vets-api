@@ -5,7 +5,12 @@ module V0
     service_tag 'dependent-change'
 
     def create
-      claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
+      if Flipper.enabled?(:va_dependents_v2)
+        form = dependent_params.to_json
+        claim = SavedClaim::DependencyClaim.new(form:, use_v2: form.present? ? JSON.parse(form)['dependents_application']['use_v2'] : nil)
+      else
+        claim = SavedClaim::DependencyClaim.new(form: dependent_params.to_json)
+      end
 
       unless claim.save
         StatsD.increment("#{stats_key}.failure")

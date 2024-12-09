@@ -35,11 +35,11 @@ class SavedClaim::DependencyClaim < CentralMailClaim
   validate :validate_686_form_data, on: :run_686_form_jobs
   validate :address_exists
 
-  attr_accessor :formV2
+  attr_accessor :use_v2
 
   after_initialize do
     self.form_id = if Flipper.enabled?(:va_dependents_v2)
-                     formV2 || form_id == '686C-674-V2' ? '686C-674-V2' : self.class::FORM.upcase
+                     use_v2 || form_id == '686C-674-V2' ? '686C-674-V2' : self.class::FORM.upcase
                    else
                      self.class::FORM.upcase
                    end
