@@ -453,7 +453,7 @@ module V1
 
     def validate_operation_params(operation)
       unless OPERATION_TYPES.include?(operation)
-        raise Common::Exceptions::InvalidFieldValue.new('operation', params[:operation])
+        raise Common::Exceptions::InvalidFieldValue.new('operation', operation)
       end
     end
   end
