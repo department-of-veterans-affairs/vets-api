@@ -23,6 +23,7 @@ module VAProfile
         # @return [VAProfile::AddressValidation::AddressSuggestionsResponse] response wrapper around address
         #   suggestions data
         def address_suggestions(address)
+          Rails.logger.info("Address Valid Service: #{address}")
           with_monitoring do
             candidate_res = candidate(address)
 

@@ -11,6 +11,7 @@ module VAProfile
       # and use original address.
       class AddressSuggestionsResponse
         def initialize(candidate_res)
+          Rails.logger.info("Address Suggestion Response: #{address_suggestion_hash}")
           validation_key = candidate_res['override_validation_key']
           @response = {
             addresses: candidate_res['candidate_addresses'].map do |address_suggestion_hash|

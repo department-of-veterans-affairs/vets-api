@@ -27,7 +27,7 @@ module VAProfile
                          countryName: @country_name, countryCodeFIPS: @country_code_fips },
               state: { stateCode: @state_code, stateName: @state_name },
               province: { provinceName: @province_name, provinceCode: @province_code },
-              addressPOU: @address_pou
+              addressPOU: "RESIDENCE"
             )
           )
         end
@@ -58,6 +58,7 @@ module VAProfile
           else
             {
               state_code: address_hash.dig('state', 'state_code'),
+              state_name: address_hash.dig('state', 'state_name'),
               county_code: address_hash.dig('county', 'county_code'),
               county_name: address_hash.dig('county', 'county_name'),
               zip_code: address_hash['zip_code5'],
