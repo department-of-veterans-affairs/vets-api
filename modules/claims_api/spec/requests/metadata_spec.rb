@@ -96,7 +96,6 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
               .and_return(Struct.new(:healthy?).new(false))
             get "/services/claims/#{version}/upstream_healthcheck"
             result = JSON.parse(response.body)
-            byebug
             expect(result['localbgs-org']['success']).to eq(false)
           end
         end
