@@ -109,7 +109,7 @@ module ClaimsApi
       ##
       # IntentToFileWebServiceBean
       #
-      module IntentToFileWebServiceBean
+      module IntentToFileWebService
         DEFINITION =
           Bean.new(
             path: 'IntentToFileWebServiceBean',
@@ -118,32 +118,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module IntentToFileWebService
-        DEFINITION =
-          Service.new(
-            bean: IntentToFileWebServiceBean::DEFINITION,
-            path: 'IntentToFileWebService'
-          )
-
-        module InsertIntentToFile
-          DEFINITION =
-            Action.new(
-              service: IntentToFileWebService::DEFINITION,
-              name: 'insertIntentToFile',
-              key: 'IntentToFileDTO'
-            )
-        end
-
-        module FindIntentToFileByPtcpntIdItfTypeCd
-          DEFINITION =
-            Action.new(
-              service: IntentToFileWebService::DEFINITION,
-              name: 'findIntentToFileByPtcpntIdItfTypeCd',
-              key: 'return'
-            )
-        end
       end
 
       ##
@@ -180,7 +154,7 @@ module ClaimsApi
       ##
       # PersonWebServiceBean
       #
-      module PersonWebServiceBean
+      module PersonWebService
         DEFINITION =
           Bean.new(
             path: 'PersonWebServiceBean',
@@ -189,32 +163,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module PersonWebService
-        DEFINITION =
-          Service.new(
-            bean: PersonWebServiceBean::DEFINITION,
-            path: 'PersonWebService'
-          )
-
-        module FindDependentsByPtcpntId
-          DEFINITION =
-            Action.new(
-              service: PersonWebService::DEFINITION,
-              name: 'findDependentsByPtcpntId',
-              key: 'DependentDTO'
-            )
-        end
-
-        module FindPersonBySSN
-          DEFINITION =
-            Action.new(
-              service: PersonWebService::DEFINITION,
-              name: 'findPersonBySSN',
-              key: 'PersonDTO'
-            )
-        end
       end
 
       ##
