@@ -6,7 +6,6 @@ RSpec.describe SavedClaim::Burial do
   subject { described_class.new }
 
   let(:instance) { FactoryBot.build(:burial_claim) }
-  let(:instance_v2) { FactoryBot.build(:burial_claim_v2) }
 
   it 'responds to #confirmation_number' do
     expect(subject.confirmation_number).to eq(subject.guid)
@@ -28,33 +27,27 @@ RSpec.describe SavedClaim::Burial do
   end
 
   context 'a record is processed through v2' do
-    before do
-      Flipper.enable(:va_burial_v2)
-    end
-
-    let(:subject_v2) { described_class.new(formV2: true) }
-
     it 'inherits init callsbacks from saved_claim' do
-      expect(subject_v2.form_id).to eq('21P-530V2')
-      expect(subject_v2.guid).not_to be_nil
-      expect(subject_v2.type).to eq(described_class.to_s)
+      expect(subject.form_id).to eq('21P-530EZ')
+      expect(subject.guid).not_to be_nil
+      expect(subject.type).to eq(described_class.to_s)
     end
 
     context 'validates against the form schema' do
       before do
-        expect(instance_v2.valid?).to be(true)
+        expect(instance.valid?).to be(true)
         expect(JSON::Validator).to receive(:fully_validate).once.and_call_original
       end
 
       # NOTE: We assume all forms have the privacyAgreementAccepted element. Obviously.
       it 'rejects forms with missing elements' do
-        bad_form = instance_v2.parsed_form.deep_dup
+        bad_form = instance.parsed_form.deep_dup
         bad_form.delete('privacyAgreementAccepted')
-        instance_v2.form = bad_form.to_json
-        instance_v2.remove_instance_variable(:@parsed_form)
-        expect(instance_v2.valid?).to be(false)
-        expect(instance_v2.errors.full_messages.size).to eq(1)
-        expect(instance_v2.errors.full_messages).to include(/privacyAgreementAccepted/)
+        instance.form = bad_form.to_json
+        instance.remove_instance_variable(:@parsed_form)
+        expect(instance.valid?).to be(false)
+        expect(instance.errors.full_messages.size).to eq(1)
+        expect(instance.errors.full_messages).to include(/privacyAgreementAccepted/)
       end
     end
   end
@@ -67,7 +60,7 @@ RSpec.describe SavedClaim::Burial do
 
   describe '#benefits_claimed' do
     it 'returns a full array of values' do
-      benefits_claimed = instance_v2.benefits_claimed
+      benefits_claimed = instance.benefits_claimed
       expected = ['Burial Allowance', 'Plot Allowance', 'Transportation']
 
       expect(benefits_claimed.length).to eq(3)
@@ -75,24 +68,24 @@ RSpec.describe SavedClaim::Burial do
     end
 
     it 'returns at least an empty array' do
-      form = instance_v2.parsed_form
+      form = instance.parsed_form
 
       form = form.merge({ 'transportation' => false })
-      claim = FactoryBot.build(:burial_claim_v2, form: form.to_json)
+      claim = FactoryBot.build(:burial_claim, form: form.to_json)
       benefits_claimed = claim.benefits_claimed
       expected = ['Burial Allowance', 'Plot Allowance']
       expect(benefits_claimed.length).to eq(2)
       expect(benefits_claimed).to eq(expected)
 
       form = form.merge({ 'plotAllowance' => false })
-      claim = FactoryBot.build(:burial_claim_v2, form: form.to_json)
+      claim = FactoryBot.build(:burial_claim, form: form.to_json)
       benefits_claimed = claim.benefits_claimed
       expected = ['Burial Allowance']
       expect(benefits_claimed.length).to eq(1)
       expect(benefits_claimed).to eq(expected)
 
       form = form.merge({ 'burialAllowance' => false })
-      claim = FactoryBot.build(:burial_claim_v2, form: form.to_json)
+      claim = FactoryBot.build(:burial_claim, form: form.to_json)
       benefits_claimed = claim.benefits_claimed
       expected = []
       expect(benefits_claimed.length).to eq(0)

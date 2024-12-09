@@ -8,21 +8,16 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
   let(:monitor) { double('Burials::Monitor') }
 
   before do
-    Flipper.enable(:va_burial_v2)
-
     allow(Burials::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
                                        track_create_error: nil, track_create_success: nil,
                                        track_create_validation_error: nil, track_process_attachment_error: nil)
   end
 
-  # @see spec/support/controller_spec_helper.rb
-  it_behaves_like 'a controller that deletes an InProgressForm', 'burial_claim', 'burial_claim_v2', '21P-530V2'
-
   describe 'with a user' do
-    let(:form) { build(:burial_claim_v2) }
+    let(:form) { build(:burial_claim) }
     let(:param_name) { :burial_claim }
-    let(:form_id) { '21P-530V2' }
+    let(:form_id) { '21P-530EZ' }
     let(:user) { create(:user) }
 
     it 'logs validation errors' do
@@ -40,7 +35,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
   end
 
   describe '#show' do
-    let(:claim) { build(:burial_claim_v2) }
+    let(:claim) { build(:burial_claim) }
 
     it 'returns a success when the claim is found' do
       allow(SavedClaim::Burial).to receive(:find_by!).and_return(claim)
@@ -70,7 +65,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
   end
 
   describe '#process_and_upload_to_lighthouse' do
-    let(:claim) { build(:burial_claim_v2) }
+    let(:claim) { build(:burial_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
 
     it 'returns a success' do
@@ -91,7 +86,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
   end
 
   describe '#log_validation_error_to_metadata' do
-    let(:claim) { build(:burial_claim_v2) }
+    let(:claim) { build(:burial_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
 
     it 'returns if a `blank` in_progress_form' do
