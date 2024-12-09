@@ -16,7 +16,7 @@ FactoryBot.define do
     original_entitlement { { months: 0, days: 21 } }
     used_entitlement { { months: 0, days: 11 } }
     remaining_entitlement { { months: 0, days: 12 } }
-    entitlement_transferred_out { { months: 0, days: 15 }}
+    entitlement_transferred_out { { months: 0, days: 15 } }
     active_duty { true }
     veteran_is_eligible { true }
     enrollments {
