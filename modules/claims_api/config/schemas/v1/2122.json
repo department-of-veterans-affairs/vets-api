@@ -20,8 +20,19 @@
           "required": [
             "numberAndStreet",
             "city",
-            "country",
-            "zipFirstFive"
+            "country"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "country": { "const": "US" }
+                }
+              },
+              "then": {
+                "required": ["zipFirstFive"]
+              }
+            }
           ],
           "properties" : {
             "numberAndStreet": {
@@ -52,7 +63,7 @@
               "example": "US"
             },
             "zipFirstFive": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zipcode (First 5 digits) of the address. Required if country is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
@@ -148,8 +159,19 @@
           "required": [
             "numberAndStreet",
             "city",
-            "country",
-            "zipFirstFive"
+            "country"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "country": { "const": "US" }
+                }
+              },
+              "then": {
+                "required": ["zipFirstFive"]
+              }
+            }
           ],
           "properties" : {
             "numberAndStreet": {
@@ -180,7 +202,7 @@
               "example": "US"
             },
             "zipFirstFive": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zipcode (First 5 digits) of the address. Required if country is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
@@ -270,8 +292,19 @@
           "required": [
             "numberAndStreet",
             "city",
-            "country",
-            "zipFirstFive"
+            "country"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "country": { "const": "US" }
+                }
+              },
+              "then": {
+                "required": ["zipFirstFive"]
+              }
+            }
           ],
           "properties" : {
             "numberAndStreet": {
@@ -302,7 +335,7 @@
               "example": "US"
             },
             "zipFirstFive": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zipcode (First 5 digits) of the address. Required if country is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
