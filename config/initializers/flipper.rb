@@ -46,32 +46,36 @@ Rails.application.reloader.to_prepare do
     end
   end
 
-  # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
-  added_flippers = []
-  begin
-    FLIPPER_FEATURE_CONFIG['features'].each do |feature, feature_config|
-      unless Flipper.exist?(feature)
-        Flipper.add(feature)
-        added_flippers.push(feature)
+  Rails.application.config.after_initialize do
+    # Make sure that each feature we reference in code is present in the UI, as long as we have a Database already
+    added_flippers = []
+    begin
+      FLIPPER_FEATURE_CONFIG['features'].each do |feature, feature_config|
+        unless Flipper.exist?(feature)
+          Flipper.add(feature)
+          added_flippers.push(feature)
 
-        # Default features to enabled for test and those explicitly set for development
-        if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
-          Flipper.enable(feature)
+          # Default features to enabled for test and those explicitly set for development
+          if Rails.env.test? || (Rails.env.development? && feature_config['enable_in_development'])
+            Flipper.enable(feature)
+          end
         end
+
+        # Enable features on dev-api.va.gov if they are set to enable_in_development
+        Flipper.enable(feature) if Settings.vsp_environment == 'development' && feature_config['enable_in_development']
       end
 
-      # Enable features on dev-api.va.gov if they are set to enable_in_development
-      Flipper.enable(feature) if Settings.vsp_environment == 'development' && feature_config['enable_in_development']
+      Rails.logger.info "The following feature flippers were added: #{added_flippers}" unless added_flippers.empty?
+      removed_features = Flipper.features.collect(&:name) - FLIPPER_FEATURE_CONFIG['features'].keys
+      unless removed_features.empty?
+        Rails.logger.warn "Consider removing features no longer in config/features.yml: #{removed_features.join(', ')}"
+      end
+    rescue => e
+      Rails.logger.error "Error processing Flipper features: #{e.message}"
+      puts "error message: #{e.message}"
+      # make sure we can still run rake tasks before table has been created
+      nil
     end
-
-    Rails.logger.info "The following feature flippers were added: #{added_flippers}" unless added_flippers.empty?
-    removed_features = Flipper.features.collect(&:name) - FLIPPER_FEATURE_CONFIG['features'].keys
-    unless removed_features.empty?
-      Rails.logger.warn "Consider removing features no longer in config/features.yml: #{removed_features.join(', ')}"
-    end
-  rescue => e
-    Rails.logger.error "Error processing Flipper features: #{e.message}"
-    # make sure we can still run rake tasks before table has been created
-    nil
   end
+
 end
