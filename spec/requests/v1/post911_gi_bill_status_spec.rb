@@ -8,6 +8,7 @@ RSpec.describe 'V1::Post911GIBillStatus', type: :request do
   let(:user) { create(:user, icn: '1012667145V762142') }
 
   before do
+    # TO-DO: Remove once new VCR recorded for updated Post-911 GI Bill Status response
     Flipper.disable(:sob_updated_design)
     sign_in_as(user)
   end

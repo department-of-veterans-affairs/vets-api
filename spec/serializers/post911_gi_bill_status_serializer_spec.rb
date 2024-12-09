@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 
+# TO-DO: Remove flipper once updated Post-911 SOB released
 describe Post911GIBillStatusSerializer, type: :serializer do
   subject { serialize(gi_bill_status, serializer_class: described_class) }
 
