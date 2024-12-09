@@ -53,7 +53,6 @@ module RepresentationManagement
           :date_of_birth,
           :service_number,
           :service_branch,
-          :service_branch_other,
           :phone,
           :email,
           {

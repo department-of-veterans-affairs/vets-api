@@ -958,6 +958,7 @@ lighthouse:
       client_id: ~
       rsa_key: ~
   api_key: fake_key
+  staging_api_key: fake_key
   benefits_claims:
     host: https://sandbox-api.va.gov
     access_token:
@@ -1004,6 +1005,7 @@ lighthouse:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
   benefits_reference_data:
     url: https://sandbox-api.va.gov
+    staging_url: https://staging-api.va.gov
     path: services/benefits-reference-data
     version: v1
   direct_deposit:
@@ -1433,19 +1435,10 @@ genisis:
   pass: bogus
 
 # Settings for connecting AFS Veteran Services
-# For locahost we can use the existing certs as long as we don't call out
 dgi:
   jwt:
     public_key_path: modules/meb_api/spec/fixtures/dgi_public_test.pem
     private_key_path: modules/meb_api/spec/fixtures/dgi_private_test.pem
-  vye:
-    jwt:
-      public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
-      private_key_path: modules/vye/spec/fixtures/dgi_private_test.pem
-      public_ica11_rca2_key_path: ""
-    vets:
-      url: ""
-      mock: false
   vets:
     url: "https://jenkins.ld.afsp.io:32512/vets-service/v1/" # Docker setup for microservice
     mock: false
@@ -1847,3 +1840,7 @@ vaos:
     base_path: "care-navigation/v1"
     scopes: "care-nav"
 
+banners:
+  drupal_username: banners_api
+  drupal_password: test
+  drupal_url: https://test.cms.va.gov/
