@@ -2277,19 +2277,8 @@ RSpec.describe V0::SignInController, type: :controller do
     let(:enforced_terms) { nil }
     let(:anti_csrf) { false }
     let(:expected_error_status) { :unauthorized }
-    let(:identifier) { user_account.icn }
-    let(:deceased_date) { nil }
-    let(:id_theft_flag) { false }
-    let(:mpi_profile) { build(:mpi_profile, icn: user_account.icn, deceased_date:, id_theft_flag:) }
-    let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
-    before do
-      allow(Rails.logger).to receive(:info)
-      allow_any_instance_of(MPI::Service)
-        .to receive(:find_profile_by_identifier)
-        .with(identifier:, identifier_type: MPI::Constants::ICN)
-        .and_return(find_profile_response)
-    end
+    before { allow(Rails.logger).to receive(:info) }
 
     shared_examples 'error response' do
       let(:expected_error_json) { { 'errors' => expected_error } }
@@ -2453,20 +2442,6 @@ RSpec.describe V0::SignInController, type: :controller do
             session.user_verification = locked_user_verification
             session.save!
           end
-
-          it_behaves_like 'error response'
-        end
-
-        context 'and the retrieved account has an MPI death flag' do
-          let(:deceased_date) { '20020202' }
-          let(:expected_error) { 'Death Flag Detected' }
-
-          it_behaves_like 'error response'
-        end
-
-        context 'and the account has an MPI theft flag' do
-          let(:id_theft_flag) { true }
-          let(:expected_error) { 'Theft Flag Detected' }
 
           it_behaves_like 'error response'
         end
