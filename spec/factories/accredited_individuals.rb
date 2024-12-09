@@ -34,5 +34,11 @@ FactoryBot.define do
     trait :with_location do
       location { 'POINT(-73.77623285 42.65140884)' }
     end
+
+    trait :for_2122_pdf_fixture do
+      first_name { 'John' }
+      middle_initial { 'M' }
+      last_name { 'Representative' }
+    end
   end
 end
