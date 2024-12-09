@@ -154,7 +154,7 @@ module ClaimsApi
       ##
       # PersonWebServiceBean
       #
-      module PersonWebServiceBean
+      module PersonWebService
         DEFINITION =
           Bean.new(
             path: 'PersonWebServiceBean',
@@ -163,32 +163,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module PersonWebService
-        DEFINITION =
-          Service.new(
-            bean: PersonWebServiceBean::DEFINITION,
-            path: 'PersonWebService'
-          )
-
-        module FindDependentsByPtcpntId
-          DEFINITION =
-            Action.new(
-              service: PersonWebService::DEFINITION,
-              name: 'findDependentsByPtcpntId',
-              key: 'DependentDTO'
-            )
-        end
-
-        module FindPersonBySSN
-          DEFINITION =
-            Action.new(
-              service: PersonWebService::DEFINITION,
-              name: 'findPersonBySSN',
-              key: 'PersonDTO'
-            )
-        end
       end
 
       ##
