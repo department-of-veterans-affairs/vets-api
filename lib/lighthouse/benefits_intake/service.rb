@@ -9,19 +9,13 @@ module BenefitsIntake
   ##
   # Proxy Service for the Lighthouse Benefits Intake API
   #
-  # Use this to submit claims that cannot be auto-established,
-  # via paper submission (electronic PDF submission to CMP)
+  # Use this to submit claims that cannot be auto-established, via paper submission (electronic PDF submission to CMP).
+  # It is the responsibility of any team sending submissions to Lighthouse to monitor those submissions.
   #
-  # https://developer.va.gov/explore/api/benefits-intake/docs
+  # @see https://depo-platform-documentation.scrollhelp.site/developer-docs/endpoint-monitoring
+  # @see https://developer.va.gov/explore/api/benefits-intake/docs
   #
   class Service < Common::Client::Base
-    ################################################################
-    # It is the responsibility of any team sending submissions to  #
-    # Lighthouse to monitor those submissions. See here for more   #
-    # details:                                                     #
-    #                                                              #
-    # https://depo-platform-documentation.scrollhelp.site/developer-docs/endpoint-monitoring
-    ################################################################
     configuration BenefitsIntake::Configuration
 
     # TODO: process document error similar to service exception

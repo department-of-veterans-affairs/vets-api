@@ -447,7 +447,10 @@ RSpec.describe Form1010Ezr::Service do
         let(:form) { get_fixture('form1010_ezr/valid_form') }
 
         context 'with pdf attachments' do
-          it 'returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:32 GMT' do
+          it 'increments StatsD and returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:32 GMT' do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
+
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_attachments',
               { match_requests_on: %i[method uri body], erb: true }
@@ -467,7 +470,10 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         context 'with a non-pdf attachment' do
-          it 'returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:34 GMT' do
+          it 'increments StatsD and returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:34 GMT' do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
+
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_non_pdf_attachment',
               { match_requests_on: %i[method uri body], erb: true }

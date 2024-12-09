@@ -1,87 +1,99 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs_service/corporate_update_web_service'
 
 RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   subject { described_class }
 
-  before do
-    Sidekiq::Job.clear_all
-  end
+  [true, false].each do |flipped|
+    before do
+      Sidekiq::Job.clear_all
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
-  let(:auth_headers) do
-    headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-    headers['va_eauth_pnid'] = '796104437'
-    headers
-  end
+      if flipped
+        Flipper.enable(:claims_api_poa_vbms_updater_uses_local_bgs)
+        @clazz = ClaimsApi::CorporateUpdateWebService
 
-  context 'when address change is present and allowed' do
-    let(:allow_poa_c_add) { 'Y' }
-    let(:consent_address_change) { true }
-
-    it 'updates a the BIRLS record for a qualifying POA submittal' do
-      poa = create_poa
-      create_mock_lighthouse_service
-      subject.new.perform(poa.id)
+      else
+        Flipper.disable(:claims_api_poa_vbms_updater_uses_local_bgs)
+        @clazz = BGS::Services
+      end
     end
-  end
 
-  context 'when address change is present and not allowed' do
-    let(:allow_poa_c_add) { 'N' }
-    let(:consent_address_change) { false }
-
-    it 'updates a the BIRLS record for a qualifying POA submittal' do
-      poa = create_poa
-      create_mock_lighthouse_service
-      subject.new.perform(poa.id)
+    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:auth_headers) do
+      headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+      headers['va_eauth_pnid'] = '796104437'
+      headers
     end
-  end
 
-  context 'when address change is not present' do
-    let(:allow_poa_c_add) { 'N' }
-    let(:consent_address_change) { nil }
+    context 'when address change is present and allowed' do
+      let(:allow_poa_c_add) { 'Y' }
+      let(:consent_address_change) { true }
 
-    it 'updates a the BIRLS record for a qualifying POA submittal' do
-      poa = create_poa
-      create_mock_lighthouse_service
-      subject.new.perform(poa.id)
+      it 'updates a the BIRLS record for a qualifying POA submittal' do
+        poa = create_poa
+        create_mock_lighthouse_service
+        subject.new.perform(poa.id)
+      end
     end
-  end
 
-  context 'when BGS fails the error is handled' do
-    let(:allow_poa_c_add) { 'Y' }
-    let(:consent_address_change) { true }
+    context 'when address change is present and not allowed' do
+      let(:allow_poa_c_add) { 'N' }
+      let(:consent_address_change) { false }
 
-    it 'marks the form as errored' do
-      poa = create_poa
-      create_mock_lighthouse_service_bgs_failure # API-31645 real life example
-      subject.new.perform(poa.id)
-
-      poa.reload
-      expect(poa.status).to eq('errored')
-      expect(poa.vbms_error_message).to eq('updatePoaAccess: No POA found on system of record')
+      it 'updates a the BIRLS record for a qualifying POA submittal' do
+        poa = create_poa
+        create_mock_lighthouse_service
+        subject.new.perform(poa.id)
+      end
     end
-  end
 
-  context 'when an errored job has exhausted its retries' do
-    let(:allow_poa_c_add) { 'Y' }
-    let(:consent_address_change) { true }
+    context 'when address change is not present' do
+      let(:allow_poa_c_add) { 'N' }
+      let(:consent_address_change) { nil }
 
-    it 'logs to the ClaimsApi Logger' do
-      poa = create_poa
-      error_msg = 'An error occurred for the POA VBMS Updater Job'
-      msg = { 'args' => [poa.id],
-              'class' => subject,
-              'error_message' => error_msg }
+      it 'updates a the BIRLS record for a qualifying POA submittal' do
+        poa = create_poa
+        create_mock_lighthouse_service
+        subject.new.perform(poa.id)
+      end
+    end
 
-      described_class.within_sidekiq_retries_exhausted_block(msg) do
-        expect(ClaimsApi::Logger).to receive(:log).with(
-          'claims_api_retries_exhausted',
-          record_id: poa.id,
-          detail: "Job retries exhausted for #{subject}",
-          error: error_msg
-        )
+    context 'when BGS fails the error is handled' do
+      let(:allow_poa_c_add) { 'Y' }
+      let(:consent_address_change) { true }
+
+      it 'marks the form as errored' do
+        poa = create_poa
+        create_mock_lighthouse_service_bgs_failure # API-31645 real life example
+        subject.new.perform(poa.id)
+
+        poa.reload
+        expect(poa.status).to eq('errored')
+        expect(poa.vbms_error_message).to eq('updatePoaAccess: No POA found on system of record')
+      end
+    end
+
+    context 'when an errored job has exhausted its retries' do
+      let(:allow_poa_c_add) { 'Y' }
+      let(:consent_address_change) { true }
+
+      it 'logs to the ClaimsApi Logger' do
+        poa = create_poa
+        error_msg = 'An error occurred for the POA VBMS Updater Job'
+        msg = { 'args' => [poa.id],
+                'class' => subject,
+                'error_message' => error_msg }
+
+        described_class.within_sidekiq_retries_exhausted_block(msg) do
+          expect(ClaimsApi::Logger).to receive(:log).with(
+            'claims_api_retries_exhausted',
+            record_id: poa.id,
+            detail: "Job retries exhausted for #{subject}",
+            error: error_msg
+          )
+        end
       end
     end
   end
@@ -99,7 +111,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   def create_mock_lighthouse_service
-    corporate_update_stub = BGS::Services.new(external_uid: 'uid', external_key: 'key').corporate_update
+    corporate_update_stub = @clazz.new(external_uid: 'uid', external_key: 'key').corporate_update
     expect(corporate_update_stub).to receive(:update_poa_access).with(
       participant_id: user.participant_id,
       poa_code: '074',
@@ -112,7 +124,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   def create_mock_lighthouse_service_bgs_failure
-    allow_any_instance_of(BGS::Services).to receive(:corporate_update) do |_instance|
+    allow_any_instance_of(@clazz).to receive(:corporate_update) do |_instance|
       corporate_update_stub = instance_double('BGS::CorporateUpdate')
       allow(corporate_update_stub).to receive(:update_poa_access)
         .with(
@@ -124,7 +136,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       corporate_update_stub
     end
 
-    allow(BGS::Services).to receive(:new) do
+    allow(@clazz).to receive(:new) do
       services_double = instance_double('BGS::Services')
       allow(services_double).to receive(:corporate_update)
         .and_raise(BGS::ShareError.new('updatePoaAccess: No POA found on system of record'))

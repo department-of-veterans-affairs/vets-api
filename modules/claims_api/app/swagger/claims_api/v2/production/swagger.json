@@ -771,9 +771,9 @@
                                   "properties": {
                                     "email": {
                                       "type": "string",
-                                      "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                      "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                       "description": "The most current email address of the Veteran.",
-                                      "maxLength": 50,
+                                      "maxLength": 80,
                                       "nullable": true
                                     },
                                     "agreeToEmailRelatedToClaim": {
@@ -2155,9 +2155,9 @@
                                 "properties": {
                                   "email": {
                                     "type": "string",
-                                    "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                    "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                     "description": "The most current email address of the Veteran.",
-                                    "maxLength": 50,
+                                    "maxLength": 80,
                                     "nullable": true
                                   },
                                   "agreeToEmailRelatedToClaim": {
@@ -3685,7 +3685,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "f6cc643c-ae2d-4e3f-a985-eff72b9c0e13",
+                        "id": "4b38f39c-9129-4966-acde-8cda8e8d5e27",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -3916,7 +3916,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "300dab5e-21d3-4723-8eb2-e422eddd1af9",
+                        "id": "06ff315d-b022-4268-91a3-8dc28612d935",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4309,9 +4309,9 @@
                                   "properties": {
                                     "email": {
                                       "type": "string",
-                                      "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                      "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                       "description": "The most current email address of the Veteran.",
-                                      "maxLength": 50,
+                                      "maxLength": 80,
                                       "nullable": true
                                     },
                                     "agreeToEmailRelatedToClaim": {
@@ -5693,9 +5693,9 @@
                                 "properties": {
                                   "email": {
                                     "type": "string",
-                                    "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                    "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                     "description": "The most current email address of the Veteran.",
-                                    "maxLength": 50,
+                                    "maxLength": 80,
                                     "nullable": true
                                   },
                                   "agreeToEmailRelatedToClaim": {
@@ -7849,9 +7849,9 @@
                                 "properties": {
                                   "email": {
                                     "type": "string",
-                                    "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                    "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                     "description": "The most current email address of the Veteran.",
-                                    "maxLength": 50,
+                                    "maxLength": 80,
                                     "nullable": true
                                   },
                                   "agreeToEmailRelatedToClaim": {
@@ -9129,7 +9129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d85f57bf-4394-4f62-9dbd-5dcfbb9e79a4",
+                    "id": "a114a642-55bf-4aa3-ac74-82b5a17a8db0",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -13768,7 +13768,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "962e299d-695c-48ba-9414-f85a00be7f95",
+                    "id": "1a9a1a53-d16d-43fa-99da-33c7f1be7c18",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14542,7 +14542,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bd7eb43f-d007-4161-a548-7c068c7ebc8e",
+                    "id": "f98553d4-04f6-4e30-acc5-4e47417ddc0e",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -16542,7 +16542,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a2fb31f5-c7b8-474f-8187-0e3fba309b9b",
+                    "id": "32035d7d-53c9-4af8-bb60-ad2f90ba9152",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2024-12-04",

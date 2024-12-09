@@ -422,30 +422,54 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
           end
         end
 
-        context 'when email exceeds max length' do
-          let(:email) { '1234567890abcdefghijklmnopqrstuvwxyz@someinordiantelylongdomain.com' }
+        context 'when email exceeds max length of 80 characters' do
+          let(:email) { '123456789011121314151617abcdefghijklmnopqrstuvwxyz@someinordiantelylongdomain.com' }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['emailAddress'] = email
+              json['data']['attributes']['veteranIdentification']['emailAddress']['email'] = email
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['detail']).to include(
+                'The property /veteranIdentification/emailAddress/email did not match the ' \
+                'following requirements:'
+              )
             end
           end
         end
 
-        context 'when email is not valid' do
-          let(:email) { '.invalid@somedomain.com' }
+        context 'when email TLD is over 3 characters' do
+          let(:email) { 'valid@some.extralongtld' }
 
-          it 'responds with bad request' do
+          it 'responds with accepted' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['emailAddress'] = email
+              json['data']['attributes']['veteranIdentification']['emailAddress']['email'] = email
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when email TLD is under 2 characters' do
+          let(:email) { '1234567890abcd@some.v' }
+
+          it 'responds with unprocessable entity' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['veteranIdentification']['emailAddress']['email'] = email
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['detail']).to include(
+                'The property /veteranIdentification/emailAddress/email did not match the ' \
+                'following requirements:'
+              )
             end
           end
         end

@@ -5,6 +5,7 @@ require 'simple_forms_api_submission/metadata_validator'
 require 'lgy/service'
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
+require 'benefits_intake_service/service'
 
 module SimpleFormsApi
   module V1
@@ -53,6 +54,17 @@ module SimpleFormsApi
         if %w[40-0247 20-10207 40-10007].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
+          file_path = params['file'].tempfile.path
+          # Validate the document using BenefitsIntakeService
+          if %w[40-0247 40-10007].include?(params[:form_id])
+            begin
+              service = BenefitsIntakeService::Service.new
+              service.valid_document?(document: file_path)
+            rescue BenefitsIntakeService::Service::InvalidDocumentError => e
+              render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
+              return
+            end
+          end
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
