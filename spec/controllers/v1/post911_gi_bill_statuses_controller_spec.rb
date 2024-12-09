@@ -14,6 +14,7 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
     # TO-DO: Remove once new VCR recorded for updated Post-911 GI Bill Status response
     Flipper.disable(:sob_updated_design)
   end
+  
   context 'service is available' do
     it 'returns a 200 success' do
       # valid icn retrieved from
