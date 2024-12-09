@@ -17,6 +17,24 @@ describe BBInternal::Client do
 
   let(:client) { @client }
 
+  RSpec.shared_context 'redis setup' do
+    let(:redis) { instance_double(Redis::Namespace) }
+    let(:study_id) { '453-2487450' }
+    let(:id) { 'c9396040-23b7-44bc-a505-9127ed968b0d' }
+    let(:cached_data) do
+      {
+        id => study_id
+      }.to_json
+    end
+    let(:namespace) { REDIS_CONFIG[:bb_internal_store][:namespace] }
+    let(:study_data_key) { 'study_data-11382904' }
+
+    before do
+      allow(Redis::Namespace).to receive(:new).with(namespace, redis: $redis).and_return(redis)
+      allow(redis).to receive(:get).with(study_data_key).and_return(cached_data)
+    end
+  end
+
   describe '#list_radiology' do
     it 'gets the radiology records' do
       VCR.use_cassette 'mr_client/bb_internal/get_radiology' do
@@ -40,10 +58,11 @@ describe BBInternal::Client do
   end
 
   describe '#request_study' do
+    include_context 'redis setup'
+
     it 'requests a study by study_id' do
-      study_id = '453-2487450'
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
-        result = client.request_study(study_id)
+        result = client.request_study(id)
         expect(result).to be_a(Hash)
         expect(result).to have_key('status')
       end
@@ -51,10 +70,11 @@ describe BBInternal::Client do
   end
 
   describe '#list_images' do
+    include_context 'redis setup'
+
     it 'lists the images for a given study' do
-      study_id = '453-2487450'
       VCR.use_cassette 'mr_client/bb_internal/list_images' do
-        images = client.list_images(study_id)
+        images = client.list_images(id)
         expect(images).to be_an(Array)
         expect(images.first).to be_a(String)
       end
