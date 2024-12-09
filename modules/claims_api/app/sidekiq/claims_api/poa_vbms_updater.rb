@@ -18,8 +18,8 @@ module ClaimsApi
         poa_code:
       )
 
-      response = update_poa_access(poa_form:, participant_id: poa_form.auth_headers['va_eauth_pid'],
-                                   poa_code:, allow_poa_access: 'y')
+      response = upload_poa_access(poa_form:, participant_id: poa_form.auth_headers['va_eauth_pid'],
+                                   poa_code:, allow_poa_access: enable_vbms_access?(poa_form:))
 
       if response[:return_code] == 'GUIE50000'
         poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
@@ -47,7 +47,7 @@ module ClaimsApi
       poa_form.form_data['consentAddressChange']
     end
 
-    def update_poa_access(poa_form:, participant_id:, poa_code:, allow_poa_access:)
+    def upload_poa_access(poa_form:, participant_id:, poa_code:, allow_poa_access:)
       # allow_poa_c_add reports 'No Data' if sent lowercase
       if Flipper.enabled? :claims_api_poa_vbms_updater_uses_local_bgs
         service = corporate_update_service
