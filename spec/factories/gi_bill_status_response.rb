@@ -33,7 +33,14 @@ FactoryBot.define do
         online_hours: 0.0,
         yellow_ribbon_amount: 0.0,
         status: 'Approved',
-        amendments: []
+        amendments: [{
+          on_campus_hours: 7,
+          online_hours: 4,
+          yellow_ribbon_amount: 8,
+          type: 'CourseDrop',
+          status: 'Approved',
+          change_effective_date: '2015-11-11T07:25:00Z'
+        }]
       }]
     }
     initialize_with { new(status: 200, response: {}) }
