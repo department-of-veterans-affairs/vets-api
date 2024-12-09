@@ -51,7 +51,7 @@ module VAOS
         if Flipper.enabled?(:appointment_provider_id_logging, @user)
           PersonalInformationLog.create!(
             data: { icn: @user.icn, message: e.message, backtrace: e.backtrace },
-            error_class: "Appointment Provider URI Error"
+            error_class: 'Appointment Provider URI Error'
           )
         end
 
