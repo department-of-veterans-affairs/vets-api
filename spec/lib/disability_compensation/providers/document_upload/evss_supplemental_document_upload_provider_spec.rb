@@ -12,7 +12,7 @@ RSpec.describe EVSSSupplementalDocumentUploadProvider do
   let(:va_document_type) { 'L023' }
 
   let!(:provider) do
-    Flipper.disable(:validate_saved_claims_with_json_schemer)
+    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     EVSSSupplementalDocumentUploadProvider.new(
       submission,
       va_document_type,

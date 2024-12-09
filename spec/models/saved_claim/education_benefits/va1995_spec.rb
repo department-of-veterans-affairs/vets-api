@@ -14,7 +14,7 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995 do
     let(:user) { create(:user) }
 
     before do
-      Flipper.disable(:validate_saved_claims_with_json_schemer)
+      allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     end
 
     describe 'sends confirmation email for the 1995' do

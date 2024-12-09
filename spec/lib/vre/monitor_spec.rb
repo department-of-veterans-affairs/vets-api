@@ -29,7 +29,7 @@ RSpec.describe VRE::Monitor do
 
   describe '#track_submission_exhaustion' do
     before do
-      Flipper.disable(:validate_saved_claims_with_json_schemer)
+      allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     end
 
     it 'logs sidekiq job exhaustion failure avoided' do

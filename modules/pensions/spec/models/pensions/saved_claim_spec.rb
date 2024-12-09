@@ -49,7 +49,7 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
     let!(:attachment2) { FactoryBot.create(:pension_burial) }
 
     before do
-      Flipper.disable(:validate_saved_claims_with_json_schemer)
+      allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     end
 
     describe '#process_attachments!' do

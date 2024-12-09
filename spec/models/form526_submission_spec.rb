@@ -28,8 +28,8 @@ RSpec.describe Form526Submission do
   let(:backup_submitted_claim_status) { nil }
 
   before do
-    Flipper.disable(:disability_compensation_production_tester)
-    Flipper.disable(:validate_saved_claims_with_json_schemer)
+    allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
   end
 
   describe 'associations' do

@@ -15,7 +15,7 @@ RSpec.describe EducationForm::Forms::VA1995 do
   end
 
   before do
-    Flipper.disable(:validate_saved_claims_with_json_schemer)
+    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
   end
 
   # run PROD_EMULATION=true rspec spec/sidekiq/education_form/forms/va1995_spec.rb to
