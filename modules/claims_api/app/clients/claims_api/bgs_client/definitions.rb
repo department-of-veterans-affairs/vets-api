@@ -123,7 +123,7 @@ module ClaimsApi
       ##
       # OrgWebServiceBean
       #
-      module OrgWebServiceBean
+      module OrgWebService
         DEFINITION =
           Bean.new(
             path: 'OrgWebServiceBean',
@@ -132,23 +132,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module OrgWebService
-        DEFINITION =
-          Service.new(
-            bean: OrgWebServiceBean::DEFINITION,
-            path: 'OrgWebService'
-          )
-
-        module FindOrgBySSN
-          DEFINITION =
-            Action.new(
-              service: OrgWebService::DEFINITION,
-              name: 'findPoaHistoryByPtcpntId',
-              key: 'PoaHistory'
-            )
-        end
       end
 
       ##
