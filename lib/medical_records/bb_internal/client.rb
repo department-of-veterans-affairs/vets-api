@@ -17,6 +17,35 @@ module BBInternal
     configuration BBInternal::Configuration
     client_session BBInternal::ClientSession
 
+    ################################################################################
+    # User Management APIs
+    ################################################################################
+
+    # Retrieves the patient information by user ID.
+    # @return [Hash] A hash containing the patient's details
+    #
+    def get_patient
+      response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
+      patient = response.body
+
+      raise Common::Exceptions::ServiceError.new(detail: 'Patient not found') if patient.blank?
+
+      patient
+    end
+
+    # Retrieves the BBMI notification setting for the user.
+    # @return [Hash] containing:
+    #   - flag [Boolean]: Indicates whether the BBMI notification setting is enabled (true) or disabled (false)
+    #
+    def get_bbmi_notification_setting
+      response = perform(:get, 'usermgmt/notification/bbmi', nil, token_headers)
+      response.body
+    end
+
+    ################################################################################
+    # Blue Button Medical Imaging (BBMI) APIs
+    ################################################################################
+
     ##
     # Get a list of MHV radiology reports from VIA for the current user. These results do not
     # include CVIX reports.
@@ -32,11 +61,42 @@ module BBInternal
     # Get a list of MHV radiology reports from CVIX for the current user. These results do not
     # include VIA reports.
     #
+    # study_id is mapped to a new UUID and stored in Redis for later retrieval.
+    # This is to prevent the study_id from being exposed to the client.
+    # The client will use the UUID to request the study.
+    # UUID map is stored in Redis with a TTL of 3 days.
+    # On method call, if the studyId soe not exist in the map, a new UUID is generated and stored in the map.
+    # Otherwise, the existing UUID is used.
+    #
     # @return [Hash] The radiology study list from MHV
     #
     def list_imaging_studies
       response = perform(:get, "bluebutton/study/#{session.patient_id}", nil, token_headers)
-      response.body
+      data = response.body
+
+      study_data_cached = get_study_data_from_cache
+      study_data_hash = JSON.parse(study_data_cached) if study_data_cached
+      id_uuid_map = study_data_hash || {}
+
+      modified_data = data.map do |obj|
+        study_id = obj['studyIdUrn']
+
+        # Find the key by value in the hash
+        existing_uuid, = study_data_hash.find { |_, v| v == study_id.to_s } if study_data_hash
+
+        if existing_uuid
+          obj['studyIdUrn'] = existing_uuid
+        else
+          new_uuid = SecureRandom.uuid
+          id_uuid_map[new_uuid] = study_id
+          obj['studyIdUrn'] = new_uuid
+        end
+        obj
+      end
+
+      bb_redis.set(study_data_key, id_uuid_map.to_json, nx: false, ex: 259_200)
+
+      modified_data
     end
 
     ##
@@ -44,11 +104,12 @@ module BBInternal
     # the images into MHV for later retrieval from vets-api as DICOM or JPGs.
     #
     # @param [String] icn - The patient's ICN
-    # @param [String] study_id - The radiology study to request
+    # @param [String] id - The uuid of the radiology study to request
     #
     # @return [Hash] The status of the image request, including percent complete
     #
-    def request_study(study_id)
+    def request_study(id)
+      study_id = get_study_id_from_cache(id)
       response = perform(:get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil,
                          token_headers)
       response.body
@@ -57,11 +118,12 @@ module BBInternal
     ##
     # Get a list of images for the provided CVIX radiology study
     #
-    # @param [String] study_id - The radiology study from which to retrieve images
+    # @param [String] id - The uuid of the radiology study from which to retrieve images
     #
     # @return [Hash] The list of images from MHV
     #
-    def list_images(study_id)
+    def list_images(id)
+      study_id = get_study_id_from_cache(id)
       response = perform(:get, "bluebutton/studyjob/zip/preview/list/#{session.patient_id}/studyidUrn/#{study_id}", nil,
                          token_headers)
       response.body
@@ -127,25 +189,81 @@ module BBInternal
       response.body
     end
 
-    # Retrieves the BBMI notification setting for the user.
-    # @return [Hash] containing:
-    #   - flag [Boolean]: Indicates whether the BBMI notification setting is enabled (true) or disabled (false)
-    #
-    def get_bbmi_notification_setting
-      response = perform(:get, 'usermgmt/notification/bbmi', nil, token_headers)
+    ################################################################################
+    # Self-Entered Information (SEI) APIs
+    ################################################################################
+
+    def get_sei_vital_signs_summary
+      response = perform(:get, "vitals/summary/#{@session.user_id}", nil, token_headers)
       response.body
     end
 
-    # Retrieves the patient information by user ID.
-    # @return [Hash] A hash containing the patient's details
+    def get_sei_allergies
+      response = perform(:get, "healthhistory/allergy/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_family_health_history
+      response = perform(:get, "healthhistory/healthHistory/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_immunizations
+      response = perform(:get, "healthhistory/immunization/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_test_entries
+      response = perform(:get, "healthhistory/testEntry/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_medical_events
+      response = perform(:get, "healthhistory/medicalEvent/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_military_history
+      response = perform(:get, "healthhistory/militaryHistory/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_healthcare_providers
+      response = perform(:get, "getcare/healthCareProvider/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_health_insurance
+      response = perform(:get, "getcare/healthInsurance/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_treatment_facilities
+      response = perform(:get, "getcare/treatmentFacility/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_food_journal
+      response = perform(:get, "journal/journals/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_activity_journal
+      response = perform(:get, "journal/activityjournals/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    def get_sei_medications
+      response = perform(:get, "pharmacy/medications/#{@session.user_id}", nil, token_headers)
+      response.body
+    end
+
+    # Retrieves the patient demographic information
+    # @return [Hash] A hash containing the patient's demographic information
     #
-    def get_patient
-      response = perform(:get, "usermgmt/patient/uid/#{@session.user_id}", nil, token_headers)
-      patient = response.body
-
-      raise Common::Exceptions::ServiceError.new(detail: 'Patient not found') if patient.blank?
-
-      patient
+    def get_demographic_info
+      response = perform(:get, 'bluebutton/external/phrdemographic', nil, token_headers)
+      response.body
     end
 
     private
@@ -155,6 +273,34 @@ module BBInternal
     #
     def session_config_key
       :mhv_mr_bb_session_lock
+    end
+
+    def study_data_key
+      "study_data-#{session.patient_id}"
+    end
+
+    def bb_redis
+      namespace = REDIS_CONFIG[:bb_internal_store][:namespace]
+      Redis::Namespace.new(namespace, redis: $redis)
+    end
+
+    def get_study_data_from_cache
+      bb_redis.get(study_data_key)
+    end
+
+    def get_study_id_from_cache(id)
+      study_data = get_study_data_from_cache
+
+      if study_data
+        study_data_hash = JSON.parse(study_data)
+        id = id.to_s
+        study_id = study_data_hash[id]
+
+        study_id || raise(Common::Exceptions::RecordNotFound, id)
+      else
+        # throw 400 for FE to know to refetch the list
+        raise Common::Exceptions::InvalidResource, 'Study data map'
+      end
     end
 
     ##
