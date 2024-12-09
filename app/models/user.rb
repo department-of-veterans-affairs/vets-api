@@ -202,6 +202,10 @@ class User < Common::RedisStore
   delegate :status, to: :mpi, prefix: true
   delegate :vet360_id, to: :mpi
 
+  def query_mpi_profile
+    mpi_profile(break_cache: true)
+  end
+
   def active_mhv_ids
     mpi_profile&.active_mhv_ids
   end
@@ -472,10 +476,10 @@ class User < Common::RedisStore
 
   private
 
-  def mpi_profile
+  def mpi_profile(break_cache: false)
     return nil unless identity && mpi
 
-    mpi.profile
+    mpi.profile(break_cache:)
   end
 
   def mpi
