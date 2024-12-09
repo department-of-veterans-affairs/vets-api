@@ -36,7 +36,6 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
   describe 'validations' do
     context 'no validation errors' do
       before do
-
         allow(JSON::Validator).to receive(:fully_validate).and_return([])
       end
 
