@@ -47,8 +47,7 @@
             "addressLine1",
             "city",
             "stateCode",
-            "countryCode",
-            "zipCode"
+            "countryCode"
           ],
           "properties" : {
             "addressLine1": {
@@ -80,7 +79,7 @@
               "example": "US"
             },
             "zipCode": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
@@ -170,7 +169,7 @@
               "example": "USA"
             },
             "zipCode": {
-              "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
+              "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
@@ -214,7 +213,7 @@
           "description": "Email address of the claimant.",
           "type": "string",
           "pattern": "^(?!.*\\s).+@.+\\..+|^$",
-          "maxLength": 61,
+          "maxLength": 30,
           "example": "claimant@example.com"
         },
         "relationship": {
@@ -286,7 +285,7 @@
               "example": "US"
             },
             "zipCode": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
