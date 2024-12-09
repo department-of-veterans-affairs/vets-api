@@ -1636,6 +1636,9 @@ features:
   mobile_v2_contact_info:
     actor_type: user
     description: For mobile app, enables ContactInformationV2 Service.
+  mobile_appointment_provider_id_logging:
+    actor_type: user
+    description: For mobile app, logs provider id for debugging
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
