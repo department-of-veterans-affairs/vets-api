@@ -1261,7 +1261,20 @@
         ],
         "responses": {
           "200": {
-            "description": "Email enqueued"
+            "description": "Email enqueued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Email enqueued"
+                    }
+                  }
+                }
+              }
+            }
           },
           "422": {
             "description": "unprocessable entity response",

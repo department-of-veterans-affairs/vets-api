@@ -27,6 +27,11 @@ RSpec.describe 'Next Steps Email', openapi_spec: 'modules/representation_managem
         let(:next_steps_email) do
           SwaggerSharedComponents::V0.body_examples[:next_steps_email]
         end
+        schema type: :object,
+               properties: {
+                 message: { type: :string, example: 'Email enqueued' }
+               }
+
         run_test!
       end
 
