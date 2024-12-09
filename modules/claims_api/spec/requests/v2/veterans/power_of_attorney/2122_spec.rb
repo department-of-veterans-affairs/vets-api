@@ -4,6 +4,8 @@ require 'rails_helper'
 require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
+require 'bgs_service/org_web_service'
+
 
 RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
   let(:veteran_id) { '1013062086V794840' }
@@ -14,6 +16,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
   let(:organization_poa_code) { '083' }
   let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
   let(:local_bgs) { ClaimsApi::LocalBGS }
+  let(:org_web_service) { ClaimsApi::OrgWebService }
 
   describe 'PowerOfAttorney' do
     before do
@@ -55,7 +58,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               mock_ccg(scopes) do |auth_header|
                 expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
                   .and_return(bgs_poa)
-                allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
 
                 post appoint_organization_path, params: data.to_json, headers: auth_header
@@ -86,7 +89,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   it 'returns a 422 when no zipCode is included in the veteran data' do
                     VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                       mock_ccg(scopes) do |auth_header|
-                        allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                        allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                           .and_return({ person_poa_history: nil })
 
                         json = JSON.parse(request_body)
@@ -112,7 +115,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                       mock_ccg(scopes) do |auth_header|
                         expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
                           .and_return(bgs_poa)
-                        allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                        allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                           .and_return({ person_poa_history: nil })
 
                         json = JSON.parse(request_body)
@@ -284,7 +287,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               mock_ccg(scopes) do |auth_header|
                 expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
                   .and_return(bgs_poa)
-                allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
                 allow_any_instance_of(ClaimsApi::V2::ApplicationController)
                   .to receive(:target_veteran).and_return(no_first_name_target_veteran)
@@ -316,7 +319,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
             it 'returns a 422' do
               mock_ccg(scopes) do |auth_header|
-                allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                   .and_return({ person_poa_history: nil })
                 allow_any_instance_of(ClaimsApi::V2::ApplicationController)
                   .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)
@@ -356,7 +359,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
               it 'returns a 422 with no zipCode' do
                 VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                   mock_ccg(scopes) do |auth_header|
-                    allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                    allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                       .and_return({ person_poa_history: nil })
 
                     json = JSON.parse(request_body)
@@ -395,7 +398,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                   mock_ccg(scopes) do |auth_header|
                     expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
                       .and_return(bgs_poa)
-                    allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                    allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                       .and_return({ person_poa_history: nil })
 
                     json = JSON.parse(request_body)
@@ -418,7 +421,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 mock_ccg(scopes) do |auth_header|
                   expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
                     .and_return(bgs_poa)
-                  allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                  allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
 
                   post appoint_organization_path, params: data.to_json, headers: auth_header
@@ -432,7 +435,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                 mock_ccg(scopes) do |auth_header|
                   expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
                     .and_return(bgs_poa)
-                  allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                  allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
 
                   post appoint_organization_path, params: data.to_json, headers: auth_header
@@ -490,7 +493,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
             mock_ccg_for_fine_grained_scope(poa_scopes) do |auth_header|
               expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
                 .and_return(bgs_poa)
-              allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+              allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
 
               post appoint_organization_path, params: data.to_json, headers: auth_header
@@ -519,7 +522,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
           mock_ccg(scopes) do |auth_header|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
               .and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             expect(ClaimsApi::V2::PoaFormBuilderJob).to receive(:perform_async) do |*args|
               expect(args[2]).to eq(rep_id)
@@ -605,7 +608,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
 
               it 'returns an error response' do
                 mock_ccg(scopes) do |auth_header|
-                  allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                  allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
                   allow_any_instance_of(ClaimsApi::V2::ApplicationController)
                     .to receive(:target_veteran).and_return(no_first_last_name_target_veteran)

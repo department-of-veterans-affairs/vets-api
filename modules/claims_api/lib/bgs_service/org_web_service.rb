@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class OrgWebService
+  class OrgWebService < ClaimsApi::LocalBGS
     def bean_name
       'OrgWebServiceBean/OrgWebService'
     end

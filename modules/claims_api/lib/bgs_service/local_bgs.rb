@@ -102,19 +102,6 @@ module ClaimsApi
                    key: 'PersonDTO')
     end
 
-    def find_poa_history_by_ptcpnt_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'OrgWebServiceBean/OrgWebService', action: 'findPoaHistoryByPtcpntId', body:,
-                   key: 'PoaHistory')
-    end
-
     def insert_intent_to_file(options)
       request_body = construct_itf_body(options)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
