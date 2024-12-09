@@ -80,8 +80,7 @@ module IvcChampva
     # @param form_data [hash] hash of form details (see `send_failure_email`)
     # @param form [IvcChampvaForm] form object in question
     def send_zsf_notification_to_pega(form)
-      # form_data = construct_email_payload(form, 'PEGA-TEAM-ZSF')
-      form_data = construct_email_payload(form, '10-7959F-1-FAILURE')
+      form_data = construct_email_payload(form, 'PEGA-TEAM-ZSF')
       form_data = form_data.merge({
                                     email: Settings.vanotify.services.ivc_champva.pega_inbox_address
                                   })
