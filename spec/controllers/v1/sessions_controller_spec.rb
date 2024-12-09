@@ -182,7 +182,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
             let(:params) { { type: 'idme_verified', clientId: '123123', operation: 'asdf' } }
 
-            it 'responce with internal server error 1' do
+            it 'responds with bad request' do
               call_endpoint
               expect(response).to have_http_status(:bad_request)
               errors = response.parsed_body['errors']

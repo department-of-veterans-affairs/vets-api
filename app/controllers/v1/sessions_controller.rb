@@ -453,7 +453,6 @@ module V1
 
     def validate_operation_params(operation)
       unless OPERATION_TYPES.include?(operation)
-        # raise SignIn::Errors::MalformedParamsError.new message: 'Operation is not valid'
         raise Common::Exceptions::InvalidFieldValue.new('operation', params[:operation])
       end
     end
