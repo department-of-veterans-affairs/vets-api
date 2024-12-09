@@ -31,7 +31,7 @@ RSpec.describe EvssRatedDisabilitiesProvider do
     VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
       provider = EvssRatedDisabilitiesProvider.new(auth_headers)
       response = provider.get_rated_disabilities('', '')
-      expect(response['rated_disabilities'].length).to eq(2)
+      expect(response.rated_disabilities.length).to eq(2)
     end
   end
 
