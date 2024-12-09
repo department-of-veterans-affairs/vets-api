@@ -27,7 +27,7 @@ module VAProfile
                          countryName: @country_name, countryCodeFIPS: @country_code_fips },
               state: { stateCode: @state_code, stateName: @state_name },
               province: { provinceName: @province_name, provinceCode: @province_code },
-              addressPOU: "RESIDENCE"
+              addressPOU: 'RESIDENCE'
             )
           )
         end
