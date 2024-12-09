@@ -119,7 +119,7 @@ module ClaimsApi
     end
 
     def enable_vbms_access?(poa_form:)
-      poa_form.form_data['recordConsent'].presence || false
+      poa_form.form_data['recordConsent'] && poa_form.form_data['consentLimits'].blank?
     end
 
     def set_vbms_error_message(poa, error)
