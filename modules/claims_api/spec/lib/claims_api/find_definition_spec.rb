@@ -16,20 +16,6 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
       end
 
-      context 'IntentToFileWebServiceBean' do
-        let(:endpoint) { 'IntentToFileWebServiceBean/IntentToFileWebService' }
-        let(:action) { 'insertIntentToFile' }
-        let(:key) { 'IntentToFileDTO' }
-
-        it 'response with the correct attributes' do
-          result = subject.for_action(endpoint, action)
-          parsed_result = JSON.parse(result.to_json)
-          expect(parsed_result['service']['bean']['path']).to eq 'IntentToFileWebServiceBean'
-          expect(parsed_result['service']['path']).to eq 'IntentToFileWebService'
-          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://intenttofile.services.vetsnet.vba.va.gov/'
-        end
-      end
-
       context 'PersonWebServiceBean' do
         let(:endpoint) { 'PersonWebServiceBean/PersonWebService' }
         let(:action) { 'findPersonBySSN' }
@@ -193,15 +179,26 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
       end
 
+<<<<<<< HEAD
       context 'IntentToFileWebServiceBean' do
         let(:endpoint) { 'IntentToFileWebServiceBean/IntentToFileWebService' }
+=======
+      context 'OrgWebService' do
+        let(:endpoint) { 'OrgWebServiceBean/OrgWebService' }
+>>>>>>> 0a84d8c5f77d2c8184fffcd99afe5497f7602800
 
         it 'response with the correct namespace' do
           result = subject.for_service(endpoint)
           parsed_result = JSON.parse(result.to_json)
+<<<<<<< HEAD
           expect(parsed_result['bean']['path']).to eq 'IntentToFileWebServiceBean'
           expect(parsed_result['path']).to eq 'IntentToFileWebService'
           expect(parsed_result['bean']['namespaces']['target']).to eq 'http://intenttofile.services.vetsnet.vba.va.gov/'
+=======
+          expect(parsed_result['bean']['path']).to eq 'OrgWebServiceBean'
+          expect(parsed_result['path']).to eq 'OrgWebService'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://org.services.vetsnet.vba.va.gov/'
+>>>>>>> 0a84d8c5f77d2c8184fffcd99afe5497f7602800
         end
       end
 
