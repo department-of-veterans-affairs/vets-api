@@ -1672,6 +1672,9 @@ features:
   disability_compensation_lighthouse_brd:
     actor_type: user
     description: If enabled uses the lighthouse Benefits Reference Data service
+  disability_compensation_staging_lighthouse_brd_key:
+    actor_type: user
+    description: If enabled uses the Staging lighthouse Benefits Reference Data service
   disability_compensation_lighthouse_generate_pdf:
     actor_type: user
     description: If enabled uses the lighthouse Benefits Claims service to generate a 526 pdf

@@ -16,7 +16,7 @@ module BenefitsReferenceData
     #
     def base_path
       settings = Settings.lighthouse.benefits_reference_data
-      url = settings.url
+      url = if Flipper.enabled?(:disability_compensation_staging_lighthouse_brd_key) ? settings.staging_url : settings.url
       path = settings.path
       version = settings.version
       safe_slash_merge(url, path, version)
@@ -33,7 +33,12 @@ module BenefitsReferenceData
     # @return [Hash] The basic headers required for any benefits_reference_data API call.
     #
     def self.base_request_headers
-      key = Settings.lighthouse.api_key
+      key = if Flipper.enabled?(:disability_compensation_staging_lighthouse_brd_key)
+              Settings.lighthouse.staging_api_key
+            else
+              Settings.lighthouse.api_key
+      end
+
       raise "No api_key set for benefits_reference_data. Please set 'lighthouse.api_key'" if key.nil?
 
       super.merge('apiKey' => key)
