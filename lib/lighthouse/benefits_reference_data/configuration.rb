@@ -16,7 +16,7 @@ module BenefitsReferenceData
     #
     def base_path
       settings = Settings.lighthouse.benefits_reference_data
-      url = if Flipper.enabled?(:disability_compensation_staging_lighthouse_brd_key) ? settings.staging_url : settings.url
+      url = Flipper.enabled?(:disability_compensation_staging_lighthouse_brd_key) ? settings.staging_url : settings.url
       path = settings.path
       version = settings.version
       safe_slash_merge(url, path, version)
@@ -37,7 +37,7 @@ module BenefitsReferenceData
               Settings.lighthouse.staging_api_key
             else
               Settings.lighthouse.api_key
-      end
+            end
 
       raise "No api_key set for benefits_reference_data. Please set 'lighthouse.api_key'" if key.nil?
 
