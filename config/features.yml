@@ -167,9 +167,6 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
-  champva_unique_temp_file_names:
-    actor_type: user
-    description: Enables unique temp file names for CHAMPVA PDF files
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
@@ -231,6 +228,10 @@ features:
   claims_api_local_bgs_refactor:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
+    enable_in_development: true
+  claims_api_poa_vbms_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables poa vbms updater to use local_bgs
     enable_in_development: true
   claims_api_bd_refactor:
     actor_type: user
@@ -1912,6 +1913,9 @@ features:
   gi_comparison_tool_lce_toggle_flag:
     actor_type: user
     description: Used to show lce page in comparison tool
+  va_notify_in_progress_metadata:
+    actor_type: user
+    description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
   va_notify_notification_creation:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
