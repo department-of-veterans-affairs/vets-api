@@ -166,13 +166,25 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
       end
 
       context 'with Authentication-Method header value of SIS' do
-        let(:access_token) { create(:access_token, audience: ['vamobile']) }
+        let(:session) { create(:oauth_session, user_account:) }
+        let(:user_account) { create(:user_account) }
+        let(:access_token) do
+          create(:access_token, audience: ['vamobile'], session_handle: session.handle, user_uuid: user_account.id)
+        end
         let(:bearer_token) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
-        let!(:user) { create(:user, :loa3, uuid: access_token.user_uuid) }
+        let!(:user) { create(:user, :loa3, uuid: user_account.id) }
+        let(:deceased_date) { nil }
+        let(:id_theft_flag) { false }
+        let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:, icn: user_account.icn) }
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
         before do
           request.headers['Authorization'] = "Bearer #{bearer_token}"
           request.headers['Authentication-Method'] = 'SIS'
+          allow_any_instance_of(MPI::Service)
+            .to receive(:find_profile_by_identifier)
+            .with(identifier: user_account.icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
         end
 
         it 'uses SIS session authentication' do
@@ -192,6 +204,32 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
             get :index
 
             expect(response).to have_http_status(:unauthorized)
+          end
+        end
+
+        context 'when validating the user\'s MPI profile' do
+          context 'and the MPI profile has a deceased date' do
+            let(:deceased_date) { '20020202' }
+            let(:expected_error) { 'Death Flag Detected' }
+
+            it 'raises an MPI locked account error' do
+              get :index
+
+              expect(response).to have_http_status(:forbidden)
+              expect(JSON.parse(response.body)['errors']).to eq(expected_error)
+            end
+          end
+
+          context 'and the MPI profile has an id theft flag' do
+            let(:id_theft_flag) { true }
+            let(:expected_error) { 'Theft Flag Detected' }
+
+            it 'raises an MPI locked account error' do
+              get :index
+
+              expect(response).to have_http_status(:forbidden)
+              expect(JSON.parse(response.body)['errors']).to eq(expected_error)
+            end
           end
         end
       end
