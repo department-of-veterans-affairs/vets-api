@@ -1065,6 +1065,7 @@ modules/pensions @department-of-veterans-affairs/pension-and-burials @department
 modules/veteran_confirmation @department-of-veterans-affairs/lighthouse-ninjapigs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/travel_pay @department-of-veterans-affairs/travel-pay-integration @department-of-veterans-affairs/backend-review-group
 modules/vye @department-of-veterans-affairs/backend-review-group #@department-of-veterans-affairs/govcio-vye-codereviewers
+modules/decision_reviews @department-of-veterans-affairs/benefits-decision-reviews-be @department-of-veterans-affairs/backend-review-group
 postman/vets-api.pm-collection.json @department-of-veterans-affairs/backend-review-group
 postman/Dockerfile @department-of-veterans-affairs/backend-review-group
 public @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1521,6 +1522,7 @@ spec/lib/sidekiq/form526_job_status_tracker @department-of-veterans-affairs/Disa
 spec/lib/sidekiq/retry_monitoring_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/lib/sidekiq_stats_instrumentation @department-of-veterans-affairs/backend-review-group
 spec/lib/sign_in @department-of-veterans-affairs/octo-identity
+spec/lib/simple_forms_api @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/simple_forms_api_submission @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/slack/service_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/lib/sm @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group

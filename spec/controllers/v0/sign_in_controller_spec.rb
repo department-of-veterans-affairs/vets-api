@@ -430,6 +430,20 @@ RSpec.describe V0::SignInController, type: :controller do
 
           it_behaves_like 'an idme service interface with appropriate operation'
         end
+
+        context 'and the operation param is interstitial_verify' do
+          let(:operation_value) { SignIn::Constants::Auth::INTERSTITIAL_VERIFY }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
+
+        context 'and the operation param is interstitial_signup' do
+          let(:operation_value) { SignIn::Constants::Auth::INTERSTITIAL_SIGNUP }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
       end
 
       shared_context 'an idme service interface with appropriate operation' do

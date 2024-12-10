@@ -58,6 +58,7 @@ module VAProfile
           else
             {
               state_code: address_hash.dig('state', 'state_code'),
+              state_name: address_hash.dig('state', 'state_name'),
               county_code: address_hash.dig('county', 'county_code'),
               county_name: address_hash.dig('county', 'county_name'),
               zip_code: address_hash['zip_code5'],

@@ -6,11 +6,13 @@ module DebtsApi
       service_tag 'financial-report'
 
       def create
+        StatsD.increment("#{V0::DigitalDispute::STATS_KEY}.initiated")
         digital_dispute = V0::DigitalDispute.new(digital_disputes_params, current_user)
         if digital_dispute.valid?
           # Just returning data back for now while we wait on our integration partner
           render json: digital_dispute.sanitized_json
         else
+          StatsD.increment("#{V0::DigitalDispute::STATS_KEY}.failure")
           render json: { errors: digital_dispute.errors }, status: :unprocessable_entity
         end
       end

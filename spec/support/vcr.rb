@@ -38,7 +38,7 @@ VCR.configure do |c|
   c.filter_sensitive_data('<VETS360_URL>') { Settings.vet360.url }
   c.filter_sensitive_data('<MULESOFT_SECRET>') { Settings.form_10_10cg.carma.mulesoft.client_secret }
   c.filter_sensitive_data('<SHAREPOINT_CLIENT_SECRET>') { Settings.vha.sharepoint.client_secret }
-  c.filter_sensitive_data('<ADDRESS_VALIDATION>') { VAProfile::Configuration::SETTINGS.address_validation.url }
+  c.filter_sensitive_data('<ADDRESS_VALIDATION>') { VAProfile::Configuration::SETTINGS.address_validation.hostname }
   c.filter_sensitive_data('<LIGHTHOUSE_BENEFITS_EDUCATION_RSA_KEY_PATH>') do
     Settings.lighthouse.benefits_education.rsa_key
   end

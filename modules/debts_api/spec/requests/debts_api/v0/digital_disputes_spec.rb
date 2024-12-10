@@ -15,6 +15,10 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
     end
 
     it 'returns digital_disputes_params' do
+      expect(StatsD).to receive(:increment).with('api.rack.request',
+                                                 { tags: ['controller:debts_api/v0/digital_disputes', 'action:create',
+                                                          'source_app:not_provided', 'status:200'] })
+      expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.initiated')
       post(
         '/debts_api/v0/digital_disputes',
         params: params,
@@ -31,6 +35,12 @@ RSpec.describe 'DebtsApi::V0::DigitalDisputes', type: :request do
       end
 
       it 'returns an error when there is no contact information provided' do
+        expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.initiated')
+        expect(StatsD).to receive(:increment).with('api.rack.request',
+                                                   { tags: ['controller:debts_api/v0/digital_disputes',
+                                                            'action:create', 'source_app:not_provided', 'status:422'] })
+        expect(StatsD).to receive(:increment).with('api.digital_dispute_submission.failure')
+
         params.delete('contact_information')
 
         post(
