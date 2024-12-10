@@ -16,6 +16,7 @@ module V0
     before_action :validate_name_part, only: [:suggested_conditions]
 
     def rated_disabilities
+      invoker = 'V0::DisabilityCompensationFormsController#rated_disabilities'
       api_provider = ApiProviderFactory.call(
         type: ApiProviderFactory::FACTORIES[:rated_disabilities],
         provider: nil,
@@ -24,7 +25,7 @@ module V0
         feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
       )
 
-      response = api_provider.get_rated_disabilities
+      response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
 
       render json: RatedDisabilitiesSerializer.new(response)
     end
@@ -52,6 +53,9 @@ module V0
     end
 
     def submit_all_claim
+      temp_separation_location_fix if Flipper.enabled?(:disability_compensation_temp_separation_location_code_string,
+                                                       @current_user)
+
       saved_claim = SavedClaim::DisabilityCompensation::Form526AllClaim.from_hash(form_content)
       saved_claim.save ? log_success(saved_claim) : log_failure(saved_claim)
       submission = create_submission(saved_claim)
@@ -172,5 +176,21 @@ module V0
       end
       false
     end
+
+    # TEMPORARY
+    # Turn separation location into string
+    # 11/18/2024 BRD EVSS -> Lighthouse migration caused separation location to turn into an integer,
+    # while SavedClaim (vets-json-schema) is expecting a string
+    def temp_separation_location_fix
+      if form_content.is_a?(Hash) && form_content['form526'].is_a?(Hash)
+        separation_location_code = form_content.dig('form526', 'serviceInformation', 'separationLocation',
+                                                    'separationLocationCode')
+        unless separation_location_code.nil?
+          form_content['form526']['serviceInformation']['separationLocation']['separationLocationCode'] =
+            separation_location_code.to_s
+        end
+      end
+    end
+    # END TEMPORARY
   end
 end

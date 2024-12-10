@@ -10,6 +10,11 @@ module MyHealth
           resource = bb_client.get_patient
           render json: resource.to_json
         end
+
+        def demographic
+          resource = bb_client.get_demographic_info
+          render json: resource.to_json
+        end
       end
     end
   end

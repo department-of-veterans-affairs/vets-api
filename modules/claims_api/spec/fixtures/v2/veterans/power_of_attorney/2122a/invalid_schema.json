@@ -6,7 +6,7 @@
         "address": {
           "addressLine1": "123",
           "city": "city",
-          "country":  "US",
+          "countryCode":  "US",
           "zipCode": "12345"
         }
       }

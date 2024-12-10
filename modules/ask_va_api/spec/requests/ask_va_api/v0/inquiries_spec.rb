@@ -521,7 +521,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
   end
 
   describe 'POST #create_reply' do
-    let(:payload) { { 'reply' => 'this is my reply' } }
+    let(:payload) { { 'reply' => 'this is my reply', 'files' => [{ 'file_name' => nil, 'file_content' => nil }] } }
 
     context 'when successful' do
       before do
@@ -549,7 +549,7 @@ RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
           sign_in(authorized_user)
           allow_any_instance_of(Crm::Service).to receive(:call)
             .with(endpoint:, method: :put,
-                  payload: { Reply: 'this is my reply' }).and_return(failure)
+                  payload: { Reply: 'this is my reply', ListOfAttachments: nil }).and_return(failure)
           post '/ask_va_api/v0/inquiries/123/reply/new', params: payload
         end
 

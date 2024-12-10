@@ -141,7 +141,6 @@ RSpec.shared_context 'shared data' do
                           LastName: nil,
                           PreferredName: 'Submitter',
                           Suffix: nil,
-                          Gender: nil,
                           Pronouns: 'he/him/his',
                           Country: { Name: nil, CountryCode: nil },
                           Street: nil,

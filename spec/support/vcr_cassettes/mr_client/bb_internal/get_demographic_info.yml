@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/bluebutton/external/phrdemographic"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Tue, 19 Nov 2024 18:32:43 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '1157'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"content":[{"id":24773117,"patientId":21207669,"stationNumber":"984","facilityInfo":{"id":2572871,"name":"DAYTSHR","stationNumber":"984"},"dateOfBirthString":"1953
+        Jan 03","firstName":"VETERAN","lastName":"CASEY","dateOfBirth":-536223600000,"age":71,"gender":"Male","religion":"UNIVERSAL
+        LIFE CHURCH","placeOfBirth":"ALDIE, VIRGINIA","maritalStatus":"MARRIED","permStreet1":"123
+        TEST STREET","permStreet2":"TEST","permCity":"FAIRFAX","permState":"VIRGINIA","permZipcode":"20151","permCounty":"059","permCountry":"USA","permEmailAddress":"MARUF.AHMED@VA.GOV","serviceConnPercentage":"0","employmentStatus":"UNKNOWN","nextOfKinName":"GEORGE,TEST","nextOfKinStreet1":"123
+        TEST STREET","nextOfKinStreet2":"TEST","nextOfKinCity":"FAIRFAX","nextOfKinState":"VIRGINIA","nextOfKinZipcode":"20151","nextOfKinHomePhone":"571-123-4567","type":"d"}],"pageable":{"pageNumber":0,"pageSize":2147483647,"sort":{"sorted":false,"empty":true,"unsorted":true},"offset":0,"paged":true,"unpaged":false},"last":true,"totalPages":1,"totalElements":1,"size":2147483647,"number":0,"sort":{"sorted":false,"empty":true,"unsorted":true},"first":true,"numberOfElements":1,"empty":false}'
+  recorded_at: Tue, 19 Nov 2024 18:32:42 GMT
+recorded_with: VCR 6.3.1

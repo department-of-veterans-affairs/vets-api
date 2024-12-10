@@ -192,6 +192,28 @@ describe Pensions::PdfFill::Va21p527ez do
     end
   end
 
+  describe '#expand_claim_certification_and_signature' do
+    it 'defaults to today' do
+      date = Time.new(2024, 11, 25, 2, 2, 2, 'UTC')
+      zone = double('zone')
+      allow(zone).to receive(:now).and_return(date)
+      allow(Time).to receive(:zone).and_return(zone)
+      form_data = {}
+      form = described_class.new(form_data)
+      form.expand_claim_certification_and_signature
+      expect(form.instance_variable_get('@form_data')['signatureDate']).to eq({ 'month' => '11', 'day' => '25',
+                                                                                'year' => '2024' })
+    end
+
+    it 'applies date if provided' do
+      form_data = { 'signatureDate' => '2024-10-31' }
+      form = described_class.new(form_data)
+      form.expand_claim_certification_and_signature
+      expect(form.instance_variable_get('@form_data')['signatureDate']).to eq({ 'month' => '10', 'day' => '31',
+                                                                                'year' => '2024' })
+    end
+  end
+
   describe '#expand_veteran_service_information' do
     it 'puts overflow on line one' do
       long_place_of_separation = 'A very long place name that exceeds thirty-six characters'

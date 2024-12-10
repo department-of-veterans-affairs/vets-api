@@ -34,11 +34,11 @@ module DecisionReviewV1
     # @param user [User] Veteran who the form is in regard to
     # @return [Faraday::Response]
     #
-    def create_higher_level_review(request_body:, user:)
+    def create_higher_level_review(request_body:, user:, version: 'V1')
       with_monitoring_and_error_handling do
         headers = create_higher_level_review_headers(user)
         common_log_params = { key: :overall_claim_submission, form_id: '996', user_uuid: user.uuid,
-                              downstream_system: 'Lighthouse' }
+                              downstream_system: 'Lighthouse', params: { version: } }
         begin
           response = perform :post, 'higher_level_reviews', request_body, headers
           log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
@@ -48,7 +48,7 @@ module DecisionReviewV1
         end
         raise_schema_error_unless_200_status response.status
         validate_against_schema json: response.body, schema: HLR_CREATE_RESPONSE_SCHEMA,
-                                append_to_error_class: ' (HLR_V1)'
+                                append_to_error_class: " (HLR_#{version}})"
         response
       end
     end

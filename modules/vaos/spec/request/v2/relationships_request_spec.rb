@@ -28,6 +28,9 @@ RSpec.describe 'relationships', :skip_mvi, type: :request do
             relationships = JSON.parse(response.body)['data']
             expect(relationships).not_to be_nil
             expect(relationships.length).to eq(4)
+            relationships.each do |relationship|
+              expect(relationship['type']).to eq('relationship')
+            end
           end
         end
       end

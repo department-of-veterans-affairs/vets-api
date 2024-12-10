@@ -26,7 +26,10 @@ module SignIn
       CLIENT_STATE_MINIMUM_LENGTH = 22
       CODE_CHALLENGE_METHOD = 'S256'
       CSP_TYPES = [IDME = 'idme', LOGINGOV = 'logingov', DSLOGON = 'dslogon', MHV = 'mhv'].freeze
-      OPERATION_TYPES = [SIGN_UP = 'sign_up', AUTHORIZE = 'authorize'].freeze
+      OPERATION_TYPES = [SIGN_UP = 'sign_up',
+                         AUTHORIZE = 'authorize',
+                         INTERSTITIAL_VERIFY = 'interstitial_verify',
+                         INTERSTITIAL_SIGNUP = 'interstitial_signup'].freeze
       GRANT_TYPES = [AUTH_CODE_GRANT = 'authorization_code',
                      JWT_BEARER_GRANT = Urn::JWT_BEARER_GRANT_TYPE,
                      TOKEN_EXCHANGE_GRANT = Urn::TOKEN_EXCHANGE_GRANT_TYPE].freeze

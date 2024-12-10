@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/ruby:3.3.3-slim-bookworm AS rubyimg
+FROM public.ecr.aws/docker/library/ruby:3.3.6-slim-bookworm AS rubyimg
 FROM rubyimg AS modules
 
 WORKDIR /tmp
@@ -16,7 +16,7 @@ ARG BUNDLE_ENTERPRISE__CONTRIBSYS__COM \
   USER_ID=1000
 ENV RAILS_ENV=$RAILS_ENV \
   BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$BUNDLE_ENTERPRISE__CONTRIBSYS__COM \
-  BUNDLER_VERSION=2.5.14
+  BUNDLER_VERSION=2.5.23
 
 RUN groupadd --gid $USER_ID nonroot \
   && useradd --uid $USER_ID --gid nonroot --shell /bin/bash --create-home nonroot --home-dir /app

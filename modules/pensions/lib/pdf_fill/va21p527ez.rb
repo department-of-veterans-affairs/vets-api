@@ -5,8 +5,6 @@ require 'pdf_fill/forms/form_base'
 require 'pdf_fill/forms/form_helper'
 require 'string_helpers'
 
-require 'pensions/version'
-
 # rubocop:disable Metrics/ClassLength
 module Pensions
   module PdfFill
@@ -17,7 +15,7 @@ module Pensions
       include ActiveSupport::NumberHelper
 
       # The Form ID
-      FORM_ID = '21P-527EZ'
+      FORM_ID = Pensions::FORM_ID
 
       # The PDF Template
       TEMPLATE = "#{Pensions::MODULE_PATH}/lib/pdf_fill/pdfs/21P-527EZ.pdf".freeze
@@ -1707,8 +1705,9 @@ module Pensions
       # SECTION XII: CLAIM CERTIFICATION AND SIGNATURE
       def expand_claim_certification_and_signature
         @form_data['noRapidProcessing'] = to_checkbox_on_off(@form_data['noRapidProcessing'])
-        # form was signed today
-        @form_data['signatureDate'] = split_date(Time.zone.now.strftime('%Y-%m-%d'))
+        # signed on provided date (generally SavedClaim.created_at) or default to today
+        signature_date = @form_data['signatureDate'] || Time.zone.now.strftime('%Y-%m-%d')
+        @form_data['signatureDate'] = split_date(signature_date)
       end
 
       # Convert a date to a string

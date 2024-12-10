@@ -284,6 +284,7 @@ Rails.application.routes.draw do
 
     namespace :my_va do
       resource :submission_statuses, only: :show
+      resource :submission_pdf_urls, only: :create
     end
 
     namespace :profile do
@@ -444,6 +445,10 @@ Rails.application.routes.draw do
     scope format: false do
       resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
     end
+  end
+
+  namespace :v2, defaults: { format: 'json' } do
+    resources :higher_level_reviews, only: %i[create show]
   end
 
   root 'v0/example#index', module: 'v0'

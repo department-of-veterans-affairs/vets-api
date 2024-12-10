@@ -11,7 +11,8 @@ module ClaimsApi
       '0oadnavva9u5F6vRz297' => 'Vet Claim Pro',
       '0oagdm49ygCSJTp8X297' => 'VA.gov',
       '0oaqzbqj9wGOCJBG8297' => 'Panoramic Software',
-      '0oao7p92peuKEvQ73297' => 'VetraSpec'
+      '0oao7p92peuKEvQ73297' => 'VetraSpec',
+      '0oaucamufx5L2o4Ey297' => 'VBA (OBI)'
     }.freeze
 
     def initialize(cid:)

@@ -113,7 +113,7 @@ module ClaimsApi
         def find_bgs_claim!(claim_id:)
           return if claim_id.blank?
 
-          local_bgs_service.find_benefit_claim_details_by_benefit_claim_id(
+          bgs_claim_status_service.find_benefit_claim_details_by_benefit_claim_id(
             claim_id
           )
         end

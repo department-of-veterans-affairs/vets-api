@@ -128,6 +128,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
     before do
       job.instance_variable_set(:@intake_service, service)
+      job.instance_variable_set(:@claim, claim)
     end
 
     it 'returns a datestamp pdf path' do
@@ -160,6 +161,25 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
   end
 
+  describe '#set_signature_date' do
+    before do
+      job.instance_variable_set(:@pension_monitor, monitor)
+      allow(monitor).to receive(:track_claim_signature_error)
+    end
+
+    it 'errors and logs but does not reraise' do
+      expect(monitor).to receive(:track_claim_signature_error)
+      job.send(:set_signature_date)
+    end
+
+    it 'sets the signature date to claim.created_at' do
+      job.instance_variable_set(:@claim, claim)
+      job.send(:set_signature_date)
+      form_data = JSON.parse(claim.form)
+      expect(form_data['signatureDate']).to eq(claim.created_at.strftime('%Y-%m-%d'))
+    end
+  end
+
   describe '#send_confirmation_email' do
     let(:monitor_error) { create(:monitor_error) }
     let(:notification) { double('notification') }
@@ -175,7 +195,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     it 'errors and logs but does not reraise' do
-      expect(Pensions::NotificationEmail).to receive(:new).with claim
+      expect(Pensions::NotificationEmail).to receive(:new).with(claim.id)
       expect(notification).to receive(:deliver).with(:confirmation)
       expect(monitor).to receive(:track_send_confirmation_email_failure)
       job.send(:send_confirmation_email)

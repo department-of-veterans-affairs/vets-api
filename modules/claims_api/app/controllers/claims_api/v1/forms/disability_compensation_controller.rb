@@ -233,7 +233,7 @@ module ClaimsApi
         end
 
         def validate_initial_claim
-          if local_bgs_service.claims_count(target_veteran.participant_id).zero? &&
+          if bgs_claim_status_service.claims_count(target_veteran.participant_id).zero? &&
              form_attributes['autoCestPDFGenerationDisabled'] == false
             message = 'Veteran has no claims, autoCestPDFGenerationDisabled requires true for Initial Claim'
             raise ::Common::Exceptions::UnprocessableEntity.new(detail: message)
