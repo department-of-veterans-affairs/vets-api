@@ -36,7 +36,7 @@ module MedicalRecords
       params[:date] = ["ge#{from_date}", "le#{to_date}"] if from_date && to_date
       bundle = lighthouse_client.list_observations(params)
       bundle = Oj.load(bundle[:body].to_json, symbol_keys: true)
-      sort_bundle(bundle, :recordedDate, :desc)
+      sort_bundle(bundle, :effectiveDateTime, :desc)
     end
 
     def list_allergies
