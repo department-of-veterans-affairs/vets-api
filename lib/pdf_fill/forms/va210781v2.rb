@@ -614,7 +614,7 @@ module PdfFill
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
         @form_data = expand_ssn(@form_data)
         @form_data['veteranDateOfBirth'] = expand_veteran_dob(@form_data)
-        
+
         split_phone(@form_data, 'veteranPhone')
 
         set_treatment_selection
@@ -628,7 +628,7 @@ module PdfFill
 
         expand_signature(@form_data['veteranFullName'], @form_data['signatureDate'])
 
-        formatted_date = DateTime.parse(@form_data['signatureDate']).strftime("%Y-%m-%d")
+        formatted_date = DateTime.parse(@form_data['signatureDate']).strftime('%Y-%m-%d')
         @form_data['signatureDate'] = split_date(formatted_date)
         @form_data['signature'] = "/es/ #{@form_data['signature']}"
 
@@ -676,7 +676,7 @@ module PdfFill
 
       def format_other_behavior_details
         other_behavior = @form_data['behaviors']&.[]('otherBehavior')
-        return unless other_behavior.present?
+        return if other_behavior.blank?
 
         details = @form_data['behaviorsDetails']['otherBehavior']
         @form_data['behaviorsDetails']['otherBehavior'] = "#{other_behavior}: #{details}"
@@ -692,49 +692,49 @@ module PdfFill
       def expand_collection(collection, format_method, overflow_key)
         collection = @form_data[collection]
         return if collection.blank?
-      
+
         collection.each_with_index do |item, index|
           format_item_overflow(item, index + 1, format_method, overflow_key)
         end
       end
-      
+
       def format_item_overflow(item, index, format_method, overflow_key)
         item_overflow = send(format_method, item, index)
-      
+
         return if item_overflow.blank?
-      
+
         item[overflow_key] = PdfFill::FormValue.new('', item_overflow.compact.join("\n\n"))
       end
 
       def format_event(event, index)
         return if event.blank?
-      
+
         event_overflow = ["Event Number: #{index}"]
         event_details = event['details'] || ''
         event_location = event['location'] || ''
         event_timing = event['timing'] || ''
-      
+
         event_overflow.push("Event Description: \n\n#{event_details}")
         event_overflow.push("Event Location: \n\n#{event_location}")
         event_overflow.push("Event Date: \n\n#{event_timing}")
-      
+
         event_overflow
       end
-      
+
       def format_provider(provider, index)
         return if provider.blank?
-      
+
         provider_overflow = ["Treatment Information Number: #{index}"]
         facility_info = provider['facilityInfo']
         month = provider['treatmentMonth'] || 'XX'
         year = provider['treatmentYear'] || 'XXXX'
         no_date = provider['noDates']
-      
+
         provider_overflow.push("Treatment Facility Name and Location: \n\n#{facility_info}")
         provider_overflow.push(no_date ? "Treatment Date: Don't have date" : "Treatment Date: #{month}-#{year}")
-      
+
         provider_overflow
-      end      
+      end
     end
   end
 end
