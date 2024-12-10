@@ -5,8 +5,8 @@ require 'va_notify/notification_email/saved_claim'
 module Pensions
   class NotificationEmail < ::VANotify::NotificationEmail::SavedClaim
     # @see VANotify::NotificationEmail::SavedClaim#new
-    def initialize(saved_claim)
-      super(saved_claim, service_name: 'pensions')
+    def initialize(saved_claim_id)
+      super(saved_claim_id, service_name: 'pensions')
     end
 
     private
