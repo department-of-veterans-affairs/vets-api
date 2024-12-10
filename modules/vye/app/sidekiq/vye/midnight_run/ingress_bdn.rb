@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../helpers'
+
 module Vye
   class MidnightRun
     class IngressBdn
@@ -7,6 +9,8 @@ module Vye
       sidekiq_options retry: 5
 
       def perform
+        return if holiday?
+
         bdn_clone = Vye::BdnClone.create!(transact_date: Time.zone.today)
         bdn_clone_id = bdn_clone.id
 

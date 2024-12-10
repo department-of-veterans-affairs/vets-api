@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../helpers'
+
 module Vye
   class MidnightRun
     class IngressTims
@@ -7,6 +9,8 @@ module Vye
       sidekiq_options retry: 0
 
       def perform
+        return if holiday?
+
         Vye::PendingDocument.delete_all
 
         chunks = BatchTransfer::TimsChunk.build_chunks

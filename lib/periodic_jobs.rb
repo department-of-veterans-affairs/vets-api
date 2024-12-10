@@ -237,14 +237,11 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Send Decision Review emails to Veteran for failed form/evidence submissions
   mgr.register('5 1 * * *', 'DecisionReview::FailureNotificationEmailJob')
 
-  # Skip running VYE jobs on federal holidays
-  unless Holidays.on(Time.zone.today, :us, :observed).any?
-    # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
-    mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
-    mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
-    # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
-    mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
-    # Daily 1900 job for Vye: clears deactivated BDNs every evening.
-    mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
-  end
+  # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
+  mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
+  mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
+  # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
+  mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
+  # Daily 1900 job for Vye: clears deactivated BDNs every evening.
+  mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 }
