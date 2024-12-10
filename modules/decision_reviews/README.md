@@ -6,7 +6,7 @@ Higher Level Review (20-0996)
 Notice of Disagreement (10182)
 
 This engine is an effort to isolate all the code in `vets-api` relating to these three forms.
-Note: "plugin" and "engine" are somewhat interchangable terms in this context.
+Note: "plugin" and "engine" are somewhat interchangeable terms in this context.
 
 ## Why an Engine?
 
@@ -33,7 +33,7 @@ $ bundle
 ```
 
 ```ruby
-  mount DecisionReviews::Engine, at: '/decision_reviews'
+mount DecisionReviews::Engine, at: '/decision_reviews'
 ```
 
 ## Transition Plan
