@@ -6,7 +6,6 @@ require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 require 'bgs_service/org_web_service'
 
-
 RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
   let(:veteran_id) { '1013062086V794840' }
   let(:appoint_organization_path) { "/services/claims/v2/veterans/#{veteran_id}/2122" }
