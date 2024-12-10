@@ -303,7 +303,7 @@ module BBInternal
       modified_data = data.map do |obj|
         study_id = obj['studyIdUrn']
 
-        existing_uuid, = study_data_hash.find { |_, v| v == study_id.to_s } if study_data_hash
+        existing_uuid = study_data_hash&.key(study_id.to_s)
 
         if existing_uuid
           obj['studyIdUrn'] = existing_uuid
