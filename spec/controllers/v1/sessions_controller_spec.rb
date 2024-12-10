@@ -900,7 +900,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           context 'MHV correlation id validation' do
             let(:mpi_profile) { build(:mpi_profile, mhv_ids: [Faker::Number.number(digits: 11)]) }
-            let(:expected_identity_value) { user.identity.mhv_correlation_id }
+            let(:expected_identity_value) { user.identity.mhv_credential_uuid }
             let(:expected_mpi_value) { user.mpi_mhv_correlation_id }
             let(:validation_id) { 'MHV Correlation ID' }
 
@@ -1250,41 +1250,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           call_endpoint
           expect(PersonalInformationLog.count).to be_positive
           expect(PersonalInformationLog.last.error_class).to eq('Login Failed! on User/Session Validation')
-        end
-      end
-
-      context 'when MHV user attribute validation fails' do
-        let(:saml_attributes) do
-          build(:ssoe_idme_mhv_loa3,
-                va_eauth_mhvuuid: ['999888'],
-                va_eauth_mhvien: ['888777'])
-        end
-        let(:saml_response) do
-          build_saml_response(
-            authn_context: 'myhealthevet',
-            level_of_assurance: ['3'],
-            attributes: saml_attributes,
-            existing_attributes: nil,
-            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
-          )
-        end
-        let(:saml_user) { SAML::User.new(saml_response) }
-        let(:expected_error_message) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids][:message] }
-        let(:version) { 'v1' }
-        let(:expected_warn_message) do
-          "SessionsController version:#{version} context:{} message:#{expected_error_message}"
-        end
-        let(:error_code) { '101' }
-
-        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
-
-        it 'logs a generic user validation error', :aggregate_failures do
-          expect(controller).not_to receive(:log_message_to_sentry)
-          expect(Rails.logger).to receive(:warn).ordered
-          expect(Rails.logger).to receive(:warn).ordered.with(expected_warn_message)
-          expect(call_endpoint).to redirect_to(expected_redirect)
-
-          expect(response).to have_http_status(:found)
         end
       end
 

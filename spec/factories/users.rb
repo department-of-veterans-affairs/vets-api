@@ -27,9 +27,10 @@ FactoryBot.define do
       icn { '123498767V234859' }
       mhv_icn { nil }
       multifactor { false }
-      mhv_ids { [] }
-      active_mhv_ids { [] }
-      mhv_correlation_id { Faker::Number.number(digits: 9) }
+      mhv_ids { [mhv_credential_uuid] }
+      active_mhv_ids { [mhv_credential_uuid] }
+      mhv_correlation_id { mhv_credential_uuid }
+      mhv_credential_uuid { Faker::Number.number(digits: 9) }
       mhv_account_type { nil }
       edipi { '384759483' }
       va_patient { nil }
@@ -86,7 +87,7 @@ FactoryBot.define do
           mhv_icn:,
           loa:,
           multifactor:,
-          mhv_correlation_id:,
+          mhv_credential_uuid:,
           mhv_account_type:,
           edipi:,
           sign_in: }
@@ -119,6 +120,10 @@ FactoryBot.define do
                            vha_facility_hash:,
                            vet360_id: }
         build(:mpi_profile, mpi_attributes)
+      end
+
+      mhv_user_account do
+        build(:mhv_user_account)
       end
     end
 

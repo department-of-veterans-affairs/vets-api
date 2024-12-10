@@ -46,7 +46,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
     before do
-      create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id)
+      create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid)
     end
 
     describe 'backend statuses' do
