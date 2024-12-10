@@ -124,9 +124,9 @@ module Lighthouse
 
       def perform_get(uri_path, **params)
         perform(:get, uri_path, params, headers_hash)
-      rescue Common::Client::Errors::ClientError => error
-        log_operation_outcome(error)
-        raise error
+      rescue Common::Client::Errors::ClientError => e
+        log_operation_outcome(e)
+        raise e
       end
 
       def authenticate(params)
@@ -136,9 +136,9 @@ module Lighthouse
           URI.encode_www_form(params),
           { 'Content-Type': 'application/x-www-form-urlencoded' }
         )
-      rescue Common::Client::Errors::ClientError => error
-        log_operation_outcome(error)
-        raise error
+      rescue Common::Client::Errors::ClientError => e
+        log_operation_outcome(e)
+        raise e
       end
 
       def log_operation_outcome(error)
