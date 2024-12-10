@@ -3,7 +3,7 @@
 module DebtsApi
   class V0::DigitalDispute < Common::Base
     include ActiveModel::Validations
-    STATS_KEY = 'api.digital_dispute'
+    STATS_KEY = 'api.digital_dispute_submission'
 
     attribute :contact_information, Hash
     attribute :debt_information, Array

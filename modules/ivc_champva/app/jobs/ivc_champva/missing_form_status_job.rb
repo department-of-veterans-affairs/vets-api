@@ -9,7 +9,7 @@ module IvcChampva
     include Sidekiq::Job
     sidekiq_options retry: 3
 
-    def perform
+    def perform # rubocop:disable Metrics/MethodLength
       return unless Settings.ivc_forms.sidekiq.missing_form_status_job.enabled
 
       forms = IvcChampvaForm.where(pega_status: nil)
@@ -28,7 +28,11 @@ module IvcChampva
           if elapsed_days >= threshold && !form.email_sent
             template_id = "#{form[:form_number]}-FAILURE"
             send_failure_email(form, template_id)
-            StatsD.increment('ivc_champva.form_missing_status_email_sent', tags: ["id:#{form.id}"])
+            if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
+              additional_context = { form_id: form[:form_number] }
+              monitor.log_silent_failure_avoided(additional_context)
+              monitor.track_missing_status_email_sent(form[:form_number])
+            end
           end
         end
 
@@ -60,9 +64,20 @@ module IvcChampva
         if IvcChampva::Email.new(form_data).send_email
           fetch_forms_by_uuid(form[:form_uuid]).update_all(email_sent: true) # rubocop:disable Rails/SkipsModelValidations
         else
+          additional_context = { form_id: form[:form_number] }
+          monitor.log_silent_failure(additional_context)
           raise ActiveRecord::Rollback, 'Pega Status Update/Action Required Email send failure'
         end
       end
+    end
+
+    ##
+    # retreive a monitor for tracking
+    #
+    # @return [IvcChampva::Monitor]
+    #
+    def monitor
+      @monitor ||= IvcChampva::Monitor.new
     end
   end
 end
