@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../helpers'
-
 module Vye
   class MidnightRun
     class IngressTims
@@ -9,7 +7,7 @@ module Vye
       sidekiq_options retry: 0
 
       def perform
-        return if holiday?
+        return if Vye::CloudTransfer.holiday?
 
         Vye::PendingDocument.delete_all
 

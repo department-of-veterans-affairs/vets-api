@@ -47,7 +47,9 @@ describe Vye::DawnDash::EgressUpdates, type: :worker do
       expect(Vye::BatchTransfer::EgressFiles).not_to receive(:verification_upload)
       expect(Vye::BdnClone).not_to receive(:clear_export_ready!)
 
-      described_class.new.perform
+      expect do
+        described_class.new.perform
+      end.not_to(change { Sidekiq::Worker.jobs.size })
     end
   end
 end

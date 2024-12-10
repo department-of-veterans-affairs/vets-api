@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
-require_relative '../helpers'
-
 module Vye
   class SundownSweep
     class ClearDeactivatedBdns
       include Sidekiq::Worker
 
       def perform
-        return if holiday?
+        return if Vye::CloudTransfer.holiday?
 
         logger.info('Beginning: delete deactivated bdns')
         Vye::CloudTransfer.delete_inactive_bdns

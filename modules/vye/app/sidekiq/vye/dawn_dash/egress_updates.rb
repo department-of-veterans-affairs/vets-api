@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative '../helpers'
-
 module Vye
   class DawnDash
     class EgressUpdates
@@ -9,7 +7,7 @@ module Vye
       sidekiq_options retry: 0
 
       def perform
-        return if holiday?
+        return if Vye::CloudTransfer.holiday?
 
         Vye::BatchTransfer::EgressFiles.address_changes_upload
         Vye::BatchTransfer::EgressFiles.direct_deposit_upload

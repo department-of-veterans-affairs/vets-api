@@ -39,7 +39,10 @@ describe Vye::SundownSweep::DeleteProcessedS3Files, type: :worker do
 
     it 'does not process S3 files' do
       expect(Vye::CloudTransfer).not_to receive(:remove_aws_files_from_s3_buckets)
-      described_class.new.perform
+
+      expect do
+        described_class.new.perform
+      end.not_to(change { Sidekiq::Worker.jobs.size })
     end
   end
 end

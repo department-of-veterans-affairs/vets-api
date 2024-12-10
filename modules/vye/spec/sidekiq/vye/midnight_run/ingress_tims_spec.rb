@@ -52,7 +52,9 @@ describe Vye::MidnightRun::IngressTims, type: :worker do
     it 'does not process TIMS' do
       expect(Vye::BatchTransfer::TimsChunk).not_to receive(:build_chunks)
 
-      described_class.new.perform
+      expect do
+        described_class.new.perform
+      end.not_to(change { Sidekiq::Worker.jobs.size })
     end
   end
 end
