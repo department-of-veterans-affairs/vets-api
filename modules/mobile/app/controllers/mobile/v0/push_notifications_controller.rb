@@ -7,14 +7,13 @@ module Mobile
     class PushNotificationsController < ApplicationController
       def register
         begin
-        result = service.register(
-          get_app_name(params),
-          params[:device_token],
-          @current_user.icn,
-          params[:os_name],
-          params[:device_name] || params[:os_name]
-        )
-
+          result = service.register(
+            get_app_name(params),
+            params[:device_token],
+            @current_user.icn,
+            params[:os_name],
+            params[:device_name] || params[:os_name]
+          )
         rescue => e
           if Flipper.enabled?(:mobile_push_register_logging, @current_user)
             PersonalInformationLog.create!(
