@@ -2,8 +2,6 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 RSpec.describe 'Mobile::V0::User::ContactInfo', type: :request do
-  Flipper.disable(:va_v3_contact_information_service)
-
   let!(:user) { sis_user }
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
@@ -86,7 +84,7 @@ RSpec.describe 'Mobile::V0::User::ContactInfo', type: :request do
     }
   end
 
-  describe 'GET /mobile/v0/user/contact_info with vet360 id' do
+  describe 'GET /mobile/v0/user/contact_info with vet360 id', :skip_va_profile_user do
     context 'valid user' do
       before do
         get('/mobile/v0/user/contact-info', headers: sis_headers)
@@ -107,7 +105,7 @@ RSpec.describe 'Mobile::V0::User::ContactInfo', type: :request do
     end
   end
 
-  describe 'GET /mobile/v0/user/contact_info without vet360 id' do
+  describe 'GET /mobile/v0/user/contact_info without vet360 id', :skip_va_profile_user do
     let!(:user) { sis_user(vet360_id: nil) }
 
     before do
