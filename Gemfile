@@ -18,6 +18,7 @@ path 'modules' do
   gem 'covid_research'
   gem 'covid_vaccine'
   gem 'debts_api'
+  gem 'decision_reviews'
   gem 'dhp_connected_devices'
   gem 'facilities_api'
   gem 'health_quest'
