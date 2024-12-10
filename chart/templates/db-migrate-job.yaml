@@ -21,8 +21,10 @@ spec:
           volumeMounts:
             - name: clamav-volume
               mountPath: /app/clamav_tmp
+              {{- if .Values.mockData.enabled }}
             - name: vets-api-mockdata
               mountPath: /app/config/vets-api-mockdata
+              {{- end }}
             - name: ddsocket
               mountPath: /var/run/datadog
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
@@ -51,8 +53,10 @@ spec:
       securityContext:
         fsGroup: {{ .Values.fsGroup }}
       volumes:
+        {{- if .Values.mockData.enabled }}
         - name: vets-api-mockdata
           emptyDir: {}
+        {{- end }}
         - name: clamav-volume
           emptyDir: {}
         - name: ddsocket
