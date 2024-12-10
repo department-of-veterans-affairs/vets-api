@@ -202,10 +202,6 @@ class User < Common::RedisStore
   delegate :status, to: :mpi, prefix: true
   delegate :vet360_id, to: :mpi
 
-  def query_mpi_profile
-    mpi_profile(break_cache: true)
-  end
-
   def active_mhv_ids
     mpi_profile&.active_mhv_ids
   end
@@ -315,6 +311,16 @@ class User < Common::RedisStore
   end
 
   # Other MPI
+
+  def validate_mpi_profile
+    errors = []
+    updated_profile = mpi_profile(break_cache: true)
+    return unless updated_profile
+
+    errors.push(:mpi_death_flag) unless updated_profile.deceased_date.nil?
+    errors.push(:mpi_theft_flag) unless updated_profile.id_theft_flag == false
+    errors
+  end
 
   def invalidate_mpi_cache
     return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response

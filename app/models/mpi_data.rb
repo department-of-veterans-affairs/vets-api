@@ -233,14 +233,15 @@ class MPIData < Common::RedisStore
   end
 
   def query_mpi_profile(user_key:)
-    do_cached_with(key: user_key, force: true) do
-      queried_profile = find_profile
-      @mvi_response = queried_profile
-      queried_profile
-    rescue ArgumentError, MPI::Errors::ArgumentError => e
-      log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
-      return nil
+    mpi_response = find_profile
+    if mpi_response.cache?
+      cache(user_key, mpi_response)
+      @mvi_response = mpi_response
+      mpi_response.profile
     end
+  rescue ArgumentError, MPI::Errors::ArgumentError => e
+    log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
+    nil
   end
 
   def add_ids(response)

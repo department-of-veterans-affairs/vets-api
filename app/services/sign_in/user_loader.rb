@@ -42,11 +42,14 @@ module SignIn
     end
 
     def validate_mpi_profile
-      mpi_profile = current_user.query_mpi_profile
-      return unless mpi_profile
+      profile_errors = current_user.validate_mpi_profile
+      return if profile_errors.empty?
 
-      raise Errors::MPILockedAccountError.new message: 'Death Flag Detected' unless mpi_profile.deceased_date.nil?
-      raise Errors::MPILockedAccountError.new message: 'Theft Flag Detected' unless mpi_profile.id_theft_flag == false
+      if profile_errors.include?(:mpi_death_flag)
+        raise Errors::MPILockedAccountError.new message: 'Death Flag Detected'
+      elsif profile_errors.include?(:mpi_theft_flag)
+        raise Errors::MPILockedAccountError.new message: 'Theft Flag Detected'
+      end
     end
 
     def user_attributes
