@@ -27,11 +27,7 @@ class AccreditedIndividual < ApplicationRecord
   validates :poa_code, length: { is: 3 }, allow_blank: true
   validates :individual_type, uniqueness: { scope: :registration_number }
 
-  enum individual_type: {
-    'attorney' => 'attorney',
-    'claims_agent' => 'claims_agent',
-    'representative' => 'representative'
-  }
+  enum :individual_type, %i[attorney claims_agent representative]
 
   DEFAULT_FUZZY_THRESHOLD = AccreditedRepresentation::Constants::FUZZY_SEARCH_THRESHOLD
 

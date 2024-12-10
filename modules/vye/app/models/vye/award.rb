@@ -5,10 +5,9 @@ module Vye
     belongs_to :user_info
     has_one :verification, dependent: :nullify
 
-    enum(
-      cur_award_ind: { current: 'C', future: 'F', past: 'P' },
-      _prefix: :award_ind
-    )
+    enum :cur_award_ind, %i[current future past],
+         prefix: :award_ind,
+         mapping: { current: 'C', future: 'F', past: 'P' }
 
     validates(
       *%i[

@@ -14,7 +14,6 @@ module SchemaContract
     validates :response, presence: true
     validates :status, presence: true
 
-    enum status: { initialized: 0, success: 1, schema_errors_found: 2, schema_not_found: 3, error: 4 },
-         _default: :initialized
+    enum :status, %i[initialized success schema_errors_found schema_not_found error], default: :initialized
   end
 end
