@@ -14,7 +14,8 @@ module VAProfile
         # @param body [Hash] the decoded response body from VAProfile
         # @return [VAProfile::Models::V3::Address] the model built from the response body
         # rubocop:disable Metrics/MethodLength
-        def in_json
+        # in_json_v2 will replace in_json when Contact Information V1 Service has depreciated
+        def in_json_v2
           address_attributes = {
             addressId: @id,
             addressLine1: @address_line1,
@@ -23,22 +24,30 @@ module VAProfile
             addressPOU: @address_pou,
             addressType: @address_type.titleize,
             cityName: @city,
-            countryCodeISO2: @country_code_iso2,
-            countryCodeISO3: @country_code_iso3,
-            countryName: @country_name,
+            country: {
+              countryName: @country_name,
+              countryCodeFIPS: @country_code_fips,
+              countryCodeISO2: @country_code_iso2,
+              countryCodeISO3: @country_code_iso3
+            },
             county: {
               countyCode: @county_code,
               countyName: @county_name
             },
+            province: {
+              provinceName: @province,
+              provinceCode: @province_code
+            },
+            state: {
+              stateName: @state_name,
+              stateCode: @state_code
+            },
             intPostalCode: @international_postal_code,
-            provinceName: @province,
-            stateCode: @state_code,
             zipCode5: @zip_code,
             zipCode4: @zip_code_suffix,
             originatingSourceSystem: SOURCE_SYSTEM,
             sourceSystemUser: @source_system_user,
             sourceDate: @source_date,
-            vet360Id: @vet360_id,
             effectiveStartDate: @effective_start_date,
             effectiveEndDate: @effective_end_date
           }
@@ -69,9 +78,10 @@ module VAProfile
             address_type: body['address_type'].upcase,
             bad_address: body['bad_address'],
             city: body['city_name'],
-            country_name: body['country_name'],
-            country_code_iso2: body['country_code_iso2'],
-            country_code_iso3: body['country_code_iso3'],
+            country_name: body.dig('country', 'country_name'),
+            country_code_iso2: body.dig('country', 'iso_2_code'),
+            country_code_iso3: body.dig('country', 'country_code_iso3'),
+            fipsCode: body.dig('country', 'fips_code'),
             county_code: body.dig('county', 'county_code'),
             county_name: body.dig('county', 'county_name'),
             created_at: body['create_date'],
@@ -88,7 +98,8 @@ module VAProfile
             state_code: body['state_code'],
             transaction_id: body['tx_audit_id'],
             updated_at: body['update_date'],
-            vet360_id: body['vet360_id'],
+            vet360_id: body['vet360_id'] || body['va_profile_id'],
+            va_profile_id: body['va_profile_id'] || body['vet360_id'],
             zip_code: body['zip_code5'],
             zip_code_suffix: body['zip_code4']
           )

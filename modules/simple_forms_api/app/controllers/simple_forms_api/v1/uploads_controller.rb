@@ -5,6 +5,7 @@ require 'simple_forms_api_submission/metadata_validator'
 require 'lgy/service'
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
+require 'benefits_intake_service/service'
 
 module SimpleFormsApi
   module V1
@@ -53,6 +54,17 @@ module SimpleFormsApi
         if %w[40-0247 20-10207 40-10007].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
+          file_path = params['file'].tempfile.path
+          # Validate the document using BenefitsIntakeService
+          if %w[40-0247 40-10007].include?(params[:form_id])
+            begin
+              service = BenefitsIntakeService::Service.new
+              service.valid_document?(document: file_path)
+            rescue BenefitsIntakeService::Service::InvalidDocumentError => e
+              render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
+              return
+            end
+          end
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
@@ -117,7 +129,6 @@ module SimpleFormsApi
       end
 
       def submit_form_to_benefits_intake
-        form_id = get_form_id
         parsed_form_data = JSON.parse(params.to_json)
         file_path, metadata, form = get_file_paths_and_metadata(parsed_form_data)
 
@@ -130,20 +141,28 @@ module SimpleFormsApi
           { form_number: params[:form_number], status:, uuid: confirmation_number }
         )
 
-        presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
-                             upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
-                           end
+        if status == 200
+          if Flipper.enabled?(:simple_forms_email_confirmations)
+            send_confirmation_email(parsed_form_data, confirmation_number)
+          end
 
-        if status == 200 && Flipper.enabled?(:simple_forms_email_confirmations)
-          send_confirmation_email(parsed_form_data, form_id, confirmation_number)
+          presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
+                               upload_pdf_to_s3(confirmation_number, file_path, metadata, submission, form)
+                             end
         end
 
-        json = get_json(confirmation_number || nil, form_id, presigned_s3_url)
+        build_response(confirmation_number, presigned_s3_url, status)
+      rescue SimpleFormsApi::FormRemediation::Error => e
+        Rails.logger.error('Simple forms api - error uploading form submission to S3 bucket', error: e)
+        build_response(confirmation_number, presigned_s3_url, status)
+      end
+
+      def build_response(confirmation_number, presigned_s3_url, status)
+        json = get_json(confirmation_number || nil, presigned_s3_url || nil)
         { json:, status: }
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
-        form_id = get_form_id
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
         if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && @current_user
@@ -173,8 +192,7 @@ module SimpleFormsApi
       end
 
       def prepare_for_upload(form, file_path)
-        Rails.logger.info('Simple forms api - preparing to request upload location from Lighthouse',
-                          form_id: get_form_id)
+        Rails.logger.info('Simple forms api - preparing to request upload location from Lighthouse', form_id:)
         location, uuid = lighthouse_service.request_upload
         stamp_pdf_with_uuid(form, uuid, file_path)
         attempt = create_form_submission_attempt(uuid)
@@ -213,7 +231,7 @@ module SimpleFormsApi
           metadata: metadata.to_json,
           document: file_path,
           upload_url: location,
-          attachments: get_form_id == 'vba_20_10207' ? form.get_attachments : nil
+          attachments: form_id == 'vba_20_10207' ? form.get_attachments : nil
         }.compact
 
         lighthouse_service.perform_upload(**upload_params)
@@ -221,7 +239,7 @@ module SimpleFormsApi
 
       def upload_pdf_to_s3(id, file_path, metadata, submission, form)
         config = SimpleFormsApi::FormRemediation::Configuration::VffConfig.new
-        attachments = get_form_id == 'vba_20_10207' ? form.get_attachments : []
+        attachments = form_id == 'vba_20_10207' ? form.get_attachments : []
         s3_client = config.s3_client.new(
           config:, type: :submission, id:, submission:, attachments:, file_path:, metadata:
         )
@@ -236,14 +254,14 @@ module SimpleFormsApi
         @current_user&.icn
       end
 
-      def get_form_id
+      def form_id
         form_number = params[:form_number]
         raise 'missing form_number in params' unless form_number
 
         FORM_NUMBER_MAP[form_number]
       end
 
-      def get_json(confirmation_number, form_id, pdf_url)
+      def get_json(confirmation_number, pdf_url)
         { confirmation_number: }.tap do |json|
           json[:pdf_url] = pdf_url if pdf_url.present?
           json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
@@ -278,7 +296,7 @@ module SimpleFormsApi
         } }
       end
 
-      def send_confirmation_email(parsed_form_data, form_id, confirmation_number)
+      def send_confirmation_email(parsed_form_data, confirmation_number)
         config = {
           form_data: parsed_form_data,
           form_number: form_id,

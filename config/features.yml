@@ -167,12 +167,12 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
-  champva_unique_temp_file_names:
-    actor_type: user
-    description: Enables unique temp file names for CHAMPVA PDF files
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
+  champva_enhanced_monitor_logging:
+    actor_type: user
+    description: Enables using the new IVC CHAMPVA Monitoring logging class for enhanced Stats D info.
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -229,6 +229,10 @@ features:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
     enable_in_development: true
+  claims_api_poa_vbms_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables poa vbms updater to use local_bgs
+    enable_in_development: true
   claims_api_bd_refactor:
     actor_type: user
     description: Diverts codepath to use refactored BD methods
@@ -248,6 +252,10 @@ features:
   claims_api_use_person_web_service:
     actor_type: user
     description: Uses person web service rather than local bgs
+    enable_in_development: true
+  claims_api_use_vet_record_service:
+    actor_type: user
+    description: Uses local_bgs rather than bgs-ext
     enable_in_development: true
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
@@ -462,6 +470,15 @@ features:
     actor_type: user
     description: Enable sending an email if a 4142 submission is not successful in Lighthouse
     enable_in_development: true
+  decision_review_hlr_new_api:
+    actor_type: user
+    description: Enable to switch to new HLR modularized Decision Review endpoint
+  decision_review_nod_new_api:
+    actor_type: user
+    description: Enable to switch to new NOD modularized Decision Review endpoint
+  decision_review_sc_new_api:
+    actor_type: user
+    description: Enable to switch to new Supplemental Claim modularized Decision Review endpoint
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -573,9 +590,6 @@ features:
   facilities_ppms_suppress_all:
     actor_type: user
     description: Hide all ppms search options
-  facilities_ppms_suppress_community_care:
-    actor_type: user
-    description: Hide ppms community care searches
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
@@ -815,7 +829,7 @@ features:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
   form1010d:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
   form107959c:
     actor_type: user
@@ -875,6 +889,10 @@ features:
   letters_check_discrepancies:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
+    enable_in_development: true
+  lighthouse_claims_api_v2_add_person_proxy:
+    actor_type: user
+    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID 
     enable_in_development: true
   lighthouse_claims_api_poa_dependent_claimants:
     actor_type: user
@@ -1212,9 +1230,6 @@ features:
     actor_type: user
     description: When enabled, the rated disabilities application uses Lighthouse instead of EVSS
     enable_in_development: true
-  saved_claim_schema_validation_disable:
-    actor_type: user
-    description: Disables validating a saved_claim schema before validating the form data with the schema.
   schema_contract_appointments_index:
     actor_type: user
     description: Enables schema validation for the appointments service index fetch.
@@ -1368,6 +1383,9 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
+  va_notify_custom_errors:
+    actor_type: user
+    description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
@@ -1629,6 +1647,9 @@ features:
   mobile_v2_contact_info:
     actor_type: user
     description: For mobile app, enables ContactInformationV2 Service.
+  appointment_provider_id_logging:
+    actor_type: user
+    description: For mobile app, logs provider id for debugging
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
@@ -1759,6 +1780,10 @@ features:
     actor_type: user
     description: Enable Burial form v2 re-design
     enable_in_development: true
+  burial_confirmation_page:
+    actor_type: user
+    description: Toggle showing the updated confirmation page
+    enable_in_development: true
   burial_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
@@ -1884,6 +1909,9 @@ features:
   show_yellow_ribbon_table:
     actor_type: user
     description: Used to show yellow ribbon table in Comparison Tool
+  banner_update_alternative_banners:
+    actor_type: user
+    description: Used to toggle the DB updating of alternative banners
   banner_use_alternative_banners:
     actor_type: user
     description: Used to toggle use of alternative banners.
@@ -1899,6 +1927,9 @@ features:
   gi_comparison_tool_lce_toggle_flag:
     actor_type: user
     description: Used to show lce page in comparison tool
+  va_notify_in_progress_metadata:
+    actor_type: user
+    description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
   va_notify_notification_creation:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
