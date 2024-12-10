@@ -12,15 +12,11 @@ describe ClaimsApi::LocalBGSProxy do
   end
 
   expected_instance_methods = {
-    construct_itf_body: %i[options],
     convert_nil_values: %i[options],
-    find_by_ssn: %i[ssn],
-    find_intent_to_file_by_ptcpnt_id_itf_type_cd: %i[id type],
     find_poa_by_participant_id: %i[id],
     find_poa_history_by_ptcpnt_id: %i[id],
     find_tracked_items: %i[id],
     healthcheck: %i[endpoint],
-    insert_intent_to_file: %i[options],
     jrn: %i[],
     make_request: [endpoint: nil, action: nil, body: nil],
     to_camelcase: [claim: nil],

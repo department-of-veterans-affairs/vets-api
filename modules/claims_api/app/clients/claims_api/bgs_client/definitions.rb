@@ -109,7 +109,7 @@ module ClaimsApi
       ##
       # IntentToFileWebServiceBean
       #
-      module IntentToFileWebServiceBean
+      module IntentToFileWebService
         DEFINITION =
           Bean.new(
             path: 'IntentToFileWebServiceBean',
@@ -120,36 +120,10 @@ module ClaimsApi
           )
       end
 
-      module IntentToFileWebService
-        DEFINITION =
-          Service.new(
-            bean: IntentToFileWebServiceBean::DEFINITION,
-            path: 'IntentToFileWebService'
-          )
-
-        module InsertIntentToFile
-          DEFINITION =
-            Action.new(
-              service: IntentToFileWebService::DEFINITION,
-              name: 'insertIntentToFile',
-              key: 'IntentToFileDTO'
-            )
-        end
-
-        module FindIntentToFileByPtcpntIdItfTypeCd
-          DEFINITION =
-            Action.new(
-              service: IntentToFileWebService::DEFINITION,
-              name: 'findIntentToFileByPtcpntIdItfTypeCd',
-              key: 'return'
-            )
-        end
-      end
-
       ##
       # OrgWebServiceBean
       #
-      module OrgWebServiceBean
+      module OrgWebService
         DEFINITION =
           Bean.new(
             path: 'OrgWebServiceBean',
@@ -160,27 +134,10 @@ module ClaimsApi
           )
       end
 
-      module OrgWebService
-        DEFINITION =
-          Service.new(
-            bean: OrgWebServiceBean::DEFINITION,
-            path: 'OrgWebService'
-          )
-
-        module FindOrgBySSN
-          DEFINITION =
-            Action.new(
-              service: OrgWebService::DEFINITION,
-              name: 'findPoaHistoryByPtcpntId',
-              key: 'PoaHistory'
-            )
-        end
-      end
-
       ##
       # PersonWebServiceBean
       #
-      module PersonWebServiceBean
+      module PersonWebService
         DEFINITION =
           Bean.new(
             path: 'PersonWebServiceBean',
@@ -191,36 +148,10 @@ module ClaimsApi
           )
       end
 
-      module PersonWebService
-        DEFINITION =
-          Service.new(
-            bean: PersonWebServiceBean::DEFINITION,
-            path: 'PersonWebService'
-          )
-
-        module FindDependentsByPtcpntId
-          DEFINITION =
-            Action.new(
-              service: PersonWebService::DEFINITION,
-              name: 'findDependentsByPtcpntId',
-              key: 'DependentDTO'
-            )
-        end
-
-        module FindPersonBySSN
-          DEFINITION =
-            Action.new(
-              service: PersonWebService::DEFINITION,
-              name: 'findPersonBySSN',
-              key: 'PersonDTO'
-            )
-        end
-      end
-
       ##
       # StandardDataWebServiceBean
       #
-      module StandardDataWebServiceBean
+      module StandardDataWebService
         DEFINITION =
           Bean.new(
             path: 'StandardDataWebServiceBean',
@@ -229,23 +160,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module StandardDataWebService
-        DEFINITION =
-          Service.new(
-            bean: StandardDataWebServiceBean::DEFINITION,
-            path: 'StandardDataWebService'
-          )
-
-        module FindPOAs
-          DEFINITION =
-            Action.new(
-              service: StandardDataWebService::DEFINITION,
-              name: 'findPOAs',
-              key: 'PowerOfAttorneyDTO'
-            )
-        end
       end
 
       ##
