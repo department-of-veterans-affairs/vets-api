@@ -151,7 +151,7 @@ module ClaimsApi
       ##
       # StandardDataWebServiceBean
       #
-      module StandardDataWebServiceBean
+      module StandardDataWebService
         DEFINITION =
           Bean.new(
             path: 'StandardDataWebServiceBean',
@@ -160,23 +160,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module StandardDataWebService
-        DEFINITION =
-          Service.new(
-            bean: StandardDataWebServiceBean::DEFINITION,
-            path: 'StandardDataWebService'
-          )
-
-        module FindPOAs
-          DEFINITION =
-            Action.new(
-              service: StandardDataWebService::DEFINITION,
-              name: 'findPOAs',
-              key: 'PowerOfAttorneyDTO'
-            )
-        end
       end
 
       ##
