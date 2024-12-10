@@ -20,5 +20,5 @@ module Vye
     alias settings default_settings
   end
 
-  :default_settings
+  module_function :default_settings, :test_settings, :settings
 end
