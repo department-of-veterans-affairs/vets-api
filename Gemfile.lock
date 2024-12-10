@@ -1,4 +1,13 @@
 GIT
+  remote: https://github.com/StoneGod/activerecord-postgis-adapter.git
+  revision: 97bf3f6fdaa06383a4b2076172366efedc2f97f2
+  branch: rails-8
+  specs:
+    activerecord-postgis-adapter (10.0.0)
+      activerecord (~> 8.0.0)
+      rgeo-activerecord (~> 8.0.0)
+
+GIT
   remote: https://github.com/adhocteam/connect_vbms
   revision: 2284b8e9a68d2b44dda52a098ffc83f8fa283211
   tag: v2.1.1
@@ -210,9 +219,6 @@ GEM
       timeout (>= 0.4.0)
     activerecord-import (1.8.1)
       activerecord (>= 4.2)
-    activerecord-postgis-adapter (3.1.2)
-      activerecord (>= 4.2.0)
-      rgeo-activerecord (>= 4.0.4)
     activestorage (8.0.0.1)
       actionpack (= 8.0.0.1)
       activejob (= 8.0.0.1)
@@ -1131,7 +1137,7 @@ DEPENDENCIES
   aasm
   accredited_representative_portal!
   activerecord-import
-  activerecord-postgis-adapter
+  activerecord-postgis-adapter!
   addressable
   apivore!
   appeals_api!

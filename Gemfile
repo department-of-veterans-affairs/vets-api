@@ -46,7 +46,7 @@ gem 'rails', '~> 8.0.0'
 
 gem 'aasm'
 gem 'activerecord-import'
-gem 'activerecord-postgis-adapter'
+gem 'activerecord-postgis-adapter', github: 'StoneGod/activerecord-postgis-adapter', branch: 'rails-8'
 gem 'addressable'
 gem 'aws-sdk-kms'
 gem 'aws-sdk-s3', '~> 1'
