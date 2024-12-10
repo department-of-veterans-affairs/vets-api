@@ -18,7 +18,7 @@ module SignIn
       @current_user = load_user_object
       validate_request_ip
       @current_user.present?
-    rescue Errors::AccessTokenExpiredError, SignIn::Errors::MPILockedAccountError => e
+    rescue Errors::AccessTokenExpiredError, Errors::MPILockedAccountError => e
       render json: { errors: e }, status: :forbidden
     rescue Errors::StandardError => e
       handle_authenticate_error(e)
@@ -28,7 +28,7 @@ module SignIn
       @current_user = load_user_object
       validate_request_ip
       @current_user.present?
-    rescue SignIn::Errors::MPILockedAccountError => e
+    rescue Errors::MPILockedAccountError => e
       render json: { errors: e }, status: :forbidden
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden unless skip_expiration_check
