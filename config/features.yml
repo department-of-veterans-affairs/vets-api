@@ -1383,6 +1383,9 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
+  va_notify_custom_errors:
+    actor_type: user
+    description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
