@@ -49,6 +49,7 @@ module Form1010cg
       end
     rescue CARMA::Client::MuleSoftClient::RecordParseError
       StatsD.increment("#{STATSD_KEY_PREFIX}record_parse_error", tags: ["claim_id:#{claim_id}"])
+      StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
 
       self.class.attempt_send_failure_email(claim)
     rescue => e
