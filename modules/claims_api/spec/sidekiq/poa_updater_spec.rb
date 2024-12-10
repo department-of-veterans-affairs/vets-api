@@ -65,38 +65,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
         expect(poa.status).to eq('updated')
       end
     end
-
-    context 'and record consent is not granted' do
-      context "because 'recordConsent' is false" do
-        it "updates the form's status but does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-          create_mock_lighthouse_service
-          expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-
-          poa = create_poa
-          poa.form_data.merge!({ recordConsent: false, consentLimits: [] })
-          poa.save!
-
-          subject.new.perform(poa.id)
-          poa.reload
-          expect(poa.status).to eq('updated')
-        end
-      end
-
-      context "because a limitation exists in 'consentLimits'" do
-        it "updates the form's status but does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-          create_mock_lighthouse_service
-          expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-
-          poa = create_poa
-          poa.form_data.merge!({ recordConsent: true, consentLimits: %w[ALCOHOLISM] })
-          poa.save!
-
-          subject.new.perform(poa.id)
-          poa.reload
-          expect(poa.status).to eq('updated')
-        end
-      end
-    end
   end
 
   context "when call to BGS 'update_birls_record' fails" do

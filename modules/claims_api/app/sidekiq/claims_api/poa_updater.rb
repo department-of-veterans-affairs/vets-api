@@ -25,7 +25,7 @@ module ClaimsApi
 
         ClaimsApi::VANotifyAcceptedJob.perform_async(poa_form.id, rep) if vanotify?(poa_form.auth_headers, rep)
 
-        ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id) if enable_vbms_access?(poa_form:)
+        ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id)
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
         poa_form.vbms_error_message = "BGS Error: update_birls_record failed with code #{response[:return_code]}"
