@@ -62,6 +62,37 @@ module ClaimsApi
       end
 
       ##
+      # CorporateUpdateServiceBean
+      #
+      module CorporateUpdateServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'CorporateUpdateServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module CorporateUpdateWebService
+        DEFINITION =
+          Service.new(
+            bean: CorporateUpdateServiceBean::DEFINITION,
+            path: 'CorporateUpdateWebService'
+          )
+
+        module UpdatePoaAccess
+          DEFINITION =
+            Action.new(
+              service: CorporateUpdateWebService::DEFINITION,
+              name: 'updatePoaAccess',
+              key: 'return'
+            )
+        end
+      end
+
+      ##
       # EBenefitsBnftClaimStatusWebServiceBean
       #
       module EBenefitsBnftClaimStatusWebService
@@ -78,7 +109,7 @@ module ClaimsApi
       ##
       # IntentToFileWebServiceBean
       #
-      module IntentToFileWebServiceBean
+      module IntentToFileWebService
         DEFINITION =
           Bean.new(
             path: 'IntentToFileWebServiceBean',
@@ -87,32 +118,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module IntentToFileWebService
-        DEFINITION =
-          Service.new(
-            bean: IntentToFileWebServiceBean::DEFINITION,
-            path: 'IntentToFileWebService'
-          )
-
-        module InsertIntentToFile
-          DEFINITION =
-            Action.new(
-              service: IntentToFileWebService::DEFINITION,
-              name: 'insertIntentToFile',
-              key: 'IntentToFileDTO'
-            )
-        end
-
-        module FindIntentToFileByPtcpntIdItfTypeCd
-          DEFINITION =
-            Action.new(
-              service: IntentToFileWebService::DEFINITION,
-              name: 'findIntentToFileByPtcpntIdItfTypeCd',
-              key: 'return'
-            )
-        end
       end
 
       ##
@@ -149,7 +154,7 @@ module ClaimsApi
       ##
       # PersonWebServiceBean
       #
-      module PersonWebServiceBean
+      module PersonWebService
         DEFINITION =
           Bean.new(
             path: 'PersonWebServiceBean',
@@ -160,36 +165,10 @@ module ClaimsApi
           )
       end
 
-      module PersonWebService
-        DEFINITION =
-          Service.new(
-            bean: PersonWebServiceBean::DEFINITION,
-            path: 'PersonWebService'
-          )
-
-        module FindDependentsByPtcpntId
-          DEFINITION =
-            Action.new(
-              service: PersonWebService::DEFINITION,
-              name: 'findDependentsByPtcpntId',
-              key: 'DependentDTO'
-            )
-        end
-
-        module FindPersonBySSN
-          DEFINITION =
-            Action.new(
-              service: PersonWebService::DEFINITION,
-              name: 'findPersonBySSN',
-              key: 'PersonDTO'
-            )
-        end
-      end
-
       ##
       # StandardDataWebServiceBean
       #
-      module StandardDataWebServiceBean
+      module StandardDataWebService
         DEFINITION =
           Bean.new(
             path: 'StandardDataWebServiceBean',
@@ -198,23 +177,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module StandardDataWebService
-        DEFINITION =
-          Service.new(
-            bean: StandardDataWebServiceBean::DEFINITION,
-            path: 'StandardDataWebService'
-          )
-
-        module FindPOAs
-          DEFINITION =
-            Action.new(
-              service: StandardDataWebService::DEFINITION,
-              name: 'findPOAs',
-              key: 'PowerOfAttorneyDTO'
-            )
-        end
       end
 
       ##
