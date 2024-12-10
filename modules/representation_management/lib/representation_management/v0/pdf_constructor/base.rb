@@ -165,7 +165,7 @@ module RepresentationManagement
 
         def fill_template_form(pdftk, data)
           tempfile = Tempfile.new
-          pdftk.fill_form(@template_path, tempfile.path, template_options(data), flatten: true)
+          pdftk.fill_form(@template_path, tempfile.path, template_options(data), flatten: false)
           @template_path = tempfile.path
           tempfile.rewind
           tempfile

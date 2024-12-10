@@ -10,7 +10,6 @@ module PdfFillHelper
         pdf_forms.get_fields(pdf)
       )
     end
-    binding.pry
 
     fields[0] == fields[1]
   end
