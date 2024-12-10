@@ -113,6 +113,30 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
     end
 
+    shared_context 'mpi profile validation' do
+      context 'and the MPI profile has a deceased date' do
+        let(:deceased_date) { '20020202' }
+        let(:expected_errors) { 'Death Flag Detected' }
+
+        it 'raises an MPI locked account error' do
+          response = subject
+          expect(response).to have_http_status(:forbidden)
+          expect(JSON.parse(response.body)['errors']).to eq(expected_errors)
+        end
+      end
+
+      context 'and the MPI profile has an id theft flag' do
+        let(:id_theft_flag) { true }
+        let(:expected_errors) { 'Theft Flag Detected' }
+
+        it 'raises an MPI locked account error' do
+          response = subject
+          expect(response).to have_http_status(:forbidden)
+          expect(JSON.parse(response.body)['errors']).to eq(expected_errors)
+        end
+      end
+    end
+
     context 'when authorization header does not exist' do
       let(:access_token) { nil }
 
@@ -210,16 +234,32 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'and access_token is an active JWT' do
-        let(:access_token_object) { create(:access_token) }
+        let(:session) { create(:oauth_session, user_account:) }
+        let(:user_account) { create(:user_account_with_verification) }
+        let(:icn) { user_account.icn }
+        let(:access_token_object) { create(:access_token, user_uuid: user_account.id, session_handle: session.handle) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
         let!(:user) do
-          create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.remote_ip)
+          create(:user, :loa3, icn:, uuid: user_account.id, fingerprint: request.remote_ip)
         end
         let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
         let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+        let(:deceased_date) { nil }
+        let(:id_theft_flag) { false }
+        let(:mpi_profile) { build(:mpi_profile, icn:, deceased_date:, id_theft_flag:) }
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+        before do
+          allow_any_instance_of(MPI::Service)
+            .to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
 
         it_behaves_like 'user fingerprint validation'
+
+        it_behaves_like 'mpi profile validation'
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
@@ -259,6 +299,30 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
 
         it 'does not prevent authentication' do
           expect(subject).to have_http_status(:ok)
+        end
+      end
+    end
+
+    shared_context 'mpi profile validation' do
+      context 'and the MPI profile has a deceased date' do
+        let(:deceased_date) { '20020202' }
+        let(:expected_errors) { 'Death Flag Detected' }
+
+        it 'raises an MPI locked account error' do
+          response = subject
+          expect(response).to have_http_status(:forbidden)
+          expect(JSON.parse(response.body)['errors']).to eq(expected_errors)
+        end
+      end
+
+      context 'and the MPI profile has an id theft flag' do
+        let(:id_theft_flag) { true }
+        let(:expected_errors) { 'Theft Flag Detected' }
+
+        it 'raises an MPI locked account error' do
+          response = subject
+          expect(response).to have_http_status(:forbidden)
+          expect(JSON.parse(response.body)['errors']).to eq(expected_errors)
         end
       end
     end
@@ -303,16 +367,35 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         end
 
         context 'and access_token is an active JWT' do
-          let(:access_token_object) { create(:access_token) }
+          let(:session) { create(:oauth_session, user_account:) }
+          let(:user_account) { create(:user_account_with_verification) }
+          let(:icn) { user_account.icn }
+          let(:access_token_object) do
+            create(:access_token, user_uuid: user_account.id, session_handle: session.handle)
+          end
           let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+          let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
           let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
           let!(:user) do
-            create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.remote_ip)
+            create(:user, :loa3, icn:, uuid: user_account.id, fingerprint: request.remote_ip)
           end
           let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
           let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+          let(:deceased_date) { nil }
+          let(:id_theft_flag) { false }
+          let(:mpi_profile) { build(:mpi_profile, icn:, deceased_date:, id_theft_flag:) }
+          let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+          before do
+            allow_any_instance_of(MPI::Service)
+              .to receive(:find_profile_by_identifier)
+              .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+              .and_return(find_profile_response)
+          end
 
           it_behaves_like 'user fingerprint validation'
+
+          it_behaves_like 'mpi profile validation'
 
           it 'returns ok status' do
             expect(subject).to have_http_status(:ok)
@@ -359,16 +442,32 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
 
       context 'and access_token is an active JWT' do
-        let(:access_token_object) { create(:access_token) }
+        let(:session) { create(:oauth_session, user_account:) }
+        let(:user_account) { create(:user_account_with_verification) }
+        let(:icn) { user_account.icn }
+        let(:access_token_object) { create(:access_token, user_uuid: user_account.id, session_handle: session.handle) }
         let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
         let(:expected_error) { SignIn::Errors::AccessTokenMalformedJWTError.to_s }
         let!(:user) do
-          create(:user, :loa3, uuid: access_token_object.user_uuid, fingerprint: request.remote_ip)
+          create(:user, :loa3, icn:, uuid: user_account.id, fingerprint: request.remote_ip)
         end
         let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
         let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+        let(:deceased_date) { nil }
+        let(:id_theft_flag) { false }
+        let(:mpi_profile) { build(:mpi_profile, icn:, deceased_date:, id_theft_flag:) }
+        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+        before do
+          allow_any_instance_of(MPI::Service)
+            .to receive(:find_profile_by_identifier)
+            .with(identifier: icn, identifier_type: MPI::Constants::ICN)
+            .and_return(find_profile_response)
+        end
 
         it_behaves_like 'user fingerprint validation'
+
+        it_behaves_like 'mpi profile validation'
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
@@ -540,12 +639,21 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     subject { get :index }
 
     context 'with a valid authenticated request' do
+      let(:session) { create(:oauth_session, user_account:) }
+      let(:user_account) { create(:user_account) }
       let(:authorization) { "Bearer #{access_token}" }
-      let(:access_token_object) { create(:access_token) }
+      let(:access_token_object) { create(:access_token, user_uuid: user_account.id, session_handle: session.handle) }
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+      let(:find_profile_response) do
+        create(:find_profile_response, profile: build(:mpi_profile, icn: user_account.icn))
+      end
 
       before do
         request.headers['Authorization'] = authorization
+        allow_any_instance_of(MPI::Service)
+          .to receive(:find_profile_by_identifier)
+          .with(identifier: user_account.icn, identifier_type: MPI::Constants::ICN)
+          .and_return(find_profile_response)
       end
 
       it 'appends user uuid to payload' do
@@ -592,11 +700,16 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
                     fingerprint: request.remote_ip)
     end
     let(:expected_error) { 'Service unavailable' }
+    let(:find_profile_response) { create(:find_profile_response, profile: build(:mpi_profile, icn: user_account.icn)) }
 
     before do
       request.headers['Authorization'] = authorization
       allow_any_instance_of(Rx::Client).to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
       allow(Settings.sentry).to receive(:dsn).and_return('T')
+      allow_any_instance_of(MPI::Service)
+        .to receive(:find_profile_by_identifier)
+        .with(identifier: user_account.icn, identifier_type: MPI::Constants::ICN)
+        .and_return(find_profile_response)
     end
 
     it 'makes a call to sentry with request uuid and service unavailable error' do
