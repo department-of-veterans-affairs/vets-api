@@ -442,6 +442,10 @@ features:
     actor_type: user
     description: Enable using MAR 2024 revision of 200996 Higher Level Review form when submitting to EMMS for intake
     enable_in_development: false
+  decision_review_sc_form_v4_enabled:
+    actor_type: user
+    description: Enable using MAY 2024 revision of 200995 Supplemental Claim form when submitting to EMMS for intake
+    enable_in_development: false
   decision_review_saved_claim_hlr_status_updater_job_enabled:
     actor_type: user
     description: Enable job to set delete_date for completed SavedClaim::HigherLevelReviews
