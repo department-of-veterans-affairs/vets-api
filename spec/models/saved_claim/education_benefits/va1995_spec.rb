@@ -13,6 +13,11 @@ RSpec.describe SavedClaim::EducationBenefits::VA1995 do
   describe '#after_submit' do
     let(:user) { create(:user) }
 
+    before do
+      allow(Flipper).to receive(:enabled?).with(:form1995_confirmation_email).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
+    end
+
     describe 'sends confirmation email for the 1995' do
       it 'with benefit selected' do
         allow(VANotify::EmailJob).to receive(:perform_async)

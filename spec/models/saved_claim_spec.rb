@@ -22,6 +22,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
   let(:schema) { 'schema_content' }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
     allow(JSON::Validator).to receive_messages(fully_validate_schema: [], fully_validate: [])
   end
@@ -48,6 +49,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
       context 'when fully_validate_schema returns errors' do
         before do
+          allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
           allow(JSON::Validator).to receive_messages(fully_validate_schema: schema_errors, fully_validate: [])
         end
 
@@ -74,6 +76,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
         let(:exception) { StandardError.new('Some exception') }
 
         before do
+          allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(true)
           allow(JSON::Validator).to receive(:fully_validate_schema).and_raise(exception)
           allow(JSON::Validator).to receive(:fully_validate).and_return([])
         end
