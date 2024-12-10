@@ -168,7 +168,7 @@ RSpec.describe Form1010Ezr::Service do
     end
 
     context "when 'parsed_form' is present" do
-      it "increments StatsD and logs a failure message to sentry" do
+      it 'increments StatsD and logs a failure message to sentry' do
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
