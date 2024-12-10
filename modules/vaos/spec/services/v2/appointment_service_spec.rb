@@ -1666,6 +1666,7 @@ describe VAOS::V2::AppointmentsService do
       appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = :id
       appt[:start] = :start_date
+      appt[:requested_periods] = []
       appt[:kind] = 'cc'
       subject.send(:set_type, appt)
       expect(appt[:type]).to eq('COMMUNITY_CARE_APPOINTMENT')

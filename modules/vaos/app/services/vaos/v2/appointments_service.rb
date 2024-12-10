@@ -734,9 +734,7 @@ module VAOS
       #
       def non_cerner_type(appointment)
         if appointment[:kind] == 'cc'
-          if appointment[:start].present?
-            APPOINTMENT_TYPES[:cc_appointment]
-          elsif appointment[:requested_periods].present?
+          if appointment[:requested_periods].present?
             APPOINTMENT_TYPES[:cc_request]
           else
             APPOINTMENT_TYPES[:cc_appointment]
