@@ -24,7 +24,7 @@ module VBADocuments
       exp_time = EXPIRATION_TIME.ago
 
       loop do
-        us_guids = VBADocuments::UploadSubmission.where(REMOVAL_QUERY, exp_time).limit(25).pluck(:guid)
+        us_guids = VBADocuments::UploadSubmission.where(REMOVAL_QUERY, exp_time).select(:guid).limit(25).pluck(:guid)
         break if us_guids.empty?
 
         us_guids.each do |us_guid|
