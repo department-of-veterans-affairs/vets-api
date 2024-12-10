@@ -38,8 +38,10 @@ spec:
       securityContext:
         fsGroup: {{ $root.Values.fsGroup }}
       volumes:
+        {{- if $root.Values.mockData.enabled }}
         - name: vets-api-mockdata
           emptyDir: {}
+        {{- end }}
         - name: clamav-volume
           emptyDir: {}
         - name: ddsocket
@@ -65,7 +67,9 @@ spec:
           volumeMounts:
             - name: vets-api-mockdata
               mountPath: /data
-{{ toYaml .Values.common.initContainers | indent 8 }}
+          {{- if default $root.Values.common.initContainers }}
+{{ toYaml $root.Values.common.initContainers | indent 8 }}
+          {{- end }}
       {{- end }}
       containers:
         - image: "{{ .Values.image.value }}:{{ .Values.image.tag }}"
@@ -103,8 +107,10 @@ spec:
           volumeMounts:
             - name: clamav-volume
               mountPath: /app/clamav_tmp
+              {{- if $root.Values.mockData.enabled }}
             - name: vets-api-mockdata
               mountPath: /app/config/vets-api-mockdata
+              {{- end }}
             - name: ddsocket
               mountPath: /var/run/datadog
 {{ toYaml .Values.common.volumeMounts | indent 12 }}
