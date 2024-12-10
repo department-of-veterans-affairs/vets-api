@@ -69,7 +69,9 @@ module Form526ClaimFastTrackingConcern
   # Fetch all claims from EVSS
   # @return [Boolean] whether there are any open EP 020's
   def pending_eps?
-    pending = open_claims.any? { |claim| claim['base_end_product_code'] == '020' }
+    pending = open_claims.any? do |claim|
+      claim['base_end_product_code'] == '020' && claim['status'].upcase != 'COMPLETE'
+    end
     save_metadata(offramp_reason: 'pending_ep') if pending
     pending
   end
