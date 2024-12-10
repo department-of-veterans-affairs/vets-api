@@ -2,12 +2,10 @@
 
 $LOAD_PATH.push File.expand_path('lib', __dir__)
 
-require 'burials/version'
-
 # Describe your gem and declare its dependencies:
 Gem::Specification.new do |spec|
   spec.name        = 'burials'
-  spec.version     = Burials::VERSION
+  spec.version     = '0.1.0'
   spec.authors     = ['Benefits Burials']
   spec.email       = ['']
   spec.homepage    = 'https://api.va.gov'
