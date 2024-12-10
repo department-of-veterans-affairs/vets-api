@@ -1,0 +1,115 @@
+# RFC: Data Purge Plan for `FormSubmission` Records
+
+## 1. Title
+
+Data Purge Plan for `FormSubmission` Records
+
+## 2. Summary
+
+This document outlines a data purge plan for `FormSubmission` records stored in the VA.gov PostgreSQL database. The goal is to ensure compliance with best practices for handling Personally Identifiable Information (PII) and Protected Health Information (PHI) by removing sensitive data after a specified retention period while maintaining essential metadata for operational use. The purge process will also include deleting associated PDF backups stored in an AWS S3 bucket.
+
+## 3. Background
+
+The `FormSubmission` table contains user-submitted data, including PII and PHI. Associated PDF backups are also stored in a team's S3 bucket. Current retention policies suggest removing user and form data after 60 days post-submission. While the form data is no longer required for operations, minimal metadata (`submission_date` and `benefits_intake_uuid`) will be retained for reporting and referencing. This purge process will help mitigate risks related to prolonged retention of sensitive data while maintaining functionality for users to download their PDF backups during the retention period.
+
+## 4. Proposal
+
+### 4.1. Data Retention and Purge Process
+
+- **Retention Policy**:
+
+  - Purge sensitive data from `FormSubmission` records 60 days after the `updated_at` once `FormSubmission.submission_status` has been set to `vbms`.
+  - Retain:
+    - `submission_date` for operational timelines.
+    - `benefits_intake_uuid` for linking associated PDFs as well as historical lookups via the Benefits Intake API.
+  - Leave the `FormSubmission` record intact for future reference.
+
+- **PDF Purge**:
+
+  - Use `benefits_intake_uuid` to identify and delete PDFs from each team's AWS S3 bucket.
+
+- **Trigger for Purge**:
+  - Purge records where the status is `"vbms"`, marking the final stage of submission processing.
+  - For records not reaching `"vbms"`, resolve via manual remediation or notify users.
+
+### 4.2. Job Implementation
+
+- **Scheduled Purge Job**:
+
+  - Utilize Sidekiq to run a background job daily during off-peak hours.
+  - Job steps:
+    1. Query `FormSubmission` records with an `updated_at` older than 60 days and a status of `"vbms"`.
+    2. Purge sensitive data from identified records.
+    3. Delete associated PDFs from S3.
+
+- **Delay Between Marking and Deleting**:
+  - Optionally mark records for deletion and delay the actual purge to allow recovery if necessary.
+
+### 4.3. Testing Strategy
+
+- Create dummy records in the staging environment with varying submission dates and statuses for testing.
+- Validate that:
+  - Records with an `updated_at` older than 60 days and a `"vbms"` status are purged.
+  - PDFs are correctly identified and deleted from S3.
+  - Records not reaching `"vbms"` are skipped.
+- Write assertions to ensure metadata retention for purged records.
+
+### 4.4. Logging and Metrics
+
+- **Logs**:
+
+  - Record the number of records and PDFs purged in each job run:
+
+    ```plaintext
+      INFO: Purge job completed. Records purged: 123, PDFs deleted: 123.
+    ```
+
+  - Log errors and retries for failed operations.
+
+- **Metrics**:
+
+  - Monitor:
+    - Job success rates.
+    - Time taken for each purge job.
+    - Size of the `FormSubmission` table and S3 bucket over time.
+
+- **Alerts**:
+  - Set up alerts for job failures or anomalies (e.g., low purge counts).
+
+### 4.5. Communication and Documentation
+
+- **Stakeholders**:
+
+  - Review by:
+    - VFS Platform team (AWS S3 Bucket)
+    - Architecture Intent team (vets-api DB)
+  - Inform:
+    - Veteran Facing Forms team
+    - Auth Experience team
+
+- **Documentation**:
+  - Document the purge process, triggers, and configurations in the project wiki.
+
+## 5. Impact
+
+- **Data Security**: Reduces risks by removing sensitive PII/PHI from the database and S3.
+- **Operational Continuity**: Retains essential metadata for continued operational use.
+- **Resource Optimization**: Frees up database and S3 storage, improving system performance.
+
+## 6. Open Questions
+
+1. Should a delay between marking records for deletion and purging them be implemented to allow for recovery?
+2. Are there additional operational metrics or monitoring requirements we should consider?
+3. Are there concerns from the Auth Experience team regarding purge impacts on user-facing features?
+
+## 7. Feedback Request
+
+- Input on the proposed retention and purge plan.
+- Suggestions for metrics, monitoring, and alerting best practices.
+- Feedback on the job implementation strategy and delay mechanism.
+
+## 8. Appendices/References
+
+- [Platform PII Coding Best Practices](https://depo-platform-documentation.scrollhelp.site/developer-docs/coding-best-practices-for-pii)
+- [Sidekiq Job Scheduling Documentation](https://sidekiq.org/)
+- [AWS S3 SDK for Ruby](https://docs.aws.amazon.com/sdk-for-ruby/)
