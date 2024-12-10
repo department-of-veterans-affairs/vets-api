@@ -72,10 +72,8 @@ Rails.application.reloader.to_prepare do
       end
     rescue => e
       Rails.logger.error "Error processing Flipper features: #{e.message}"
-      puts "error message: #{e.message}"
       # make sure we can still run rake tasks before table has been created
       nil
     end
   end
-
 end

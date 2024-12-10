@@ -10,6 +10,7 @@ require 'statsd-instrument'
 require 'statsd/instrument/matchers'
 require 'rspec/rails'
 require 'webmock/rspec'
+require 'shoulda/matchers'
 require 'sidekiq/semantic_logging'
 require 'sidekiq/error_tag'
 require 'support/stub_va_profile'
@@ -36,7 +37,6 @@ require 'support/sign_in/service_account_authorization_context'
 require 'super_diff/rspec-rails'
 require 'super_diff/active_support'
 require './spec/support/default_configuration_helper'
-require "shoulda/matchers"
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
