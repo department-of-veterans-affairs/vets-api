@@ -42,7 +42,7 @@ module Mobile
         include_pending: true
       )
     rescue => e
-      raise Common::Exceptions::BadGateway.new(detail: e.errors.first&.detail)
+      raise Common::Exceptions::BadGateway.new(detail: e.try(:errors).try(:first).try(:detail))
     end
 
     # must break the cache if user is requesting dates beyond default range to ensure the integrity of the cache.

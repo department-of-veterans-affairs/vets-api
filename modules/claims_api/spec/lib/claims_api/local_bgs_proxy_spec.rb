@@ -13,7 +13,6 @@ describe ClaimsApi::LocalBGSProxy do
 
   expected_instance_methods = {
     convert_nil_values: %i[options],
-    find_by_ssn: %i[ssn],
     find_poa_by_participant_id: %i[id],
     find_poa_history_by_ptcpnt_id: %i[id],
     find_tracked_items: %i[id],
