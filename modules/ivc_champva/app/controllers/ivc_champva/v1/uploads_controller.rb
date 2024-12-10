@@ -49,7 +49,6 @@ module IvcChampva
 
       private
 
-      # rubocop:disable Layout/LineLength
       if Flipper.enabled?(:champva_multiple_stamp_retry, @user)
         def handle_file_uploads(form_id, parsed_form_data)
           attempt = 0
@@ -64,7 +63,8 @@ module IvcChampva
             error_message_downcase = e.message.downcase
             Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
 
-            if (error_message_downcase.include?('failed to generate stamped file') || error_message_downcase.include?('unable to find file')) && attempt <= max_attempts
+            if error_message_downcase.include?('failed to generate stamped file') ||
+               (error_message_downcase.include?('unable to find file') && attempt <= max_attempts)
               Rails.logger.error 'Retrying in 2 seconds...'
               sleep 2
               retry
@@ -93,7 +93,6 @@ module IvcChampva
           [statuses, error_message]
         end
       end
-      # rubocop:enable Layout/LineLength
 
       def get_attachment_ids_and_form(parsed_form_data)
         form_id = get_form_id
