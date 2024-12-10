@@ -721,11 +721,9 @@ module VAOS
       #
       def cerner_type(appointment)
         if appointment[:end].present?
-          APPOINTMENT_TYPES[:va]
-        elsif appointment[:requested_periods].present?
-          appointment[:kind] == 'cc' ? APPOINTMENT_TYPES[:cc_request] : APPOINTMENT_TYPES[:request]
+          appointment[:kind] == 'cc' ? APPOINTMENT_TYPES[:cc_appointment] : APPOINTMENT_TYPES[:va]
         else
-          APPOINTMENT_TYPES[:request]
+          appointment[:kind] == 'cc' ? APPOINTMENT_TYPES[:cc_request] : APPOINTMENT_TYPES[:request]
         end
       end
 
@@ -741,7 +739,7 @@ module VAOS
           elsif appointment[:requested_periods].present?
             APPOINTMENT_TYPES[:cc_request]
           else
-            APPOINTMENT_TYPES[:va]
+            APPOINTMENT_TYPES[:cc_appointment]
           end
         elsif appointment[:requested_periods].present?
           APPOINTMENT_TYPES[:request]

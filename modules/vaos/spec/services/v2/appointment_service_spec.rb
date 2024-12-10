@@ -1688,5 +1688,25 @@ describe VAOS::V2::AppointmentsService do
       subject.send(:set_type, appt)
       expect(appt[:type]).to eq('REQUEST')
     end
+
+    it 'is a request for appointments with kind = "cc" and no start date or requested periods' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = :id
+      appt[:kind] = 'cc'
+      appt[:start] = nil
+      appt[:requested_periods] = []
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('COMMUNITY_CARE_APPOINTMENT')
+    end
+
+    it 'is a cc request for Cerner with no start date or requested periods' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = 'CERN1234'
+      appt[:kind] = 'cc'
+      appt[:start] = nil
+      appt[:requested_periods] = []
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('COMMUNITY_CARE_REQUEST')
+    end
   end
 end
