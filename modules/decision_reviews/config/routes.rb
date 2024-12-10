@@ -16,6 +16,12 @@ DecisionReviews::Engine.routes.draw do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
     resources :supplemental_claims, only: %i[create show]
+
+    resource :decision_review_evidence, only: :create
+
+    scope format: false do
+      resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
+    end
   end
 
   namespace :v2, defaults: { format: 'json' } do
