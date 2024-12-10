@@ -1936,3 +1936,7 @@ features:
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
+  lighthouse_veterans_health_debug_logging:
+    actor_type: user
+    description: Enable debug logging for Lighthouse Veterans Health API
+    enable_in_development: false
