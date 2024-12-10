@@ -76,16 +76,18 @@ describe PdfFill::Forms::Va210781v2 do
       let(:details) { 'Always feeling tired' }
       let :data do
         {
-          'behaviors' => { 'otherBehavior' => other_behavior},
+          'behaviors' => { 'otherBehavior' => other_behavior },
           'behaviorsDetails' => { 'otherBehavior' => details }
         }
       end
-        
+
       it 'formats data correctly' do
         new_form_class.instance_variable_set(:@form_data, data)
         new_form_class.send(:format_other_behavior_details)
 
-        expect(new_form_class.instance_variable_get(:@form_data)['behaviorsDetails']['otherBehavior']).to eq("#{other_behavior}: #{details}")
+        expect(new_form_class.instance_variable_get(:@form_data)['behaviorsDetails']['otherBehavior']).to eq(
+          "#{other_behavior}: #{details}"
+        )
       end
     end
   end
@@ -126,7 +128,9 @@ describe PdfFill::Forms::Va210781v2 do
           new_form_class.instance_variable_set(:@form_data, data)
           new_form_class.send(:format_police_report_location)
 
-          expect(new_form_class.instance_variable_get(:@form_data)['reportsDetails']['police']).to eq('Local Police Department, Springfield, IL, USA')
+          expect(new_form_class.instance_variable_get(:@form_data)['reportsDetails']['police']).to eq(
+            'Local Police Department, Springfield, IL, USA'
+          )
         end
       end
 
@@ -157,12 +161,14 @@ describe PdfFill::Forms::Va210781v2 do
       it 'formats the event correctly' do
         result = new_form_class.send(:format_event, event_data, index)
 
-        expect(result).to eq([
-          "Event Number: 1",
-          "Event Description: \n\nSample event detail.",
-          "Event Location: \n\nRoom 101",
-          "Event Date: \n\n2024-12-02"
-        ])
+        expect(result).to eq(
+          [
+            'Event Number: 1',
+            "Event Description: \n\nSample event detail.",
+            "Event Location: \n\nRoom 101",
+            "Event Date: \n\n2024-12-02"
+          ]
+        )
       end
     end
 
@@ -175,12 +181,14 @@ describe PdfFill::Forms::Va210781v2 do
       it 'formats the event correctly, ignoring empty fields' do
         result = new_form_class.send(:format_event, incomplete_event_data, index)
 
-        expect(result).to eq([
-          "Event Number: 2",
-          "Event Description: \n\nSample event detail.",
-          "Event Location: \n\n",
-          "Event Date: \n\n"
-        ])
+        expect(result).to eq(
+          [
+            'Event Number: 2',
+            "Event Description: \n\nSample event detail.",
+            "Event Location: \n\n",
+            "Event Date: \n\n"
+          ]
+        )
       end
     end
 
@@ -211,11 +219,13 @@ describe PdfFill::Forms::Va210781v2 do
       it 'formats the treatment information correctly' do
         result = new_form_class.send(:format_provider, treatment_data, index)
 
-        expect(result).to eq([
-          "Treatment Information Number: 1",
-          "Treatment Facility Name and Location: \n\nVeterans Medical Center",
-          "Treatment Date: 01-2024"
-        ])
+        expect(result).to eq(
+          [
+            'Treatment Information Number: 1',
+            "Treatment Facility Name and Location: \n\nVeterans Medical Center",
+            'Treatment Date: 01-2024'
+          ]
+        )
       end
     end
 
@@ -232,11 +242,13 @@ describe PdfFill::Forms::Va210781v2 do
       it 'formats the treatment information correctly, using default values for missing fields' do
         result = new_form_class.send(:format_provider, incomplete_treatment_data, index)
 
-        expect(result).to eq([
-          "Treatment Information Number: 2",
-          "Treatment Facility Name and Location: \n\nVeterans Medical Center",
-          "Treatment Date: XX-2024"
-        ])
+        expect(result).to eq(
+          [
+            'Treatment Information Number: 2',
+            "Treatment Facility Name and Location: \n\nVeterans Medical Center",
+            'Treatment Date: XX-2024'
+          ]
+        )
       end
     end
 
@@ -263,11 +275,13 @@ describe PdfFill::Forms::Va210781v2 do
       it 'formats the treatment information with "Don\'t have date" for missing dates' do
         result = new_form_class.send(:format_provider, no_date_treatment_data, index)
 
-        expect(result).to eq([
-          "Treatment Information Number: 4",
-          "Treatment Facility Name and Location: \n\nVeterans Medical Center",
-          "Treatment Date: Don't have date"
-        ])
+        expect(result).to eq(
+          [
+            'Treatment Information Number: 4',
+            "Treatment Facility Name and Location: \n\nVeterans Medical Center",
+            "Treatment Date: Don't have date"
+          ]
+        )
       end
     end
   end
@@ -281,7 +295,7 @@ describe PdfFill::Forms::Va210781v2 do
       end
       let(:formatted_event) do
         [
-          "Event Number: 1",
+          'Event Number: 1',
           "Event Description: \n\nEvent 1 details",
           "Event Location: \n\nLocation 1",
           "Event Date: \n\n2024-12-02"
@@ -296,7 +310,7 @@ describe PdfFill::Forms::Va210781v2 do
       it 'formats the event correctly and assigns to eventOverflow' do
         event_overflow = new_form_class.instance_variable_get(:@form_data)['eventsDetails'][0]['eventOverflow']
         formatted_value = formatted_event.join("\n\n")
-        
+
         expect(event_overflow).to be_a(PdfFill::FormValue)
         expect(event_overflow.extras_value).to eq(formatted_value)
       end
@@ -314,14 +328,19 @@ describe PdfFill::Forms::Va210781v2 do
     context 'when treatmentProvidersDetails is populated' do
       let(:provider_details) do
         [
-          { 'facilityInfo' => 'Army Medical Center', 'treatmentMonth' => '02', 'treatmentYear' => '2024', 'noDates' => false }
+          {
+            'facilityInfo' => 'Army Medical Center',
+            'treatmentMonth' => '02',
+            'treatmentYear' => '2024',
+            'noDates' => false
+          }
         ]
       end
       let(:formatted_treatment) do
         [
-          "Treatment Information Number: 1",
+          'Treatment Information Number: 1',
           "Treatment Facility Name and Location: \n\nArmy Medical Center",
-          "Treatment Date: 02-2024"
+          'Treatment Date: 02-2024'
         ]
       end
 
@@ -331,9 +350,10 @@ describe PdfFill::Forms::Va210781v2 do
       end
 
       it 'formats the treatment information and assigns it to providerOverflow' do
-        provider_overflow = new_form_class.instance_variable_get(:@form_data)['treatmentProvidersDetails'][0]['providerOverflow']
+        form_data = new_form_class.instance_variable_get(:@form_data)
+        provider_overflow = form_data['treatmentProvidersDetails'][0]['providerOverflow']
         formatted_value = formatted_treatment.join("\n\n")
-        
+
         expect(provider_overflow).to be_a(PdfFill::FormValue)
         expect(provider_overflow.extras_value).to eq(formatted_value)
       end
