@@ -17,7 +17,6 @@ describe ClaimsApi::LocalBGSProxy do
     find_by_ssn: %i[ssn],
     find_intent_to_file_by_ptcpnt_id_itf_type_cd: %i[id type],
     find_poa_by_participant_id: %i[id],
-    find_poa_history_by_ptcpnt_id: %i[id],
     find_tracked_items: %i[id],
     healthcheck: %i[endpoint],
     insert_intent_to_file: %i[options],
