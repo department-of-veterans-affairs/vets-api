@@ -51,15 +51,15 @@ RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
   end
 
   let(:extra_error_log_message) do
-    'BackendServiceException: {:source=>"Common::Client::Errors::ClientError raised in DecisionReviews::V1::Service", ' \
-      ':code=>"DR_422"}'
+    'BackendServiceException: {:source=>"Common::Client::Errors::ClientError raised in DecisionReviews::V1::Service", :code=>"DR_422"}' # rubocop:disable Layout/LineLength
   end
 
   before { sign_in_as(user) }
 
   describe '#create' do
     def personal_information_logs
-      PersonalInformationLog.where 'error_class like ?', 'DecisionReviews::V2::HigherLevelReviewsController#create exception % (HLR_V2)'
+      PersonalInformationLog.where 'error_class like ?',
+                                   'DecisionReviews::V2::HigherLevelReviewsController#create exception % (HLR_V2)'
     end
 
     subject do
