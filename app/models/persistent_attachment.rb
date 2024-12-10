@@ -8,6 +8,8 @@ require 'common/convert_to_pdf'
 class PersistentAttachment < ApplicationRecord
   include SetGuid
 
+  ALLOWED_DOCUMENT_TYPES = %w[.pdf .jpg .jpeg .png].freeze
+
   has_kms_key
   has_encrypted :file_data, key: :kms_key, **lockbox_options
   belongs_to :saved_claim, inverse_of: :persistent_attachments, optional: true
