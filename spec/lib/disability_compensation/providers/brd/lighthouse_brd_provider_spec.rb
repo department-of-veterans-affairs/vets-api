@@ -22,6 +22,7 @@ RSpec.describe LighthouseBRDProvider do
 
   it 'retrieves separation locations from the Lighthouse API' do
     VCR.use_cassette('brd/separation_locations') do
+      debugger
       response = @provider.get_separation_locations
       expect(response.separation_locations.length).to eq(324)
     end
