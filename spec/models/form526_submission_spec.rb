@@ -28,7 +28,7 @@ RSpec.describe Form526Submission do
   let(:backup_submitted_claim_status) { nil }
 
   before do
-    allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(any_args).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
   end
 
@@ -984,7 +984,7 @@ RSpec.describe Form526Submission do
       end
 
       context 'when feature enabled' do
-        before { Flipper.enable(:disability_compensation_flashes) }
+        before { allow(Flipper).to receive(:enabled?).with(:disability_compensation_flashes).and_return(true) }
 
         it 'queues flashes job' do
           expect do
@@ -994,7 +994,7 @@ RSpec.describe Form526Submission do
       end
 
       context 'when feature disabled' do
-        before { Flipper.disable(:disability_compensation_flashes) }
+        before { allow(Flipper).to receive(:enabled?).with(:disability_compensation_flashes).and_return(false) }
 
         it 'queues flashes job' do
           expect do
@@ -1058,7 +1058,7 @@ RSpec.describe Form526Submission do
       end
 
       context 'when feature enabled' do
-        before { Flipper.enable(:disability_526_toxic_exposure_document_upload_polling) }
+        before { allow(Flipper).to receive(:enabled?).with(:disability_526_toxic_exposure_document_upload_polling).and_return(true) }
 
         it 'queues polling job' do
           expect do
@@ -1286,7 +1286,6 @@ RSpec.describe Form526Submission do
         it 'does not trigger job when disability_526_call_received_email_from_polling enabled' do
           allow(Flipper).to receive(:enabled?).with(:disability_526_call_received_email_from_polling,
                                                     anything).and_return(true)
-          allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
           expect do
             subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
           end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
@@ -1295,7 +1294,6 @@ RSpec.describe Form526Submission do
         it 'returns one job triggered when disability_526_call_received_email_from_polling disabled' do
           allow(Flipper).to receive(:enabled?).with(:disability_526_call_received_email_from_polling,
                                                     anything).and_return(false)
-          allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
           expect do
             subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
           end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
@@ -1364,28 +1362,28 @@ RSpec.describe Form526Submission do
       after { VCR.eject_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
 
       context 'when all corresponding rated disabilities are not service-connected' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         let(:form_json_filename) { 'only_526_asthma.json' }
 
         it 'returns true' do
+          allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND).and_return(false)
           expect(subject).to be_truthy
         end
       end
 
       context 'when some but not all corresponding rated disabilities are not service-connected' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         let(:form_json_filename) { 'only_526_two_rated_disabilities.json' }
 
         it 'returns false' do
+          allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND).and_return(false)
           expect(subject).to be_falsey
         end
       end
 
       context 'when some disabilities do not have a ratedDisabilityId yet' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         let(:form_json_filename) { 'only_526_mixed_action_disabilities.json' }
 
         it 'returns false' do
+          allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND).and_return(false)
           expect(subject).to be_falsey
         end
       end
@@ -1393,13 +1391,13 @@ RSpec.describe Form526Submission do
 
     context 'Lighthouse provider' do
       before do
-        Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
+        allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND).and_return(true)
         VCR.insert_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
         allow_any_instance_of(Auth::ClientCredentials::Service).to receive(:get_token).and_return('blahblech')
       end
 
       after do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
+        allow(Flipper).to receive(:enabled?).with(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND).and_return(false)
         VCR.eject_cassette('lighthouse/veteran_verification/disability_rating/200_Not_Connected_response')
       end
 
