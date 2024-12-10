@@ -13,6 +13,7 @@ module PdfFill
 
       ITERATOR = PdfFill::HashConverter::ITERATOR
 
+      # rubocop:disable Layout/LineLength
       KEY = {
         'veteranFullName' => {
           'first' => {
@@ -607,6 +608,7 @@ module PdfFill
           }
         }
       }.freeze
+      # rubocop:enable Layout/LineLength
 
       def merge_fields(_options = {})
         @form_data['veteranFullName'] = extract_middle_i(@form_data, 'veteranFullName')
