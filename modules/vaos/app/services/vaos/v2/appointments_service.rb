@@ -729,7 +729,7 @@ module VAOS
           modality = telehealth_modality(appointment)
         elsif appointment[:kind] == 'phone'
           modality = 'vaPhone'
-        elsif appointment[:kind] == 'cc' && !appointment[:start].nil?
+        elsif appointment[:kind] == 'cc'
           modality = 'communityCare'
         end
 

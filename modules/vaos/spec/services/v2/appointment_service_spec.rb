@@ -1698,7 +1698,6 @@ describe VAOS::V2::AppointmentsService do
     it 'is communityCare for cc kind' do
       appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:kind] = 'cc'
-      appt[:start] = '2024-03-04T03:00:00Z'
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('communityCare')
     end
