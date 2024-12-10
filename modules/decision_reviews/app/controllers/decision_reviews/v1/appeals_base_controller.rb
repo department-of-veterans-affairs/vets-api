@@ -12,7 +12,6 @@ module DecisionReviews
       private
 
       def decision_review_service
-        pp 'HERE'
         DecisionReviews::V1::Service.new
       end
 
