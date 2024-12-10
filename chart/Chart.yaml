@@ -107,7 +107,8 @@ type: application
 # 0.15.3  - adjust postman domain to be a direct URL pass in & removed SSM variables not in all environments
 # 0.15.4  - fix expiry-scanner to use common volume mounts
 # 0.15.5  - move dbMigrate, Clamav and mockData to Parent Helm chart
-version: 0.15.5
+# 0.15.6  - move socat proxy definition to parent helm chart
+version: 0.15.6
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
