@@ -33,7 +33,7 @@ module Burials
         require_relative '../benefits_intake/submission_handler'
 
         # Register our Pension Benefits Intake Submission Handler
-        ::BenefitsIntake::SubmissionStatusJob.register_handler('21P-530V2', Burials::BenefitsIntake::SubmissionHandler)
+        ::BenefitsIntake::SubmissionStatusJob.register_handler('21P-530EZ', Burials::BenefitsIntake::SubmissionHandler)
         ::BenefitsIntake::SubmissionStatusJob.register_handler('21P-530', Burials::BenefitsIntake::SubmissionHandler)
       end
     end
