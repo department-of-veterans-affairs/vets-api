@@ -183,7 +183,46 @@ spec:
               mountPath: /vets-api
         {{- end }}
         {{- if $root.Values.worker.socatProxyEnabled }}
-{{ toYaml $root.Values.common.socatProxy | indent 8 }}
+        - name: socat-proxy
+          image: {{ $root.Values.socatImage }}
+          args:
+            - -s
+            - -u
+            - udp-recv:8125
+            - unix-sendto:/var/run/datadog/dsd.socket
+          volumeMounts:
+            - name: ddsocket
+              mountPath: /var/run/datadog
+          resources:
+            requests:
+              cpu: 100m
+              memory: 32Mi
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - netstat -anu | grep 8125
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 10
+            timeoutSeconds: 30
+            successThreshold: 2
+          startupProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  # 2. Test connectivity to the Unix socket
+                  echo "socat connectivity test" | socat -u - UNIX-CONNECT:/var/run/datadog/dsd.socket || echo "socat failed to connect to Unix socket"
+                  # 3. End-to-end data transmission test
+                  echo "socat end-to-end test" | socat -u - udp-sendto:localhost:8125 || echo "socat failed end-to-end test"
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 10
+            timeoutSeconds: 30
+            successThreshold: 1
         {{- end }}
       terminationGracePeriodSeconds: {{ .Values.worker.terminationGracePeriodSeconds }} # put your longest Job time here plus security time.
       serviceAccountName: {{ .Values.serviceAccount.name }}

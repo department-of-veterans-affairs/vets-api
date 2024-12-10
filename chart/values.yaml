@@ -174,11 +174,9 @@ clamav:
     timeoutSeconds: 5
     successThreshold: 1
   resources: {}
-
-
+socatImage:
 # Common configuration
 common:
-  socatProxy:
   lighthousePreConfigs:
     name:
     data:
