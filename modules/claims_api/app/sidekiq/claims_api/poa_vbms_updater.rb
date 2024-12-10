@@ -20,7 +20,7 @@ module ClaimsApi
         allow_poa_c_add: allow_address_change?(poa_form)
       )
 
-      response = upload_poa_access(poa_form:, participant_id: poa_form.auth_headers['va_eauth_pid'],
+      response = update_poa_access(poa_form:, participant_id: poa_form.auth_headers['va_eauth_pid'],
                                    poa_code:, allow_poa_access: enable_vbms_access?(poa_form:))
 
       if response[:return_code] == 'GUIE50000'
@@ -49,14 +49,14 @@ module ClaimsApi
       poa_form.form_data['consentAddressChange']
     end
 
-    def upload_poa_access(poa_form:, participant_id:, poa_code:, allow_poa_access:)
+    def update_poa_access(poa_form:, participant_id:, poa_code:, allow_poa_access:)
       # allow_poa_c_add reports 'No Data' if sent lowercase
       if Flipper.enabled? :claims_api_poa_vbms_updater_uses_local_bgs
         service = corporate_update_service
         response = service.update_poa_access(
           participant_id:,
           poa_code:,
-          allow_poa_access: allow_poa_access ? 'y' : 'n',
+          allow_poa_access: allow_poa_access ? 'Y' : 'N',
           allow_poa_c_add: allow_address_change?(poa_form) ? 'Y' : 'N'
         )
       else
@@ -64,7 +64,7 @@ module ClaimsApi
         response = service.corporate_update.update_poa_access(
           participant_id:,
           poa_code:,
-          allow_poa_access: allow_poa_access ? 'y' : 'n',
+          allow_poa_access: allow_poa_access ? 'Y' : 'N',
           allow_poa_c_add: allow_address_change?(poa_form) ? 'Y' : 'N'
         )
       end

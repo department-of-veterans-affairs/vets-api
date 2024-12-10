@@ -124,7 +124,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
     expect(corporate_update_stub).to receive(:update_poa_access).with(
       participant_id: user.participant_id,
       poa_code: '074',
-      allow_poa_access: 'n',
+      allow_poa_access: 'N',
       allow_poa_c_add:
     ).and_return({ return_code: 'GUIE50000' })
     service_double = instance_double('BGS::Services')
@@ -137,7 +137,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
     expect(corporate_update_stub).to receive(:update_poa_access).with(
       participant_id: user.participant_id,
       poa_code: '074',
-      allow_poa_access: 'y',
+      allow_poa_access: 'Y',
       allow_poa_c_add:
     ).and_return({ return_code: 'GUIE50000' })
     service_double = instance_double('BGS::Services')
@@ -152,7 +152,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
         .with(
           participant_id: user.participant_id,
           poa_code: '074',
-          allow_poa_access: 'y',
+          allow_poa_access: 'Y',
           allow_poa_c_add:
         ).and_return({ return_code: 'GUIE50000' })
       corporate_update_stub

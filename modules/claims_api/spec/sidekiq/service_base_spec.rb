@@ -34,6 +34,13 @@ RSpec.describe ClaimsApi::ServiceBase do
     claim
   end
 
+  let(:poa) do
+    poa = create(:power_of_attorney)
+    poa.auth_headers = auth_headers
+    poa.save
+    poa
+  end
+
   before do
     @service = described_class.new
   end
@@ -95,6 +102,44 @@ RSpec.describe ClaimsApi::ServiceBase do
     it 'saves claim with the validation_method property of v2' do
       @service.send(:save_auto_claim!, claim, claim.status)
       expect(claim.validation_method).to eq('v2')
+    end
+  end
+
+  describe '#enable_vbms_access!' do
+    context 'denies eFolder access' do
+      it 'if recordConsent is set to false' do
+        poa.form_data = poa.form_data.merge('recordConsent' => false)
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to eq(false)
+      end
+
+      it 'if recordConsent is not present' do
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to eq(false)
+      end
+
+      it 'if consentLimits are present' do
+        poa.form_data = poa.form_data.merge('recordConsent' => true)
+        poa.form_data = poa.form_data.merge('consentLimits' => ['HIV'])
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to eq(false)
+      end
+    end
+
+    context 'allows eFolder access' do
+      it 'if recordConsent is set to true' do
+        poa.form_data = poa.form_data.merge('recordConsent' => true)
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to eq(true)
+      end
     end
   end
 
