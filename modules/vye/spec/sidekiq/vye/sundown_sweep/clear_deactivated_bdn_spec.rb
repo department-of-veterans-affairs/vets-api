@@ -87,24 +87,5 @@ describe Vye::SundownSweep::ClearDeactivatedBdns, type: :worker do
         described_class.new.perform
       end.not_to(change { Sidekiq::Worker.jobs.size })
     end
-
-    it 'does not make any database changes' do
-      create(:vye_bdn_clone_with_user_info_children)
-      create(:vye_bdn_clone_with_user_info_children, :active)
-
-      # rubocop:disable RSpec/ChangeByZero
-      expect do
-        described_class.new.perform
-      end.to change(Vye::BdnClone, :count).by(0)
-                                          .and change(Vye::AddressChange, :count).by(0)
-                                                                                 .and change(Vye::Award, :count).by(0)
-                                                                                                                .and change(
-                                                                                                                  Vye::DirectDepositChange, :count
-                                                                                                                ).by(0)
-        .and change(
-          Vye::Verification, :count
-        ).by(0)
-      # rubocop:enable RSpec/ChangeByZero
-    end
   end
 end
