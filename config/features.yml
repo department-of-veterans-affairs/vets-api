@@ -1650,6 +1650,9 @@ features:
   appointment_provider_id_logging:
     actor_type: user
     description: For mobile app, logs provider id for debugging
+  mobile_push_register_logging:
+    actor_type: user
+    description: For mobile app, logs push register errors for debugging
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
