@@ -46,7 +46,7 @@ module Avs
         end
 
         data = avs_response.avs
-        if data['icn'].nil? || !icns_match?(@current_user.icn, data['icn'])
+        if data.icn.nil? || !icns_match?(@current_user.icn, data.icn)
           render_client_error('Not authorized', 'User may not view this AVS.', :unauthorized)
           return
         end

@@ -13,21 +13,19 @@ http_interactions:
       - application/json
       User-Agent:
       - NOTIFY-API-RUBY-CLIENT/5.1.2
-      Authorization:
-      - Bearer eyJhbGciOiJIUzI1NiJ9.eyJpc3MiOiIxYzgwMDljYi1iMDY3LTRkZTUtYWMzMS1kZGY4ZGY5NWQ5YjkiLCJpYXQiOjE1OTg0NjY5NTB9.4w-lDvu8MXVKbMNsEgep298UcRXgYhZsKb1K1MrTqnk
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
     status:
-      code: 400
-      message: BAD REQUEST
+      code: 401
+      message: UNAUTHORIZED
     headers:
       Date:
-      - Wed, 26 Aug 2020 18:35:50 GMT
+      - Wed, 26 Aug 2020 19:37:40 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '143'
+      - '138'
       Connection:
       - keep-alive
       Server:
@@ -44,8 +42,7 @@ http_interactions:
       - None
     body:
       encoding: UTF-8
-      string: "{\n  \"errors\": [\n    {\n      \"error\": \"ValidationError\", \n
-        \     \"message\": \"template_id is not a valid UUID\"\n    }\n  ], \n  \"status_code\":
-        400\n}\n"
-  recorded_at: Wed, 26 Aug 2020 18:35:50 GMT
+      string: "{\n  \"errors\": [\n    {\n      \"error\": \"AuthError\", \n      \"message\":
+        \"Unauthorized, authentication token must be provided\"\n    }\n  ], \n  \"status_code\": 401\n}\n"
+  recorded_at: Wed, 26 Aug 2020 19:37:40 GMT
 recorded_with: VCR 6.0.0

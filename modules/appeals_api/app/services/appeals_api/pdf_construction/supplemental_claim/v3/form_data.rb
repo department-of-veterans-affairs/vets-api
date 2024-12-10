@@ -70,7 +70,7 @@ module AppealsApi
           end
 
           def new_evidence_dates
-            evidence_records.map(&:dates)
+            evidence_records.map(&:dates_day_format)
           end
 
           def veteran_ssn_first_three

@@ -696,6 +696,23 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               .and_raise(error_class.new(status:))
             expect_retryable_error(error_class)
           end
+
+          it "throws a #{status} error if Lighthouse sends it back for rated disabilities" do
+            allow_any_instance_of(Flipper)
+              .to(receive(:enabled?))
+              .with('disability_compensation_lighthouse_rated_disabilities_provider_background', anything)
+              .and_return(true)
+            allow_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm526)
+              .to(receive(:fail_submission_feature_enabled?))
+              .and_return(false)
+            allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:prepare_for_ep_merge!).and_return(nil)
+            allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:pending_eps?).and_return(false)
+            allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:classify_vagov_contentions)
+              .and_return(nil)
+            allow_any_instance_of(VeteranVerification::Service).to receive(:get_rated_disabilities)
+              .and_raise(error_class.new(status:))
+            expect_retryable_error(error_class)
+          end
         end
       end
     end

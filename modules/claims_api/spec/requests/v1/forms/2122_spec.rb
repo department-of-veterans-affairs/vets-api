@@ -21,18 +21,13 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
       profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
     )
   end
-  let(:pws) do
-    if Flipper.enabled? :claims_api_use_person_web_service
-      ClaimsApi::PersonWebService
-    else
-      ClaimsApi::LocalBGS
-    end
-  end
+  let(:pws) { ClaimsApi::PersonWebService }
+  let(:lbgs) { ClaimsApi::LocalBGS }
 
   before do
     stub_poa_verification
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
-    allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
+    allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return false
   end
 
