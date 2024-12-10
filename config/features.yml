@@ -442,6 +442,10 @@ features:
     actor_type: user
     description: Enable using MAR 2024 revision of 200996 Higher Level Review form when submitting to EMMS for intake
     enable_in_development: false
+  decision_review_sc_form_v4_enabled:
+    actor_type: user
+    description: Enable using MAY 2024 revision of 200995 Supplemental Claim form when submitting to EMMS for intake
+    enable_in_development: false
   decision_review_saved_claim_hlr_status_updater_job_enabled:
     actor_type: user
     description: Enable job to set delete_date for completed SavedClaim::HigherLevelReviews
@@ -889,6 +893,10 @@ features:
   letters_check_discrepancies:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
+    enable_in_development: true
+  lighthouse_claims_api_v2_add_person_proxy:
+    actor_type: user
+    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID
     enable_in_development: true
   lighthouse_claims_api_poa_dependent_claimants:
     actor_type: user
@@ -1379,6 +1387,9 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
+  va_notify_custom_errors:
+    actor_type: user
+    description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
@@ -1637,6 +1648,9 @@ features:
   mobile_v2_contact_info:
     actor_type: user
     description: For mobile app, enables ContactInformationV2 Service.
+  appointment_provider_id_logging:
+    actor_type: user
+    description: For mobile app, logs provider id for debugging
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
@@ -1763,6 +1777,10 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
+  burial_confirmation_page:
+    actor_type: user
+    description: Toggle showing the updated confirmation page
+    enable_in_development: true
   burial_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
