@@ -42,7 +42,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.2.2'
+gem 'rails', '~> 8.0.0'
 
 gem 'aasm'
 gem 'activerecord-import'
@@ -88,7 +88,7 @@ gem 'google-apis-core'
 gem 'google-apis-generator'
 gem 'googleauth'
 gem 'google-protobuf' # For Datadog Profiling
-gem 'govdelivery-tms', git: 'https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git', tag: 'v4.0.0', require: 'govdelivery/tms/mail/delivery_method'
+gem 'govdelivery-tms', git: 'https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git', tag: 'v4.1.0', require: 'govdelivery/tms/mail/delivery_method'
 gem 'gyoku'
 gem 'hexapdf'
 gem 'holidays'
