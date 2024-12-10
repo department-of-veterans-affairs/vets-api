@@ -45,22 +45,6 @@ module Veteran
       @previous_poa_code = poa_codes.delete_if { |poa_code| poa_code == current_poa_code }.first
     end
 
-    # def bgs_service
-    #   external_key = "#{@user.first_name} #{@user.last_name}"
-    #   @bgs_service ||= BGS::Services.new(
-    #     external_uid: @user.mpi_icn,
-    #     external_key: external_key.presence || @user.mpi_icn
-    #   )
-    # end
-
-    # def local_bgs_service
-    #   external_key = "#{@user.first_name} #{@user.last_name}"
-    #   @local_bgs_service ||= ClaimsApi::LocalBGS.new(
-    #     external_uid: @user.mpi_icn,
-    #     external_key: external_key.presence || @user.mpi_icn
-    #   )
-    # end
-
     def bgs_org_service
       external_key = "#{@user.first_name} #{@user.last_name}"
       @bgs_itf_service ||= ClaimsApi::OrgWebService.new(
