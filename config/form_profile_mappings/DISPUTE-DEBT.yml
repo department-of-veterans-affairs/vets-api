@@ -1,5 +1,7 @@
-veteranInformation:
-  veteranFullName: [identity_information, full_name]
-  dateOfBirth: [identity_information, date_of_birth]
+veteran:
+  fullName: [identity_information, full_name]
   ssn: [identity_information, ssn_last_four]
+  dateOfBirth: [identity_information, date_of_birth]
+  homePhone: [contact_information, home_phone]
+  email: [contact_information, email]
   fileNumber: [va_file_number_last_four]

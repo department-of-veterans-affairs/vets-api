@@ -1042,18 +1042,11 @@ RSpec.describe FormProfile, type: :model do
           'last' => user.last_name&.capitalize,
           'suffix' => user.suffix
         },
-        'ssn' => '796111863',
+        'ssn' => '1863',
         'dateOfBirth' => '1809-02-12',
         'homePhone' => '14445551212',
         'email' => user.pciu_email,
-        'address' => {
-          'street' => street_check[:street],
-          'street2' => street_check[:street2],
-          'city' => user.address[:city],
-          'state' => user.address[:state],
-          'country' => user.address[:country],
-          'postal_code' => user.address[:postal_code][0..4]
-        }
+        'fileNumber' => '3735'
       }
     }
   end

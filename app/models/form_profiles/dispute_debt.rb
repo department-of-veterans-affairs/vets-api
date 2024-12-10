@@ -11,7 +11,6 @@ class FormProfiles::DisputeDebt < FormProfile
 
   private
 
-  # Borrowed from app/models/form_profiles/va_5655.rb as a starting point to pull file number
   def va_file_number_last_four
     return unless user.authorize :debt, :access?
 
