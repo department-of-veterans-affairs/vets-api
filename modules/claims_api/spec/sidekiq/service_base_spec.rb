@@ -105,7 +105,7 @@ RSpec.describe ClaimsApi::ServiceBase do
     end
   end
 
-  describe '#enable_vbms_access!' do
+  describe '#enable_vbms_access?' do
     context 'denies eFolder access' do
       it 'if recordConsent is set to false' do
         poa.form_data = poa.form_data.merge('recordConsent' => false)
