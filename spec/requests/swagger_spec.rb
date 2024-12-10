@@ -3803,6 +3803,9 @@ RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :de
 
     context 'GI Bill Status' do
       it 'supports getting Gi Bill Status' do
+        # TO-DO: Remove once new VCR recorded for updated Post-911 GI Bill Status response
+        Flipper.disable(:sob_updated_design)
+
         expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 401)
         VCR.use_cassette('lighthouse/benefits_education/200_response') do
           expect(subject).to validate(:get, '/v1/post911_gi_bill_status', 200, headers)
