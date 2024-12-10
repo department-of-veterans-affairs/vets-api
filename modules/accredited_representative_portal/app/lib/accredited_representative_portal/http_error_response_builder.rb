@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+# TODO: Replace this to either use the app/controllers/concerns/exception_handling.rb or somethingj
+# more similar to that.
+#
 # Builds standardized HTTP error responses for the Accredited Representative Portal.
 # Used to maintain consistent error formatting across the application.
 #
