@@ -45,6 +45,7 @@ properties:
             personEntitled:
               type: string
               example: null
+              nullable: true
             deductionCode:
               type: string
               example: '30'
