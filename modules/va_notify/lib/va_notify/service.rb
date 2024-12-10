@@ -4,6 +4,7 @@ require 'notifications/client'
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require_relative 'configuration'
+require_relative 'error'
 
 module VaNotify
   class Service < Common::Client::Base
@@ -81,7 +82,11 @@ module VaNotify
       case error
       when Common::Client::Errors::ClientError
         save_error_details(error)
-        raise_backend_exception("VANOTIFY_#{error.status}", self.class, error) if error.status >= 400
+        if Flipper.enabled?(:va_notify_custom_errors) && error.status >= 400
+          raise VANotify::Error.from_generic_error(error)
+        elsif error.status >= 400
+          raise_backend_exception("VANOTIFY_#{error.status}", self.class, error)
+        end
       else
         raise error
       end
@@ -150,7 +155,8 @@ module VaNotify
         'modules/va_notify/lib/va_notify/service.rb',
         'va_notify/app/sidekiq/va_notify/email_job.rb',
         'va_notify/app/sidekiq/va_notify/user_account_job.rb',
-        'lib/sidekiq/processor.rb'
+        'lib/sidekiq/processor.rb',
+        'lib/sidekiq/middleware/chain.rb'
       ]
 
       caller_locations.each do |location|
