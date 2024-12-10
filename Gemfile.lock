@@ -104,6 +104,8 @@ PATH
     covid_vaccine (0.1.0)
       sidekiq
     debts_api (0.1.0)
+    decision_reviews (0.1.0)
+      rails (>= 7.1.4.1)
     dhp_connected_devices (0.1.0)
     facilities_api (0.1.0)
     health_quest (0.1.0)
@@ -1168,6 +1170,7 @@ DEPENDENCIES
   date_validator
   ddtrace
   debts_api!
+  decision_reviews!
   dhp_connected_devices!
   dogstatsd-ruby (= 5.6.3)
   dry-struct
