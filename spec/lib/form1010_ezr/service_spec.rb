@@ -62,13 +62,6 @@ RSpec.describe Form1010Ezr::Service do
     )
   end
 
-  def expect_personal_info_log(message)
-    pii_log = PersonalInformationLog.last
-
-    expect(pii_log.error_class).to eq(message)
-    expect(pii_log.data).to eq(form)
-  end
-
   describe '#add_financial_flag' do
     context 'when the form has veteran gross income' do
       let(:parsed_form) do
@@ -175,7 +168,7 @@ RSpec.describe Form1010Ezr::Service do
     end
 
     context "when 'parsed_form' is present" do
-      it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a failure message to sentry" do
+      it "increments StatsD and logs a failure message to sentry" do
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
@@ -190,8 +183,6 @@ RSpec.describe Form1010Ezr::Service do
         )
 
         described_class.new(nil).log_submission_failure(form)
-
-        expect_personal_info_log('Form1010Ezr Failed')
       end
     end
   end
@@ -274,7 +265,7 @@ RSpec.describe Form1010Ezr::Service do
             allow(JSON::Validator).to receive(:fully_validate).and_return(['veteranDateOfBirth error'])
           end
 
-          it 'adds to the PersonalInformationLog and saves the unprocessed DOB' do
+          it 'creates a PersonalInformationLog and saves the unprocessed DOB' do
             expect { submit_form(form) }.to raise_error do |e|
               personal_information_log =
                 PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
