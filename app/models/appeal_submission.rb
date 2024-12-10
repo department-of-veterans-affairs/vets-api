@@ -79,11 +79,10 @@ class AppealSubmission < ApplicationRecord
   end
 
   def current_email_address
-    va_profile = ::VAProfile::ContactInformation::Service.get_person(get_mpi_profile.vet360_id.to_s)&.person
-    raise 'Failed to fetch VA profile' if va_profile.nil?
+    sc = SavedClaim.find_by(guid: submitted_appeal_uuid)
+    form = JSON.parse(sc.form)
 
-    current_emails = va_profile.emails.select { |email| email.effective_end_date.nil? }
-    email = current_emails.first&.email_address
+    email = form.dig('data', 'attributes', 'veteran', 'email')
     raise 'Failed to retrieve email address' if email.nil?
 
     email

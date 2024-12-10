@@ -89,19 +89,6 @@ module ClaimsApi
                    key: 'return')
     end
 
-    def find_by_ssn(ssn)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ssn />
-      EOXML
-
-      { ssn: }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'PersonWebServiceBean/PersonWebService', action: 'findPersonBySSN', body:,
-                   key: 'PersonDTO')
-    end
-
     def find_poa_history_by_ptcpnt_id(id)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <ptcpntId />
@@ -113,38 +100,6 @@ module ClaimsApi
 
       make_request(endpoint: 'OrgWebServiceBean/OrgWebService', action: 'findPoaHistoryByPtcpntId', body:,
                    key: 'PoaHistory')
-    end
-
-    def find_benefit_claims_status_by_ptcpnt_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService',
-                   action: 'findBenefitClaimsStatusByPtcpntId', body:)
-    end
-
-    def claims_count(id)
-      find_benefit_claims_status_by_ptcpnt_id(id).count
-    rescue ::Common::Exceptions::ResourceNotFound
-      0
-    end
-
-    def find_benefit_claim_details_by_benefit_claim_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <bnftClaimId />
-      EOXML
-
-      { bnftClaimId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService',
-                   action: 'findBenefitClaimDetailsByBnftClaimId', body:)
     end
 
     def insert_intent_to_file(options)
@@ -196,20 +151,6 @@ module ClaimsApi
 
       Array.wrap(response[:intent_to_file_dto])
     end
-
-    # BEGIN: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
-    def update_from_remote(id)
-      bgs_claim = find_benefit_claim_details_by_benefit_claim_id(id)
-      transform_bgs_claim_to_evss(bgs_claim)
-    end
-
-    def all(id)
-      claims = find_benefit_claims_status_by_ptcpnt_id(id)
-      return [] if claims.count < 1 || claims[:benefit_claims_dto].blank?
-
-      transform_bgs_claims_to_evss(claims)
-    end
-    # END: switching v1 from evss to bgs. Delete after EVSS is no longer available. Fix controller first.
 
     def header # rubocop:disable Metrics/MethodLength
       # Stock XML structure {{{
@@ -305,7 +246,7 @@ module ClaimsApi
                               detail: "local BGS Faraday Timeout: #{e.message}")
         raise ::Common::Exceptions::BadGateway
       end
-      soap_error_handler.handle_errors(response) if response
+      soap_error_handler.handle_errors(response) if response.status != 200
 
       log_duration(event: 'parsed_response', key:) do
         parsed_response = parse_response(response, action:, key:)

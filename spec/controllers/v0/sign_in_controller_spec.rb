@@ -430,6 +430,20 @@ RSpec.describe V0::SignInController, type: :controller do
 
           it_behaves_like 'an idme service interface with appropriate operation'
         end
+
+        context 'and the operation param is interstitial_verify' do
+          let(:operation_value) { SignIn::Constants::Auth::INTERSTITIAL_VERIFY }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
+
+        context 'and the operation param is interstitial_signup' do
+          let(:operation_value) { SignIn::Constants::Auth::INTERSTITIAL_SIGNUP }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
       end
 
       shared_context 'an idme service interface with appropriate operation' do
@@ -742,6 +756,10 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
 
         context 'and code in state payload matches an existing state code' do
+          before { Timecop.freeze }
+
+          after { Timecop.return }
+
           context 'when type in state JWT is logingov' do
             let(:type) { SignIn::Constants::Auth::LOGINGOV }
             let(:response) { OpenStruct.new(access_token: token) }
@@ -1137,11 +1155,6 @@ RSpec.describe V0::SignInController, type: :controller do
 
               before do
                 allow(SecureRandom).to receive(:uuid).and_return(client_code)
-                Timecop.freeze
-              end
-
-              after do
-                Timecop.return
               end
 
               shared_context 'dslogon successful callback' do

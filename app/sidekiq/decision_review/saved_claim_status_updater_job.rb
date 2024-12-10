@@ -178,11 +178,7 @@ module DecisionReview
       # Skip logging and statsd metrics when there is no status change
       return if JSON.parse(record.metadata || '{}')['status'] == status
 
-      if status == ERROR_STATUS
-        Rails.logger.info("#{log_prefix} form status error", guid: record.guid)
-        tags = [service_tag, 'function: form submission to Lighthouse']
-        StatsD.increment('silent_failure', tags:)
-      end
+      Rails.logger.info("#{log_prefix} form status error", guid: record.guid) if status == ERROR_STATUS
 
       StatsD.increment("#{statsd_prefix}.status", tags: ["status:#{status}"])
     end
@@ -191,11 +187,7 @@ module DecisionReview
       # Skip logging and statsd metrics when there is no status change
       return if JSON.parse(form.status || '{}')['status'] == status
 
-      if status == ERROR_STATUS
-        Rails.logger.info("#{log_prefix} secondary form status error", guid: form.guid)
-        tags = ['service:supplemental-claims-4142', 'function: PDF submission to Lighthouse']
-        StatsD.increment('silent_failure', tags:)
-      end
+      Rails.logger.info("#{log_prefix} secondary form status error", guid: form.guid) if status == ERROR_STATUS
 
       StatsD.increment("#{statsd_prefix}_secondary_form.status", tags: ["status:#{status}"])
     end
@@ -225,10 +217,9 @@ module DecisionReview
         next if old_uploads_metadata.dig(upload_id, 'status') == status
 
         if status == ERROR_STATUS
-          Rails.logger.info("#{log_prefix} evidence status error",
-                            { guid: record.guid, lighthouse_upload_id: upload_id, detail: upload['detail'] })
-          tags = [service_tag, 'function: evidence submission to Lighthouse']
-          StatsD.increment('silent_failure', tags:)
+          error_type = get_error_type(upload['detail'])
+          params = { guid: record.guid, lighthouse_upload_id: upload_id, detail: upload['detail'], error_type: }
+          Rails.logger.info("#{log_prefix} evidence status error", params)
         end
 
         StatsD.increment("#{statsd_prefix}_upload.status", tags: ["status:#{status}"])
@@ -246,6 +237,25 @@ module DecisionReview
       return {} if metadata.nil?
 
       JSON.parse(metadata).fetch('uploads', []).index_by { |upload| upload['id'] }
+    end
+
+    def get_error_type(detail)
+      case detail
+      when /.*Unidentified Mail: We could not associate part or all of this submission with a Vet*/i
+        'unidentified-mail'
+      when /.*ERR-EMMS-FAILED, Corrupted File detected.*/i
+        'corrupted-file'
+      when /.*ERR-EMMS-FAILED, Images failed to process.*/i
+        'image-processing-failure'
+      when /.*Errors: Batch Submitted with all blank Images.*/i
+        'blank-images'
+      when /.*Unsupported or Corrupted File type.*/i
+        'unsupported-file-type'
+      when /.ERR-EMMS-FAILED, EffectiveReceivedDate cannot be in the future.*/i
+        'effective-received-date-error'
+      else
+        'unknown'
+      end
     end
   end
 end

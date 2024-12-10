@@ -174,6 +174,7 @@ form_10_10cg:
         token_url: ~
         client_id: ~
         client_secret: ~
+        auth_token_path: ~
   poa:
     s3:
       aws_access_key_id: my-aws-key-id
@@ -344,24 +345,6 @@ modules_appeals_api:
       api_key: ""
     supplemental_claims:
       api_key: ""
-  # The token generation values below are only used for development rake tasks.
-  token_generation:
-    ccg:
-      config_uri: "https://dev-api.va.gov/oauth2/appeals/system/v1/.well-known/openid-configuration"
-      # Get a client ID by submitting your public jwk here - make sure to check the boxes for the APIs under
-      # "Client Credentials Grant APIs": https://developer.va.gov/onboarding/request-sandbox-access
-      client_id: ""
-      # Absolute path to the private key file matching the jwk:
-      private_key_path: ""
-    auth:
-      config_uri: "https://dev-api.va.gov/oauth2/appeals/v1/.well-known/openid-configuration"
-      # Get a client ID/secret by submitting this form - make sure to check the boxes for the APIs under
-      # "Authorization Code Flow APIs": https://developer.va.gov/onboarding/request-sandbox-access
-      client_id: ""
-      client_secret: ""
-      redirect_uri: ""
-      user_email: ""
-      user_password: ""
   slack:
     api_key: ""
     appeals_channel_id: ""
@@ -489,6 +472,8 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
+  search:
+    use_mocks: false
   lce:
     use_mocks: false
 
@@ -973,6 +958,7 @@ lighthouse:
       client_id: ~
       rsa_key: ~
   api_key: fake_key
+  staging_api_key: fake_key
   benefits_claims:
     host: https://sandbox-api.va.gov
     access_token:
@@ -1019,6 +1005,7 @@ lighthouse:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
   benefits_reference_data:
     url: https://sandbox-api.va.gov
+    staging_url: https://staging-api.va.gov
     path: services/benefits-reference-data
     version: v1
   direct_deposit:
@@ -1287,6 +1274,8 @@ vanotify:
         form21_674_action_needed_email: form21_674_action_needed_email_template_id
         form21_0966_confirmation_email: form21_0966_confirmation_email_template_id
         form21_0966_error_email: form21_0966_error_email_template_id
+        form21_0966_received_email: form21_0966_received_email_template_id
+        form21_0966_itf_api_received_email: form21_0966_itf_api_received_email_template_id
         form21_0972_confirmation_email: form21_0972_confirmation_email_template_id
         form21_0972_error_email: form21_0972_error_email_template_id
         form21_0972_received_email: form21_0972_received_email_template_id
@@ -1378,8 +1367,14 @@ vanotify:
         form_10_7959f_1_email: form_10_7959f_1_email
         form_10_7959f_1_failure_email: form_10_7959f_1_failure_email
         form_10_7959f_2_email: form_10_7959f_2_email
+        form_10_7959f_2_failure_email: form_10_7959f_2_failure_email
         form_10_7959c_email: form_10_7959c_email
+        form_10_7959c_failure_email: form_10_7959c_failure_email
         form_10_7959a_email: form_10_7959a_email
+        form_10_7959a_failure_email: form_10_7959a_failure_email
+        pega_team_missing_status_email: pega_team_missing_status_email
+        pega_team_zsf_email: pega_team_zsf_email
+
     health_apps_1010:
       api_key: fake_secret
       template_id:
@@ -1450,6 +1445,13 @@ dgi:
   vets:
     url: "https://jenkins.ld.afsp.io:32512/vets-service/v1/" # Docker setup for microservice
     mock: false
+  post911_sob:
+    jwt:
+      public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
+      private_key_path: spec/fixtures/post911_sob/dgib/private_test.pem
+    claimants:
+      url: ~
+      mock: false
 
 # Settings for the VEText integration (mobile push notifications)
 vetext_push:
@@ -1837,6 +1839,14 @@ vaos:
     client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
     audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
     access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
-    api_url: "https://api.wellhive.com/care-navigation/v1"
+    api_url: "https://api.wellhive.com"
+    base_path: "care-navigation/v1"
     scopes: "care-nav"
 
+accredited_representative_portal:
+  pilot_users_email_poa_codes: ~
+  
+banners:
+  drupal_username: banners_api
+  drupal_password: test
+  drupal_url: https://test.cms.va.gov/

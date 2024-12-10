@@ -3,6 +3,7 @@
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
+require 'bgs_service/person_web_service'
 
 RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
   let(:headers) do
@@ -20,10 +21,14 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
       profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
     )
   end
-  let(:pws) { ClaimsApi::LocalBGS }
+  let(:pws) { ClaimsApi::PersonWebService }
+  let(:lbgs) { ClaimsApi::LocalBGS }
 
   before do
     stub_poa_verification
+    allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
+    allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants).and_return false
   end
 
   describe '#2122' do
@@ -61,6 +66,29 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
           before do
             Veteran::Service::Representative.new(representative_id: '56789', poa_codes: ['074'],
                                                  first_name: 'Abraham', last_name: 'Lincoln').save!
+          end
+
+          describe 'when the claims_api_use_person_web_service flipper is on' do
+            let(:person_web_service) { instance_double(ClaimsApi::PersonWebService) }
+
+            before do
+              allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
+              allow(ClaimsApi::PersonWebService).to receive(:new).with(external_uid: anything,
+                                                                       external_key: anything)
+                                                                 .and_return(person_web_service)
+              allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
+            end
+
+            it 'calls local bgs services instead of bgs-ext' do
+              mock_acg(scopes) do |auth_header|
+                allow_any_instance_of(ClaimsApi::V1::Forms::PowerOfAttorneyController)
+                  .to receive(:check_request_ssn_matches_mpi).and_return(nil)
+                allow(BGS::PowerOfAttorneyVerifier).to receive(:new).and_return(bgs_poa_verifier)
+                allow(bgs_poa_verifier).to receive(:current_poa_code).and_return(Struct.new(:code).new('HelloWorld'))
+                post path, params: data, headers: headers.merge(auth_header)
+                expect(person_web_service).to have_received(:find_by_ssn)
+              end
+            end
           end
 
           context 'when Veteran has all necessary identifiers' do
@@ -414,7 +442,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
         end
 
         before do
-          Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+          allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                              .and_return true
         end
 
         context 'and the request includes a dependent claimant' do
@@ -702,7 +731,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
 
       context 'when the lighthouse_claims_api_poa_dependent_claimants feature is enabled' do
         before do
-          Flipper.enable(:lighthouse_claims_api_poa_dependent_claimants)
+          allow_any_instance_of(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_dependent_claimants)
+                                                              .and_return true
         end
 
         context 'and the request includes a dependent claimant' do

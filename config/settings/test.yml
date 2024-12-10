@@ -348,6 +348,10 @@ dgi:
   vets:
     url: "https://jenkins.ld.afsp.io:32512/vets-service/v1/" # Docker setup for microservice
     mock: false
+  post911_sob:
+    jwt:
+      public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
+      private_key_path: spec/fixtures/post911_sob/dgib/private_test.pem
 
 bid:
   awards:
@@ -414,7 +418,7 @@ claims_api:
     services:
       lighthouse:
         api_key: fake-xxxxxx-zzzz-aaaa-bbbb-cccccccc-xxxxxx-zzzz-aaaa-bbbb-cccccccc
-        
+
 ask_va:
   crm_api:
     auth_url: https://login.microsoftonline.us
@@ -445,3 +449,7 @@ travel_pay:
 va_notify:
   status_callback:
     bearer_token: 'va_notify_bearer_token'
+
+accredited_representative_portal:
+  pilot_user_email_poa_codes:
+    'test@va.gov': ['123']
