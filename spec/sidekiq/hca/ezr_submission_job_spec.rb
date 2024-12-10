@@ -141,7 +141,8 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
       context 'with an enrollment system validation error' do
         let(:error) { HCA::SOAPParser::ValidationError }
 
-        it 'increments StatsD, logs the submission failure, logs exception to sentry, and sends a failure email' do
+        it "increments StatsD, creates a 'PersonalInformationLog', logs the submission failure, " \
+           'logs exception to sentry, and sends a failure email' do
           allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
           allow(StatsD).to receive(:increment)
           # Because we're calling the 'log_submission_failure' method from a new instance
@@ -156,6 +157,10 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
           expect_submission_failure_email_and_statsd_increments
 
           subject
+
+          personal_information_log = PersonalInformationLog.last
+          expect(personal_information_log.error_class).to eq('Form1010Ezr EnrollmentSystemValidationFailure')
+          expect(personal_information_log.data).to eq(form)
         end
       end
 

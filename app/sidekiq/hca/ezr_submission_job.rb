@@ -70,6 +70,12 @@ module HCA
       Form1010Ezr::Service.new(user).submit_sync(parsed_form)
     rescue VALIDATION_ERROR => e
       StatsD.increment("#{STATSD_KEY_PREFIX}.enrollment_system_validation_error")
+
+      PersonalInformationLog.create!(
+        data: parsed_form,
+        error_class: 'Form1010Ezr EnrollmentSystemValidationFailure'
+      )
+
       Form1010Ezr::Service.new(nil).log_submission_failure(parsed_form)
       self.class.log_exception_to_sentry(e)
       self.class.send_failure_email(parsed_form) if Flipper.enabled?(:ezr_use_va_notify_on_submission_failure)
