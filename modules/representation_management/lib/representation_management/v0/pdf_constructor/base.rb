@@ -147,12 +147,16 @@ module RepresentationManagement
           next_steps = Prawn::Document.new
           next_steps.font_families.update(
             'bitter' => {
-              normal: Rails.root.join('modules', 'representation_management', 'lib', 'fonts', 'bitter-regular.ttf'),
-              bold: Rails.root.join('modules', 'representation_management', 'lib', 'fonts', 'bitter-bold.ttf')
+              normal: {
+                file: Rails.root.join('modules', 'representation_management', 'lib', 'fonts',
+                                      'bitter-regular.ttf'), subset: false
+              },
+              bold: { file: Rails.root.join('modules', 'representation_management', 'lib', 'fonts', 'bitter-bold.ttf'),
+                      subset: false }
             },
             'soursesanspro' => {
-              normal: Rails.root.join('modules', 'representation_management', 'lib', 'fonts',
-                                      'sourcesanspro-regular-webfont.ttf')
+              normal: { file: Rails.root.join('modules', 'representation_management', 'lib', 'fonts',
+                                              'sourcesanspro-regular-webfont.ttf'), subset: false }
             }
           )
           next_steps_part1(next_steps)
