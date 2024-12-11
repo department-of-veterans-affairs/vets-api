@@ -179,7 +179,7 @@ module ClaimsApi
       # TrackedItemService
       #
       # Adding 'Bean' to the end to differentiate from the service
-      module TrackedItemServiceBean
+      module TrackedItemService
         DEFINITION =
           Bean.new(
             path: 'TrackedItemService',
@@ -188,23 +188,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module TrackedItemService
-        DEFINITION =
-          Service.new(
-            bean: TrackedItemServiceBean::DEFINITION,
-            path: 'TrackedItemService'
-          )
-
-        module FindTrackedItems
-          DEFINITION =
-            Action.new(
-              service: TrackedItemService::DEFINITION,
-              name: 'findTrackedItems',
-              key: 'BenefitClaim'
-            )
-        end
       end
 
       ##
