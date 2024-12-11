@@ -62,7 +62,7 @@ describe Eps::AppointmentService do
     let(:successful_draft_appt_response) do
       double('Response', status: 200, body: { 'id' => icn,
                                               'state' => 'draft',
-                                              'patientId' => 'test-patient-id'})
+                                              'patientId' => 'test-patient-id' })
     end
 
     context 'when creating draft appointment for a given referral_id' do
