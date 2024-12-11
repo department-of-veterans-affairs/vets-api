@@ -318,6 +318,16 @@ class User < Common::RedisStore
 
   # Other MPI
 
+  def validate_mpi_profile
+    errors = []
+    updated_profile = mpi_profile(break_cache: true)
+    return unless updated_profile
+
+    errors.push(:mpi_death_flag) unless updated_profile.deceased_date.nil?
+    errors.push(:mpi_theft_flag) unless updated_profile.id_theft_flag == false
+    errors
+  end
+
   def invalidate_mpi_cache
     return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response
 
@@ -478,10 +488,10 @@ class User < Common::RedisStore
 
   private
 
-  def mpi_profile
+  def mpi_profile(break_cache: false)
     return nil unless identity && mpi
 
-    mpi.profile
+    mpi.profile(break_cache:)
   end
 
   def mpi
