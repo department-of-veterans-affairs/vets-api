@@ -229,11 +229,22 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('30 * * * *', 'DecisionReview::NodStatusUpdaterJob')
   mgr.register('50 * * * *', 'DecisionReview::ScStatusUpdaterJob')
 
+  # Engine version: Hourly jobs that update DR SavedClaims with delete_date
+  mgr.register('10 * * * *', 'DecisionReviews::HlrStatusUpdaterJob')
+  mgr.register('15 * * * *', 'DecisionReviews::NodStatusUpdaterJob')
+  mgr.register('40 * * * *', 'DecisionReviews::ScStatusUpdaterJob')
+
   # Clean SavedClaim records that are past delete date
   mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
 
+  # Engine version: Clean SavedClaim records that are past delete date
+  mgr.register('0 5 * * *', 'DecisionReviews::DeleteSavedClaimRecordsJob')
+
   # Send Decision Review emails to Veteran for failed form/evidence submissions
   mgr.register('5 1 * * *', 'DecisionReview::FailureNotificationEmailJob')
+
+  # Engine version: Send Decision Review emails to Veteran for failed form/evidence submissions
+  mgr.register('5 0 * * *', 'DecisionReviews::FailureNotificationEmailJob')
 
   # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
   mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
