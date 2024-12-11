@@ -28,7 +28,7 @@ RSpec.describe Form526Submission do
   let(:backup_submitted_claim_status) { nil }
 
   before do
-    Flipper.disable(:disability_compensation_production_tester)
+    Flipper.disable(:validate_saved_claims_with_json_schemer)
   end
 
   describe 'associations' do
@@ -1283,16 +1283,14 @@ RSpec.describe Form526Submission do
         subject { create(:form526_submission, :with_multiple_succesful_jobs) }
 
         it 'does not trigger job when disability_526_call_received_email_from_polling enabled' do
-          allow(Flipper).to receive(:enabled?).with(:disability_526_call_received_email_from_polling,
-                                                    anything).and_return(true)
+          Flipper.enable(:disability_526_call_received_email_from_polling)
           expect do
             subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
           end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
         end
 
         it 'returns one job triggered when disability_526_call_received_email_from_polling disabled' do
-          allow(Flipper).to receive(:enabled?).with(:disability_526_call_received_email_from_polling,
-                                                    anything).and_return(false)
+          Flipper.disable(:disability_526_call_received_email_from_polling)
           expect do
             subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
           end.to change(Form526ConfirmationEmailJob.jobs, :size).by(1)
@@ -1361,28 +1359,28 @@ RSpec.describe Form526Submission do
       after { VCR.eject_cassette('evss/disability_compensation_form/rated_disabilities_with_non_service_connected') }
 
       context 'when all corresponding rated disabilities are not service-connected' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         let(:form_json_filename) { 'only_526_asthma.json' }
 
         it 'returns true' do
+          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
           expect(subject).to be_truthy
         end
       end
 
       context 'when some but not all corresponding rated disabilities are not service-connected' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         let(:form_json_filename) { 'only_526_two_rated_disabilities.json' }
 
         it 'returns false' do
+          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
           expect(subject).to be_falsey
         end
       end
 
       context 'when some disabilities do not have a ratedDisabilityId yet' do
-        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
         let(:form_json_filename) { 'only_526_mixed_action_disabilities.json' }
 
         it 'returns false' do
+          Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
           expect(subject).to be_falsey
         end
       end

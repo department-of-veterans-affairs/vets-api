@@ -103,7 +103,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
 
         # Find the SCO email
         sco_email = ActionMailer::Base.deliveries.find do |email|
-          email.to.include?('test@edu_sample.com')
+          email.to.include?('user@school.edu')
         end
         expect(sco_email).not_to be_nil
 

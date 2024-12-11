@@ -10,12 +10,14 @@ ONLY_526_JSON_CLASSIFICATION_CODE = 'string'
 RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :job do
   subject { described_class }
 
+  # This needs to be modernized (using allow)
   before do
     Sidekiq::Job.clear_all
+    Flipper.disable(:validate_saved_claims_with_json_schemer)
+    Flipper.disable(:disability_526_expanded_contention_classification)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_compensation_production_tester)
     Flipper.disable(:disability_compensation_fail_submission)
-    Flipper.disable(:disability_526_expanded_contention_classification)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
