@@ -153,7 +153,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       it 'sets the submission as failed' do
         allow(Rails.logger).to receive(:error)
         described_class.new.set_vha_completed_state(status, { 'submission_id' => form5655_submission.id })
-        expect(form5655_submission.failed?).to eq(true)
+        expect(form5655_submission.error_message).to eq("VHA set completed state: [\"#{id}\"]")
         expect(Rails.logger).to have_received(:error).with('Batch FSR Processing Failed', [id])
       end
     end
@@ -171,6 +171,12 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
       expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
       form5655_submission.register_failure(message)
       expect(form5655_submission.error_message).to eq(message)
+    end
+
+    it 'saves generic error message with call_location when message is blank' do
+      form5655_submission.register_failure(nil)
+      expect(form5655_submission.error_message).to
+      start_with('An unknown error occurred while submitting the form from call_location:')
     end
 
     context 'combined form' do
