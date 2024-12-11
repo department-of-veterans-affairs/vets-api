@@ -107,13 +107,13 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         item_index = JSON.parse(response.body)['data'].find_index { |item| item['attributes']['prescription_image'] }
         expect(item_index).not_to be_nil
       end
+
       context 'grouping medications' do
         before do
           Flipper.enable('mhv_medications_display_grouping')
         end
 
         it 'responds to GET #index by grouping medications and removes grouped medications from original list' do
-
           VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_grouped_prescriptions') do
             get '/my_health/v1/prescriptions?page=1&per_page=20'
           end
