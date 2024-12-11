@@ -75,7 +75,7 @@ RSpec.describe VBADocuments::UploadRemover, type: :job do
           allow(@objstore).to receive(:object).with(upload_old.guid).and_return(s3_object_old)
           allow(s3_object_old).to receive(:exists?).and_return(true)
           expect(@objstore).to receive(:delete).with(upload_old.guid)
-          expect(@objstore).not_to receive(:delete).with(upload_manually_removed.guid)
+          expect(@objstore).to receive(:delete).with(upload_manually_removed.guid)
           described_class.new.perform
           upload_old.reload
           expect(upload_old.s3_deleted).to be_truthy
