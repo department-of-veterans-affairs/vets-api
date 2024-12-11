@@ -29,8 +29,12 @@ The `FormSubmission` table contains user-submitted data, including PII and PHI. 
   - Use `benefits_intake_uuid` to identify and delete PDFs from each team's AWS S3 bucket.
 
 - **Trigger for Purge**:
+
   - Purge records where the status is `"vbms"`, marking the final stage of submission processing.
   - For records not reaching `"vbms"`, resolve via manual remediation or notify users.
+
+- **Definition of "Purge"**:
+  - Replace the `form_data` field with `nil` or empty values to remove sensitive data while retaining the structure of the record for metadata purposes.
 
 ### 4.2. Job Implementation
 
@@ -42,8 +46,19 @@ The `FormSubmission` table contains user-submitted data, including PII and PHI. 
     2. Purge sensitive data from identified records.
     3. Delete associated PDFs from S3.
 
-- **Delay Between Marking and Deleting**:
-  - Optionally mark records for deletion and delay the actual purge to allow recovery if necessary.
+- **ActiveSupport Notification for Deletion**:
+  - Emit an `ActiveSupport::Notification` event when deleting PII:
+    ```ruby
+    ActiveSupport::Notifications.instrument(
+      "pii.deleted",
+      {
+        record_type: "FormSubmission",
+        benefits_intake_uuid: form_submission.benefits_intake_uuid,
+        deleted_at: Time.current
+      }
+    )
+    ```
+  - This enables tracking, metrics, and integration with other systems for audit trails or further cleanup.
 
 ### 4.3. Testing Strategy
 
@@ -52,9 +67,14 @@ The `FormSubmission` table contains user-submitted data, including PII and PHI. 
   - Records with an `updated_at` older than 60 days and a `"vbms"` status are purged.
   - PDFs are correctly identified and deleted from S3.
   - Records not reaching `"vbms"` are skipped.
-- Write assertions to ensure metadata retention for purged records.
+- Write assertions to ensure `submission_date` and `benefits_intake_uuid` retention for purged records.
 
-### 4.4. Logging and Metrics
+### 4.4. Considerations for Delay Between Marking and Deleting
+
+- While the default approach is to delete records and PDFs immediately after they meet the criteria, consider the option to delay deletion by marking records for a brief period. This provides a buffer for potential recovery or downstream processing by other systems.
+- Explicit notifications or metrics can replace the need for marking if real-time tracking is implemented.
+
+### 4.5. Logging and Metrics
 
 - **Logs**:
 
@@ -76,7 +96,7 @@ The `FormSubmission` table contains user-submitted data, including PII and PHI. 
 - **Alerts**:
   - Set up alerts for job failures or anomalies (e.g., low purge counts).
 
-### 4.5. Communication and Documentation
+### 4.6. Communication and Documentation
 
 - **Stakeholders**:
 
