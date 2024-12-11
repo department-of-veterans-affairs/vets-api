@@ -16,12 +16,12 @@ RSpec.describe Vets::Model::Sortable do
 
     it 'raises an error if more than one attribute is provided' do
       expect { dummy_class.default_sort_by(name: :asc, age: :desc) }
-        .to raise_error(ArgumentError, "Only one attribute and direction can be provided in default_sort_by")
+        .to raise_error(ArgumentError, 'Only one attribute and direction can be provided in default_sort_by')
     end
 
     it 'raises an error if the direction is invalid' do
       expect { dummy_class.default_sort_by(name: :up) }
-        .to raise_error(ArgumentError, "Direction must be either :asc or :desc")
+        .to raise_error(ArgumentError, 'Direction must be either :asc or :desc')
     end
   end
 
@@ -55,15 +55,15 @@ RSpec.describe Vets::Model::Sortable do
 
     it 'compares objects in the specified direction' do
       dummy_class_with_data.default_sort_by(name: :desc)
-      expect(user1 <=> user2).to eq(1)  # 'Alice' > 'Bob' (because of :desc)
+      expect(user1 <=> user2).to eq(1) # 'Alice' > 'Bob' (because of :desc)
     end
 
     context 'when attribute is not comparable' do
       it 'raises an error' do
         name = OpenStruct.new(name: 'Alice')
         non_comparable_user = dummy_class_with_data.new(name, 21)
-        expect { non_comparable_user <=> non_comparable_user }
-        .to raise_error(ArgumentError, "Attribute 'name' is not comparable.")
+        expect { non_comparable_user <=> non_comparable_user.dup }
+          .to raise_error(ArgumentError, "Attribute 'name' is not comparable.")
       end
     end
   end
@@ -96,13 +96,13 @@ RSpec.describe Vets::Model::Sortable do
         users = [user1, user2, user3, user4]
         sorted_users = users.sort
 
-        expect(sorted_users).to eq([user1, user2, user3, user4])  # 'Alice' < 'Bob' < 'Charlie' < 'David'
+        expect(sorted_users).to eq([user1, user2, user3, user4]) # 'Alice' < 'Bob' < 'Charlie' < 'David'
       end
     end
 
     context 'when there is no default_sort_by set' do
-      it 'does not apply any sorting' do
-        class NoDefaultSort
+      let(:dummy_class_no_sort) do
+        Class.new do
           include Vets::Model::Sortable
 
           attr_accessor :name, :age
@@ -112,11 +112,13 @@ RSpec.describe Vets::Model::Sortable do
             @age = age
           end
         end
+      end
 
-        no_sort_user1 = NoDefaultSort.new('Alice', 30)
-        no_sort_user2 = NoDefaultSort.new('Bob', 25)
-        no_sort_user3 = NoDefaultSort.new('Charlie', 35)
-        no_sort_user4 = NoDefaultSort.new('David', 20)
+      it 'does not apply any sorting' do
+        no_sort_user1 = dummy_class_no_sort.new('Alice', 30)
+        no_sort_user2 = dummy_class_no_sort.new('Bob', 25)
+        no_sort_user3 = dummy_class_no_sort.new('Charlie', 35)
+        no_sort_user4 = dummy_class_no_sort.new('David', 20)
 
         no_sort_users = [no_sort_user1, no_sort_user2, no_sort_user3, no_sort_user4]
 
