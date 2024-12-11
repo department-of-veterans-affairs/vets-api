@@ -132,8 +132,9 @@ describe MPIData, :skip_mvi do
   end
 
   describe '#profile' do
-    subject { mpi_data.profile }
+    subject { mpi_data.profile(break_cache:) }
 
+    let(:break_cache) { false }
     let(:mpi_data) { MPIData.for_user(user.identity) }
 
     context 'when user is not loa3' do
@@ -151,38 +152,7 @@ describe MPIData, :skip_mvi do
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
       end
 
-      context 'and there is cached data for a successful response' do
-        let(:mpi_profile) { build(:mpi_profile_response) }
-        let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
-
-        before { mpi_data.cache(user.uuid, profile_response) }
-
-        it 'returns the cached data' do
-          expect(MPIData.find(user.uuid).response).to have_deep_attributes(profile_response)
-        end
-      end
-
-      context 'and there is cached data for a server error response' do
-        let(:profile_response) { create(:find_profile_server_error_response) }
-
-        before { mpi_data.cache(user.uuid, profile_response) }
-
-        it 'returns the cached data' do
-          expect(MPIData.find(user.uuid).response).to have_deep_attributes(profile_response)
-        end
-      end
-
-      context 'and there is cached data for a not found response' do
-        let(:profile_response) { create(:find_profile_not_found_response) }
-
-        before { mpi_data.cache(user.uuid, profile_response) }
-
-        it 'returns the cached data' do
-          expect(MPIData.find(user.uuid).response).to have_deep_attributes(profile_response)
-        end
-      end
-
-      context 'and there is not cached data for a response' do
+      shared_examples 'MPI profile query' do
         context 'and the response is successful' do
           let(:mpi_profile) { build(:mpi_profile_response) }
           let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
@@ -223,6 +193,49 @@ describe MPIData, :skip_mvi do
             subject
             expect(MPIData.find(user.icn)).to be(nil)
           end
+        end
+      end
+
+      context 'when break_cache is true' do
+        let(:break_cache) { true }
+
+        it_behaves_like 'MPI profile query'
+      end
+
+      context 'when break_cache is false' do
+        context 'and there is cached data for a successful response' do
+          let(:mpi_profile) { build(:mpi_profile_response) }
+          let(:profile_response) { create(:find_profile_response, profile: mpi_profile) }
+
+          before { mpi_data.cache(user.uuid, profile_response) }
+
+          it 'returns the cached data' do
+            expect(MPIData.find(user.uuid).response).to have_deep_attributes(profile_response)
+          end
+        end
+
+        context 'and there is cached data for a server error response' do
+          let(:profile_response) { create(:find_profile_server_error_response) }
+
+          before { mpi_data.cache(user.uuid, profile_response) }
+
+          it 'returns the cached data' do
+            expect(MPIData.find(user.uuid).response).to have_deep_attributes(profile_response)
+          end
+        end
+
+        context 'and there is cached data for a not found response' do
+          let(:profile_response) { create(:find_profile_not_found_response) }
+
+          before { mpi_data.cache(user.uuid, profile_response) }
+
+          it 'returns the cached data' do
+            expect(MPIData.find(user.uuid).response).to have_deep_attributes(profile_response)
+          end
+        end
+
+        context 'and there is no cached data' do
+          it_behaves_like 'MPI profile query'
         end
       end
     end
