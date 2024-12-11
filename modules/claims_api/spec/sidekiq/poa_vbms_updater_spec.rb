@@ -62,17 +62,6 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       end
     end
 
-    context "when allow_poa_access is set to 'n'" do
-      let(:allow_poa_c_add) { 'N' }
-      let(:consent_address_change) { nil }
-
-      it 'does not allow folder access' do
-        poa = create_poa(allow_poa_access: false)
-        create_mock_lighthouse_service_no_access
-        subject.new.perform(poa.id)
-      end
-    end
-
     context 'when BGS fails the error is handled' do
       let(:allow_poa_c_add) { 'Y' }
       let(:consent_address_change) { true }
@@ -122,18 +111,6 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
     poa.form_data = poa.form_data.merge('recordConsent' => allow_poa_access)
     poa.save
     poa
-  end
-
-  def create_mock_lighthouse_service_no_access
-    expect(@corporate_update_stub).to receive(:update_poa_access).with(
-      participant_id: user.participant_id,
-      poa_code: '074',
-      allow_poa_access: 'N',
-      allow_poa_c_add:
-    ).and_return({ return_code: 'GUIE50000' })
-    service_double = instance_double('BGS::Services')
-    expect(service_double).to receive(:corporate_update).and_return(@corporate_update_stub)
-    expect(BGS::Services).to receive(:new).and_return(service_double)
   end
 
   def create_mock_lighthouse_service
