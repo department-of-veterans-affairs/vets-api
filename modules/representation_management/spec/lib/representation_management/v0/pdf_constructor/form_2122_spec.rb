@@ -2,8 +2,10 @@
 
 require 'rails_helper'
 require_relative '../../../../support/pdf_matcher'
+require_relative '../../../../support/pdf_fill_helper'
 
 describe RepresentationManagement::V0::PdfConstructor::Form2122 do
+  include PdfFillHelper
   let(:accredited_organization) { create(:accredited_organization, name: 'Best VSO') }
   let(:representative) do
     create(:accredited_individual,
@@ -70,6 +72,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
                                      'v0',
                                      '2122_with_limitations.pdf')
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
+      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
     end
     # The Tempfile is automatically deleted after the block ends
   end
@@ -88,6 +91,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
                                      'v0',
                                      '2122_with_limitations_no_claimant.pdf')
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
+      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
     end
     # The Tempfile is automatically deleted after the block ends
   end
