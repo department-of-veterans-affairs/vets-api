@@ -1069,10 +1069,7 @@ describe 'PowerOfAttorney',
           after do |example|
             example.metadata[:response][:content] = {
               'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true).tap do |json|
-                  json[:data][:attributes]
-                    .merge!(id: '12e13134-7229-4e44-90ae-bcea2a4525fa', type: 'power-of-attorney-request')
-                end
+                example: JSON.parse(response.body, symbolize_names: true)
               }
             }
           end
