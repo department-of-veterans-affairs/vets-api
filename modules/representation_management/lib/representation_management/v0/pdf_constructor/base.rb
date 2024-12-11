@@ -169,7 +169,9 @@ module RepresentationManagement
 
         def fill_template_form(pdftk, data)
           tempfile = Tempfile.new
-          pdftk.fill_form(@template_path, tempfile.path, template_options(data), flatten: false)
+          # The flatten option on the next line determines if the pdf is editable and accessible or not.
+          # If flatten is false, the pdf is editable and accessible. If flatten is true, the pdf is not editable.
+          pdftk.fill_form(@template_path, tempfile.path, template_options(data), flatten: true)
           @template_path = tempfile.path
           tempfile.rewind
           tempfile
