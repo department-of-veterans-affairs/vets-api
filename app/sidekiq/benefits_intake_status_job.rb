@@ -139,7 +139,7 @@ class BenefitsIntakeStatusJob
     }
     call_location = caller_locations.first
 
-    if %w[21P-530V2 21P-530].include?(form_id)
+    if %w[21P-530EZ].include?(form_id)
       claim = SavedClaim::Burial.find(saved_claim_id)
       if claim
         Burials::NotificationEmail.new(claim.id).deliver(:error)

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Burials::ZeroSilentFailures::ManualRemediation do
-  let(:fake_claim) { FactoryBot.build(:burial_claim_v2) }
+  let(:fake_claim) { FactoryBot.build(:burial_claim) }
 
   context 'method override coverage' do
     it 'uses expected claim class' do
