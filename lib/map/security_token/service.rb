@@ -26,7 +26,7 @@ module MAP
       rescue Common::Exceptions::GatewayTimeout => e
         Rails.logger.error("#{config.logging_prefix} token failed, gateway timeout", application:, icn:)
         raise e
-      rescue Errors::ApplicationMismatchError => e
+      rescue Errors::ApplicationMismatchError, Errors::InvalidTokenDurationError => e
         Rails.logger.error(e.message, application:, icn:)
         raise e
       rescue Errors::MissingICNError => e
@@ -57,11 +57,17 @@ module MAP
 
       def parse_response(response, application, icn)
         response_body = response.body
+        if response_body['expires_in'].to_i > config.max_token_duration
+          raise Errors::InvalidTokenDurationError,
+                "#{config.logging_prefix} token failed, token duration exceeds maximum"
+        end
 
         {
           access_token: response_body['access_token'],
           expiration: Time.zone.now + response_body['expires_in']
         }
+      rescue Errors::InvalidTokenDurationError => e
+        raise e
       rescue => e
         message = "#{config.logging_prefix} token failed, response unknown"
         Rails.logger.error(message, application:, icn:)
