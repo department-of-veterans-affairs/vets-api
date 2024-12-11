@@ -33,10 +33,11 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
 
   context 'when send_zsf_notification_to_pega is successful' do
     it 'logs a successful notification send to Pega' do
-      job.send_zsf_notification_to_pega(forms[0])
+      job.send_zsf_notification_to_pega(forms[0], 'fake-template')
 
       # Expect our monitor to track the successful send
-      expect(job.monitor).to have_received(:track_send_zsf_notification_to_pega).with(forms[0].form_uuid)
+      expect(job.monitor).to have_received(:track_send_zsf_notification_to_pega).with(forms[0].form_uuid,
+                                                                                      'fake-template')
     end
   end
 
@@ -47,10 +48,11 @@ RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
     end
 
     it 'logs a failed notification send to Pega' do
-      job.send_zsf_notification_to_pega(forms[0])
+      job.send_zsf_notification_to_pega(forms[0], 'fake-template')
 
       # Expect our monitor to track the failed send
-      expect(job.monitor).to have_received(:track_failed_send_zsf_notification_to_pega).with(forms[0].form_uuid)
+      expect(job.monitor).to have_received(:track_failed_send_zsf_notification_to_pega).with(forms[0].form_uuid,
+                                                                                             'fake-template')
     end
   end
 end
