@@ -124,12 +124,12 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
 
         grouped_med_list = (JSON.parse(response.body)['data'])
         first_rx_w_grouped_med_list = grouped_med_list.find {|rx|
-          associated_rxs = rx['attributes']['grouped_medications'].present?
+          rx['attributes']['grouped_medications'].present?
         }
-        rx_num_of_grouped_rx = first_rx_w_grouped_med_list["attributes"]["grouped_medications"].first["prescription_number"]
+        rx_num_of_grouped_rx = first_rx_w_grouped_med_list['attributes']['grouped_medications'].first['prescription_number']
 
         expect(grouped_med_list.find { |rx|
-          rx['attributes']['prescription_number'] === rx_num_of_grouped_rx
+          rx['attributes']['prescription_number'] == rx_num_of_grouped_rx
         }).to be_falsey
       end
 

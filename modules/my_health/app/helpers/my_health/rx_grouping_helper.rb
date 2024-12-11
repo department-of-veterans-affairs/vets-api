@@ -54,7 +54,7 @@ module MyHealth
 
     def find_base_prescription(related_prescriptions, current_prescription)
       all_prescriptions = [current_prescription] + related_prescriptions
-      highest_prescription = all_prescriptions.max_by { |p| [p.prescription_number, p.ordered_date || Time.at(0)] }
+      highest_prescription = all_prescriptions.max_by { |p| [p.prescription_number, p.ordered_date || Time.zone.at(0)] }
 
       related_prescriptions.delete(highest_prescription)
       [highest_prescription, related_prescriptions]

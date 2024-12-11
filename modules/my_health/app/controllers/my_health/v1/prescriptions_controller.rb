@@ -15,9 +15,7 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
-        if Flipper.enabled?(:mhv_medications_display_grouping)
-          resource.data = group_prescriptions(resource.data)
-        end
+        Flipper.enabled?(:mhv_medications_display_grouping) ? resource.data = group_prescriptions(resource.data) : resource
         resource.data = filter_non_va_meds(resource.data)
         filter_count = set_filter_metadata(resource.data)
         renewal_params = 'Active,Expired'
