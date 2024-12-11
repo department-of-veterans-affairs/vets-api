@@ -11,6 +11,7 @@ class BackendServices
   end
 
   GI_BILL_STATUS = 'gibs'
+  DGIB = 'dgib'
 
   FACILITIES = 'facilities'
   HCA = 'hca'

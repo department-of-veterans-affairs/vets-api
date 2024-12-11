@@ -62,7 +62,8 @@ RSpec.describe 'V0::User', type: :request do
           BackendServices::SAVE_IN_PROGRESS,
           BackendServices::APPEALS_STATUS,
           BackendServices::IDENTITY_PROOFED,
-          BackendServices::VET360
+          BackendServices::VET360,
+          BackendServices::DGIB
         ].sort
       )
     end

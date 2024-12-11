@@ -30,6 +30,7 @@ module Users
       @list << BackendServices::ID_CARD if user.can_access_id_card?
       @list << BackendServices::IDENTITY_PROOFED if user.loa3?
       @list << BackendServices::VET360 if user.can_access_vet360?
+      @list << BackendServices::DGIB if user.authorize ::dgib, :access?
 
       @list
     end
