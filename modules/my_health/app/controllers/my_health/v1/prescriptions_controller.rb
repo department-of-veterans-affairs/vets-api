@@ -17,7 +17,9 @@ module MyHealth
         resource = collection_resource
         # add feature flag condition here
         # resource = true ? grouping_list(resource) : resource
-        resource.data = group_prescriptions(resource.data)
+        if Flipper.enabled?(:mhv_medications_display_grouping)
+          resource.data = group_prescriptions(resource.data)
+        end
         resource.data = filter_non_va_meds(resource.data)
         filter_count = set_filter_metadata(resource.data)
         renewal_params = 'Active,Expired'
