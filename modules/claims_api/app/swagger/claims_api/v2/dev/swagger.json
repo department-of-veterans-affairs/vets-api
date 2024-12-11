@@ -17546,7 +17546,8 @@
                         "HIV",
                         "ALCOHOLISM"
                       ],
-                      "procId": "3857415"
+                      "id": "12e13134-7229-4e44-90ae-bcea2a4525fa",
+                      "type": "power-of-attorney-request"
                     }
                   }
                 },
@@ -17828,10 +17829,15 @@
                               "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
                               "type": "boolean"
                             },
-                            "procId": {
-                              "description": "The process ID of the new Power of Attorney request.",
+                            "id": {
+                              "description": "The ID of the new Power of Attorney request.",
                               "type": "string",
-                              "example": "12345"
+                              "example": "12e13134-7229-4e44-90ae-bcea2a4525fa"
+                            },
+                            "type": {
+                              "description": "The type of Power of Attorney request.",
+                              "type": "string",
+                              "example": "power-of-attorney-request"
                             }
                           }
                         }
