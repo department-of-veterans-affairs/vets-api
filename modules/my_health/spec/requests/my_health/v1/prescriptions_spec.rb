@@ -114,7 +114,6 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         end
 
         it 'responds to GET #index by grouping medications and removes grouped medications from original list' do
-
           VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_grouped_prescriptions') do
             get '/my_health/v1/prescriptions?page=1&per_page=20'
           end
@@ -125,16 +124,16 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(JSON.parse(response.body)['data']).to be_truthy
 
           grouped_med_list = (JSON.parse(response.body)['data'])
-          first_rx_w_grouped_med_list = grouped_med_list.find do |rx|
+          first_rx = grouped_med_list.find do |rx|
             rx['attributes']['grouped_medications'].present?
           end
-          rx_num_of_grouped_rx = first_rx_w_grouped_med_list['attributes']['grouped_medications']
-          .first['prescription_number']
+          rx_num_of_grouped_rx = first_rx['attributes']['grouped_medications'].first['prescription_number']
           find_grouped_rx_in_base_list = grouped_med_list.find do |rx|
             rx['attributes']['prescription_number'] == rx_num_of_grouped_rx
           end
           expect(find_grouped_rx_in_base_list).to be_falsey
         end
+
         Flipper.disable('mhv_medications_display_grouping')
       end
 

@@ -33,7 +33,6 @@ module MyHealth
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
         options = { meta: resource.metadata.merge(filter_count) }
-
         options[:links] = pagination_links(resource) if is_using_pagination
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
