@@ -1,0 +1,177 @@
+{
+  "vaFileNumber": "12345678",
+  "veteranSocialSecurityNumber": {
+    "first": "123",
+    "second": "45",
+    "third": "6789"
+  },
+  "veteranFullName": {
+    "first": "Testy",
+    "middle": "Tester",
+    "last": "Testerson",
+    "middleInitial": "T"
+  },
+  "veteranDateOfBirth": {
+    "month": "11",
+    "day": "05",
+    "year": "1981"
+  },
+  "veteranServiceNumber": "987654321",
+   "email": "testy.testerson@gmail.com",
+   "veteranPhone": {
+    "first": "212",
+    "second": "345",
+    "third": "6789"
+  },
+  "veteranSecondaryPhone": "3133456789",
+  "additionalInformation": "Lorem ipsum dolor sit amet",
+  "eventTypes": {
+    "combat": true,
+    "mst": false,
+    "nonMst": true,
+    "other": false
+  },
+  "eventsDetails": [
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a",
+      "timing": "Summer of '70",
+      "eventOverflow": {
+        "value": "",
+        "extras_value": "Event Number: 1\n\nEvent Description: \n\nLorem ipsum dolor sit amet.\n\nEvent Location: \n\nabcdefghijklmn opqrstuvwxyz1234a\n\nEvent Date: \n\nSummer of '70"
+      }
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a",
+      "timing": "June 2007",
+      "eventOverflow": {
+        "value": "",
+        "extras_value": "Event Number: 2\n\nEvent Description: \n\nLorem ipsum dolor sit amet.\n\nEvent Location: \n\nabcdefghijklmn opqrstuvwxyz1234a\n\nEvent Date: \n\nJune 2007"
+      }
+    }
+  ],
+  "reports": {
+    "yes": true,
+    "no": false,
+    "restricted": true,
+    "unrestricted": false,
+    "neither": false,
+    "police": true,
+    "other": true
+  },
+  "reportsDetails": {
+    "police": "SVI, Dallas, TX, USA",
+    "other": "incident report"
+  },
+  "behaviors": {
+    "reassignment": true,
+    "absences": false,
+    "performance": true,
+    "consultations": false,
+    "episodes": true,
+    "medications": false,
+    "selfMedication": true,
+    "substances": false,
+    "appetite": true,
+    "pregnancy": false,
+    "screenings": true,
+    "socialEconomic": false,
+    "relationships": true,
+    "misconduct": false,
+    "otherBehavior": "Lorem"
+  },
+  "behaviorsDetails": {
+    "reassignment": "requested duty assignment",
+    "performance": "poor evaluations",
+    "episodes": "severe depression",
+    "selfMedication": "stopped treating headaches",
+    "appetite": "skipping meals",
+    "screenings": "positive tests",
+    "relationships": "separation",
+    "otherBehavior": "Lorem: Lorem ipsum dolor sit amet."
+  },
+  "evidence": {
+    "crisisCenter": true,
+    "counseling": true,
+    "family": true,
+    "faculty": true,
+    "police": true,
+    "medical": true,
+    "clergy": true,
+    "peers": true,
+    "journal": true,
+    "none": true,
+    "other": true,
+    "otherDetails": "photographic evidence"
+  },
+  "traumaTreatment": false,
+  "treatmentProviders": {
+    "privateCare": true,
+    "vetCenter": false,
+    "communityCare": false,
+    "vamc": true,
+    "cboc": false,
+    "mtf": true,
+    "none": false
+  },
+  "treatmentProvidersDetails": [
+    {
+      "facilityInfo": "Walter Reed, Bethesda, MD",
+      "treatmentMonth": "02",
+      "treatmentYear": "2014",
+      "providerOverflow": {
+        "value": "",
+        "extras_value": "Treatment Information Number: 1\n\nTreatment Facility Name and Location: \n\nWalter Reed, Bethesda, MD\n\nTreatment Date: 02-2014"
+      }
+    },
+    {
+      "facilityInfo": "Cedarwood Behavioral Health Center, 4321 Oak Ridge Rd, Maplewood, MN",
+      "treatmentYear": "2024",
+      "providerOverflow": {
+        "value": "",
+        "extras_value": "Treatment Information Number: 2\n\nTreatment Facility Name and Location: \n\nCedarwood Behavioral Health Center, 4321 Oak Ridge Rd, Maplewood, MN\n\nTreatment Date: XX-2024"
+      }
+    },
+    {
+      "facilityInfo": "Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL",
+      "noDates": true,
+      "providerOverflow": {
+        "value": "",
+        "extras_value": "Treatment Information Number: 3\n\nTreatment Facility Name and Location: \n\nSilver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL\n\nTreatment Date: Don't have date"
+      }
+    }
+  ],
+  "optionIndicator": {
+    "yes": false,
+    "no": false,
+    "revoke": false,
+    "notEnrolled": true
+  },
+  "signatureDate": {
+    "month": "01",
+    "day": "31",
+    "year": "2016"
+  },
+  "veteranSocialSecurityNumber1": {
+    "first": "123",
+    "second": "45",
+    "third": "6789"
+   },
+   "veteranSocialSecurityNumber2": {
+    "first": "123",
+    "second": "45",
+    "third": "6789"
+  },
+  "treatment": 1,
+  "noTreatment": 1,
+  "reportFiled": 0,
+  "noReportFiled": null,
+  "restrictedReport": 0,
+  "unrestrictedReport": null,
+  "neitherReport": null,
+  "policeReport": 3,
+  "otherReport": 4,
+  "signature": "/es/ Testy Testerson"
+}
+
