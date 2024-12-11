@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_12_04_222335) do
+ActiveRecord::Schema[7.1].define(version: 2024_12_06_163037) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1396,6 +1396,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_04_222335) do
     t.jsonb "callback_metadata"
     t.text "callback_klass"
     t.uuid "template_id"
+    t.text "to_ciphertext"
+    t.text "encrypted_kms_key"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
