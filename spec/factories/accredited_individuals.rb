@@ -36,6 +36,7 @@ FactoryBot.define do
     end
 
     trait :for_2122_2122a_pdf_fixture do
+      id { 'bd22d501-b3df-4a52-9229-5c25b4d2036a' }
       first_name { 'John' }
       middle_initial { 'M' }
       last_name { 'Representative' }
