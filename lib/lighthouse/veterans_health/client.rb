@@ -109,6 +109,11 @@ module Lighthouse
         return first_response unless next_page
 
         first_response.body['entry'] = collect_all_entries(next_page, first_response.body['entry'])
+
+        StatsD.gauge('api.lighthouse.something.goes.here.vitals_gauge',
+                     first_response.length,
+                     tags: %w[mhv mhv-accelerated-delivery])
+
         first_response
       end
 
