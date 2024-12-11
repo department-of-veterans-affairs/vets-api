@@ -1662,9 +1662,6 @@ features:
   mobile_v2_contact_info:
     actor_type: user
     description: For mobile app, enables ContactInformationV2 Service.
-  appointment_provider_id_logging:
-    actor_type: user
-    description: For mobile app, logs provider id for debugging
   mobile_push_register_logging:
     actor_type: user
     description: For mobile app, logs push register errors for debugging
