@@ -237,8 +237,8 @@ class MPIData < Common::RedisStore
     if mpi_response.cache?
       cache(user_key, mpi_response)
       @mvi_response = mpi_response
-      mpi_response.profile
     end
+    mpi_response.profile
   rescue ArgumentError, MPI::Errors::ArgumentError => e
     log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
     nil
