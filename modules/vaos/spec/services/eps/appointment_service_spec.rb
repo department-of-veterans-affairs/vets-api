@@ -5,18 +5,18 @@ require 'rails_helper'
 describe Eps::AppointmentService do
   subject(:service) { described_class.new(user) }
 
-  let(:user) { double('User', account_uuid: '1234') }
+  let(:icn) { '123ICN' }
+  let(:user) { double('User', account_uuid: '1234', icn:) }
   let(:successful_appt_response) do
     double('Response', status: 200, body: { 'count' => 1,
                                             'appointments' => [
                                               {
                                                 'id' => 'test-id',
                                                 'state' => 'booked',
-                                                'patientId' => patient_id
+                                                'patientId' => icn
                                               }
                                             ] })
   end
-  let(:patient_id) { 'test-patient-id' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
   describe 'get_appointments' do
@@ -33,7 +33,7 @@ describe Eps::AppointmentService do
       it 'returns the appointments scheduled' do
         exp_response = OpenStruct.new(successful_appt_response.body)
 
-        expect(service.get_appointments(patient_id:)).to eq(exp_response)
+        expect(service.get_appointments).to eq(exp_response)
       end
     end
 
@@ -51,7 +51,7 @@ describe Eps::AppointmentService do
       end
 
       it 'throws exception' do
-        expect { service.get_appointments(patient_id:) }.to raise_error(Common::Exceptions::BackendServiceException,
+        expect { service.get_appointments }.to raise_error(Common::Exceptions::BackendServiceException,
                                                                         /VA900/)
       end
     end
