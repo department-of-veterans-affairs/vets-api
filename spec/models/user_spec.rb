@@ -230,6 +230,56 @@ RSpec.describe User, type: :model do
       end
     end
 
+    describe 'validate_mpi_profile' do
+      let(:loa) { loa_three }
+      let(:id_theft_flag) { false }
+      let(:deceased_date) { nil }
+      let(:mpi_profile) { build(:mpi_profile, icn: user.icn, id_theft_flag:, deceased_date:) }
+
+      before do
+        allow_any_instance_of(MPIData).to receive(:query_mpi_profile)
+          .with(user_key: user.icn)
+          .and_return(mpi_profile)
+      end
+
+      it 'ignores the MPIData cache and calls MPI for a profile response' do
+        expect_any_instance_of(MPIData).not_to receive(:response_from_redis_or_service)
+        expect_any_instance_of(MPIData).to receive(:profile).with(break_cache: true)
+                                                            .and_return(mpi_profile)
+        subject.validate_mpi_profile
+      end
+
+      context 'when the user is not loa3' do
+        let(:loa) { loa_one }
+
+        it 'does not attempt to validate the user mpi profile' do
+          expect(subject.validate_mpi_profile).to be_nil
+        end
+      end
+
+      context 'when the MPI profile has a deceased date' do
+        let(:deceased_date) { '20020202' }
+
+        it 'includes an :mpi_death_flag in the response' do
+          expect(subject.validate_mpi_profile).to eq([:mpi_death_flag])
+        end
+      end
+
+      context 'when the MPI profile has an identity theft flag' do
+        let(:id_theft_flag) { true }
+
+        it 'includes an :mpi_death_flag in the response' do
+          expect(subject.validate_mpi_profile).to eq([:mpi_theft_flag])
+        end
+      end
+
+      context 'when the MPI profile has no issues' do
+        it 'returns an empty array' do
+          expect(subject.validate_mpi_profile).to eq([])
+        end
+      end
+    end
+
     describe 'invalidate_mpi_cache' do
       let(:cache_exists) { true }
 
