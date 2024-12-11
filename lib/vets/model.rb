@@ -7,6 +7,7 @@ module Bool; end
 class TrueClass; include Bool; end
 class FalseClass; include Bool; end
 
+# This will be a replacement for Common::Base
 module Vets
   module Model
     extend ActiveSupport::Concern
