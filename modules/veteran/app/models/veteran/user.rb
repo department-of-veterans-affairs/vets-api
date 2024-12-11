@@ -27,7 +27,7 @@ module Veteran
     end
 
     def current_poa_information
-      @current_poa_information ||= bgs_org_service.find_poa_by_participant_id(@user.participant_id)
+      @current_poa_information ||= local_bgs_service.find_poa_by_participant_id(@user.participant_id)
     end
 
     def previous_poa_code
