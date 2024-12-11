@@ -34,6 +34,10 @@ module MAP
         Settings.map_services.client_cert_path
       end
 
+      def provider_cert_path
+        Settings.map_services.provider_cert_path
+      end
+
       def service_name
         'map_security_token_service'
       end
@@ -66,10 +70,6 @@ module MAP
         'icn'
       end
 
-      def max_token_duration
-        900
-      end
-
       def logging_prefix
         '[MAP][SecurityToken][Service]'
       end
@@ -80,6 +80,10 @@ module MAP
 
       def client_assertion_certificate
         OpenSSL::X509::Certificate.new(File.read(client_cert_path))
+      end
+
+      def provider_certificate
+        OpenSSL::X509::Certificate.new(File.read(provider_cert_path))
       end
 
       def connection

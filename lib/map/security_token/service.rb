@@ -26,7 +26,7 @@ module MAP
       rescue Common::Exceptions::GatewayTimeout => e
         Rails.logger.error("#{config.logging_prefix} token failed, gateway timeout", application:, icn:)
         raise e
-      rescue Errors::ApplicationMismatchError, Errors::InvalidTokenDurationError => e
+      rescue Errors::ApplicationMismatchError => e
         Rails.logger.error(e.message, application:, icn:)
         raise e
       rescue Errors::MissingICNError => e
@@ -57,21 +57,30 @@ module MAP
 
       def parse_response(response, application, icn)
         response_body = response.body
-        if response_body['expires_in'].to_i > config.max_token_duration
-          raise Errors::InvalidTokenDurationError,
-                "#{config.logging_prefix} token failed, token duration exceeds maximum"
-        end
+        access_token = validate_map_token(response_body['access_token'])
 
         {
-          access_token: response_body['access_token'],
+          access_token:,
           expiration: Time.zone.now + response_body['expires_in']
         }
-      rescue Errors::InvalidTokenDurationError => e
+      rescue JWT::VerificationError => e
+        message = "#{config.logging_prefix} token failed, JWT verification error"
+        Rails.logger.error(message, application:, icn:)
         raise e
       rescue => e
         message = "#{config.logging_prefix} token failed, response unknown"
         Rails.logger.error(message, application:, icn:)
         raise e, "#{message}, application: #{application}, icn: #{icn}"
+      end
+
+      def validate_map_token(encoded_token)
+        # waiting for MAP RS512 certificate
+        # public_cert = config.provider_certificate
+        public_cert = OpenSSL::PKey::RSA.new(2048).public_key
+        JWT.decode(encoded_token, public_cert, true, algorithm: 'RS512')
+        # potentially add more validation here
+
+        access_token
       end
 
       def client_id_from_application(application)
