@@ -18,6 +18,11 @@ module EVSS
       attribute :responses, Array[EVSS::PPIU::PaymentInformation]
 
       def initialize(status, response = nil)
+        # This is temporary until EVSS::Response is converted to Vets::Response
+        response.body['responses'].map! do |payment_information_response|
+          EVSS::PPIU::PaymentInformation.new(payment_information_response)
+        end
+
         super(status, response.body) if response
       end
     end
