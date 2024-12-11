@@ -108,7 +108,11 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(item_index).not_to be_nil
       end
 
-      it 'responds to GET #index, groups medications' do
+      before do
+        Flipper.enable('mhv_medications_display_grouping')
+      end
+
+      it 'responds to GET #index by grouping medications and removes grouped medications from original list' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_grouped_prescriptions') do
           get '/my_health/v1/prescriptions?page=1&per_page=20'
         end
@@ -128,6 +132,8 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           rx['attributes']['prescription_number'] === rx_num_of_grouped_rx
         }).to be_falsey
       end
+
+      Flipper.disable('mhv_medications_display_grouping')
 
       it 'responds to GET #get_prescription_image with image' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_prescription_image_v1') do
