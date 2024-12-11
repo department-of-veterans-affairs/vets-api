@@ -37,7 +37,7 @@ module VAOS
 
       def find_practitioner_id(practitioner)
         practitioner[:identifier]&.each do |i|
-          return i[:value].tr('^0-9', '') if i[:system].include? 'us-npi'
+          return i[:value]&.tr('^0-9', '') if i[:system].include? 'us-npi'
         end
         nil
       end
