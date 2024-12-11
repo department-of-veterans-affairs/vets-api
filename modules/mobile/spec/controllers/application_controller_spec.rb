@@ -166,25 +166,17 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
       end
 
       context 'with Authentication-Method header value of SIS' do
-        let(:session) { create(:oauth_session, user_account:) }
-        let(:user_account) { create(:user_account) }
-        let(:access_token) do
-          create(:access_token, audience: ['vamobile'], session_handle: session.handle, user_uuid: user_account.id)
-        end
+        let(:access_token) { create(:access_token, audience: ['vamobile']) }
         let(:bearer_token) { SignIn::AccessTokenJwtEncoder.new(access_token:).perform }
-        let!(:user) { create(:user, :loa3, uuid: user_account.id) }
+        let!(:user) { create(:user, :loa3, uuid: access_token.user_uuid) }
         let(:deceased_date) { nil }
         let(:id_theft_flag) { false }
-        let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:, icn: user_account.icn) }
-        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+        let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:) }
 
         before do
           request.headers['Authorization'] = "Bearer #{bearer_token}"
           request.headers['Authentication-Method'] = 'SIS'
-          allow_any_instance_of(MPI::Service)
-            .to receive(:find_profile_by_identifier)
-            .with(identifier: user_account.icn, identifier_type: MPI::Constants::ICN)
-            .and_return(find_profile_response)
+          # allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile)
         end
 
         it 'uses SIS session authentication' do

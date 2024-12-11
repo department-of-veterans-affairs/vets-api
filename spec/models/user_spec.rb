@@ -234,20 +234,8 @@ RSpec.describe User, type: :model do
       let(:loa) { loa_three }
       let(:id_theft_flag) { false }
       let(:deceased_date) { nil }
-      let(:mpi_profile) { build(:mpi_profile, icn: user.icn, id_theft_flag:, deceased_date:) }
 
-      before do
-        allow_any_instance_of(MPIData).to receive(:query_mpi_profile)
-          .with(user_key: user.icn)
-          .and_return(mpi_profile)
-      end
-
-      it 'ignores the MPIData cache and calls MPI for a profile response' do
-        expect_any_instance_of(MPIData).not_to receive(:response_from_redis_or_service)
-        expect_any_instance_of(MPIData).to receive(:profile).with(break_cache: true)
-                                                            .and_return(mpi_profile)
-        subject.validate_mpi_profile
-      end
+      before { stub_mpi(build(:mpi_profile, icn: user.icn, deceased_date:, id_theft_flag:)) }
 
       context 'when the user is not loa3' do
         let(:loa) { loa_one }

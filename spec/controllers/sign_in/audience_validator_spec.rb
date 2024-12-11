@@ -15,26 +15,14 @@ RSpec.describe SignIn::AudienceValidator do
   let(:mobile_client_id) { 'mobile123' }
   let(:invalid_client_id) { 'invalid' }
 
-  let(:session) { create(:oauth_session, user_account:) }
-  let(:user_account) { create(:user_account) }
-  let(:valid_access_token) do
-    create(:access_token, user_uuid: user_account.id, session_handle: session.handle,
-                          audience: [web_client_id, mobile_client_id])
-  end
-  let(:invalid_access_token) do
-    create(:access_token, user_uuid: user_account.id, session_handle: session.handle, audience: [invalid_client_id])
-  end
+  let(:valid_access_token) { create(:access_token, audience: [web_client_id, mobile_client_id]) }
+  let(:invalid_access_token) { create(:access_token, audience: [invalid_client_id]) }
   let!(:user) { create(:user, :loa3, uuid: valid_access_token.user_uuid) }
   let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: valid_access_token).perform }
-  let(:find_profile_response) { create(:find_profile_response, profile: build(:mpi_profile, icn: user_account.icn)) }
 
   describe '#authenticate' do
     before do
       request.cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] = access_token_cookie
-      allow_any_instance_of(MPI::Service)
-        .to receive(:find_profile_by_identifier)
-        .with(identifier: user_account.icn, identifier_type: MPI::Constants::ICN)
-        .and_return(find_profile_response)
     end
 
     context 'with a valid audience' do
