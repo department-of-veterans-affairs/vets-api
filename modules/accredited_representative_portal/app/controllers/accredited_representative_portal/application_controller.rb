@@ -11,7 +11,13 @@ module AccreditedRepresentativePortal
     before_action :verify_pilot_enabled_for_user
     around_action :handle_exceptions
 
+    rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+
     private
+
+    def user_not_authorized
+      render HttpErrorResponseBuilder.error_response(:unauthorized)
+    end
 
     def handle_exceptions
       yield

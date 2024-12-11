@@ -1844,8 +1844,9 @@ vaos:
     scopes: "care-nav"
 
 accredited_representative_portal:
-  pilot_users_email_poa_codes: ~
-  
+  pilot_user_email_poa_codes: ~
+
+ 
 banners:
   drupal_username: banners_api
   drupal_password: test
