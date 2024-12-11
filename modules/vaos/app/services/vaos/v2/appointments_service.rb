@@ -733,6 +733,8 @@ module VAOS
           modality = 'communityCare'
         end
 
+        Rails.logger.error("VAOS appointment id #{appointment[:id]} modality cannot be determined.") if modality.nil?
+
         appointment[:modality] = modality
       end
 

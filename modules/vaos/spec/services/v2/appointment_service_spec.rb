@@ -1701,5 +1701,14 @@ describe VAOS::V2::AppointmentsService do
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('communityCare')
     end
+
+    it 'test' do
+      allow(Rails.logger).to receive(:error).at_least(:once)
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'none'
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to be_nil
+      expect(Rails.logger).to have_received(:error).at_least(:once)
+    end
   end
 end
