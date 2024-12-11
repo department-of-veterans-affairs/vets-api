@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'decision_reviews/v1/service'
 
-SUBCLASS_INFO = {
+ENGINE_SUBCLASS_INFO = {
   SavedClaim::SupplementalClaim => { service_method: 'get_supplemental_claim',
                                      evidence_service_method: 'get_supplemental_claim_upload',
                                      statsd_prefix: 'worker.decision_review.saved_claim_sc_status_updater',
@@ -29,15 +29,15 @@ RSpec.shared_context 'status updater job context' do |subclass|
   let(:guid1) { SecureRandom.uuid }
   let(:guid2) { SecureRandom.uuid }
   let(:guid3) { SecureRandom.uuid }
-  let(:other_subclass1) { SUBCLASS_INFO.keys.excluding(subclass)[0] }
-  let(:other_subclass2) { SUBCLASS_INFO.keys.excluding(subclass)[1] }
-  let(:service_method) { SUBCLASS_INFO[subclass][:service_method].to_sym }
-  let(:other_service_method1) { SUBCLASS_INFO[other_subclass1][:service_method].to_sym }
-  let(:other_service_method2) { SUBCLASS_INFO[other_subclass2][:service_method].to_sym }
+  let(:other_subclass1) { ENGINE_SUBCLASS_INFO.keys.excluding(subclass)[0] }
+  let(:other_subclass2) { ENGINE_SUBCLASS_INFO.keys.excluding(subclass)[1] }
+  let(:service_method) { ENGINE_SUBCLASS_INFO[subclass][:service_method].to_sym }
+  let(:other_service_method1) { ENGINE_SUBCLASS_INFO[other_subclass1][:service_method].to_sym }
+  let(:other_service_method2) { ENGINE_SUBCLASS_INFO[other_subclass2][:service_method].to_sym }
 
-  let(:statsd_prefix) { SUBCLASS_INFO[subclass][:statsd_prefix] }
-  let(:log_prefix) { SUBCLASS_INFO[subclass][:log_prefix] }
-  let(:service_tag) { SUBCLASS_INFO[subclass][:service_tag] }
+  let(:statsd_prefix) { ENGINE_SUBCLASS_INFO[subclass][:statsd_prefix] }
+  let(:log_prefix) { ENGINE_SUBCLASS_INFO[subclass][:log_prefix] }
+  let(:service_tag) { ENGINE_SUBCLASS_INFO[subclass][:service_tag] }
 
   let(:response_complete) do
     response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('HLR-SHOW-RESPONSE-200_V2').to_json) # deep copy
@@ -226,7 +226,7 @@ RSpec.shared_examples 'status updater job when forms include evidence' do |subcl
     instance_double(Faraday::Response, body: response)
   end
 
-  let(:evidence_service_method) { SUBCLASS_INFO[subclass][:evidence_service_method].to_sym }
+  let(:evidence_service_method) { ENGINE_SUBCLASS_INFO[subclass][:evidence_service_method].to_sym }
 
   context 'SavedClaim records are present with completed status in LH and have associated evidence uploads' do
     let(:guid4) { SecureRandom.uuid }
