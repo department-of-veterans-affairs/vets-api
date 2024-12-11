@@ -17,7 +17,6 @@ describe Eps::AppointmentService do
                                               }
                                             ] })
   end
-  let(:patient_id) { 'test-patient-id' }
   let(:referral_id) { 'test-referral-id' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
@@ -27,7 +26,7 @@ describe Eps::AppointmentService do
   end
 
   describe 'get_appointments' do
-    context 'when requesting appointments for a given patient_id' do
+    context 'when requesting appointments for a logged in user' do
       before do
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_appt_response)
       end
@@ -61,11 +60,12 @@ describe Eps::AppointmentService do
 
   describe 'create_draft_appointment' do
     let(:successful_draft_appt_response) do
-      double('Response', status: 200, body: { 'patientId' => 'test-patient-id',
-                                              'referralId' => 'test-referral-id' })
+      double('Response', status: 200, body: { 'id' => icn,
+                                              'state' => 'draft',
+                                              'patientId' => 'test-patient-id'})
     end
 
-    context 'when creating draft appointment for a given patient_id & referral_id' do
+    context 'when creating draft appointment for a given referral_id' do
       before do
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_draft_appt_response)
       end
@@ -73,7 +73,7 @@ describe Eps::AppointmentService do
       it 'returns the appointments scheduled' do
         exp_response = OpenStruct.new(successful_draft_appt_response.body)
 
-        expect(service.create_draft_appointment(patient_id:, referral_id:)).to eq(exp_response)
+        expect(service.create_draft_appointment(referral_id:)).to eq(exp_response)
       end
     end
 
@@ -92,8 +92,7 @@ describe Eps::AppointmentService do
 
       it 'throws exception' do
         expect do
-          service.create_draft_appointment(patient_id:,
-                                           referral_id:)
+          service.create_draft_appointment(referral_id:)
         end.to raise_error(Common::Exceptions::BackendServiceException,
                            /VA900/)
       end

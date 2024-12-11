@@ -18,7 +18,7 @@ module Eps
     #
     # @return OpenStruct response from EPS create draft appointment endpoint
     #
-    def create_draft_appointment(patient_id:, referral_id:)
+    def create_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
                          { patientId: patient_id, referralId: referral_id }, headers)
       OpenStruct.new(response.body)
