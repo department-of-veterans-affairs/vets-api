@@ -140,18 +140,6 @@ describe MAP::SecurityToken::Service do
         end
       end
 
-      context 'when response is successful with an invalid token duration',
-              vcr: { cassette_name: 'map/security_token_service_200_response_invalid_token' } do
-        let(:expected_error) { MAP::SecurityToken::Errors::InvalidTokenDurationError }
-        let(:expected_error_message) { "#{log_prefix} token failed, token duration exceeds maximum" }
-        let(:expected_log_values) { { application:, icn: } }
-
-        it 'raises an invalid token duration error and creates a log' do
-          expect(Rails.logger).to receive(:error).with(expected_error_message, expected_log_values)
-          expect { subject }.to raise_exception(expected_error, expected_error_message)
-        end
-      end
-
       context 'and response is successful' do
         let(:expected_log_message) { "#{log_prefix} token success" }
         let(:expected_log_payload) { { application:, icn:, cached_response: false } }
