@@ -6,10 +6,11 @@ module VANotify
   module NotificationCallback
     class SavedClaim < ::VANotify::NotificationCallback::Default
 
-    def call
-      puts 'TEST'
-      puts klass
-    end
+      def call
+        puts 'TEST'
+        puts klass
+      end
 
+    end
   end
 end

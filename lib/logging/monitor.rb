@@ -36,7 +36,7 @@ module Logging
       end
     end
 
-    alias :monitor :track_request
+    alias :record :track_request
 
     private
 

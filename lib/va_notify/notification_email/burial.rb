@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'va_notify/notification_callback/burials'
 require 'va_notify/notification_email/saved_claim'
 
 # Form 21P-530EZ
@@ -13,6 +14,7 @@ module Burials
 
     private
 
+    # @see VANotify::NotificationEmail::SavedClaim#claim_class
     def claim_class
       SavedClaim::Burial
     end
@@ -38,6 +40,11 @@ module Burials
       }
 
       default.merge(burials)
+    end
+
+    # @see VANotify::NotificationEmail::SavedClaim#callback_class
+    def callback_klass
+      "#{Burials::NotificationCallback}"
     end
   end
 end
