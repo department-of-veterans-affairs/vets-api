@@ -167,6 +167,9 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
+  champva_multiple_stamp_retry:
+    actor_type: user
+    description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
@@ -220,6 +223,10 @@ features:
   claim_letters_access:
     actor_type: user
     description: Enables users to access the claim letters page
+    enable_in_development: true
+  claims_api_special_issues_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables special issues updater to use local_bgs
     enable_in_development: true
   claims_api_flash_updater_uses_local_bgs:
     actor_type: user
