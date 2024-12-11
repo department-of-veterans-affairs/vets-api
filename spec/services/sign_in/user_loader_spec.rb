@@ -57,20 +57,11 @@ RSpec.describe SignIn::UserLoader do
             auth_broker:,
             client_id: }
         end
-        let(:identifier) { user_icn }
         let(:deceased_date) { nil }
         let(:id_theft_flag) { false }
-        let(:mpi_profile) do
-          build(:mpi_profile, icn: user_icn, edipi:, vha_facility_ids:, deceased_date:, id_theft_flag:)
-        end
-        let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
 
         before do
-          stub_mpi(build(:mpi_profile, edipi:, icn: user_icn, vha_facility_ids:))
-          allow_any_instance_of(MPI::Service)
-            .to receive(:find_profile_by_identifier)
-            .with(identifier:, identifier_type: MPI::Constants::ICN)
-            .and_return(find_profile_response)
+          stub_mpi(build(:mpi_profile, edipi:, icn: user_icn, deceased_date:, id_theft_flag:, vha_facility_ids:))
         end
 
         context 'and user is authenticated with dslogon' do
