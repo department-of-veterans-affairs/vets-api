@@ -107,33 +107,35 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         item_index = JSON.parse(response.body)['data'].find_index { |item| item['attributes']['prescription_image'] }
         expect(item_index).not_to be_nil
       end
-
-      before do
-        Flipper.enable('mhv_medications_display_grouping')
-      end
-
-      it 'responds to GET #index by grouping medications and removes grouped medications from original list' do
-        VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_grouped_prescriptions') do
-          get '/my_health/v1/prescriptions?page=1&per_page=20'
+      context 'grouping medications' do
+        before do
+          Flipper.enable('mhv_medications_display_grouping')
         end
 
-        expect(response).to be_successful
-        expect(response.body).to be_a(String)
-        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
-        expect(JSON.parse(response.body)['data']).to be_truthy
+        it 'responds to GET #index by grouping medications and removes grouped medications from original list' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_grouped_prescriptions') do
+            get '/my_health/v1/prescriptions?page=1&per_page=20'
+          end
 
-        grouped_med_list = (JSON.parse(response.body)['data'])
-        first_rx_w_grouped_med_list = grouped_med_list.find {|rx|
-          rx['attributes']['grouped_medications'].present?
-        }
-        rx_num_of_grouped_rx = first_rx_w_grouped_med_list['attributes']['grouped_medications'].first['prescription_number']
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+          expect(JSON.parse(response.body)['data']).to be_truthy
 
-        expect(grouped_med_list.find { |rx|
-          rx['attributes']['prescription_number'] == rx_num_of_grouped_rx
-        }).to be_falsey
+          grouped_med_list = (JSON.parse(response.body)['data'])
+          first_rx_w_grouped_med_list = grouped_med_list.find do |rx|
+            rx['attributes']['grouped_medications'].present?
+          end
+          rx_num_of_grouped_rx = first_rx_w_grouped_med_list['attributes']['grouped_medications'].first['prescription_number']
+          find_grouped_rx_in_base_list = grouped_med_list.find do |rx|
+            rx['attributes']['prescription_number'] == rx_num_of_grouped_rx
+          end
+
+          expect(find_grouped_rx_in_base_list).to be_falsey
+        end
+        Flipper.disable('mhv_medications_display_grouping')
       end
 
-      Flipper.disable('mhv_medications_display_grouping')
 
       it 'responds to GET #get_prescription_image with image' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_prescription_image_v1') do
