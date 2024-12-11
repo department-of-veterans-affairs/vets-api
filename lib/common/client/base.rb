@@ -73,9 +73,9 @@ module Common
         config.service_name
       end
 
-      def connection
+      def connection(options: {})
         @connection ||= lambda do
-          connection = config.connection
+          connection = config.connection(options:)
           handlers = connection.builder.handlers
           adapter = connection.builder.adapter
 
@@ -106,8 +106,9 @@ module Common
         Datadog::Tracing.active_span&.set_tag('common_client_service', service_name)
         sanitize_headers!(method, path, params, headers)
         raise_not_authenticated if headers.keys.include?('Token') && headers['Token'].nil?
-        connection.send(method.to_sym, path, params) do |request|
+        connection(options:).send(method.to_sym, path, params) do |request|
           request.headers.update(headers)
+          options.delete(:settings)
           options.each { |option, value| request.options.send("#{option}=", value) }
         end.env
       rescue Common::Exceptions::BackendServiceException => e

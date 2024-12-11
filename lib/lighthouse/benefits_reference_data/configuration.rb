@@ -32,9 +32,8 @@ module BenefitsReferenceData
     ##
     # @return [Hash] The basic headers required for any benefits_reference_data API call.
     # options: {api_key: 'asdf'}
-    def self.base_request_headers(key = nil)
-      debugger
-      key ||= Settings.lighthouse.api_key
+    def self.base_request_headers
+      key = Settings.lighthouse.api_key
 
       raise "No api_key set for benefits_reference_data. Please set 'lighthouse.api_key'" if key.nil?
 
@@ -46,8 +45,8 @@ module BenefitsReferenceData
     #
     # @return [Faraday::Connection] a Faraday connection instance.
     #
-    def connection
-      @conn ||= Faraday.new(base_path, headers: base_request_headers, request: request_options) do |faraday|
+    def connection(options: {})
+      @conn ||= Faraday.new(base_path(options[:settings]), headers: base_request_headers, request: request_options) do |faraday|
         faraday.use      :breakers
         faraday.use      Faraday::Response::RaiseError
 

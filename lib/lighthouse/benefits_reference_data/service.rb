@@ -31,10 +31,13 @@ module BenefitsReferenceData
     # @return [Faraday::Response]
     #
     def get_data(path:, params: {}, options: {})
-      debugger
       headers = config.base_request_headers
+
+      # override api key if sent in options
+      headers['apiKey'] = options[:api_key] if options[:api_key]
+      settings = options[:settings] if options[:settings]
       begin
-        response = perform :get, path, params, headers
+        response = perform :get, path, params, headers, {settings:}
       rescue => e
         raise BenefitsReferenceData::ServiceException.new(e), 'Lighthouse Error'
       end
