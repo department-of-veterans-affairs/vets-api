@@ -68,7 +68,7 @@ module ClaimsApi
           render json: res, status: :ok
         end
 
-        def create
+        def create # rubocop:disable Metrics/MethodLength
           # validate target veteran exists
           target_veteran
 
@@ -94,7 +94,12 @@ module ClaimsApi
                                                                              bgs_form_attributes.deep_symbolize_keys,
                                                                              user_profile&.profile&.participant_id,
                                                                              :poa).submit_request
-            form_attributes['procId'] = res['procId']
+            claimant_icn = form_attributes.dig('claimant', 'claimantId')
+            poa_request = ClaimsApi::PowerOfAttorneyRequest.create!(proc_id: res['procId'],
+                                                                    veteran_icn: params[:veteranId],
+                                                                    claimant_icn:, poa_code:)
+            form_attributes['id'] = poa_request.id
+            form_attributes['type'] = 'power-of-attorney-request'
           end
 
           # return only the form information consumers provided
