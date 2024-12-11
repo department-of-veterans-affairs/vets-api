@@ -204,6 +204,54 @@ module VAOS
         facility_info[:timezone]&.[](:time_zone_id)
       end
 
+      def normalize_eps_appointment(appt)
+        {
+          id: appt[:id].to_s,
+          status: map_state_to_status(appt[:state]),
+          patientIcn: appt[:patientId],
+          created: appt.dig(:appointmentDetails, :lastRetrieved),
+          requestedPeriods: [
+            {
+              start: appt.dig(:appointmentDetails, :start),
+              end: calculate_end_time(appt.dig(:appointmentDetails, :start))
+            }
+          ].compact,
+          locationId: appt[:locationId],
+          clinic: appt[:clinic],
+          contact: appt[:contact]
+        }.compact
+      end
+
+      # rubocop:disable Lint/DuplicateBranch
+      def map_state_to_status(state)
+        case state&.downcase
+        when 'draft'
+          'proposed'
+        when 'submitted'
+          'booked'
+        else
+          'proposed'
+        end
+      end
+
+      # rubocop:enable Lint/DuplicateBranch
+
+      def calculate_end_time(start_time)
+        return nil unless start_time
+
+        Time.zone.parse(start_time) + 60.minutes
+      end
+
+      def merge_appointments(new_appointments, basic_appointments)
+        normalized_new = new_appointments[:appointments].map { |appt| normalize_eps_appointment(appt) }
+        basic_data = basic_appointments[:data].is_a?(Array) ? basic_appointments[:data] : [basic_appointments[:data]]
+        existing_ids = basic_data.to_set { |a| a[:referralId] }
+        merged_data = basic_data + normalized_new.reject { |a| existing_ids.include?(a[:referralId]) }
+        sorted_data = merged_data.sort_by { |appt| appt.dig(:requestedPeriods, 0, :start) || '' }
+
+        { data: sorted_data }
+      end
+
       memoize :get_facility_timezone_memoized
 
       private
@@ -234,6 +282,7 @@ module VAOS
           { message:, status:, icn: sanitized_icn, context: }
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
