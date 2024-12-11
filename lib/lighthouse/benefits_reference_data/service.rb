@@ -30,7 +30,8 @@ module BenefitsReferenceData
     #
     # @return [Faraday::Response]
     #
-    def get_data(path:, params: {})
+    def get_data(path:, params: {}, options: {})
+      debugger
       headers = config.base_request_headers
       begin
         response = perform :get, path, params, headers

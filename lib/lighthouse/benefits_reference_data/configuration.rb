@@ -14,8 +14,8 @@ module BenefitsReferenceData
     ##
     # @return [String] Base path for benefits_reference_data URLs.
     #
-    def base_path
-      settings = Settings.lighthouse.benefits_reference_data
+    def base_path(settings)
+      settings ||= Settings.lighthouse.benefits_reference_data
       url = settings.url
       path = settings.path
       version = settings.version
@@ -31,9 +31,11 @@ module BenefitsReferenceData
 
     ##
     # @return [Hash] The basic headers required for any benefits_reference_data API call.
-    #
-    def self.base_request_headers
-      key = Settings.lighthouse.api_key
+    # options: {api_key: 'asdf'}
+    def self.base_request_headers(key = nil)
+      debugger
+      key ||= Settings.lighthouse.api_key
+
       raise "No api_key set for benefits_reference_data. Please set 'lighthouse.api_key'" if key.nil?
 
       super.merge('apiKey' => key)
