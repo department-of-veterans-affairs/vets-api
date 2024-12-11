@@ -89,7 +89,7 @@ module ClaimsApi
       end
 
       def tracked_item_service
-        @tracked_item_service ||= TrackedItemService.new(
+        @tracked_item_service ||= ClaimsApi::TrackedItemService.new(
           external_uid: target_veteran.participant_id,
           external_key: target_veteran.participant_id
         )

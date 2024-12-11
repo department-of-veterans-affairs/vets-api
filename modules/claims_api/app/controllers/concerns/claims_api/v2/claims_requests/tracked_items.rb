@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'bgs_service/tracked_item_service'
 module ClaimsApi
   module V2
     module ClaimsRequests
