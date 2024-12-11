@@ -45,6 +45,6 @@ jobs:
           destination_repo: 'department-of-veterans-affairs/platform-atlas'
           destination_folder: '/lib/codeowners/vets-api'
           destination_branch: 'master'
-          user_email: 'devops@va.gov'
+          user_email: '70344339+va-vsp-bot@users.noreply.github.com'
           user_name: 'va-vsp-bot'
           commit_message: 'Auto update Atlas with Vets-API CODEOWNERS'
