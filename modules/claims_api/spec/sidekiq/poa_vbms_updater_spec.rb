@@ -15,6 +15,11 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
                else
                  BGS::Services
                end
+      @corporate_update_stub = if flipped
+                                 @clazz.new(external_uid: 'uid', external_key: 'key')
+                               else
+                                 @clazz.new(external_uid: 'uid', external_key: 'key').corporate_update
+                               end
     end
 
     let(:user) { FactoryBot.create(:user, :loa3) }
@@ -120,28 +125,26 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   end
 
   def create_mock_lighthouse_service_no_access
-    corporate_update_stub = @clazz.new(external_uid: 'uid', external_key: 'key').corporate_update
-    expect(corporate_update_stub).to receive(:update_poa_access).with(
+    expect(@corporate_update_stub).to receive(:update_poa_access).with(
       participant_id: user.participant_id,
       poa_code: '074',
       allow_poa_access: 'N',
       allow_poa_c_add:
     ).and_return({ return_code: 'GUIE50000' })
     service_double = instance_double('BGS::Services')
-    expect(service_double).to receive(:corporate_update).and_return(corporate_update_stub)
+    expect(service_double).to receive(:corporate_update).and_return(@corporate_update_stub)
     expect(BGS::Services).to receive(:new).and_return(service_double)
   end
 
   def create_mock_lighthouse_service
-    corporate_update_stub = @clazz.new(external_uid: 'uid', external_key: 'key').corporate_update
-    expect(corporate_update_stub).to receive(:update_poa_access).with(
+    expect(@corporate_update_stub).to receive(:update_poa_access).with(
       participant_id: user.participant_id,
       poa_code: '074',
       allow_poa_access: 'Y',
       allow_poa_c_add:
     ).and_return({ return_code: 'GUIE50000' })
     service_double = instance_double('BGS::Services')
-    expect(service_double).to receive(:corporate_update).and_return(corporate_update_stub)
+    expect(service_double).to receive(:corporate_update).and_return(@corporate_update_stub)
     expect(BGS::Services).to receive(:new).and_return(service_double)
   end
 
