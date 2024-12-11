@@ -311,19 +311,18 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       context 'prescription documentation' do
         it 'responds to GET #index of prescription documentation' do
           VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/13650541/documentation?ndc=71205042524'
+            get '/my_health/v1/prescriptions/21296515/documentation'
           end
-
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response.body).to be_a(String)
           attrs = JSON.parse(response.body)['data']['attributes']
-          expect(attrs['html']).to include('<h1>Ibuprofen</h1>')
+          expect(attrs['html']).to include('<h1>Somatropin</h1>')
         end
 
         it 'responds with error when the API unable to find documentation for NDC' do
           VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/13650541/documentation?ndc=24'
+            get '/my_health/v1/prescriptions/13650541/documentation'
           end
           expect(response).to have_http_status(:service_unavailable)
           error = JSON.parse(response.body)['error']
@@ -333,7 +332,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         it 'responds with not_found when the feature is disabled' do
           Flipper.disable(:mhv_medications_display_documentation_content)
           VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/13650541/documentation?ndc=71205042524'
+            get '/my_health/v1/prescriptions/21296515/documentation'
           end
           expect(response).to have_http_status(:not_found)
           expect(JSON.parse(response.body)).to eq({ 'error' => 'Documentation is not available' })

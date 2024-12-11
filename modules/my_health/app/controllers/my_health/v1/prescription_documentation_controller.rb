@@ -6,7 +6,16 @@ module MyHealth
       def index
         if Flipper.enabled?(:mhv_medications_display_documentation_content, @current_user)
           begin
-            documentation = client.get_rx_documentation(params[:ndc])
+            id = params[:id]
+            rx = client.get_rx_details(id)
+            raise StandardError, 'Rx not found' if rx.nil?
+
+            cmop_ndc_number = rx.rx_rf_records&.find do |record|
+                                record[1]&.dig(0, :cmop_ndc_number)
+                              end&.dig(1, 0, :cmop_ndc_number) || rx.cmop_ndc_number
+            raise StandardError, 'Missing NDC number' if cmop_ndc_number.nil?
+
+            documentation = client.get_rx_documentation(cmop_ndc_number)
             prescription_documentation = PrescriptionDocumentation.new({ html: documentation[:data] })
             render json: PrescriptionDocumentationSerializer.new(prescription_documentation)
           rescue => e
