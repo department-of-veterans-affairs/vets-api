@@ -40,5 +40,44 @@ RSpec.describe IvcChampva::Monitor do
         monitor.track_insert_form(payload[:form_uuid], payload[:form_id])
       end
     end
+
+    describe '#track_missing_status_email_sent' do
+      it 'logs sidekiq success' do
+        payload = {
+          form_id: 'vha_10_10d'
+        }
+
+        expect(monitor).to receive(:track_missing_status_email_sent).with(
+          payload[:form_id]
+        )
+        monitor.track_missing_status_email_sent(payload[:form_id])
+      end
+    end
+
+    describe '#track_send_zsf_notification_to_pega' do
+      it 'logs sidekiq success' do
+        payload = {
+          form_uuid: '12345678-1234-5678-1234-567812345678'
+        }
+
+        expect(monitor).to receive(:track_send_zsf_notification_to_pega).with(
+          payload[:form_uuid]
+        )
+        monitor.track_send_zsf_notification_to_pega(payload[:form_uuid])
+      end
+    end
+
+    describe '#track_failed_send_zsf_notification_to_pega' do
+      it 'logs sidekiq success' do
+        payload = {
+          form_uuid: '12345678-1234-5678-1234-567812345678'
+        }
+
+        expect(monitor).to receive(:track_failed_send_zsf_notification_to_pega).with(
+          payload[:form_uuid]
+        )
+        monitor.track_failed_send_zsf_notification_to_pega(payload[:form_uuid])
+      end
+    end
   end
 end

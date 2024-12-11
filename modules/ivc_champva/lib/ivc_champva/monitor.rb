@@ -32,5 +32,33 @@ module IvcChampva
                     "#{STATS_KEY}.update_status",
                     call_location: caller_locations.first, **additional_context)
     end
+
+    # form_id: string of the form's government ID (e.g., 10-10d)
+    def track_missing_status_email_sent(form_id)
+      additional_context = {
+        form_id:
+      }
+      track_request('info', "IVC ChampVA Forms - #{form_id} missing status failure email sent",
+                    "#{STATS_KEY}.form_missing_status_email_sent",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    def track_send_zsf_notification_to_pega(form_uuid)
+      additional_context = {
+        form_uuid:
+      }
+      track_request('info', "IVC ChampVA Forms - alerted Pega of ZSF email sent for submission #{form_uuid}",
+                    "#{STATS_KEY}.send_zsf_notification_to_pega",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    def track_failed_send_zsf_notification_to_pega(form_uuid)
+      additional_context = {
+        form_uuid:
+      }
+      track_request('warn', "IVC ChampVA Forms - could not alert Pega of ZSF email sent for submission #{form_uuid}",
+                    "#{STATS_KEY}.failed_send_zsf_notification_to_pega",
+                    call_location: caller_locations.first, **additional_context)
+    end
   end
 end

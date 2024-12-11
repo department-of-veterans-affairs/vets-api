@@ -168,15 +168,15 @@ module Lighthouse
 
       def generate_metadata
         form = claim.parsed_form['dependents_application']
+        veteran_information = form['veteran_information'].presence || claim.parsed_form['veteran_information']
         form_pdf_metadata = get_hash_and_pages(form_path)
         address = form['veteran_contact_information']['veteran_address']
-        receive_date = claim.created_at.in_time_zone('Central Time (US & Canada)')
         is_usa = address['country_name'] == 'USA'
         metadata = {
-          'veteranFirstName' => form['veteran_information']['full_name']['first'],
-          'veteranLastName' => form['veteran_information']['full_name']['last'],
-          'fileNumber' => form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
-          'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
+          'veteranFirstName' => veteran_information['full_name']['first'],
+          'veteranLastName' => veteran_information['full_name']['last'],
+          'fileNumber' => veteran_information['file_number'] || veteran_information['ssn'],
+          'receiveDt' => claim.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S'),
           'uuid' => claim.guid,
           'zipCode' => is_usa ? address['zip_code'] : FOREIGN_POSTALCODE,
           'source' => 'va.gov',
@@ -185,19 +185,22 @@ module Lighthouse
           'docType' => claim.form_id,
           'numberPages' => form_pdf_metadata[:pages]
         }
-
-        validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: is_usa) # rubocop:disable Layout/LineLength
-
+  
+        validated_metadata = SimpleFormsApiSubmission::MetadataValidator.validate(metadata, zip_code_is_us_based: is_usa)
+  
         validated_metadata.merge(generate_attachment_metadata(attachment_paths))
       end
 
       def generate_metadata_lh
         form = claim.parsed_form['dependents_application']
+        # sometimes veteran_information is not in dependents_application, but claim.add_veteran_info will make sure
+        # it's in the outer layer of parsed_form
+        veteran_information = form['veteran_information'].presence || claim.parsed_form['veteran_information']
         address = form['veteran_contact_information']['veteran_address']
         {
-          veteran_first_name: form['veteran_information']['full_name']['first'],
-          veteran_last_name: form['veteran_information']['full_name']['last'],
-          file_number: form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
+          veteran_first_name: veteran_information['full_name']['first'],
+          veteran_last_name: veteran_information['full_name']['last'],
+          file_number: veteran_information['file_number'] || veteran_information['ssn'],
           zip: address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
           doc_type: claim.form_id,
           claim_date: claim.created_at,

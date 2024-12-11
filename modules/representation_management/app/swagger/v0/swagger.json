@@ -18,6 +18,244 @@
   ],
   "components": {
     "schemas": {
+      "accreditedIndividual": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "0bfddcc5-fe3c-4ffb-a4c7-70f5e23bde23"
+              },
+              "type": {
+                "type": "string",
+                "example": "individual"
+              },
+              "attributes": {
+                "type": "object",
+                "properties": {
+                  "address_line1": {
+                    "type": "string",
+                    "example": "123 Main St"
+                  },
+                  "address_line2": {
+                    "type": "string",
+                    "example": "Apt 4",
+                    "nullable": true
+                  },
+                  "address_line3": {
+                    "type": "string",
+                    "example": "Suite 100",
+                    "nullable": true
+                  },
+                  "address_type": {
+                    "type": "string",
+                    "example": "Domestic"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Anytown"
+                  },
+                  "country_name": {
+                    "type": "string",
+                    "example": "USA",
+                    "nullable": true
+                  },
+                  "country_code_iso3": {
+                    "type": "string",
+                    "example": "USA",
+                    "nullable": true
+                  },
+                  "province": {
+                    "type": "string",
+                    "example": "New York",
+                    "nullable": true
+                  },
+                  "international_postal_code": {
+                    "type": "string",
+                    "example": "",
+                    "nullable": true
+                  },
+                  "state_code": {
+                    "type": "string",
+                    "example": "NY"
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "example": "12345"
+                  },
+                  "zip_suffix": {
+                    "type": "string",
+                    "example": "6789",
+                    "nullable": true
+                  },
+                  "first_name": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "last_name": {
+                    "type": "string",
+                    "example": "Doe"
+                  },
+                  "full_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "555-555-5555"
+                  },
+                  "email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                  },
+                  "individual_type": {
+                    "type": "string",
+                    "enum": [
+                      "attorney",
+                      "claims_agent",
+                      "representative"
+                    ],
+                    "example": "attorney"
+                  },
+                  "accredited_organizations": {
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/accreditedOrganization"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "accreditedOrganization": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "0bfddcc5-fe3c-4ffb-a4c7-70f5e23bde23"
+              },
+              "type": {
+                "type": "string",
+                "example": "organization"
+              },
+              "attributes": {
+                "type": "object",
+                "properties": {
+                  "address_line1": {
+                    "type": "string",
+                    "example": "123 Main St"
+                  },
+                  "address_line2": {
+                    "type": "string",
+                    "example": "Apt 4",
+                    "nullable": true
+                  },
+                  "address_line3": {
+                    "type": "string",
+                    "example": "Suite 100",
+                    "nullable": true
+                  },
+                  "address_type": {
+                    "type": "string",
+                    "example": "Domestic"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Anytown"
+                  },
+                  "country_name": {
+                    "type": "string",
+                    "example": "USA",
+                    "nullable": true
+                  },
+                  "country_code_iso3": {
+                    "type": "string",
+                    "example": "USA",
+                    "nullable": true
+                  },
+                  "province": {
+                    "type": "string",
+                    "example": "New York",
+                    "nullable": true
+                  },
+                  "international_postal_code": {
+                    "type": "string",
+                    "example": "",
+                    "nullable": true
+                  },
+                  "state_code": {
+                    "type": "string",
+                    "example": "NY"
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "example": "12345"
+                  },
+                  "zip_suffix": {
+                    "type": "string",
+                    "example": "6789",
+                    "nullable": true
+                  },
+                  "poa_code": {
+                    "type": "string",
+                    "example": "123"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Organization Name"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "555-555-5555"
+                  },
+                  "lat": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 37.7749,
+                    "nullable": true
+                  },
+                  "long": {
+                    "type": "number",
+                    "format": "float",
+                    "example": -122.4194,
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "error": {
+        "type": "string",
+        "example": "Veteran first name can't be blank"
+      },
+      "errors": {
+        "type": "object",
+        "required": [
+          "errors"
+        ],
+        "properties": {
+          "errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/error"
+            }
+          }
+        }
+      },
       "errorModel": {
         "type": "object",
         "required": [
@@ -68,23 +306,6 @@
             }
           }
         }
-      },
-      "errors": {
-        "type": "object",
-        "required": [
-          "errors"
-        ],
-        "properties": {
-          "errors": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/error"
-            }
-          }
-        }
-      },
-      "error": {
-        "type": "string"
       },
       "powerOfAttorneyResponse": {
         "type": "object",
@@ -185,6 +406,108 @@
                   "state_code",
                   "zip_code"
                 ]
+              }
+            }
+          }
+        }
+      },
+      "veteranServiceOrganization": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "example": "123456"
+              },
+              "type": {
+                "type": "string",
+                "example": "organization"
+              },
+              "attributes": {
+                "type": "object",
+                "properties": {
+                  "address_line1": {
+                    "type": "string",
+                    "example": "123 Main St"
+                  },
+                  "address_line2": {
+                    "type": "string",
+                    "example": "Apt 4",
+                    "nullable": true
+                  },
+                  "address_line3": {
+                    "type": "string",
+                    "example": "Suite 100",
+                    "nullable": true
+                  },
+                  "address_type": {
+                    "type": "string",
+                    "example": "Domestic"
+                  },
+                  "city": {
+                    "type": "string",
+                    "example": "Anytown"
+                  },
+                  "country_name": {
+                    "type": "string",
+                    "example": "USA",
+                    "nullable": true
+                  },
+                  "country_code_iso3": {
+                    "type": "string",
+                    "example": "USA",
+                    "nullable": true
+                  },
+                  "province": {
+                    "type": "string",
+                    "example": "New York",
+                    "nullable": true
+                  },
+                  "international_postal_code": {
+                    "type": "string",
+                    "example": "",
+                    "nullable": true
+                  },
+                  "state_code": {
+                    "type": "string",
+                    "example": "NY"
+                  },
+                  "zip_code": {
+                    "type": "string",
+                    "example": "12345"
+                  },
+                  "zip_suffix": {
+                    "type": "string",
+                    "example": "6789",
+                    "nullable": true
+                  },
+                  "poa_code": {
+                    "type": "string",
+                    "example": "123"
+                  },
+                  "name": {
+                    "type": "string",
+                    "example": "Organization Name"
+                  },
+                  "phone": {
+                    "type": "string",
+                    "example": "555-555-5555"
+                  },
+                  "lat": {
+                    "type": "number",
+                    "format": "float",
+                    "example": 37.7749,
+                    "nullable": true
+                  },
+                  "long": {
+                    "type": "number",
+                    "format": "float",
+                    "example": -122.4194,
+                    "nullable": true
+                  }
+                }
               }
             }
           }
@@ -307,102 +630,44 @@
             }
           }
         }
-      },
-      "veteranServiceOrganization": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "example": "123456"
-              },
-              "type": {
-                "type": "string",
-                "example": "organization"
-              },
-              "attributes": {
-                "type": "object",
-                "properties": {
-                  "address_line1": {
-                    "type": "string",
-                    "example": "123 Main St"
-                  },
-                  "address_line2": {
-                    "type": "string",
-                    "example": "Apt 4",
-                    "nullable": true
-                  },
-                  "address_line3": {
-                    "type": "string",
-                    "example": "Suite 100",
-                    "nullable": true
-                  },
-                  "address_type": {
-                    "type": "string",
-                    "example": "Domestic"
-                  },
-                  "city": {
-                    "type": "string",
-                    "example": "Anytown"
-                  },
-                  "country_name": {
-                    "type": "string",
-                    "example": "USA",
-                    "nullable": true
-                  },
-                  "country_code_iso3": {
-                    "type": "string",
-                    "example": "USA",
-                    "nullable": true
-                  },
-                  "province": {
-                    "type": "string",
-                    "example": "New York",
-                    "nullable": true
-                  },
-                  "international_postal_code": {
-                    "type": "string",
-                    "example": "",
-                    "nullable": true
-                  },
-                  "state_code": {
-                    "type": "string",
-                    "example": "NY"
-                  },
-                  "zip_code": {
-                    "type": "string",
-                    "example": "12345"
-                  },
-                  "zip_suffix": {
-                    "type": "string",
-                    "example": "6789",
-                    "nullable": true
-                  },
-                  "poa_code": {
-                    "type": "string",
-                    "example": "123"
-                  },
-                  "name": {
-                    "type": "string",
-                    "example": "Organization Name"
-                  },
-                  "phone": {
-                    "type": "string",
-                    "example": "555-555-5555"
-                  },
-                  "lat": {
-                    "type": "number",
-                    "format": "float",
-                    "example": 37.7749,
-                    "nullable": true
-                  },
-                  "long": {
-                    "type": "number",
-                    "format": "float",
-                    "example": -122.4194,
-                    "nullable": true
+      }
+    }
+  },
+  "paths": {
+    "/representation_management/v0/accredited_entities_for_appoint": {
+      "get": {
+        "summary": "Accredited Entities for Appoint",
+        "tags": [
+          "Accredited Entities for Appoint"
+        ],
+        "operationId": "accreditedEntitiesForAppoint",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Search query",
+            "example": "Bob",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "anyOf": [
+                      {
+                        "$ref": "#/components/schemas/accreditedIndividual"
+                      },
+                      {
+                        "$ref": "#/components/schemas/accreditedOrganization"
+                      }
+                    ]
                   }
                 }
               }
@@ -410,9 +675,7 @@
           }
         }
       }
-    }
-  },
-  "paths": {
+    },
     "/representation_management/v0/original_entities": {
       "get": {
         "summary": "Original Entities",
@@ -472,7 +735,7 @@
           "422": {
             "description": "unprocessable entity response",
             "content": {
-              "application/pdf": {
+              "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/errors"
                 }
@@ -583,11 +846,13 @@
                     "properties": {
                       "id": {
                         "type": "string",
-                        "example": "8c3b3b53-02a1-4dbd-bd23-2b556f5ef635"
+                        "example": "8c3b3b53-02a1-4dbd-bd23-2b556f5ef635",
+                        "description": "This is an AccreditedIndividual#id or a Veteran::Service::Representative#representative_id"
                       },
                       "organization_id": {
                         "type": "string",
-                        "example": "6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943"
+                        "example": "6f76b9c2-2a37-4cd7-8a6c-93a0b3a73943",
+                        "description": "This is an AccreditedOrganization#id or a Veteran::Service::Organization#poa"
                       }
                     }
                   },
@@ -665,9 +930,251 @@
                         "type": "string",
                         "example": "Army"
                       },
-                      "service_branch_other": {
+                      "phone": {
                         "type": "string",
-                        "example": "Other Branch"
+                        "example": "1234567890"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "veteran@example.com"
+                      }
+                    }
+                  }
+                },
+                "required": [
+                  "record_consent",
+                  "veteran"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "/representation_management/v0/pdf_generator2122a": {
+      "post": {
+        "summary": "Generate a PDF for form 21-22a",
+        "tags": [
+          "PDF Generation"
+        ],
+        "operationId": "createPdfForm2122a",
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "description": "PDF generated successfully"
+          },
+          "422": {
+            "description": "unprocessable entity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errors"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "record_consent": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "consent_address_change": {
+                    "type": "boolean",
+                    "example": false
+                  },
+                  "consent_limits": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "ALCOHOLISM",
+                      "DRUG_ABUSE",
+                      "HIV",
+                      "SICKLE_CELL"
+                    ]
+                  },
+                  "consent_inside_access": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "consent_outside_access": {
+                    "type": "boolean",
+                    "example": true
+                  },
+                  "consent_team_members": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "example": [
+                      "Alice Aster",
+                      "Authur Aster"
+                    ]
+                  },
+                  "claimant": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "object",
+                        "properties": {
+                          "first": {
+                            "type": "string",
+                            "example": "John"
+                          },
+                          "middle": {
+                            "type": "string",
+                            "example": "Middle"
+                          },
+                          "last": {
+                            "type": "string",
+                            "example": "Doe"
+                          }
+                        }
+                      },
+                      "address": {
+                        "type": "object",
+                        "properties": {
+                          "address_line1": {
+                            "type": "string",
+                            "example": "123 Main St"
+                          },
+                          "address_line2": {
+                            "type": "string",
+                            "example": "Apt 1"
+                          },
+                          "city": {
+                            "type": "string",
+                            "example": "Springfield"
+                          },
+                          "state_code": {
+                            "type": "string",
+                            "example": "IL"
+                          },
+                          "country": {
+                            "type": "string",
+                            "example": "US"
+                          },
+                          "zip_code": {
+                            "type": "string",
+                            "example": "62704"
+                          },
+                          "zip_code_suffix": {
+                            "type": "string",
+                            "example": "6789"
+                          }
+                        }
+                      },
+                      "date_of_birth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-12-31"
+                      },
+                      "relationship": {
+                        "type": "string",
+                        "example": "Spouse"
+                      },
+                      "phone": {
+                        "type": "string",
+                        "example": "1234567890"
+                      },
+                      "email": {
+                        "type": "string",
+                        "example": "veteran@example.com"
+                      }
+                    }
+                  },
+                  "representative": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "example": "8c3b3b53-02a1-4dbd-bd23-2b556f5ef635",
+                        "description": "This is an AccreditedIndividual#id or a Veteran::Service::Representative#representative_id"
+                      }
+                    }
+                  },
+                  "veteran": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "object",
+                        "properties": {
+                          "first": {
+                            "type": "string",
+                            "example": "John"
+                          },
+                          "middle": {
+                            "type": "string",
+                            "example": "Middle"
+                          },
+                          "last": {
+                            "type": "string",
+                            "example": "Doe"
+                          }
+                        }
+                      },
+                      "address": {
+                        "type": "object",
+                        "properties": {
+                          "address_line1": {
+                            "type": "string",
+                            "example": "123 Main St"
+                          },
+                          "address_line2": {
+                            "type": "string",
+                            "example": "Apt 1"
+                          },
+                          "city": {
+                            "type": "string",
+                            "example": "Springfield"
+                          },
+                          "state_code": {
+                            "type": "string",
+                            "example": "IL"
+                          },
+                          "country": {
+                            "type": "string",
+                            "example": "US"
+                          },
+                          "zip_code": {
+                            "type": "string",
+                            "example": "62704"
+                          },
+                          "zip_code_suffix": {
+                            "type": "string",
+                            "example": "6789"
+                          }
+                        }
+                      },
+                      "ssn": {
+                        "type": "string",
+                        "example": "123456789"
+                      },
+                      "va_file_number": {
+                        "type": "string",
+                        "example": "123456789"
+                      },
+                      "date_of_birth": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "1980-12-31"
+                      },
+                      "service_number": {
+                        "type": "string",
+                        "example": "123456789"
+                      },
+                      "service_branch": {
+                        "type": "string",
+                        "example": "Army"
                       },
                       "phone": {
                         "type": "string",
@@ -736,6 +1243,89 @@
                 "schema": {
                   "$ref": "#/components/schemas/errorModel"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/representation_management/v0/next_steps_email": {
+      "post": {
+        "summary": "Enqueue the Next Steps Email from VA Notify",
+        "tags": [
+          "Next Steps Email"
+        ],
+        "operationId": "nextStepsEmail",
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "description": "Email enqueued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Email enqueued"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "unprocessable entity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errors"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email_address": {
+                    "type": "string",
+                    "example": "veteran@example.com"
+                  },
+                  "first_name": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "form_name": {
+                    "type": "string",
+                    "example": "Form 21-22"
+                  },
+                  "form_number": {
+                    "type": "string",
+                    "example": "21-22"
+                  },
+                  "entity_type": {
+                    "type": "string",
+                    "example": "individual"
+                  },
+                  "entity_id": {
+                    "type": "string",
+                    "example": "8c3b3b53-02a1-4dbd-bd23-2b556f5ef635"
+                  }
+                },
+                "required": [
+                  "email_address",
+                  "first_name",
+                  "form_name",
+                  "form_number",
+                  "entity_type",
+                  "entity_id"
+                ]
               }
             }
           }

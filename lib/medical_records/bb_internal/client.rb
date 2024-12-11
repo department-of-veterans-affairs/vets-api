@@ -65,7 +65,8 @@ module BBInternal
     #
     def list_imaging_studies
       response = perform(:get, "bluebutton/study/#{session.patient_id}", nil, token_headers)
-      response.body
+      data = response.body
+      map_study_ids(data)
     end
 
     ##
@@ -73,24 +74,34 @@ module BBInternal
     # the images into MHV for later retrieval from vets-api as DICOM or JPGs.
     #
     # @param [String] icn - The patient's ICN
-    # @param [String] study_id - The radiology study to request
+    # @param [String] id - The uuid of the radiology study to request
     #
     # @return [Hash] The status of the image request, including percent complete
     #
-    def request_study(study_id)
+    def request_study(id)
+      # Fetch the original studyIdUrn from the Redis cache
+      study_id = get_study_id_from_cache(id)
+
+      # Perform the API call with the original studyIdUrn
       response = perform(:get, "bluebutton/studyjob/#{session.patient_id}/icn/#{session.icn}/studyid/#{study_id}", nil,
                          token_headers)
-      response.body
+      data = response.body
+
+      # Transform the response to replace the studyIdUrn with the UUID
+      data['studyIdUrn'] = id if data.is_a?(Hash) && data['studyIdUrn'] == study_id
+
+      data
     end
 
     ##
     # Get a list of images for the provided CVIX radiology study
     #
-    # @param [String] study_id - The radiology study from which to retrieve images
+    # @param [String] id - The uuid of the radiology study from which to retrieve images
     #
     # @return [Hash] The list of images from MHV
     #
-    def list_images(study_id)
+    def list_images(id)
+      study_id = get_study_id_from_cache(id)
       response = perform(:get, "bluebutton/studyjob/zip/preview/list/#{session.patient_id}/studyidUrn/#{study_id}", nil,
                          token_headers)
       response.body
@@ -107,7 +118,8 @@ module BBInternal
     # @return [void] This method does not return a value. Instead, it yields chunks of the response
     # body via the provided yielder.
     #
-    def get_image(study_id, series, image, header_callback, yielder)
+    def get_image(id, series, image, header_callback, yielder)
+      study_id = get_study_id_from_cache(id)
       uri = URI.join(config.base_path,
                      "bluebutton/external/studyjob/image/studyidUrn/#{study_id}/series/#{series}/image/#{image}")
       streaming_get(uri, token_headers, header_callback, yielder)
@@ -121,7 +133,8 @@ module BBInternal
     # @return [void] This method does not return a value. Instead, it yields chunks of the response
     # body via the provided yielder.
     #
-    def get_dicom(study_id, header_callback, yielder)
+    def get_dicom(id, header_callback, yielder)
+      study_id = get_study_id_from_cache(id)
       uri = URI.join(config.base_path, "bluebutton/studyjob/zip/stream/#{session.patient_id}/studyidUrn/#{study_id}")
       streaming_get(uri, token_headers, header_callback, yielder)
     end
@@ -147,13 +160,15 @@ module BBInternal
       response.body
     end
 
+    ##
     # check the status of a study job
     # @return [Array] - [{ status: "COMPLETE", studyIdUrn: "111-1234567" percentComplete: 100, fileSize: "1.01 MB",
     #   startDate: 1729777818853, endDate}]
     #
     def get_study_status
       response = perform(:get, "bluebutton/studyjob/#{session.patient_id}", nil, token_headers)
-      response.body
+      data = response.body
+      map_study_ids(data)
     end
 
     ################################################################################
@@ -240,6 +255,70 @@ module BBInternal
     #
     def session_config_key
       :mhv_mr_bb_session_lock
+    end
+
+    def study_data_key
+      "study_data-#{session.patient_id}"
+    end
+
+    def bb_redis
+      namespace = REDIS_CONFIG[:bb_internal_store][:namespace]
+      Redis::Namespace.new(namespace, redis: $redis)
+    end
+
+    def get_study_data_from_cache
+      bb_redis.get(study_data_key)
+    end
+
+    def get_study_id_from_cache(id)
+      study_data = get_study_data_from_cache
+
+      if study_data
+        study_data_hash = JSON.parse(study_data)
+        id = id.to_s
+        study_id = study_data_hash[id]
+
+        study_id || raise(Common::Exceptions::RecordNotFound, id)
+      else
+        # throw 400 for FE to know to refetch the list
+        raise Common::Exceptions::InvalidResource, 'Study data map'
+      end
+    end
+
+    ##
+    # Takes an array of objects with a studyIdUrn field. For each object, if the studyIdUrn is already mapped to a
+    # cached UUID in redis, simply replace all the studyIdUrn with its mapped value. If the value is not yet mapped
+    # in redis, create the mapped UUID first, then replace the studyIdUrn in the object. This is to prevent the
+    # study_id from being exposed to the client.
+    #
+    # @param [Array] data - An array which contains objects that have a studyIdUrn field.
+    #
+    # @return [Array] A modified array in which all the objects have has studyIdUrn mapped to a UUID.
+    #
+    def map_study_ids(data)
+      study_data_cached = get_study_data_from_cache
+      study_data_hash = JSON.parse(study_data_cached) if study_data_cached
+      id_uuid_map = study_data_hash || {}
+
+      modified_data = data.map do |obj|
+        study_id = obj['studyIdUrn']
+
+        existing_uuid = study_data_hash&.key(study_id.to_s)
+
+        if existing_uuid
+          obj['studyIdUrn'] = existing_uuid
+        else
+          new_uuid = SecureRandom.uuid
+          id_uuid_map[new_uuid] = study_id
+          obj['studyIdUrn'] = new_uuid
+        end
+        obj
+      end
+
+      # Store in redis with a ttl of 3 days
+      bb_redis.set(study_data_key, id_uuid_map.to_json, nx: false, ex: 259_200)
+
+      modified_data
     end
 
     ##

@@ -12,7 +12,9 @@ module Form526ClaimFastTrackingConcern
   RRD_STATSD_KEY_PREFIX = 'worker.rapid_ready_for_decision'
   MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
   EP_MERGE_STATSD_KEY_PREFIX = 'worker.ep_merge'
+  FLASHES_STATSD_KEY = 'worker.flashes'
 
+  FLASH_PROTOTYPES = ['Amyotrophic Lateral Sclerosis'].freeze
   EP_MERGE_BASE_CODES = %w[010 110 020].freeze
   EP_MERGE_SPECIAL_ISSUE = 'EMP'
   OPEN_STATUSES = [
@@ -67,7 +69,9 @@ module Form526ClaimFastTrackingConcern
   # Fetch all claims from EVSS
   # @return [Boolean] whether there are any open EP 020's
   def pending_eps?
-    pending = open_claims.any? { |claim| claim['base_end_product_code'] == '020' }
+    pending = open_claims.any? do |claim|
+      claim['base_end_product_code'] == '020' && claim['status'].upcase != 'COMPLETE'
+    end
     save_metadata(offramp_reason: 'pending_ep') if pending
     pending
   end
@@ -99,7 +103,7 @@ module Form526ClaimFastTrackingConcern
   end
 
   def flashes
-    form.dig('form526', 'form526', 'flashes') || []
+    form['flashes'] || []
   end
 
   def disabilities
@@ -357,7 +361,7 @@ module Form526ClaimFastTrackingConcern
       provider: nil,
       options: { auth_headers:, icn: },
       # Flipper id is needed to check if the feature toggle works for this user
-      current_user: OpenStruct.new({ flipper_id: user_account_id }),
+      current_user: OpenStruct.new({ flipper_id: user_uuid }),
       feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND
     )
 
@@ -410,8 +414,10 @@ module Form526ClaimFastTrackingConcern
   end
 
   def log_flashes
-    if flashes.include?('Amyotrophic Lateral Sclerosis')
-      Rails.logger.info('Flash Prototype Added', { submitted_claim_id:, flash: 'Amyotrophic Lateral Sclerosis' })
+    flash_prototypes = FLASH_PROTOTYPES & flashes
+    Rails.logger.info('Flash Prototype Added', { submitted_claim_id:, flashes: }) if flash_prototypes.any?
+    flashes.each do |flash|
+      StatsD.increment(FLASHES_STATSD_KEY, tags: ["flash:#{flash}", "prototype:#{flash_prototypes.include?(flash)}"])
     end
   rescue => e
     Rails.logger.error("Failed to log Flash Prototypes #{e.message}.", backtrace: e.backtrace)
