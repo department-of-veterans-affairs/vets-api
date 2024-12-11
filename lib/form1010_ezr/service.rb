@@ -47,6 +47,10 @@ module Form1010Ezr
         veteran_initials: veteran_initials(parsed_form)
       )
 
+      if parsed_form['attachments'].present?
+        StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.submission_with_attachment")
+      end
+
       res
     rescue => e
       log_and_raise_error(e, parsed_form)

@@ -415,7 +415,7 @@ class User < Common::RedisStore
   end
 
   def vaprofile_contact_info
-    @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
+    @vaprofile_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
   def va_profile_v2_email

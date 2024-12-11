@@ -16,8 +16,7 @@ class Banner < ApplicationRecord
   validates :find_facilities_cta, inclusion: { in: [true, false] }
   validates :limit_subpage_inheritance, inclusion: { in: [true, false] }
 
-  # Returns banners for a given path and banner bundle type.
-  scope :by_path_and_type, lambda { |path, type|
+  scope :by_path, lambda { |path|
     normalized_path = path.sub(%r{^/?}, '')
 
     # Direct path matches.
@@ -36,22 +35,25 @@ class Banner < ApplicationRecord
                                                 { path: path } } } } }
                                       ].to_json))
 
-    # Subpage inheritance check: Matches on any `fieldOffice` entity path where `limit_subpage_inheritance` is false.
-    subpage_pattern = "#{normalized_path.split('/').first}/%"
+    # Subpage inheritance check: Matches on any `entityUrl` where `limit_subpage_inheritance` is false.
+    subpage_pattern = "/#{normalized_path.split('/').first}"
     subpage_condition = where('banners.context @> ?',
                               [
                                 { entity:
-                                  { fieldOffice:
-                                    { entity:
-                                      { entityUrl:
-                                        { path: subpage_pattern } } } } }
+                                  { entityUrl:
+                                  { path: subpage_pattern } } }
                               ].to_json)
+                        .or(where('banners.context @> ?',
+                                  [
+                                    { entity:
+                                      { fieldOffice:
+                                        { entity:
+                                          { entityUrl:
+                                            { path: subpage_pattern } } } } }
+                                  ].to_json))
                         .where(limit_subpage_inheritance: false)
 
-    # Bundle type match
-    type_condition = where(entity_bundle: type)
-
-    # Combine conditions with the "AND" for type, and "OR" between exact paths and subpage matches
-    type_condition.and(exact_path_conditions.or(subpage_condition))
+    # Look for both exact paths and subpage matches
+    exact_path_conditions.or(subpage_condition)
   }
 end

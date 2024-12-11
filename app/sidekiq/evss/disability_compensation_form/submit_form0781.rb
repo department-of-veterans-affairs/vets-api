@@ -149,7 +149,7 @@ module EVSS
           if parsed_forms[form_type_key].present?
             file_type_and_file_objs << {
               type: actual_form_types,
-              file: process_0781(uuid, FORM_ID_0781, parsed_forms[form_type_key],
+              file: process_0781(uuid, actual_form_types, parsed_forms[form_type_key],
                                  upload: false)
             }
           end

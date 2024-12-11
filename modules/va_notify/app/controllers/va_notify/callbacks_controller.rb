@@ -14,7 +14,6 @@ module VANotify
     before_action :authenticate_callback
 
     def create
-      Rails.logger.info { "Notification received: #{params.inspect}" }
       notification_id = params[:id]
 
       if (notification = VANotify::Notification.find_by(notification_id: notification_id))
