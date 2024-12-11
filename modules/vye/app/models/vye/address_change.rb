@@ -23,10 +23,7 @@ module Vye
     # The 'cached' enum is a special case where the record was created on the frontend
     # and sent to the backend, but the backend has not yet processed it.
     # So it will not have been reflected from the backend until the next pull.
-    enum(
-      origin: { frontend: 'frontend', cached: 'cached', backend: 'backend' },
-      _suffix: true
-    )
+    enum :origin, { frontend: 'frontend', cached: 'cached', backend: 'backend' }, suffix: true
 
     scope :backend, -> { where(origin: 'backend').limit(1) }
 
