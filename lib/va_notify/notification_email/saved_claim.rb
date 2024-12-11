@@ -72,6 +72,10 @@ module VANotify
         @vanotify_service ||= claim&.form_id&.downcase&.gsub(/-/, '_')
       end
 
+      def service_config
+        @service_config ||= Settings.vanotify.services[vanotify_service]
+      end
+
       # flipper exists and is enabled
       # @param flipper_id [String] the flipper id
       def flipper_enabled?(flipper_id)
@@ -80,8 +84,7 @@ module VANotify
 
       # check prerequisites before attempting to send the email
       def valid_attempt?
-        config = Settings.vanotify.services[vanotify_service]
-        raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless config
+        raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless service_config
 
         email_config = config.email[email_type]
         raise ArgumentError, "Invalid email_type '#{email_type}'" unless email_config
@@ -124,7 +127,9 @@ module VANotify
           at,
           email,
           email_template_id,
-          personalization
+          personalization,
+          service_config.api_key
+          { callback_klass: , callback_metadata: }
         )
       end
 
@@ -135,7 +140,9 @@ module VANotify
         VANotify::EmailJob.perform_async(
           email,
           email_template_id,
-          personalization
+          personalization,
+          service_config.api_key
+          { callback_klass: , callback_metadata: }
         )
       end
 
@@ -153,6 +160,12 @@ module VANotify
           'date_submitted' => claim.submitted_at,
           'confirmation_number' => claim.confirmation_number
         }
+      end
+
+      def callback_klass
+      end
+
+      def callback_metadata
       end
     end
   end

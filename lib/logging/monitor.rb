@@ -16,26 +16,27 @@ module Logging
     # @param metric [String]
     # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged as failure point
     # @param context [Hash] additional parameters to pass to log
-    def track_request(error_level, message, metric, call_location: nil, **additional_context)
+    def track_request(error_level, message, metric, call_location: nil, **context)
       function, file, line = parse_caller(call_location)
 
-      StatsD.increment(metric, tags: additional_context[:tags])
+      StatsD.increment(metric, tags: context[:tags])
 
-      if %w[debug info warn error fatal unknown].include?(error_level)
+      if %w[debug info warn error fatal unknown].include?(error_level.to_s)
         payload = {
           statsd: metric,
           service:,
-          user_account_uuid: additional_context[:user_account_uuid],
           function:,
           file:,
           line:,
-          additional_context:
+          context:
         }
         Rails.logger.public_send(error_level, message.to_s, payload)
       else
         Rails.logger.error("Invalid log error_level: #{error_level}")
       end
     end
+
+    alias :monitor :track_request
 
     private
 
