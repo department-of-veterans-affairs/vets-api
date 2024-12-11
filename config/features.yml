@@ -903,7 +903,7 @@ features:
     enable_in_development: true
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
-    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID 
+    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID
     enable_in_development: true
   lighthouse_claims_api_poa_dependent_claimants:
     actor_type: user
@@ -1357,8 +1357,11 @@ features:
     enable_in_development: true
   sign_in_modal_v2:
     actor_type: user
-    description: Enables new page design of Sign In modal and USiP
+    description: Enables new page design of Sign In modal and USiP (Identity)
     enable_in_development: false
+  remove_mhv_credential_content:
+    actor_type: user
+    description: Enables the content removal of the My HealtheVet credential (Identity)
   medical_copays_zero_debt:
     actor_type: user
     description: Enables zero debt balances feature on the medical copays application
