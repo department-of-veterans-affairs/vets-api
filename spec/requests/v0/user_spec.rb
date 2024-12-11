@@ -63,7 +63,7 @@ RSpec.describe 'V0::User', type: :request do
           BackendServices::APPEALS_STATUS,
           BackendServices::IDENTITY_PROOFED,
           BackendServices::VET360,
-          BackendServices::DGIB
+          BackendServices::DGI
         ].sort
       )
     end

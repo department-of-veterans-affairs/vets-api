@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-DGIBPolicy = Struct.new(:user, :dgib) do
+DGIPolicy = Struct.new(:user, :dgi) do
   def access?
     user.icn.present? && user.ssn.present?
   end
