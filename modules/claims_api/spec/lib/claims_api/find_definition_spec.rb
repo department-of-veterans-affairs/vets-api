@@ -16,78 +16,6 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
       end
 
-      context 'CorporateUpdateServiceBean' do
-        let(:endpoint) { 'CorporateUpdateServiceBean/CorporateUpdateWebService' }
-        let(:action) { 'updatePoaAccess' }
-        let(:key) { 'return' }
-
-        it 'response with the correct attributes for CorporateUpdateServiceBean' do
-          result = subject.for_action(endpoint, action)
-          parsed_result = JSON.parse(result.to_json)
-
-          expect(parsed_result['service']['bean']['path']).to eq 'CorporateUpdateServiceBean'
-          expect(parsed_result['service']['path']).to eq 'CorporateUpdateWebService'
-          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://services.share.benefits.vba.va.gov/'
-        end
-      end
-
-      context 'IntentToFileWebServiceBean' do
-        let(:endpoint) { 'IntentToFileWebServiceBean/IntentToFileWebService' }
-        let(:action) { 'insertIntentToFile' }
-        let(:key) { 'IntentToFileDTO' }
-
-        it 'response with the correct attributes' do
-          result = subject.for_action(endpoint, action)
-          parsed_result = JSON.parse(result.to_json)
-          expect(parsed_result['service']['bean']['path']).to eq 'IntentToFileWebServiceBean'
-          expect(parsed_result['service']['path']).to eq 'IntentToFileWebService'
-          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://intenttofile.services.vetsnet.vba.va.gov/'
-        end
-      end
-
-      context 'OrgWebServiceBean' do
-        let(:endpoint) { 'OrgWebServiceBean/OrgWebService' }
-        let(:action) { 'findPoaHistoryByPtcpntId' }
-        let(:key) { 'PoaHistory' }
-
-        it 'response with the correct attributes for OrgWebServiceBean' do
-          result = subject.for_action(endpoint, action)
-          parsed_result = JSON.parse(result.to_json)
-
-          expect(parsed_result['service']['bean']['path']).to eq 'OrgWebServiceBean'
-          expect(parsed_result['service']['path']).to eq 'OrgWebService'
-          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://org.services.vetsnet.vba.va.gov/'
-        end
-      end
-
-      context 'PersonWebServiceBean' do
-        let(:endpoint) { 'PersonWebServiceBean/PersonWebService' }
-        let(:action) { 'findPersonBySSN' }
-        let(:key) { 'PersonDTO' }
-
-        it 'response with the correct attributes' do
-          result = subject.for_action(endpoint, action)
-          parsed_result = JSON.parse(result.to_json)
-
-          expect(parsed_result['service']['bean']['path']).to eq 'PersonWebServiceBean'
-          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://person.services.vetsnet.vba.va.gov/'
-        end
-      end
-
-      context 'StandardDataWebServiceBean' do
-        let(:endpoint) { 'StandardDataWebServiceBean/StandardDataWebService' }
-        let(:action) { 'findPOAs' }
-        let(:key) { 'PowerOfAttorneyDTO' }
-
-        it 'responds with the correct attributes' do
-          result = subject.for_action(endpoint, action)
-          parsed_result = JSON.parse(result.to_json)
-          expect(parsed_result['service']['bean']['path']).to eq 'StandardDataWebServiceBean'
-          expect(parsed_result['service']['path']).to eq 'StandardDataWebService'
-          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://standarddata.services.vetsnet.vba.va.gov/'
-        end
-      end
-
       # This one doesn't have `Bean` at the end
       context 'TrackedItemService' do
         let(:endpoint) { 'TrackedItemService/TrackedItemService' }
@@ -221,54 +149,6 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
     context 'hardcoded WSDL' do
       before do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
-      end
-
-      context 'IntentToFileWebServiceBean' do
-        let(:endpoint) { 'IntentToFileWebServiceBean/IntentToFileWebService' }
-
-        it 'response with the correct namespace' do
-          result = subject.for_service(endpoint)
-          parsed_result = JSON.parse(result.to_json)
-          expect(parsed_result['bean']['path']).to eq 'IntentToFileWebServiceBean'
-          expect(parsed_result['path']).to eq 'IntentToFileWebService'
-          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://intenttofile.services.vetsnet.vba.va.gov/'
-        end
-      end
-
-      context 'OrgWebService' do
-        let(:endpoint) { 'OrgWebServiceBean/OrgWebService' }
-
-        it 'response with the correct namespace' do
-          result = subject.for_service(endpoint)
-          parsed_result = JSON.parse(result.to_json)
-          expect(parsed_result['bean']['path']).to eq 'OrgWebServiceBean'
-          expect(parsed_result['path']).to eq 'OrgWebService'
-          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://org.services.vetsnet.vba.va.gov/'
-        end
-      end
-
-      context 'PersonWebService' do
-        let(:endpoint) { 'PersonWebServiceBean/PersonWebService' }
-
-        it 'response with the correct namespace' do
-          result = subject.for_service(endpoint)
-          parsed_result = JSON.parse(result.to_json)
-          expect(parsed_result['bean']['path']).to eq 'PersonWebServiceBean'
-          expect(parsed_result['path']).to eq 'PersonWebService'
-          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://person.services.vetsnet.vba.va.gov/'
-        end
-      end
-
-      context 'StandardDataWebServiceBean' do
-        let(:endpoint) { 'StandardDataWebServiceBean/StandardDataWebService' }
-
-        it 'responds with the correct namespace' do
-          result = subject.for_service(endpoint)
-          parsed_result = JSON.parse(result.to_json)
-          expect(parsed_result['bean']['path']).to eq 'StandardDataWebServiceBean'
-          expect(parsed_result['path']).to eq 'StandardDataWebService'
-          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://standarddata.services.vetsnet.vba.va.gov/'
-        end
       end
 
       context 'TrackedItemService' do

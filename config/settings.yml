@@ -147,6 +147,9 @@ mcp:
 fsr:
   prefill: true
 
+dispute_debt:
+  prefill: true
+
 review_instance_slug: ~
 
 sidekiq_admin_panel: false
@@ -1372,6 +1375,9 @@ vanotify:
         form_10_7959c_failure_email: form_10_7959c_failure_email
         form_10_7959a_email: form_10_7959a_email
         form_10_7959a_failure_email: form_10_7959a_failure_email
+        pega_team_missing_status_email: pega_team_missing_status_email
+        pega_team_zsf_email: pega_team_zsf_email
+
     health_apps_1010:
       api_key: fake_secret
       template_id:
@@ -1840,6 +1846,9 @@ vaos:
     base_path: "care-navigation/v1"
     scopes: "care-nav"
 
+accredited_representative_portal:
+  pilot_users_email_poa_codes: ~
+  
 banners:
   drupal_username: banners_api
   drupal_password: test

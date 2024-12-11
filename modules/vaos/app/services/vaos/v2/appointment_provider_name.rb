@@ -47,6 +47,15 @@ module VAOS
         provider_data&.name&.strip&.presence
       rescue Common::Exceptions::BackendServiceException
         NPI_NOT_FOUND_MSG
+      rescue URI::InvalidURIError => e
+        if Flipper.enabled?(:appointment_provider_id_logging, @user)
+          PersonalInformationLog.create!(
+            data: { icn: @user.icn, message: e.message, backtrace: e.backtrace },
+            error_class: 'Appointment Provider URI Error'
+          )
+        end
+
+        nil
       end
 
       def mobile_ppms_service
