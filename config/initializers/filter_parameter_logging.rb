@@ -33,6 +33,7 @@ ALLOWLIST = %w[
   message_id
   os_name
   filter
+  startedFormVersion
 ].freeze
 Rails.application.config.filter_parameters = [lambda do |k, v|
   v.replace('FILTERED') if v.is_a?(String) && ALLOWLIST.exclude?(k)

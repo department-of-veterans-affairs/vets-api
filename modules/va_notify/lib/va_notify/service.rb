@@ -4,6 +4,7 @@ require 'notifications/client'
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require_relative 'configuration'
+require_relative 'error'
 
 module VaNotify
   class Service < Common::Client::Base
@@ -81,7 +82,11 @@ module VaNotify
       case error
       when Common::Client::Errors::ClientError
         save_error_details(error)
-        raise_backend_exception("VANOTIFY_#{error.status}", self.class, error) if error.status >= 400
+        if Flipper.enabled?(:va_notify_custom_errors) && error.status >= 400
+          raise VANotify::Error.from_generic_error(error)
+        elsif error.status >= 400
+          raise_backend_exception("VANOTIFY_#{error.status}", self.class, error)
+        end
       else
         raise error
       end
@@ -114,19 +119,33 @@ module VaNotify
       )
 
       if notification.save
+        log_notification_success(notification, template_id)
         notification
       else
-        log_notification_failed_to_save(notification)
+        log_notification_failed_to_save(notification, template_id)
       end
     rescue => e
       Rails.logger.error(e)
     end
 
-    def log_notification_failed_to_save(notification)
+    def log_notification_failed_to_save(notification, template_id)
       Rails.logger.error(
         'VANotify notification record failed to save',
         {
-          error_messages: notification.errors
+          error_messages: notification.errors,
+          template_id: template_id
+        }
+      )
+    end
+
+    def log_notification_success(notification, template_id)
+      Rails.logger.info(
+        "VANotify notification: #{notification.id} saved",
+        {
+          source_location: notification.source_location,
+          template_id: template_id,
+          callback_metadata: notification.callback_metadata,
+          callback_klass: notification.callback_klass
         }
       )
     end
@@ -136,7 +155,8 @@ module VaNotify
         'modules/va_notify/lib/va_notify/service.rb',
         'va_notify/app/sidekiq/va_notify/email_job.rb',
         'va_notify/app/sidekiq/va_notify/user_account_job.rb',
-        'lib/sidekiq/processor.rb'
+        'lib/sidekiq/processor.rb',
+        'lib/sidekiq/middleware/chain.rb'
       ]
 
       caller_locations.each do |location|

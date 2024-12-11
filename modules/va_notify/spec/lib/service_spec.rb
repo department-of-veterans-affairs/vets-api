@@ -149,10 +149,21 @@ describe VaNotify::Service do
             subject = described_class.new(test_api_key,
                                           { callback_klass: 'TestCallback', callback_metadata: 'optional_metadata' })
             allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+            allow(Rails.logger).to receive(:info)
 
             subject.send_email(send_email_parameters)
             expect(VANotify::Notification.count).to eq(1)
             notification = VANotify::Notification.first
+
+            expect(Rails.logger).to have_received(:info).with(
+              "VANotify notification: #{notification.id} saved",
+              {
+                callback_klass: 'TestCallback',
+                callback_metadata: 'optional_metadata',
+                source_location: anything,
+                template_id: '1234'
+              }
+            )
             expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
             expect(notification.callback_klass).to eq('TestCallback')
             expect(notification.callback_metadata).to eq('optional_metadata')
@@ -171,7 +182,7 @@ describe VaNotify::Service do
 
           expect(Rails.logger).to receive(:error).with(
             'VANotify notification record failed to save',
-            { error_messages: notification.errors.full_messages }
+            { error_messages: notification.errors.full_messages, template_id: '1234' }
           )
 
           subject.send_email(send_email_parameters)
@@ -225,7 +236,7 @@ describe VaNotify::Service do
 
           expect(Rails.logger).to receive(:error).with(
             'VANotify notification record failed to save',
-            { error_messages: notification.errors.full_messages }
+            { error_messages: notification.errors.full_messages, template_id: '1234' }
           )
 
           subject.send_sms(send_sms_parameters)
@@ -237,27 +248,73 @@ describe VaNotify::Service do
   describe 'error handling', test_service: false do
     subject { VaNotify::Service.new(test_api_key) }
 
-    it 'raises a 400 exception' do
-      allow(StatsD).to receive(:increment)
+    context '400 errors' do
+      it 'invalid template id' do
+        allow(StatsD).to receive(:increment)
 
-      VCR.use_cassette('va_notify/bad_request') do
-        expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
-          expect(e.status_code).to eq(400)
-          expect(e.errors.first.code).to eq('VANOTIFY_400')
+        VCR.use_cassette('va_notify/bad_request_invalid_template_id') do
+          expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
+            expect(e).to be_a(VANotify::BadRequest)
+            expect(e.status_code).to eq(400)
+            expect(e.message).to include('ValidationError: template_id is not a valid UUID')
+          end
         end
+
+        expect(StatsD).to have_received(:increment).with('api.vanotify.send_email.fail',
+                                                         { tags: ['error:CommonClientErrorsClientError',
+                                                                  'status:400'] })
       end
 
-      expect(StatsD).to have_received(:increment).with('api.vanotify.send_email.fail',
-                                                       { tags: ['error:CommonClientErrorsClientError', 'status:400'] })
+      it 'missing personalization' do
+        allow(StatsD).to receive(:increment)
+
+        VCR.use_cassette('va_notify/bad_request_missing_personalization') do
+          expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
+            expect(e).to be_a(VANotify::BadRequest)
+            expect(e.status_code).to eq(400)
+            expect(e.message).to include('Missing personalisation: baz')
+          end
+        end
+
+        expect(StatsD).to have_received(:increment).with('api.vanotify.send_email.fail',
+                                                         { tags: ['error:CommonClientErrorsClientError',
+                                                                  'status:400'] })
+      end
+
+      it 'multiple errors' do
+        allow(StatsD).to receive(:increment)
+
+        VCR.use_cassette('va_notify/bad_request_multiple_errors') do
+          expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
+            expect(e).to be_a(VANotify::BadRequest)
+            expect(e.status_code).to eq(400)
+            expect(e.message).to include('ValidationError: template_id is not a valid UUID')
+            expect(e.message).to include('email_address Not a valid email address')
+          end
+        end
+
+        expect(StatsD).to have_received(:increment).with('api.vanotify.send_email.fail',
+                                                         { tags: ['error:CommonClientErrorsClientError',
+                                                                  'status:400'] })
+      end
+    end
+
+    it 'raises a 401 exception' do
+      VCR.use_cassette('va_notify/auth_error_no_bearer') do
+        expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
+          expect(e).to be_a(VANotify::Unauthorized)
+          expect(e.status_code).to eq(401)
+          expect(e.message).to include('AuthError: Unauthorized, authentication token must be provided')
+        end
+      end
     end
 
     it 'raises a 403 exception' do
-      VCR.use_cassette('va_notify/auth_error') do
+      VCR.use_cassette('va_notify/auth_error_invalid_token') do
         expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e).to be_a(VANotify::Forbidden)
           expect(e.status_code).to eq(403)
-          expect(e.errors.first.code).to eq('VANOTIFY_403')
+          expect(e.message).to include('AuthError: Invalid token: signature, api token is not valid')
         end
       end
     end
@@ -265,9 +322,9 @@ describe VaNotify::Service do
     it 'raises a 404 exception' do
       VCR.use_cassette('va_notify/not_found') do
         expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e).to be_a(VANotify::NotFound)
           expect(e.status_code).to eq(404)
-          expect(e.errors.first.code).to eq('VANOTIFY_404')
+          expect(e.message).to include('The requested URL was not found on the server.')
         end
       end
     end
@@ -275,9 +332,9 @@ describe VaNotify::Service do
     it 'raises a 429 exception' do
       VCR.use_cassette('va_notify/too_many_requests') do
         expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e).to be_a(VANotify::RateLimitExceeded)
           expect(e.status_code).to eq(429)
-          expect(e.errors.first.code).to eq('VANOTIFY_429')
+          expect(e.message).to include('RateLimitError: Exceeded rate limit for key')
         end
       end
     end
@@ -285,9 +342,19 @@ describe VaNotify::Service do
     it 'raises a 500 exception' do
       VCR.use_cassette('va_notify/internal_server_error') do
         expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
-          expect(e).to be_a(Common::Exceptions::BackendServiceException)
+          expect(e).to be_a(VANotify::ServerError)
           expect(e.status_code).to eq(500)
-          expect(e.errors.first.code).to eq('VANOTIFY_500')
+          expect(e.message).to include('Internal server error')
+        end
+      end
+    end
+
+    it 'handles other errors' do
+      VCR.use_cassette('va_notify/other_error') do
+        expect { subject.send_email(send_email_parameters) }.to raise_error do |e|
+          expect(e).to be_a(VANotify::Error)
+          expect(e.status_code).to eq(501)
+          expect(e.message).to include('Not Implemented')
         end
       end
     end
