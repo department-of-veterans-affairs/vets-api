@@ -33,7 +33,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
     Timecop.return
   end
 
-  describe '#526', vcr: 'claims_api/disability_comp' do
+  describe '#526', skip: 'Disabling tests for deactivated /veterans/{veteranId}/526 endpoint',
+                   vcr: 'claims_api/disability_comp' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
@@ -4243,7 +4244,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
     end
   end
 
-  describe 'POST #submit not using md5 lookup' do
+  describe 'POST #submit not using md5 lookup',
+           skip: 'Disabling tests for deactivated /veterans/{veteranId}/526 endpoint' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
