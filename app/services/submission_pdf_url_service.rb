@@ -16,6 +16,16 @@ class SubmissionPdfUrlService
     SimpleFormsApi::FormRemediation::S3Client.fetch_presigned_url(@submission_guid, config:)
   end
 
+  def is_supported
+    begin
+      determine_config
+    rescue Common::Exceptions::Forbidden
+      return false
+    else
+      return true
+    end
+  end
+
   private
 
   def determine_config

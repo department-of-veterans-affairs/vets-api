@@ -15,6 +15,14 @@ module V0
 
         result = report.run
 
+        # add attr to notify if pdf downloads are supported for this Form ID
+        result.submission_statuses.each {|elt|
+          elt.pdf_support = SubmissionPdfUrlService.new(
+            form_id: elt.form_type,
+            submission_guid: elt.id
+          ).is_supported
+        } unless !result.submission_statuses.is_a? Array
+        
         render json: serializable_from(result).to_json, status: status_from(result)
       end
 
