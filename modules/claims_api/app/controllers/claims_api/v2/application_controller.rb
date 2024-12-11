@@ -88,6 +88,13 @@ module ClaimsApi
         )
       end
 
+      def tracked_item_service
+        @tracked_item_service ||= TrackedItemService.new(
+          external_uid: target_veteran.participant_id,
+          external_key: target_veteran.participant_id
+        )
+      end
+
       def bgs_claim_status_service
         @e_benefits_bnt_claim_status_service ||= ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
           external_uid: target_veteran.participant_id,
