@@ -52,7 +52,7 @@ describe Eps::AppointmentService do
 
       it 'throws exception' do
         expect { service.get_appointments }.to raise_error(Common::Exceptions::BackendServiceException,
-                                                                        /VA900/)
+                                                           /VA900/)
       end
     end
   end
