@@ -13,17 +13,7 @@ module V0
           allowed_forms:
         )
 
-        result = report.run
-
-        # add attr to notify if pdf downloads are supported for this Form ID
-        if result.submission_statuses.is_a? Array
-          result.submission_statuses.each do |elt|
-            elt.pdf_support = SubmissionPdfUrlService.new(
-              form_id: elt.form_type,
-              submission_guid: elt.id
-            ).supported?
-          end
-        end
+        result = apply_pdf_support(report.run)
 
         render json: serializable_from(result).to_json, status: status_from(result)
       end
@@ -32,6 +22,19 @@ module V0
 
       def allowed_forms
         %w[20-10206 20-10207 21-0845 21-0972 21-10210 21-4142 21-4142a 21P-0847]
+      end
+
+      def apply_pdf_support(result)
+        # add bool attr to determine if pdf downloads are supported for this submission
+        if result.submission_statuses.is_a? Array
+          result.submission_statuses.each do |elt|
+            elt.pdf_support = SubmissionPdfUrlService.new(
+              form_id: elt.form_type,
+              submission_guid: elt.id
+            ).supported?
+          end
+        end
+        result
       end
 
       def serializable_from(result)
