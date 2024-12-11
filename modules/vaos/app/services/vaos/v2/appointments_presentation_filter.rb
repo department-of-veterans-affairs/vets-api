@@ -36,7 +36,7 @@ module VAOS
         return false unless created_at
 
         valid_appointment_request?(appointment) && appointment[:status].in?(%w[proposed cancelled]) &&
-          created_at.between?(120.days.ago.beginning_of_day, 1.day.from_now.end_of_day)
+          created_at.between?(120.days.ago.beginning_of_day, 2.days.from_now.end_of_day)
       end
 
       def valid_appointment?(appointment)

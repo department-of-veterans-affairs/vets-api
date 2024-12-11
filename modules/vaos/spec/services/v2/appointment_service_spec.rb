@@ -58,7 +58,6 @@ describe VAOS::V2::AppointmentsService do
 
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
-    Flipper.enable_actor(:appointments_consolidation, user)
     Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
@@ -425,23 +424,6 @@ describe VAOS::V2::AppointmentsService do
             response = subject.get_appointments(start_date2, end_date2)
             expect(response[:data][0][:requested_periods]).to be_nil
             expect(response[:data][1][:requested_periods]).not_to be_nil
-          end
-        end
-      end
-
-      context 'when requesting a list of appointments containing a booked cc appointment' do
-        it 'sets cancellable to false' do
-          Flipper.disable(:appointments_consolidation)
-          allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!).and_return(mock_facility2)
-          VCR.use_cassette('vaos/v2/appointments/get_appointments_200_cc_booked',
-                           allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
-            response = subject.get_appointments(start_date2, end_date2)
-            expect(response[:data][0][:kind]).to eq('cc')
-            expect(response[:data][0][:status]).to eq('booked')
-            expect(response[:data][0][:cancellable]).to eq(false)
-            expect(response[:data][1][:kind]).to eq('cc')
-            expect(response[:data][1][:status]).to eq('booked')
-            expect(response[:data][1][:cancellable]).to eq(false)
           end
         end
       end

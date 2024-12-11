@@ -10,7 +10,6 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
   let!(:user) { sis_user(icn: '1012846043V576341', vha_facility_ids: [402, 555]) }
 
   before do
-    Flipper.enable_actor(:appointments_consolidation, user)
     Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 

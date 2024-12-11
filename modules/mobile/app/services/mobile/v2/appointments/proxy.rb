@@ -22,11 +22,6 @@ module Mobile
 
           appointments = response[:data]
 
-          unless Flipper.enabled?(:appointments_consolidation, @user)
-            filterer = VAOS::V2::AppointmentsPresentationFilter.new
-            appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
-          end
-
           appointments = vaos_v2_to_v0_appointment_adapter.parse(appointments)
 
           [appointments.sort_by(&:start_date_utc), response[:meta][:failures]]
