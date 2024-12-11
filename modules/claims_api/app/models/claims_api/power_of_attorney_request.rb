@@ -1,25 +1,11 @@
 # frozen_string_literal: true
 
 module ClaimsApi
-  class PowerOfAttorneyRequest <
-    Data.define(
-      :power_of_attorney_code,
-      :veteran,
-      :obsolete,
-      :decision_status
-    )
+  class PowerOfAttorneyRequest < ApplicationRecord
+    validates :proc_id, presence: true
+    validates :veteran_icn, presence: true
+    validates :poa_code, presence: true
 
-    class << self
-      def find(id)
-        Find.perform(id)
-      end
-    end
-
-    Veteran =
-      Data.define(
-        :participant_id,
-        :file_number,
-        :ssn
-      )
+    belongs_to :power_of_attorney, optional: true
   end
 end
