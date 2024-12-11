@@ -34,10 +34,11 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
 
   let(:fake_claim) { FactoryBot.build(:fake_saved_claim) }
   let(:fake_email) { fake_claim.email }
-  let(:notification) { described_class.new(fake_claim) }
+  let(:notification) { described_class.new(fake_claim.id) }
 
   before do
     allow(Settings.vanotify).to receive(:services).and_return vanotify_services_settings
+    allow(SavedClaim).to receive(:find).and_return(fake_claim)
   end
 
   describe '#deliver' do

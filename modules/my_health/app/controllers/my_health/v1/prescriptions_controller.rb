@@ -92,6 +92,8 @@ module MyHealth
 
       private
 
+      # rubocop:disable ThreadSafety/NewThread
+      # New threads are joined at the end
       def fetch_and_include_images(data)
         threads = []
         data.each do |item|
@@ -108,6 +110,7 @@ module MyHealth
         threads.each(&:join)
         data
       end
+      # rubocop:enable ThreadSafety/NewThread
 
       def fetch_image(image_url)
         uri = URI.parse(image_url)
