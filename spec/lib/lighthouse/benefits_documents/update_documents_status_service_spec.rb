@@ -46,14 +46,18 @@ RSpec.describe BenefitsDocuments::UpdateDocumentsStatusService do
         }
       end
 
-      it 'updates 2 records and leaves one in pending status' do
+      it 'updates the status of 2 records to FAILED and SUCCESS and leaves one in PENDING' do
         described_class.call(document_batch, lighthouse_status_response)
         es1 = EvidenceSubmission.find_by(request_id: lighthouse_document_upload1.request_id)
         es2 = EvidenceSubmission.find_by(request_id: lighthouse_document_upload2.request_id)
         es3 = EvidenceSubmission.find_by(request_id: lighthouse_document_upload3.request_id)
 
         expect(es1.upload_status).to eq(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
+        expect(es1.delete_date).not_to be_nil
         expect(es2.upload_status).to eq(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+        expect(es2.failed_date).not_to be_nil
+        expect(es2.acknowledgement_date).not_to be_nil
+        expect(es2.error_message).to eq('ERROR')
         expect(es3.upload_status).to eq(BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING])
       end
     end
