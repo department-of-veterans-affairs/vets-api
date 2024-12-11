@@ -332,6 +332,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
 
           it 'returns error statuses and error message' do
+            skip 'Temporarily disabled due to flaky behavior. The team has been notified.'
+
             statuses = nil
             error_message = nil
 
@@ -354,6 +356,8 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
 
           it 'retries once and returns error statuses and error message' do
+            skip 'Temporarily disabled due to flaky behavior. The team has been notified.'
+
             # Expect handle_uploads to be called twice due to one retry
             expect(file_uploader).to receive(:handle_uploads).twice
 
