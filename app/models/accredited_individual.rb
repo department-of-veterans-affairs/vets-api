@@ -27,7 +27,7 @@ class AccreditedIndividual < ApplicationRecord
   validates :poa_code, length: { is: 3 }, allow_blank: true
   validates :individual_type, uniqueness: { scope: :registration_number }
 
-  enum individual_type: {
+  enum :individual_type, {
     'attorney' => 'attorney',
     'claims_agent' => 'claims_agent',
     'representative' => 'representative'
