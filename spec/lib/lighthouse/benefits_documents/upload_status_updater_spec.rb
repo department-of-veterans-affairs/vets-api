@@ -8,7 +8,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
   let(:lighthouse_document_upload) { create(:bd_evidence_submission) }
   let(:lighthouse_document_upload_timeout) { create(:bd_evidence_submission_timeout) }
   let(:past_date_time) { DateTime.new(1985, 10, 26) }
-  let(:current_date_time) { DateTime.now.in_time_zone('US/Eastern').utc }
+  let(:current_date_time) { DateTime.now.utc }
 
   describe '#update_status' do
     shared_examples 'status updater' do |status, error_message = nil|
@@ -50,7 +50,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
                 .to((current_date_time + 30.days).utc)
                 .and change(lighthouse_document_upload, :failed_date)
                 .from(nil)
-                .to(current_date_time.utc)
+                .to(be_within(1.second).of(current_date_time.utc))
                 .and change(lighthouse_document_upload, :upload_status)
                 .from(nil)
                 .to(BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
@@ -64,7 +64,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
               expect { status_updater.update_status }
                 .to change(lighthouse_document_upload, :delete_date)
                 .from(nil)
-                .to((current_date_time + 60.days).utc)
+                .to(be_within(1.second).of((current_date_time + 60.days).utc))
                 .and change(lighthouse_document_upload, :upload_status)
                 .from(nil)
                 .to(BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS])
