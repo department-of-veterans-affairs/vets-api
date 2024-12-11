@@ -47,7 +47,6 @@ module BenefitsDocuments
 
     def process_status_updates
       update_documents_status
-
       unknown_ids = @lighthouse_status_response.dig('data', 'requestIdsNotFound')
 
       return { success: true } if unknown_ids.blank?
@@ -82,9 +81,9 @@ module BenefitsDocuments
       # end
     end
 
-    def statsd_document_base_key(statsd_document_type_key)
-      @statsd_document_base_key ||= "#{STATSD_BASE_KEY}.#{statsd_document_type_key}"
-    end
+    # def statsd_document_base_key(statsd_document_type_key)
+    #   @statsd_document_base_key ||= "#{STATSD_BASE_KEY}.#{statsd_document_type_key}"
+    # end
 
     # def log_failure(status_updater, document_upload)
     #   # Because Lighthouse's processing steps are subject to change, these metrics must be dynamic.
