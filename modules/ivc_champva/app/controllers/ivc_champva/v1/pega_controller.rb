@@ -39,18 +39,11 @@ module IvcChampva
 
       private
 
-      # rubocop:disable Metrics/MethodLength
-      # Temporarily disabling rubocop because of flipper
       def update_data(form_uuid, file_names, status, case_id)
         ivc_forms = forms_query(form_uuid, file_names)
 
         if ivc_forms.any?
-          ivc_forms.each do |form|
-            form.update!(
-              pega_status: status,
-              case_id:
-            )
-          end
+          ivc_forms.each { |form| form.update!(pega_status: status, case_id:) }
 
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
@@ -76,7 +69,6 @@ module IvcChampva
             status: :not_found }
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       def send_email(form_uuid, form)
         return if form.email_sent
