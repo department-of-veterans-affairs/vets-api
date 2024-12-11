@@ -10,9 +10,9 @@ module MyHealth
             rx = client.get_rx_details(id)
             raise StandardError, 'Rx not found' if rx.nil?
 
-            cmop_ndc_number = rx.rx_rf_records&.find do |record|
-                                record[1]&.dig(0, :cmop_ndc_number)
-                              end&.dig(1, 0, :cmop_ndc_number) || rx.cmop_ndc_number
+            cmop_ndc_number = rx.rx_rf_records&.dig(0, 1)&.find do |record|
+              record[:cmop_ndc_number]
+            end&.[](:cmop_ndc_number) || rx.cmop_ndc_number
             raise StandardError, 'Missing NDC number' if cmop_ndc_number.nil?
 
             documentation = client.get_rx_documentation(cmop_ndc_number)
