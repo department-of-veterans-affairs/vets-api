@@ -176,7 +176,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
         before do
           request.headers['Authorization'] = "Bearer #{bearer_token}"
           request.headers['Authentication-Method'] = 'SIS'
-          # allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile)
+          allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile)
         end
 
         it 'uses SIS session authentication' do
