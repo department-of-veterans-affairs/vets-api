@@ -13,6 +13,7 @@ module Vets
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
     include Vets::Attributes
+    include Vets::Model::Sortable
 
     included do
       extend ActiveModel::Naming
