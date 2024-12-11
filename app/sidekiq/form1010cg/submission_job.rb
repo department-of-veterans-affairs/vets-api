@@ -22,7 +22,7 @@ module Form1010cg
       StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
 
       claim = SavedClaim::CaregiversAssistanceClaim.find(msg['args'][0])
-      attempt_send_failure_email(claim)
+      send_failure_email(claim)
     end
 
     def retry_limits_for_notification
@@ -51,7 +51,7 @@ module Form1010cg
       StatsD.increment("#{STATSD_KEY_PREFIX}record_parse_error", tags: ["claim_id:#{claim_id}"])
       StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
 
-      self.class.attempt_send_failure_email(claim)
+      self.class.send_failure_email(claim)
     rescue => e
       log_exception_to_sentry(e)
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
@@ -59,7 +59,7 @@ module Form1010cg
       raise
     end
 
-    def self.attempt_send_failure_email(claim)
+    def self.send_failure_email(claim)
       return unless Flipper.enabled?(:caregiver_use_va_notify_on_submission_failure)
       return unless claim.parsed_form.dig('veteran', 'email')
 
