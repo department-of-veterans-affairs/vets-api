@@ -221,6 +221,10 @@ features:
     actor_type: user
     description: Enables users to access the claim letters page
     enable_in_development: true
+  claims_api_special_issues_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables special issues updater to use local_bgs
+    enable_in_development: true
   claims_api_flash_updater_uses_local_bgs:
     actor_type: user
     description: Enables flash updater to use local_bgs
@@ -1540,6 +1544,10 @@ features:
     actor_type: user
     description: Enables the use of LH API instead of Profile API for the Veteran Status Card display
     enable_in_development: false
+  veteran_status_card_use_lighthouse_frontend:
+    actor_type: user
+    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display, story 1145
+    enable_in_development: false
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
@@ -1654,6 +1662,9 @@ features:
   appointment_provider_id_logging:
     actor_type: user
     description: For mobile app, logs provider id for debugging
+  mobile_push_register_logging:
+    actor_type: user
+    description: For mobile app, logs push register errors for debugging
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
@@ -1940,3 +1951,7 @@ features:
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
+  benefits_non_disability_ch31_v2:
+    actor_type: user
+    description: If enabled, use new form and api endpoint for Ch31 VR&E form
+    enable_in_development: false
