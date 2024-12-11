@@ -15,8 +15,6 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
-        # add feature flag condition here
-        # resource = true ? grouping_list(resource) : resource
         if Flipper.enabled?(:mhv_medications_display_grouping)
           resource.data = group_prescriptions(resource.data)
         end

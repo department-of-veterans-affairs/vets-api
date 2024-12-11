@@ -108,6 +108,27 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(item_index).not_to be_nil
       end
 
+      it 'responds to GET #index, groups medications' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_grouped_prescriptions') do
+          get '/my_health/v1/prescriptions?page=1&per_page=20'
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+        expect(JSON.parse(response.body)['data']).to be_truthy
+
+        grouped_med_list = (JSON.parse(response.body)['data'])
+        first_rx_w_grouped_med_list = grouped_med_list.find {|rx|
+          associated_rxs = rx['attributes']['grouped_medications'].present?
+        }
+        rx_num_of_grouped_rx = first_rx_w_grouped_med_list["attributes"]["grouped_medications"].first["prescription_number"]
+
+        expect(grouped_med_list.find { |rx|
+          rx['attributes']['prescription_number'] === rx_num_of_grouped_rx
+        }).to be_falsey
+      end
+
       it 'responds to GET #get_prescription_image with image' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_prescription_image_v1') do
           get '/my_health/v1/prescriptions?/prescriptions/get_prescription_image/00013264681'
