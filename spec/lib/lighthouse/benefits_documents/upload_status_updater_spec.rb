@@ -8,7 +8,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
   let(:lighthouse_document_upload) { create(:bd_evidence_submission) }
   let(:lighthouse_document_upload_timeout) { create(:bd_evidence_submission_timeout) }
   let(:past_date_time) { DateTime.new(1985, 10, 26) }
-  let(:current_date_time) { DateTime.now.utc }
+  let(:current_date_time) { DateTime.now.in_time_zone('US/Eastern').utc }
 
   describe '#update_status' do
     shared_examples 'status updater' do |status, error_message = nil|
