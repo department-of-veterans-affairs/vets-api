@@ -1,9 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../../../support/helpers/rails_helper'
+require_relative '../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::Dependents::RequestDecisions', type: :request do
   include JsonSchemaMatchers
+  include CommitteeHelper
 
   describe 'GET /dependents/request-decisions' do
     let!(:user) { sis_user }
@@ -14,8 +16,7 @@ RSpec.describe 'Mobile::V0::Dependents::RequestDecisions', type: :request do
         allow(user).to receive(:participant_id).and_return('13014883')
         get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
       end
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to match_json_schema('dependents_request_decisions', strict: true)
+      assert_schema_conform(200)
       expect(attributes['promptRenewal']).to eq(true)
     end
 
@@ -25,8 +26,7 @@ RSpec.describe 'Mobile::V0::Dependents::RequestDecisions', type: :request do
           allow(user).to receive(:participant_id).and_return('123')
           get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
         end
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to match_json_schema('dependents_request_decisions', strict: true)
+        assert_schema_conform(200)
         expect(attributes['diaries']).to eq([])
         expect(attributes['promptRenewal']).to eq(false)
       end
@@ -38,8 +38,7 @@ RSpec.describe 'Mobile::V0::Dependents::RequestDecisions', type: :request do
           allow(user).to receive(:participant_id).and_return('13014883')
           get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
         end
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to match_json_schema('dependents_request_decisions', strict: true)
+        assert_schema_conform(200)
         expect(attributes['diaries'].count).to eq(1)
         expect(attributes.dig('diaries', 0, 'diaryLcStatusType')).to eq('CXCL')
         expect(attributes['promptRenewal']).to eq(false)
@@ -52,8 +51,7 @@ RSpec.describe 'Mobile::V0::Dependents::RequestDecisions', type: :request do
           allow(user).to receive(:participant_id).and_return('13014883')
           get('/mobile/v0/dependents/request-decisions', headers: sis_headers)
         end
-        expect(response).to have_http_status(:ok)
-        expect(response.body).to match_json_schema('dependents_request_decisions', strict: true)
+        assert_schema_conform(200)
         expect(attributes['dependencyVerifications'].count).to eq(1)
         expect(attributes['promptRenewal']).to eq(true)
       end
