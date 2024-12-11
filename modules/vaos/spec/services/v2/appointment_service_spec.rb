@@ -19,24 +19,26 @@ describe VAOS::V2::AppointmentsService do
 
   let(:appt_med) do
     { kind: 'clinic', service_category: [{ coding:
-                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
+                                             [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
   end
   let(:appt_non) do
-    { kind: 'clinic', service_category: [{ coding:
-                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'SERVICE CONNECTED' }] }],
+    { kind: 'clinic', service_category: [
+                        { coding:
+                                                               [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'SERVICE CONNECTED' }] }
+                      ],
       service_type: 'SERVICE CONNECTED', service_types: [{ coding: [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'SERVICE CONNECTED' }] }] }
   end
   let(:appt_cnp) do
     { kind: 'clinic', service_category: [{ coding:
-                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'COMPENSATION & PENSION' }] }] }
+                                             [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'COMPENSATION & PENSION' }] }] }
   end
   let(:appt_cc) do
     { kind: 'cc', service_category: [{ coding:
-                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
+                                         [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
   end
   let(:appt_telehealth) do
     { kind: 'telehealth', service_category: [{ coding:
-                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
+                                                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
   end
   let(:appt_no_service_cat) { { kind: 'clinic' } }
 
@@ -369,6 +371,16 @@ describe VAOS::V2::AppointmentsService do
             expect(response[:data].size).to eq(4)
             expect(response[:data][0][:status]).to eq('proposed')
           end
+        end
+      end
+
+      context 'when an appointment is in the past' do
+        let(:appointment) { { status: 'booked', start: '2022-09-01T10:00:00-07:00' } }
+
+        it 'changes cancellable status to false' do
+          expect(subject.send(:cannot_be_cancelled?, appointment)).to be false
+          appointment[:start] = '2021-09-01T10:00:00-07:00'
+          expect(subject.send(:cannot_be_cancelled?, appointment)).to be true
         end
       end
 
@@ -1248,7 +1260,8 @@ describe VAOS::V2::AppointmentsService do
 
     it 'Modifies the appointment with service type(s) removed from appointment' do
       expect { subject.send(:remove_service_type, appt_non) }.to change(appt_non, :keys)
-        .from(%i[kind service_category service_type service_types])
+        .from(%i[kind service_category service_type
+                 service_types])
         .to(%i[kind service_category])
     end
   end
