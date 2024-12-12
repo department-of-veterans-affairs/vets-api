@@ -6,9 +6,24 @@ module VANotify
   module NotificationCallback
     class SavedClaim < ::VANotify::NotificationCallback::Default
 
-      def call
-        puts 'TEST'
-        puts klass
+      # notification was delivered
+      def on_delivered
+        nil
+      end
+
+      # notification has permanently failed
+      def on_permanent_failure
+        nil
+      end
+
+      # notification has temporarily failed
+      def on_temporary_failure
+        nil
+      end
+
+      # notification has an unknown status
+      def on_other_status
+        nil
       end
 
     end

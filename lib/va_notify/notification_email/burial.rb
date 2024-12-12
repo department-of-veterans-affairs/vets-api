@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_notify/notification_callback/burials'
+require 'va_notify/notification_callback/burial'
 require 'va_notify/notification_email/saved_claim'
 
 # Form 21P-530EZ
