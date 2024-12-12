@@ -11,9 +11,9 @@ module RepresentationManagement
           @template_path = nil
         end
 
-        def construct(data)
+        def construct(data, flatten: true)
           set_template_path
-          fill_and_combine_pdf(data)
+          fill_and_combine_pdf(data, flatten: flatten)
         end
 
         protected
@@ -133,10 +133,10 @@ module RepresentationManagement
         #
         # @param data [Hash] Data to fill in pdf form with
         #
-        def fill_and_combine_pdf(data)
+        def fill_and_combine_pdf(data, flatten: true)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
           next_steps_tempfile = generate_next_steps_page(data) if next_steps_page?
-          template_tempfile = fill_template_form(pdftk, data)
+          template_tempfile = fill_template_form(pdftk, data, flatten: flatten)
 
           combine_pdfs(next_steps_tempfile, template_tempfile)
           cleanup_tempfiles(template_tempfile, next_steps_tempfile)
@@ -167,11 +167,11 @@ module RepresentationManagement
           tempfile
         end
 
-        def fill_template_form(pdftk, data)
+        def fill_template_form(pdftk, data, flatten: true)
           tempfile = Tempfile.new
           # The flatten option on the next line determines if the pdf is editable and accessible or not.
           # If flatten is false, the pdf is editable and accessible. If flatten is true, the pdf is not editable.
-          pdftk.fill_form(@template_path, tempfile.path, template_options(data), flatten: true)
+          pdftk.fill_form(@template_path, tempfile.path, template_options(data), flatten: flatten)
           @template_path = tempfile.path
           tempfile.rewind
           tempfile
