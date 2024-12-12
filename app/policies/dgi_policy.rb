@@ -2,6 +2,6 @@
 
 DGIPolicy = Struct.new(:user, :dgi) do
   def access?
-    user.icn.present? && user.ssn.present?
+    user.loa3? && user.icn.present? && user.ssn.present?
   end
 end
