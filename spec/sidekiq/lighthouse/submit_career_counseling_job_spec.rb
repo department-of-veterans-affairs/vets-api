@@ -78,34 +78,27 @@ RSpec.describe Lighthouse::SubmitCareerCounselingJob do
       ) do
         expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
         exhaustion_msg['args'] = [claim.id, user_account_uuid]
-        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim, 'foo@foo.com')
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           'foo@foo.com',
           'form27_8832_action_needed_email_template_id',
           {
             'first_name' => 'DERRICK',
-            'date' => Time.zone.today.strftime('%B %d, %Y'),
+            'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
             'confirmation_number' => claim.confirmation_number
           }
         )
       end
     end
-  end
 
-  describe 'sidekiq_retries_exhausted block with flipper off' do
-    before do
-      Flipper.disable(:form27_8832_action_needed_email)
-      allow(PCPG::Monitor).to receive(:new).and_return(monitor)
-      allow(monitor).to receive :track_submission_exhaustion
-    end
-
-    it 'logs error when retries are exhausted' do
+    it 'logs error when retries are exhausted with no email' do
       Lighthouse::SubmitCareerCounselingJob.within_sidekiq_retries_exhausted_block(
         { 'args' => [claim.id, user_account_uuid] }
       ) do
         expect(SavedClaim).to receive(:find).with(claim.id).and_return(claim)
         exhaustion_msg['args'] = [claim.id, user_account_uuid]
-        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
+        claim.parsed_form['claimantInformation'].delete('emailAddress')
+        expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim, nil)
       end
     end
   end

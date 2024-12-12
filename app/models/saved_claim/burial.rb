@@ -2,7 +2,7 @@
 
 require 'pension_burial/processing_office'
 
-class SavedClaim::Burial < CentralMailClaim
+class SavedClaim::Burial < SavedClaim
   FORM = '21P-530'
 
   # attribute name is passed from the FE as a flag, maintaining camel case
@@ -84,5 +84,6 @@ class SavedClaim::Burial < CentralMailClaim
     claimed << 'Burial Allowance' if parsed_form['burialAllowance']
     claimed << 'Plot Allowance' if parsed_form['plotAllowance']
     claimed << 'Transportation' if parsed_form['transportation']
+    claimed
   end
 end

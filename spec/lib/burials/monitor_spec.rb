@@ -66,7 +66,7 @@ RSpec.describe Burials::Monitor do
         }
 
         expect(monitor).to receive(:track_request).with(
-          'error',
+          'info',
           log,
           "#{claim_stats_key}.attempt",
           call_location: anything,
@@ -166,30 +166,65 @@ RSpec.describe Burials::Monitor do
     end
 
     describe '#track_submission_exhaustion' do
-      it 'logs sidekiq job exhaustion' do
-        msg = { 'args' => [claim.id, current_user.uuid] }
+      context 'with a claim parameter' do
+        it 'logs sidekiq job exhaustion' do
+          notification = double(Burials::NotificationEmail)
 
-        log = 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!'
-        payload = {
-          confirmation_number: claim.confirmation_number,
-          user_account_uuid: current_user.uuid,
-          form_id: claim.form_id,
-          claim_id: claim.id, # pulled from msg.args
-          message: msg,
-          tags: monitor.tags
-        }
+          msg = { 'args' => [claim.id, current_user.uuid] }
 
-        expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+          log = 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!'
+          payload = {
+            confirmation_number: claim.confirmation_number,
+            user_account_uuid: current_user.uuid,
+            form_id: claim.form_id,
+            claim_id: claim.id, # pulled from msg.args
+            message: msg,
+            tags: monitor.tags
+          }
 
-        expect(monitor).to receive(:track_request).with(
-          'error',
-          log,
-          "#{submission_stats_key}.exhausted",
-          call_location: anything,
-          **payload
-        )
+          expect(Burials::NotificationEmail).to receive(:new).with(claim.id).and_return notification
+          expect(notification).to receive(:deliver).with(:error)
+          expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
 
-        monitor.track_submission_exhaustion(msg, claim)
+          expect(monitor).to receive(:track_request).with(
+            'error',
+            log,
+            "#{submission_stats_key}.exhausted",
+            call_location: anything,
+            **payload
+          )
+
+          monitor.track_submission_exhaustion(msg, claim)
+        end
+      end
+
+      context 'without a claim parameter' do
+        it 'logs sidekiq job exhaustion' do
+          msg = { 'args' => [claim.id, current_user.uuid] }
+
+          log = 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!'
+          payload = {
+            confirmation_number: nil,
+            user_account_uuid: current_user.uuid,
+            form_id: nil,
+            claim_id: claim.id, # pulled from msg.args
+            message: msg,
+            tags: monitor.tags
+          }
+
+          expect(Burials::NotificationEmail).not_to receive(:new)
+          expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+
+          expect(monitor).to receive(:track_request).with(
+            'error',
+            log,
+            "#{submission_stats_key}.exhausted",
+            call_location: anything,
+            **payload
+          )
+
+          monitor.track_submission_exhaustion(msg, nil)
+        end
       end
     end
   end

@@ -24,10 +24,10 @@ module AskVAApi
 
         def call
           payload = {
-            AreYouTheDependent: inquiry_details[:inquiry_about].include?('dependent'),
+            AreYouTheDependent: dependent_of_veteran?,
             AttachmentPresent: attachment_present?,
             CaregiverZipCode: nil,
-            ContactMethod: @translator.call(:response_type, inquiry_params[:contact_preference]),
+            ContactMethod: @translator.call(:response_type, inquiry_params[:contact_preference] || 'Email'),
             DependentDOB: family_member_field(:date_of_birth),
             DependentFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)
@@ -87,7 +87,7 @@ module AskVAApi
           return if inquiry_params[:files].first[:file_name].nil?
 
           inquiry_params[:files].map do |file|
-            { FileName: file[:file_name], FileContent: file[:base64] }
+            { FileName: file[:file_name], FileContent: file[:file_content] }
           end
         end
 
@@ -115,8 +115,8 @@ module AskVAApi
 
         def build_residency_state_data
           {
-            Name: inquiry_params.dig(:state_or_residency, :residency_state),
-            StateCode: fetch_state_code(inquiry_params.dig(:state_or_residency, :residency_state))
+            Name: fetch_state(inquiry_params.dig(:state_or_residency, :residency_state)),
+            StateCode: inquiry_params.dig(:state_or_residency, :residency_state)
           }
         end
 
@@ -132,6 +132,11 @@ module AskVAApi
             Name: fetch_state(inquiry_params.dig(obj, key)),
             StateCode: inquiry_params.dig(obj, key)
           }
+        end
+
+        def dependent_of_veteran?
+          inquiry_params[:who_is_your_question_about] == 'Myself' &&
+            inquiry_params[:relationship_to_veteran] == "I'm a family member of a Veteran"
         end
       end
     end

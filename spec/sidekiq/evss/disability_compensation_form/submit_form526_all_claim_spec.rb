@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'disability_compensation/factories/api_provider_factory'
+require 'virtual_regional_office/client'
 
 # pulled from vets-api/spec/support/disability_compensation_form/submissions/only_526.json
 ONLY_526_JSON_CLASSIFICATION_CODE = 'string'
@@ -14,6 +15,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_compensation_production_tester)
     Flipper.disable(:disability_compensation_fail_submission)
+    Flipper.disable(:disability_526_expanded_contention_classification)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -76,6 +78,109 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         receive(:non_retryable_error_handler).and_call_original
       )
       described_class.drain
+    end
+
+    context 'Submission inspection for flashes' do
+      before do
+        allow(Rails.logger).to receive(:info)
+        allow(StatsD).to receive(:increment)
+      end
+
+      def submit_it
+        subject.perform_async(submission.id)
+        VCR.use_cassette('virtual_regional_office/contention_classification_null_response') do
+          described_class.drain
+        end
+        submission.reload
+        expect(Form526JobStatus.last.status).to eq 'success'
+      end
+
+      context 'without any flashes' do
+        let(:submission) do
+          create(:form526_submission,
+                 :asthma_claim_for_increase,
+                 user_uuid: user.uuid,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id)
+        end
+
+        it 'does not log or push metrics' do
+          submit_it
+
+          expect(Rails.logger).not_to have_received(:info).with('Flash Prototype Added', anything)
+          expect(StatsD).not_to have_received(:increment).with('worker.flashes', anything)
+        end
+      end
+
+      context 'with flash but without prototype' do
+        let(:submission) do
+          create(:form526_submission,
+                 :without_diagnostic_code,
+                 user_uuid: user.uuid,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id)
+        end
+
+        it 'does not log prototype statement but pushes metrics' do
+          submit_it
+
+          expect(Rails.logger).not_to have_received(:info).with('Flash Prototype Added', anything)
+          expect(StatsD).to have_received(:increment).with(
+            'worker.flashes',
+            tags: ['flash:Priority Processing - Veteran over age 85', 'prototype:false']
+          ).once
+        end
+      end
+
+      context 'with ALS flash' do
+        let(:submission) do
+          create(:form526_submission,
+                 :als_claim_for_increase,
+                 user_uuid: user.uuid,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id)
+        end
+
+        it 'logs prototype statement and pushes metrics' do
+          submit_it
+
+          expect(Rails.logger).to have_received(:info).with(
+            'Flash Prototype Added',
+            { submitted_claim_id:, flashes: ['Amyotrophic Lateral Sclerosis'] }
+          ).once
+          expect(StatsD).to have_received(:increment).with(
+            'worker.flashes',
+            tags: ['flash:Amyotrophic Lateral Sclerosis', 'prototype:true']
+          ).once
+        end
+      end
+
+      context 'with multiple flashes' do
+        let(:submission) do
+          create(:form526_submission,
+                 :als_claim_for_increase_terminally_ill,
+                 user_uuid: user.uuid,
+                 auth_headers_json: auth_headers.to_json,
+                 saved_claim_id: saved_claim.id)
+        end
+
+        it 'logs prototype statement and pushes metrics' do
+          submit_it
+
+          expect(Rails.logger).to have_received(:info).with(
+            'Flash Prototype Added',
+            { submitted_claim_id:, flashes: ['Amyotrophic Lateral Sclerosis', 'Terminally Ill'] }
+          ).once
+          expect(StatsD).to have_received(:increment).with(
+            'worker.flashes',
+            tags: ['flash:Amyotrophic Lateral Sclerosis', 'prototype:true']
+          ).once
+          expect(StatsD).to have_received(:increment).with(
+            'worker.flashes',
+            tags: ['flash:Terminally Ill', 'prototype:false']
+          ).once
+        end
+      end
     end
 
     context 'with contention classification enabled' do
@@ -317,13 +422,57 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         submission.reload
 
         classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
-        expect(classification_codes).to eq([9012, 8994, nil])
+        expect(classification_codes).to eq([9012, 8994, nil, nil])
       end
 
-      it 'calls va-gov-claim-classifier' do
+      it 'calls va-gov-claim-classifier as default' do
+        vro_client_mock = instance_double(VirtualRegionalOffice::Client)
+        allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client_mock)
+        allow(vro_client_mock).to receive_messages(
+          classify_vagov_contentions_expanded: OpenStruct.new(body: 'expanded classification'),
+          classify_vagov_contentions: OpenStruct.new(body: 'regular response')
+        )
+
+        expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
+        expect(vro_client_mock).to receive(:classify_vagov_contentions)
         subject.perform_async(submission.id)
-        expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions)
         described_class.drain
+      end
+
+      context 'when the expanded classification endpoint is enabled' do
+        before do
+          user = OpenStruct.new({ flipper_id: submission.user_uuid })
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:disability_526_expanded_contention_classification,
+                                                    user).and_return(true)
+        end
+
+        it 'calls the expanded classification endpoint' do
+          vro_client_mock = instance_double(VirtualRegionalOffice::Client)
+          allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client_mock)
+          allow(vro_client_mock).to receive_messages(
+            classify_vagov_contentions_expanded: OpenStruct.new(body: 'expanded classification'),
+            classify_vagov_contentions: OpenStruct.new(body: 'regular response')
+          )
+
+          expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
+          expect(vro_client_mock).to receive(:classify_vagov_contentions_expanded)
+          subject.perform_async(submission.id)
+          described_class.drain
+        end
+
+        it 'uses expanded classification to classify contentions' do
+          subject.perform_async(submission.id)
+          expect do
+            VCR.use_cassette('virtual_regional_office/expanded_classification') do
+              described_class.drain
+            end
+          end.not_to change(Sidekiq::Form526BackupSubmissionProcess::Submit.jobs, :size)
+          submission.reload
+
+          classification_codes = submission.form['form526']['form526']['disabilities'].pluck('classificationCode')
+          expect(classification_codes).to eq([9012, 8994, nil, 8997])
+        end
       end
 
       context 'when the disabilities array is empty' do
@@ -542,6 +691,23 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           it "throws a #{status} error if Lighthouse sends it back" do
             allow_any_instance_of(Form526Submission).to receive(:prepare_for_evss!).and_return(nil)
             allow_any_instance_of(BenefitsClaims::Service).to receive(:prepare_submission_body)
+              .and_raise(error_class.new(status:))
+            expect_retryable_error(error_class)
+          end
+
+          it "throws a #{status} error if Lighthouse sends it back for rated disabilities" do
+            allow_any_instance_of(Flipper)
+              .to(receive(:enabled?))
+              .with('disability_compensation_lighthouse_rated_disabilities_provider_background', anything)
+              .and_return(true)
+            allow_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm526)
+              .to(receive(:fail_submission_feature_enabled?))
+              .and_return(false)
+            allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:prepare_for_ep_merge!).and_return(nil)
+            allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:pending_eps?).and_return(false)
+            allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:classify_vagov_contentions)
+              .and_return(nil)
+            allow_any_instance_of(VeteranVerification::Service).to receive(:get_rated_disabilities)
               .and_raise(error_class.new(status:))
             expect_retryable_error(error_class)
           end
