@@ -16,7 +16,7 @@ module Vets
       def attribute(name, klass, **options)
         default = options[:default]
         array = options[:array] || false
-        filterable = options[:filterable]
+        filterable = options[:filterable] || false
 
         attributes[name] = { type: klass, default:, array:, filterable: }
 
@@ -29,8 +29,14 @@ module Vets
         ancestors.select { |klass| klass.respond_to?(:attributes) }.flat_map { |klass| klass.attributes.keys }.uniq
       end
 
+      # Lists the attributes that are filterable
       def filterable_attributes
-        @filterable_attributes ||= attributes.each_with_object({}) do |attribute, hash|
+        @filterable_attributes ||= attributes.select { |_, options| !!options[:filterable] }.keys
+      end
+
+      # Creates a param hash for filterable
+      def filterable_params
+        @filterable_params ||= attributes.each_with_object({}) do |attribute, hash|
 
           name = attribute.first
           options = attribute.second
