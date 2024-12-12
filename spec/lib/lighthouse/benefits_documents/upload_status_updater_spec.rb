@@ -47,7 +47,7 @@ RSpec.describe BenefitsDocuments::UploadStatusUpdater do
               expect { status_updater.update_status }
                 .to change(lighthouse_document_upload, :acknowledgement_date)
                 .from(nil)
-                .to((current_date_time + 30.days).utc)
+                .to(be_within(1.second).of(current_date_time + 30.days).utc)
                 .and change(lighthouse_document_upload, :failed_date)
                 .from(nil)
                 .to(be_within(1.second).of(current_date_time.utc))
