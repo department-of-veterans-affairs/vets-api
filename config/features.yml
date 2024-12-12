@@ -951,6 +951,10 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  mhv_account_creation_api_consumption:
+    actor_type: user
+    descriptiom: Enables access to alerts related to MHV Account Creation API
+    enable_in_development: true
   mhv_account_creation_after_login:
     actor_type: user
     descriptiom: Enables access to MHV Account Creation API
