@@ -167,9 +167,15 @@ features:
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
+  champva_confirmation_email_bugfix:
+    actor_type: user
+    description: Enables fix for a bug where confirmation emails may get sent when Pega reports a status of 'Not Processed'
   champva_enhanced_monitor_logging:
     actor_type: user
     description: Enables using the new IVC CHAMPVA Monitoring logging class for enhanced Stats D info.
+  champva_pdf_decrypt:
+    actor_type: user
+    description: Enables unlocking password protected file submissions in IVC CHAMPVA forms.
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -249,6 +255,10 @@ features:
   claims_api_poa_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends poa forms to BD via the refactored logic
+    enable_in_development: true
+  claims_api_526_validations_v1_local_bgs:
+    actor_type: user
+    description: Enables the method calls in the v1 526 validations use local_bgs
     enable_in_development: true
   claims_api_use_person_web_service:
     actor_type: user
@@ -1541,6 +1551,10 @@ features:
     actor_type: user
     description: Enables the use of LH API instead of Profile API for the Veteran Status Card display
     enable_in_development: false
+  veteran_status_card_use_lighthouse_frontend:
+    actor_type: user
+    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display, story 1145
+    enable_in_development: false
   vre_trigger_action_needed_email:
     actor_type: user
     description: Set whether to enable VANotify email to Veteran for VRE failure exhaustion
@@ -1798,6 +1812,9 @@ features:
   burial_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
+  burial_browser_monitoring_enabled:
+    actor_type: user
+    description: Burial Datadog RUM monitoring
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form

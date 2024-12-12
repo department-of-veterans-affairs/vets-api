@@ -22,25 +22,25 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Mon, 09 Dec 2024 17:08:48 GMT
+      - Wed, 11 Dec 2024 19:39:18 GMT
       Content-Type:
       - application/json
       Content-Length:
-      - '580176'
+      - '585441'
       X-Amzn-Requestid:
-      - e3fa700a-620b-423c-9372-bc9570823a0d
+      - e0c85c22-531e-4589-81dc-c8ccd28ef2e3
       X-Amzn-Remapped-Connection:
       - keep-alive
       X-Amz-Apigw-Id:
-      - CiKU-HFsPHMFm0w=
+      - CpGQCGglvHMFU4Q=
       X-Amzn-Remapped-Date:
-      - Mon, 09 Dec 2024 17:08:47 GMT
+      - Wed, 11 Dec 2024 19:39:18 GMT
       Strict-Transport-Security:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: ASCII-8BIT
-      string: '{"failedStationList":"","successfulStationList":null,"lastUpdatedTime":"Mon,
-        09 Dec 2024 10:05:45 EST","medicationList":{"medication":[{"refillStatus":"discontinued","refillSubmitDate":null,"refillDate":"Sun,
+      string: '{"failedStationList":"","successfulStationList":null,"lastUpdatedTime":"Wed,
+        11 Dec 2024 10:38:04 EST","medicationList":{"medication":[{"refillStatus":"discontinued","refillSubmitDate":null,"refillDate":"Sun,
         05 Jun 2022 00:00:00 EDT","refillRemaining":2,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142484,"sig":"TAKE
         ONE TABLET EVERY DAY FOR 30 DAYS","orderedDate":"Sat, 16 Apr 2022 00:00:00
         EDT","quantity":30,"expirationDate":"Mon, 17 Apr 2023 00:00:00 EDT","prescriptionNumber":"3636841","prescriptionName":"KETOCONAZOLE
@@ -129,7 +129,7 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142491,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":"TEST
-        COMMENT 02222022","divisionName":null,"modifiedDate":"Mon, 09 Dec 2024 10:05:44
+        COMMENT 02222022","divisionName":null,"modifiedDate":"Wed, 11 Dec 2024 10:38:03
         EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Non-VA","ndc":"50419-0402-03","reason":null,"prescriptionNumberIndex":"NV","prescriptionSource":"NV","disclaimer":"TEST
         DISCLAIMER 02222022","indicationForUse":null,"indicationForUseFlag":null,"category":"Documented
@@ -140,8 +140,8 @@ http_interactions:
         500MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142494,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":null,"modifiedDate":"Mon,
-        09 Dec 2024 10:05:44 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142494,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":null,"modifiedDate":"Wed,
+        11 Dec 2024 10:38:03 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Non-VA","ndc":"00904-4215-51","reason":null,"prescriptionNumberIndex":"NV","prescriptionSource":"NV","disclaimer":null,"indicationForUse":"TEST","indicationForUseFlag":null,"category":"Documented
         by VA","orderableItem":"L-ARGININE 500MG","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Mon,
         02 May 2022 00:00:00 EDT","refillRemaining":null,"facilityName":"SLC10 TEST
@@ -150,8 +150,8 @@ http_interactions:
         10MG/ML INJ 20ML","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142495,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":null,"modifiedDate":"Mon,
-        09 Dec 2024 10:05:44 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142495,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":null,"modifiedDate":"Wed,
+        11 Dec 2024 10:38:03 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Non-VA","ndc":"61570-0581-10","reason":null,"prescriptionNumberIndex":"NV","prescriptionSource":"NV","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Documented
         by VA","orderableItem":"K PHOSPHATE 305-NA PHOSTATE 700MG","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Sun,
         22 May 2022 00:00:00 EDT","refillRemaining":null,"facilityName":"SLC10 TEST
@@ -159,8 +159,8 @@ http_interactions:
         TOP DAILY","orderedDate":"Wed, 01 Jun 2022 00:00:00 EDT","quantity":null,"expirationDate":null,"prescriptionNumber":"6","prescriptionName":null,"dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142496,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":null,"modifiedDate":"Mon,
-        09 Dec 2024 10:05:44 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142496,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":null,"modifiedDate":"Wed,
+        11 Dec 2024 10:38:03 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Non-VA","ndc":null,"reason":null,"prescriptionNumberIndex":"NV","prescriptionSource":"NV","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Documented
         by VA","orderableItem":"MAFENIDE ACETATE 8.5% 480GM","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"discontinued","refillSubmitDate":null,"refillDate":"Tue,
         21 Sep 2021 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
@@ -184,6 +184,23 @@ http_interactions:
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":21142500,"sig":null,"orderedDate":"Sun,
         22 Aug 2021 00:00:00 EDT","quantity":null,"expirationDate":null,"prescriptionNumber":"2720290","prescriptionName":"AMITRIPTYLINE
         HCL 10MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142500,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00603-2212-32","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
+        Expired more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"discontinued","refillSubmitDate":"Tue,
+        26 Jul 2022 16:20:19 EDT","refillDate":"Sun, 26 Jun 2022 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":21142502,"sig":"TAKE
+        ONE CAPSULE DAILY FOR 30 DAYS TEST","orderedDate":"Wed, 13 Oct 2021 00:00:00
+        EDT","quantity":30,"expirationDate":"Fri, 14 Oct 2022 00:00:00 EDT","prescriptionNumber":"2720298","prescriptionName":"ACYCLOVIR
+        200MG CAP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142502,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
+        14 Aug 2023 14:02:20 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00172-4266-70","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST
+        INDICATION TEST","indicationForUseFlag":null,"category":"Rx Medication","orderableItem":"ACYCLOVIR","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
+        Expired more than 120 Days.","trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"discontinued","refillSubmitDate":null,"refillDate":"Wed,
+        13 Oct 2021 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":21142784,"sig":null,"orderedDate":"Sun,
+        26 Jun 2022 00:00:00 EDT","quantity":null,"expirationDate":null,"prescriptionNumber":"2720298","prescriptionName":"ACYCLOVIR
+        200MG CAP","dispensedDate":"Sun, 24 Jul 2022 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142784,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00172-4266-70","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
         Expired more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Fri,
         05 Nov 2021 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
@@ -337,7 +354,7 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142515,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":"TEST
-        COMMENT 02222022","divisionName":null,"modifiedDate":"Mon, 09 Dec 2024 10:05:45
+        COMMENT 02222022","divisionName":null,"modifiedDate":"Wed, 11 Dec 2024 10:38:04
         EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Non-VA","ndc":null,"reason":null,"prescriptionNumberIndex":"NV","prescriptionSource":"NV","disclaimer":"TEST
         DISCLAIMER 02222022","indicationForUse":null,"indicationForUseFlag":null,"category":"Documented
@@ -348,8 +365,8 @@ http_interactions:
         PALMETTO","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142518,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":null,"modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142518,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":null,"modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Non-VA","ndc":null,"reason":null,"prescriptionNumberIndex":"NV","prescriptionSource":"NV","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Documented
         by VA","orderableItem":"SAW PALMETTO","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Sun,
         20 Mar 2022 00:00:00 EDT","refillRemaining":null,"facilityName":"DAYT29","facilityApiName":"Dayton
@@ -357,8 +374,8 @@ http_interactions:
         ORAL DAILY","orderedDate":"Tue, 22 Mar 2022 00:00:00 EDT","quantity":null,"expirationDate":null,"prescriptionNumber":"5","prescriptionName":null,"dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142519,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":null,"modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142519,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":null,"modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Non-VA","ndc":null,"reason":null,"prescriptionNumberIndex":"NV","prescriptionSource":"NV","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Documented
         by VA","orderableItem":"GABAPENTIN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Tue,
         22 Mar 2022 00:00:00 EDT","refillRemaining":null,"facilityName":"DAYT29","facilityApiName":"Dayton
@@ -367,8 +384,8 @@ http_interactions:
         19 Sep 2022 00:00:00 EDT","prescriptionNumber":"6","prescriptionName":null,"dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142520,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":null,"modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142520,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":null,"modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Non-VA","ndc":null,"reason":null,"prescriptionNumberIndex":"NV","prescriptionSource":"NV","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Documented
         by VA","orderableItem":"HALCINONIDE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Wed,
         23 Mar 2022 00:00:00 EDT","refillRemaining":null,"facilityName":"DAYT29","facilityApiName":"Dayton
@@ -378,8 +395,8 @@ http_interactions:
         OTIC SOL","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142521,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":null,"modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142521,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":null,"modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Non-VA","ndc":null,"reason":null,"prescriptionNumberIndex":"NV","prescriptionSource":"NV","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Documented
         by VA","orderableItem":"BACID","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Fri,
         17 Dec 2021 00:00:00 EST","refillRemaining":3,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142452,"sig":"TAKE
@@ -474,6 +491,21 @@ http_interactions:
         13 Feb 2022 00:00:00 EST","quantity":null,"expirationDate":null,"prescriptionNumber":"3636814","prescriptionName":"IBUPROFEN
         400MG TAB","dispensedDate":"Fri, 25 Feb 2022 00:00:00 EST","stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142460,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"53746-0131-05","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
+        Expired more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Fri,
+        18 Feb 2022 00:00:00 EST","refillRemaining":2,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142461,"sig":"TAKE
+        ONE-HALF TABLET AT BEDTIME FOR 30 DAYS","orderedDate":"Sat, 29 Jan 2022 00:00:00
+        EST","quantity":15,"expirationDate":"Mon, 30 Jan 2023 00:00:00 EST","prescriptionNumber":"3636815","prescriptionName":"HALOPERIDOL
+        10MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142461,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"VAMC
+        SLC-OUTPTRX","modifiedDate":"Tue, 27 Feb 2024 19:25:09 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"00781-1397-01","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"HALOPERIDOL 10MG","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
+        Expired more than 120 Days.","trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Sat,
+        29 Jan 2022 00:00:00 EST","refillRemaining":2,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142462,"sig":null,"orderedDate":"Fri,
+        18 Feb 2022 00:00:00 EST","quantity":null,"expirationDate":null,"prescriptionNumber":"3636815","prescriptionName":"HALOPERIDOL
+        10MG TAB","dispensedDate":"Fri, 25 Feb 2022 00:00:00 EST","stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142462,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"00781-1397-01","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
         Expired more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":"Thu,
         01 Dec 2022 14:02:29 EST","refillDate":"Sun, 20 Nov 2022 00:00:00 EST","refillRemaining":0,"facilityName":"SLC10
         TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142463,"sig":"TAKE
@@ -531,7 +563,34 @@ http_interactions:
         22 Feb 2022 00:00:00 EST","quantity":null,"expirationDate":null,"prescriptionNumber":"3636818","prescriptionName":"BACLOFEN
         10MG TAB","dispensedDate":"Wed, 02 Mar 2022 00:00:00 EST","stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142467,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"00603-2406-21","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
-        Expired more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Fri,
+        Expired more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":"Tue,
+        29 Nov 2022 16:13:31 EST","refillDate":"Sun, 27 Nov 2022 00:00:00 EST","refillRemaining":0,"facilityName":"SLC10
+        TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142468,"sig":"TAKE
+        ONE CAPSULE EVERY DAY FOR 30 DAYS","orderedDate":"Wed, 02 Feb 2022 00:00:00
+        EST","quantity":30,"expirationDate":"Fri, 03 Feb 2023 00:00:00 EST","prescriptionNumber":"3636819","prescriptionName":"BALSALAZIDE
+        DISODIUM 750MG CAP","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142468,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"VAMC
+        SLC-OUTPTRX","modifiedDate":"Tue, 27 Feb 2024 19:25:09 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"65649-0101-02","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"BALSALAZIDE DISODIUM 750MG","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"This
+        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"expired","refillSubmitDate":"Tue,
+        29 Nov 2022 16:13:31 EST","refillDate":"Wed, 02 Feb 2022 00:00:00 EST","refillRemaining":0,"facilityName":"SLC10
+        TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21532461,"sig":null,"orderedDate":"Sun,
+        27 Nov 2022 00:00:00 EST","quantity":null,"expirationDate":null,"prescriptionNumber":"3636819","prescriptionName":"BALSALAZIDE
+        DISODIUM 750MG CAP","dispensedDate":"Sun, 27 Nov 2022 00:00:00 EST","stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21532461,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"65649-0101-02","reason":null,"prescriptionNumberIndex":"RF3","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"This
+        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Wed,
+        02 Feb 2022 00:00:00 EST","refillRemaining":1,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21215981,"sig":null,"orderedDate":"Thu,
+        23 Jun 2022 00:00:00 EDT","quantity":null,"expirationDate":null,"prescriptionNumber":"3636819","prescriptionName":"BALSALAZIDE
+        DISODIUM 750MG CAP","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21215981,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"65649-0101-02","reason":null,"prescriptionNumberIndex":"RF2","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"This
+        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Wed,
+        02 Feb 2022 00:00:00 EST","refillRemaining":2,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142469,"sig":null,"orderedDate":"Tue,
+        22 Feb 2022 00:00:00 EST","quantity":null,"expirationDate":null,"prescriptionNumber":"3636819","prescriptionName":"BALSALAZIDE
+        DISODIUM 750MG CAP","dispensedDate":"Wed, 02 Mar 2022 00:00:00 EST","stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142469,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"65649-0101-02","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"This
+        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Fri,
         11 Mar 2022 00:00:00 EST","refillRemaining":2,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142470,"sig":"TAKE
         ONE-HALF TABLET EVERY DAY FOR 30 DAYS","orderedDate":"Wed, 09 Feb 2022 00:00:00
         EST","quantity":15,"expirationDate":"Fri, 10 Feb 2023 00:00:00 EST","prescriptionNumber":"3636826","prescriptionName":"NADOLOL
@@ -1828,7 +1887,7 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":22177891,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":"TEST
-        COMMENTS 06052023","divisionName":null,"modifiedDate":"Mon, 09 Dec 2024 10:05:45
+        COMMENTS 06052023","divisionName":null,"modifiedDate":"Wed, 11 Dec 2024 10:38:04
         EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Non-VA","ndc":"0242-2127-65","reason":null,"prescriptionNumberIndex":"NV","prescriptionSource":"NV","disclaimer":"TEST
         DISCLAIMER 06052023","indicationForUse":"TEST INDICATION NON-VA MEDS 06052023","indicationForUseFlag":null,"category":"Documented
@@ -2102,23 +2161,6 @@ http_interactions:
         09 Jun 2021 00:00:00 EDT","quantity":null,"expirationDate":null,"prescriptionNumber":"2720245","prescriptionName":"ACITRETIN
         25MG CAP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":22355988,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00004-0214-57","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
-        Expired more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"discontinued","refillSubmitDate":"Tue,
-        26 Jul 2022 16:20:19 EDT","refillDate":"Sun, 26 Jun 2022 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
-        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":21142502,"sig":"TAKE
-        ONE CAPSULE DAILY FOR 30 DAYS TEST","orderedDate":"Wed, 13 Oct 2021 00:00:00
-        EDT","quantity":30,"expirationDate":"Fri, 14 Oct 2022 00:00:00 EDT","prescriptionNumber":"2720298","prescriptionName":"ACYCLOVIR
-        200MG CAP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142502,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        14 Aug 2023 14:02:20 EDT","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00172-4266-70","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST
-        INDICATION TEST","indicationForUseFlag":null,"category":"Rx Medication","orderableItem":"ACYCLOVIR","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
-        Expired more than 120 Days.","trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"discontinued","refillSubmitDate":null,"refillDate":"Wed,
-        13 Oct 2021 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
-        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":21142784,"sig":null,"orderedDate":"Sun,
-        26 Jun 2022 00:00:00 EDT","quantity":null,"expirationDate":null,"prescriptionNumber":"2720298","prescriptionName":"ACYCLOVIR
-        200MG CAP","dispensedDate":"Sun, 24 Jul 2022 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142784,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00172-4266-70","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
-        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
         Expired more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Fri,
         03 Jun 2022 00:00:00 EDT","refillRemaining":0,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":22355960,"sig":"TAKE
         ONE TABLET EVERY DAY FOR 30 DAYS","orderedDate":"Tue, 02 Nov 2021 00:00:00
@@ -2160,49 +2202,7 @@ http_interactions:
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":22355963,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"VAMC
         SLC-OUTPTRX","modifiedDate":"Tue, 27 Feb 2024 19:25:09 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"00013-7001-12","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"CABERGOLINE 0.5MG ","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"This
-        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Fri,
-        18 Feb 2022 00:00:00 EST","refillRemaining":2,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142461,"sig":"TAKE
-        ONE-HALF TABLET AT BEDTIME FOR 30 DAYS","orderedDate":"Sat, 29 Jan 2022 00:00:00
-        EST","quantity":15,"expirationDate":"Mon, 30 Jan 2023 00:00:00 EST","prescriptionNumber":"3636815","prescriptionName":"HALOPERIDOL
-        10MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142461,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"VAMC
-        SLC-OUTPTRX","modifiedDate":"Tue, 27 Feb 2024 19:25:09 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"00781-1397-01","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
-        Medication","orderableItem":"HALOPERIDOL 10MG","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
-        Expired more than 120 Days.","trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Sat,
-        29 Jan 2022 00:00:00 EST","refillRemaining":2,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142462,"sig":null,"orderedDate":"Fri,
-        18 Feb 2022 00:00:00 EST","quantity":null,"expirationDate":null,"prescriptionNumber":"3636815","prescriptionName":"HALOPERIDOL
-        10MG TAB","dispensedDate":"Fri, 25 Feb 2022 00:00:00 EST","stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142462,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"00781-1397-01","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
-        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
-        Expired more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":"Tue,
-        29 Nov 2022 16:13:31 EST","refillDate":"Sun, 27 Nov 2022 00:00:00 EST","refillRemaining":0,"facilityName":"SLC10
-        TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142468,"sig":"TAKE
-        ONE CAPSULE EVERY DAY FOR 30 DAYS","orderedDate":"Wed, 02 Feb 2022 00:00:00
-        EST","quantity":30,"expirationDate":"Fri, 03 Feb 2023 00:00:00 EST","prescriptionNumber":"3636819","prescriptionName":"BALSALAZIDE
-        DISODIUM 750MG CAP","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
-        refill request cannot be submitted at this time. Please review the prescription
-        status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142468,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"VAMC
-        SLC-OUTPTRX","modifiedDate":"Tue, 27 Feb 2024 19:25:09 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"65649-0101-02","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
-        Medication","orderableItem":"BALSALAZIDE DISODIUM 750MG","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"This
-        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"expired","refillSubmitDate":"Tue,
-        29 Nov 2022 16:13:31 EST","refillDate":"Wed, 02 Feb 2022 00:00:00 EST","refillRemaining":0,"facilityName":"SLC10
-        TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21532461,"sig":null,"orderedDate":"Sun,
-        27 Nov 2022 00:00:00 EST","quantity":null,"expirationDate":null,"prescriptionNumber":"3636819","prescriptionName":"BALSALAZIDE
-        DISODIUM 750MG CAP","dispensedDate":"Sun, 27 Nov 2022 00:00:00 EST","stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21532461,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"65649-0101-02","reason":null,"prescriptionNumberIndex":"RF3","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
-        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"This
-        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Wed,
-        02 Feb 2022 00:00:00 EST","refillRemaining":1,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21215981,"sig":null,"orderedDate":"Thu,
-        23 Jun 2022 00:00:00 EDT","quantity":null,"expirationDate":null,"prescriptionNumber":"3636819","prescriptionName":"BALSALAZIDE
-        DISODIUM 750MG CAP","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21215981,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"65649-0101-02","reason":null,"prescriptionNumberIndex":"RF2","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
-        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"This
-        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":"Wed,
-        02 Feb 2022 00:00:00 EST","refillRemaining":2,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":21142469,"sig":null,"orderedDate":"Tue,
-        22 Feb 2022 00:00:00 EST","quantity":null,"expirationDate":null,"prescriptionNumber":"3636819","prescriptionName":"BALSALAZIDE
-        DISODIUM 750MG CAP","dispensedDate":"Wed, 02 Mar 2022 00:00:00 EST","stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":21142469,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"65649-0101-02","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
-        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"This
-        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":null,"refillRemaining":0,"facilityName":"SLC10
+        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":null,"refillRemaining":0,"facilityName":"SLC10
         TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":22355964,"sig":"TAKE
         ONE-HALF TABLET AT BEDTIME FOR 30 DAYS","orderedDate":"Sat, 14 May 2022 00:00:00
         EDT","quantity":15,"expirationDate":"Mon, 13 Jun 2022 00:00:00 EDT","prescriptionNumber":"3636858","prescriptionName":"WARFARIN
@@ -2523,8 +2523,8 @@ http_interactions:
         HCL 50MG TAB","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":22443916,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":null,"modifiedDate":"Mon,
-        09 Dec 2024 10:05:44 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":22443916,"userId":17621060,"providerFirstName":"BHAVIN","providerLastName":"PATEL","remarks":null,"divisionName":null,"modifiedDate":"Wed,
+        11 Dec 2024 10:38:03 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Non-VA","ndc":"00781-1766-10","reason":null,"prescriptionNumberIndex":"NV","prescriptionSource":"NV","disclaimer":null,"indicationForUse":"TEST
         INDICATION","indicationForUseFlag":null,"category":"Documented by VA","orderableItem":"IMIPRAMINE
         HCL 50MG","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":"Wed,
@@ -2716,8 +2716,8 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":"(983)777-0526","cmopNdcNumber":"00113002239","id":22812507,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 2720526B","divisionName":"DAYTON","modifiedDate":"Mon, 09 Dec 2024
-        10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"9837770526","dispStatus":"Active:
+        FROM RX # 2720526B","divisionName":"DAYTON","modifiedDate":"Wed, 11 Dec 2024
+        10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"9837770526","dispStatus":"Active:
         Refill in Process","ndc":"00264-2304-00","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"ACETIC ACID","shape":"OVAL","color":"WHITE","frontImprint":"L022","backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"suspended","refillSubmitDate":"Tue,
         22 Oct 2024 00:00:00 EDT","refillDate":"Tue, 02 Jan 2024 00:00:00 EST","refillRemaining":1,"facilityName":"DAYT29","facilityApiName":"Dayton
@@ -2733,15 +2733,15 @@ http_interactions:
         19 Mar 2024 00:00:00 EDT","refillDate":"Sun, 28 Jan 2024 00:00:00 EST","refillRemaining":9,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":22812508,"sig":"TAKE
         THIS IS FOR TESTING %% BY MOUTH WEEKLY HALF ## FOR 1 MINUTE, AND TAKE 50%
-        TAKE 50% FOR 1 HOUR FOLLOW INSTRUCTIONS CAREFULLY ","orderedDate":"Tue, 02
-        Jan 2024 00:00:00 EST","quantity":10,"expirationDate":"Thu, 02 Jan 2025 00:00:00
-        EST","prescriptionNumber":"2720326B","prescriptionName":"DISULFIRAM (ANTABUSE)
-        500MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        TAKE 50% FOR 1 HOUR FOLLOW INSTRUCTIONS CAREFULLY &&&&","orderedDate":"Tue,
+        02 Jan 2024 00:00:00 EST","quantity":10,"expirationDate":"Thu, 02 Jan 2025
+        00:00:00 EST","prescriptionNumber":"2720326B","prescriptionName":"DISULFIRAM
+        (ANTABUSE) 500MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":22812508,"userId":17621060,"providerFirstName":"RACHNA","providerLastName":"CHOUDHRY","remarks":"RENEWED
-        FROM RX # 2720326A","divisionName":"DAYTON","modifiedDate":"Mon, 09 Dec 2024
-        10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00046-0810-50","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        FROM RX # 2720326A","divisionName":"DAYTON","modifiedDate":"Wed, 11 Dec 2024
+        10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00046-0810-50","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"DISULFIRAM","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
         Discontinued more than 120 Days.","trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"discontinued","refillSubmitDate":"Mon,
         26 Feb 2024 00:00:00 EST","refillDate":"Tue, 02 Jan 2024 00:00:00 EST","refillRemaining":9,"facilityName":"DAYT29","facilityApiName":"Dayton
@@ -2765,8 +2765,8 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":22812509,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 2720412","divisionName":"DAYTON","modifiedDate":"Mon, 09 Dec 2024
-        10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00003-0248-20","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        FROM RX # 2720412","divisionName":"DAYTON","modifiedDate":"Wed, 11 Dec 2024
+        10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00003-0248-20","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"HALCINONIDE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
         Discontinued more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Tue,
         15 Oct 2024 00:00:00 EDT","refillDate":"Tue, 02 Jan 2024 00:00:00 EST","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
@@ -2777,8 +2777,8 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":22812510,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 2720413","divisionName":"DAYTON","modifiedDate":"Mon, 09 Dec 2024
-        10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"24208-0635-62","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        FROM RX # 2720413","divisionName":"DAYTON","modifiedDate":"Wed, 11 Dec 2024
+        10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"24208-0635-62","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"CORTISPORIN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Thu,
         14 Nov 2024 00:00:00 EST","refillDate":"Tue, 02 Jan 2024 00:00:00 EST","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":true,"isTrackable":false,"prescriptionId":22812511,"sig":"TAKE
@@ -2788,8 +2788,8 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":22812511,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 2720414","divisionName":"DAYTON","modifiedDate":"Mon, 09 Dec 2024
-        10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00591-0860-01","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        FROM RX # 2720414","divisionName":"DAYTON","modifiedDate":"Wed, 11 Dec 2024
+        10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00591-0860-01","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"HYDROCHLOROTHIAZIDE/LISINOPRIL","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"discontinued","refillSubmitDate":"Thu,
         22 Feb 2024 00:00:00 EST","refillDate":"Tue, 02 Jan 2024 00:00:00 EST","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":22812512,"sig":"TAKE
@@ -2799,8 +2799,8 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":22812512,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 2720305A","divisionName":"DAYTON","modifiedDate":"Mon, 09 Dec 2024
-        10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00516-0093-01","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        FROM RX # 2720305A","divisionName":"DAYTON","modifiedDate":"Wed, 11 Dec 2024
+        10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Discontinued","ndc":"00516-0093-01","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"IODOQUINOL","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Prescription
         Discontinued more than 120 Days.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Thu,
         29 Aug 2024 00:00:00 EDT","refillDate":"Tue, 30 Jul 2024 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
@@ -2811,8 +2811,8 @@ http_interactions:
         20MG SA CAP","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378149,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"62175-0118-37","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378149,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"62175-0118-37","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"OMEPRAZOLE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Thu,
         29 Aug 2024 00:00:00 EDT","refillDate":"Tue, 30 Jul 2024 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":true,"isTrackable":false,"prescriptionId":24378150,"sig":"TAKE
@@ -2821,8 +2821,8 @@ http_interactions:
         HCL 500MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378150,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"57664-0397-13","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378150,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"57664-0397-13","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"METFORMIN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Fri,
         18 Oct 2024 00:00:00 EDT","refillDate":"Tue, 15 Oct 2024 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":true,"isTrackable":false,"prescriptionId":24378151,"sig":"TAKE
@@ -2832,8 +2832,8 @@ http_interactions:
         BESYLATE 10MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378151,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00069-1540-68","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378151,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00069-1540-68","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"AMLODIPINE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"Non-Renewable
         Drug.","trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"active","refillSubmitDate":"Fri,
         18 Oct 2024 00:00:00 EDT","refillDate":"Tue, 30 Jul 2024 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
@@ -2850,8 +2850,8 @@ http_interactions:
         10MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378100,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00603-2408-32","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378100,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00603-2408-32","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"BACLOFEN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"active","refillSubmitDate":"Fri,
         18 Oct 2024 00:00:00 EDT","refillDate":"Tue, 30 Jul 2024 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":24563735,"sig":null,"orderedDate":"Tue,
@@ -2866,8 +2866,8 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24891618,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 3636979","divisionName":"VAMC SLC-OUTPTRX","modifiedDate":"Mon,
-        09 Dec 2024 10:05:44 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00409-3308-03","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST
+        FROM RX # 3636979","divisionName":"VAMC SLC-OUTPTRX","modifiedDate":"Wed,
+        11 Dec 2024 10:38:03 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00409-3308-03","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST
         INDI","indicationForUseFlag":"1","category":"Rx Medication","orderableItem":"ACETYLCYSTEINE
         20% 30ML","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Fri,
         06 Dec 2024 00:00:00 EST","refillRemaining":2,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":true,"isTrackable":false,"prescriptionId":24891619,"sig":"APPLY,
@@ -2878,8 +2878,8 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24891619,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 3636889A","divisionName":"VAMC SLC-OUTPTRX","modifiedDate":"Mon,
-        09 Dec 2024 10:05:44 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00168-0026-38","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST
+        FROM RX # 3636889A","divisionName":"VAMC SLC-OUTPTRX","modifiedDate":"Wed,
+        11 Dec 2024 10:38:03 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00168-0026-38","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST
         INDICATION","indicationForUseFlag":"1","category":"Rx Medication","orderableItem":"BACITRACIN
         500 UNIT/GM 3.5GM","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Fri,
         06 Dec 2024 00:00:00 EST","refillRemaining":5,"facilityName":"SLC10 TEST LAB","facilityApiName":null,"isRefillable":true,"isTrackable":false,"prescriptionId":24891620,"sig":"TAKE
@@ -2890,8 +2890,8 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24891620,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 3636929B","divisionName":"VAMC SLC-OUTPTRX","modifiedDate":"Mon,
-        09 Dec 2024 10:05:44 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00024-0305-06","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST
+        FROM RX # 3636929B","divisionName":"VAMC SLC-OUTPTRX","modifiedDate":"Wed,
+        11 Dec 2024 10:38:03 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00024-0305-06","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST
         INDICATION","indicationForUseFlag":"1","category":"Rx Medication","orderableItem":"DANAZOL
         200MG","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"activeParked","refillSubmitDate":null,"refillDate":null,"refillRemaining":3,"facilityName":"SLC10
         TEST LAB","facilityApiName":null,"isRefillable":true,"isTrackable":false,"prescriptionId":24891621,"sig":"TAKE
@@ -2901,12 +2901,12 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24891621,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 3636964","divisionName":"VAMC SLC-OUTPTRX","modifiedDate":"Mon,
-        09 Dec 2024 10:05:44 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        FROM RX # 3636964","divisionName":"VAMC SLC-OUTPTRX","modifiedDate":"Wed,
+        11 Dec 2024 10:38:03 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
         Parked","ndc":"00071-0530-23","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"QUINAPRIL HCL 10MG","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":"This
-        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"submitted","refillSubmitDate":"Mon,
-        09 Dec 2024 00:00:00 EST","refillDate":"Fri, 06 Dec 2024 00:00:00 EST","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Orderable Item has been Inactivated.","trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
+        09 Dec 2024 00:00:00 EST","refillDate":"Thu, 26 Dec 2024 00:00:00 EST","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":24891624,"sig":"TAKE
         10MG BY MOUTH DAILY FOR 30 DAYS","orderedDate":"Fri, 06 Dec 2024 00:00:00
         EST","quantity":30,"expirationDate":"Sun, 07 Dec 2025 00:00:00 EST","prescriptionNumber":"2720466C","prescriptionName":"ABACAVIR
@@ -2914,10 +2914,15 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24891624,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 2720466B","divisionName":"DAYTON","modifiedDate":"Mon, 09 Dec 2024
-        10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
-        Submitted","ndc":"00173-0742-00","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
-        Medication","orderableItem":"ABACAVIR/LAMIVUDINE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Fri,
+        FROM RX # 2720466B","divisionName":"DAYTON","modifiedDate":"Wed, 11 Dec 2024
+        10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Refill in Process","ndc":"00173-0742-00","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"ABACAVIR/LAMIVUDINE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"suspended","refillSubmitDate":"Mon,
+        09 Dec 2024 00:00:00 EST","refillDate":"Fri, 06 Dec 2024 00:00:00 EST","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":24908385,"sig":null,"orderedDate":"Thu,
+        26 Dec 2024 00:00:00 EST","quantity":null,"expirationDate":null,"prescriptionNumber":"2720466C","prescriptionName":"ABACAVIR
+        SO4 600MG/LAMIVUDINE 300MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24908385,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Suspended","ndc":"00173-0742-00","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"active","refillSubmitDate":null,"refillDate":"Fri,
         06 Dec 2024 00:00:00 EST","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":true,"isTrackable":false,"prescriptionId":24891625,"sig":"TAKE
         ONE TABLET DAILY FOR 30 DAYS TEST --AVOID ANTACIDS--","orderedDate":"Fri,
@@ -2927,10 +2932,10 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24891625,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 2720605","divisionName":"DAYTON","modifiedDate":"Mon, 09 Dec 2024
-        10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00071-0513-24","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST","indicationForUseFlag":"1","category":"Rx
-        Medication","orderableItem":"GABAPENTIN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"submitted","refillSubmitDate":"Mon,
-        09 Dec 2024 00:00:00 EST","refillDate":"Fri, 06 Dec 2024 00:00:00 EST","refillRemaining":5,"facilityName":"DAYT29","facilityApiName":"Dayton
+        FROM RX # 2720605","divisionName":"DAYTON","modifiedDate":"Wed, 11 Dec 2024
+        10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00071-0513-24","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST","indicationForUseFlag":"1","category":"Rx
+        Medication","orderableItem":"GABAPENTIN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"refillinprocess","refillSubmitDate":"Mon,
+        09 Dec 2024 00:00:00 EST","refillDate":"Thu, 26 Dec 2024 00:00:00 EST","refillRemaining":4,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":24891626,"sig":"TAKE
         ONE TABLET BY MOUTH DAILY FOR 45 DAYS --TAKE WITH FOOD/AVOID GRAPEFRUIT JUICE/DO
         NOT CRUSH OR CHEW/AVOID ANTACIDS--","orderedDate":"Fri, 06 Dec 2024 00:00:00
@@ -2939,10 +2944,15 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24891626,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 2720589","divisionName":"DAYTON","modifiedDate":"Mon, 09 Dec 2024
-        10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
-        Submitted","ndc":"47679-0452-35","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
-        Medication","orderableItem":"QUINIDINE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"expired","refillSubmitDate":"Thu,
+        FROM RX # 2720589","divisionName":"DAYTON","modifiedDate":"Wed, 11 Dec 2024
+        10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active:
+        Refill in Process","ndc":"47679-0452-35","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"QUINIDINE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"suspended","refillSubmitDate":"Mon,
+        09 Dec 2024 00:00:00 EST","refillDate":"Fri, 06 Dec 2024 00:00:00 EST","refillRemaining":4,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":24908386,"sig":null,"orderedDate":"Thu,
+        26 Dec 2024 00:00:00 EST","quantity":null,"expirationDate":null,"prescriptionNumber":"2720589A","prescriptionName":"QUINIDINE
+        GLUCONATE 324MG SA TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24908386,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Suspended","ndc":"47679-0452-35","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":"Thu,
         31 Oct 2024 00:00:00 EDT","refillDate":"Tue, 06 Aug 2024 00:00:00 EDT","refillRemaining":1,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":22625964,"sig":"TAKE
         10MG BY MOUTH DAILY FOR 30 DAYS","orderedDate":"Tue, 31 Oct 2023 00:00:00
@@ -3054,8 +3064,8 @@ http_interactions:
         ACETATE 25MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24380784,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":null,"reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24380784,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":null,"reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"CORTISONE ACETATE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"discontinued","refillSubmitDate":"Tue,
         24 Oct 2023 00:00:00 EDT","refillDate":"Tue, 12 Sep 2023 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":22565799,"sig":"TAKE
@@ -3173,8 +3183,8 @@ http_interactions:
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
         pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":23845182,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"RENEWED
-        FROM RX # 2720412A","divisionName":"DAYTON","modifiedDate":"Mon, 09 Dec 2024
-        10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00003-0248-20","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        FROM RX # 2720412A","divisionName":"DAYTON","modifiedDate":"Wed, 11 Dec 2024
+        10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00003-0248-20","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"HALCINONIDE","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Fri,
         09 Aug 2024 00:00:00 EDT","refillDate":"Tue, 06 Aug 2024 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":23896255,"sig":"APPLY
@@ -3183,8 +3193,8 @@ http_interactions:
         PROPIONATE 0.05% CREAM","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":23896255,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"51672-1258-02","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":23896255,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"51672-1258-02","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"CLOBETASOL","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"active","refillSubmitDate":"Fri,
         09 Aug 2024 00:00:00 EDT","refillDate":"Sun, 12 May 2024 00:00:00 EDT","refillRemaining":0,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":24310799,"sig":null,"orderedDate":"Tue,
@@ -3209,8 +3219,8 @@ http_interactions:
         CV GLUCOSE SOLN","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24380722,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":null,"reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24380722,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":null,"reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"GLUCOSE TEST","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"active","refillSubmitDate":"Tue,
         15 Oct 2024 00:00:00 EDT","refillDate":"Fri, 30 Aug 2024 00:00:00 EDT","refillRemaining":10,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":24548730,"sig":null,"orderedDate":"Tue,
@@ -3224,8 +3234,8 @@ http_interactions:
         HCL 1000MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24380745,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"57664-0474-18","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24380745,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"57664-0474-18","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"METFORMIN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Thu,
         29 Aug 2024 00:00:00 EDT","refillDate":"Sun, 16 Jun 2024 00:00:00 EDT","refillRemaining":3,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":true,"isTrackable":false,"prescriptionId":23991135,"sig":"TAKE
@@ -3234,8 +3244,8 @@ http_interactions:
         650MG TAB","dispensedDate":"Mon, 17 Jun 2024 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":"(783)272-1072","cmopNdcNumber":"00013264681","id":23991135,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"7832721072","dispStatus":"Active","ndc":"00516-0093-01","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":"(783)272-1072","cmopNdcNumber":"00013264681","id":23991135,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"7832721072","dispStatus":"Active","ndc":"00516-0093-01","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"IODOQUINOL","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Thu,
         03 Oct 2024 00:00:00 EDT","refillDate":"Tue, 30 Jul 2024 00:00:00 EDT","refillRemaining":5,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":true,"isTrackable":false,"prescriptionId":24378219,"sig":"TAKE
@@ -3245,8 +3255,8 @@ http_interactions:
         CALCIUM 10MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378219,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00071-0155-23","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378219,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00071-0155-23","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"ATORVASTATIN 10MG","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Tue,
         15 Oct 2024 00:00:00 EDT","refillDate":"Tue, 30 Jul 2024 00:00:00 EDT","refillRemaining":5,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":true,"isTrackable":false,"prescriptionId":24378220,"sig":"INJECT
@@ -3255,8 +3265,8 @@ http_interactions:
         5000U/ML 1ML ","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378220,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00641-0400-25","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378220,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00641-0400-25","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"HEPARIN BOLUS/SUBCUT","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"active","refillSubmitDate":"Mon,
         21 Oct 2024 00:00:00 EDT","refillDate":"Tue, 30 Jul 2024 00:00:00 EDT","refillRemaining":11,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":true,"isTrackable":false,"prescriptionId":24378221,"sig":"INSTILL
@@ -3265,8 +3275,8 @@ http_interactions:
         HCL 0.1% OPH SOLN","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378221,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00023-0260-10","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24378221,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00023-0260-10","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":"DIPIVEFRIN","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false},{"refillStatus":"discontinued","refillSubmitDate":"Thu,
         29 Aug 2024 00:00:00 EDT","refillDate":"Sun, 31 Dec 2023 00:00:00 EST","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":22545165,"sig":"TAKE
@@ -3308,13 +3318,29 @@ http_interactions:
         (ANTABUSE) 500MG TAB","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
         refill request cannot be submitted at this time. Please review the prescription
         status and fill date. If you need more of this medication, please call the
-        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":23899934,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Mon,
-        09 Dec 2024 10:05:45 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00046-0810-50","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST","indicationForUseFlag":"1","category":"Rx
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":23899934,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":null,"divisionName":"DAYTON","modifiedDate":"Wed,
+        11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":"00046-0810-50","reason":null,"prescriptionNumberIndex":"RX","prescriptionSource":"RX","disclaimer":null,"indicationForUse":"TEST","indicationForUseFlag":"1","category":"Rx
         Medication","orderableItem":"DISULFIRAM","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"active","refillSubmitDate":"Wed,
         12 Jun 2024 00:00:00 EDT","refillDate":"Mon, 13 May 2024 00:00:00 EDT","refillRemaining":2,"facilityName":"DAYT29","facilityApiName":"Dayton
         Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":23900044,"sig":null,"orderedDate":"Sun,
         09 Jun 2024 00:00:00 EDT","quantity":null,"expirationDate":null,"prescriptionNumber":"2721052","prescriptionName":"DISULFIRAM
         (ANTABUSE) 500MG TAB","dispensedDate":"Mon, 10 Jun 2024 00:00:00 EDT","stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":"(783)272-1052","cmopNdcNumber":"00013264681","id":23900044,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"7832721052","dispStatus":"Active","ndc":"00046-0810-50","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"active","refillSubmitDate":"Tue,
+        15 Oct 2024 00:00:00 EDT","refillDate":"Tue, 03 Dec 2024 00:00:00 EST","refillRemaining":10,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":true,"isTrackable":false,"prescriptionId":24912531,"sig":"TAKE
+        1 TEASPOONFUL BY AS DIRECTED DAILY FOR 30 DAYS","orderedDate":"Sat, 07 Dec
+        2024 00:00:00 EST","quantity":1,"expirationDate":"Sun, 31 Aug 2025 00:00:00
+        EDT","prescriptionNumber":"2721134","prescriptionName":"ACCU-CHEK COMFORT
+        CV GLUCOSE SOLN","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":"A
+        refill request cannot be submitted at this time. Please review the prescription
+        status and fill date. If you need more of this medication, please call the
+        pharmacy phone number on your prescription label.","cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24912531,"userId":17621060,"providerFirstName":"MOHAMMAD","providerLastName":"ISLAM","remarks":"TEST
+        PF","divisionName":"DAYTON","modifiedDate":"Wed, 11 Dec 2024 10:38:04 EST","institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":null,"reason":null,"prescriptionNumberIndex":"PF1","prescriptionSource":"PF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
+        Medication","orderableItem":"GLUCOSE TEST","shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":false,"notRenewableReason":null,"trackingList":null,"rxRFRecords":{"rfRecord":[{"refillStatus":"active","refillSubmitDate":"Tue,
+        15 Oct 2024 00:00:00 EDT","refillDate":"Fri, 30 Aug 2024 00:00:00 EDT","refillRemaining":10,"facilityName":"DAYT29","facilityApiName":"Dayton
+        Medical Center","isRefillable":false,"isTrackable":false,"prescriptionId":24548730,"sig":null,"orderedDate":"Tue,
+        03 Dec 2024 00:00:00 EST","quantity":null,"expirationDate":null,"prescriptionNumber":"2721134","prescriptionName":"ACCU-CHEK
+        COMFORT CV GLUCOSE SOLN","dispensedDate":null,"stationNumber":"989","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":24548730,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Active","ndc":null,"reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false},{"refillStatus":"expired","refillSubmitDate":null,"refillDate":null,"refillRemaining":0,"facilityName":"SLC10
         TEST LAB","facilityApiName":null,"isRefillable":false,"isTrackable":false,"prescriptionId":22784390,"sig":"TAKE
         10MG BY MOUTH EVERY DAY FOR 30 DAYS","orderedDate":"Sun, 17 Dec 2023 00:00:00
@@ -3435,47 +3461,5 @@ http_interactions:
         18 Oct 2023 00:00:00 EDT","quantity":null,"expirationDate":null,"prescriptionNumber":"3636961A","prescriptionName":"ETOPOSIDE
         50MG CAP","dispensedDate":null,"stationNumber":"979","inCernerTransition":false,"notRefillableDisplayMessage":null,"cmopDivisionPhone":null,"cmopNdcNumber":null,"id":22588267,"userId":17621060,"providerFirstName":null,"providerLastName":null,"remarks":null,"divisionName":null,"modifiedDate":null,"institutionId":null,"dialCmopDivisionPhone":"","dispStatus":"Expired","ndc":"51079-0965-05","reason":null,"prescriptionNumberIndex":"RF1","prescriptionSource":"RF","disclaimer":null,"indicationForUse":null,"indicationForUseFlag":null,"category":"Rx
         Medication","orderableItem":null,"shape":null,"color":null,"frontImprint":null,"backImprint":null,"dataSourceSystem":"VISTA","isRenewable":true,"notRenewableReason":null,"trackingList":null,"rxRFRecords":null,"tracking":false}]},"tracking":false}]},"errors":[],"infoMessages":[]}'
-  recorded_at: Mon, 09 Dec 2024 17:08:48 GMT
-- request:
-    method: get
-    uri: "<MHV_HOST>/mhv-api/patient/v1/prescription/getrxdoc/00013264681"
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
-      User-Agent:
-      - Vets.gov Agent
-      Token: "<SESSION_TOKEN>"
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Date:
-      - Mon, 09 Dec 2024 17:08:50 GMT
-      Content-Type:
-      - application/json
-      Content-Length:
-      - '13065'
-      X-Amzn-Requestid:
-      - 101678d4-a82d-47f7-b5ce-5488a151a4d5
-      X-Amzn-Remapped-Connection:
-      - keep-alive
-      X-Amz-Apigw-Id:
-      - CiKVMHRgPHMFf1A=
-      X-Amzn-Remapped-Date:
-      - Mon, 09 Dec 2024 17:08:50 GMT
-      Strict-Transport-Security:
-      - max-age=16000000; includeSubDomains; preload;
-    body:
-      encoding: ASCII-8BIT
-      string: !binary |-
-        eyJodG1sIjoiPGJvZHk+PFBhZ2U+PGgxPlNvbWF0cm9waW48L2gxPjxzdHJvbmc+QnJhbmQgTmFtZShzKTogQWNjcmV0cm9waW7CriwgIEdlbm90cm9waW4gwq4sIEh1bWF0cm9wZcKuLCBOb3JkaXRyb3BpbsKuLCBOdXRyb3BpbsKuLCBOdXRyb3BpbsKuIEFRwq4gTnVzcGluwq4sIE9tbml0cm9wZcKuLCBTYWl6ZW7CriwgU2Vyb3N0aW3CriwgWm9tYWN0b24sIFpvcmJ0aXZlwq48L3N0cm9uZz48YnIgLz48aDQ+SHVtYW4gR3Jvd3RoIEhvcm1vbmU8L2g0PjxoMj5XSFkgaXMgdGhpcyBtZWRpY2luZSBwcmVzY3JpYmVkPzwvaDI+PHA+U29tYXRyb3BpbiBpbmplY3Rpb24gaXMgdXNlZCB0byByZXBsYWNlIGdyb3d0aCBob3Jtb25lIChhIG5hdHVyYWwgaG9ybW9uZSBwcm9kdWNlZCBieSB5b3VyIGJvZHkpIGluIGFkdWx0cyBhbmQgY2hpbGRyZW4gd2l0aCBncm93dGggaG9ybW9uZSBkZWZpY2llbmN5LiBTb21hdHJvcGluIGluamVjdGlvbiBpcyBhbHNvIHVzZWQgdG8gaW5jcmVhc2UgZ3Jvd3RoIGluIGNoaWxkcmVuIHdpdGggY2VydGFpbiBjb25kaXRpb25zIHRoYXQgYWZmZWN0IG5vcm1hbCBncm93dGggYW5kIGRldmVsb3BtZW50LiBTb21hdHJvcGluIGluamVjdGlvbiAoU2Vyb3N0aW0pIGlzIHVzZWQgdG8gaW5jcmVhc2UgYm9keSB3ZWlnaHQgYW5kIHBoeXNpY2FsIGVuZHVyYW5jZSBpbiBwYXRpZW50cyB3aXRoIGh1bWFuIGltbXVub2RlZmljaWVuY3kgdmlydXMgKEhJVikgd2hvIGhhdmUgSElWLWFzc29jaWF0ZWQgd2FzdGluZyBzeW5kcm9tZS4gU29tYXRyb3BpbiBpbmplY3Rpb24gKFpvcmJ0aXZlKSBpcyB1c2VkIHRvIHRyZWF0IHNob3J0IGJvd2VsIHN5bmRyb21lIGluIGFkdWx0cyB3aG8gYXJlIHJlY2VpdmluZyBhZGRpdGlvbmFsIG51dHJpdGlvbiBvciBmbHVpZHMgZnJvbSBpbnRyYXZlbm91cyAoSVYpIHRoZXJhcHkuIFNvbWF0cm9waW4gaXMgYSBodW1hbiBncm93dGggaG9ybW9uZSAoaEdIKSBhbmFsb2cuIEl0IHdvcmtzIGJ5IHJlcGxhY2luZyBncm93dGggaG9ybW9uZXMgdGhhdCBhcmUgbm9ybWFsbHkgcHJvZHVjZWQgaW4gdGhlIGJvZHksIHdoaWNoIG1heSByZXN1bHQgaW4gaW5jcmVhc2VkIGdyb3d0aCwgYm9keSB3ZWlnaHQsIGFuZCBpbXByb3ZlZCBhYnNvcnB0aW9uIG9mIG51dHJpZW50cyBhbmQgZmx1aWRzIGZyb20gdGhlIGludGVzdGluZXMuPC9wPjxoMj5IT1cgc2hvdWxkIHRoaXMgbWVkaWNpbmUgYmUgdXNlZD88L2gyPjxwPlNvbWF0cm9waW4gaW5qZWN0aW9uIGNvbWVzIGFzIGEgc29sdXRpb24gKGxpcXVpZCkgaW4gcHJlZmlsbGVkIGRvc2luZyBwZW5zIGFuZCBjYXJ0cmlkZ2VzIGFuZCBhbHNvIGFzIGEgcG93ZGVyIGluIHZpYWxzIGFuZCBjYXJ0cmlkZ2VzIHRvIGJlIG1peGVkIHdpdGggbGlxdWlkIHRvIGJlIGluamVjdGVkIHN1YmN1dGFuZW91c2x5ICh1bmRlciB0aGUgc2tpbikuIFdoZW4gc29tYXRyb3BpbiBpbmplY3Rpb24gaXMgZ2l2ZW4gdG8gcmVwbGFjZSBncm93dGggaG9ybW9uZSBpbiBhZHVsdHMsIGl0IGlzIHVzdWFsbHkgZ2l2ZW4gb25jZSBhIGRheS4gV2hlbiBzb21hdHJvcGluIGluamVjdGlvbiB0byByZXBsYWNlIGdyb3d0aCBob3Jtb25lIG9yIGluY3JlYXNlIGdyb3d0aCBpbiBjaGlsZHJlbiwgaXQgaXMgdXN1YWxseSBnaXZlbiBvbmNlIGRhaWx5IG9uIDMgdG8gNyBkYXlzIGVhY2ggd2Vlay4gV2hlbiBzb21hdHJvcGluIGluamVjdGlvbiAoU2Vyb3N0aW0pIGlzIGdpdmVuIHRvIGluY3JlYXNlIGJvZHkgd2VpZ2h0IGFuZCBwaHlzaWNhbCBlbmR1cmFuY2UgaW4gcGF0aWVudHMgd2l0aCBISVYtYXNzb2NpYXRlZCB3YXN0aW5nIHN5bmRyb21lLCBpdCBpcyB1c3VhbGx5IGdpdmVuIG9uY2UgZGFpbHkgb3Igb25jZSBldmVyeSBvdGhlciBkYXkuIFdoZW4gc29tYXRyb3BpbiBpbmplY3Rpb24gKFpvcmJ0aXZlKSBpcyBnaXZlbiB0byB0cmVhdCBzaG9ydCBib3dlbCBzeW5kcm9tZSwgaXQgaXMgdXN1YWxseSBnaXZlbiBvbmNlIGRhaWx5IGZvciA0IHdlZWtzLiBVc2Ugc29tYXRyb3BpbiBpbmplY3Rpb24gYXQgYXJvdW5kIHRoZSBzYW1lIHRpbWUgb24gZWFjaCBzY2hlZHVsZWQgZGF5LiBGb2xsb3cgdGhlIGRpcmVjdGlvbnMgb24geW91ciBwcmVzY3JpcHRpb24gbGFiZWwgY2FyZWZ1bGx5LCBhbmQgYXNrIHlvdXIgZG9jdG9yIG9yIHBoYXJtYWNpc3QgdG8gZXhwbGFpbiBhbnkgcGFydCB5b3UgZG8gbm90IHVuZGVyc3RhbmQuIFVzZSBzb21hdHJvcGluIGluamVjdGlvbiBleGFjdGx5IGFzIGRpcmVjdGVkLiBEbyBub3QgdXNlIG1vcmUgb3IgbGVzcyBvZiBpdCBvciB0YWtlIGl0IG1vcmUgb2Z0ZW4gdGhhbiBwcmVzY3JpYmVkIGJ5IHlvdXIgZG9jdG9yLjwvcD48cD5Zb3VyIGRvY3RvciBtYXkgc3RhcnQgeW91IG9uIGEgbG93IGRvc2Ugb2Ygc29tYXRyb3BpbiBhbmQgbWF5IGdyYWR1YWxseSBpbmNyZWFzZSB5b3VyIGRvc2UuPC9wPjxwPllvdSBtYXkgcmVjZWl2ZSB5b3VyIGZpcnN0IGRvc2Ugb2Ygc29tYXRyb3BpbiBpbmplY3Rpb24gaW4geW91ciBkb2N0b3IncyBvZmZpY2Ugb3IgeW91ciBkb2N0b3IgbWF5IGFsbG93IHlvdSBvciBhIGNhcmVnaXZlciB0byBwZXJmb3JtIHRoZSBpbmplY3Rpb25zIGF0IGhvbWUuIEJlZm9yZSB5b3UgdXNlIHNvbWF0cm9waW4gaW5qZWN0aW9uIGZvciB0aGUgZmlyc3QgdGltZSwgeW91IG9yIHRoZSBwZXJzb24gd2hvIHdpbGwgYmUgZ2l2aW5nIHRoZSBpbmplY3Rpb25zIHNob3VsZCByZWFkIHRoZSBtYW51ZmFjdHVyZXIncyBpbmZvcm1hdGlvbiBmb3IgdGhlIHBhdGllbnQgdGhhdCBjb21lcyB3aXRoIGl0LiBUaGVzZSBpbnN0cnVjdGlvbnMgZGVzY3JpYmUgaG93IHRvIGluamVjdCBhIGRvc2Ugb2Ygc29tYXRyb3Bpbi4gQmUgc3VyZSB0aGF0IHlvdSB1bmRlcnN0YW5kIHRoZXNlIGRpcmVjdGlvbnMuIEFzayB5b3VyIGhlYWx0aGNhcmUgcHJvdmlkZXIgaWYgeW91IGhhdmUgYW55IHF1ZXN0aW9ucyBhYm91dCBob3cgb3Igd2hlcmUgdG8gaW5qZWN0IHRoZSBtZWRpY2F0aW9uIG9yIGhvdyB0byBkaXNwb3NlIG9mIHVzZWQgbmVlZGxlcyBhbmQgc3lyaW5nZXMgYWZ0ZXIgeW91IGluamVjdCB0aGUgbWVkaWNhdGlvbi48L3A+PHA+Q29udGludWUgdG8gdXNlIHNvbWF0cm9waW4gaW5qZWN0aW9uIGV2ZW4gaWYgeW91IGZlZWwgd2VsbC4gRG8gbm90IHN0b3AgdXNpbmcgc29tYXRyb3BpbiBpbmplY3Rpb24gd2l0aG91dCB0YWxraW5nIHRvIHlvdXIgZG9jdG9yLjwvcD48cD5BbHdheXMgbG9vayBhdCBzb21hdHJvcGluIHNvbHV0aW9uIGJlZm9yZSBpbmplY3RpbmcgaXQuIENoZWNrIHRoYXQgdGhlIGV4cGlyYXRpb24gZGF0ZSBoYXMgbm90IHBhc3NlZCBhbmQgdGhhdCB0aGUgbGlxdWlkIGlzIGNsZWFyIGFuZCBjb2xvcmxlc3MuIFRoZSBsaXF1aWQgc2hvdWxkIG5vdCBjb250YWluIHZpc2libGUgcGFydGljbGVzLiBEbyBub3QgdXNlIGlmIGl0IGlzIGV4cGlyZWQgb3IgaWYgdGhlIGxpcXVpZCBpcyBjbG91ZHkgb3IgY29udGFpbnMgcGFydGljbGVzLjwvcD48cD5EbyBub3QgcmV1c2Ugb3Igc2hhcmUgc3lyaW5nZXMsIG5lZWRsZXMsIGluamVjdGlvbiBwZW5zLCBvciB2aWFscyBvZiBtZWRpY2F0aW9uLiBEaXNwb3NlIG9mIHVzZWQgc3lyaW5nZXMsIG5lZWRsZXMsIGluamVjdGlvbiBwZW5zLCBhbmQgdmlhbHMgaW4gYSBwdW5jdHVyZSByZXNpc3RhbnQgY29udGFpbmVyIHRoYXQgaXMgb3V0IG9mIHRoZSByZWFjaCBvZiBjaGlsZHJlbi4gVGFsayB0byB5b3VyIGRvY3RvciBvciBwaGFybWFjaXN0IGFib3V0IGhvdyB0byBkaXNwb3NlIG9mIHRoZSBwdW5jdHVyZS1yZXNpc3RhbnQgY29udGFpbmVyLjwvcD48cD5Bc2sgeW91ciBwaGFybWFjaXN0IG9yIGRvY3RvciBmb3IgYSBjb3B5IG9mIHRoZSBtYW51ZmFjdHVyZXIncyBpbmZvcm1hdGlvbiBmb3IgdGhlIHBhdGllbnQuPC9wPjxoMj5BcmUgdGhlcmUgT1RIRVIgVVNFUyBmb3IgdGhpcyBtZWRpY2luZT88L2gyPjxwPlRoaXMgbWVkaWNhdGlvbiBtYXkgYmUgcHJlc2NyaWJlZCBmb3Igb3RoZXIgdXNlczsgYXNrIHlvdXIgZG9jdG9yIG9yIHBoYXJtYWNpc3QgZm9yIG1vcmUgaW5mb3JtYXRpb24uPC9wPjxoMj5XaGF0IFNQRUNJQUwgUFJFQ0FVVElPTlMgc2hvdWxkIEkgZm9sbG93PzwvaDI+PHA+QmVmb3JlIHVzaW5nIHNvbWF0cm9waW4gaW5qZWN0aW9uLDwvcD48dWw+PGxpPnRlbGwgeW91ciBkb2N0b3IgYW5kIHBoYXJtYWNpc3QgaWYgeW91IGFyZSBhbGxlcmdpYyB0byBzb21hdHJvcGluLCBhbnkgb3RoZXIgbWVkaWNhdGlvbnMsIGJlbnp5bCBhbGNvaG9sLCBvciBhbnkgb2YgdGhlIGluZ3JlZGllbnRzIGluIHNvbWF0cm9waW4gaW5qZWN0aW9uLiBBc2sgeW91ciBwaGFybWFjaXN0IG9yIGNoZWNrIHRoZSBNZWRpY2F0aW9uIEd1aWRlIGZvciBhIGxpc3Qgb2YgdGhlIGluZ3JlZGllbnRzLjwvbGk+PGxpPnRlbGwgeW91ciBkb2N0b3IgYW5kIHBoYXJtYWNpc3Qgd2hhdCBvdGhlciBwcmVzY3JpcHRpb24gYW5kIG5vbnByZXNjcmlwdGlvbiBtZWRpY2F0aW9ucywgdml0YW1pbnMsIG51dHJpdGlvbmFsIHN1cHBsZW1lbnRzLCBhbmQgaGVyYmFsIHByb2R1Y3RzIHlvdSBhcmUgdGFraW5nIG9yIHBsYW4gdG8gdGFrZS4gQmUgc3VyZSB0byBtZW50aW9uIGFueSBvZiB0aGUgZm9sbG93aW5nOiBjb3J0aWNvc3Rlcm9pZHMgc3VjaCBhcyBjb3J0aXNvbmUgYWNldGF0ZSwgZGV4YW1ldGhhc29uZSAoSGVtYWR5KSwgZmx1ZHJvY29ydGlzb25lLCBoeWRyb2NvcnRpc29uZSAoQWxraW5kaSBTcHJpbmtsZSwgQ29ydGVmKSwgYW5kIHByZWRuaXNvbmUgKFJheW9zKTsgaW5zdWxpbiBhbmQgb3JhbCBtZWRpY2F0aW9ucyBmb3IgZGlhYmV0ZXM7IGFuZCBtZWRpY2F0aW9ucyB0aGF0IGNvbnRhaW4gZXN0cm9nZW4gKGluY2x1ZGluZyBiaXJ0aCBjb250cm9sIHBpbGxzKS4gWW91ciBkb2N0b3IgbWF5IG5lZWQgdG8gY2hhbmdlIHRoZSBkb3NlcyBvZiB5b3VyIG1lZGljYXRpb25zIG9yIG1vbml0b3IgeW91IGNhcmVmdWxseSBmb3Igc2lkZSBlZmZlY3RzLiBNYW55IG90aGVyIG1lZGljYXRpb25zIG1heSBhbHNvIGludGVyYWN0IHdpdGggc29tYXRyb3Bpbiwgc28gYmUgc3VyZSB0byB0ZWxsIHlvdXIgZG9jdG9yIGFib3V0IGFsbCB0aGUgbWVkaWNhdGlvbnMgeW91IGFyZSB0YWtpbmcsIGV2ZW4gdGhvc2UgdGhhdCBkbyBub3QgYXBwZWFyIG9uIHRoaXMgbGlzdC48L2xpPjxsaT50ZWxsIHlvdXIgZG9jdG9yIGlmIHlvdSBoYXZlIHJlY2VudGx5IGhhZCBoZWFydCBvciBzdG9tYWNoIHN1cmdlcnksIGFuIGFjY2lkZW50IG9yIHRyYXVtYSwgb3Igc2VyaW91cyBicmVhdGhpbmcgcHJvYmxlbXMsIG9yIGlmIHlvdSBoYXZlIHNsZWVwIGFwbmVhIChzdG9wcGluZyBicmVhdGhpbmcgZm9yIHNob3J0IHBlcmlvZHMgb2YgdGltZSBkdXJpbmcgc2xlZXApLCBjYW5jZXIsIG9yIGRpYWJldGljIHJldGlub3BhdGh5IChkYW1hZ2UgdG8gdGhlIGV5ZXMgY2F1c2VkIGJ5IGRpYWJldGVzKS4gWW91ciBkb2N0b3IgbWF5IHRlbGwgeW91IG5vdCB0byB1c2Ugc29tYXRyb3BpbiBpbmplY3Rpb24uPC9saT48bGk+dGVsbCB5b3VyIGRvY3RvciBpZiB5b3UgaGF2ZSBldmVyIGhhZCBjYW5jZXIgb3IgaWYgeW91IGhhdmUgZXZlciBiZWVuIHRyZWF0ZWQgd2l0aCByYWRpYXRpb24gdGhlcmFweSB0byB0aGUgaGVhZCBvciBicmFpbjsgb3IgaWYgeW91IGhhdmUgb3IgaGF2ZSBldmVyIGhhZCBkaWFiZXRlczsgYWRyZW5hbCBpbnN1ZmZpY2llbmN5IChjb25kaXRpb24gaW4gd2hpY2ggdGhlIGFkcmVuYWwgZ2xhbmRzIGRvIG5vdCBwcm9kdWNlIGVub3VnaCBvZiBjZXJ0YWluIGhvcm1vbmVzIG5lZWRlZCBmb3IgaW1wb3J0YW50IGJvZHkgZnVuY3Rpb25zKTsgcGFuY3JlYXRpdGlzIChzd2VsbGluZyBvZiB0aGUgcGFuY3JlYXMpOyBwYXBpbGxlZGVtYSAoc3dlbGxpbmcgb2YgdGhlIG9wdGljIG5lcnZlIGNhdXNlZCBieSBpbmNyZWFzZWQgcHJlc3N1cmUgaW4gdGhlIGJyYWluKTsgc2NvbGlvc2lzIChjdXJ2aW5nIG9mIHRoZSBzcGluZSk7IGhpZ2ggYmxvb2QgbGV2ZWxzIG9mIHBob3NwaGF0ZTsgb3IgdGh5cm9pZCwgcGFyYXRoeXJvaWQsIG9yIGxpdmVyIHByb2JsZW1zLiBTb21hdHJvcGluIHNob3VsZCBub3QgYmUgdXNlZCBpbiBjaGlsZHJlbiB3aG9zZSBncm93dGggcGxhdGUgaGFzIGNsb3NlZCBhbmQgd2hvc2UgYm9uZXMgYXJlIG5vIGxvbmdlciBncm93aW5nICh1c3VhbGx5IGFmdGVyIHB1YmVydHkpLjwvbGk+PGxpPnRlbGwgeW91ciBkb2N0b3IgaWYgeW91IGFyZSBwcmVnbmFudCwgcGxhbiB0byBiZWNvbWUgcHJlZ25hbnQsIG9yIGFyZSBicmVhc3QtZmVlZGluZy4gSWYgeW91IGJlY29tZSBwcmVnbmFudCB3aGlsZSB1c2luZyBzb21hdHJvcGluIGluamVjdGlvbiwgY2FsbCB5b3VyIGRvY3Rvci48L2xpPjxsaT5pZiB5b3UgYXJlIGhhdmluZyBzdXJnZXJ5LCBpbmNsdWRpbmcgZGVudGFsIHN1cmdlcnksIHRlbGwgdGhlIGRvY3RvciBvciBkZW50aXN0IHRoYXQgeW91IGFyZSB1c2luZyBzb21hdHJvcGluIGluamVjdGlvbi48L2xpPjwvdWw+PGgyPldoYXQgU1BFQ0lBTCBESUVUQVJZIGluc3RydWN0aW9ucyBzaG91bGQgSSBmb2xsb3c/PC9oMj48cD5Vbmxlc3MgeW91ciBkb2N0b3IgdGVsbHMgeW91IG90aGVyd2lzZSwgY29udGludWUgeW91ciBub3JtYWwgZGlldC48L3A+PGgyPldoYXQgc2hvdWxkIEkgZG8gSUYgSSBGT1JHRVQgdG8gdGFrZSBhIGRvc2U/PC9oMj48cD5DYWxsIHlvdXIgZG9jdG9yIGlmIHlvdSBmb3JnZXQgdG8gaW5qZWN0IGEgZG9zZSBvZiB0aGlzIG1lZGljYXRpb24uIFlvdXIgZG9jdG9yIHdpbGwgdGVsbCB5b3Ugd2hlbiB0byBpbmplY3QgdGhlIG1pc3NlZCBkb3NlIGFuZCB3aGVuIHRvIGluamVjdCB5b3VyIG5leHQgc2NoZWR1bGVkIGRvc2UuIERvIG5vdCBpbmplY3QgYSBkb3VibGUgZG9zZSB0byBtYWtlIHVwIGZvciBhIG1pc3NlZCBvbmUuPC9wPjxoMj5XaGF0IFNJREUgRUZGRUNUUyBjYW4gdGhpcyBtZWRpY2luZSBjYXVzZT88L2gyPjxwPlNvbWF0cm9waW4gbWF5IGNhdXNlIHNpZGUgZWZmZWN0cy4gVGVsbCB5b3VyIGRvY3RvciBpZiBhbnkgb2YgdGhlc2Ugc3ltcHRvbXMgYXJlIHNldmVyZSBvciBkbyBub3QgZ28gYXdheTpcbjwvcD48dWw+PGxpPnNraW4gdGhpY2tlbmluZyBhdCBpbmplY3Rpb24gc2l0ZTwvbGk+PGxpPmluamVjdGlvbiBzaXRlIHBhaW4sIHJlZG5lc3MsIHN3ZWxsaW5nLCBvciBpdGNoaW5nPC9saT48bGk+aGVhZGFjaGU8L2xpPjxsaT5tdXNjbGUgb3Igam9pbnQgcGFpbjwvbGk+PGxpPnNvcmUgdGhyb2F0LCBjb3VnaCwgZmV2ZXIsIG9yIG90aGVyIHNpZ25zIG9mIGluZmVjdGlvbjwvbGk+PGxpPmVhciBwYWluPC9saT48bGk+ZmxhdHVsZW5jZSBvciBsYXJnZSBhbW91bnRzIG9mIGdhcyBpbiB0aGUgaW50ZXN0aW5lcyBvciBib3dlbHM8L2xpPjxsaT5oYWlyIGxvc3M8L2xpPjwvdWw+PHA+U29tZSBzaWRlIGVmZmVjdHMgY2FuIGJlIHNlcmlvdXMuIElmIHlvdSBleHBlcmllbmNlIGFueSBvZiB0aGVzZSBzeW1wdG9tcywgc3RvcCB0YWtpbmcgYW5kIGNhbGwgeW91ciBkb2N0b3IgaW1tZWRpYXRlbHkgb3IgZ2V0IGVtZXJnZW5jeSBtZWRpY2FsIHRyZWF0bWVudDpcbjwvcD48dWw+PGxpPnZpc2lvbiBjaGFuZ2VzLCBoZWFkYWNoZSwgbmF1c2VhLCBhbmQgdm9taXRpbmc8L2xpPjxsaT5oaXZlczsgcmFzaDsgaXRjaGluZzsgZGlmZmljdWx0eSBicmVhdGhpbmcgb3Igc3dhbGxvd2luZzsgc3dlYXRpbmc7IHN3ZWxsaW5nIG9mIHRoZSBleWVzLCBmYWNlLCBtb3V0aCwgbGlwcywgdG9uZ3VlIG9yIHRocm9hdDsgaG9hcnNlbmVzczsgbGlnaHRoZWFkZWRuZXNzOyBmYWludGluZzsgb3IgY2hlc3QgcGFpbjwvbGk+PGxpPm9uZ29pbmcgcGFpbiB0aGF0IGJlZ2lucyBpbiB0aGUgc3RvbWFjaCBhcmVhIGJ1dCBtYXkgc3ByZWFkIHRvIHRoZSBiYWNrIG5hdXNlYSwgdm9taXRpbmcsIG9yIGxvc3Mgb2YgYXBwZXRpdGU8L2xpPjxsaT5udW1ibmVzcywgYnVybmluZywgdGluZ2xpbmcsIG9yIHRpbmdsaW5nIGluIHRoZSBoYW5kcywgZmluZ2VycywgYXJtcywgbGVncywgb3IgZmVldDwvbGk+PGxpPnN3ZWxsaW5nIG9mIHRoZSBoYW5kcywgZmVldCwgYW5rbGVzLCBvciBsb3dlciBsZWdzPC9saT48bGk+ZXhjZXNzaXZlIHRpcmVkbmVzcywgbXVzY2xlIG9yIGpvaW50IHBhaW4sIHdlYWtuZXNzLCBsaWdodGhlYWRlZG5lc3MsIGRhcmtlbmluZyBvZiB0aGUgc2tpbiwgb3Igd2VpZ2h0IGxvc3M8L2xpPjxsaT5uZXcgb3IgcGVyc2lzdGVudCBrbmVlIG9yIGhpcCBwYWluLCBsaW1waW5nPC9saT48bGk+YnJlYXRoaW5nIHByb2JsZW1zLCBzbm9yaW5nLCBvciBzbGVlcCBhcG5lYTwvbGk+PGxpPmVubGFyZ2VkIGJyZWFzdHM8L2xpPjwvdWw+PHA+U29tYXRyb3BpbiBtYXkgaW5jcmVhc2UgdGhlIHJpc2sgb2YgZGV2ZWxvcGluZyBjZXJ0YWluIHR5cGVzIG9mIGNhbmNlciwgaW5jbHVkaW5nIGJyYWluIG9yIHNraW4gY2FuY2VyLiBDYWxsIHlvdXIgZG9jdG9yIHJpZ2h0IGF3YXkgaWYgeW91IGhhdmUgYW55IG9mIHRoZSBmb2xsb3dpbmcgc3ltcHRvbXM6IGNoYW5nZXMgaW4gYmVoYXZpb3Igb3IgdmlzaW9uOyBoZWFkYWNoZXM7IG9yIGNoYW5nZXMgaW4gbW9sZXMsIGJpcnRobWFya3MsIG9yIHNraW4gY29sb3IuPC9wPjxwPlNvbWF0cm9waW4gbWF5IGNhdXNlIG90aGVyIHNpZGUgZWZmZWN0cy4gQ2FsbCB5b3VyIGRvY3RvciBpZiB5b3UgaGF2ZSBhbnkgdW51c3VhbCBwcm9ibGVtcyB3aGlsZSB0YWtpbmcgdGhpcyBtZWRpY2F0aW9uLjwvcD48cD5JZiB5b3UgZXhwZXJpZW5jZSBhIHNlcmlvdXMgc2lkZSBlZmZlY3QsIHlvdSBvciB5b3VyIGRvY3RvciBtYXkgc2VuZCBhIHJlcG9ydCB0byB0aGUgRm9vZCBhbmQgRHJ1ZyBBZG1pbmlzdHJhdGlvbidzIChGREEpIE1lZFdhdGNoIEFkdmVyc2UgRXZlbnQgUmVwb3J0aW5nIHByb2dyYW0gb25saW5lIChodHRwczovL3d3dy5mZGEuZ292L1NhZmV0eS9NZWRXYXRjaCkgb3IgYnkgcGhvbmUgKDEtODAwLTMzMi0xMDg4KS48L3A+PGgyPldoYXQgc2hvdWxkIEkga25vdyBhYm91dCBTVE9SQUdFIGFuZCBESVNQT1NBTCBvZiB0aGlzIG1lZGljYXRpb24/PC9oMj48cD5Zb3VyIGhlYWx0aGNhcmUgcHJvdmlkZXIgd2lsbCB0ZWxsIHlvdSBob3cgdG8gc3RvcmUgeW91ciBtZWRpY2F0aW9uLiBTdG9yZSB5b3VyIG1lZGljYXRpb24gb25seSBhcyBkaXJlY3RlZC4gTWFrZSBzdXJlIHlvdSB1bmRlcnN0YW5kIGhvdyB0byBzdG9yZSB5b3VyIG1lZGljYXRpb24gcHJvcGVybHkuPC9wPjxwPkl0IGlzIGltcG9ydGFudCB0byBrZWVwIGFsbCBtZWRpY2F0aW9uIG91dCBvZiBzaWdodCBhbmQgcmVhY2ggb2YgY2hpbGRyZW4gYXMgbWFueSBjb250YWluZXJzIChzdWNoIGFzIHdlZWtseSBwaWxsIG1pbmRlcnMgYW5kIHRob3NlIGZvciBleWUgZHJvcHMsIGNyZWFtcywgcGF0Y2hlcywgYW5kIGluaGFsZXJzKSBhcmUgbm90IGNoaWxkLXJlc2lzdGFudCBhbmQgeW91bmcgY2hpbGRyZW4gY2FuIG9wZW4gdGhlbSBlYXNpbHkuIFRvIHByb3RlY3QgeW91bmcgY2hpbGRyZW4gZnJvbSBwb2lzb25pbmcsIGFsd2F5cyBsb2NrIHNhZmV0eSBjYXBzIGFuZCBpbW1lZGlhdGVseSBwbGFjZSB0aGUgbWVkaWNhdGlvbiBpbiBhIHNhZmUgbG9jYXRpb24g4oCUIG9uZSB0aGF0IGlzIHVwIGFuZCBhd2F5IGFuZCBvdXQgb2YgdGhlaXIgc2lnaHQgYW5kIHJlYWNoLiBodHRwczovL3d3dy51cGFuZGF3YXkub3JnPC9wPjxwPlVubmVlZGVkIG1lZGljYXRpb25zIHNob3VsZCBiZSBkaXNwb3NlZCBvZiBpbiBzcGVjaWFsIHdheXMgdG8gZW5zdXJlIHRoYXQgcGV0cywgY2hpbGRyZW4sIGFuZCBvdGhlciBwZW9wbGUgY2Fubm90IGNvbnN1bWUgdGhlbS4gIEhvd2V2ZXIsIHlvdSBzaG91bGQgbm90IGZsdXNoIHRoaXMgbWVkaWNhdGlvbiBkb3duIHRoZSB0b2lsZXQuIEluc3RlYWQsIHRoZSBiZXN0IHdheSB0byBkaXNwb3NlIG9mIHlvdXIgbWVkaWNhdGlvbiBpcyB0aHJvdWdoIGEgbWVkaWNpbmUgdGFrZS1iYWNrIHByb2dyYW0uIFRhbGsgdG8geW91ciBwaGFybWFjaXN0IG9yIGNvbnRhY3QgeW91ciBsb2NhbCBnYXJiYWdlL3JlY3ljbGluZyBkZXBhcnRtZW50IHRvIGxlYXJuIGFib3V0IHRha2UtYmFjayBwcm9ncmFtcyBpbiB5b3VyIGNvbW11bml0eS4gIFNlZSB0aGUgRkRBJ3MgU2FmZSBEaXNwb3NhbCBvZiBNZWRpY2luZXMgd2Vic2l0ZSAoaHR0cHM6Ly9nb28uZ2wvYzRSbTRwKSBmb3IgbW9yZSBpbmZvcm1hdGlvbiBpZiB5b3UgZG8gbm90IGhhdmUgYWNjZXNzIHRvIGEgdGFrZS1iYWNrIHByb2dyYW0uPC9wPjxoMj5XaGF0IHNob3VsZCBJIGRvIGluIGNhc2Ugb2YgT1ZFUkRPU0U/PC9oMj48cD5JbiBjYXNlIG9mIG92ZXJkb3NlLCBjYWxsIHRoZSBwb2lzb24gY29udHJvbCBoZWxwbGluZSBhdCAxLTgwMC0yMjItMTIyMi4gSW5mb3JtYXRpb24gaXMgYWxzbyBhdmFpbGFibGUgb25saW5lIGF0IGh0dHBzOi8vd3d3LnBvaXNvbmhlbHAub3JnL2hlbHAuIElmIHRoZSB2aWN0aW0gaGFzIGNvbGxhcHNlZCwgaGFkIGEgc2VpenVyZSwgaGFzIHRyb3VibGUgYnJlYXRoaW5nLCBvciBjYW4ndCBiZSBhd2FrZW5lZCwgaW1tZWRpYXRlbHkgY2FsbCBlbWVyZ2VuY3kgc2VydmljZXMgYXQgOTExLjwvcD48cD5TeW1wdG9tcyBvZiBvdmVyZG9zZSBtYXkgaW5jbHVkZTpcbjwvcD48dWw+PGxpPnN3ZWxsaW5nIG9mIHRoZSBoYW5kcywgZmVldCwgYW5rbGVzLCBvciBsb3dlciBsZWdzPC9saT48bGk+ZXhjZXNzaXZlIHN3ZWF0aW5nIGFuZCBib2R5IG9kb3I8L2xpPjxsaT5lbmxhcmdlZCBoYW5kcywgZmVldCwgbGlwcywgbm9zZSwgYW5kIHRvbmd1ZTwvbGk+PGxpPmpvaW50IG9yIG11c2NsZSB3ZWFrbmVzczwvbGk+PC91bD48aDI+V2hhdCBPVEhFUiBJTkZPUk1BVElPTiBzaG91bGQgSSBrbm93PzwvaDI+PHA+S2VlcCBhbGwgYXBwb2ludG1lbnRzIHdpdGggeW91ciBkb2N0b3IgYW5kIHRoZSBsYWJvcmF0b3J5LiBZb3VyIGRvY3RvciBtYXkgb3JkZXIgY2VydGFpbiBsYWIgdGVzdHMgdG8gY2hlY2sgeW91ciBib2R5J3MgcmVzcG9uc2UgdG8gc29tYXRyb3Bpbi48L3A+PHA+SXQgaXMgaW1wb3J0YW50IGZvciB5b3UgdG8ga2VlcCBhIHdyaXR0ZW4gbGlzdCBvZiBhbGwgb2YgdGhlIHByZXNjcmlwdGlvbiBhbmQgbm9ucHJlc2NyaXB0aW9uIChvdmVyLXRoZS1jb3VudGVyKSBtZWRpY2luZXMgeW91IGFyZSB0YWtpbmcsIGFzIHdlbGwgYXMgYW55IHByb2R1Y3RzIHN1Y2ggYXMgdml0YW1pbnMsIG1pbmVyYWxzLCBvciBvdGhlciBkaWV0YXJ5IHN1cHBsZW1lbnRzLiBZb3Ugc2hvdWxkIGJyaW5nIHRoaXMgbGlzdCB3aXRoIHlvdSBlYWNoIHRpbWUgeW91IHZpc2l0IGEgZG9jdG9yIG9yIGlmIHlvdSBhcmUgYWRtaXR0ZWQgdG8gYSBob3NwaXRhbC4gSXQgaXMgYWxzbyBpbXBvcnRhbnQgaW5mb3JtYXRpb24gdG8gY2Fycnkgd2l0aCB5b3UgaW4gY2FzZSBvZiBlbWVyZ2VuY2llcy48L3A+PHA+VGhpcyByZXBvcnQgb24gbWVkaWNhdGlvbnMgaXMgZm9yIHlvdXIgaW5mb3JtYXRpb24gb25seSwgYW5kIGlzIG5vdCBjb25zaWRlcmVkIGluZGl2aWR1YWwgcGF0aWVudCBhZHZpY2UuIEJlY2F1c2Ugb2YgdGhlIGNoYW5naW5nIG5hdHVyZSBvZiBkcnVnIGluZm9ybWF0aW9uLCBwbGVhc2UgY29uc3VsdCB5b3VyIHBoeXNpY2lhbiBvciBwaGFybWFjaXN0IGFib3V0IHNwZWNpZmljIGNsaW5pY2FsIHVzZS48L3A+PHA+VGhlIEFtZXJpY2FuIFNvY2lldHkgb2YgSGVhbHRoLVN5c3RlbSBQaGFybWFjaXN0cywgSW5jLiByZXByZXNlbnRzIHRoYXQgdGhlIGluZm9ybWF0aW9uIHByb3ZpZGVkIGhlcmV1bmRlciB3YXMgZm9ybXVsYXRlZCB3aXRoIGEgcmVhc29uYWJsZSBzdGFuZGFyZCBvZiBjYXJlLCBhbmQgaW4gY29uZm9ybWl0eSB3aXRoIHByb2Zlc3Npb25hbCBzdGFuZGFyZHMgaW4gdGhlIGZpZWxkLiBUaGUgQW1lcmljYW4gU29jaWV0eSBvZiBIZWFsdGgtU3lzdGVtIFBoYXJtYWNpc3RzLCBJbmMuIG1ha2VzIG5vIHJlcHJlc2VudGF0aW9ucyBvciB3YXJyYW50aWVzLCBleHByZXNzIG9yIGltcGxpZWQsIGluY2x1ZGluZywgYnV0IG5vdCBsaW1pdGVkIHRvLCBhbnkgaW1wbGllZCB3YXJyYW50eSBvZiBtZXJjaGFudGFiaWxpdHkgYW5kL29yIGZpdG5lc3MgZm9yIGEgcGFydGljdWxhciBwdXJwb3NlLCB3aXRoIHJlc3BlY3QgdG8gc3VjaCBpbmZvcm1hdGlvbiBhbmQgc3BlY2lmaWNhbGx5IGRpc2NsYWltcyBhbGwgc3VjaCB3YXJyYW50aWVzLiBVc2VycyBhcmUgYWR2aXNlZCB0aGF0IGRlY2lzaW9ucyByZWdhcmRpbmcgZHJ1ZyB0aGVyYXB5IGFyZSBjb21wbGV4IG1lZGljYWwgZGVjaXNpb25zIHJlcXVpcmluZyB0aGUgaW5kZXBlbmRlbnQsIGluZm9ybWVkIGRlY2lzaW9uIG9mIGFuIGFwcHJvcHJpYXRlIGhlYWx0aCBjYXJlIHByb2Zlc3Npb25hbCwgYW5kIHRoZSBpbmZvcm1hdGlvbiBpcyBwcm92aWRlZCBmb3IgaW5mb3JtYXRpb25hbCBwdXJwb3NlcyBvbmx5LiBUaGUgZW50aXJlIG1vbm9ncmFwaCBmb3IgYSBkcnVnIHNob3VsZCBiZSByZXZpZXdlZCBmb3IgYSB0aG9yb3VnaCB1bmRlcnN0YW5kaW5nIG9mIHRoZSBkcnVnJ3MgYWN0aW9ucywgdXNlcyBhbmQgc2lkZSBlZmZlY3RzLiBUaGUgQW1lcmljYW4gU29jaWV0eSBvZiBIZWFsdGgtU3lzdGVtIFBoYXJtYWNpc3RzLCBJbmMuIGRvZXMgbm90IGVuZG9yc2Ugb3IgcmVjb21tZW5kIHRoZSB1c2Ugb2YgYW55IGRydWcuIFRoZSBpbmZvcm1hdGlvbiBpcyBub3QgYSBzdWJzdGl0dXRlIGZvciBtZWRpY2FsIGNhcmUuPC9wPjxwPkFIRlM8c3VwPsKuPC9zdXA+IFBhdGllbnQgTWVkaWNhdGlvbiBJbmZvcm1hdGlvbuKEoi4gwqkgQ29weXJpZ2h0LCAyMDI0LiBUaGUgQW1lcmljYW4gU29jaWV0eSBvZiBIZWFsdGgtU3lzdGVtIFBoYXJtYWNpc3RzPHN1cD7Crjwvc3VwPiwgNDUwMCBFYXN0LVdlc3QgSGlnaHdheSwgU3VpdGUgOTAwLCBCZXRoZXNkYSwgTWFyeWxhbmQuIEFsbCBSaWdodHMgUmVzZXJ2ZWQuIER1cGxpY2F0aW9uIGZvciBjb21tZXJjaWFsIHVzZSBtdXN0IGJlIGF1dGhvcml6ZWQgYnkgQVNIUC48L3A+PHA+U2VsZWN0ZWQgUmV2aXNpb25zOiBKdWx5IDE1LCAyMDIyLjwvcD48L1BhZ2U+PC9ib2R5PiJ9
-  recorded_at: Mon, 09 Dec 2024 17:08:50 GMT
+  recorded_at: Wed, 11 Dec 2024 19:39:18 GMT
 recorded_with: VCR 6.3.1
