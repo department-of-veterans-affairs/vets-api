@@ -62,6 +62,19 @@ module ClaimsApi
       end
 
       ##
+      # ContentionServiceBean
+      #
+      module ContentionService
+        DEFINITION =
+          Bean.new(
+            path: 'ContentionService',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
       # CorporateUpdateServiceBean
       #
       module CorporateUpdateServiceBean
@@ -143,6 +156,20 @@ module ClaimsApi
             path: 'PersonWebServiceBean',
             namespaces: Namespaces.new(
               target: 'http://person.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      ##
+      # StandardDataService
+      #
+      module StandardDataService
+        DEFINITION =
+          Bean.new(
+            path: 'StandardDataService',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
               data: nil
             )
           )
