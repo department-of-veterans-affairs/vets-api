@@ -315,8 +315,14 @@ class User < Common::RedisStore
   def validate_mpi_profile
     return unless mpi_profile?
 
-    raise SignIn::Errors::MPILockedAccountError.new message: 'Death Flag Detected', code: 403 if mpi_profile.deceased_date
-    raise SignIn::Errors::MPILockedAccountError.new message: 'Theft Flag Detected', code: 403 if mpi_profile.id_theft_flag
+    if mpi_profile.deceased_date
+      raise SignIn::Errors::MPILockedAccountError.new message: 'Death Flag Detected',
+                                                      code: 403
+    end
+    if mpi_profile.id_theft_flag
+      raise SignIn::Errors::MPILockedAccountError.new message: 'Theft Flag Detected',
+                                                      code: 403
+    end
   end
 
   def invalidate_mpi_cache
