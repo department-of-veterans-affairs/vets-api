@@ -99,7 +99,7 @@ module Swagger
           property :detail, type: [:string, 'null'], example: '',
                             description: 'Error details (only when errors are present)'
           property :form_type, type: :string, example: '21-0845', description: 'The type of form'
-          property :message, type: [:string, 'null']
+          property :message, type: [:string, 'null'], example: 'Descriptive message'
           property :status, type: [:string, 'null'], enum: [
             nil,
             'pending',
