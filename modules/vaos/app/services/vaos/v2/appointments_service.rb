@@ -212,7 +212,7 @@ module VAOS
       def normalize_eps_appointment(appt)
         {
           id: appt[:id].to_s,
-          status: map_state_to_status(appt[:state]),
+          status: appt[:state] == 'submitted' ? 'booked' : 'proposed',
           patientIcn: appt[:patientId],
           created: appt.dig(:appointmentDetails, :lastRetrieved),
           requestedPeriods: [
@@ -889,7 +889,7 @@ module VAOS
 
       def eps_appointments
         @eps_appointments ||=
-          eps_appointments_service.get_appointments(patient_id: Settings.vaos.eps.fake_patient_id)
+          eps_appointments_service.get_appointments
       end
     end
   end

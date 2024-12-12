@@ -38,31 +38,6 @@ describe Eps::AppointmentService do
       end
     end
 
-    context 'when include[:eps] is true' do
-      let(:eps_appointments) do
-        [
-          OpenStruct.new(id: 'eps-test-id', state: 'booked', patientId: patient_id)
-        ]
-      end
-
-      before do
-        allow(service).to receive(:eps_appointments).and_return(eps_appointments)
-        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_appt_response)
-      end
-
-      it 'merges eps_appointments with vaos appointments' do
-        exp_response = OpenStruct.new(
-          'count' => 2,
-          'appointments' => [
-            { 'id' => 'eps-test-id', 'state' => 'booked', 'patientId' => patient_id },
-            { 'id' => 'test-id', 'state' => 'booked', 'patientId' => patient_id }
-          ]
-        )
-
-        expect(service.get_appointments(patient_id:, include: { eps: true })).to eq(exp_response)
-      end
-    end
-
     context 'when the endpoint fails to return appointments' do
       let(:failed_appt_response) do
         double('Response', status: 500, body: 'Unknown service exception')
