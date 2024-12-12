@@ -83,6 +83,22 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     allow(bucket).to receive(:object).and_return(obj)
     allow(obj).to receive(:exists?).and_return(true)
     allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
+    
+    # Stub BGS(part of ICN lookup)
+    people_double = double()
+    allow(people_double).to receive(:find_by_ssn).and_return( { first_nm: 'JOE', last_nm: 'SMITH', ssn_nbr: '555-55-5555', brthdy_dt: Date.parse('1970-01-01')} )
+    bgs_double = instance_double('BGS::Services')
+    allow(bgs_double).to receive(:people).and_return(people_double)
+    allow(BGS::Services).to receive(:new).and_return(bgs_double)
+
+    # Stub MPI(part of ICN lookup)
+    profile_double = double()
+    allow(profile_double).to receive(:icn).and_return("2112")
+    mpi_result = double()
+    allow(mpi_result).to receive(:profile).and_return(profile_double)
+    mpi_double = instance_double('MPI::Service')
+    allow(mpi_double).to receive(:find_profile_by_attributes).and_return(mpi_result)
+    allow(MPI::Service).to receive(:new).and_return(mpi_double)
   end
 
   describe '#perform' do
@@ -195,6 +211,28 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(updated.status).to eq('received')
     end
 
+    it 'parses and uploads a valid multipart payload when ICN lookup throws exception' do
+      allow(BGS::Services).to receive(:new).and_raise("Worst day ever")
+      expect(Rails.logger).to receive(:error).with(
+        "Benefits Intake UploadProcessor find_icn failed. Guid: #{upload.guid}, Exception: Worst day ever")
+      allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
+      allow(CentralMail::Service).to receive(:new) { client_stub }
+      allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
+      capture_body = nil
+      expect(client_stub).to receive(:upload) { |arg|
+        capture_body = arg
+        faraday_response
+      }
+      described_class.new.perform(upload.guid, test_caller)
+      expect(capture_body).to be_a(Hash)
+      expect(capture_body).to have_key('metadata')
+      expect(capture_body).to have_key('document')
+      metadata = JSON.parse(capture_body['metadata'])
+      expect(metadata['uuid']).to eq(upload.guid)
+      updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
+      expect(updated.status).to eq('received')
+    end
+
     it 'parses and uploads a valid multipart payload with attachments' do
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts_attachment }
       allow(CentralMail::Service).to receive(:new) { client_stub }
@@ -213,6 +251,7 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
       expect(metadata['uuid']).to eq(upload.guid)
       expect(metadata['source']).to eq('test consumer via VA API')
       expect(metadata['numberAttachments']).to eq(1)
+      expect(metadata['ICN']).to eq('2112')
       updated = VBADocuments::UploadSubmission.find_by(guid: upload.guid)
       expect(updated.status).to eq('received')
     end
