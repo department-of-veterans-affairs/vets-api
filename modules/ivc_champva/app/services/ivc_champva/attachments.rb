@@ -5,25 +5,19 @@ module IvcChampva
     attr_accessor :form_id, :uuid, :data
 
     def handle_attachments(file_path)
-      file_path_uuid = file_path.gsub("#{form_id}-tmp", "#{uuid}_#{form_id}-tmp")
-      File.rename(file_path, file_path_uuid)
+      file_paths = [file_path]
       attachments = get_attachments
-      file_paths = [file_path_uuid]
 
-      if attachments.count.positive?
-        supporting_doc_index = 0
-        attachments.each do |attachment|
-          new_file_name =
-            if attachment.include?('_additional_')
-              "#{uuid}_#{File.basename(attachment, '.*')}.pdf"
-            else
-              "#{uuid}_#{form_id}_supporting_doc-#{supporting_doc_index}.pdf".tap { supporting_doc_index += 1 }
-            end
-
-          new_file_path = File.join(File.dirname(attachment), new_file_name)
-          File.rename(attachment, new_file_path)
-          file_paths << new_file_path
-        end
+      attachments.each_with_index do |attachment, index|
+        new_file_name = if attachment.include?('_additional_')
+                          "#{uuid}_#{File.basename(attachment,
+                                                   '.*')}.pdf"
+                        else
+                          "#{uuid}_#{form_id}_supporting_doc-#{index}.pdf"
+                        end
+        new_file_path = File.join(File.dirname(attachment), new_file_name)
+        File.rename(attachment, new_file_path)
+        file_paths << new_file_path
       end
 
       file_paths
@@ -48,7 +42,10 @@ module IvcChampva
       if supporting_documents
         confirmation_codes = []
         supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
-        PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
+        # Ensure we create the PDFs in the same order the attachments were uploaded
+        PersistentAttachment.where(guid: confirmation_codes)
+                            &.sort_by { |pa| pa[:created_at] }
+                            &.map { |attachment| attachments << attachment.to_pdf }
       end
 
       attachments

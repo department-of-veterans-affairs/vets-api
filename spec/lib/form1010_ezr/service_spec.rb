@@ -62,13 +62,6 @@ RSpec.describe Form1010Ezr::Service do
     )
   end
 
-  def expect_personal_info_log(message)
-    pii_log = PersonalInformationLog.last
-
-    expect(pii_log.error_class).to eq(message)
-    expect(pii_log.data).to eq(form)
-  end
-
   describe '#add_financial_flag' do
     context 'when the form has veteran gross income' do
       let(:parsed_form) do
@@ -175,7 +168,7 @@ RSpec.describe Form1010Ezr::Service do
     end
 
     context "when 'parsed_form' is present" do
-      it "increments StatsD, creates a 'PersonalInformationLog' record, and logs a failure message to sentry" do
+      it 'increments StatsD and logs a failure message to sentry' do
         allow(StatsD).to receive(:increment)
         expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
@@ -190,8 +183,6 @@ RSpec.describe Form1010Ezr::Service do
         )
 
         described_class.new(nil).log_submission_failure(form)
-
-        expect_personal_info_log('Form1010Ezr Failed')
       end
     end
   end
@@ -274,7 +265,7 @@ RSpec.describe Form1010Ezr::Service do
             allow(JSON::Validator).to receive(:fully_validate).and_return(['veteranDateOfBirth error'])
           end
 
-          it 'adds to the PersonalInformationLog and saves the unprocessed DOB' do
+          it 'creates a PersonalInformationLog and saves the unprocessed DOB' do
             expect { submit_form(form) }.to raise_error do |e|
               personal_information_log =
                 PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
@@ -447,7 +438,10 @@ RSpec.describe Form1010Ezr::Service do
         let(:form) { get_fixture('form1010_ezr/valid_form') }
 
         context 'with pdf attachments' do
-          it 'returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:32 GMT' do
+          it 'increments StatsD and returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:32 GMT' do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
+
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_attachments',
               { match_requests_on: %i[method uri body], erb: true }
@@ -467,7 +461,10 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         context 'with a non-pdf attachment' do
-          it 'returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:34 GMT' do
+          it 'increments StatsD and returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:34 GMT' do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
+
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_non_pdf_attachment',
               { match_requests_on: %i[method uri body], erb: true }

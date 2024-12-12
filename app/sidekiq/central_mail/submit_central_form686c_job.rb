@@ -5,6 +5,7 @@ require 'benefits_intake_service/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pdf_info'
 require 'simple_forms_api_submission/metadata_validator'
+require 'dependents/monitor'
 
 module CentralMail
   class SubmitCentralForm686cJob
@@ -30,10 +31,9 @@ module CentralMail
     sidekiq_options retry: RETRY
 
     sidekiq_retries_exhausted do |msg, _ex|
-      Rails.logger.error(
-        "Failed all retries on CentralMail::SubmitCentralForm686cJob, last error: #{msg['error_message']}"
-      )
-      StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
+      if Flipper.enabled?(:dependents_trigger_action_needed_email)
+        CentralMail::SubmitCentralForm686cJob.trigger_failure_events(msg)
+      end
     end
 
     def perform(saved_claim_id, encrypted_vet_info, encrypted_user_struct)
@@ -167,15 +167,15 @@ module CentralMail
 
     def generate_metadata
       form = claim.parsed_form['dependents_application']
+      veteran_information = form['veteran_information'].presence || claim.parsed_form['veteran_information']
       form_pdf_metadata = get_hash_and_pages(form_path)
       address = form['veteran_contact_information']['veteran_address']
-      receive_date = claim.created_at.in_time_zone('Central Time (US & Canada)')
       is_usa = address['country_name'] == 'USA'
       metadata = {
-        'veteranFirstName' => form['veteran_information']['full_name']['first'],
-        'veteranLastName' => form['veteran_information']['full_name']['last'],
-        'fileNumber' => form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
-        'receiveDt' => receive_date.strftime('%Y-%m-%d %H:%M:%S'),
+        'veteranFirstName' => veteran_information['full_name']['first'],
+        'veteranLastName' => veteran_information['full_name']['last'],
+        'fileNumber' => veteran_information['file_number'] || veteran_information['ssn'],
+        'receiveDt' => claim.created_at.in_time_zone('Central Time (US & Canada)').strftime('%Y-%m-%d %H:%M:%S'),
         'uuid' => claim.guid,
         'zipCode' => is_usa ? address['zip_code'] : FOREIGN_POSTALCODE,
         'source' => 'va.gov',
@@ -192,11 +192,14 @@ module CentralMail
 
     def generate_metadata_lh
       form = claim.parsed_form['dependents_application']
+      # sometimes veteran_information is not in dependents_application, but claim.add_veteran_info will make sure
+      # it's in the outer layer of parsed_form
+      veteran_information = form['veteran_information'].presence || claim.parsed_form['veteran_information']
       address = form['veteran_contact_information']['veteran_address']
       {
-        veteran_first_name: form['veteran_information']['full_name']['first'],
-        veteran_last_name: form['veteran_information']['full_name']['last'],
-        file_number: form['veteran_information']['file_number'] || form['veteran_information']['ssn'],
+        veteran_first_name: veteran_information['full_name']['first'],
+        veteran_last_name: veteran_information['full_name']['last'],
+        file_number: veteran_information['file_number'] || veteran_information['ssn'],
         zip: address['country_name'] == 'USA' ? address['zip_code'] : FOREIGN_POSTALCODE,
         doc_type: claim.form_id,
         claim_date: claim.created_at,
@@ -226,6 +229,17 @@ module CentralMail
         first_name: user&.first_name&.upcase,
         user_uuid_and_form_id: "#{user.uuid}_#{FORM_ID}"
       )
+    end
+
+    def self.trigger_failure_events(msg)
+      monitor = Dependents::Monitor.new
+      saved_claim_id, _, encrypted_user_struct = msg['args']
+      user_struct = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user_struct)) if encrypted_user_struct.present?
+      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+      email = claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address') ||
+              user_struct.try(:va_profile_email)
+      monitor.track_submission_exhaustion(msg, email)
+      claim.send_failure_email(email)
     end
 
     private

@@ -7,26 +7,14 @@ module ClaimsApi
         extend ActiveSupport::Concern
 
         # rubocop:disable Metrics/MethodLength
-        def build_supporting_docs(bgs_claim)
+        def build_supporting_docs(bgs_claim, ssn)
           return [] if bgs_claim.nil?
 
           @supporting_documents = []
+          file_number = get_file_number(ssn)
+          return [] if file_number.nil?
 
           docs = if benefits_documents_enabled?
-                   file_number = if use_birls_id_file_number?
-                                   target_veteran.birls_id
-                                 else
-                                   local_bgs_service.find_by_ssn(target_veteran.ssn)&.dig(:file_nbr) # rubocop:disable Rails/DynamicFindBy
-                                 end
-
-                   if file_number.nil?
-                     claims_v2_logging('benefits_documents',
-                                       message: "calling benefits documents api for claim_id: #{params[:id]} " \
-                                                'returned a nil file number in claims controller v2')
-
-                     return []
-                   end
-
                    claims_v2_logging('benefits_documents',
                                      message: "calling benefits documents api for claim_id #{params[:id]} " \
                                               'in claims controller v2')
@@ -53,6 +41,22 @@ module ClaimsApi
           end
         end
         # rubocop:enable Metrics/MethodLength
+
+        def get_file_number(ssn)
+          file_number = if use_birls_id_file_number?
+                          target_veteran.birls_id
+                        else
+                          find_by_ssn(ssn)&.dig(:file_nbr)
+                        end
+
+          if file_number.blank?
+            claims_v2_logging('benefits_documents',
+                              message: "calling benefits documents api for claim_id: #{params[:id]} " \
+                                       'returned a nil file number in claims controller v2')
+            return nil
+          end
+          file_number
+        end
 
         def get_evss_documents(claim_id)
           evss_docs_service.get_claim_documents(claim_id).body
@@ -86,6 +90,22 @@ module ClaimsApi
 
         def use_birls_id_file_number?
           Flipper.enabled? :lighthouse_claims_api_use_birls_id
+        end
+
+        def find_by_ssn(ssn)
+          if Flipper.enabled? :claims_api_use_person_web_service
+            # rubocop:disable Rails/DynamicFindBy
+            ClaimsApi::PersonWebService.new(
+              external_uid: target_veteran.participant_id,
+              external_key: target_veteran.participant_id
+            ).find_by_ssn(ssn)
+          else
+            ClaimsApi::LocalBGS.new(
+              external_uid: target_veteran.participant_id,
+              external_key: target_veteran.participant_id
+            ).find_by_ssn(ssn)
+            # rubocop:enable Rails/DynamicFindBy
+          end
         end
       end
     end

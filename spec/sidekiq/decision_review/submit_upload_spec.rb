@@ -10,6 +10,31 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
     Sidekiq::Testing.inline!(&example)
   end
 
+  let(:notification_id) { SecureRandom.uuid }
+  let(:vanotify_service) do
+    service = instance_double(VaNotify::Service)
+
+    response = instance_double(Notifications::Client::ResponseNotification, id: notification_id)
+    allow(service).to receive(:send_email).and_return(response)
+
+    service
+  end
+
+  let(:user_uuid) { create(:user, :loa3, ssn: '212222112').uuid }
+  let(:mpi_profile) { build(:mpi_profile, vet360_id: Faker::Number.number) }
+  let(:find_profile_response) { create(:find_profile_response, profile: mpi_profile) }
+  let(:mpi_service) do
+    service = instance_double(MPI::Service, find_profile_by_identifier: nil)
+    allow(service).to receive(:find_profile_by_identifier).with(identifier: user_uuid, identifier_type: anything)
+                                                          .and_return(find_profile_response)
+    service
+  end
+
+  before do
+    allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
+    allow(MPI::Service).to receive(:new).and_return(mpi_service)
+  end
+
   describe 'perform' do
     let(:appeal_submission) do
       create(:appeal_submission, :with_one_upload, submitted_appeal_uuid: 'e076ea91-6b99-4912-bffc-a8318b9b403f')
@@ -241,18 +266,50 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
         end
       end
 
-      it 'increments statsd when job fails permanently' do
-        msg = {
-          'jid' => 'job_id',
-          'args' => [appeal_submission_upload.id],
-          'error_message' => 'An error occurred for sidekiq job'
-        }
+      context 'when job fails permanently' do
+        let(:msg) do
+          {
+            'jid' => 'job_id',
+            'args' => [appeal_submission_upload.id],
+            'error_message' => 'An error occurred for sidekiq job'
+          }
+        end
 
-        tags = ['service:board-appeal', 'function: evidence submission to Lighthouse']
+        let(:tags) { ['service:board-appeal', 'function: evidence submission to Lighthouse'] }
+        let(:email_address) { 'testuser@test.com' }
+        let(:form) do
+          {
+            data: {
+              attributes: {
+                veteran: {
+                  email: email_address
+                }
+              }
+            }
+          }.to_json
+        end
 
-        expect { described_class.new.sidekiq_retries_exhausted_block.call(msg) }
-          .to trigger_statsd_increment('worker.decision_review.submit_upload.permanent_error')
-          .and trigger_statsd_increment('silent_failure', tags:)
+        before do
+          SavedClaim::SupplementalClaim.create(guid: appeal_submission.submitted_appeal_uuid, form:)
+        end
+
+        it 'increments statsd correctly when email is sent' do
+          expect { described_class.new.sidekiq_retries_exhausted_block.call(msg) }
+            .to trigger_statsd_increment('worker.decision_review.submit_upload.permanent_error')
+            .and trigger_statsd_increment('silent_failure', tags:)
+            .and trigger_statsd_increment('silent_failure_avoided_no_confirmation', tags:)
+            .and trigger_statsd_increment('worker.decision_review.submit_upload.retries_exhausted.email_queued')
+        end
+
+        it 'increments statsd correctly when an error occurs while sending out an email' do
+          expect(vanotify_service).to receive(:send_email).and_raise('Failed to send email')
+
+          expect { described_class.new.sidekiq_retries_exhausted_block.call(msg) }
+            .to trigger_statsd_increment('worker.decision_review.submit_upload.permanent_error')
+            .and trigger_statsd_increment('silent_failure', tags:)
+            .and trigger_statsd_increment('worker.decision_review.submit_upload.retries_exhausted.email_error',
+                                          tags: ['appeal_type:NOD'])
+        end
       end
     end
 

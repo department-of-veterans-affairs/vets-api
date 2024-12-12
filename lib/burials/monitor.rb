@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'va_notify/notification_email/burial'
 require 'zero_silent_failures/monitor'
 
 module Burials
@@ -72,7 +73,7 @@ module Burials
         user_account_uuid: current_user&.user_account_uuid,
         tags:
       }
-      track_request('error', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt",
+      track_request('info', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt",
                     call_location: caller_locations.first, **additional_context)
     end
 
@@ -178,7 +179,12 @@ module Burials
       }
       call_location = caller_locations.first
 
-      log_silent_failure(additional_context, user_account_uuid, call_location:)
+      if claim
+        Burials::NotificationEmail.new(claim.id).deliver(:error)
+        log_silent_failure_avoided(additional_context, user_account_uuid, call_location:)
+      else
+        log_silent_failure(additional_context, user_account_uuid, call_location:)
+      end
 
       track_request('error', 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!',
                     "#{SUBMISSION_STATS_KEY}.exhausted", call_location:, **additional_context)

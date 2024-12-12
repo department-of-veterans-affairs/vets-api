@@ -63,8 +63,8 @@ class Form526Submission < ApplicationRecord
   belongs_to :user_account, dependent: nil, optional: true
 
   validates(:auth_headers_json, presence: true)
-  enum backup_submitted_claim_status: { accepted: 0, rejected: 1, paranoid_success: 2 }
-  enum submit_endpoint: { evss: 0, claims_api: 1, benefits_intake_api: 2 }
+  enum :backup_submitted_claim_status, { accepted: 0, rejected: 1, paranoid_success: 2 }
+  enum :submit_endpoint, { evss: 0, claims_api: 1, benefits_intake_api: 2 }
 
   FORM_526 = 'form526'
   FORM_526_UPLOADS = 'form526_uploads'
@@ -344,7 +344,13 @@ class Form526Submission < ApplicationRecord
     submission = Form526Submission.find(options['submission_id'])
     params = submission.personalization_parameters(options['first_name'])
     if submission.jobs_succeeded?
-      Form526ConfirmationEmailJob.perform_async(params)
+      # If the received_email_from_polling feature enabled, skip this call
+      unless Flipper.enabled?(:disability_526_call_received_email_from_polling,
+                              OpenStruct.new({ flipper_id: user_uuid }))
+        Rails.logger.info("Form526ConfirmationEmailJob called for user: #{user_uuid},
+                                              submission: #{submission.id} from form526_submission")
+        Form526ConfirmationEmailJob.perform_async(params)
+      end
       submission.workflow_complete = true
       submission.save
     else
@@ -361,6 +367,7 @@ class Form526Submission < ApplicationRecord
       'email' => form['form526']['form526']['veteran']['emailAddress'],
       'submitted_claim_id' => submitted_claim_id,
       'date_submitted' => created_at.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
+      'date_received' => Time.now.utc.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
       'first_name' => first_name
     }
   end

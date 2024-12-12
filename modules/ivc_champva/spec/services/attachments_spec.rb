@@ -15,22 +15,22 @@ end
 
 RSpec.describe IvcChampva::Attachments do
   # Mocking a class to include the Attachments module
-  let(:form_id) { '123' }
-  let(:uuid) { 'abc123' }
-  let(:file_path) { 'tmp/123-tmp.pdf' }
+  let(:form_id) { 'vha_10_7959c' }
+  let(:uuid) { 'f4ae6102-7f05-485a-948c-c0d9ef028983' }
+  let(:file_path) { 'tmp/f4ae6102-7f05-485a-948c-c0d9ef028983_vha_10_7959c-tmp.pdf' }
   let(:data) { { 'supporting_docs' => [{ 'confirmation_codes' => 'doc1' }, { 'confirmation_codes' => 'doc2' }] } }
   let(:test_instance) { TestClass.new(form_id, uuid, data) }
 
   describe '#handle_attachments' do
     context 'when there are supporting documents' do
       it 'renames and processes attachments' do
-        expect(File).to receive(:rename).with(file_path, "tmp/#{uuid}_#{form_id}-tmp.pdf")
         expect(test_instance).to receive(:get_attachments).and_return(['attachment1.pdf', 'attachment2.png'])
         expect(File).to receive(:rename).with('attachment1.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
         expect(File).to receive(:rename).with('attachment2.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
 
         result = test_instance.handle_attachments(file_path)
-        expect(result).to contain_exactly("tmp/#{uuid}_#{form_id}-tmp.pdf", "./#{uuid}_#{form_id}_supporting_doc-0.pdf",
+        expect(result).to contain_exactly("tmp/#{uuid}_#{form_id}-tmp.pdf",
+                                          "./#{uuid}_#{form_id}_supporting_doc-0.pdf",
                                           "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
       end
     end
@@ -57,8 +57,6 @@ RSpec.describe IvcChampva::Attachments do
       end
 
       it 'renames the file without processing attachments' do
-        expect(File).to receive(:rename).with(file_path, "tmp/#{uuid}_#{form_id}-tmp.pdf")
-
         result = test_instance.handle_attachments(file_path)
         expect(result).to eq(["tmp/#{uuid}_#{form_id}-tmp.pdf"])
       end

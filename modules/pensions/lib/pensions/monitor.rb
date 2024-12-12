@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'pensions/notification_email'
 require 'zero_silent_failures/monitor'
 
 module Pensions
@@ -263,7 +264,12 @@ module Pensions
       }
       call_location = caller_locations.first
 
-      log_silent_failure(additional_context, user_account_uuid, call_location:)
+      if claim
+        Pensions::NotificationEmail.new(claim.id).deliver(:error)
+        log_silent_failure_avoided(additional_context, user_account_uuid, call_location:)
+      else
+        log_silent_failure(additional_context, user_account_uuid, call_location:)
+      end
 
       track_request('error', 'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
                     "#{SUBMISSION_STATS_KEY}.exhausted", call_location: caller_locations.first, **additional_context)
@@ -313,6 +319,30 @@ module Pensions
       }
       track_request('error', 'Lighthouse::PensionBenefitIntakeJob cleanup failed',
                     "#{SUBMISSION_STATS_KEY}.cleanup_failed",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
+    # log error occurred when setting signature date to claim.created_at
+    # Error doesn't prevent successful claim submission (defaults to current date)
+    # @see PensionBenefitIntakeJob
+    #
+    # @param claim [Pension::SavedClaim]
+    # @param lighthouse_service [BenefitsIntake::Service]
+    # @param user_account_uuid [UUID]
+    # @param e [Error]
+    #
+    def track_claim_signature_error(claim, lighthouse_service, user_account_uuid, e)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        error: e&.message,
+        tags:
+      }
+      track_request('error', 'Lighthouse::PensionBenefitIntakeJob custom date failed',
+                    "#{SUBMISSION_STATS_KEY}.custom_date_failed",
                     call_location: caller_locations.first, **additional_context)
     end
   end

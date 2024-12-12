@@ -65,7 +65,7 @@ class User < Common::RedisStore
   end
 
   def user_verification
-    @user_verification ||= get_user_verification
+    @user_verification ||= UserVerification.find_by(id: user_verification_id)
   end
 
   def user_account
@@ -73,7 +73,7 @@ class User < Common::RedisStore
   end
 
   def user_verification_id
-    @user_verification_id ||= user_verification&.id
+    @user_verification_id ||= get_user_verification&.id
   end
 
   def user_account_uuid
@@ -129,6 +129,10 @@ class User < Common::RedisStore
       last: last_name&.capitalize,
       suffix: normalized_suffix
     }
+  end
+
+  def preferred_name
+    preferred_name_mpi
   end
 
   def gender
@@ -234,6 +238,10 @@ class User < Common::RedisStore
 
   def first_name_mpi
     given_names&.first
+  end
+
+  def preferred_name_mpi
+    mpi_profile&.preferred_names&.first
   end
 
   def middle_name_mpi
@@ -407,7 +415,9 @@ class User < Common::RedisStore
   end
 
   def vaprofile_contact_info
-    @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
+    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && icn.present?
+
+    @vaprofile_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
   def va_profile_v2_email

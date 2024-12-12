@@ -7,6 +7,7 @@ require 'lighthouse/benefits_documents/constants'
 
 class Lighthouse::DocumentUpload
   include Sidekiq::Job
+  extend SentryLogging
 
   attr_accessor :user_icn, :document_hash
 
@@ -51,6 +52,7 @@ class Lighthouse::DocumentUpload
     ::Rails.logger.error('Lighthouse::DocumentUpload exhaustion handler email error',
                          { message: e.message })
     StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
+    log_exception_to_sentry(e)
   end
 
   def self.obscured_filename(original_filename)

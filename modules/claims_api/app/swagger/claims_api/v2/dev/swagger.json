@@ -358,6 +358,16 @@
                             "type": "string",
                             "description": "The reason for declining the request.",
                             "nullable": true
+                          },
+                          "participantId": {
+                            "type": "string",
+                            "description": "The unique identifier of the requestʼs participant. Required if the decision is DECLINED.",
+                            "nullable": true
+                          },
+                          "representativeId": {
+                            "type": "string",
+                            "description": "The unique identifier of the requestʼs representative. Required if the decision is DECLINED.",
+                            "nullable": true
                           }
                         }
                       }
@@ -700,6 +710,38 @@
                               "type": "string",
                               "minLength": 1
                             }
+                          },
+                          "pageSize": {
+                            "type": "string"
+                          },
+                          "pageIndex": {
+                            "type": "string"
+                          },
+                          "filter": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "status": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "NEW",
+                                    "ACCEPTED",
+                                    "DECLINED"
+                                  ]
+                                }
+                              },
+                              "state": {
+                                "type": "string"
+                              },
+                              "city": {
+                                "type": "string"
+                              },
+                              "country": {
+                                "type": "string"
+                              }
+                            }
                           }
                         }
                       }
@@ -713,7 +755,19 @@
                         "002",
                         "003",
                         "083"
-                      ]
+                      ],
+                      "pageSize": "3",
+                      "pageIndex": "1",
+                      "filter": {
+                        "status": [
+                          "NEW",
+                          "ACCEPTED",
+                          "DECLINED"
+                        ],
+                        "state": "OR",
+                        "city": "Portland",
+                        "country": "USA"
+                      }
                     }
                   }
                 }
@@ -1426,9 +1480,9 @@
                                   "properties": {
                                     "email": {
                                       "type": "string",
-                                      "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                      "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                       "description": "The most current email address of the Veteran.",
-                                      "maxLength": 50,
+                                      "maxLength": 80,
                                       "nullable": true
                                     },
                                     "agreeToEmailRelatedToClaim": {
@@ -2810,9 +2864,9 @@
                                 "properties": {
                                   "email": {
                                     "type": "string",
-                                    "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                    "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                     "description": "The most current email address of the Veteran.",
-                                    "maxLength": 50,
+                                    "maxLength": 80,
                                     "nullable": true
                                   },
                                   "agreeToEmailRelatedToClaim": {
@@ -4340,7 +4394,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "04fb02bc-0b7a-4594-a6d3-e426ac64f5d7",
+                        "id": "409a21fe-d37b-45d7-b9e4-289052fa76b8",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4525,7 +4579,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-10-11"
+                              "anticipatedSeparationDate": "2024-12-06"
                             },
                             "confinements": [
                               {
@@ -4571,7 +4625,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "7451466b-22d8-4c01-a449-7eed8dcef91b",
+                        "id": "1db319a8-30d1-4f09-87a0-28c6afb3346b",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -4735,7 +4789,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2023-10-30",
+                                "activeDutyEndDate": "2024-12-06",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -4756,7 +4810,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2024-10-31"
+                              "anticipatedSeparationDate": "2024-12-06"
                             },
                             "confinements": [
                               {
@@ -4964,9 +5018,9 @@
                                   "properties": {
                                     "email": {
                                       "type": "string",
-                                      "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                      "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                       "description": "The most current email address of the Veteran.",
-                                      "maxLength": 50,
+                                      "maxLength": 80,
                                       "nullable": true
                                     },
                                     "agreeToEmailRelatedToClaim": {
@@ -6348,9 +6402,9 @@
                                 "properties": {
                                   "email": {
                                     "type": "string",
-                                    "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                    "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                     "description": "The most current email address of the Veteran.",
-                                    "maxLength": 50,
+                                    "maxLength": 80,
                                     "nullable": true
                                   },
                                   "agreeToEmailRelatedToClaim": {
@@ -7999,7 +8053,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2023-10-30",
+                              "activeDutyEndDate": "2024-12-06",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -8020,7 +8074,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2024-10-31"
+                            "anticipatedSeparationDate": "2024-12-06"
                           },
                           "confinements": [
                             {
@@ -8504,9 +8558,9 @@
                                 "properties": {
                                   "email": {
                                     "type": "string",
-                                    "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+                                    "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
                                     "description": "The most current email address of the Veteran.",
-                                    "maxLength": 50,
+                                    "maxLength": 80,
                                     "nullable": true
                                   },
                                   "agreeToEmailRelatedToClaim": {
@@ -9784,7 +9838,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "d884c174-2a35-4f18-8c5f-f3725226230e",
+                    "id": "f5fb6b0d-317d-46b8-8c50-e533bfccc159",
                     "type": "forms/526",
                     "attributes": {
                       "claimProcessType": "STANDARD_CLAIM_PROCESS",
@@ -9968,7 +10022,7 @@
                         },
                         "federalActivation": {
                           "activationDate": "2023-10-01",
-                          "anticipatedSeparationDate": "2024-10-31"
+                          "anticipatedSeparationDate": "2025-10-31"
                         },
                         "confinements": [
                           {
@@ -12591,13 +12645,7 @@
                           "submitterApplicationCode": "EBN",
                           "submitterRoleCode": "VET",
                           "supportingDocuments": [
-                            {
-                              "documentId": "{54EF0C16-A9E7-4C3F-B876-B2C7BEC1F834}",
-                              "documentTypeLabel": "Medical",
-                              "originalFileName": null,
-                              "trackedItemId": null,
-                              "uploadDate": null
-                            }
+
                           ],
                           "tempJurisdiction": null,
                           "trackedItems": [
@@ -13532,8 +13580,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2024-10-09",
-                      "expirationDate": "2025-10-09",
+                      "creationDate": "2024-12-04",
+                      "expirationDate": "2025-12-04",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -14330,7 +14378,7 @@
                       "status": "422",
                       "detail": "Could not retrieve Power of Attorney due to multiple representatives with code: A1Q",
                       "source": {
-                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:162:in `representative'"
+                        "pointer": "/modules/claims_api/app/controllers/claims_api/v2/veterans/power_of_attorney/base_controller.rb:166:in `representative'"
                       }
                     }
                   ]
@@ -14421,7 +14469,7 @@
             }
           }
         ],
-        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependent relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
+        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
         "responses": {
           "202": {
             "description": "Valid request response",
@@ -14429,7 +14477,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "381df74a-b05c-456d-8fe6-aab246fda7f7",
+                    "id": "19edfa42-b627-4d9e-afe5-cc26a03e1c32",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -14744,8 +14792,7 @@
                                   "addressLine1",
                                   "city",
                                   "stateCode",
-                                  "country",
-                                  "zipCode"
+                                  "countryCode"
                                 ],
                                 "properties": {
                                   "addressLine1": {
@@ -14765,18 +14812,19 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -14823,7 +14871,7 @@
                               "email": {
                                 "description": "Email address of the veteran.",
                                 "type": "string",
-                                "pattern": ".@.",
+                                "pattern": "^(?!.*\\s).+@.+\\..+|^$",
                                 "maxLength": 61,
                                 "example": "veteran@example.com"
                               }
@@ -14859,18 +14907,19 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address. Required if claimant information provided.",
+                                    "description": "State or province code for the address. Required if claimant information provided.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address. Required if claimant information provided.",
+                                  "countryCode": {
+                                    "description": "Country code of the address. Required if claimant information provided.",
                                     "type": "string",
+                                    "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "USA"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -14917,8 +14966,8 @@
                               "email": {
                                 "description": "Email address of the claimant.",
                                 "type": "string",
-                                "pattern": ".@.",
-                                "maxLength": 61,
+                                "pattern": "^(?!.*\\s).+@.+\\..+|^$",
+                                "maxLength": 30,
                                 "example": "claimant@example.com"
                               },
                               "relationship": {
@@ -14978,18 +15027,19 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -15046,7 +15096,7 @@
                           "addressLine1": "123",
                           "addressLine2": "2a",
                           "city": "city",
-                          "country": "US",
+                          "countryCode": "US",
                           "stateCode": "OR",
                           "zipCode": "12345",
                           "zipCodeSuffix": "6789"
@@ -15060,10 +15110,89 @@
                           "addressLine1": "123",
                           "addressLine2": "2a",
                           "city": "city",
-                          "country": "US",
+                          "countryCode": "US",
                           "stateCode": "OR",
                           "zipCode": "12345",
                           "zipCodeSuffix": "6789"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "POA for Veteran": {
+                  "value": {
+                    "data": {
+                      "attributes": {
+                        "veteran": {
+                          "address": {
+                            "addressLine1": "123",
+                            "addressLine2": "2a",
+                            "city": "city",
+                            "countryCode": "US",
+                            "stateCode": "OR",
+                            "zipCode": "12345",
+                            "zipCodeSuffix": "6789"
+                          }
+                        },
+                        "representative": {
+                          "poaCode": "067",
+                          "registrationNumber": "999999999999",
+                          "type": "ATTORNEY",
+                          "address": {
+                            "addressLine1": "123",
+                            "addressLine2": "2a",
+                            "city": "city",
+                            "countryCode": "US",
+                            "stateCode": "OR",
+                            "zipCode": "12345",
+                            "zipCodeSuffix": "6789"
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "POA for Dependent Claimant": {
+                  "value": {
+                    "data": {
+                      "attributes": {
+                        "veteran": {
+                          "address": {
+                            "addressLine1": "123",
+                            "addressLine2": "2a",
+                            "city": "city",
+                            "countryCode": "US",
+                            "stateCode": "OR",
+                            "zipCode": "12345",
+                            "zipCodeSuffix": "6789"
+                          }
+                        },
+                        "representative": {
+                          "poaCode": "067",
+                          "registrationNumber": "999999999999",
+                          "type": "ATTORNEY",
+                          "address": {
+                            "addressLine1": "123",
+                            "addressLine2": "2a",
+                            "city": "city",
+                            "countryCode": "US",
+                            "stateCode": "OR",
+                            "zipCode": "12345",
+                            "zipCodeSuffix": "6789"
+                          }
+                        },
+                        "claimant": {
+                          "claimantId": "1013093331V548481",
+                          "address": {
+                            "addressLine1": "123 anystreet",
+                            "city": "anytown",
+                            "stateCode": "OR",
+                            "countryCode": "US",
+                            "zipCode": "12345"
+                          },
+                          "relationship": "Spouse"
                         }
                       }
                     }
@@ -15079,7 +15208,7 @@
     "/veterans/{veteranId}/2122": {
       "post": {
         "summary": "Appoint an organization Power of Attorney for a Veteran.",
-        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependent relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
+        "description": "Dependent Claimant Information:\n\n  - If dependent claimant information is included in the request, the dependentʼs relationship to the Veteran\n  will be validated.\n\n  - In this case, the representative will be appointed to the dependent claimant, not the Veteran.\n\n\n\nResponse Information:\n\n  - A 202 response indicates that the submission was accepted.\n\n  - To check the status of a POA submission, use GET /veterans/{veteranId}/power-of-attorney/{id} endpoint.\n\n",
         "tags": [
           "Power of Attorney"
         ],
@@ -15122,7 +15251,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "17df2ef1-3760-4bf3-82a9-4d804f7530bc",
+                    "id": "cb3310b8-55cd-49db-8577-575ca8a94b1c",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -15419,9 +15548,8 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "country",
                                   "stateCode",
-                                  "zipCode"
+                                  "countryCode"
                                 ],
                                 "properties": {
                                   "addressLine1": {
@@ -15441,18 +15569,19 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -15499,7 +15628,7 @@
                               "email": {
                                 "description": "Email address of the veteran.",
                                 "type": "string",
-                                "pattern": ".@.",
+                                "pattern": "^(?!.*\\s).+@.+\\..+|^$",
                                 "maxLength": 61,
                                 "example": "veteran@example.com"
                               },
@@ -15546,18 +15675,19 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address. Required if claimant information provided.",
+                                    "description": "State or province code for the address. Required if claimant information provided.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address. Required if claimant information provided.",
+                                  "countryCode": {
+                                    "description": "Country code of the address. Required if claimant information provided.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -15607,8 +15737,8 @@
                               "email": {
                                 "description": "Email address of the claimant.",
                                 "type": "string",
-                                "pattern": ".@.",
-                                "maxLength": 61,
+                                "pattern": "^(?!.*\\s).+@.+\\..+|^$",
+                                "maxLength": 30,
                                 "example": "claimant@example.com"
                               },
                               "relationship": {
@@ -15645,7 +15775,7 @@
                               "email": {
                                 "description": "Email address of the service organization or representative.",
                                 "type": "string",
-                                "pattern": ".@.",
+                                "pattern": "^(?!.*\\s).+@.+\\..+|^$",
                                 "maxLength": 61,
                                 "example": "veteran_representative@example.com"
                               }
@@ -15686,13 +15816,68 @@
                           "addressLine1": "123",
                           "city": "city",
                           "stateCode": "OR",
-                          "country": "US",
+                          "countryCode": "US",
                           "zipCode": "12345"
                         }
                       },
                       "serviceOrganization": {
                         "poaCode": "083",
                         "registrationNumber": "999999999999"
+                      }
+                    }
+                  }
+                }
+              },
+              "examples": {
+                "POA for Veteran": {
+                  "value": {
+                    "data": {
+                      "attributes": {
+                        "veteran": {
+                          "address": {
+                            "addressLine1": "123",
+                            "city": "city",
+                            "stateCode": "OR",
+                            "countryCode": "US",
+                            "zipCode": "12345"
+                          }
+                        },
+                        "serviceOrganization": {
+                          "poaCode": "083",
+                          "registrationNumber": "999999999999"
+                        }
+                      }
+                    }
+                  }
+                },
+                "POA for Dependent Claimant": {
+                  "value": {
+                    "data": {
+                      "attributes": {
+                        "veteran": {
+                          "address": {
+                            "addressLine1": "123",
+                            "city": "city",
+                            "stateCode": "OR",
+                            "countryCode": "US",
+                            "zipCode": "12345"
+                          }
+                        },
+                        "serviceOrganization": {
+                          "poaCode": "083",
+                          "registrationNumber": "999999999999"
+                        },
+                        "claimant": {
+                          "claimantId": "1013093331V548481",
+                          "address": {
+                            "addressLine1": "123 anystreet",
+                            "city": "anytown",
+                            "stateCode": "OR",
+                            "countryCode": "US",
+                            "zipCode": "12345"
+                          },
+                          "relationship": "Spouse"
+                        }
                       }
                     }
                   }
@@ -16056,8 +16241,7 @@
                                   "addressLine1",
                                   "city",
                                   "stateCode",
-                                  "country",
-                                  "zipCode"
+                                  "countryCode"
                                 ],
                                 "properties": {
                                   "addressLine1": {
@@ -16077,18 +16261,19 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -16135,7 +16320,7 @@
                               "email": {
                                 "description": "Email address of the veteran.",
                                 "type": "string",
-                                "pattern": ".@.",
+                                "pattern": "^(?!.*\\s).+@.+\\..+|^$",
                                 "maxLength": 61,
                                 "example": "veteran@example.com"
                               }
@@ -16171,18 +16356,19 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address. Required if claimant information provided.",
+                                    "description": "State or province code for the address. Required if claimant information provided.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address. Required if claimant information provided.",
+                                  "countryCode": {
+                                    "description": "Country code of the address. Required if claimant information provided.",
                                     "type": "string",
+                                    "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "USA"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -16229,8 +16415,8 @@
                               "email": {
                                 "description": "Email address of the claimant.",
                                 "type": "string",
-                                "pattern": ".@.",
-                                "maxLength": 61,
+                                "pattern": "^(?!.*\\s).+@.+\\..+|^$",
+                                "maxLength": 30,
                                 "example": "claimant@example.com"
                               },
                               "relationship": {
@@ -16290,18 +16476,19 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -16358,7 +16545,7 @@
                           "addressLine1": "123",
                           "addressLine2": "2a",
                           "city": "city",
-                          "country": "US",
+                          "countryCode": "US",
                           "stateCode": "OR",
                           "zipCode": "12345",
                           "zipCodeSuffix": "6789"
@@ -16372,7 +16559,7 @@
                           "addressLine1": "123",
                           "addressLine2": "2a",
                           "city": "city",
-                          "country": "US",
+                          "countryCode": "US",
                           "stateCode": "OR",
                           "zipCode": "12345",
                           "zipCodeSuffix": "6789"
@@ -16722,9 +16909,8 @@
                                 "required": [
                                   "addressLine1",
                                   "city",
-                                  "country",
                                   "stateCode",
-                                  "zipCode"
+                                  "countryCode"
                                 ],
                                 "properties": {
                                   "addressLine1": {
@@ -16744,18 +16930,19 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address.",
+                                    "description": "State or province code for the address.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address.",
+                                  "countryCode": {
+                                    "description": "Country code of the address.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -16802,7 +16989,7 @@
                               "email": {
                                 "description": "Email address of the veteran.",
                                 "type": "string",
-                                "pattern": ".@.",
+                                "pattern": "^(?!.*\\s).+@.+\\..+|^$",
                                 "maxLength": 61,
                                 "example": "veteran@example.com"
                               },
@@ -16849,18 +17036,19 @@
                                     "maxLength": 18
                                   },
                                   "stateCode": {
-                                    "description": "State for the address. Required if claimant information provided.",
+                                    "description": "State or province code for the address. Required if claimant information provided.",
                                     "type": "string",
                                     "pattern": "^[a-z,A-Z]{2}$",
                                     "example": "OR"
                                   },
-                                  "country": {
-                                    "description": "Country of the address. Required if claimant information provided.",
+                                  "countryCode": {
+                                    "description": "Country code of the address. Required if claimant information provided.",
                                     "type": "string",
-                                    "example": "USA"
+                                    "pattern": "^[a-z,A-Z]{2}$",
+                                    "example": "US"
                                   },
                                   "zipCode": {
-                                    "description": "Zipcode (First 5 digits) of the address. Required if claimant information provided.",
+                                    "description": "Zip code (First 5 digits) of the address. Required if 'countryCode' is 'US'.",
                                     "type": "string",
                                     "pattern": "^\\d{5}?$",
                                     "example": "12345"
@@ -16910,8 +17098,8 @@
                               "email": {
                                 "description": "Email address of the claimant.",
                                 "type": "string",
-                                "pattern": ".@.",
-                                "maxLength": 61,
+                                "pattern": "^(?!.*\\s).+@.+\\..+|^$",
+                                "maxLength": 30,
                                 "example": "claimant@example.com"
                               },
                               "relationship": {
@@ -16948,7 +17136,7 @@
                               "email": {
                                 "description": "Email address of the service organization or representative.",
                                 "type": "string",
-                                "pattern": ".@.",
+                                "pattern": "^(?!.*\\s).+@.+\\..+|^$",
                                 "maxLength": 61,
                                 "example": "veteran_representative@example.com"
                               }
@@ -16989,7 +17177,7 @@
                           "addressLine1": "123",
                           "city": "city",
                           "stateCode": "OR",
-                          "country": "US",
+                          "countryCode": "US",
                           "zipCode": "12345"
                         }
                       },
@@ -17063,17 +17251,17 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "79a76ea1-feb7-4499-9fd9-b607ec137024",
+                    "id": "610d2a9f-38c7-4a47-b29b-cb81ddc62a11",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2024-10-09",
+                      "dateRequestAccepted": "2024-12-04",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
                           "poaCode": "074"
                         }
                       },
-                      "status": "submitted"
+                      "status": "pending"
                     }
                   }
                 },
