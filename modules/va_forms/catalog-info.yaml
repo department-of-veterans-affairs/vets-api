@@ -5,8 +5,8 @@ metadata:
   description: The VA Forms API makes available the latest version of every VA form. Consumers of this API can search by form number, keyword, or title, get a link to the form in PDF format, get detailed form metadata, find the latest date of PDF changes and the SHA256 checksum, and identify when a form is deleted by the VA.
   title: VA Forms API
   annotations:
-    datadog/sandbox-monitor-id: 130870
-    datadog/production-monitor-id: 130899
+    datadog/sandbox-monitor-id: '130870'
+    datadog/production-monitor-id: '130899'
   tags:
     - forms
     - ruby
