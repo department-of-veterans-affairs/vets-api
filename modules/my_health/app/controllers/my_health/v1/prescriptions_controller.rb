@@ -13,9 +13,11 @@ module MyHealth
       # @param per_page - the number of items to fetch per page
       # @param sort - the attribute to sort on, negated for descending, use sort[]= for multiple argument query params
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
+      # TODO: refactor index to shorter method
+      # rubocop:disable Metrics/MethodLength
       def index
         resource = collection_resource
-        Flipper.enabled?(:mhv_medications_display_grouping) ? resource.data = group_prescriptions(resource.data) : resource
+        resource.data = group_prescriptions(resource.data) if Flipper.enabled?(:mhv_medications_display_grouping)
         resource.data = filter_non_va_meds(resource.data)
         filter_count = set_filter_metadata(resource.data)
         renewal_params = 'Active,Expired'
@@ -34,6 +36,7 @@ module MyHealth
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
         options = { meta: resource.metadata.merge(filter_count) }
         options[:links] = pagination_links(resource) if is_using_pagination
+
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
 
