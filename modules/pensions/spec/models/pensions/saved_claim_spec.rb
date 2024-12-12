@@ -49,22 +49,45 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
       )
     end
 
-    before do
-      allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
-    end
+    context 'using JSON Schema' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
+      end
 
-    describe '#process_attachments!' do
-      it 'sets the attachments saved_claim_id' do
-        expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async).with(claim.id)
-        claim.process_attachments!
-        expect(claim.persistent_attachments.size).to eq(2)
+      describe '#process_attachments!' do
+        it 'sets the attachments saved_claim_id' do
+          expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async).with(claim.id)
+          claim.process_attachments!
+          expect(claim.persistent_attachments.size).to eq(2)
+        end
+      end
+
+      describe '#destroy' do
+        it 'also destroys the persistent_attachments' do
+          claim.process_attachments!
+          expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
+        end
       end
     end
 
-    describe '#destroy' do
-      it 'also destroys the persistent_attachments' do
-        claim.process_attachments!
-        expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
+    context 'using JSON Schemer' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
+      end
+
+      describe '#process_attachments!' do
+        it 'sets the attachments saved_claim_id' do
+          expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async).with(claim.id)
+          claim.process_attachments!
+          expect(claim.persistent_attachments.size).to eq(2)
+        end
+      end
+
+      describe '#destroy' do
+        it 'also destroys the persistent_attachments' do
+          claim.process_attachments!
+          expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
+        end
       end
     end
   end

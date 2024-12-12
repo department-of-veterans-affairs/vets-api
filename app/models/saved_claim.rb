@@ -197,10 +197,10 @@ class SavedClaim < ApplicationRecord
   end
 
   def reformatted_schemer_errors(errors)
-    errors.map { |error| error.slice 'data_pointer', 'error' }
+    errors.map { |error| error.slice :data_pointer, :error }
     errors.each do |error|
-      error[:fragment] = error['data_pointer']
-      error[:message] = error['error']
+      error[:fragment] = error[:data_pointer]
+      error[:message] = error[:error]
     end
     errors
   end
