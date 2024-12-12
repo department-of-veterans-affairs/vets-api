@@ -19,6 +19,7 @@ module ClaimsApi
                             end
       end
 
+      # rubocop:disable Metrics/MethodLength
       def build_target_veteran(veteran_id:, loa:)
         target_veteran ||= ClaimsApi::Veteran.new(
           mhv_icn: veteran_id,
@@ -33,8 +34,25 @@ module ClaimsApi
                     'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.'
           )
         end
-        populate_target_veteran(mpi_profile_from(target_veteran), target_veteran)
+        built_target_veteran = populate_target_veteran(mpi_profile_from(target_veteran), target_veteran)
+
+        if built_target_veteran.participant_id.blank? && Flipper.enabled?(:lighthouse_claims_api_v2_add_person_proxy)
+          claims_logging('unable_to_locate_participant_id',
+                         message: 'unable_to_locate_participant_id.')
+
+          built_target_veteran = built_target_veteran.mpi_no_cache.add_person_proxy
+
+          if built_target_veteran.participant_id.blank?
+            raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+              "Unable to locate Veteran's Participant ID in Master Person Index (MPI). " \
+              'Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) " \
+              "for assistance.')
+          end
+        end
+
+        built_target_veteran
       end
+      # rubocop:enable Metrics/MethodLength
 
       def mpi_profile_from(target_veteran)
         mpi_profile = target_veteran&.mpi&.mvi_response&.profile || {}
