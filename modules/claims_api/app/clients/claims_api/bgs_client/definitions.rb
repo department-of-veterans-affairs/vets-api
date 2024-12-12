@@ -294,15 +294,17 @@ module ClaimsApi
               key: 'VeteranRepresentativeReturnList'
             )
         end
+      end
 
-        module CreateVeteranRepresentative
-          DEFINITION =
-            Action.new(
-              service: VeteranRepresentativeService::DEFINITION,
-              name: 'createVeteranRepresentative',
-              key: 'VeteranRepresentativeReturn'
+      module VeteranRepresentativeService
+        DEFINITION =
+          Bean.new(
+            path: 'VDC/VeteranRepresentativeService',
+            namespaces: Namespaces.new(
+              target: 'http://gov.va.vba.benefits.vdc/services',
+              data: 'http://gov.va.vba.benefits.vdc/data'
             )
-        end
+          )
       end
 
       ##
