@@ -115,6 +115,8 @@ module Swagger
                                 description: 'The submission record created in VA.gov'
           property :updated_at, type: [:string, 'null'], example: '2023-12-15T20:40:54.474Z',
                                 description: 'The last time the submission status was updated'
+          property :pdf_support, type: :boolean, example: true,
+                                 description: 'True if submission supports archived pdf downloads'
         end
       end
     end
