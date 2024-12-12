@@ -149,13 +149,13 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
         context 'when form validation returns errors' do
           before do
             allow(JSONSchemer).to receive_messages(validate_schema: [])
-            allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema, validate: [{ data_pointer: "error" }]))
+            allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema,
+                                                                     validate: [{ data_pointer: 'error' }]))
           end
 
           it 'adds validation errors to the form' do
             saved_claim.validate
             expect(saved_claim.errors.full_messages).not_to be_empty
-            byebug
           end
         end
       end
