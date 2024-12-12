@@ -370,6 +370,9 @@ GEM
       libddwaf (~> 1.14.0.0.0)
       msgpack
     debase-ruby_core_source (3.3.1)
+    debug (1.9.2)
+      irb (~> 1.10)
+      reline (>= 0.3.8)
     declarative (0.0.20)
     deep_merge (1.2.2)
     descendants_tracker (0.0.4)
@@ -1175,6 +1178,7 @@ DEPENDENCIES
   date_validator
   ddtrace
   debts_api!
+  debug
   decision_reviews!
   dhp_connected_devices!
   dogstatsd-ruby (= 5.6.3)
