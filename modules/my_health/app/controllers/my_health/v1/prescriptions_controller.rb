@@ -39,6 +39,7 @@ module MyHealth
 
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
+      # rubocop:enable Metrics/MethodLength
 
       def show
         id = params[:id].try(:to_i)
