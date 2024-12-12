@@ -120,7 +120,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
 
         it 'raises an MPI locked account error' do
           response = subject
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:unauthorized)
           expect(JSON.parse(response.body)['errors']).to eq(expected_errors)
         end
       end
@@ -131,7 +131,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
 
         it 'raises an MPI locked account error' do
           response = subject
-          expect(response).to have_http_status(:forbidden)
+          expect(response).to have_http_status(:unauthorized)
           expect(JSON.parse(response.body)['errors']).to eq(expected_errors)
         end
       end
@@ -299,10 +299,10 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:deceased_date) { '20020202' }
         let(:expected_error) { 'Death Flag Detected' }
 
-        it 'raises an MPI locked account error' do
+        it 'returns an empty response' do
           response = subject
-          expect(response).to have_http_status(:forbidden)
-          expect(JSON.parse(response.body)['errors']).to eq(expected_error)
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_empty
         end
       end
 
@@ -310,10 +310,10 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:id_theft_flag) { true }
         let(:expected_error) { 'Theft Flag Detected' }
 
-        it 'raises an MPI locked account error' do
+        it 'returns an empty response' do
           response = subject
-          expect(response).to have_http_status(:forbidden)
-          expect(JSON.parse(response.body)['errors']).to eq(expected_error)
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_empty
         end
       end
     end

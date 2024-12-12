@@ -207,7 +207,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
             it 'raises an MPI locked account error' do
               get :index
 
-              expect(response).to have_http_status(:forbidden)
+              expect(response).to have_http_status(:unauthorized)
               expect(JSON.parse(response.body)['errors']).to eq(expected_error)
             end
           end
@@ -219,7 +219,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
             it 'raises an MPI locked account error' do
               get :index
 
-              expect(response).to have_http_status(:forbidden)
+              expect(response).to have_http_status(:unauthorized)
               expect(JSON.parse(response.body)['errors']).to eq(expected_error)
             end
           end
