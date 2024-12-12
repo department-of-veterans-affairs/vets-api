@@ -284,6 +284,7 @@ Rails.application.routes.draw do
 
     namespace :my_va do
       resource :submission_statuses, only: :show
+      resource :submission_pdf_urls, only: :create
     end
 
     namespace :profile do
@@ -446,6 +447,10 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :v2, defaults: { format: 'json' } do
+    resources :higher_level_reviews, only: %i[create show]
+  end
+
   root 'v0/example#index', module: 'v0'
 
   scope '/services' do
@@ -481,6 +486,7 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
+  mount DecisionReviews::Engine, at: '/decision_reviews'
   # End Modules
 
   require 'sidekiq/web'

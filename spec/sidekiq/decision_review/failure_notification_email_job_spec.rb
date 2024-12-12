@@ -45,26 +45,34 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
   end
 
   let(:email_address) { 'testuser@test.com' }
-  let(:emails) { build(:email, email_address:) }
-  let(:person) { build(:person, emails:) }
-  let(:person_response) { instance_double(VAProfile::ContactInformation::PersonResponse, person:) }
+  let(:form) do
+    {
+      data: {
+        attributes: {
+          veteran: {
+            email: email_address
+          }
+        }
+      }
+    }.to_json
+  end
 
   let(:email_address2) { 'testuser2@test.com' }
-  let(:emails2) { build(:email, email_address: email_address2) }
-  let(:person2) { build(:person, emails: emails2) }
-  let(:person_response2) { instance_double(VAProfile::ContactInformation::PersonResponse, person: person2) }
+  let(:form2) do
+    {
+      data: {
+        attributes: {
+          veteran: {
+            email: email_address2
+          }
+        }
+      }
+    }.to_json
+  end
 
   before do
     allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
     allow(MPI::Service).to receive(:new).and_return(mpi_service)
-
-    allow(VAProfile::ContactInformation::Service).to receive(:get_person)
-    allow(VAProfile::ContactInformation::Service).to receive(:get_person)
-      .with(mpi_profile&.vet360_id)
-      .and_return(person_response)
-    allow(VAProfile::ContactInformation::Service).to receive(:get_person)
-      .with(mpi_profile2.vet360_id)
-      .and_return(person_response2)
   end
 
   describe 'perform' do
@@ -89,10 +97,9 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
         let(:reference) { "SC-form-#{guid1}" }
 
         before do
-          SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', metadata: '{"status":"error"}')
-          SavedClaim::SupplementalClaim.create(guid: guid2, form: '{}',
-                                               metadata: '{"status":"error"}')
-          SavedClaim::SupplementalClaim.create(guid: guid3, form: '{}', metadata: '{"status":"pending"}')
+          SavedClaim::SupplementalClaim.create(guid: guid1, form:, metadata: '{"status":"error"}')
+          SavedClaim::SupplementalClaim.create(guid: guid2, form:, metadata: '{"status":"error"}')
+          SavedClaim::SupplementalClaim.create(guid: guid3, form: form2, metadata: '{"status":"pending"}')
 
           create(:appeal_submission, user_uuid:, type_of_appeal: 'SC', submitted_appeal_uuid: guid1, created_at:)
           create(:appeal_submission, user_uuid:, type_of_appeal: 'SC', submitted_appeal_uuid: guid2,
@@ -243,9 +250,9 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
         let(:reference2) { "NOD-evidence-#{upload_guid5}" }
 
         before do
-          SavedClaim::NoticeOfDisagreement.create(guid: guid1, form: '{}', metadata: metadata1.to_json)
+          SavedClaim::NoticeOfDisagreement.create(guid: guid1, form:, metadata: metadata1.to_json)
           SavedClaim::NoticeOfDisagreement.create(guid: guid2, form: '{}', metadata: metadata2.to_json)
-          SavedClaim::NoticeOfDisagreement.create(guid: guid3, form: '{}', metadata: metadata3.to_json)
+          SavedClaim::NoticeOfDisagreement.create(guid: guid3, form: form2, metadata: metadata3.to_json)
           SavedClaim::NoticeOfDisagreement.create(guid: guid4, form: '{}', metadata: nil)
 
           # 1 error no email, 1 vbms, 1 error already emailed
@@ -380,8 +387,8 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
         let(:reference) { "SC-secondary_form-#{secondary_form1.guid}" }
 
         before do
-          SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}')
-          SavedClaim::SupplementalClaim.create(guid: guid2, form: '{}')
+          SavedClaim::SupplementalClaim.create(guid: guid1, form:)
+          SavedClaim::SupplementalClaim.create(guid: guid2, form:)
         end
 
         context 'with flag enabled' do
@@ -486,6 +493,8 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
           expect(Rails.logger).to have_received(:error).with(*logger_params)
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.failure_notification_email.form.error', tags: ['appeal_type:SC'])
+          expect(StatsD).to have_received(:increment)
+            .with('silent_failure', tags: ['service:supplemental-claims', 'function: form submission to Lighthouse'])
         end
       end
 
@@ -514,7 +523,7 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
         let(:message) { 'Failed to fetch MPI profile' }
 
         before do
-          SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}', metadata: metadata.to_json)
+          SavedClaim::SupplementalClaim.create(guid: guid1, form:, metadata: metadata.to_json)
           appeal_submission = create(:appeal_submission, type_of_appeal: 'SC', submitted_appeal_uuid: guid1)
 
           upload = create(:appeal_submission_upload, lighthouse_upload_id:, appeal_submission:)
@@ -535,6 +544,9 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
           expect(Rails.logger).to have_received(:error).with(*logger_params)
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.failure_notification_email.evidence.error', tags: ['appeal_type:SC'])
+          expect(StatsD).to have_received(:increment)
+            .with('silent_failure',
+                  tags: ['service:supplemental-claims', 'function: evidence submission to Lighthouse'])
         end
       end
 
@@ -553,7 +565,7 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
         end
 
         before do
-          SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}')
+          SavedClaim::SupplementalClaim.create(guid: guid1, form:)
           appeal_submission = create(:appeal_submission, type_of_appeal: 'SC', submitted_appeal_uuid: guid1)
 
           create(:secondary_appeal_form4142, guid: lighthouse_upload_id, status: secondary_form_status_error,
@@ -570,12 +582,15 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
           expect(Rails.logger).to have_received(:error).with(*logger_params)
           expect(StatsD).to have_received(:increment)
             .with('worker.decision_review.failure_notification_email.secondary_form.error', tags: ['appeal_type:SC'])
+          expect(StatsD).to have_received(:increment)
+            .with('silent_failure',
+                  tags: ['service:supplemental-claims', 'function: secondary form submission to Lighthouse'])
         end
       end
 
       context 'when there are no errors to email' do
         before do
-          SavedClaim::SupplementalClaim.create(guid: guid1, form: '{}')
+          SavedClaim::SupplementalClaim.create(guid: guid1, form:)
         end
 
         it 'does not send emails' do

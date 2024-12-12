@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'medical_records/bb_internal/client'
 require 'stringio'
 
+UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 describe BBInternal::Client do
   before(:all) do
     VCR.use_cassette 'mr_client/bb_internal/session_auth' do
@@ -16,6 +18,24 @@ describe BBInternal::Client do
   end
 
   let(:client) { @client }
+
+  RSpec.shared_context 'redis setup' do
+    let(:redis) { instance_double(Redis::Namespace) }
+    let(:study_id) { '453-2487450' }
+    let(:uuid) { 'c9396040-23b7-44bc-a505-9127ed968b0d' }
+    let(:cached_data) do
+      {
+        uuid => study_id
+      }.to_json
+    end
+    let(:namespace) { REDIS_CONFIG[:bb_internal_store][:namespace] }
+    let(:study_data_key) { 'study_data-11382904' }
+
+    before do
+      allow(Redis::Namespace).to receive(:new).with(namespace, redis: $redis).and_return(redis)
+      allow(redis).to receive(:get).with(study_data_key).and_return(cached_data)
+    end
+  end
 
   describe '#list_radiology' do
     it 'gets the radiology records' do
@@ -35,26 +55,36 @@ describe BBInternal::Client do
         studies = client.list_imaging_studies
         expect(studies).to be_an(Array)
         expect(studies.first).to have_key('studyIdUrn')
+        expect(studies.first).to have_key('studyIdUrn')
+
+        # Check if 'studyIdUrn' was replaced by a UUID
+        expect(studies.first['studyIdUrn']).to match(UUID_REGEX)
       end
     end
   end
 
   describe '#request_study' do
+    include_context 'redis setup'
+
     it 'requests a study by study_id' do
-      study_id = '453-2487450'
       VCR.use_cassette 'mr_client/bb_internal/request_study' do
-        result = client.request_study(study_id)
+        result = client.request_study(uuid)
         expect(result).to be_a(Hash)
         expect(result).to have_key('status')
+        expect(result).to have_key('studyIdUrn')
+
+        # 'studyIdUrn' should match a specific UUID
+        expect(result['studyIdUrn']).to equal(uuid)
       end
     end
   end
 
   describe '#list_images' do
+    include_context 'redis setup'
+
     it 'lists the images for a given study' do
-      study_id = '453-2487450'
       VCR.use_cassette 'mr_client/bb_internal/list_images' do
-        images = client.list_images(study_id)
+        images = client.list_images(uuid)
         expect(images).to be_an(Array)
         expect(images.first).to be_a(String)
       end
@@ -62,26 +92,28 @@ describe BBInternal::Client do
   end
 
   describe '#get_image' do
+    include_context 'redis setup'
+
     it 'streams an image successfully' do
-      study_id = '453-2487450'
       series = '01'
       image = '01'
       yielder = StringIO.new
 
       VCR.use_cassette 'mr_client/bb_internal/get_image' do
-        client.get_image(study_id, series, image, ->(headers) {}, yielder)
+        client.get_image(uuid, series, image, ->(headers) {}, yielder)
         expect(yielder.string).not_to be_empty
       end
     end
   end
 
   describe '#get_dicom' do
+    include_context 'redis setup'
+
     it 'streams a DICOM zip successfully' do
-      study_id = '453-2487450'
       yielder = StringIO.new
 
       VCR.use_cassette 'mr_client/bb_internal/get_dicom' do
-        client.get_dicom(study_id, ->(headers) {}, yielder)
+        client.get_dicom(uuid, ->(headers) {}, yielder)
         expect(yielder.string).not_to be_empty
       end
     end
@@ -153,6 +185,9 @@ describe BBInternal::Client do
         expect(first_study_job['status']).to be_a(String)
         expect(first_study_job).to have_key('studyIdUrn')
         expect(first_study_job['studyIdUrn']).to be_a(String)
+
+        # Check if 'studyIdUrn' was replaced by a UUID
+        expect(first_study_job['studyIdUrn']).to match(UUID_REGEX)
       end
     end
   end
@@ -196,6 +231,191 @@ describe BBInternal::Client do
 
       expect { client.get_patient }.to raise_error(Common::Exceptions::ServiceError) do |error|
         expect(error.errors.first[:detail]).to eq('Patient not found')
+      end
+    end
+
+    describe '#get_sei_vital_signs_summary' do
+      it 'retrieves the SEI vital signs' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_vital_signs_summary' do
+          response = client.get_sei_vital_signs_summary
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('bloodPreassureReadings')
+          expect(response).to have_key('bloodSugarReadings')
+          expect(response).to have_key('bodyTemperatureReadings')
+          expect(response).to have_key('bodyWeightReadings')
+          expect(response).to have_key('cholesterolReadings')
+          expect(response).to have_key('heartRateReadings')
+          expect(response).to have_key('inrReadings')
+          expect(response).to have_key('lipidReadings')
+          expect(response).to have_key('painReadings')
+          expect(response).to have_key('pulseOximetryReadings')
+        end
+      end
+    end
+
+    describe '#get_sei_allergies' do
+      it 'retrieves the SEI allergies' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_allergies' do
+          response = client.get_sei_allergies
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+          expect(response['pojoObject'][0]).to have_key('allergiesId')
+        end
+      end
+    end
+
+    describe '#get_sei_family_health_history' do
+      it 'retrieves the SEI family health history' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_family_health_history' do
+          response = client.get_sei_family_health_history
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+          expect(response['pojoObject'][0]).to have_key('relationship')
+        end
+      end
+    end
+
+    describe '#get_sei_immunizations' do
+      it 'retrieves the SEI immunizations' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_immunizations' do
+          response = client.get_sei_immunizations
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+          expect(response['pojoObject'][0]).to have_key('immunizationId')
+        end
+      end
+    end
+
+    describe '#get_sei_test_entries' do
+      it 'retrieves the SEI test entries' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_test_entries' do
+          response = client.get_sei_test_entries
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+        end
+      end
+    end
+
+    describe '#get_sei_medical_events' do
+      it 'retrieves the SEI medical events' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_medical_events' do
+          response = client.get_sei_medical_events
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+          expect(response['pojoObject'][0]).to have_key('medicalEventId')
+        end
+      end
+    end
+
+    describe '#get_sei_military_history' do
+      it 'retrieves the SEI miltary history' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_military_history' do
+          response = client.get_sei_military_history
+
+          expect(response).to be_a(Hash)
+          expect(response).to have_key('pojoObject')
+          expect(response['pojoObject'][0]).to have_key('serviceBranch')
+        end
+      end
+    end
+
+    describe '#get_sei_healthcare_providers' do
+      it 'retrieves the SEI healthcare providers' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_healthcare_providers' do
+          response = client.get_sei_healthcare_providers
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('healthCareProviderId')
+        end
+      end
+    end
+
+    describe '#get_sei_health_insurance' do
+      it 'retrieves the SEI health insurance' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_health_insurance' do
+          response = client.get_sei_health_insurance
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('healthInsuranceId')
+        end
+      end
+    end
+
+    describe '#get_sei_treatment_facilities' do
+      it 'retrieves the SEI treatment facilities' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_treatment_facilities' do
+          response = client.get_sei_treatment_facilities
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('treatmentFacilityId')
+        end
+      end
+    end
+
+    describe '#get_sei_food_journal' do
+      it 'retrieves the SEI food journal' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_food_journal' do
+          response = client.get_sei_food_journal
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('foodJournalId')
+        end
+      end
+    end
+
+    describe '#get_sei_activity_journal' do
+      it 'retrieves the SEI activity journal' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_activity_journal' do
+          response = client.get_sei_activity_journal
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('activityJournalId')
+        end
+      end
+    end
+
+    describe '#get_sei_medications' do
+      it 'retrieves the SEI activity journal' do
+        VCR.use_cassette 'mr_client/bb_internal/get_sei_medications' do
+          response = client.get_sei_medications
+
+          expect(response).to be_an(Array)
+          expect(response[0]).to have_key('medicationId')
+        end
+      end
+    end
+  end
+
+  describe '#get_demographic_info' do
+    it 'retrieves the patient demographic information' do
+      VCR.use_cassette 'mr_client/bb_internal/get_demographic_info' do
+        demographic_info = client.get_demographic_info
+
+        expect(demographic_info).to be_a(Hash)
+        expect(demographic_info).to have_key('content')
+        expect(demographic_info['content']).to be_an(Array)
+        expect(demographic_info['content']).not_to be_empty
+
+        first_record = demographic_info['content'].first
+        expect(first_record).to be_a(Hash)
+        expect(first_record).to have_key('firstName')
+        expect(first_record['firstName']).to be_a(String)
+        expect(first_record).to have_key('lastName')
+        expect(first_record['lastName']).to be_a(String)
+        expect(first_record).to have_key('dateOfBirthString')
+        expect(first_record['dateOfBirthString']).to be_a(String)
+        expect(first_record).to have_key('gender')
+        expect(first_record['gender']).to be_a(String)
+        expect(first_record).to have_key('permCity')
+        expect(first_record['permCity']).to be_a(String)
+        expect(first_record).to have_key('permState')
+        expect(first_record['permState']).to be_a(String)
       end
     end
   end

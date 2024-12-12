@@ -69,7 +69,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
         LastName: 'User',
         PreferredName: 'Test User',
         Suffix: 722_310_000,
-        Gender: nil,
         Pronouns: 'he/him/his',
         Country: {
           Name: 'United States',

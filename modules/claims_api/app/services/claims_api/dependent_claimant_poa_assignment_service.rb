@@ -9,6 +9,7 @@ require 'bgs_service/benefit_claim_service'
 module ClaimsApi
   class DependentClaimantPoaAssignmentService
     def initialize(**options)
+      @poa_id = options[:poa_id]
       @poa_code = options[:poa_code]
       @veteran_participant_id = options[:veteran_participant_id]
       @dependent_participant_id = options[:dependent_participant_id]
@@ -25,7 +26,7 @@ module ClaimsApi
 
       log(level: :error, detail: 'Failed to assign POA to dependent')
 
-      raise ::Common::Exceptions::FailedDependency
+      raise ::Common::Exceptions::ServiceError
     end
 
     private
@@ -36,7 +37,8 @@ module ClaimsApi
     end
 
     def log(level: :info, **rest)
-      ClaimsApi::Logger.log('dependent_claimant_poa_assignment_service', level:, poa_code: @poa_code, **rest)
+      ClaimsApi::Logger.log('dependent_claimant_poa_assignment_service', level:, poa_id: @poa_id, poa_code: @poa_code,
+                                                                         **rest)
     end
 
     def assign_poa_to_dependent_via_manage_ptcpnt_rlnshp?
@@ -51,19 +53,28 @@ module ClaimsApi
         return true
       end
 
-      log(level: :warn,
-          detail: 'Something else went wrong with manage_ptcpnt_rlnshp. Falling back to update_benefit_claim.')
-
-      false
+      raise ::Common::Exceptions::ServiceError
     rescue ::Common::Exceptions::ServiceError => e
       if e.errors.first.detail == 'PtcpntIdA has open claims.'
         log(detail: 'Dependent has open claims, continuing.')
-      else
-        log(level: :warn,
-            detail: 'Something else went wrong with manage_ptcpnt_rlnshp. Falling back to update_benefit_claim.')
+
+        return false
       end
 
-      false
+      raise e
+    rescue => e
+      log(level: :error, detail: 'Something else went wrong with manage_ptcpnt_rlnshp.', error: error_details(e))
+
+      raise e
+    end
+
+    def error_details(e)
+      {
+        message: e.message,
+        detail: e.try(:detail),
+        details: e.try(:details),
+        errors: e.try(:errors)&.map(&:to_h)
+      }.compact
     end
 
     def iso_to_date(iso_date)
@@ -92,6 +103,12 @@ module ClaimsApi
       first_open_claim = dependent_claims.find do |claim|
         claim[:phase_type] != 'Complete' && claim[:ptcpnt_vet_id] == @veteran_participant_id
       end
+      if first_open_claim.nil? || first_open_claim.blank?
+        log(detail: 'Dependent has no open claims.', statuses: dependent_claims.pluck(:phase_type).uniq)
+
+        raise ::Common::Exceptions::ServiceError
+      end
+
       first_open_claim_details = claim_details(first_open_claim[:benefit_claim_id])
 
       benefit_claim_update_input = build_benefit_claim_update_input(claim_details: first_open_claim_details)
@@ -108,15 +125,18 @@ module ClaimsApi
     end
 
     def dependent_claims
-      local_bgs = ClaimsApi::LocalBGS.new(external_uid: @dependent_participant_id,
-                                          external_key: @dependent_participant_id)
-      res = local_bgs.find_benefit_claims_status_by_ptcpnt_id(@dependent_participant_id)
+      bgs_claim_status_service = ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
+        external_uid: @dependent_participant_id,
+        external_key: @dependent_participant_id
+      )
+      res = bgs_claim_status_service.find_benefit_claims_status_by_ptcpnt_id(@dependent_participant_id)
+      benefit_claims = Array.wrap(res&.dig(:benefit_claims_dto, :benefit_claim))
 
-      return res&.dig(:benefit_claims_dto, :benefit_claim) if res&.dig(:benefit_claims_dto, :benefit_claim).present?
+      return benefit_claims if benefit_claims.present? && benefit_claims.is_a?(Array) && benefit_claims.first.present?
 
       log(level: :error, detail: 'Dependent claims not found in BGS')
 
-      raise ::Common::Exceptions::FailedDependency
+      raise ::Common::Exceptions::ResourceNotFound
     end
 
     def benefit_claim_web_service
@@ -136,7 +156,7 @@ module ClaimsApi
 
       log(level: :error, detail: 'Claim details not found in BGS', claim_id:)
 
-      raise ::Common::Exceptions::FailedDependency
+      raise ::Common::Exceptions::ResourceNotFound
     end
 
     def poa_participant_id
@@ -146,7 +166,7 @@ module ClaimsApi
 
       log(level: :error, detail: 'POA code/participant ID combo not found in BGS')
 
-      raise ::Common::Exceptions::FailedDependency
+      raise ::Common::Exceptions::ResourceNotFound
     end
 
     def manage_ptcpnt_rlnshp_poa_success?(response)
@@ -162,7 +182,7 @@ module ClaimsApi
       else
         log(level: :error, detail: 'Program type code not recognized', pgm_type_cd:)
 
-        raise ::Common::Exceptions::FailedDependency
+        raise ::Common::Exceptions::BadRequest
       end
     end
   end

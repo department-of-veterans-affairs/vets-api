@@ -76,11 +76,11 @@ describe 'EvidenceWaiver5103',
             bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_vet_id] = '600043201'
             bgs_claim_response[:benefit_claim_details_dto][:ptcpnt_clmant_id] = target_veteran[:participant_id]
 
-            expect_any_instance_of(ClaimsApi::LocalBGS)
+            expect_any_instance_of(ClaimsApi::EbenefitsBnftClaimStatusWebService)
               .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
 
             mock_ccg(scopes) do
-              allow_any_instance_of(ClaimsApi::LocalBGS)
+              allow_any_instance_of(ClaimsApi::PersonWebService)
                 .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
               submit_request(example.metadata)
             end
@@ -139,7 +139,7 @@ describe 'EvidenceWaiver5103',
 
           before do |example|
             mock_ccg(scopes) do
-              allow_any_instance_of(ClaimsApi::LocalBGS)
+              allow_any_instance_of(ClaimsApi::EbenefitsBnftClaimStatusWebService)
                 .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(nil)
               submit_request(example.metadata)
             end
