@@ -6,7 +6,7 @@ module DebtsApi
   class V0::Form5655Submission < ApplicationRecord
     class StaleUserError < StandardError; end
     STATS_KEY = 'api.fsr_submission'
-    enum state: { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
+    enum :state, { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
 
     self.table_name = 'form5655_submissions'
     validates :user_uuid, presence: true
@@ -73,7 +73,7 @@ module DebtsApi
         submission.submitted!
         StatsD.increment("#{STATS_KEY}.vha.success")
       else
-        submission.failed!
+        submission.register_failure("VHA set completed state: #{status.failure_info}")
         StatsD.increment("#{STATS_KEY}.vha.failure")
         Rails.logger.error('Batch FSR Processing Failed', status.failure_info)
       end
@@ -81,6 +81,9 @@ module DebtsApi
 
     def register_failure(message)
       failed!
+      if message.blank?
+        message = "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
+      end
       update(error_message: message)
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
