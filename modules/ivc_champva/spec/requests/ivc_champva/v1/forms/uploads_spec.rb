@@ -307,6 +307,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
         context 'when file uploads fail with "unable to find file" error' do
           before do
+            allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, @current_user).and_return(true)
             allow(file_uploader).to receive(:handle_uploads).and_raise(StandardError.new('Unable to find file'))
           end
 
