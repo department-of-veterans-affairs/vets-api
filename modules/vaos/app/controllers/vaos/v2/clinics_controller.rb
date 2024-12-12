@@ -58,6 +58,7 @@ module VAOS
             location_id = appt.location_id
             clinic_ids = appt.clinic
             clinic = mobile_facility_service.get_clinic_with_cache(station_id: location_id, clinic_id: clinic_ids)
+            log_recent_clinic_details(location_id, clinic_ids, clinic)
 
             # if clinic details are not returned, log 'not found' message
             clinic.nil? ? log_no_clinic_details_found(location_id, clinic_ids) : sorted_clinics.push(clinic)
@@ -92,6 +93,11 @@ module VAOS
       def log_no_clinic_details_found(station_id, clinic_id)
         Rails.logger.info 'VAOS last_visited_clinic', "No clinic details found for station: #{station_id} " \
                                                       "and clinic: #{clinic_id}"
+      end
+
+      def log_recent_clinic_details(station_id, clinic_id, clinic)
+        Rails.logger.info("VAOS recent_clinics details for station: #{station_id} and clinic: #{clinic_id} " \
+                          "- #{clinic.to_json}")
       end
 
       def unable_to_lookup_clinic?(appt)

@@ -62,6 +62,19 @@ module ClaimsApi
       end
 
       ##
+      # ContentionServiceBean
+      #
+      module ContentionService
+        DEFINITION =
+          Bean.new(
+            path: 'ContentionService',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
       # CorporateUpdateServiceBean
       #
       module CorporateUpdateServiceBean
@@ -123,7 +136,7 @@ module ClaimsApi
       ##
       # OrgWebServiceBean
       #
-      module OrgWebServiceBean
+      module OrgWebService
         DEFINITION =
           Bean.new(
             path: 'OrgWebServiceBean',
@@ -132,23 +145,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module OrgWebService
-        DEFINITION =
-          Service.new(
-            bean: OrgWebServiceBean::DEFINITION,
-            path: 'OrgWebService'
-          )
-
-        module FindOrgBySSN
-          DEFINITION =
-            Action.new(
-              service: OrgWebService::DEFINITION,
-              name: 'findPoaHistoryByPtcpntId',
-              key: 'PoaHistory'
-            )
-        end
       end
 
       ##
@@ -166,9 +162,23 @@ module ClaimsApi
       end
 
       ##
+      # StandardDataService
+      #
+      module StandardDataService
+        DEFINITION =
+          Bean.new(
+            path: 'StandardDataService',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      ##
       # StandardDataWebServiceBean
       #
-      module StandardDataWebServiceBean
+      module StandardDataWebService
         DEFINITION =
           Bean.new(
             path: 'StandardDataWebServiceBean',
@@ -177,23 +187,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module StandardDataWebService
-        DEFINITION =
-          Service.new(
-            bean: StandardDataWebServiceBean::DEFINITION,
-            path: 'StandardDataWebService'
-          )
-
-        module FindPOAs
-          DEFINITION =
-            Action.new(
-              service: StandardDataWebService::DEFINITION,
-              name: 'findPOAs',
-              key: 'PowerOfAttorneyDTO'
-            )
-        end
       end
 
       ##
