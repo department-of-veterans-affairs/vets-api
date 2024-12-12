@@ -21,16 +21,14 @@ module VAOS
       COMMENT = 'comment'
 
       def index
-        merged_appointments = appointments_service.merge_appointments(eps_appointments, appointments)
-
-        merged_appointments.each do |appt|
+        appointments[:data].each do |appt|
           set_facility_error_msg(appt) if include_index_params[:facilities]
           scrape_appt_comments_and_log_details(appt, index_method_logging_name, PAP_COMPLIANCE_TELE)
           log_appt_creation_time(appt)
         end
 
         serializer = VAOS::V2::VAOSSerializer.new
-        serialized = serializer.serialize(merged_appointments, 'appointments')
+        serialized = serializer.serialize(appointments[:data], 'appointments')
 
         if !appointments[:meta][:failures]&.empty?
           StatsDMetric.new(key: STATSD_KEY).save
@@ -84,11 +82,6 @@ module VAOS
           VAOS::V2::AppointmentsService.new(current_user)
       end
 
-      def eps_appointments_service
-        @eps_appointments_service ||=
-          Eps::AppointmentService.new(current_user)
-      end
-
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(current_user)
@@ -97,11 +90,6 @@ module VAOS
       def appointments
         @appointments ||=
           appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_index_params)
-      end
-
-      def eps_appointments
-        @eps_appointments ||=
-          eps_appointments_service.get_appointments(patient_id: Settings.vaos.eps.fake_patient_id)
       end
 
       def appointment
@@ -203,75 +191,75 @@ module VAOS
       # rubocop:disable Metrics/MethodLength
       def create_params
         @create_params ||= begin
-          # Gets around a bug that turns param values of [] into [""]. This changes them back to [].
-          # Without this the VAOS Service POST appointments call will fail as VAOS Service tries to parse [""].
-          params.transform_values! { |v| v.is_a?(Array) && v.count == 1 && (v[0] == '') ? [] : v }
+                             # Gets around a bug that turns param values of [] into [""]. This changes them back to [].
+                             # Without this the VAOS Service POST appointments call will fail as VAOS Service tries to parse [""].
+                             params.transform_values! { |v| v.is_a?(Array) && v.count == 1 && (v[0] == '') ? [] : v }
 
-          params.permit(
-            :kind,
-            :status,
-            :location_id,
-            :cancellable,
-            :clinic,
-            :comment,
-            :reason,
-            :service_type,
-            :preferred_language,
-            :minutes_duration,
-            :patient_instruction,
-            :priority,
-            reason_code: [
-              :text, { coding: %i[system code display] }
-            ],
-            slot: %i[id start end],
-            contact: [telecom: %i[type value]],
-            practitioner_ids: %i[system value],
-            requested_periods: %i[start end],
-            practitioners: [
-              :first_name,
-              :last_name,
-              :practice_name,
-              {
-                name: %i[family given]
-              },
-              {
-                identifier: %i[system value]
-              },
-              {
-                address: [
-                  :type,
-                  { line: [] },
-                  :city,
-                  :state,
-                  :postal_code,
-                  :country,
-                  :text
-                ]
-              }
-            ],
-            preferred_location: %i[city state],
-            preferred_times_for_phone_call: [],
-            telehealth: [
-              :url,
-              :group,
-              :vvs_kind,
-              {
-                atlas: [
-                  :site_code,
-                  :confirmation_code,
-                  {
-                    address: %i[
+                             params.permit(
+                               :kind,
+                               :status,
+                               :location_id,
+                               :cancellable,
+                               :clinic,
+                               :comment,
+                               :reason,
+                               :service_type,
+                               :preferred_language,
+                               :minutes_duration,
+                               :patient_instruction,
+                               :priority,
+                               reason_code: [
+                                 :text, { coding: %i[system code display] }
+                               ],
+                               slot: %i[id start end],
+                               contact: [telecom: %i[type value]],
+                               practitioner_ids: %i[system value],
+                               requested_periods: %i[start end],
+                               practitioners: [
+                                 :first_name,
+                                 :last_name,
+                                 :practice_name,
+                                 {
+                                   name: %i[family given]
+                                 },
+                                 {
+                                   identifier: %i[system value]
+                                 },
+                                 {
+                                   address: [
+                                     :type,
+                                     { line: [] },
+                                     :city,
+                                     :state,
+                                     :postal_code,
+                                     :country,
+                                     :text
+                                   ]
+                                 }
+                               ],
+                               preferred_location: %i[city state],
+                               preferred_times_for_phone_call: [],
+                               telehealth: [
+                                 :url,
+                                 :group,
+                                 :vvs_kind,
+                                 {
+                                   atlas: [
+                                     :site_code,
+                                     :confirmation_code,
+                                     {
+                                       address: %i[
                       street_address city state
                       zip country latitude longitude
                       additional_details
                     ]
-                  }
-                ]
-              }
-            ],
-            extension: %i[desired_date]
-          )
-        end
+                                     }
+                                   ]
+                                 }
+                               ],
+                               extension: %i[desired_date]
+                             )
+                           end
       end
 
       # rubocop:enable Metrics/MethodLength
