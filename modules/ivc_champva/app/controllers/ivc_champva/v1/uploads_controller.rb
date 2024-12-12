@@ -49,29 +49,48 @@ module IvcChampva
 
       private
 
-      def handle_file_uploads(form_id, parsed_form_data)
-        attempt = 0
-        max_attempts = 1
+      if Flipper.enabled?(:champva_multiple_stamp_retry, @current_user)
+        def handle_file_uploads(form_id, parsed_form_data)
+          attempt = 0
+          max_attempts = 1
 
-        begin
-          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
-          file_uploader = FileUploader.new(form_id, metadata, file_paths, true)
-          statuses, error_message = file_uploader.handle_uploads
-        rescue => e
-          attempt += 1
-          error_message_downcase = e.message.downcase
-          Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
+          begin
+            file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+            file_uploader = FileUploader.new(form_id, metadata, file_paths, true)
+            statuses, error_message = file_uploader.handle_uploads
+          rescue => e
+            attempt += 1
+            error_message_downcase = e.message.downcase
+            Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
 
-          if error_message_downcase.include?('failed to generate stamped file') ||
-             (error_message_downcase.include?('unable to find file') && attempt <= max_attempts)
-
-            retry
-          else
-            return [[], 'Error handling file uploads']
+            if error_message_downcase.include?('failed to generate stamped file') ||
+               (error_message_downcase.include?('unable to find file') && attempt <= max_attempts)
+              Rails.logger.error 'Retrying in 1 seconds...'
+              sleep 1
+              retry
+            else
+              return [[], 'Error handling file uploads']
+            end
           end
-        end
 
-        [statuses, error_message]
+          [statuses, error_message]
+        end
+      else
+        def handle_file_uploads(form_id, parsed_form_data)
+          file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+          statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          statuses = Array(statuses)
+
+          # Retry attempt if specific error message is found
+          if statuses.any? do |status|
+            status.is_a?(String) && status.include?('No such file or directory @ rb_sysopen')
+          end
+            file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
+            statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
+          end
+
+          [statuses, error_message]
+        end
       end
 
       def get_attachment_ids_and_form(parsed_form_data)

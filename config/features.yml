@@ -167,6 +167,9 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
+  champva_multiple_stamp_retry:
+    actor_type: user
+    description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
@@ -903,7 +906,7 @@ features:
     enable_in_development: true
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
-    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID 
+    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID
     enable_in_development: true
   lighthouse_claims_api_poa_dependent_claimants:
     actor_type: user
