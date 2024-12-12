@@ -40,7 +40,7 @@ RSpec.describe Lighthouse::EvidenceSubmissionDocumentUploadPollingJob, type: :jo
       pending_es2.save!
     end
 
-    it 'polls and updates status for each EvidenceSubmission record that is still pending' do
+    it 'polls and updates status for each EvidenceSubmission record that is still pending to "complete"' do
       VCR.use_cassette('lighthouse/benefits_claims/documents/lighthouse_document_upload_status_polling_success') do
         job
         described_class.drain
@@ -49,6 +49,8 @@ RSpec.describe Lighthouse::EvidenceSubmissionDocumentUploadPollingJob, type: :jo
       pending_es2 = EvidenceSubmission.where(request_id: 2).first
       expect(pending_es.completed?).to eq(true)
       expect(pending_es2.completed?).to eq(true)
+      expect(pending_es.delete_date).to be_within(1.second).of((current_date_time + 60.days).utc)
+      expect(pending_es2.delete_date).to be_within(1.second).of((current_date_time + 60.days).utc)
     end
 
     it 'polls and updates status for each failed EvidenceSubmission to "failed"' do
@@ -62,8 +64,10 @@ RSpec.describe Lighthouse::EvidenceSubmissionDocumentUploadPollingJob, type: :jo
       pending_es2 = EvidenceSubmission.where(request_id: 2).first
       expect(pending_es.failed?).to eq(true)
       expect(pending_es2.failed?).to eq(true)
-      expect(pending_es.acknowledgement_date).to eq((current_date_time + 30.days).utc)
-      expect(pending_es2.acknowledgement_date).to eq((current_date_time + 30.days).utc)
+      expect(pending_es.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
+      expect(pending_es2.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
+      expect(pending_es.failed_date).to be_within(1.second).of(current_date_time.utc)
+      expect(pending_es2.failed_date).to be_within(1.second).of(current_date_time.utc)
     end
   end
 end
