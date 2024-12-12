@@ -145,26 +145,29 @@ module RepresentationManagement
         def generate_next_steps_page(data)
           tempfile = Tempfile.new
           next_steps = Prawn::Document.new
-          next_steps.font_families.update(
-            'bitter' => {
-              normal: {
-                file: Rails.root.join('modules', 'representation_management', 'lib', 'fonts',
-                                      'bitter-regular.ttf'), subset: false
-              },
-              bold: { file: Rails.root.join('modules', 'representation_management', 'lib', 'fonts', 'bitter-bold.ttf'),
-                      subset: false }
-            },
-            'soursesanspro' => {
-              normal: { file: Rails.root.join('modules', 'representation_management', 'lib', 'fonts',
-                                              'sourcesanspro-regular-webfont.ttf'), subset: false }
-            }
-          )
+          update_font_families(next_steps)
           next_steps_part1(next_steps)
           next_steps_contact(next_steps, data)
           next_steps_part2(next_steps)
           next_steps_part3(next_steps)
           next_steps.render_file(tempfile.path)
           tempfile
+        end
+
+        def update_font_families(document)
+          document.font_families.update(
+            'bitter' => {
+              normal: { file: font_path('bitter-regular.ttf'), subset: false },
+              bold: { file: font_path('bitter-bold.ttf'), subset: false }
+            },
+            'soursesanspro' => {
+              normal: { file: font_path('sourcesanspro-regular-webfont.ttf'), subset: false }
+            }
+          )
+        end
+
+        def font_path(filename)
+          Rails.root.join('modules', 'representation_management', 'lib', 'fonts', filename)
         end
 
         def fill_template_form(pdftk, data, flatten: true)
