@@ -718,6 +718,8 @@ module VAOS
       end
 
       def set_modality(appointment)
+        raise ArgumentError, 'Appointment cannot be nil' if appointment.nil?
+
         modality = nil
         if appointment[:service_type] == 'covid'
           modality = 'vaInPersonVaccine'
