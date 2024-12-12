@@ -23,6 +23,8 @@ RSpec.describe 'V0::Form0969', type: %i[request serializer] do
     context 'with invalid params' do
       before do
         allow(Settings.sentry).to receive(:dsn).and_return('asdf')
+        # This needs to be modernized (using allow)
+        Flipper.disable(:validate_saved_claims_with_json_schemer)
       end
 
       let(:params) do

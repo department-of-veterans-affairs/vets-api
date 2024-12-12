@@ -12,6 +12,8 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   before do
     Sidekiq::Job.clear_all
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_GENERATE_PDF)
+    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(false)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -56,7 +58,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
 
       context 'when form526_send_backup_submission_exhaustion_email_notice is enabled' do
         before do
-          Flipper.enable(:form526_send_backup_submission_exhaustion_email_notice)
+          allow(Flipper).to receive(:enabled?).with(:form526_send_backup_submission_exhaustion_email_notice).and_return(true)
         end
 
         it 'remediates the submission via an email notification' do
