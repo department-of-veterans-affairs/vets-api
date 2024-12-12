@@ -7,7 +7,7 @@ module Eps
     #
     # @return OpenStruct response from EPS appointments endpoint
     #
-    def get_appointments(patient_id:)
+    def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, headers)
       OpenStruct.new(response.body)

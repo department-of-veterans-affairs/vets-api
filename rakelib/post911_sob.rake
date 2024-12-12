@@ -12,7 +12,8 @@ namespace :post911_sob do
       Settings.dgi.post911_sob.claimants.url = args[:base_url]
 
       client = Post911SOB::DGIB::Client.new(args[:claimant_id])
-      client.get_entitlement_transferred_out
+
+      puts client.get_entitlement_transferred_out
     end
   end
 end
