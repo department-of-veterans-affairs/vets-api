@@ -31,7 +31,7 @@ module SignIn
       current_user.session_handle = access_token.session_handle
       current_user.save && user_identity.save
       current_user.invalidate_mpi_cache
-      validate_mpi_profile
+      current_user.validate_mpi_profile
       current_user.create_mhv_account_async
 
       current_user
@@ -39,17 +39,6 @@ module SignIn
 
     def validate_account_and_session
       raise Errors::SessionNotFoundError.new message: 'Invalid Session Handle' unless session
-    end
-
-    def validate_mpi_profile
-      profile_errors = current_user.validate_mpi_profile
-      return if profile_errors.empty?
-
-      if profile_errors.include?(:mpi_death_flag)
-        raise Errors::MPILockedAccountError.new message: 'Death Flag Detected'
-      elsif profile_errors.include?(:mpi_theft_flag)
-        raise Errors::MPILockedAccountError.new message: 'Theft Flag Detected'
-      end
     end
 
     def user_attributes

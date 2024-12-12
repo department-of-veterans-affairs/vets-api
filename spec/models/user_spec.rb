@@ -247,23 +247,29 @@ RSpec.describe User, type: :model do
 
       context 'when the MPI profile has a deceased date' do
         let(:deceased_date) { '20020202' }
+        let(:expected_error_message) { 'Death Flag Detected' }
 
         it 'includes an :mpi_death_flag in the response' do
-          expect(subject.validate_mpi_profile).to eq([:mpi_death_flag])
+          expect { subject.validate_mpi_profile }
+            .to raise_error(SignIn::Errors::MPILockedAccountError)
+            .with_message(expected_error_message)
         end
       end
 
       context 'when the MPI profile has an identity theft flag' do
         let(:id_theft_flag) { true }
+        let(:expected_error_message) { 'Theft Flag Detected' }
 
         it 'includes an :mpi_death_flag in the response' do
-          expect(subject.validate_mpi_profile).to eq([:mpi_theft_flag])
+          expect { subject.validate_mpi_profile }
+            .to raise_error(SignIn::Errors::MPILockedAccountError)
+            .with_message(expected_error_message)
         end
       end
 
       context 'when the MPI profile has no issues' do
-        it 'returns an empty array' do
-          expect(subject.validate_mpi_profile).to eq([])
+        it 'returns a nil value' do
+          expect(subject.validate_mpi_profile).to be_nil
         end
       end
     end
