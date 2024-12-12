@@ -48,7 +48,7 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
         }.to_json
       )
     end
-    
+
     before do
       allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     end

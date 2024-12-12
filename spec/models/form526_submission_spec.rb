@@ -1019,9 +1019,12 @@ RSpec.describe Form526Submission do
       before do
         allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:disability_526_toxic_exposure_document_upload_polling, anything).and_return(false)
-        allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester, anything).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:disability_526_toxic_exposure_document_upload_polling,
+                                                  anything).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
+                                                  anything).and_return(false)
       end
+
       let(:form_json) do
         File.read('spec/support/disability_compensation_form/submissions/with_4142.json')
       end
