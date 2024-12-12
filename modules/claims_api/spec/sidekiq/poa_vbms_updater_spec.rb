@@ -9,15 +9,17 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
   [true, false].each do |flipped|
     before do
       Sidekiq::Job.clear_all
-
-      if flipped
-        Flipper.enable(:claims_api_poa_vbms_updater_uses_local_bgs)
-        @clazz = ClaimsApi::CorporateUpdateWebService
-
-      else
-        Flipper.disable(:claims_api_poa_vbms_updater_uses_local_bgs)
-        @clazz = BGS::Services
-      end
+      allow(Flipper).to receive(:enabled?).with(:claims_api_poa_vbms_updater_uses_local_bgs).and_return(flipped)
+      @clazz = if flipped
+                 ClaimsApi::CorporateUpdateWebService
+               else
+                 BGS::Services
+               end
+      @corporate_update_stub = if flipped
+                                 @clazz.new(external_uid: 'uid', external_key: 'key')
+                               else
+                                 @clazz.new(external_uid: 'uid', external_key: 'key').corporate_update
+                               end
     end
 
     let(:user) { FactoryBot.create(:user, :loa3) }
@@ -32,7 +34,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       let(:consent_address_change) { true }
 
       it 'updates a the BIRLS record for a qualifying POA submittal' do
-        poa = create_poa
+        poa = create_poa(allow_poa_access: true)
         create_mock_lighthouse_service
         subject.new.perform(poa.id)
       end
@@ -43,7 +45,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       let(:consent_address_change) { false }
 
       it 'updates a the BIRLS record for a qualifying POA submittal' do
-        poa = create_poa
+        poa = create_poa(allow_poa_access: true)
         create_mock_lighthouse_service
         subject.new.perform(poa.id)
       end
@@ -54,7 +56,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       let(:consent_address_change) { nil }
 
       it 'updates a the BIRLS record for a qualifying POA submittal' do
-        poa = create_poa
+        poa = create_poa(allow_poa_access: true)
         create_mock_lighthouse_service
         subject.new.perform(poa.id)
       end
@@ -65,7 +67,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       let(:consent_address_change) { true }
 
       it 'marks the form as errored' do
-        poa = create_poa
+        poa = create_poa(allow_poa_access: true)
         create_mock_lighthouse_service_bgs_failure # API-31645 real life example
         subject.new.perform(poa.id)
 
@@ -80,7 +82,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       let(:consent_address_change) { true }
 
       it 'logs to the ClaimsApi Logger' do
-        poa = create_poa
+        poa = create_poa(allow_poa_access: true)
         error_msg = 'An error occurred for the POA VBMS Updater Job'
         msg = { 'args' => [poa.id],
                 'class' => subject,
@@ -100,26 +102,26 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
 
   private
 
-  def create_poa
+  def create_poa(allow_poa_access: true)
     poa = create(:power_of_attorney)
     poa.auth_headers = auth_headers
     if consent_address_change.present?
       poa.form_data = poa.form_data.merge('consentAddressChange' => consent_address_change)
     end
+    poa.form_data = poa.form_data.merge('recordConsent' => allow_poa_access)
     poa.save
     poa
   end
 
   def create_mock_lighthouse_service
-    corporate_update_stub = @clazz.new(external_uid: 'uid', external_key: 'key').corporate_update
-    expect(corporate_update_stub).to receive(:update_poa_access).with(
+    expect(@corporate_update_stub).to receive(:update_poa_access).with(
       participant_id: user.participant_id,
       poa_code: '074',
-      allow_poa_access: 'y',
+      allow_poa_access: 'Y',
       allow_poa_c_add:
     ).and_return({ return_code: 'GUIE50000' })
     service_double = instance_double('BGS::Services')
-    expect(service_double).to receive(:corporate_update).and_return(corporate_update_stub)
+    expect(service_double).to receive(:corporate_update).and_return(@corporate_update_stub)
     expect(BGS::Services).to receive(:new).and_return(service_double)
   end
 
@@ -130,7 +132,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
         .with(
           participant_id: user.participant_id,
           poa_code: '074',
-          allow_poa_access: 'y',
+          allow_poa_access: 'Y',
           allow_poa_c_add:
         ).and_return({ return_code: 'GUIE50000' })
       corporate_update_stub
