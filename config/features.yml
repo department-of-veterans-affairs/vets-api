@@ -605,9 +605,6 @@ features:
     actor_type: user
     description: Enables the Dispute Debt feature
     enable_in_development: true
-  facilities_ppms_suppress_all:
-    actor_type: user
-    description: Hide all ppms search options
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
