@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: a84abd360072a0d4aaa8b1984cee2c33e1844335
+  revision: 3a6965b5d60abdb99dc2d21fcd15784c52a51927
   branch: master
   specs:
-    vets_json_schema (24.7.0)
+    vets_json_schema (24.6.1)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -526,7 +526,6 @@ GEM
       thor (>= 0.20, < 2.a)
     google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
-    google-logging-utils (0.1.0)
     google-protobuf (4.28.3)
       bigdecimal
       rake (>= 13)
@@ -535,7 +534,7 @@ GEM
       ffi (~> 1)
       ffi-compiler (~> 1)
       rake (>= 13)
-    googleauth (1.12.0)
+    googleauth (1.11.2)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.2)
       google-logging-utils (~> 0.1)
@@ -679,7 +678,7 @@ GEM
     mutex_m (0.3.0)
     nap (1.1.0)
     nenv (0.3.0)
-    net-http (0.6.0)
+    net-http (0.4.1)
       uri
     net-imap (0.5.1)
       date
@@ -1071,7 +1070,7 @@ GEM
       tzinfo (>= 1.0.0)
     uber (0.1.0)
     unicode-display_width (2.6.0)
-    uri (1.0.2)
+    uri (0.13.1)
     useragent (0.16.11)
     utf8-cleaner (1.0.0)
       activesupport
