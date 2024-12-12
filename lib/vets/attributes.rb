@@ -16,8 +16,9 @@ module Vets
       def attribute(name, klass, **options)
         default = options[:default]
         array = options[:array] || false
+        filterable = options[:filterable]
 
-        attributes[name] = { type: klass, default:, array: }
+        attributes[name] = { type: klass, default:, array:, filterable: }
 
         define_getter(name, default)
         define_setter(name, klass, array)
@@ -26,6 +27,16 @@ module Vets
       def attribute_set
         # grabs attribute keys from parent classes
         ancestors.select { |klass| klass.respond_to?(:attributes) }.flat_map { |klass| klass.attributes.keys }.uniq
+      end
+
+      def filterable_attributes
+        @filterable_attributes ||= attributes.each_with_object({}) do |attribute, hash|
+
+          name = attribute.first
+          options = attribute.second
+
+          hash[name.to_s] = options[:filterable] if options[:filterable]
+        end.with_indifferent_access
       end
 
       private

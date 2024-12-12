@@ -24,10 +24,10 @@ class DummyModel < DummyParentModel
   include Vets::Attributes
 
   attribute :name, String, default: 'Unknown'
-  attribute :age, Integer, array: false
+  attribute :age, Integer, array: false, filterable: %w[eq lteq gteq]
   attribute :tags, String, array: true
   attribute :categories, FakeCategory, array: true
-  attribute :created_at, DateTime, default: :current_time
+  attribute :created_at, DateTime, default: :current_time, filterable: %w[eq not_eq]
 
   def current_time
     DateTime.new(2024, 9, 25, 10, 30, 0)
@@ -80,6 +80,16 @@ RSpec.describe Vets::Attributes do
 
     it 'includes an array of attributes from ancestors' do
       expect(DummyModel.attribute_set).to include(:updated_at)
+    end
+  end
+
+  describe '.filterable_attributes' do
+    it 'returns a hash of the attribute with the filterable option' do
+      filterable_attributes = {
+        'age' => %w[eq lteq gteq],
+        'created_at' => %w[eq not_eq]
+      }
+      expect(DummyModel.filterable_attributes).to eq(filterable_attributes)
     end
   end
 end
