@@ -329,7 +329,7 @@ module ClaimsApi
 
       # VnpAtchmsWebServiceBean
       #
-      module VnpAtchmsWebServiceBean
+      module VnpAtchmsWebService
         DEFINITION =
           Bean.new(
             path: 'VnpAtchmsWebServiceBean',
@@ -338,23 +338,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module VnpAtchmsService
-        DEFINITION =
-          Service.new(
-            bean: VnpAtchmsWebServiceBean::DEFINITION,
-            path: 'VnpAtchmsService'
-          )
-
-        module VnpAtchmsCreate
-          DEFINITION =
-            Action.new(
-              service: VnpAtchmsService::DEFINITION,
-              name: 'vnpAtchmsCreate',
-              key: 'return'
-            )
-        end
       end
 
       ##
