@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'pensions/notification_callback'
 require 'va_notify/notification_email/saved_claim'
 
 module Pensions
@@ -23,6 +24,11 @@ module Pensions
       pensions = { 'first_name' => claim.first_name&.titleize }
 
       default.merge(pensions)
+    end
+
+    # @see VANotify::NotificationEmail::SavedClaim#callback_class
+    def callback_klass
+      "#{Pensions::NotificationCallback}"
     end
   end
 end

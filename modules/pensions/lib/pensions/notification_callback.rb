@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-require 'burials/monitor'
+require 'pensions/monitor'
 require 'va_notify/notification_callback/saved_claim'
 
-module Burials
+module Pensions
   class NotificationCallback < ::VANotify::NotificationCallback::SavedClaim
 
     private
 
     # the monitor to be used
-    # @see Burials::Monitor
+    # @see Pensions::Monitor
     def monitor
-      @monitor ||= Burials::Monitor
+      @monitor ||= Pensions::Monitor
     end
   end
 end

@@ -24,7 +24,7 @@ module VANotify
         monitor = Logging::Monitor.new('veteran-facing-forms')
         metric = 'api.vanotify.notifications'
         context = {
-          class: this.klass,
+          callback_class: this.klass,
           notification_id: notification.notification_id,
           notification_type: notification.notification_type,
           source: notification.source_location,
