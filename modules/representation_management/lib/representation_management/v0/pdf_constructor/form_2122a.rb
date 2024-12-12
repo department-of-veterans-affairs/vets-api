@@ -259,8 +259,9 @@ module RepresentationManagement
             'HIV' => 'HIV records',
             'SICKLE_CELL' => 'Sickle cell anemia records'
           }
-          authorized_limitations = consent_limits.filter_map { |limit| limitations[limit] }.to_sentence
-          "I authorize access to: #{authorized_limitations}."
+          # authorized_limitations = consent_limits.filter_map { |limit| limitations[limit] }.to_sentence
+          # "I authorize access to: #{authorized_limitations}."
+          consent_limits.filter_map { |limit| limitations[limit] }.to_sentence
         end
 
         def normalize_country_code_to_alpha2(country_code)
