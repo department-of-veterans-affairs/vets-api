@@ -21,6 +21,6 @@ describe VBADocuments::UploadFile, type: :model do
   it 'does not instantiatiate on UploadSubmission' do
     upload_model = VBADocuments::UploadSubmission.new
     upload_model.save!
-    expect { VBADocuments::UploadFile.find_by(guid: upload_model.guid) }.to raise_error(ActiveRecord::StatementInvalid)
+    expect { VBADocuments::UploadFile.find_by(guid: upload_model.guid) }.to raise_error(TypeError)
   end
 end
