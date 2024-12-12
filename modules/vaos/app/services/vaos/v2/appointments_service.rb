@@ -63,8 +63,8 @@ module VAOS
           }
         end
       rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError,
-        Common::Exceptions::GatewayTimeout, MAP::SecurityToken::Errors::ApplicationMismatchError,
-        MAP::SecurityToken::Errors::MissingICNError => e
+             Common::Exceptions::GatewayTimeout, MAP::SecurityToken::Errors::ApplicationMismatchError,
+             MAP::SecurityToken::Errors::MissingICNError => e
         {
           data: {},
           meta: pagination(pagination_params).merge({
@@ -96,14 +96,14 @@ module VAOS
         params.compact_blank!
         with_monitoring do
           response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-            Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
+                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
                        perform(:post, appointments_base_path_vpg, params, headers)
                      else
                        perform(:post, appointments_base_path_vaos, params, headers)
                      end
 
           if request_object_body[:kind] == 'clinic' &&
-            booked?(request_object_body) # a direct scheduled appointment
+             booked?(request_object_body) # a direct scheduled appointment
             modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
           end
 
@@ -124,7 +124,7 @@ module VAOS
       def update_appointment(appt_id, status)
         with_monitoring do
           if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
-            Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+             Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
