@@ -17,9 +17,9 @@ RSpec::Matchers.define :match_pdf_content_of do |expected|
     return false unless actual_hexapdf.pages.count == expected_hexapdf.pages.count
 
     actual_hexapdf.pages.count.times do |i|
-      text_a = actual_hexapdf.pages[i].contents
-      text_b = expected_hexapdf.pages[i].contents
-      return false unless text_a == text_b
+      hash_a = actual_hexapdf.pages[i].contents.hash
+      hash_b = expected_hexapdf.pages[i].contents.hash
+      return false unless hash_a == hash_b
     end
     true
 
