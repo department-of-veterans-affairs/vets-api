@@ -35,9 +35,10 @@ module V0
         :all_users,
         :get_separation_locations
       ) do
+        provider = Flipper.enabled?(:disability_compensation_staging_lighthouse_brd) ? :lighthouse_staging : nil
         api_provider = ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:brd],
-          provider: nil,
+          provider: ,
           options: {},
           current_user: @current_user,
           feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_BRD
