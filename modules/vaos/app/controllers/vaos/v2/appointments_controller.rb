@@ -191,75 +191,75 @@ module VAOS
       # rubocop:disable Metrics/MethodLength
       def create_params
         @create_params ||= begin
-                             # Gets around a bug that turns param values of [] into [""]. This changes them back to [].
-                             # Without this the VAOS Service POST appointments call will fail as VAOS Service tries to parse [""].
-                             params.transform_values! { |v| v.is_a?(Array) && v.count == 1 && (v[0] == '') ? [] : v }
+          # Gets around a bug that turns param values of [] into [""]. This changes them back to [].
+          # Without this the VAOS Service POST appointments call will fail as VAOS Service tries to parse [""].
+          params.transform_values! { |v| v.is_a?(Array) && v.count == 1 && (v[0] == '') ? [] : v }
 
-                             params.permit(
-                               :kind,
-                               :status,
-                               :location_id,
-                               :cancellable,
-                               :clinic,
-                               :comment,
-                               :reason,
-                               :service_type,
-                               :preferred_language,
-                               :minutes_duration,
-                               :patient_instruction,
-                               :priority,
-                               reason_code: [
-                                 :text, { coding: %i[system code display] }
-                               ],
-                               slot: %i[id start end],
-                               contact: [telecom: %i[type value]],
-                               practitioner_ids: %i[system value],
-                               requested_periods: %i[start end],
-                               practitioners: [
-                                 :first_name,
-                                 :last_name,
-                                 :practice_name,
-                                 {
-                                   name: %i[family given]
-                                 },
-                                 {
-                                   identifier: %i[system value]
-                                 },
-                                 {
-                                   address: [
-                                     :type,
-                                     { line: [] },
-                                     :city,
-                                     :state,
-                                     :postal_code,
-                                     :country,
-                                     :text
-                                   ]
-                                 }
-                               ],
-                               preferred_location: %i[city state],
-                               preferred_times_for_phone_call: [],
-                               telehealth: [
-                                 :url,
-                                 :group,
-                                 :vvs_kind,
-                                 {
-                                   atlas: [
-                                     :site_code,
-                                     :confirmation_code,
-                                     {
-                                       address: %i[
+          params.permit(
+            :kind,
+            :status,
+            :location_id,
+            :cancellable,
+            :clinic,
+            :comment,
+            :reason,
+            :service_type,
+            :preferred_language,
+            :minutes_duration,
+            :patient_instruction,
+            :priority,
+            reason_code: [
+              :text, { coding: %i[system code display] }
+            ],
+            slot: %i[id start end],
+            contact: [telecom: %i[type value]],
+            practitioner_ids: %i[system value],
+            requested_periods: %i[start end],
+            practitioners: [
+              :first_name,
+              :last_name,
+              :practice_name,
+              {
+                name: %i[family given]
+              },
+              {
+                identifier: %i[system value]
+              },
+              {
+                address: [
+                  :type,
+                  { line: [] },
+                  :city,
+                  :state,
+                  :postal_code,
+                  :country,
+                  :text
+                ]
+              }
+            ],
+            preferred_location: %i[city state],
+            preferred_times_for_phone_call: [],
+            telehealth: [
+              :url,
+              :group,
+              :vvs_kind,
+              {
+                atlas: [
+                  :site_code,
+                  :confirmation_code,
+                  {
+                    address: %i[
                       street_address city state
                       zip country latitude longitude
                       additional_details
                     ]
-                                     }
-                                   ]
-                                 }
-                               ],
-                               extension: %i[desired_date]
-                             )
-                           end
+                  }
+                ]
+              }
+            ],
+            extension: %i[desired_date]
+          )
+        end
       end
 
       # rubocop:enable Metrics/MethodLength
