@@ -86,6 +86,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
                                      'fixtures',
                                      '21-22A',
                                      'v0',
+                                     'default',
                                      '2122a_conditions_and_limitations.pdf')
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
     end
@@ -104,6 +105,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
                                      'fixtures',
                                      '21-22A',
                                      'v0',
+                                     'default',
                                      '2122a_conditions_and_limitations_no_claimant.pdf')
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
     end

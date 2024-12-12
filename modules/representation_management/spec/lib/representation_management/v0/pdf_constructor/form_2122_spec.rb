@@ -68,8 +68,9 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
                                      'representation_management',
                                      'spec',
                                      'fixtures',
-                                     '21-22A',
+                                     '21-22',
                                      'v0',
+                                     'default',
                                      '2122_with_limitations.pdf')
       # expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
@@ -87,8 +88,9 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
                                      'representation_management',
                                      'spec',
                                      'fixtures',
-                                     '21-22A',
+                                     '21-22',
                                      'v0',
+                                     'default',
                                      '2122_with_limitations_no_claimant.pdf')
       # expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
