@@ -3,9 +3,12 @@
 require 'common/exceptions'
 require 'brd/brd'
 require 'bgs_service/standard_data_service'
+require 'claims_api/v2/disability_compensation_shared_service_module'
 
 module ClaimsApi
   module DisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
+    include ClaimsApi::V2::DisabilityCompensationSharedServiceModule
+
     #
     # Any custom 526 submission validations above and beyond json schema validation
     #
@@ -411,15 +414,28 @@ module ClaimsApi
     end
 
     def validate_form_526_disability_classification_code!
-      return if (form_attributes['disabilities'].pluck('classificationCode') - [nil]).blank?
-
       form_attributes['disabilities'].each do |disability|
-        next if disability['classificationCode'].blank?
-        next if bgs_classification_ids.include?(disability['classificationCode'])
+        classification_code = disability['classificationCode']
+        next if classification_code.nil? || classification_code.blank?
 
-        raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.classificationCode',
-                                                          disability['classificationCode'])
+        if bgs_classification_ids.include?(classification_code)
+          validate_form_526_disability_classification_code_end_date!(classification_code)
+        else
+          raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.classificationCode',
+                                                            classification_code)
+        end
       end
+    end
+
+    def validate_form_526_disability_classification_code_end_date!(classification_code)
+      brd_disability = brd_disabilities.find { |d| d[:id] == classification_code.to_i }
+      end_date_time = brd_disability[:endDateTime] if brd_disability
+
+      return if end_date_time.nil?
+
+      return if Date.parse(end_date_time) >= Time.zone.today
+
+      raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.classificationCode', classification_code)
     end
 
     def bgs_classification_ids
