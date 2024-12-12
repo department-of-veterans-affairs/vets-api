@@ -1053,9 +1053,10 @@ describe 'PowerOfAttorney',
                                                       'power_of_attorney', 'request_representative', 'submit.json')))
 
           before do |example|
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return false
             allow_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
               .to receive(:submit_request)
-              .and_return(true)
+              .and_return({ 'procId' => '12345' })
             FactoryBot.create(:veteran_representative, representative_id: '999999999999', poa_codes: ['067'],
                                                        first_name: 'Abraham', last_name: 'Lincoln',
                                                        user_types: ['veteran_service_officer'])
