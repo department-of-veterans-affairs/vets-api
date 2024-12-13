@@ -89,6 +89,18 @@ module TravelPay
       new_claim_response.body
     end
 
+    def submit_claim(claim_id)
+      unless claim_id
+        raise ArgumentError,
+              message: 'You must provide a BTSSS claim ID to submit a claim.'
+      end
+
+      @auth_manager.authorize => { veis_token:, btsss_token: }
+      submitted_claim_response = client.submit_claim(veis_token, btsss_token, claim_id)
+
+      submitted_claim_response.body
+    end
+
     private
 
     def filter_by_date(date_string, claims)
