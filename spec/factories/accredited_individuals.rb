@@ -44,6 +44,7 @@ FactoryBot.define do
       city { 'Portland' }
       state_code { 'OR' }
       zip_code { '12345' }
+      country_code_iso3 { 'USA' }
       phone { '555-555-5555' }
       email { 'representative@example.com' }
       individual_type { 'attorney' }
