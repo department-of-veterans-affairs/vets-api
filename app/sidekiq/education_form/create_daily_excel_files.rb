@@ -47,6 +47,7 @@ module EducationForm
       excel_file_event = ExcelFileEvent.build_event(filename)
       begin
         records = EducationBenefitsClaim
+                  .unprocessed
                   .joins(:saved_claim)
                   .where(
                     saved_claims: {
