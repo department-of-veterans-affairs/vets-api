@@ -2,7 +2,7 @@
 
 require 'iso_country_codes'
 
-class FormProfiles::VA21p530 < FormProfile
+class FormProfiles::VA21p530ez < FormProfile
   def metadata
     {
       version: 0,
@@ -28,6 +28,6 @@ class FormProfiles::VA21p530 < FormProfile
 
   def convert_to_iso2(country_code)
     code = IsoCountryCodes.find(country_code)
-    code.alpha2
+    code.alpha3
   end
 end
