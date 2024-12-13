@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require './modules/decision_reviews/spec/sidekiq/engine_shared_examples_for_status_updater_jobs'
+require './modules/decision_reviews/spec/support/engine_shared_examples_for_status_updater_jobs'
 
 RSpec.describe DecisionReviews::NodStatusUpdaterJob, type: :job do
   subject { described_class }
