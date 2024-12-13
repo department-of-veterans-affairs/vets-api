@@ -414,20 +414,20 @@ module ClaimsApi
     end
 
     def validate_form_526_disability_classification_code!
-      form_attributes['disabilities'].each do |disability|
+      form_attributes['disabilities'].each_with_index do |disability, index|
         classification_code = disability['classificationCode']
         next if classification_code.nil? || classification_code.blank?
 
         if bgs_classification_ids.include?(classification_code)
-          validate_form_526_disability_classification_code_end_date!(classification_code)
+          validate_form_526_disability_classification_code_end_date!(classification_code, index)
         else
-          raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.classificationCode',
+          raise ::Common::Exceptions::InvalidFieldValue.new("disabilities.#{index}.classificationCode",
                                                             classification_code)
         end
       end
     end
 
-    def validate_form_526_disability_classification_code_end_date!(classification_code)
+    def validate_form_526_disability_classification_code_end_date!(classification_code, index)
       brd_disability = brd_disabilities.find { |d| d[:id] == classification_code.to_i }
       end_date_time = brd_disability[:endDateTime] if brd_disability
 
@@ -435,7 +435,7 @@ module ClaimsApi
 
       return if Date.parse(end_date_time) >= Time.zone.today
 
-      raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.classificationCode', classification_code)
+      raise ::Common::Exceptions::InvalidFieldValue.new("disabilities.#{index}.classificationCode", classification_code)
     end
 
     def bgs_classification_ids
