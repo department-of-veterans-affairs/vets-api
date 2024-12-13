@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require './modules/decision_reviews/spec/dr_spec_helper'
 
 RSpec.describe DecisionReviews::V1::DecisionReviewNotificationCallbacksController, type: :controller do
   routes { DecisionReviews::Engine.routes }
