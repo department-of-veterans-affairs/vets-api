@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require 'support/controller_spec_helper'
+require './modules/decision_reviews/spec/dr_spec_helper'
+require './modules/decision_reviews/spec/support/vcr_helper'
 
 RSpec.describe 'DecisionReviews::V2::HigherLevelReviews', type: :request do
   let(:user) { build(:user, :loa3) }
