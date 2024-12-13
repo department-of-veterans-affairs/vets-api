@@ -914,7 +914,7 @@ features:
     enable_in_development: true
   lighthouse_claims_api_v2_poa_va_notify:
     actor_type: user
-    description: Enable/disable the VA ntofication emails in V2 POA
+    description: Enable/disable the VA notification emails in V2 POA
     enable_in_development: false
   lighthouse_claims_v2_poa_requests_skip_bgs:
     actor_type: user
