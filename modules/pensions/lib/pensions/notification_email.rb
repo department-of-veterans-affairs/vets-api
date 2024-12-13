@@ -11,6 +11,10 @@ module Pensions
 
     private
 
+    def claim_class
+      Pensions::SavedClaim
+    end
+
     # @see VANotify::NotificationEmail::SavedClaim#personalization
     def personalization
       default = super
