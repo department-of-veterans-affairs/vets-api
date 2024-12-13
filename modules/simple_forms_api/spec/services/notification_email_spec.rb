@@ -186,7 +186,7 @@ describe SimpleFormsApi::NotificationEmail do
                 'lighthouse_updated_at' => nil
               },
               'fake_secret',
-              {
+              { callback_klass: "SimpleFormsApi::NotificationCallback",
                 callback_metadata: {
                   form_number: 'vba_21_10210',
                   notification_type:,
