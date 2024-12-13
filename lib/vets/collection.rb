@@ -5,6 +5,7 @@
 # sorted, filtered, or paginated.
 #
 
+# This will be a replacement for Common::Collection
 module Vets
   class Collection
 

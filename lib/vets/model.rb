@@ -7,14 +7,12 @@ module Bool; end
 class TrueClass; include Bool; end
 class FalseClass; include Bool; end
 
-# This will be a replacement for Common::Base
 module Vets
   module Model
     extend ActiveSupport::Concern
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
     include Vets::Attributes
-    include Vets::Model::Sortable
 
     included do
       extend ActiveModel::Naming
