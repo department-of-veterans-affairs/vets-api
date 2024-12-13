@@ -12,9 +12,7 @@ module MyHealth
         # @return [String] military service record in text format
         #
         def index
-          if @current_user.nil? || @current_user.edipi.blank?
-            raise MissingEdipiError, 'No EDIPI found for the current user'
-          end
+          raise MissingEdipiError, 'No EDIPI found for the current user' if @current_user.edipi.blank?
 
           resource = phrmgr_client.get_military_service(@current_user.edipi)
           render json: resource.to_json
