@@ -356,6 +356,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "email_template_id"
+    t.uuid "notification_id"
+    t.string "notification_type"
+    t.string "notification_status"
     t.index ["saved_claim_id"], name: "index_claim_va_notifications_on_saved_claim_id"
   end
 
