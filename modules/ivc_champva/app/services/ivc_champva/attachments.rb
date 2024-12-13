@@ -22,7 +22,13 @@ module IvcChampva
                           File.join(File.dirname(attachment), new_file_name)
                         end
 
-        File.rename(attachment, new_file_path)
+        if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
+          # Use FileUtils.mv to handle `Errno::EXDEV` error since encrypted PDFs
+          # get stashed in the clamav_tmp dir which is a different device on staging, apparently
+          FileUtils.mv(attachment, new_file_path) # Performs a copy automatically if mv fails
+        else
+          File.rename(attachment, new_file_path)
+
         file_paths << new_file_path
       end
 
