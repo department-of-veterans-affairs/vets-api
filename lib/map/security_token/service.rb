@@ -57,10 +57,10 @@ module MAP
 
       def parse_response(response, application, icn)
         response_body = response.body
-        access_token = validate_map_token(response_body['access_token'])
+        validate_map_token(response_body['access_token'])
 
         {
-          access_token:,
+          access_token: response_body['access_token'],
           expiration: Time.zone.now + response_body['expires_in']
         }
       rescue JWT::VerificationError => e
@@ -74,13 +74,8 @@ module MAP
       end
 
       def validate_map_token(encoded_token)
-        # waiting for MAP RS512 certificate
-        # public_cert = config.provider_certificate
-        public_cert = OpenSSL::PKey::RSA.new(2048).public_key
+        public_cert = config.provider_certificate
         JWT.decode(encoded_token, public_cert, true, algorithm: 'RS512')
-        # potentially add more validation here
-
-        access_token
       end
 
       def client_id_from_application(application)
