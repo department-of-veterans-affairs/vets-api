@@ -55,6 +55,7 @@ module EducationForm::Forms
       'NA' => 'Prefer Not to Answer'
     }.freeze
 
+    # rubocop:disable Lint/MissingSuper
     def initialize(education_benefits_claim)
       @education_benefits_claim = education_benefits_claim
       @applicant = education_benefits_claim.parsed_form
