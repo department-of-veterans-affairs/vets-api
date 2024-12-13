@@ -38,7 +38,7 @@ module V0
         provider = Flipper.enabled?(:disability_compensation_staging_lighthouse_brd) ? :lighthouse_staging : nil
         api_provider = ApiProviderFactory.call(
           type: ApiProviderFactory::FACTORIES[:brd],
-          provider: ,
+          provider:,
           options: {},
           current_user: @current_user,
           feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_BRD
