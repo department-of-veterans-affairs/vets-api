@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../../support/helpers/rails_helper'
+require_relative '../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::Awards', type: :request do
+  include CommitteeHelper
+
   before do
     sis_user(participant_id: 600_061_742)
   end
@@ -14,8 +17,7 @@ RSpec.describe 'Mobile::V0::Awards', type: :request do
           get '/mobile/v0/awards', headers: sis_headers
         end
       end
-
-      expect(response).to be_successful
+      assert_schema_conform(200)
       expect(response.parsed_body['data']['attributes']).to eq(
         { 'id' => sis_user.uuid,
           'aportnRecipId' => '2810777',
@@ -64,7 +66,7 @@ RSpec.describe 'Mobile::V0::Awards', type: :request do
         error = { 'errors' => [{ 'title' => 'Bad Gateway',
                                  'detail' => 'Received an an invalid response from the upstream server',
                                  'code' => 'MOBL_502_upstream_error', 'status' => '502' }] }
-        expect(response).to have_http_status(:bad_gateway)
+        assert_schema_conform(502)
         expect(response.parsed_body).to eq(error)
       end
     end

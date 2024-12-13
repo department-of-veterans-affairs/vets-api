@@ -2,32 +2,23 @@
 
 require 'rails_helper'
 require 'support/controller_spec_helper'
-require_relative '../../../lib/burials/monitor'
+require 'burials/monitor'
 
 RSpec.describe V0::BurialClaimsController, type: :controller do
   let(:monitor) { double('Burials::Monitor') }
 
   before do
-    Flipper.enable(:va_burial_v2)
-
     allow(Burials::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
                                        track_create_error: nil, track_create_success: nil,
                                        track_create_validation_error: nil, track_process_attachment_error: nil)
   end
 
-  # @see spec/support/controller_spec_helper.rb
-  it_behaves_like 'a controller that deletes an InProgressForm', 'burial_claim', 'burial_claim_v2', '21P-530V2'
-
   describe 'with a user' do
-    let(:form) { build(:burial_claim_v2) }
+    let(:form) { build(:burial_claim) }
     let(:param_name) { :burial_claim }
-    let(:form_id) { '21P-530V2' }
+    let(:form_id) { '21P-530EZ' }
     let(:user) { create(:user) }
-
-    def send_create
-      post(:create, params: { param_name => { form: form.form } })
-    end
 
     it 'logs validation errors' do
       allow(SavedClaim::Burial).to receive(:new).and_return(form)
@@ -38,48 +29,43 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       expect(monitor).to receive(:track_create_error).once
       expect(form).not_to receive(:process_attachments!)
 
-      response = send_create
+      response = post(:create, params: { param_name => { form: form.form } })
       expect(response.status).to eq(500)
     end
   end
 
   describe '#show' do
-    it 'returns the submission status when the claim uses central mail' do
-      claim = create(:burial_claim_v2)
-      claim.central_mail_submission.update!(state: 'success')
-      get(:show, params: { id: claim.guid })
+    let(:claim) { build(:burial_claim) }
 
-      expect(JSON.parse(response.body)['data']['attributes']['state']).to eq('success')
-    end
+    it 'returns a success when the claim is found' do
+      allow(SavedClaim::Burial).to receive(:find_by!).and_return(claim)
+      response = get(:show, params: { id: claim.guid })
 
-    it 'returns the submission status when the claim uses benefits intake' do
-      claim = create(:burial_claim_v2)
-      claim.form_submissions << create(:form_submission, :pending, form_type: '21P-530V2')
-      get(:show, params: { id: claim.guid })
-
-      expect(JSON.parse(response.body)['data']['attributes']['state']).to eq('success')
+      expect(response.status).to eq(200)
     end
 
     it 'returns an error if the claim is not found' do
       expect(monitor).to receive(:track_show404).once
 
-      get(:show, params: { id: '12345' })
+      response = get(:show, params: { id: 'non-existant-saved-claim' })
 
-      expect(response).to have_http_status(:not_found)
+      expect(response.status).to eq(404)
     end
 
     it 'logs show errors' do
-      allow(SavedClaim::Burial).to receive(:find_by).and_raise(StandardError, 'mock error')
+      error = StandardError.new('Mock Error')
+      allow(SavedClaim::Burial).to receive(:find_by!).and_raise(error)
+
       expect(monitor).to receive(:track_show_error).once
 
-      get(:show, params: { id: '12345' })
+      response = get(:show, params: { id: 'non-existant-saved-claim' })
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response.status).to eq(500)
     end
   end
 
   describe '#process_and_upload_to_lighthouse' do
-    let(:claim) { build(:pensions_module_pension_claim) }
+    let(:claim) { build(:burial_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
 
     it 'returns a success' do
@@ -100,7 +86,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
   end
 
   describe '#log_validation_error_to_metadata' do
-    let(:claim) { build(:burial_claim_v2) }
+    let(:claim) { build(:burial_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
 
     it 'returns if a `blank` in_progress_form' do

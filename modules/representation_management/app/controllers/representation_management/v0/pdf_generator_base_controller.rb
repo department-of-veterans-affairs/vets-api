@@ -13,7 +13,10 @@ module RepresentationManagement
         [
           :record_consent,
           :consent_address_change,
+          :consent_inside_access,
+          :consent_outside_access,
           { consent_limits: [],
+            consent_team_members: [],
             claimant: claimant_params_permitted,
             representative: representative_params_permitted,
             veteran: veteran_params_permitted }
@@ -50,12 +53,12 @@ module RepresentationManagement
           :date_of_birth,
           :service_number,
           :service_branch,
-          :service_branch_other,
           :phone,
           :email,
-          { insurance_numbers: [],
+          {
             name: name_params_permitted,
-            address: address_params_permitted }
+            address: address_params_permitted
+          }
         ]
       end
 

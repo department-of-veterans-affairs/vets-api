@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'simple_forms_api/form_remediation/error'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
@@ -66,9 +67,12 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
 
           context 'when no id is passed' do
             let(:benefits_intake_uuid) { nil }
+            let(:error_message) { 'No benefits_intake_uuid was provided' }
 
             it 'raises an exception' do
-              expect { archive_instance }.to raise_exception(RuntimeError, 'No benefits_intake_uuid was provided')
+              expect do
+                archive_instance
+              end.to raise_exception(SimpleFormsApi::FormRemediation::Error, a_string_including(error_message))
             end
           end
 
@@ -100,9 +104,12 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
 
             context 'when no id is passed' do
               let(:benefits_intake_uuid) { nil }
+              let(:error_message) { 'No benefits_intake_uuid was provided' }
 
               it 'raises an exception' do
-                expect { archive_instance }.to raise_exception(RuntimeError, 'No benefits_intake_uuid was provided')
+                expect { archive_instance }.to(
+                  raise_exception(SimpleFormsApi::FormRemediation::Error, a_string_including(error_message))
+                )
               end
             end
           end
@@ -167,10 +174,11 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
 
           context 'when the attachment file cannot be found' do
             let(:attachments) { ['non-existent-file.pdf'] }
+            let(:error_message) { 'Attachment file not found: non-existent-file.pdf' }
 
             it 'raises an exception' do
               expect { build_archive }.to raise_exception(
-                RuntimeError, 'Attachment file not found: non-existent-file.pdf'
+                SimpleFormsApi::FormRemediation::Error, a_string_including(error_message)
               )
             end
           end
@@ -190,6 +198,27 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionArchive do
           let(:archive_instance) { described_class.new(**hydrated_submission_args) }
 
           include_examples 'successfully built submission archive'
+        end
+      end
+
+      describe '#retrieval_data' do
+        subject(:retrieval_data) { archive_instance.retrieval_data }
+
+        let(:archive_instance) { described_class.new(**hydrated_submission_args) }
+        let(:file_name) { "#{temp_file_path}/#{submission_file_path}.#{type == :remediation ? 'zip' : 'pdf'}" }
+
+        it 'returns the correct archive path and manifest row' do
+          expect(retrieval_data.first).to include(file_name)
+          expect(retrieval_data.second).to eq(
+            [
+              submission.created_at,
+              form_type,
+              benefits_intake_uuid,
+              metadata['fileNumber'],
+              metadata['veteranFirstName'],
+              metadata['veteranLastName']
+            ]
+          )
         end
       end
     end

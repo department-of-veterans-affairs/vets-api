@@ -5,6 +5,7 @@ module MyHealth
     class PrescriptionsController < RxController
       include Filterable
       include MyHealth::PrescriptionHelper::Filtering
+      include MyHealth::RxGroupingHelper
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
       # @param refill_status - one refill status to filter on
@@ -14,14 +15,23 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
-        resource = params[:filter].present? ? resource.find_by(filter_params) : resource
+        resource.data = group_prescriptions(resource.data) if Flipper.enabled?(:mhv_medications_display_grouping)
         resource.data = filter_non_va_meds(resource.data)
+        filter_count = set_filter_metadata(resource.data)
+        resource = if params[:filter].present?
+                     if filter_params[:disp_status]&.[](:eq) == 'Active,Expired' # renewal params
+                       filter_renewals(resource)
+                     else
+                       resource.find_by(filter_params)
+                     end
+                   else
+                     resource
+                   end
         resource = params[:sort].is_a?(Array) ? sort_by(resource, params[:sort]) : resource.sort(params[:sort])
         is_using_pagination = params[:page].present? || params[:per_page].present?
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
-
-        options = { meta: resource.metadata }
+        options = { meta: resource.metadata.merge(filter_count) }
         options[:links] = pagination_links(resource) if is_using_pagination
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
@@ -38,6 +48,18 @@ module MyHealth
       def refill
         client.post_refill_rx(params[:id])
         head :no_content
+      end
+
+      def filter_renewals(resource)
+        resource.data = resource.data.select(&method(:renewable))
+        resource.metadata = resource.metadata.merge({
+                                                      'filter' => {
+                                                        'disp_status' => {
+                                                          'eq' => 'Active,Expired'
+                                                        }
+                                                      }
+                                                    })
+        resource
       end
 
       def refill_prescriptions
@@ -70,6 +92,8 @@ module MyHealth
 
       private
 
+      # rubocop:disable ThreadSafety/NewThread
+      # New threads are joined at the end
       def fetch_and_include_images(data)
         threads = []
         data.each do |item|
@@ -86,6 +110,7 @@ module MyHealth
         threads.each(&:join)
         data
       end
+      # rubocop:enable ThreadSafety/NewThread
 
       def fetch_image(image_url)
         uri = URI.parse(image_url)
@@ -137,6 +162,36 @@ module MyHealth
         when 'active'
           client.get_active_rxs_with_details
         end
+      end
+
+      def set_filter_metadata(list)
+        {
+          filter_count: {
+            all_medications: list.length,
+            active: count_active_medications(list),
+            recently_requested: count_recently_requested_medications(list),
+            renewal: list.select(&method(:renewable)).length,
+            non_active: count_non_active_medications(list)
+          }
+        }
+      end
+
+      def count_active_medications(list)
+        active_statuses = [
+          'Active', 'Active: Refill in Process', 'Active: Non-VA', 'Active: On hold',
+          'Active: Parked', 'Active: Submitted'
+        ]
+        list.select { |rx| active_statuses.include?(rx.disp_status) }.length
+      end
+
+      def count_recently_requested_medications(list)
+        recently_requested_statuses = ['Active: Refill in Process', 'Active: Submitted']
+        list.select { |rx| recently_requested_statuses.include?(rx.disp_status) }.length
+      end
+
+      def count_non_active_medications(list)
+        non_active_statuses = %w[Discontinued Expired Transferred Unknown]
+        list.select { |rx| non_active_statuses.include?(rx.disp_status) }.length
       end
     end
   end

@@ -189,6 +189,39 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       end
     end
 
+    context 'when the decision is declined and a ptcpntId is present' do
+      let(:service) { instance_double(ClaimsApi::ManageRepresentativeService) }
+      let(:poa_request_response) do
+        {
+          'poaRequestRespondReturnVOList' => [
+            {
+              'procID' => '76529',
+              'claimantFirstName' => 'John',
+              'poaCode' => '123'
+            }
+          ]
+        }
+      end
+      let(:mock_lockbox) { double('Lockbox', encrypt: 'encrypted value') }
+
+      before do
+        allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(anything).and_return(service)
+        allow(service).to receive(:read_poa_request_by_ptcpnt_id).with(ptcpnt_id: '123456789')
+                                                                 .and_return(poa_request_response)
+        allow(service).to receive(:update_poa_request).with(anything).and_return('a successful response')
+        allow(Lockbox).to receive(:new).and_return(mock_lockbox)
+      end
+
+      it 'enqueues the VANotifyDeclinedJob' do
+        mock_ccg(scopes) do |auth_header|
+          expect do
+            decide_request_with(proc_id: '76529', decision: 'DECLINED', auth_header:, ptcpnt_id: '123456789',
+                                representative_id: '456')
+          end.to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size).by(1)
+        end
+      end
+    end
+
     context 'when procId is present but invalid' do
       let(:proc_id) { '1' }
       let(:decision) { 'ACCEPTED' }
@@ -210,32 +243,32 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     let(:form_attributes) do
       {
         veteran: {
-          service_number: '123678453',
-          service_branch: 'ARMY',
+          serviceNumber: '123678453',
+          serviceBranch: 'ARMY',
           address: {
-            address_line1: '2719 Hyperion Ave',
-            address_line2: 'Apt 2',
+            addressLine1: '2719 Hyperion Ave',
+            addressLine2: 'Apt 2',
             city: 'Los Angeles',
             country: 'USA',
-            state_code: 'CA',
-            zip_code: '92264',
-            zip_code_suffix: '0200'
+            stateCode: 'CA',
+            zipCode: '92264',
+            zipCodeSuffix: '0200'
           },
           phone: {
-            area_code: '555',
-            phone_number: '5551234'
+            areaCode: '555',
+            phoneNumber: '5551234'
           },
           email: 'test@test.com',
-          insurance_number: '1234567890'
+          insuranceNumber: '1234567890'
         },
         poa: {
-          poa_code: '003',
-          registration_number: '12345',
-          job_title: 'MyJob'
+          poaCode: '003',
+          registrationNumber: '12345',
+          jobTitle: 'MyJob'
         },
-        record_consent: true,
-        consent_address_change: true,
-        consent_limits: %w[
+        recordConsent: true,
+        consentAddressChange: true,
+        consentLimits: %w[
           DRUG_ABUSE
           SICKLE_CELL
           HIV
@@ -325,12 +358,13 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
       allow(create_request).to receive(:call).and_return(create_request_response)
     end
 
-    it 'returns a created status and procId in the response' do
+    it 'returns a created status, Lighthouse ID, and type in the response' do
       mock_ccg(scopes) do |auth_header|
         create_request_with(veteran_id:, form_attributes:, auth_header:)
 
         expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)['data']['attributes']['procId']).to eq('3857415')
+        expect(JSON.parse(response.body)['data']['attributes']['id']).not_to be_nil
+        expect(JSON.parse(response.body)['data']['attributes']['type']).to eq('power-of-attorney-request')
       end
     end
   end
@@ -341,9 +375,10 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
          headers: auth_header
   end
 
-  def decide_request_with(proc_id:, decision:, auth_header:)
+  def decide_request_with(proc_id:, decision:, auth_header:, ptcpnt_id: nil, representative_id: nil)
     post v2_veterans_power_of_attorney_requests_decide_path,
-         params: { data: { attributes: { procId: proc_id, decision: } } }.to_json,
+         params: { data: { attributes: { procId: proc_id, decision:, participantId: ptcpnt_id,
+                                         representativeId: representative_id } } }.to_json,
          headers: auth_header
   end
 

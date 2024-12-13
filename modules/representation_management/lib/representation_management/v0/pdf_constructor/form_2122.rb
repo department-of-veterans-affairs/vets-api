@@ -77,9 +77,7 @@ module RepresentationManagement
             "#{PAGE1_KEY}.DOByear[0]": data.veteran_date_of_birth.split('-').first,
             # Veteran Service Number
             "#{PAGE1_KEY}.VeteransServiceNumber_If_Applicable[0]": \
-            data.veteran_service_number,
-            # Veteran Insurance Number
-            "#{PAGE1_KEY}.InsuranceNumber_s[0]": data.veteran_insurance_numbers.join(', ')
+            data.veteran_service_number
           }
         end
 
@@ -92,12 +90,12 @@ module RepresentationManagement
             data.veteran_address_line2,
             "#{PAGE1_KEY}.Claimants_MailingAddress_City[1]": data.veteran_city,
             "#{PAGE1_KEY}.Claimants_MailingAddress_StateOrProvince[1]": \
-            data.veteran_state_code,
+            data.veteran_state_code_truncated,
             "#{PAGE1_KEY}.Claimants_MailingAddress_Country[1]": data.veteran_country,
             "#{PAGE1_KEY}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[1]": \
-            data.veteran_zip_code,
+            data.veteran_zip_code_expanded.first,
             "#{PAGE1_KEY}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[1]": \
-            data.veteran_zip_code_suffix,
+            data.veteran_zip_code_expanded.second,
             # Veteran Phone Number
             "#{PAGE1_KEY}.TelephoneNumber_IncludeAreaCode[1]": data.veteran_phone,
             # Veteran Email
@@ -133,12 +131,12 @@ module RepresentationManagement
             data.claimant_address_line2,
             "#{PAGE1_KEY}.Claimants_MailingAddress_City[0]": data.claimant_city,
             "#{PAGE1_KEY}.Claimants_MailingAddress_StateOrProvince[0]": \
-            data.claimant_state_code,
+            data.claimant_state_code_truncated,
             "#{PAGE1_KEY}.Claimants_MailingAddress_Country[0]": data.claimant_country,
             "#{PAGE1_KEY}.Claimants_MailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": \
-            data.claimant_zip_code,
+            data.claimant_zip_code_expanded.first,
             "#{PAGE1_KEY}.Claimants_MailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": \
-            data.claimant_zip_code_suffix,
+            data.claimant_zip_code_expanded.second,
             # Claimant Phone Number
             "#{PAGE1_KEY}.TelephoneNumber_IncludeAreaCode[0]": data.claimant_phone,
             # Claimant Email

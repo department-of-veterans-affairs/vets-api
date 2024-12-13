@@ -21,9 +21,21 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
     let(:params) do
       {
         pdf_generator2122a: {
-          record_consent: '',
-          consent_address_change: '',
+          record_consent: true,
+          consent_address_change: true,
           consent_limits: [],
+          consent_inside_access: true,
+          consent_outside_access: true,
+          consent_team_members: [
+            'Jane M Representative',
+            'John M Representative',
+            'Jane M Doe',
+            'John M Doe',
+            'Bobbie M Law',
+            'Bob M Law',
+            'Alice M Aster',
+            'Arthur M Aster'
+          ],
           claimant: {
             date_of_birth: '1980-12-31',
             relationship: 'Spouse',
@@ -51,7 +63,6 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
             service_number: '123456789',
             phone: '5555555555',
             email: 'veteran@example.com',
-            insurance_numbers: [],
             name: {
               first: 'John',
               middle: 'M',
@@ -90,8 +101,23 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
 
     context 'When submitting a legacy representative' do
       before do
-        legacy_representative = create(:representative)
+        legacy_representative = create(:representative, zip_code: '12345')
         params[:pdf_generator2122a][:representative][:id] = legacy_representative.representative_id
+        post(base_path, params:)
+      end
+
+      it 'responds with a ok status' do
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'responds with a PDF' do
+        expect(response.content_type).to eq('application/pdf')
+      end
+    end
+
+    context 'When submitting without consent_team_members' do
+      before do
+        params[:pdf_generator2122a].delete(:consent_team_members)
         post(base_path, params:)
       end
 

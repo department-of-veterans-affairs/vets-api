@@ -131,9 +131,9 @@
           "properties": {
             "email": {
               "type": ["string", "null"],
-              "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+              "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
               "description": "The most current email address of the Veteran.",
-              "maxLength": 50,
+              "maxLength": 80,
               "nullable": true
             },
             "agreeToEmailRelatedToClaim": {

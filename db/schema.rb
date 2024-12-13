@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_12_101623) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -354,6 +354,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "email_template_id"
+    t.uuid "notification_id"
+    t.string "notification_type"
+    t.string "notification_status"
     t.index ["saved_claim_id"], name: "index_claim_va_notifications_on_saved_claim_id"
   end
 
@@ -411,6 +414,18 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.string "cid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "claims_api_power_of_attorney_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "proc_id"
+    t.string "veteran_icn"
+    t.string "claimant_icn"
+    t.string "poa_code"
+    t.jsonb "metadata", default: {}
+    t.uuid "power_of_attorney_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["power_of_attorney_id"], name: "idx_on_power_of_attorney_id_9fc9134311"
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -741,6 +756,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.string "aasm_state", default: "unprocessed"
     t.integer "submit_endpoint"
     t.integer "backup_submitted_claim_status"
+    t.index ["backup_submitted_claim_id"], name: "index_form526_submissions_on_backup_submitted_claim_id"
     t.index ["saved_claim_id"], name: "index_form526_submissions_on_saved_claim_id", unique: true
     t.index ["submitted_claim_id"], name: "index_form526_submissions_on_submitted_claim_id", unique: true
     t.index ["user_account_id"], name: "index_form526_submissions_on_user_account_id"
@@ -772,6 +788,14 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.text "encrypted_kms_key"
     t.index ["guid", "type"], name: "index_form_attachments_on_guid_and_type", unique: true
     t.index ["id", "type"], name: "index_form_attachments_on_id_and_type"
+  end
+
+  create_table "form_email_matches_profile_logs", force: :cascade do |t|
+    t.string "user_uuid", null: false
+    t.integer "in_progress_form_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_uuid", "in_progress_form_id"], name: "idx_on_user_uuid_in_progress_form_id_f21f47b9c8", unique: true
   end
 
   create_table "form_submission_attempts", force: :cascade do |t|
@@ -1002,13 +1026,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.index ["va_profile_id", "dismissed"], name: "show_onsite_notifications_index"
   end
 
-  create_table "pension_ipf_notifications", force: :cascade do |t|
-    t.text "payload_ciphertext"
-    t.text "encrypted_kms_key"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "persistent_attachments", id: :serial, force: :cascade do |t|
     t.uuid "guid"
     t.string "type"
@@ -1074,14 +1091,15 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.text "form_ciphertext"
     t.text "encrypted_kms_key"
     t.string "uploaded_forms", default: [], array: true
-    t.datetime "itf_datetime"
     t.datetime "form_start_date"
     t.datetime "delete_date"
     t.text "metadata"
     t.datetime "metadata_updated_at"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
+    t.index ["delete_date"], name: "index_saved_claims_on_delete_date"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
+    t.index ["id"], name: "index_partial_saved_claims_on_id_metadata_like_error", where: "(metadata ~~ '%error%'::text)"
   end
 
   create_table "schema_contract_validations", force: :cascade do |t|
@@ -1378,10 +1396,11 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_12_135704) do
     t.text "status_reason"
     t.text "provider"
     t.text "source_location"
-    t.text "callback"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "metadata"
+    t.jsonb "callback_metadata"
+    t.text "callback_klass"
+    t.uuid "template_id"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|

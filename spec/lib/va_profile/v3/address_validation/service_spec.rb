@@ -28,11 +28,7 @@ describe VAProfile::V3::AddressValidation::Service do
   end
 
   before do
-    Flipper.enable(:va_v3_contact_information_service)
-  end
-
-  after do
-    Flipper.disable(:va_v3_contact_information_service)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
   end
 
   describe '#address_suggestions' do
@@ -203,8 +199,8 @@ describe VAProfile::V3::AddressValidation::Service do
                   },
                   'country' => {
                     'country_name' => 'United States',
-                    'country_code_fips' => 'US',
                     'country_code_iso2' => 'US',
+                    'country_code_fips' => 'US',
                     'country_code_iso3' => 'USA'
                   },
                   'address_pou' => 'RESIDENCE',

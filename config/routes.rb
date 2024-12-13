@@ -284,6 +284,7 @@ Rails.application.routes.draw do
 
     namespace :my_va do
       resource :submission_statuses, only: :show
+      resource :submission_pdf_urls, only: :create
     end
 
     namespace :profile do
@@ -374,6 +375,8 @@ Rails.application.routes.draw do
     resources :form1010_ezrs, only: %i[create]
 
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
+
+    get 'banners', to: 'banners#by_path'
   end
   # end /v0
 
@@ -441,8 +444,11 @@ Rails.application.routes.draw do
 
     scope format: false do
       resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
-      resources :pension_ipf_callbacks, only: [:create]
     end
+  end
+
+  namespace :v2, defaults: { format: 'json' } do
+    resources :higher_level_reviews, only: %i[create show]
   end
 
   root 'v0/example#index', module: 'v0'
@@ -461,7 +467,6 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
-  mount Banners::Engine, at: '/banners'
   mount CheckIn::Engine, at: '/check_in'
   mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
@@ -481,6 +486,7 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
+  mount DecisionReviews::Engine, at: '/decision_reviews'
   # End Modules
 
   require 'sidekiq/web'

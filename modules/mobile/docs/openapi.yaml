@@ -341,7 +341,7 @@ paths:
       parameters:
         - description: Unique location identifier
           in: query
-          name: locationId
+          name: location_id
           required: true
           schema:
             type: string
@@ -364,7 +364,10 @@ paths:
         '422':
           $ref: '#/components/responses/422'
         '500':
-          $ref: '#/components/responses/500'
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinErrors500.yml
         '502':
           $ref: '#/components/responses/502'
         '503':
@@ -381,7 +384,7 @@ paths:
           application/json:
             schema:
               properties:
-                locationId:
+                location_id:
                   type: string
                 demographicConfirmations:
                   type: object
@@ -417,7 +420,10 @@ paths:
         '422':
           $ref: '#/components/responses/422'
         '500':
-          $ref: '#/components/responses/500'
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/AppointmentCheckinErrors500.yml
         '502':
           $ref: '#/components/responses/502'
         '503':
@@ -433,7 +439,7 @@ paths:
       parameters:
         - description: Type of service to check eligibility for. Can only be one of following options primaryCare, nutrition, podiatry, optometry, audiology.
           in: path
-          name: serviceType
+          name: service_type
           required: true
           schema:
             type: string
@@ -445,6 +451,8 @@ paths:
               schema:
                 $ref: ./schemas/CommunityCaresEligibility.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1124,6 +1132,8 @@ paths:
               schema:
                 $ref: ./schemas/CreatePreneedBurialResponse.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1260,7 +1270,10 @@ paths:
         '500':
           $ref: '#/components/responses/500'
         '502':
-          $ref: '#/components/responses/502'
+          content:
+            application/json:
+              schema:
+                $ref: ./schemas/ClaimsAndAppealsOverview502.yml
         '503':
           $ref: '#/components/responses/503'
         '504':
@@ -1457,7 +1470,7 @@ paths:
             schema:
               $ref: ./schemas/CreateDependents.yml
       responses:
-        '200':
+        '202':
           content:
             application/json:
               schema:
@@ -1684,6 +1697,8 @@ paths:
               schema:
                 $ref: ./schemas/Efolder.yml
           description: OK
+        '400':
+          $ref: '#/components/responses/401'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1705,7 +1720,7 @@ paths:
       security:
         - Bearer: []
       summary: /v0/efolder/documents
-  /v0/efolder/documents/{documentId}/download:
+  /v0/efolder/documents/{document_id}/download:
     post:
       description: returns requested document
       parameters:
