@@ -72,7 +72,6 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
                                      'v0',
                                      'default',
                                      '2122_with_limitations.pdf')
-      # expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
     end
     # The Tempfile is automatically deleted after the block ends
@@ -110,7 +109,6 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
                                      'v0',
                                      'default',
                                      '2122_with_limitations_no_claimant.pdf')
-      # expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
     end
     # The Tempfile is automatically deleted after the block ends
