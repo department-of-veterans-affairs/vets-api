@@ -2,8 +2,9 @@
 
 require 'rails_helper'
 require 'bgs_service/local_bgs_proxy'
+require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
-describe ClaimsApi::LocalBGSProxy do
+describe ClaimsApi::EbenefitsBnftClaimStatusWebService do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
   before do
@@ -28,7 +29,7 @@ describe ClaimsApi::LocalBGSProxy do
       it 'returns an empty array' do
         expect(error_message.count).to eq(2) # trick the claims count check
         # error message should trigger return
-        allow(subject_instance.proxied).to(
+        allow(subject_instance).to(
           receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(error_message)
         )
         expect(subject.all(id)).to eq([]) # verify correct return
@@ -40,7 +41,7 @@ describe ClaimsApi::LocalBGSProxy do
         VCR.use_cassette('claims_api/bgs/claims/claims_trimmed_down') do
           claims = subject_instance.find_benefit_claims_status_by_ptcpnt_id('600061742')
           claims[:benefit_claims_dto][:benefit_claim] = claims[:benefit_claims_dto][:benefit_claim][0]
-          allow(subject_instance.proxied).to(
+          allow(subject_instance).to(
             receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(claims)
           )
 
@@ -59,7 +60,7 @@ describe ClaimsApi::LocalBGSProxy do
     context 'when an empty array gets returned it still does not pass the count check' do
       it 'returns an empty array' do
         # error message should trigger return
-        allow(subject_instance.proxied).to(
+        allow(subject_instance).to(
           receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(empty_array)
         )
         expect(subject.all(id)).to eq([]) # verify correct return

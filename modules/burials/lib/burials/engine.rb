@@ -17,14 +17,25 @@ module Burials
     end
 
     # TODO: move PDFFill library to this module
-    # initializer 'burials.register_form' do |app|
+    # initializer 'burials.pdf_fill.register_form' do |app|
     #   app.config.to_prepare do
     #     require 'pdf_fill/filler'
-    #     require_relative '../pdf_fill/va21p530v2'
+    #     require_relative '../pdf_fill/va21p530ez'
 
     #     # Register our Burial Pdf Fill form
-    #     ::PdfFill::Filler.register_form(Burials::PdfFill::Va21p530v2::FORM_ID, Burials::PdfFill::Va21p530v2)
+    #     ::PdfFill::Filler.register_form(Burials::PdfFill::Va21p530ez::FORM_ID, Burials::PdfFill::Va21p530ez)
     #   end
     # end
+
+    initializer 'burials.benefits_intake.register_handler' do |app|
+      app.config.to_prepare do
+        require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
+        require_relative '../benefits_intake/submission_handler'
+
+        # Register our Pension Benefits Intake Submission Handler
+        ::BenefitsIntake::SubmissionStatusJob.register_handler('21P-530EZ', Burials::BenefitsIntake::SubmissionHandler)
+        ::BenefitsIntake::SubmissionStatusJob.register_handler('21P-530', Burials::BenefitsIntake::SubmissionHandler)
+      end
+    end
   end
 end

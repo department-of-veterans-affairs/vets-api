@@ -139,10 +139,10 @@ class BenefitsIntakeStatusJob
     }
     call_location = caller_locations.first
 
-    if %w[21P-530V2 21P-530].include?(form_id)
+    if %w[21P-530EZ].include?(form_id)
       claim = SavedClaim::Burial.find(saved_claim_id)
       if claim
-        Burials::NotificationEmail.new(claim).deliver(:error)
+        Burials::NotificationEmail.new(claim.id).deliver(:error)
         Burials::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         Burials::Monitor.new.log_silent_failure(context, nil, call_location:)
@@ -152,7 +152,7 @@ class BenefitsIntakeStatusJob
     if %w[21P-527EZ].include?(form_id)
       claim = Pensions::SavedClaim.find(saved_claim_id)
       if claim
-        Pensions::NotificationEmail.new(claim).deliver(:error)
+        Pensions::NotificationEmail.new(claim.id).deliver(:error)
         Pensions::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         Pensions::Monitor.new.log_silent_failure(context, nil, call_location:)

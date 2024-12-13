@@ -35,7 +35,7 @@ class SavedClaim < ApplicationRecord
   # create a uuid for this second (used in the confirmation number) and store
   # the form type based on the constant found in the subclass.
   after_initialize do
-    self.form_id = self.class::FORM.upcase unless instance_of?(::SavedClaim::Burial)
+    self.form_id = self.class::FORM.upcase
   end
 
   def self.add_form_and_validation(form_id)
@@ -84,17 +84,13 @@ class SavedClaim < ApplicationRecord
     schema = VetsJsonSchema::SCHEMAS[self.class::FORM]
     clear_cache = false
 
-    unless Flipper.enabled?(:saved_claim_schema_validation_disable)
-      schema_errors = validate_schema(schema)
-
-      unless schema_errors.empty?
-        Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
-        clear_cache = true
-      end
+    schema_errors = validate_schema(schema)
+    unless schema_errors.empty?
+      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
+      clear_cache = true
     end
 
     validation_errors = validate_form(schema, clear_cache)
-
     validation_errors.each do |e|
       errors.add(e[:fragment], e[:message])
       e[:errors]&.flatten(2)&.each { |nested| errors.add(nested[:fragment], nested[:message]) if nested.is_a? Hash }

@@ -1216,7 +1216,7 @@ Style/StringChars:
     - 'modules/claims_api/app/controllers/claims_api/v2/veterans/claims_controller.rb'
 
 # Offense count: 60
-ThreadSafety/InstanceVariableInClassMethod:
+ThreadSafety/ClassInstanceVariable:
   Exclude:
     - 'app/models/base_facility.rb'
     - 'app/models/concerns/redis_caching.rb'

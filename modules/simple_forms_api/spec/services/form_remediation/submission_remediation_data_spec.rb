@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'simple_forms_api/form_remediation/error'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
@@ -65,7 +66,10 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
       let(:benefits_intake_uuid) { nil }
 
       it 'throws an error' do
-        expect { new }.to raise_exception('No benefits_intake_uuid was provided')
+        expect do
+          new
+        end.to raise_exception(SimpleFormsApi::FormRemediation::Error,
+                               a_string_including('No benefits_intake_uuid was provided'))
       end
     end
 
@@ -89,7 +93,10 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
       before { allow(FormSubmissionAttempt).to receive(:find_by).and_return(nil) }
 
       it 'throws an error' do
-        expect { new }.to raise_exception('Submission was not found or invalid')
+        expect do
+          new
+        end.to raise_exception(SimpleFormsApi::FormRemediation::Error,
+                               a_string_including('Submission was not found or invalid'))
       end
     end
 
@@ -99,16 +106,20 @@ RSpec.describe SimpleFormsApi::FormRemediation::SubmissionRemediationData do
       before { allow(FormSubmissionAttempt).to receive(:find_by).and_call_original }
 
       it 'raises an error' do
-        expect { new }.to raise_exception('Submission was not found or invalid')
+        expect do
+          new
+        end.to raise_exception(SimpleFormsApi::FormRemediation::Error,
+                               a_string_including('Submission was not found or invalid'))
       end
     end
 
     context 'when the associated form submission is not VFF in nature' do
       let(:submission) { create(:form_submission, :pending, form_type: '12-34567', form_data:) }
+      let(:error_message) { 'Only VFF forms are supported' }
 
       it 'raises an error' do
-        expect { new }.to raise_exception(
-          'SimpleFormsApi::FormRemediation::SubmissionRemediationData cannot be built: Only VFF forms are supported'
+        expect { new }.to(
+          raise_exception(SimpleFormsApi::FormRemediation::Error, a_string_including(error_message))
         )
       end
     end

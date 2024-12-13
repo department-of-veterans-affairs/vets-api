@@ -247,31 +247,62 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
       describe 'healthcare provider names' do
         let(:erb_template_params) { { start_date: '2021-01-01T00:00:00Z', end_date: '2023-01-26T23:59:59Z' } }
 
-        it 'is set as expected' do
-          VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
-            VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
-              VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
-                               erb: erb_template_params,
-                               match_requests_on: %i[method uri]) do
-                VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
-                                                                      tag: :force_utf8) do
-                  get '/mobile/v0/appointments', headers: sis_headers
+        context 'when provider id is formatted correctly' do
+          it 'is set as expected' do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types',
+                                 erb: erb_template_params,
+                                 match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
+                                                                        tag: :force_utf8) do
+                    get '/mobile/v0/appointments', headers: sis_headers
+                  end
                 end
               end
             end
+
+            expect(response).to have_http_status(:ok)
+            assert_schema_conform(200)
+
+            appointments = response.parsed_body['data']
+            appointment_without_provider = appointments.find { |appt| appt['id'] == '76131' }
+            proposed_cc_appointment_with_provider = appointments.find { |appt| appt['id'] == '76132' }
+            appointment_with_practitioner_list = appointments.find { |appt| appt['id'] == '76133' }
+
+            expect(appointment_without_provider['attributes']['healthcareProvider']).to be_nil
+            expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
+            expect(appointment_with_practitioner_list['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
           end
+        end
 
-          expect(response).to have_http_status(:ok)
-          assert_schema_conform(200)
+        context 'when provider id is formatted incorrectly' do
+          it 'parses out correct id and makes successful provider call' do
+            VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
+              VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
+                VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types_bad_id',
+                                 erb: erb_template_params,
+                                 match_requests_on: %i[method uri]) do
+                  VCR.use_cassette('mobile/providers/get_provider_200', match_requests_on: %i[method uri],
+                                                                        tag: :force_utf8) do
+                    get '/mobile/v0/appointments', headers: sis_headers
+                  end
+                end
+              end
+            end
 
-          appointments = response.parsed_body['data']
-          appointment_without_provider = appointments.find { |appt| appt['id'] == '76131' }
-          proposed_cc_appointment_with_provider = appointments.find { |appt| appt['id'] == '76132' }
-          appointment_with_practitioner_list = appointments.find { |appt| appt['id'] == '76133' }
+            expect(response).to have_http_status(:ok)
+            assert_schema_conform(200)
 
-          expect(appointment_without_provider['attributes']['healthcareProvider']).to be_nil
-          expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
-          expect(appointment_with_practitioner_list['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
+            appointments = response.parsed_body['data']
+            appointment_without_provider = appointments.find { |appt| appt['id'] == '76131' }
+            proposed_cc_appointment_with_provider = appointments.find { |appt| appt['id'] == '76132' }
+            appointment_with_practitioner_list = appointments.find { |appt| appt['id'] == '76133' }
+
+            expect(appointment_without_provider['attributes']['healthcareProvider']).to be_nil
+            expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
+            expect(appointment_with_practitioner_list['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
+          end
         end
       end
 

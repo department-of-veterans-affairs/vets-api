@@ -13,7 +13,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     allow(Flipper).to receive(:enabled?).with('disability_compensation_upload_0781_to_lighthouse',
                                               instance_of(User)).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:form526_send_0781_failure_notification).and_return(false)
-    allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -281,19 +280,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       let(:expected_statsd_metrics_prefix) do
         'worker.evss.submit_form0781.lighthouse_supplemental_document_upload_provider'
       end
-      let(:error_response_body) do
-        # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
-        {
-          'errors' => [
-            {
-              'detail' => 'Something broke',
-              'status' => 400,
-              'title' => 'Bad Request',
-              'instance' => Faker::Internet.uuid
-            }
-          ]
-        }
-      end
 
       before do
         allow(Flipper).to receive(:enabled?).with('disability_compensation_upload_0781_to_lighthouse',
@@ -377,51 +363,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
             .where(document_type: 'Form 0781a').count).to eq(1)
           end
         end
-
-        context 'when Lighthouse returns an error response' do
-          before do
-            allow(faraday_response).to receive(:body).and_return(error_response_body)
-          end
-
-          it 'logs the Lighthouse error response' do
-            # 0781
-            expect(Rails.logger).to receive(:error).with(
-              'LighthouseSupplementalDocumentUploadProvider upload failed',
-              {
-                class: 'LighthouseSupplementalDocumentUploadProvider',
-                submission_id: submission.id,
-                submitted_claim_id: submission.submitted_claim_id,
-                user_uuid: submission.user_uuid,
-                va_document_type_code: 'L228',
-                primary_form: 'Form526',
-                lighthouse_error_response: error_response_body
-              }
-            )
-            # 0781a
-            expect(Rails.logger).to receive(:error).with(
-              'LighthouseSupplementalDocumentUploadProvider upload failed',
-              {
-                class: 'LighthouseSupplementalDocumentUploadProvider',
-                submission_id: submission.id,
-                submitted_claim_id: submission.submitted_claim_id,
-                user_uuid: submission.user_uuid,
-                va_document_type_code: 'L229',
-                primary_form: 'Form526',
-                lighthouse_error_response: error_response_body
-              }
-            )
-
-            perform_upload
-          end
-
-          it 'increments the correct status failure metric' do
-            expect(StatsD).to receive(:increment).with(
-              "#{expected_statsd_metrics_prefix}.upload_failure"
-            ).twice # For 0781 and 0781a
-
-            perform_upload
-          end
-        end
       end
 
       context 'when a submission has 0781 only' do
@@ -449,11 +390,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         end
 
         context 'when Lighthouse returns an error response' do
+          let(:exception_errors) { [{ detail: 'Something Broke' }] }
+
           before do
-            allow(faraday_response).to receive(:body).and_return(error_response_body)
+            # Skip additional logging that occurs in Lighthouse::ServiceException handling
+            allow(Rails.logger).to receive(:error)
+
+            allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+              .and_raise(Common::Exceptions::BadRequest.new(errors: exception_errors))
           end
 
-          it 'logs the Lighthouse error response' do
+          it 'logs the Lighthouse error response and re-raises the exception' do
             expect(Rails.logger).to receive(:error).with(
               'LighthouseSupplementalDocumentUploadProvider upload failed',
               {
@@ -463,11 +410,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                 user_uuid: submission.user_uuid,
                 va_document_type_code: 'L228',
                 primary_form: 'Form526',
-                lighthouse_error_response: error_response_body
+                error_info: exception_errors
               }
             )
 
-            perform_upload
+            expect { perform_upload }.to raise_error(Common::Exceptions::BadRequest)
           end
 
           it 'increments the correct status failure metric' do
@@ -475,7 +422,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
               "#{expected_statsd_metrics_prefix}.upload_failure"
             )
 
-            perform_upload
+            expect { perform_upload }.to raise_error(Common::Exceptions::BadRequest)
           end
         end
       end
@@ -505,11 +452,17 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
         end
 
         context 'when Lighthouse returns an error response' do
+          let(:exception_errors) { [{ detail: 'Something Broke' }] }
+
           before do
-            allow(faraday_response).to receive(:body).and_return(error_response_body)
+            # Skip additional logging that occurs in Lighthouse::ServiceException handling
+            allow(Rails.logger).to receive(:error)
+
+            allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+              .and_raise(Common::Exceptions::BadRequest.new(errors: exception_errors))
           end
 
-          it 'logs the Lighthouse error response' do
+          it 'logs the Lighthouse error response and re-raises the exception' do
             expect(Rails.logger).to receive(:error).with(
               'LighthouseSupplementalDocumentUploadProvider upload failed',
               {
@@ -519,11 +472,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
                 user_uuid: submission.user_uuid,
                 va_document_type_code: 'L229',
                 primary_form: 'Form526',
-                lighthouse_error_response: error_response_body
+                error_info: exception_errors
               }
             )
 
-            perform_upload
+            expect { perform_upload }.to raise_error(Common::Exceptions::BadRequest)
           end
 
           it 'increments the correct status failure metric' do
@@ -531,7 +484,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
               "#{expected_statsd_metrics_prefix}.upload_failure"
             )
 
-            perform_upload
+            expect { perform_upload }.to raise_error(Common::Exceptions::BadRequest)
           end
         end
       end

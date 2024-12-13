@@ -3,7 +3,7 @@
 Vets API requires:
 
 
-- Ruby 3.3.3
+- Ruby 3.3.6
 - PostgreSQL 15.x (including PostGIS 3)
 - Redis 6.2.x
 
@@ -26,7 +26,7 @@ If you see an error like `Error running '__rvm_make -j10'` while installing a ru
 
 Many of these types of errors occur because either the openssl path needs to be specified or there's a compatibility issue with the ruby version and the install openssl version. They may get resolved by explicitly adding the directory or trying newer openssl version.
 
-For example: `rvm install 3.3.3 -C --with-openssl-dir=/$(brew --prefix openssl@3)`
+For example: `rvm install 3.3.6 -C --with-openssl-dir=/$(brew --prefix openssl@3)`
 
 ## Base Setup
 
