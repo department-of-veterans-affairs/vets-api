@@ -17,6 +17,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
     context 'evss' do
       before do
         Flipper.disable('disability_compensation_lighthouse_brd')
+        Flipper.disable('disability_compensation_staging_lighthouse_brd')
       end
 
       it 'returns separation locations' do
@@ -39,6 +40,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
     context 'lighthouse' do
       before do
         Flipper.enable('disability_compensation_lighthouse_brd')
+        Flipper.disable('disability_compensation_staging_lighthouse_brd')
       end
 
       after(:all) do
