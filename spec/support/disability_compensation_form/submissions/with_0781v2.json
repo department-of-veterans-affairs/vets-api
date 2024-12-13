@@ -1,0 +1,289 @@
+{
+  "form526": {
+    "form526": {
+      "claimantCertification": true,
+      "standardClaim": false,
+      "autoCestPDFGenerationDisabled": false,
+      "applicationExpirationDate": "2015-08-28T19:53:45+00:00",
+      "directDeposit": {
+        "accountType": "CHECKING",
+        "accountNumber": "123123123123",
+        "routingNumber": "123123123",
+        "bankName": "SomeBank"
+      },
+      "servicePay": {
+        "waiveVABenefitsToRetainTrainingPay": true,
+        "waiveVABenefitsToRetainRetiredPay": false,
+        "militaryRetiredPay": {
+          "receiving": true,
+          "payment": {
+            "serviceBranch": "Air Force"
+          }
+        },
+        "separationPay": {
+          "received": true,
+          "payment": {
+            "serviceBranch": "Air Force"
+          },
+          "receivedDate": {
+            "year": "2000"
+          }
+        }
+      },
+      "serviceInformation": {
+        "servicePeriods": [
+          {
+            "serviceBranch": "Air Force",
+            "activeDutyBeginDate": "1980-02-05",
+            "activeDutyEndDate": "1990-01-02"
+          },
+          {
+            "serviceBranch": "Air Force Reserves",
+            "activeDutyBeginDate": "1990-04-05",
+            "activeDutyEndDate": "1999-01-01"
+          }
+        ],
+        "confinements": [
+          {
+            "confinementBeginDate": "1987-02-01",
+            "confinementEndDate": "1989-01-01"
+          },
+          {
+            "confinementBeginDate": "1990-03-06",
+            "confinementEndDate": "1999-01-01"
+          }
+        ],
+        "reservesNationalGuardService": {
+          "title10Activation": {
+            "anticipatedSeparationDate": "2020-01-01",
+            "title10ActivationDate": "1999-03-04"
+          },
+          "obligationTermOfServiceFromDate": "2000-01-04",
+          "obligationTermOfServiceToDate": "2004-01-04",
+          "unitName": "Seal Team Six",
+          "unitPhone": {
+            "areaCode": "123",
+            "phoneNumber": "1231231"
+          },
+          "receivingInactiveDutyTrainingPay": true
+        },
+        "alternateNames": [
+          {
+            "firstName": "JKack",
+            "middleName": "Clint",
+            "lastName": "Bauer"
+          }
+        ]
+      },
+      "veteran": {
+        "currentMailingAddress": {
+          "country": "USA",
+          "addressLine1": "1234 Couch Street",
+          "addressLine2": "Apt. 22",
+          "type": "DOMESTIC",
+          "city": "Portland",
+          "state": "OR",
+          "zipFirstFive": "12345",
+          "zipLastFour": "6789"
+        },
+        "changeOfAddress": {
+          "country": "USA",
+          "addressLine1": "5678 Couch Street",
+          "addressLine2": "Apt. 2",
+          "beginningDate": "2018-02-01",
+          "type": "DOMESTIC",
+          "city": "Portland",
+          "state": "OR",
+          "zipFirstFive": "23451",
+          "zipLastFour": "6789",
+          "addressChangeType": "PERMANENT"
+        },
+        "homelessness": {
+          "pointOfContact": {
+            "pointOfContactName": "Jane Doe",
+            "primaryPhone": {
+              "areaCode": "123",
+              "phoneNumber": "1231231"
+            }
+          },
+          "currentlyHomeless": {
+            "homelessSituationType": "FLEEING_CURRENT_RESIDENCE",
+            "otherLivingSituation": "other living situation"
+          }
+        },
+        "currentlyVAEmployee": false
+      },
+      "treatments": [
+        {
+          "startDate": "2018-03-02",
+          "endDate": "2018-03-03",
+          "treatedDisabilityNames": [
+            "PTSD (post traumatic stress disorder)"
+          ],
+          "center": {
+            "name": "Private Facility 2",
+            "country": "USA"
+          }
+        },
+        {
+          "startDate": "2015-04-03",
+          "endDate": "2018-03-04",
+          "treatedDisabilityNames": [
+            "PTSD personal trauma"
+          ],
+          "center": {
+            "name": "Huntsville VA Facility",
+            "country": "USA"
+          }
+        }
+      ],
+      "disabilities": [
+        {
+          "diagnosticCode": 9999,
+          "disabilityActionType": "NEW",
+          "name": "PTSD (post traumatic stress disorder)",
+          "ratedDisabilityId": "1100583",
+          "secondaryDisabilities": [
+            {
+              "name": "PTSD personal trauma",
+              "disabilityActionType": "SECONDARY",
+              "serviceRelevance": "Caused by a service-connected disability\nLengthy description"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "form526_uploads": null,
+  "form4142": null,
+  "form8940": null,
+  "form0781": {
+    "form0781v2": {
+      "vaFileNumber": "796068949",
+      "veteranSocialSecurityNumber": "796068949",
+      "veteranFullName": {
+        "first": "Beyonce",
+        "middle": null,
+        "last": "Knowles"
+      },
+      "veteranDateOfBirth": "1809-02-12",
+      "email": "test@email.com",
+      "veteranPhone": "2024561111",
+      "veteranSecondaryPhone": "",
+      "veteranServiceNumber": "",
+      "eventTypes": {
+        "combat": true,
+        "nonMst": true
+      },
+      "eventsDetails": [
+        {
+          "details": "Lorem ipsum dolor sit amet.",
+          "location": "Stationed on U.S.S. XYZ",
+          "timing": "2000"
+        },
+        {
+          "details": "Lorem ipsum dolor sit amet.", 
+          "location": "Back alley in Big Town, USA",
+          "timing": "2001"
+        },
+        {
+          "details": "Lorem ipsum dolor sit amet.",
+          "location": "Greenwich Township, N Jersey",
+          "timing": "2002"
+        },
+        {
+          "location": "Springfield, Hampden County",
+          "timing": "2003"
+        },
+        {
+          "details": "Lorem ipsum dolor sit amet.",
+          "location": "Assigned to U.S. Army unit, Vietnam"
+        },
+        {
+          "details": "Lorem ipsum dolor sit amet.",
+          "location": "Onboard U.S.S. Intrepid, South China Sea",
+          "timing": "2004"
+        }
+      ],
+      "reports": {
+        "yes": true,
+        "restricted": true,
+        "police": true,
+        "other": true
+      },
+      "reportsDetails": {
+        "police": {
+          "agency": "SVI",
+          "city": "Dallas",
+          "state": "Texas",
+          "township": "",
+          "country": "USA"
+        },
+        "other": "incident report"
+      },
+      "behaviors": {
+        "reassignment": true,
+        "performance": true,
+        "consultations": true,
+        "episodes": true,
+        "selfMedication": true,
+        "substances": true,
+        "appetite": true,
+        "screenings": true,
+        "relationships": true,
+        "otherBehavior": "Withdrawal"
+      },
+      "behaviorsDetails": {
+        "reassignment": "Lorem ipsum dolor sit amet.",
+        "performance": "Lorem ipsum dolor sit amet.",
+        "episodes": "Lorem ipsum dolor sit amet.",
+        "selfMedication": "Lorem ipsum dolor sit amet.",
+        "appetite": "Lorem ipsum dolor sit amet.",
+        "screenings": "Lorem ipsum dolor sit amet.",
+        "relationships": "Lorem ipsum dolor sit amet.",
+        "otherBehavior": "Lorem ipsum dolor sit amet."
+      },
+      "evidence": {
+        "counseling": true,
+        "family": true,
+        "police": true,
+        "medical": true,
+        "peers": true,
+        "journal": true,
+        "other": true,
+        "otherDetails": "Lorem ipsum dolor sit amet."
+      },
+      "traumaTreatment": true,
+      "treatmentProviders": {
+        "privateCare": true,
+        "communityCare": false,
+        "vamc": true,
+        "mtf": true
+      },
+      "treatmentProvidersDetails": [
+        {
+          "facilityInfo": "Walter Reed, Bethesda, MD",
+          "treatmentMonth": "02",
+          "treatmentYear": "2014"
+        },
+        {
+          "facilityInfo": "Cedarwood Behavioral Health Center",
+          "treatmentYear": "2024"
+        },
+        {
+          "facilityInfo": "Silver Oak Recovery Center",
+          "noDates": true
+        },
+        {
+          "facilityInfo": "Silver Oak Recovery Center",
+          "noDates": true
+        }
+      ],
+      "optionIndicator": {
+        "notEnrolled": true
+      },
+      "additionalInformation": "Lorem ipsum dolor sit amet."
+    }
+  }
+}
+  
