@@ -270,7 +270,9 @@ module SimpleFormsApi
 
     def get_personalization(first_name)
       if @form_number.start_with? 'vba_21_0966'
-        default_personalization(first_name).merge(form21_0966_personalization)
+        personalization = default_personalization(first_name).merge(form21_0966_personalization)
+        personalization.except!('lighthouse_updated_at') unless lighthouse_updated_at
+        personalization
       else
         default_personalization(first_name)
       end
