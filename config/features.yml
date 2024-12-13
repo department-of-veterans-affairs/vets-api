@@ -167,6 +167,9 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
+  champva_multiple_stamp_retry:
+    actor_type: user
+    description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
@@ -1951,7 +1954,10 @@ features:
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
+  lighthouse_veterans_health_debug_logging:
+    actor_type: user
+    description: Enable debug logging for Lighthouse Veterans Health API
+    enable_in_development: false
   benefits_non_disability_ch31_v2:
     actor_type: user
     description: If enabled, use new form and api endpoint for Ch31 VR&E form
-    enable_in_development: false
