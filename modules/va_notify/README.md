@@ -133,33 +133,9 @@ A successful request to the VA Notify API does not guarantee that the recipient 
 
 #### How Teams Can Integrate with Callbacks
 
-**Option 1: Default Callback Class**
-
-The Default Callback Class offers a standard, ready-to-use implementation for handling callbacks.
-
-Example Implementation
-
-Step 1: Set Up the Notification Trigger
-
-```
-VANotify::EmailJob.perform_async(
-  user.va_profile_email,
-  template_id,
-  get_personalization(first_name),
-  Settings.vanotify.services.va_gov.api_key,
-  { 
-    callback_metadata: { 
-      notification_type: 'error', 
-      form_number: 'ExampleForm1234', 
-      statsd_tags: { service: 'DefaultService', function: 'DefaultFunction' }
-    } 
-  }
-)
-```
-
-**Option 2: Custom Callback Handler**
-
 The Custom Callback Handler allows teams to create a bespoke solution tailored to their specific requirements. This approach offers complete control over how delivery statuses are processed and logged.
+
+Refer to the libraries in `vets-api/lib/va_notify/notification_callback`
 
 Example Implementation
 
@@ -204,7 +180,7 @@ if Flipper.enabled?(:custom_callback_handler)
     template_id,
     get_personalization(first_name),
     Settings.vanotify.services.va_gov.api_key,
-    { callback_klass: 'ExampleTeam::CustomNotificationCallback', callback_metadata: {  statsd_tags: { service: 'ExampleTeam' } } }
+    { callback_klass: 'ExampleTeam::CustomNotificationCallback', callback_metadata: { ... } }
   )
 else
   # Default logic
