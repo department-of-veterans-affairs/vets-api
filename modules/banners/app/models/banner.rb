@@ -17,43 +17,10 @@ class Banner < ApplicationRecord
   validates :limit_subpage_inheritance, inclusion: { in: [true, false] }
 
   scope :by_path, lambda { |path|
-    normalized_path = path.sub(%r{^/?}, '')
+    subpage_path_reduced_to_root = path.match(%r{^/[^/]*}).to_s
+    subpage_match = where('banners.path = ? AND limit_subpage_inheritance = ?', subpage_path_reduced_to_root, false)
+    exact_match = where('banners.path = ?', path)
 
-    # Direct path matches.
-    exact_path_conditions = where('banners.context @> ?',
-                                  [
-                                    { entity:
-                                     { entityUrl:
-                                      { path: path } } }
-                                  ].to_json)
-                            .or(where('banners.context @> ?',
-                                      [
-                                        { entity:
-                                          { fieldOffice:
-                                            { entity:
-                                              { entityUrl:
-                                                { path: path } } } } }
-                                      ].to_json))
-
-    # Subpage inheritance check: Matches on any `entityUrl` where `limit_subpage_inheritance` is false.
-    subpage_pattern = "/#{normalized_path.split('/').first}"
-    subpage_condition = where('banners.context @> ?',
-                              [
-                                { entity:
-                                  { entityUrl:
-                                  { path: subpage_pattern } } }
-                              ].to_json)
-                        .or(where('banners.context @> ?',
-                                  [
-                                    { entity:
-                                      { fieldOffice:
-                                        { entity:
-                                          { entityUrl:
-                                            { path: subpage_pattern } } } } }
-                                  ].to_json))
-                        .where(limit_subpage_inheritance: false)
-
-    # Look for both exact paths and subpage matches
-    exact_path_conditions.or(subpage_condition)
+    subpage_match.or(exact_match)
   }
 end

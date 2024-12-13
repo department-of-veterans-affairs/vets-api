@@ -16,8 +16,17 @@ module Banners
           operating_status_cta: graphql_banner_response['fieldAlertOperatingStatusCta'],
           email_updates_button: graphql_banner_response['fieldAlertEmailUpdatesButton'],
           find_facilities_cta: graphql_banner_response['fieldAlertFindFacilitiesCta'],
-          limit_subpage_inheritance: graphql_banner_response['fieldAlertInheritanceSubpages'] || false
+          limit_subpage_inheritance: graphql_banner_response['fieldAlertInheritanceSubpages'] || false,
+          path: parsed_path(graphql_banner_response['fieldBannerAlertVamcs'])
         }
+      end
+
+      def self.parsed_path(vamc_list)
+        return unless vamc_list.is_a?(Array) && vamc_list.any?
+        specific_entity_path = vamc_list.dig(0, 'entity', 'fieldOffice', 'entity', 'entityUrl', 'path')
+        general_entity_path = vamc_list.dig(0, 'entity', 'entityUrl', 'path')
+
+        specific_entity_path || general_entity_path
       end
     end
   end
