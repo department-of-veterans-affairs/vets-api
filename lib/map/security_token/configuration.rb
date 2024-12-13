@@ -34,8 +34,8 @@ module MAP
         Settings.map_services.client_cert_path
       end
 
-      def provider_cert_path
-        Settings.map_services.provider_cert_path
+      def provider_jwks_path
+        Settings.map_services.provider_jwks_path
       end
 
       def service_name
@@ -83,7 +83,13 @@ module MAP
       end
 
       def provider_certificate
-        OpenSSL::X509::Certificate.new(File.read(provider_cert_path))
+        @provider_certificate ||= build_provider_certificate
+      end
+
+      def build_provider_certificate
+        response = connection.get(provider_jwks_path)
+        jwk = response.body['keys'].first
+        JWT::JWK.import(jwk).keypair.public_key
       end
 
       def connection
