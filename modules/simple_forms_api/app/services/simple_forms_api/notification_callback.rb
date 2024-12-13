@@ -6,7 +6,6 @@ require 'zero_silent_failures/monitor'
 
 module SimpleFormsApi
   class NotificationCallback < ::VANotify::NotificationCallback::SavedClaim
-
     # instantiate a notification callback
     def initialize(notification)
       super(notification)
@@ -24,9 +23,7 @@ module SimpleFormsApi
 
     # notification has permanently failed
     def on_permanent_failure
-      if notification_type == 'error'
-        monitor.log_silent_failure(zsf_additional_context, call_location:)
-      end
+      monitor.log_silent_failure(zsf_additional_context, call_location:) if notification_type == 'error'
     end
 
     # notification has temporarily failed
@@ -52,6 +49,5 @@ module SimpleFormsApi
     def call_location
       Logging::CallLocation.customize(caller_locations.first, function:)
     end
-
   end
 end

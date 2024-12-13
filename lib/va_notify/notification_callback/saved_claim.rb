@@ -6,12 +6,6 @@ require 'zero_silent_failures/monitor'
 module VANotify
   module NotificationCallback
     class SavedClaim < ::VANotify::NotificationCallback::Default
-
-      # instantiate a notification callback
-      def initialize(notification)
-        super(notification)
-      end
-
       # notification was delivered
       def on_delivered
         update_database if email?
@@ -25,9 +19,7 @@ module VANotify
       def on_permanent_failure
         update_database if email?
 
-        if email? && email_type == 'error'
-          monitor.log_silent_failure(zsf_additional_context, call_location:)
-        end
+        monitor.log_silent_failure(zsf_additional_context, call_location:) if email? && email_type == 'error'
       end
 
       # notification has temporarily failed
@@ -51,6 +43,7 @@ module VANotify
 
       def update_database
         return unless claim_va_notification
+
         claim_va_notification.update(**notification_context)
       end
 

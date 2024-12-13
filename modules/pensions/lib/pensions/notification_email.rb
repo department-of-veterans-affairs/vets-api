@@ -28,7 +28,7 @@ module Pensions
 
     # @see VANotify::NotificationEmail::SavedClaim#callback_class
     def callback_klass
-      "#{Pensions::NotificationCallback}"
+      Pensions::NotificationCallback.to_s
     end
   end
 end

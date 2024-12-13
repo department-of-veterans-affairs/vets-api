@@ -4,7 +4,6 @@ require 'logging/monitor'
 
 module VANotify
   module NotificationCallback
-
     class CallbackClassMismatch < StandardError
       def initialize(requested, called)
         super("notification requested #{requested}, but called #{called}")
@@ -12,9 +11,8 @@ module VANotify
     end
 
     class Default
-
       # static call to handle notification callback
-      def self.call(notification)
+      def self.call(notification) # rubocop:disable Metrics/MethodLength
         this = new(notification)
 
         unless this.klass == notification.callback_klass
@@ -100,7 +98,6 @@ module VANotify
       def email?
         notification.notification_type == 'email'
       end
-
     end
   end
 end

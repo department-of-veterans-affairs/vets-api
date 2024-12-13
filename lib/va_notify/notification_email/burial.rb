@@ -44,7 +44,7 @@ module Burials
 
     # @see VANotify::NotificationEmail::SavedClaim#callback_class
     def callback_klass
-      "#{Burials::NotificationCallback}"
+      Burials::NotificationCallback.to_s
     end
   end
 end

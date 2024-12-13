@@ -121,7 +121,7 @@ module VANotify
           email_template_id,
           personalization,
           service_config.api_key,
-          { callback_klass: , callback_metadata: }
+          { callback_klass:, callback_metadata: }
         )
       end
 
@@ -134,7 +134,7 @@ module VANotify
           email_template_id,
           personalization,
           service_config.api_key,
-          { callback_klass: , callback_metadata: }
+          { callback_klass:, callback_metadata: }
         )
       end
 
@@ -162,7 +162,7 @@ module VANotify
 
       # assign the callback class to be used for the notification
       def callback_klass
-        "#{VANotify::NotificationCallback::SavedClaim}"
+        VANotify::NotificationCallback::SavedClaim.to_s
       end
 
       # assemble the metadata to be sent with the notification
