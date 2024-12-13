@@ -615,16 +615,9 @@ features:
     actor_type: user
     description: Send only lat/long values (no bounding box or address) to the API when querying for facilities.
     enable_in_development: true
-  facility_locator_ppms_legacy_urgent_care_to_pos_locator:
-    actor_type: user
-    description: force the legacy urgent care path to use the new POS locator
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
-  facility_locator_pull_operating_status_from_lighthouse:
-    actor_type: user
-    description: A fast and dirty way to get the operating status from lighthouse
-    enable_in_development: true
   facility_locator_rails_engine:
     actor_type: user
     description: Use rails engine routes for all Facility Locator API calls
@@ -950,6 +943,10 @@ features:
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
+    enable_in_development: true
+  mhv_account_creation_api_consumption:
+    actor_type: user
+    descriptiom: Enables access to alerts related to MHV Account Creation API
     enable_in_development: true
   mhv_account_creation_after_login:
     actor_type: user
