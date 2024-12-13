@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require './modules/decision_reviews/spec/sidekiq/shared_examples_for_status_updater_jobs'
+require './modules/decision_reviews/spec/sidekiq/engine_shared_examples_for_status_updater_jobs'
 
 RSpec.describe DecisionReviews::NodStatusUpdaterJob, type: :job do
   subject { described_class }
 
-  include_context 'status updater job context', SavedClaim::NoticeOfDisagreement
+  include_context 'engine status updater job context', SavedClaim::NoticeOfDisagreement
 
   describe 'perform' do
     context 'with flag enabled', :aggregate_failures do
@@ -14,8 +14,8 @@ RSpec.describe DecisionReviews::NodStatusUpdaterJob, type: :job do
         Flipper.enable :decision_review_saved_claim_nod_status_updater_job_enabled
       end
 
-      include_examples 'status updater job with base forms', SavedClaim::NoticeOfDisagreement
-      include_examples 'status updater job when forms include evidence', SavedClaim::NoticeOfDisagreement
+      include_examples 'engine status updater job with base forms', SavedClaim::NoticeOfDisagreement
+      include_examples 'engine status updater job when forms include evidence', SavedClaim::NoticeOfDisagreement
     end
 
     context 'with flag disabled' do
