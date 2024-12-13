@@ -4,7 +4,7 @@ module IvcChampva
   module Attachments
     attr_accessor :form_id, :uuid, :data
 
-    def handle_attachments(file_path)
+    def handle_attachments(file_path) # rubocop:disable Metrics/MethodLength
       file_paths = [file_path]
       attachments = get_attachments
 
@@ -28,6 +28,7 @@ module IvcChampva
           FileUtils.mv(attachment, new_file_path) # Performs a copy automatically if mv fails
         else
           File.rename(attachment, new_file_path)
+        end
 
         file_paths << new_file_path
       end
