@@ -3,7 +3,7 @@
   "info": {
     "title": "Benefits Claims",
     "version": "v2",
-    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers: \n\n-   Retrieve existing claim information, including status, by claim ID.\n-   Automatically establish an Intent To File (21-0966) in VBMS.\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS.\n-   Digitally submit supporting documentation for disability compensation claims.\n-   Retrieve the active Power of Attorney organization of individual with power of attorney for a claimant.\n-   Automatically establish a power of attorney appointment in VBMS for an accredited organization (VA Form 21-22).\n-   Automatically establish a power of attorney appointment in VBMS for an accredited individual (VA Form 21-22a).\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if you are a consumer outside of VA and do not have the necessary VA agreements to use this API.\n    \n## Appointing an accredited representative for dependents\n\nDependents of Veterans, such as spouses, children (biological and step), and parents (biological and foster) may be eligible for VA benefits and can request representation by an accredited representative.\n\nTo file claims through an accredited representative, dependents must appoint their own. Once appointed, the representative will have power of attorney (POA) to assist with the dependentʼs VA claims.\n\nBefore appointing a representative, the dependentʼs relationship to the Veteran must be established. If a new representative is being appointed, the dependentʼs relationship to the Veteran will be validated first. The representative will be appointed to the dependent, not the Veteran.\n\n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nAfter you submit a disability compensation claim with the `POST /veterans/{veteranId}/526` synchronous endpoint, it is then established in Veterans Benefits Management System (VBMS). A `202` response means that the claim was successfully submitted by the API. However, it does not mean VA has received the required 526EZ PDF. \n\nTo confirm the status of your submission, use the `GET /veterans/{veteranId}/claims/{id}` endpoint and the ID returned with your submission response. Statuses are: \n\n-  **Pending**: The claim is successfully submitted for processing\n-   **Errored**: The submission encountered upstream errors\n-   **Canceled**: The claim was identified as a duplicate, or another issue caused the claim to be canceled. \n  -   For duplicate claims, the claim's progress is tracked under a different Claim ID than the one returned in your submission response. \n-   **Claim received**: The claim was received, but hasn't been assigned to a reviewer yet.\n-   **Initial review**: The claim has been assigned to a reviewer, who will determine if more information is needed.\n-   **Evidence gathering, review, and decision**: VA is gathering evidence to make a decision from health care providers, government agencies, and other sources.\n-   **Preparation for notification**: VA has made a decision on the claim, and is getting a decision letter ready to mail.\n-   **Complete**: VA has sent a decision letter by U.S. mail.\n\n### Finding a Veteran's unique VA ID\n\nThis API uses Inegration Control Number (ICN) as a unique Veteran identifier to identify the subject of each API request. This identifier should be used as the `{veteranId}` parameter in request URLs.\n\n**Note**: though ICNs are typically static, they may change over time. If a specific ICN suddenly responds with a `404 not found` error, it may have changed. It’s a good idea to periodically check the ICN for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
+    "description": "## Background\n\nThe Benefits Claims API Version 2 lets internal consumers: \n\n-   Retrieve existing claim information, including status, by claim ID.\n-   Automatically establish an Intent To File (21-0966) in VBMS.\n-   Automatically establish a disability compensation claim (21-526EZ) in VBMS.\n-   Digitally submit supporting documentation for disability compensation claims.\n-   Retrieve the active Power of Attorney organization of individual with power of attorney for a claimant.\n-   Automatically establish a power of attorney appointment in VBMS for an accredited organization (VA Form 21-22).\n-   Automatically establish a power of attorney appointment in VBMS for an accredited individual (VA Form 21-22a).\n\nYou should use the [Benefits Claims API Version 1](https://developer.va.gov/explore/benefits/docs/claims?version=current) if you are a consumer outside of VA and do not have the necessary VA agreements to use this API.\n    \n## Appointing an accredited representative for dependents\n\nDependents of Veterans, such as spouses, children (biological and step), and parents (biological and foster) may be eligible for VA benefits and can request representation by an accredited representative.\n\nTo file claims through an accredited representative, dependents must appoint their own. Once appointed, the representative will have power of attorney (POA) to assist with the dependentʼs VA claims.\n\nBefore appointing a representative, the dependentʼs relationship to the Veteran must be established. If a new representative is being appointed, the dependentʼs relationship to the Veteran will be validated first. The representative will be appointed to the dependent, not the Veteran.\n\n## Technical Overview\n\nThis API accepts a payload of requests and responses with the payload identifying the claim and Veteran. Responses provide the submission’s processing status. Responses also provide a unique ID which can be used with the appropriate GET endpoint to return detailed, end-to-end claims status tracking. \n\nEnd-to-end claims tracking provides the status of claims as they move through the submission process, but does not return whether the claim was approved or denied. \n\n### Claim statuses\n\nAfter you submit a disability compensation claim with the `POST /veterans/{veteranId}/526` synchronous endpoint, it is then established in Veterans Benefits Management System (VBMS). A `202` response means that the claim was successfully submitted by the API. However, it does not mean VA has received the required 526EZ PDF. \n\nTo confirm the status of your submission, use the `GET /veterans/{veteranId}/claims/{id}` endpoint and the ID returned with your submission response. Statuses are: \n\n*  **Pending**: The claim is successfully submitted for processing\n*   **Errored**: The submission encountered upstream errors\n*   **Canceled**: The claim was identified as a duplicate, or another issue caused the claim to be canceled. \n    *   For duplicate claims, the claim's progress is tracked under a different Claim ID than the one returned in your submission response. \n*   **Claim received**: The claim was received, but hasn't been assigned to a reviewer yet.\n*   **Initial review**: The claim has been assigned to a reviewer, who will determine if more information is needed.\n*   **Evidence gathering, review, and decision**: VA is gathering evidence to make a decision from health care providers, government agencies, and other sources.\n*   **Preparation for notification**: VA has made a decision on the claim, and is getting a decision letter ready to mail.\n*   **Complete**: VA has sent a decision letter by U.S. mail.\n\n### Finding a Veteran's unique VA ID\n\nThis API uses Inegration Control Number (ICN) as a unique Veteran identifier to identify the subject of each API request. This identifier should be used as the `{veteranId}` parameter in request URLs.\n\n**Note**: though ICNs are typically static, they may change over time. If a specific ICN suddenly responds with a `404 not found` error, it may have changed. It’s a good idea to periodically check the ICN for each Veteran.\n\n### Authentication and authorization\n\nThe authentication model for the Benefits Claims Version 2 is based on OAuth 2.0 / OpenID Connect and supports the [client credentials grant](https://developer.va.gov/explore/authorization/docs/client-credentials?api=claims).\n\n**Important**: To get production access, you must either work for VA or have specific VA agreements in place. If you have questions, [contact us](https://developer.va.gov/support/contact-us).\n\n### Test data for sandbox environment use\n\nWe use mock [test data in the sandbox environment](https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts.md). Sandbox test data and test users for the Benefits Claims API are valid for all versions of the API.\n"
   },
   "tags": [
     {
@@ -1036,7 +1036,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "44bd11ab-fa91-42f3-a3d9-60a6a5419f4f",
+                        "id": "10dbad27-ce32-408e-885c-ec2abb34847e",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -1267,7 +1267,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "c21cf45e-fab8-45e1-9093-224f89e9f179",
+                        "id": "11f513a7-ac0c-4ea9-b8ae-2600a34729cc",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -10129,7 +10129,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4b47fe08-1567-4a42-a347-ab3509081674",
+                    "id": "3f404e82-ed36-459c-9e43-a5a826655989",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -10901,7 +10901,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "5baaaccd-81d8-434a-8214-a0c95e0ad4b7",
+                    "id": "97cbb22e-90c9-4bce-a571-bbc54ff98e15",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -12895,7 +12895,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1228edc4-dc30-42a1-8ee5-2ee084c098af",
+                    "id": "47bc11a3-a2c2-4d8a-8e46-253263642d6d",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2024-12-13",
@@ -13188,7 +13188,7 @@
                         "HIV",
                         "ALCOHOLISM"
                       ],
-                      "id": "7c964af2-e568-42cc-afc4-ac399629d035",
+                      "id": "84da172b-2359-4198-9abf-44afbc7bdfde",
                       "type": "power-of-attorney-request"
                     }
                   }
