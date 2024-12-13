@@ -47,7 +47,6 @@ module EducationForm
       excel_file_event = ExcelFileEvent.build_event(filename)
       begin
         records = EducationBenefitsClaim
-                  .unprocessed
                   .joins(:saved_claim)
                   .where(
                     saved_claims: {
@@ -66,6 +65,8 @@ module EducationForm
         # Format the records and write to CSV file
         formatted_records = format_records(records)
         write_csv_file(formatted_records, filename)
+
+        email_staging_excel_files(filename) if local_or_staging_env?
 
         # Make records processed and add excel file event for rake job
         records.each { |r| r.update(processed_at: Time.zone.now) }
@@ -90,30 +91,40 @@ module EducationForm
       retry_count = 0
 
       begin
-        CSV.open("tmp/#{filename}", 'wb') do |csv|
+        # Generate CSV string content instead of writing to file
+        csv_contents = CSV.generate do |csv|
           # Add headers
           csv << HEADERS
-          log_info('Successfully added headers')
+
           # Add data rows
           records.each_with_index do |record, index|
             log_info("Processing record #{index + 1}: #{record.inspect}")
 
-            row_data = EXCEL_FIELDS.map do |field|
-              value = record.public_send(field)
-              value.is_a?(Hash) ? value.to_s : value
-            end
-            csv << row_data
+            begin
+              row_data = EXCEL_FIELDS.map do |field|
+                value = record.public_send(field)
+                value.is_a?(Hash) ? value.to_s : value
+              end
 
-            log_info('Successfully created CSV file')
-          rescue => e
-            log_exception(DailyExcelFileError.new("Failed to add row #{index + 1}:\n"))
-            log_exception(DailyExcelFileError.new("#{e.message}\nRecord: #{record.inspect}"))
-            next
+              csv << row_data
+            rescue => e
+              log_exception(DailyExcelFileError.new("Failed to add row #{index + 1}:\n"))
+              log_exception(DailyExcelFileError.new("#{e.message}\nRecord: #{record.inspect}"))
+              next
+            end
           end
         end
+
+        # Write to file for backup/audit purposes
+        File.write("tmp/#{filename}", csv_contents)
+        log_info('Successfully created CSV file')
+
+        # Return the CSV contents
+        csv_contents
       rescue => e
         StatsD.increment("#{STATSD_FAILURE_METRIC}.general")
         log_exception(DailyExcelFileError.new('Error creating CSV files.'))
+
         if retry_count < MAX_RETRIES
           log_exception(DailyExcelFileError.new("Retry count: #{retry_count}. Retrying..... "))
           retry_count += 1
@@ -123,7 +134,6 @@ module EducationForm
           log_exception(DailyExcelFileError.new("Job failed after #{MAX_RETRIES} retries \n\n#{e}"))
         end
       end
-      true
     end
     # rubocop:enable Metrics/MethodLength
 
@@ -174,6 +184,14 @@ module EducationForm
 
     def log_info(message)
       logger.info(message)
+    end
+
+    def email_staging_excel_files(contents)
+      CreateStagingExcelFilesMailer.build(contents).deliver_now
+    end
+
+    def local_or_staging_env?
+      Rails.env.eql?('development') || Settings.hostname.eql?('staging-api.va.gov')
     end
   end
 end
