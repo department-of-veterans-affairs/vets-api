@@ -281,23 +281,6 @@ module ClaimsApi
 
       module VeteranRepresentativeService
         DEFINITION =
-          Service.new(
-            bean: Vdc::DEFINITION,
-            path: 'VeteranRepresentativeService'
-          )
-
-        module ReadAllVeteranRepresentatives
-          DEFINITION =
-            Action.new(
-              service: VeteranRepresentativeService::DEFINITION,
-              name: 'readAllVeteranRepresentatives',
-              key: 'VeteranRepresentativeReturnList'
-            )
-        end
-      end
-
-      module VeteranRepresentativeService
-        DEFINITION =
           Bean.new(
             path: 'VDC/VeteranRepresentativeService',
             namespaces: Namespaces.new(

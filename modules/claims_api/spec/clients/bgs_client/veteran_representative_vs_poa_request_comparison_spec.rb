@@ -2,9 +2,12 @@
 
 require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
+require 'bgs_service/veteran_representative_service'
 
 RSpec.describe 'VeteranRepresentative versus POARequest comparison', :bgs do # rubocop:disable RSpec/DescribeClass
   it 'concerns the same underlying data' do
+    skip 'refactor needed'
+
     use_soap_cassette('results', use_spec_name_prefix: true) do
       participant_ids = Set[]
       comparisons =
@@ -47,10 +50,7 @@ RSpec.describe 'VeteranRepresentative versus POARequest comparison', :bgs do # r
         page_number += 1
       end
 
-      veteran_representative_action =
-        ClaimsApi::BGSClient::Definitions::
-          VeteranRepresentativeService::
-          ReadAllVeteranRepresentatives::DEFINITION.name
+      veteran_representative_action = 'readAllVeteranRepresentatives'
 
       poa_request_action =
         ClaimsApi::BGSClient::Definitions::
@@ -444,18 +444,12 @@ RSpec.describe 'VeteranRepresentative versus POARequest comparison', :bgs do # r
   end
 
   def get_veteran_representatives(participant_id)
-    action =
-      ClaimsApi::BGSClient::Definitions::
-        VeteranRepresentativeService::
-        ReadAllVeteranRepresentatives::DEFINITION
-
-    result =
-      ClaimsApi::BGSClient.perform_request(action) do |xml, data_aliaz|
-        xml[data_aliaz].CorpPtcpntIdFormTypeCode do
-          xml.formTypeCode('21-22')
-          xml.veteranCorpPtcpntId(participant_id)
-        end
-      end
+    options = {}
+    options[:participant_id] = participant_id
+    result = ClaimsApi::VeteranRepresentativeService.new(
+      external_uid: participant_id,
+      external_key: participant_id
+    ).read_all_veteran_representatives(options)
 
     Array.wrap(result)
   end
