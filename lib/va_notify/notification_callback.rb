@@ -60,7 +60,7 @@ module VANotify
       # instantiate a notification callback
       def initialize(notification)
         @notification = notification
-        @metadata = notification.callback_metadata
+        @metadata = notification.callback_metadata || {}
 
         # inheriting class can add an attr_reader for the expected metadata keys
         metadata.each do |key, value|

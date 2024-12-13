@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_notify/notification_callback'
+require 'zero_silent_failures/monitor'
 
 module VANotify
   module NotificationCallback
@@ -16,7 +17,7 @@ module VANotify
         update_database if email?
 
         if email? && email_type == 'error'
-          monitor.log_silent_failure_avoided(zsf_additional_context, email_confirmed: true)
+          monitor.log_silent_failure_avoided(zsf_additional_context, email_confirmed: true, call_location:)
         end
       end
 
@@ -24,8 +25,8 @@ module VANotify
       def on_permanent_failure
         update_database if email?
 
-        if eamil? && email_type == 'error'
-          monitor.log_silent_failure(zsf_additional_context)
+        if email? && email_type == 'error'
+          monitor.log_silent_failure(zsf_additional_context, call_location:)
         end
       end
 
@@ -61,7 +62,8 @@ module VANotify
 
       def notification_context
         {
-          notification_id: notification.notification_id,
+          notification_id: notification.id,
+          notification_uuid: notification.notification_id,
           notification_type: notification.notification_type,
           notification_status: notification.status
         }
@@ -73,6 +75,10 @@ module VANotify
           **metadata,
           **notification_context
         }
+      end
+
+      def call_location
+        nil
       end
     end
   end
