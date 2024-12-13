@@ -49,7 +49,7 @@ RSpec.describe Vets::Model::Dirty do
     it 'returns a list of all changed attributes after multiple changes' do
       user.name = 'Bob'
       user.email = 'bob@example.com'
-      expect(user.changed).to match_array(['name', 'email'])
+      expect(user.changed).to match_array(%w[name email])
     end
   end
 
@@ -60,13 +60,13 @@ RSpec.describe Vets::Model::Dirty do
 
     it 'returns the changes with the original and current values when an attribute has been changed' do
       user.name = 'Bob'
-      expect(user.changes).to eq({ 'name' => ['Alice', 'Bob'] })
+      expect(user.changes).to eq({ 'name' => %w[Alice Bob] })
     end
 
     it 'returns changes for multiple attributes' do
       user.name = 'Bob'
       user.email = 'bob@example.com'
-      expect(user.changes).to include('name' => ['Alice', 'Bob'])
+      expect(user.changes).to include('name' => %w[Alice Bob])
       expect(user.changes).to include('email' => ['alice@example.com', 'bob@example.com'])
     end
 
