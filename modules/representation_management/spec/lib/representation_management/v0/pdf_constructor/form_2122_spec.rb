@@ -78,6 +78,24 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
     # The Tempfile is automatically deleted after the block ends
   end
 
+  it 'matches the field values of a pdf with conditions present when unflattened' do
+    form = RepresentationManagement::Form2122Data.new(data)
+    Tempfile.create do |tempfile|
+      tempfile.binmode
+      RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form, flatten: false)
+      expected_pdf = Rails.root.join('modules',
+                                     'representation_management',
+                                     'spec',
+                                     'fixtures',
+                                     '21-22',
+                                     'v0',
+                                     'unflattened', # <- Important difference
+                                     '2122_with_limitations.pdf')
+      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
+    end
+    # The Tempfile is automatically deleted after the block ends
+  end
+
   it 'constructs the pdf with conditions present and no claimant' do
     data.delete_if { |key, _| key.to_s.include?('claimant') }
     form = RepresentationManagement::Form2122Data.new(data)
@@ -94,6 +112,25 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122 do
                                      '2122_with_limitations_no_claimant.pdf')
       # expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
+    end
+    # The Tempfile is automatically deleted after the block ends
+  end
+
+  it 'matches the field values of a pdf with conditions present and no claimant when unflattened' do
+    data.delete_if { |key, _| key.to_s.include?('claimant') }
+    form = RepresentationManagement::Form2122Data.new(data)
+    Tempfile.create do |tempfile|
+      tempfile.binmode
+      RepresentationManagement::V0::PdfConstructor::Form2122.new(tempfile).construct(form, flatten: false)
+      expected_pdf = Rails.root.join('modules',
+                                     'representation_management',
+                                     'spec',
+                                     'fixtures',
+                                     '21-22',
+                                     'v0',
+                                     'unflattened', # <- Important difference
+                                     '2122_with_limitations_no_claimant.pdf')
+      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
     end
     # The Tempfile is automatically deleted after the block ends
   end
