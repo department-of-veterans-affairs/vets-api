@@ -14,13 +14,9 @@ RSpec.describe 'Vets::Model::Pagination' do
     end
   end
 
-  describe 'when included in a model' do
+  describe '#per_page' do
     it 'sets the correct per_page value' do
       expect(user_class.per_page).to eq(20)
-    end
-
-    it 'sets the correct max_per_page value' do
-      expect(user_class.max_per_page).to eq(40)
     end
 
     it 'defaults to per_page = 10 when no pagination is set' do
@@ -30,6 +26,12 @@ RSpec.describe 'Vets::Model::Pagination' do
 
       expect(dummy_class.per_page).to eq(10)
     end
+  end
+
+  describe '#max_per_page' do
+    it 'sets the correct max_per_page value' do
+      expect(user_class.max_per_page).to eq(40)
+    end
 
     it 'defaults to max_per_page = 100 when no pagination is set' do
       dummy_class = Class.new do
@@ -38,7 +40,9 @@ RSpec.describe 'Vets::Model::Pagination' do
 
       expect(dummy_class.max_per_page).to eq(100)
     end
+  end
 
+  describe '.set_pagination' do
     it 'does not allow calling set_pagination directly from outside the class' do
       expect do
         user_class.set_pagination(per_page: 30, max_per_page: 60)
