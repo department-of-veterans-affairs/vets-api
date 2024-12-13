@@ -30,9 +30,6 @@ module Vets
       self.class.attribute_set.each do |attr_name|
         instance_variable_set("@#{attr_name}", nil) unless instance_variable_defined?("@#{attr_name}")
       end
-
-      # required for Vets::Model::Dirty
-      @original_attributes = attribute_values.dup
     end
 
     # Acts as ActiveRecord::Base#attributes which is needed for serialization
@@ -60,15 +57,6 @@ module Vets
           value
         end
       end
-    end
-  end
-end
-
-module Vets
-  module Model
-    def initialize(params = {})
-      super(params)
-      @original_attributes = attribute_values
     end
   end
 end
