@@ -167,6 +167,9 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
+  champva_multiple_stamp_retry:
+    actor_type: user
+    description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
@@ -903,7 +906,7 @@ features:
     enable_in_development: true
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
-    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID 
+    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID
     enable_in_development: true
   lighthouse_claims_api_poa_dependent_claimants:
     actor_type: user
@@ -1523,9 +1526,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  va_burial_v2:
-    actor_type: user
-    description: Allows us to toggle between 21-P530 and 21-P530V2
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
@@ -1795,10 +1795,6 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
-  burial_form_v2:
-    actor_type: user
-    description: Enable Burial form v2 re-design
-    enable_in_development: true
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
@@ -1958,7 +1954,10 @@ features:
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
+  lighthouse_veterans_health_debug_logging:
+    actor_type: user
+    description: Enable debug logging for Lighthouse Veterans Health API
+    enable_in_development: false
   benefits_non_disability_ch31_v2:
     actor_type: user
     description: If enabled, use new form and api endpoint for Ch31 VR&E form
-    enable_in_development: false
