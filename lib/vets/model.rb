@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vets/attributes'
+require 'vets/model/dirty'
 
 # This will be moved after virtus is removed
 module Bool; end
@@ -14,6 +15,7 @@ module Vets
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
     include Vets::Attributes
+    include Vets::Model::Dirty
 
     included do
       extend ActiveModel::Naming
@@ -28,6 +30,9 @@ module Vets
       self.class.attribute_set.each do |attr_name|
         instance_variable_set("@#{attr_name}", nil) unless instance_variable_defined?("@#{attr_name}")
       end
+
+      # required for Vets::Model::Dirty
+      @original_attributes = attribute_values.dup
     end
 
     # Acts as ActiveRecord::Base#attributes which is needed for serialization
@@ -55,6 +60,15 @@ module Vets
           value
         end
       end
+    end
+  end
+end
+
+module Vets
+  module Model
+    def initialize(params = {})
+      super(params)
+      @original_attributes = attribute_values
     end
   end
 end
