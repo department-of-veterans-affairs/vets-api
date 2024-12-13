@@ -147,6 +147,9 @@ mcp:
 fsr:
   prefill: true
 
+dispute_debt:
+  prefill: true
+
 review_instance_slug: ~
 
 sidekiq_admin_panel: false
@@ -958,6 +961,7 @@ lighthouse:
       client_id: ~
       rsa_key: ~
   api_key: fake_key
+  staging_api_key: fake_key
   benefits_claims:
     host: https://sandbox-api.va.gov
     access_token:
@@ -1004,6 +1008,7 @@ lighthouse:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausftw7zk6eHr7gMN2p7/v1/token
   benefits_reference_data:
     url: https://sandbox-api.va.gov
+    staging_url: https://staging-api.va.gov
     path: services/benefits-reference-data
     version: v1
   direct_deposit:
@@ -1359,6 +1364,7 @@ vanotify:
     ivc_champva:
       api_key: fake_secret
       failure_email_threshold_days: 7
+      pega_inbox_address: fake_email_address
       template_id:
         form_10_10d_email: form_10_10d_email
         form_10_10d_failure_email: form_10_10d_failure_email
@@ -1370,6 +1376,9 @@ vanotify:
         form_10_7959c_failure_email: form_10_7959c_failure_email
         form_10_7959a_email: form_10_7959a_email
         form_10_7959a_failure_email: form_10_7959a_failure_email
+        pega_team_missing_status_email: pega_team_missing_status_email
+        pega_team_zsf_email: pega_team_zsf_email
+
     health_apps_1010:
       api_key: fake_secret
       template_id:
@@ -1847,3 +1856,10 @@ vaos:
     base_path: "care-navigation/v1"
     scopes: "care-nav"
 
+accredited_representative_portal:
+  pilot_users_email_poa_codes: ~
+  
+banners:
+  drupal_username: banners_api
+  drupal_password: test
+  drupal_url: https://test.cms.va.gov/

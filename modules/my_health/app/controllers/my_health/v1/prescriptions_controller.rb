@@ -5,6 +5,7 @@ module MyHealth
     class PrescriptionsController < RxController
       include Filterable
       include MyHealth::PrescriptionHelper::Filtering
+      include MyHealth::RxGroupingHelper
       # This index action supports various parameters described below, all are optional
       # This comment can be removed once documentation is finalized
       # @param refill_status - one refill status to filter on
@@ -14,11 +15,11 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
+        resource.data = group_prescriptions(resource.data) if Flipper.enabled?(:mhv_medications_display_grouping)
         resource.data = filter_non_va_meds(resource.data)
         filter_count = set_filter_metadata(resource.data)
-        renewal_params = 'Active,Expired'
         resource = if params[:filter].present?
-                     if filter_params[:disp_status]&.[](:eq) == renewal_params
+                     if filter_params[:disp_status]&.[](:eq) == 'Active,Expired' # renewal params
                        filter_renewals(resource)
                      else
                        resource.find_by(filter_params)
@@ -31,7 +32,6 @@ module MyHealth
         resource.data = params[:include_image].present? ? fetch_and_include_images(resource.data) : resource.data
         resource = is_using_pagination ? resource.paginate(**pagination_params) : resource
         options = { meta: resource.metadata.merge(filter_count) }
-
         options[:links] = pagination_links(resource) if is_using_pagination
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
@@ -92,6 +92,8 @@ module MyHealth
 
       private
 
+      # rubocop:disable ThreadSafety/NewThread
+      # New threads are joined at the end
       def fetch_and_include_images(data)
         threads = []
         data.each do |item|
@@ -108,6 +110,7 @@ module MyHealth
         threads.each(&:join)
         data
       end
+      # rubocop:enable ThreadSafety/NewThread
 
       def fetch_image(image_url)
         uri = URI.parse(image_url)
