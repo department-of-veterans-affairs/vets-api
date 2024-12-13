@@ -1442,7 +1442,7 @@ dgi:
     jwt:
       public_key_path: modules/vye/spec/fixtures/dgi_public_test.pem
       private_key_path: modules/vye/spec/fixtures/dgi_private_test.pem
-      public_ica11_rca2_key_path: ""
+      public_ica11_rca2_key_path: modules/vye/spec/fixtures/ICA11-RCA2-combined-cert.pem
     vets:
       url: ""
       mock: false
