@@ -13,6 +13,10 @@ module Burials
 
     private
 
+    def claim_class
+      SavedClaim::Burial
+    end
+
     # @see VANotify::NotificationEmail::SavedClaim#personalization
     def personalization
       default = super

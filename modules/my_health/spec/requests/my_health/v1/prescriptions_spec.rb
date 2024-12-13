@@ -108,6 +108,35 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(item_index).not_to be_nil
       end
 
+      context 'grouping medications' do
+        before do
+          Flipper.enable('mhv_medications_display_grouping')
+        end
+
+        it 'responds to GET #index by grouping medications and removes grouped medications from original list' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_grouped_prescriptions') do
+            get '/my_health/v1/prescriptions?page=1&per_page=20'
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+          expect(JSON.parse(response.body)['data']).to be_truthy
+
+          grouped_med_list = (JSON.parse(response.body)['data'])
+          first_rx = grouped_med_list.find do |rx|
+            rx['attributes']['grouped_medications'].present?
+          end
+          rx_num_of_grouped_rx = first_rx['attributes']['grouped_medications'].first['prescription_number']
+          find_grouped_rx_in_base_list = grouped_med_list.find do |rx|
+            rx['attributes']['prescription_number'] == rx_num_of_grouped_rx
+          end
+          expect(find_grouped_rx_in_base_list).to be_falsey
+        end
+
+        Flipper.disable('mhv_medications_display_grouping')
+      end
+
       it 'responds to GET #get_prescription_image with image' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_prescription_image_v1') do
           get '/my_health/v1/prescriptions?/prescriptions/get_prescription_image/00013264681'
@@ -311,19 +340,18 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       context 'prescription documentation' do
         it 'responds to GET #index of prescription documentation' do
           VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/13650541/documentation?ndc=71205042524'
+            get '/my_health/v1/prescriptions/21296515/documentation'
           end
-
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response.body).to be_a(String)
           attrs = JSON.parse(response.body)['data']['attributes']
-          expect(attrs['html']).to include('<h1>Ibuprofen</h1>')
+          expect(attrs['html']).to include('<h1>Somatropin</h1>')
         end
 
         it 'responds with error when the API unable to find documentation for NDC' do
           VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/13650541/documentation?ndc=24'
+            get '/my_health/v1/prescriptions/13650541/documentation'
           end
           expect(response).to have_http_status(:service_unavailable)
           error = JSON.parse(response.body)['error']
@@ -333,7 +361,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         it 'responds with not_found when the feature is disabled' do
           Flipper.disable(:mhv_medications_display_documentation_content)
           VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/13650541/documentation?ndc=71205042524'
+            get '/my_health/v1/prescriptions/21296515/documentation'
           end
           expect(response).to have_http_status(:not_found)
           expect(JSON.parse(response.body)).to eq({ 'error' => 'Documentation is not available' })
