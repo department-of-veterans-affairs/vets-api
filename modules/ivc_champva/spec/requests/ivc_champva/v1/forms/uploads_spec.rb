@@ -127,6 +127,38 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  describe '#unlock_file' do
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:champva_pdf_decrypt, @current_user)
+        .and_return(true)
+    end
+
+    context 'with locked PDF and no provided password' do
+      let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
+
+      it 'rejects locked PDFs if no password is provided' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents', params: { form_id: '10-10D', file: locked_file }
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(
+          response.parsed_body['errors'].first['title']
+        ).to eq("File #{I18n.t('errors.messages.uploads.pdf.invalid')}")
+      end
+
+      it 'accepts locked PDFs with the correct password' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: locked_file, password: 'test' }
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'rejects locked PDFs with the incorrect password' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: locked_file, password: 'bad' }
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
   describe '#supporting_document_ids' do
     it 'returns the correct supporting document ids' do
       documents = [double('Document', id: 1), double('Document', id: 2)]

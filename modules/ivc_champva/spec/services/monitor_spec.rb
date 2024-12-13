@@ -61,9 +61,10 @@ RSpec.describe IvcChampva::Monitor do
         }
 
         expect(monitor).to receive(:track_send_zsf_notification_to_pega).with(
-          payload[:form_uuid]
+          payload[:form_uuid],
+          'fake-template'
         )
-        monitor.track_send_zsf_notification_to_pega(payload[:form_uuid])
+        monitor.track_send_zsf_notification_to_pega(payload[:form_uuid], 'fake-template')
       end
     end
 
@@ -74,9 +75,10 @@ RSpec.describe IvcChampva::Monitor do
         }
 
         expect(monitor).to receive(:track_failed_send_zsf_notification_to_pega).with(
-          payload[:form_uuid]
+          payload[:form_uuid],
+          'fake-template'
         )
-        monitor.track_failed_send_zsf_notification_to_pega(payload[:form_uuid])
+        monitor.track_failed_send_zsf_notification_to_pega(payload[:form_uuid], 'fake-template')
       end
     end
   end

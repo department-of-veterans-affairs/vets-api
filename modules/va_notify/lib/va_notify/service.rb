@@ -110,11 +110,13 @@ module VaNotify
         return
       end
 
+      # when the class is used directly we can pass symbols as keys
+      # when it comes from a sidekiq job all the keys get converted to strings (because sidekiq serializes it's args)
       notification = VANotify::Notification.new(
         notification_id: response.id,
         source_location: find_caller_locations,
-        callback_klass: callback_options[:callback_klass],
-        callback_metadata: callback_options[:callback_metadata],
+        callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
+        callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
         template_id: template_id
       )
 
