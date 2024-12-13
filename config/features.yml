@@ -615,16 +615,9 @@ features:
     actor_type: user
     description: Send only lat/long values (no bounding box or address) to the API when querying for facilities.
     enable_in_development: true
-  facility_locator_ppms_legacy_urgent_care_to_pos_locator:
-    actor_type: user
-    description: force the legacy urgent care path to use the new POS locator
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
-  facility_locator_pull_operating_status_from_lighthouse:
-    actor_type: user
-    description: A fast and dirty way to get the operating status from lighthouse
-    enable_in_development: true
   facility_locator_rails_engine:
     actor_type: user
     description: Use rails engine routes for all Facility Locator API calls
@@ -910,7 +903,7 @@ features:
     enable_in_development: true
   lighthouse_claims_api_v2_add_person_proxy:
     actor_type: user
-    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID 
+    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID
     enable_in_development: true
   lighthouse_claims_api_poa_dependent_claimants:
     actor_type: user
@@ -950,6 +943,10 @@ features:
   medical_copay_notifications:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
+    enable_in_development: true
+  mhv_account_creation_api_consumption:
+    actor_type: user
+    descriptiom: Enables access to alerts related to MHV Account Creation API
     enable_in_development: true
   mhv_account_creation_after_login:
     actor_type: user
@@ -1526,9 +1523,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  va_burial_v2:
-    actor_type: user
-    description: Allows us to toggle between 21-P530 and 21-P530V2
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
@@ -1798,10 +1792,6 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
-  burial_form_v2:
-    actor_type: user
-    description: Enable Burial form v2 re-design
-    enable_in_development: true
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
