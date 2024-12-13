@@ -89,5 +89,19 @@ module Lighthouse
         handle_error(response, lighthouse_document_request_ids)
       end
     end
+
+    def handle_error(response, lighthouse_document_request_ids)
+      # StatsD.increment("#{STATSD_KEY_PREFIX}.polling_error")
+
+      Rails.logger.warn(
+        'Lighthouse::EvidenceSubmissionDocumentUploadPollingJob status endpoint error',
+        {
+          response_status: response.status,
+          response_body: response.body,
+          lighthouse_document_request_ids:,
+          timestamp: Time.now.utc
+        }
+      )
+    end
   end
 end
