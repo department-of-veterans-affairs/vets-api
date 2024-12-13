@@ -57,22 +57,23 @@ RSpec.describe Vets::Collection do
     let(:record1) { dummy_class.new(name: 'Alice', age: 30) }
     let(:record2) { dummy_class.new(name: 'Bob', age: 25) }
     let(:record3) { dummy_class.new(name: 'Charlie', age: 35) }
+    let(:record4) { dummy_class.new(name: 'David', age: 25) }
 
-    let(:collection) { Vets::Collection.new([record1, record2, record3]) }
+    let(:collection) { Vets::Collection.new([record4, record1, record2, record3]) }
 
     it 'returns records sorted by the specified attribute in ascending order' do
       sorted = collection.order(name: :asc)
-      expect(sorted).to eq([record1, record2, record3])
+      expect(sorted).to eq([record1, record2, record3, record4])
     end
 
     it 'returns records sorted by the specified attribute in descending order' do
       sorted = collection.order(name: :desc)
-      expect(sorted).to eq([record3, record2, record1])
+      expect(sorted).to eq([record4, record3, record2, record1])
     end
 
     it 'handles sorting by multiple attributes' do
       sorted = collection.order(age: :asc, name: :desc)
-      expect(sorted).to eq([record2, record1, record3])
+      expect(sorted).to eq([record4, record2, record1, record3])
     end
 
     it 'raises an error if an attribute is not a symbol' do
@@ -90,9 +91,9 @@ RSpec.describe Vets::Collection do
         .to raise_error(ArgumentError, 'Direction invalid must be :asc or :desc')
     end
 
-    it 'returns records unsorted if no clauses are provided' do
-      sorted = collection.order
-      expect(sorted).to eq([record1, record2, record3])
+    it 'raises an error if no clauses are provided' do
+      expect { collection.order }
+        .to raise_error(ArgumentError, 'Order must have at least one sort clause')
     end
   end
 end

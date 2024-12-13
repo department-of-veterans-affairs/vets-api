@@ -11,28 +11,28 @@ require 'common/models/comparable/descending'
 module Vets
   class Collection
     def initialize(records)
-      @records = Array.wrap(records).sort
-      @model_class = @records.first.class
+      records = Array.wrap(records)
+      @model_class = records.first.class
 
-      unless @records.all? { |record| record.is_a?(@model_class) }
+      unless records.all? { |record| record.is_a?(@model_class) }
         raise ArgumentError, "All records must be instances of #{@model_class}"
       end
+
+      @records = records.sort
     end
 
-    def self.from_hashes(_klass, records)
+    def self.from_hashes(model_class, records)
       raise ArgumentError, 'Expected an array of hashes' unless records.all? { |r| r.is_a?(Hash) }
 
-      records = records.map { |record| model_class.new(record) }
+      records = records.map { |record| model_class.new(**record) }
       new(records)
     end
 
     def order(clauses = {})
-      return @records if clauses.empty?
-
       validate_sort_clauses(clauses)
 
       @records.sort_by do |record|
-        clauses.each do |attribute, direction|
+        clauses.map do |attribute, direction|
           value = record.public_send(attribute)
           direction == :asc ? Common::Ascending.new(value) : Common::Descending.new(value)
         end
@@ -42,6 +42,8 @@ module Vets
     private
 
     def validate_sort_clauses(clauses)
+      raise ArgumentError, "Order must have at least one sort clause" if clauses.empty?
+
       clauses.each do |attribute, direction|
         raise ArgumentError, "Attribute #{attribute} must be a symbol" unless attribute.is_a?(Symbol)
 
