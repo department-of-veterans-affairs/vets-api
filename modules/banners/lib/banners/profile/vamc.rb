@@ -23,8 +23,10 @@ module Banners
 
       def self.parsed_path(vamc_list)
         return unless vamc_list.is_a?(Array) && vamc_list.any?
-        specific_entity_path = vamc_list.dig(0, 'entity', 'fieldOffice', 'entity', 'entityUrl', 'path')
-        general_entity_path = vamc_list.dig(0, 'entity', 'entityUrl', 'path')
+
+        vamc_entity = vamc_list.dig(0, 'entity')
+        specific_entity_path = vamc_entity.dig('fieldOffice', 'entity', 'entityUrl', 'path')
+        general_entity_path = vamc_entity.dig('entityUrl', 'path')
 
         specific_entity_path || general_entity_path
       end

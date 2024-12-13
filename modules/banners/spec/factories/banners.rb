@@ -31,7 +31,8 @@ FactoryBot.define do
       ]
     }
     # rubocop:enable RSpec/MissingExampleGroupArgument
-    path { '/puget-sound-health-care'}
+
+    path { '/puget-sound-health-care' }
     operating_status_cta { false }
     email_updates_button { false }
     find_facilities_cta { false }

@@ -18,8 +18,8 @@ class Banner < ApplicationRecord
 
   scope :by_path, lambda { |path|
     subpage_path_reduced_to_root = path.match(%r{^/[^/]*}).to_s
-    subpage_match = where('banners.path = ? AND limit_subpage_inheritance = ?', subpage_path_reduced_to_root, false)
-    exact_match = where('banners.path = ?', path)
+    subpage_match = where(path: subpage_path_reduced_to_root).where(limit_subpage_inheritance: false)
+    exact_match = where(path: path)
 
     subpage_match.or(exact_match)
   }
