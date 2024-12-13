@@ -529,11 +529,6 @@ GEM
     google-protobuf (4.28.3)
       bigdecimal
       rake (>= 13)
-    google-protobuf (4.28.3-java)
-      bigdecimal
-      ffi (~> 1)
-      ffi-compiler (~> 1)
-      rake (>= 13)
     googleauth (1.11.2)
       faraday (>= 1.0, < 3.a)
       google-cloud-env (~> 2.1)
@@ -571,7 +566,6 @@ GEM
       geom2d (~> 0.4, >= 0.4.1)
       openssl (>= 2.2.1)
     holidays (8.8.0)
-    htmlentities (4.3.4)
     http (5.2.0)
       addressable (~> 2.8)
       base64 (~> 0.1)
@@ -1151,7 +1145,6 @@ DEPENDENCIES
   byebug
   carrierwave
   carrierwave-aws
-  caxlsx
   check_in!
   claims_api!
   clamav-client
