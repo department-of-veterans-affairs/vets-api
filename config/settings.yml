@@ -472,9 +472,9 @@ evss:
 
 # Settings for GI Bill Data Service
 gids:
-  url: https://dev.va.gov/gids
-  open_timeout: 1
-  read_timeout: 1
+  url: http://localhost:4000
+  open_timeout: 30
+  read_timeout: 30
   search:
     use_mocks: false
   lce:
@@ -1858,7 +1858,7 @@ vaos:
 
 accredited_representative_portal:
   pilot_users_email_poa_codes: ~
-  
+
 banners:
   drupal_username: banners_api
   drupal_password: test
