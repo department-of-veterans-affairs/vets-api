@@ -43,7 +43,7 @@ module VAOS
 
       def recent_facilities
         sorted_facilities = []
-        sorted_appointments = appointments_service.get_recent_sorted_clinic_appointments
+        sorted_appointments = appointments_service.get_recent_sorted_appointments
 
         if sorted_appointments.blank?
           render json: { message: 'No appointments found' }, status: :not_found

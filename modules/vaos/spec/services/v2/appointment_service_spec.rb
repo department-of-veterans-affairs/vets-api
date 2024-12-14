@@ -692,8 +692,8 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
-  describe '#get_recent_sorted_clinic_appointments' do
-    subject { instance_of_class.get_recent_sorted_clinic_appointments }
+  describe '#get_recent_sorted_appointments' do
+    subject { instance_of_class.get_recent_sorted_appointments }
 
     let(:instance_of_class) { described_class.new(user) }
     let(:mock_appointment_one) { double('Appointment', kind: 'clinic', start: '2022-12-02') }

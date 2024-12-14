@@ -240,7 +240,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
 
         context 'on successful query for recent sorted facilities' do
           it 'returns the recent sorted facilities' do
-            VCR.use_cassette('vaos/v2/systems/get_recent_clinics_200',
+            VCR.use_cassette('vaos/v2/systems/get_recent_facilities_200',
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
               Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
                 get '/vaos/v2/locations/recent_facilities', headers: inflection_header
@@ -256,7 +256,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
         context 'on unsuccessful query for appointment within look back limit' do
           it 'returns a 404 http status' do
             expect_any_instance_of(VAOS::V2::AppointmentsService)
-              .to receive(:get_recent_sorted_clinic_appointments)
+              .to receive(:get_recent_sorted_appointments)
               .and_return(nil)
             get '/vaos/v2/locations/recent_facilities', headers: inflection_header
             expect(response).to have_http_status(:not_found)
@@ -266,7 +266,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
         context 'on unsuccessful query for facility information' do
           it 'does not populate the sorted facility list' do
             allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility).and_return(nil)
-            VCR.use_cassette('vaos/v2/systems/get_recent_clinics_200',
+            VCR.use_cassette('vaos/v2/systems/get_recent_facilities_200',
                              match_requests_on: %i[method path query]) do
               Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
                 get '/vaos/v2/locations/recent_facilities', headers: inflection_header

@@ -168,7 +168,7 @@ module VAOS
         nil
       end
 
-      def get_recent_sorted_clinic_appointments
+      def get_recent_sorted_appointments
         end_time = Date.current.end_of_day.yesterday
         start_time = 1.year.ago
         statuses = 'booked,fulfilled,arrived'
