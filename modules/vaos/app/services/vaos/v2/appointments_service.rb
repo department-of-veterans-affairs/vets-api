@@ -486,7 +486,7 @@ module VAOS
       # @param appt [Hash] the appointment to check
       # @return [Boolean] true if the appointment cannot be cancelled
       def cannot_be_cancelled?(appointment)
-        cnp?(appointment) || covid?(appointment) ||
+        cnp?(appointment) || covid?(appointment) || appointment[:start]&.to_datetime&.past? ||
           (cc?(appointment) && booked?(appointment)) || telehealth?(appointment)
       end
 
