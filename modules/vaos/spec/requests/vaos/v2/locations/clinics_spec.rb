@@ -246,8 +246,8 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
                 get '/vaos/v2/locations/recent_facilities', headers: inflection_header
                 expect(response).to have_http_status(:ok)
                 facility_info = JSON.parse(response.body)['data']
-                expect(facility_info[0]['attributes']['id']).to eq('983')
-                expect(facility_info[0]['attributes']['name']).to eq('Cheyenne VA Medical Center')
+                expect(facility_info[0]['attributes']['id']).to eq('984GA')
+                expect(facility_info[0]['attributes']['name']).to eq('Middletown VA Clinic')
               end
             end
           end

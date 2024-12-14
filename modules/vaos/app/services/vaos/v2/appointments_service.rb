@@ -185,7 +185,7 @@ module VAOS
             Rails.logger.info("VAOS appointment sorting filtered out id #{rem_appt.id} due to missing start time.")
           end
         end
-        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }
+        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }.reverse
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
