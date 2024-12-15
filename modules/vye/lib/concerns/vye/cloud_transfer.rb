@@ -125,12 +125,17 @@ module Vye
     def delete_inactive_bdns
       bdn_clone_ids = Vye::BdnClone.where(is_active: nil, export_ready: nil).pluck(:id)
       bdn_clone_ids.each do |bdn_clone_id|
+        logger.info("Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: processing BdnClone(#{bdn_clone_id})")
+        logger.info('Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: deleting DirectDepositChanges')
         Vye::DirectDepositChange.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
+        logger.info('Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: deleting AddressChanges')
         Vye::AddressChange.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
+        logger.info('Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: deleting Awards')
         Vye::Award.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
 
         # We're not worried about validations here because it wouldn't be in the table if it wasn't valid
         # rubocop:disable Rails/SkipsModelValidations
+        logger.info('Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: nullifying verification references')
         Vye::Verification
           .joins(:user_info)
           .where(vye_user_infos: { bdn_clone_id: })
@@ -139,9 +144,11 @@ module Vye
         # rubocop:enable Rails/SkipsModelValidations
 
         # nuke user infos
+        logger.info('Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: deleting UserInfos')
         Vye::UserInfo.where(bdn_clone_id:).delete_all
 
         # nuke bdn_clone
+        logger.info('Vye::SundownSweep::ClearDeactivatedBdns#delete_inactive_bdns: deleting BdnClone')
         Vye::BdnClone.find(bdn_clone_id).destroy
       end
     end

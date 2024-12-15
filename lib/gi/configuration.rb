@@ -8,8 +8,8 @@ require 'common/client/middleware/response/snakecase'
 
 module GI
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.gids.read_timeout || 30
-    self.open_timeout = Settings.gids.open_timeout || 30
+    self.read_timeout = Settings.gids.read_timeout || 1
+    self.open_timeout = Settings.gids.open_timeout || 1
 
     def base_path
       "#{Settings.gids.url}/"

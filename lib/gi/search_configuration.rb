@@ -2,8 +2,8 @@
 
 module GI
   class SearchConfiguration < GI::Configuration
-    self.read_timeout = Settings.gids.search&.read_timeout || 30
-    self.open_timeout = Settings.gids.search&.open_timeout || 30
+    self.read_timeout = Settings.gids.search&.read_timeout || 4
+    self.open_timeout = Settings.gids.search&.open_timeout || 4
 
     # Mock response if querying for flight school programs
     # TO-DO: Remove after flight school program data becomes accessible

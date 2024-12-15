@@ -1,0 +1,32 @@
+ Need to insert some BdnClone rows to replicate a real run
+
+Here's a sample row
+ id: 104,
+ is_active: FILTERED,
+ export_ready: nil,
+ transact_date: FILTERED,
+ created_at: FILTERED,
+ updated_at: FILTERED
+
+What the sundown sweep is looking for is
+bdn_clone_ids = Vye::BdnClone.where(is_active: nil, export_ready: nil).pluck(:id)
+
+So the script should create
+Vye::BdnClone.create!(is_active: nil, export_ready: nil, transact_date: Date.today - 1.days)
+Vye::BdnClone.create!(is_active: true, export_ready: nil, transact_date: Date.today)
+
+Have to create one or more UserProfile rows because UserInfo depends on it.
+Vye.settings.scrypt.salt = '1'
+Vye::UserProfile.create!(ssn: '123456789', file_number: '', icn: '1013118011V183517')
+
+Have to create a couple of UserInfo rows because that's what ties direct deposit changes,
+address changes, awards and verifications to the BdnClone
+
+Vye::UserInfo.create!(
+  file_number: '1234556789',
+  dob: '1990-02-15',
+
+)
+
+Create a couple of direct deposit changes
+Vye::DirectDepositChange.create()
