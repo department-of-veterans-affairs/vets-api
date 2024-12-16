@@ -1401,6 +1401,8 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_12_101623) do
     t.jsonb "callback_metadata"
     t.text "callback_klass"
     t.uuid "template_id"
+    t.text "to_ciphertext"
+    t.text "encrypted_kms_key"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
