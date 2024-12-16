@@ -4,6 +4,7 @@ require 'pensions/notification_callback'
 require 'va_notify/notification_email/saved_claim'
 
 module Pensions
+  # @see ::VANotify::NotificationEmail::SavedClaim
   class NotificationEmail < ::VANotify::NotificationEmail::SavedClaim
     # @see VANotify::NotificationEmail::SavedClaim#new
     def initialize(saved_claim_id)
@@ -12,6 +13,7 @@ module Pensions
 
     private
 
+    # @see VANotify::NotificationEmail::SavedClaim#claim_class
     def claim_class
       Pensions::SavedClaim
     end

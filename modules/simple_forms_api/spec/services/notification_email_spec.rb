@@ -186,15 +186,14 @@ describe SimpleFormsApi::NotificationEmail do
                 'lighthouse_updated_at' => nil
               },
               'fake_secret',
-              { callback_klass: "SimpleFormsApi::NotificationCallback",
+              { callback_klass: 'SimpleFormsApi::NotificationCallback',
                 callback_metadata: {
                   form_number: 'vba_21_10210',
                   notification_type:,
                   statsd_tags: {
                     'function' => 'vba_21_10210 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
                   }
-                }
-              }
+                } }
             )
           end
         end

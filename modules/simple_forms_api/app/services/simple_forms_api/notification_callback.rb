@@ -5,8 +5,10 @@ require 'va_notify/notification_callback/saved_claim'
 require 'zero_silent_failures/monitor'
 
 module SimpleFormsApi
+  # @see ::VANotify::NotificationCallback::SavedClaim
   class NotificationCallback < ::VANotify::NotificationCallback::SavedClaim
     # instantiate a notification callback
+    # @see VANotify::NotificationCallback::Default#new
     def initialize(notification)
       super(notification)
 
@@ -16,14 +18,16 @@ module SimpleFormsApi
 
     # notification was delivered
     def on_delivered
-      if notification_type == 'error'
+      if email? && metadata.notification_type == 'error'
         monitor.log_silent_failure_avoided(zsf_additional_context, email_confirmed: true, call_location:)
       end
     end
 
     # notification has permanently failed
     def on_permanent_failure
-      monitor.log_silent_failure(zsf_additional_context, call_location:) if notification_type == 'error'
+      if email? && metadata.notification_type == 'error'
+        monitor.log_silent_failure(zsf_additional_context, call_location:)
+      end
     end
 
     # notification has temporarily failed
@@ -38,7 +42,7 @@ module SimpleFormsApi
 
     private
 
-    attr_reader :notification_type, :statsd_tags, :service, :function
+    attr_reader :statsd_tags, :service, :function
 
     # the monitor to be used
     # @see ZeroSilentFailures::Monitor
@@ -46,6 +50,7 @@ module SimpleFormsApi
       @monitor ||= ZeroSilentFailures::Monitor.new(service)
     end
 
+    # custom call location to be sent with monitoring
     def call_location
       Logging::CallLocation.customize(caller_locations.first, function:)
     end

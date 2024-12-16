@@ -4,6 +4,7 @@ require 'pensions/monitor'
 require 'va_notify/notification_callback/saved_claim'
 
 module Pensions
+  # @see ::VANotify::NotificationCallback::SavedClaim
   class NotificationCallback < ::VANotify::NotificationCallback::SavedClaim
     private
 

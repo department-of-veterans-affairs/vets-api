@@ -5,6 +5,10 @@ require 'zero_silent_failures/monitor'
 
 module VANotify
   module NotificationCallback
+    # @see ::VANotify::NotificationCallback::SavedClaim
+    #
+    # this parent class is designed to work with VANotify::NotificationEmail::SavedClaim
+    # and will automatically record `silent_failure**` based on the `email_type` in the metadata
     class SavedClaim < ::VANotify::NotificationCallback::Default
       # notification was delivered
       def on_delivered
@@ -37,12 +41,20 @@ module VANotify
       # expected metadata values
       attr_reader :form_id, :saved_claim_id, :email_template_id, :email_type, :service_name
 
+      # find the db record of the claim notification
       def claim_va_notification
         @cvn ||= ClaimVANotification.find_by(form_type: form_id, saved_claim_id:, email_template_id:)
       end
 
+      # update the db record, if one in present
       def update_database
         return unless claim_va_notification
+
+        notification_context = {
+          notification_id: notification.notification_id, # uuid
+          notification_type: notification.notification_type,
+          notification_status: notification.status
+        }
 
         claim_va_notification.update(**notification_context)
       end
@@ -53,23 +65,14 @@ module VANotify
         @monitor ||= ZeroSilentFailures::Monitor.new(service_name)
       end
 
-      def notification_context
-        {
-          notification_id: notification.id,
-          notification_uuid: notification.notification_id,
-          notification_type: notification.notification_type,
-          notification_status: notification.status
-        }
-      end
-
+      # additional information to be sent with ZSF tracking
       def zsf_additional_context
-        {
-          callback_class: notification.callback_klass,
-          **metadata,
-          **notification_context
-        }
+        { metadata: }.merge(context)
       end
 
+      # call location to be included with ZSF tracking
+      # @see ZeroSilentFailures::Monitor
+      # @see Logging::CallLocation
       def call_location
         nil
       end
