@@ -49,10 +49,16 @@ module Forms
             status: nil,
             created_at: submission.created_at,
             updated_at: nil,
-            pdf_support: PdfUrls.new(form_id: submission.form_type,
-                                     submission_guid: submission.benefits_intake_uuid).supported?
+            pdf_support: pdf_supported?(submission)
           )
         end
+      end
+
+      def pdf_supported?(submission)
+        PdfUrls.new(
+          form_id: submission.form_type,
+          submission_guid: submission.benefits_intake_uuid
+        ).supported?
       end
     end
   end
