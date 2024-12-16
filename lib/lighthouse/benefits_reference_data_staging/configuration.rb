@@ -35,7 +35,7 @@ module BenefitsReferenceData
       #
       def self.base_request_headers
         key = Settings.lighthouse.staging_api_key
-        message = "No api_key set for Lighthouse benefits_reference_data_staging. Please set 'lighthouse.staging_api_key'"
+        message = "No api_key set for LH benefits_reference_data_staging. Please set 'lighthouse.staging_api_key'"
         raise message if key.nil?
 
         super.merge('apiKey' => key)
