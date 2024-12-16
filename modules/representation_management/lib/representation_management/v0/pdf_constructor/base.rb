@@ -11,6 +11,18 @@ module RepresentationManagement
           @template_path = nil
         end
 
+        #
+        # This method is the entry point for constructing a pdf.  It will
+        # set the template path defined by the subclass, fill in the pdf
+        # template, create the next steps page if needed, and combine the
+        # pages into a final pdf.
+        #
+        # The flatten option determines if the pdf is editable or not. It is only true for testing.
+        # We enable it in testing to compare the field values of the pdf, specifically the checkbox values.
+        #
+        # @param data [Hash] Data to fill in pdf form with
+        # @param flatten [Boolean] True if the pdf should be flattened. Default is true. False is only used for testing.
+        #
         def construct(data, flatten: true)
           set_template_path
           fill_and_combine_pdf(data, flatten: flatten)
@@ -131,7 +143,11 @@ module RepresentationManagement
         # and the output from this method is written to a tempfile in
         # the controller.  Start with a Next Steps page if needed.
         #
+        # The flatten option determines if the pdf is editable or not. It is only true for testing.
+        # We enable it in testing to compare the field values of the pdf, specifically the checkbox values.
+        #
         # @param data [Hash] Data to fill in pdf form with
+        # @param flatten [Boolean] True if the pdf should be flattened. Default is true. False is only used for testing.
         #
         def fill_and_combine_pdf(data, flatten: true)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
@@ -170,10 +186,20 @@ module RepresentationManagement
           Rails.root.join('modules', 'representation_management', 'lib', 'fonts', filename)
         end
 
+        #
+        # Fill in the PDF template with the data provided.  We create a tempfile during this process to ensure no
+        # data remains on the server after the pdf is created.
+        #
+        # The flatten option determines if the pdf is editable or not. It is only true for testing.
+        # We enable it in testing to compare the field values of the pdf, specifically the checkbox values.
+        #
+        # @param pdftk [PdfForms] The pdftk object to fill in the pdf form
+        # @param data [Hash] Data to fill in pdf form with
+        # @param flatten [Boolean] True if the pdf should be flattened. Default is true. False is only used for testing.
+        #
         def fill_template_form(pdftk, data, flatten: true)
           tempfile = Tempfile.new
-          # The flatten option on the next line determines if the pdf is editable or not.
-          # If flatten is false, the pdf is editable. If flatten is true, the pdf is not editable.
+          # This is the point where the flatten option is actually used, not just passed down the method chain.
           pdftk.fill_form(@template_path, tempfile.path, template_options(data), flatten: flatten)
           @template_path = tempfile.path
           tempfile.rewind

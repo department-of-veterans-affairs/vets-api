@@ -132,7 +132,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
     # The Tempfile is automatically deleted after the block ends
   end
 
-  it 'matches the field values of a pdf with conditions present and no claimant when unflattened' do
+  it 'matches the field values of a pdf with no claimant with conditions present when unflattened' do
     data.delete_if { |key, _| key.to_s.include?('claimant') }
     form = RepresentationManagement::Form2122aData.new(data)
     Tempfile.create do |tempfile|
