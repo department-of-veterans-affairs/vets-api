@@ -101,5 +101,5 @@ jobs:
           add: "*"
           cwd: vsp-infra-application-manifests/apps
           author_name: va-vsp-bot
-          author_email: devops@va.gov
+          author_email: 70344339+va-vsp-bot@users.noreply.github.com
           message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}} : ${{ inputs.commit_sha }}."
