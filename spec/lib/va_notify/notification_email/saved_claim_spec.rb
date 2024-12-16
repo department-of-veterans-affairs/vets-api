@@ -48,7 +48,11 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           fake_email,
           confirmation_email_template_id,
-          { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number }
+          { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number },
+          vanotify_services_settings.form23_42fake.api_key,
+          { callback_klass: VANotify::NotificationCallback::SavedClaim.to_s,
+            callback_metadata: anything
+          }
         )
         expect(fake_claim).to receive(:insert_notification).with(confirmation_email_template_id)
 
@@ -68,7 +72,11 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
           at,
           fake_email,
           confirmation_email_template_id,
-          { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number }
+          { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number },
+          vanotify_services_settings.form23_42fake.api_key,
+          { callback_klass: VANotify::NotificationCallback::SavedClaim.to_s,
+            callback_metadata: anything
+          }
         )
         expect(fake_claim).to receive(:insert_notification).with(confirmation_email_template_id)
 

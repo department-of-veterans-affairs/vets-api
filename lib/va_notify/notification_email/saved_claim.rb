@@ -83,7 +83,7 @@ module VANotify
       def valid_attempt?
         raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless service_config
 
-        email_config = config.email[email_type]
+        email_config = service_config.email[email_type]
         raise ArgumentError, "Invalid email_type '#{email_type}'" unless email_config
 
         @email_template_id = email_config.template_id
