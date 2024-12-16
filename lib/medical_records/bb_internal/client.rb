@@ -322,13 +322,6 @@ module BBInternal
     end
 
     ##
-    # Overriding MHVSessionBasedClient's method to ensure the thread blocks if patient ID is not yet set.
-    #
-    def invalid?(session)
-      super(session) || session.patient_id.blank?
-    end
-
-    ##
     # Overriding MHVSessionBasedClient's method so we can get the patientId and store it as well.
     #
     def get_session

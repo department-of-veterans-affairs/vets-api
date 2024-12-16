@@ -142,7 +142,7 @@ class InProgressForm < ApplicationRecord
 
   def default_expires_after
     case form_id
-    when '21-526EZ', '21P-527EZ', '21P-530EZ'
+    when '21-526EZ', '21P-527EZ', '21P-530V2'
       1.year
     else
       60.days

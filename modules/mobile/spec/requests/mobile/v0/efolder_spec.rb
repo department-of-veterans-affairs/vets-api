@@ -2,11 +2,9 @@
 
 require_relative '../../../support/helpers/rails_helper'
 require 'support/stub_efolder_documents'
-require_relative '../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::Efolder', type: :request do
   include JsonSchemaMatchers
-  include CommitteeHelper
 
   describe 'GET /v0/efolder/documents' do
     let!(:user) { sis_user }
@@ -28,7 +26,7 @@ RSpec.describe 'Mobile::V0::Efolder', type: :request do
 
       it 'and a result that matches our schema is successfully returned with the 200 status' do
         get '/mobile/v0/efolder/documents', headers: sis_headers
-        assert_schema_conform(200)
+        expect(response).to have_http_status(:ok)
         expect(response.parsed_body).to eq(efolder_response)
       end
     end
@@ -43,7 +41,7 @@ RSpec.describe 'Mobile::V0::Efolder', type: :request do
       it 'returns expected error' do
         get '/mobile/v0/efolder/documents', headers: sis_headers
 
-        assert_schema_conform(400)
+        expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body).to eq({ 'errors' => [{ 'title' => 'Operation failed',
                                                             'detail' => 'Operation failed',
                                                             'code' => 'VA900', 'status' => '400' }] })

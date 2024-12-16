@@ -8,7 +8,7 @@ require 'string_helpers'
 # rubocop:disable Metrics/ClassLength
 module PdfFill
   module Forms
-    class Va21p530ez < FormBase
+    class Va21p530v2 < FormBase
       include FormHelper
 
       ITERATOR = PdfFill::HashConverter::ITERATOR

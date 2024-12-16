@@ -49,5 +49,6 @@
  "claimantFullName":{"first":"test", "middle":"middle", "last":"spouse", "suffix":"Jr."},
  "claimantSocialSecurityNumber":"987654321",
  "claimantDateOfBirth":"1960-01-01",
+ "formV2":true,
  "relationshipToVeteran":"spouse",
  "privacyAgreementAccepted":true}

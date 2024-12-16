@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require './modules/decision_reviews/spec/dr_spec_helper'
-require './modules/decision_reviews/spec/support/vcr_helper'
+require 'rails_helper'
 require 'decision_reviews/v1/service'
 
 describe DecisionReviews::V1::Service do

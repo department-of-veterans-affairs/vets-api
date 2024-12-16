@@ -21,8 +21,10 @@ module Form1010cg
       StatsD.increment("#{STATSD_KEY_PREFIX}failed_no_retries_left", tags: ["claim_id:#{msg['args'][0]}"])
       StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
 
-      claim = SavedClaim::CaregiversAssistanceClaim.find(msg['args'][0])
-      send_failure_email(claim)
+      if Flipper.enabled?(:caregiver_use_va_notify_on_submission_failure)
+        claim = SavedClaim::CaregiversAssistanceClaim.find(msg['args'][0])
+        send_failure_email(claim.parsed_form) if claim.parsed_form.dig('veteran', 'email')
+      end
     end
 
     def retry_limits_for_notification
@@ -49,9 +51,6 @@ module Form1010cg
       end
     rescue CARMA::Client::MuleSoftClient::RecordParseError
       StatsD.increment("#{STATSD_KEY_PREFIX}record_parse_error", tags: ["claim_id:#{claim_id}"])
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
-
-      self.class.send_failure_email(claim)
     rescue => e
       log_exception_to_sentry(e)
       StatsD.increment("#{STATSD_KEY_PREFIX}retries")
@@ -59,11 +58,7 @@ module Form1010cg
       raise
     end
 
-    def self.send_failure_email(claim)
-      return unless Flipper.enabled?(:caregiver_use_va_notify_on_submission_failure)
-      return unless claim.parsed_form.dig('veteran', 'email')
-
-      parsed_form = claim.parsed_form
+    def self.send_failure_email(parsed_form)
       first_name = parsed_form.dig('veteran', 'fullName', 'first')
       email = parsed_form.dig('veteran', 'email')
       template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_cg_failure_email

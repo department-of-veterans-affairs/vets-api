@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 require_relative '../../../support/helpers/rails_helper'
-require_relative '../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
   include JsonSchemaMatchers
-  include CommitteeHelper
 
   let!(:user) { sis_user(icn: '9000682') }
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
@@ -15,8 +13,18 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
       VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
         params = { serviceType: 'podiatry' }
         get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
-        assert_schema_conform(200)
+
+        expect(response).to have_http_status(:success)
         expect(response.parsed_body['data'].count).to eq(10)
+      end
+    end
+
+    it 'matches schema' do
+      VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
+        params = { serviceType: 'podiatry' }
+        get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
+
+        expect(response.body).to match_json_schema('community_care_providers')
       end
     end
 
@@ -44,7 +52,7 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
     context 'when invalid serviceType is provided' do
       it 'returns 400 with an error message' do
         get '/mobile/v0/community-care-providers', headers: sis_headers, params: { serviceType: 'toe surgery' }
-        assert_schema_conform(400)
+        expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body.dig('errors', 0, 'detail')).to eq(
           '"toe surgery" is not a valid value for "serviceType"'
         )
@@ -56,7 +64,7 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
         VCR.use_cassette('mobile/facilities/ppms/community_clinics_empty_search', match_requests_on: %i[method uri]) do
           params = { serviceType: 'podiatry' }
           get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
-          assert_schema_conform(200)
+          expect(response).to have_http_status(:success)
           expect(response.parsed_body['data']).to eq([])
         end
       end
@@ -67,7 +75,7 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
         VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do
           params = { serviceType: 'podiatry' }
           get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
-          assert_schema_conform(200)
+          expect(response).to have_http_status(:success)
           expect(response.parsed_body['data'].count).to eq(10)
         end
       end
@@ -81,7 +89,7 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
 
             params = { serviceType: 'podiatry' }
             get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
-            assert_schema_conform(422)
+            expect(response).to have_http_status(:unprocessable_entity)
             expect(response.parsed_body.dig('errors', 0, 'detail')).to eq('User has no home latitude and longitude')
           end
         end
@@ -95,7 +103,7 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
                            match_requests_on: %i[method uri]) do
             params = { facilityId: '442', serviceType: 'podiatry' }
             get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
-            assert_schema_conform(200)
+            expect(response).to have_http_status(:success)
           end
         end
       end
@@ -108,7 +116,7 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
               params = { facilityId: '442', serviceType: 'podiatry' }
               get('/mobile/v0/community-care-providers', headers: sis_headers, params:)
 
-              assert_schema_conform(404)
+              expect(response).to have_http_status(:not_found)
               expect(response.parsed_body.dig('errors', 0, 'detail')).to eq(
                 'The record identified by 442 could not be found'
               )

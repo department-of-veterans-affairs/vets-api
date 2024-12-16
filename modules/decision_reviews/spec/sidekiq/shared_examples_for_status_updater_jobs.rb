@@ -1,10 +1,9 @@
 # frozen_string_literal: true
 
-require './modules/decision_reviews/spec/dr_spec_helper'
-require './modules/decision_reviews/spec/support/sidekiq_helper'
+require 'rails_helper'
 require 'decision_reviews/v1/service'
 
-ENGINE_SUBCLASS_INFO = {
+SUBCLASS_INFO = {
   SavedClaim::SupplementalClaim => { service_method: 'get_supplemental_claim',
                                      evidence_service_method: 'get_supplemental_claim_upload',
                                      statsd_prefix: 'worker.decision_review.saved_claim_sc_status_updater',
@@ -22,7 +21,7 @@ ENGINE_SUBCLASS_INFO = {
                                         service_tag: 'service:board-appeal' }
 }.freeze
 
-RSpec.shared_context 'engine status updater job context' do |subclass|
+RSpec.shared_context 'status updater job context' do |subclass|
   subject { described_class }
 
   let(:service) { instance_double(DecisionReviews::V1::Service) }
@@ -30,15 +29,15 @@ RSpec.shared_context 'engine status updater job context' do |subclass|
   let(:guid1) { SecureRandom.uuid }
   let(:guid2) { SecureRandom.uuid }
   let(:guid3) { SecureRandom.uuid }
-  let(:other_subclass1) { ENGINE_SUBCLASS_INFO.keys.excluding(subclass)[0] }
-  let(:other_subclass2) { ENGINE_SUBCLASS_INFO.keys.excluding(subclass)[1] }
-  let(:service_method) { ENGINE_SUBCLASS_INFO[subclass][:service_method].to_sym }
-  let(:other_service_method1) { ENGINE_SUBCLASS_INFO[other_subclass1][:service_method].to_sym }
-  let(:other_service_method2) { ENGINE_SUBCLASS_INFO[other_subclass2][:service_method].to_sym }
+  let(:other_subclass1) { SUBCLASS_INFO.keys.excluding(subclass)[0] }
+  let(:other_subclass2) { SUBCLASS_INFO.keys.excluding(subclass)[1] }
+  let(:service_method) { SUBCLASS_INFO[subclass][:service_method].to_sym }
+  let(:other_service_method1) { SUBCLASS_INFO[other_subclass1][:service_method].to_sym }
+  let(:other_service_method2) { SUBCLASS_INFO[other_subclass2][:service_method].to_sym }
 
-  let(:statsd_prefix) { ENGINE_SUBCLASS_INFO[subclass][:statsd_prefix] }
-  let(:log_prefix) { ENGINE_SUBCLASS_INFO[subclass][:log_prefix] }
-  let(:service_tag) { ENGINE_SUBCLASS_INFO[subclass][:service_tag] }
+  let(:statsd_prefix) { SUBCLASS_INFO[subclass][:statsd_prefix] }
+  let(:log_prefix) { SUBCLASS_INFO[subclass][:log_prefix] }
+  let(:service_tag) { SUBCLASS_INFO[subclass][:service_tag] }
 
   let(:response_complete) do
     response = JSON.parse(VetsJsonSchema::EXAMPLES.fetch('HLR-SHOW-RESPONSE-200_V2').to_json) # deep copy
@@ -63,7 +62,7 @@ RSpec.shared_context 'engine status updater job context' do |subclass|
   end
 end
 
-RSpec.shared_examples 'engine status updater job with base forms' do |subclass|
+RSpec.shared_examples 'status updater job with base forms' do |subclass|
   context 'SavedClaim records are present' do
     before do
       subclass.create(guid: guid1, form: '{}')
@@ -207,7 +206,7 @@ RSpec.shared_examples 'engine status updater job with base forms' do |subclass|
   end
 end
 
-RSpec.shared_examples 'engine status updater job when forms include evidence' do |subclass|
+RSpec.shared_examples 'status updater job when forms include evidence' do |subclass|
   let(:upload_response_vbms) do
     response = JSON.parse(File.read('spec/fixtures/supplemental_claims/SC_upload_show_response_200.json'))
     instance_double(Faraday::Response, body: response)
@@ -227,7 +226,7 @@ RSpec.shared_examples 'engine status updater job when forms include evidence' do
     instance_double(Faraday::Response, body: response)
   end
 
-  let(:evidence_service_method) { ENGINE_SUBCLASS_INFO[subclass][:evidence_service_method].to_sym }
+  let(:evidence_service_method) { SUBCLASS_INFO[subclass][:evidence_service_method].to_sym }
 
   context 'SavedClaim records are present with completed status in LH and have associated evidence uploads' do
     let(:guid4) { SecureRandom.uuid }

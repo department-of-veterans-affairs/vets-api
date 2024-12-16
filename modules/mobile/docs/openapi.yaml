@@ -1470,7 +1470,7 @@ paths:
             schema:
               $ref: ./schemas/CreateDependents.yml
       responses:
-        '202':
+        '200':
           content:
             application/json:
               schema:
@@ -1697,8 +1697,6 @@ paths:
               schema:
                 $ref: ./schemas/Efolder.yml
           description: OK
-        '400':
-          $ref: '#/components/responses/401'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -1720,7 +1718,7 @@ paths:
       security:
         - Bearer: []
       summary: /v0/efolder/documents
-  /v0/efolder/documents/{document_id}/download:
+  /v0/efolder/documents/{documentId}/download:
     post:
       description: returns requested document
       parameters:

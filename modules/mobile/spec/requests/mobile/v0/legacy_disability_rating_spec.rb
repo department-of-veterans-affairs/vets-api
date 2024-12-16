@@ -56,6 +56,7 @@ RSpec.describe 'Mobile::V0::DisabilityRating', type: :request do
             get '/mobile/v0/disability-rating', params: nil, headers: sis_headers
             expect(response).to have_http_status(:ok)
             expect(JSON.parse(response.body)).to eq(expected_response)
+            expect(response.body).to match_json_schema('disability_rating_response')
           end
         end
       end
@@ -88,6 +89,10 @@ RSpec.describe 'Mobile::V0::DisabilityRating', type: :request do
                                                'ratingPercentage' => nil,
                                                'diagnosticText' => nil
                                              })
+      end
+
+      it 'matches the rated disabilities schema' do
+        expect(response.body).to match_json_schema('disability_rating_response')
       end
     end
 

@@ -199,8 +199,8 @@ describe VAProfile::V3::AddressValidation::Service do
                   },
                   'country' => {
                     'country_name' => 'United States',
-                    'country_code_iso2' => 'US',
                     'country_code_fips' => 'US',
+                    'country_code_iso2' => 'US',
                     'country_code_iso3' => 'USA'
                   },
                   'address_pou' => 'RESIDENCE',

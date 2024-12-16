@@ -3,7 +3,7 @@
 require 'ddtrace'
 require 'timeout'
 require 'lighthouse/benefits_documents/worker_service'
-require 'lighthouse/failure_notification'
+require 'lighthouse/benefits_documents/constants'
 
 class Lighthouse::DocumentUpload
   include Sidekiq::Job
@@ -40,9 +40,13 @@ class Lighthouse::DocumentUpload
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
     date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
-    Lighthouse::FailureNotification.perform_async(icn, first_name, filename, date_submitted, date_failed)
+    notify_client.send_email(
+      recipient_identifier: { id_value: icn, id_type: 'ICN' },
+      template_id: MAILER_TEMPLATE_ID,
+      personalisation: { first_name:, filename:, date_submitted:, date_failed: }
+    )
 
-    ::Rails.logger.info('Lighthouse::DocumentUpload exhaustion handler email queued')
+    ::Rails.logger.info('Lighthouse::DocumentUpload exhaustion handler email sent')
     StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   rescue => e
     ::Rails.logger.error('Lighthouse::DocumentUpload exhaustion handler email error',
@@ -78,22 +82,13 @@ class Lighthouse::DocumentUpload
     VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
   end
 
-  def perform(user_icn, document_hash)
-    client = BenefitsDocuments::WorkerService.new
-    document, file_body, uploader = nil
+  def perform(user_icn, document_hash, user_account_uuid, claim_id, tracked_item_id)
+    @user_icn = user_icn
+    @document_hash = document_hash
 
-    Datadog::Tracing.trace('Config/Initialize Upload Document') do
-      Sentry.set_tags(source: 'documents-upload')
-      document = LighthouseDocument.new document_hash
+    evidence_submission = record_evidence_submission(claim_id, jid, tracked_item_id, user_account_uuid)
+    initialize_upload_document
 
-      raise Common::Exceptions::ValidationErrors, document_data unless document.valid?
-
-      uploader = LighthouseDocumentUploader.new(user_icn, document.uploader_ids)
-      uploader.retrieve_from_store!(document.file_name)
-    end
-    Datadog::Tracing.trace('Sidekiq read_for_upload') do
-      file_body = uploader.read_for_upload
-    end
     Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
       span.set_tag('Document File Size', file_body.size)
       response = client.upload_document(file_body, document) # returns upload response which includes requestId

@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require './modules/decision_reviews/spec/dr_spec_helper'
-require './modules/decision_reviews/spec/support/sidekiq_helper'
-require './modules/decision_reviews/spec/support/vcr_helper'
+require 'rails_helper'
 
 RSpec.describe DecisionReviews::SubmitUpload, type: :job do
   subject { described_class }

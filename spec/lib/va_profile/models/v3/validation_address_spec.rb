@@ -45,6 +45,7 @@ describe VAProfile::Models::V3::ValidationAddress do
           'country' => {
             'country_name' => 'United States',
             'country_code_fips' => 'US',
+            'country_code_iso2' => 'US',
             'country_code_iso3' => 'USA'
           },
           'geocode' => {
@@ -89,6 +90,7 @@ describe VAProfile::Models::V3::ValidationAddress do
           'country' => {
             'country_name' => 'Canada',
             'country_code_fips' => 'CA',
+            'country_code_iso2' => 'CA',
             'country_code_iso3' => 'CAN'
           },
           'geocode' => {

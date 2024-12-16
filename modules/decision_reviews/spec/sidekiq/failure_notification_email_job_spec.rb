@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require './modules/decision_reviews/spec/dr_spec_helper'
-require './modules/decision_reviews/spec/support/sidekiq_helper'
+require 'rails_helper'
 require 'decision_review_v1/service'
 
 RSpec.describe DecisionReviews::FailureNotificationEmailJob, type: :job do

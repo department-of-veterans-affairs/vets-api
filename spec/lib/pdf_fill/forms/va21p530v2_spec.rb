@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pdf_fill/forms/va21p530ez'
+require 'pdf_fill/forms/va21p530v2'
 
 def basic_class
-  PdfFill::Forms::Va21p530ez.new({})
+  PdfFill::Forms::Va21p530v2.new({})
 end
 
-describe PdfFill::Forms::Va21p530ez do
+describe PdfFill::Forms::Va21p530v2 do
   let(:form_data) do
     {}
   end
@@ -138,16 +138,16 @@ describe PdfFill::Forms::Va21p530ez do
 
   describe '#merge_fields' do
     it 'merges the right fields', run_at: '2024-03-21 00:00:00 EDT' do
-      expect(described_class.new(get_fixture('pdf_fill/21P-530EZ/kitchen_sink')).merge_fields.to_json).to eq(
-        get_fixture('pdf_fill/21P-530EZ/merge_fields').to_json
+      expect(described_class.new(get_fixture('pdf_fill/21P-530V2/kitchen_sink')).merge_fields.to_json).to eq(
+        get_fixture('pdf_fill/21P-530V2/merge_fields').to_json
       )
     end
 
     it 'leaves benefit selections blank on pdf if unselected', run_at: '2024-03-21 00:00:00 EDT' do
-      unselected_benefits_data = get_fixture('pdf_fill/21P-530EZ/kitchen_sink').except(
+      unselected_benefits_data = get_fixture('pdf_fill/21P-530V2/kitchen_sink').except(
         'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportation'
       )
-      expected_merge_data = get_fixture('pdf_fill/21P-530EZ/merge_fields').except(
+      expected_merge_data = get_fixture('pdf_fill/21P-530V2/merge_fields').except(
         'burialExpenseResponsibility', 'plotExpenseResponsibility', 'transportation'
       )
       expected_merge_data['hasTransportation'] = nil

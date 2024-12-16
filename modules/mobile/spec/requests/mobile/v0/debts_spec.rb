@@ -1,13 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../../support/helpers/rails_helper'
-require_relative '../../../support/helpers/committee_helper'
 
 require 'debt_management_center/models/debt_store'
 
 RSpec.describe 'Mobile::V0::Debts', type: :request do
   include JsonSchemaMatchers
-  include CommitteeHelper
 
   let!(:user) { sis_user }
   let(:debt1) do
@@ -147,7 +145,7 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
         VCR.use_cassette('bgs/people_service/person_data') do
           VCR.use_cassette('debts/get_letters') do
             get '/mobile/v0/debts', headers: sis_headers
-            assert_schema_conform(200)
+            expect(response).to have_http_status(:ok)
             expect(response.body).to match_json_schema('debts', strict: true)
             debt_data = response.parsed_body['data'].map { |d| d.except('id') }
             expect(debt_data).to include(debt1)
@@ -167,7 +165,7 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
             get '/mobile/v0/debts', headers: sis_headers
 
             error_response = response.parsed_body.dig('errors', 0)
-            assert_schema_conform(400)
+            expect(response).to have_http_status(:bad_request)
             expect(error_response).to eq({ 'title' => 'Bad Request',
                                            'detail' => 'Received a bad request response from the upstream server',
                                            'code' => 'DMC400', 'source' => 'DebtManagementCenter::DebtsService',
@@ -182,7 +180,6 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
         VCR.use_cassette('bgs/people_service/person_data') do
           VCR.use_cassette('debts/get_letters_empty_response') do
             get '/mobile/v0/debts', headers: sis_headers
-            assert_schema_conform(200)
             expect(response.parsed_body).to eq({ 'data' => [], 'meta' => { 'hasDependentDebts' => false } })
           end
         end
@@ -240,7 +237,7 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
             load_debt_store
             get "/mobile/v0/debts/#{debt_id}", headers: sis_headers
 
-            assert_schema_conform(200)
+            expect(response).to have_http_status(:ok)
             expect(response.body).to match_json_schema('debt', strict: true)
             debt_data = response.parsed_body['data'].except('id')
             expect(debt_data).to include(debt)
@@ -257,7 +254,7 @@ RSpec.describe 'Mobile::V0::Debts', type: :request do
             get "/mobile/v0/debts/#{debt_id}", headers: sis_headers
 
             error_response = response.parsed_body.dig('errors', 0)
-            assert_schema_conform(400)
+            expect(response).to have_http_status(:bad_request)
             expect(error_response).to eq({ 'title' => 'Bad Request',
                                            'detail' => 'Received a bad request response from the upstream server',
                                            'code' => 'DMC400', 'source' => 'DebtManagementCenter::DebtsService',
