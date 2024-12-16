@@ -1,11 +1,12 @@
 # frozen_string_literal: true
 
-require './modules/decision_reviews/spec/support/engine_shared_examples_for_status_updater_jobs'
+require 'rails_helper'
+require './modules/decision_reviews/spec/sidekiq/shared_examples_for_status_updater_jobs'
 
 RSpec.describe DecisionReviews::HlrStatusUpdaterJob, type: :job do
   subject { described_class }
 
-  include_context 'engine status updater job context', SavedClaim::HigherLevelReview
+  include_context 'status updater job context', SavedClaim::HigherLevelReview
 
   describe 'perform' do
     context 'with flag enabled', :aggregate_failures do
@@ -13,7 +14,7 @@ RSpec.describe DecisionReviews::HlrStatusUpdaterJob, type: :job do
         Flipper.enable :decision_review_saved_claim_hlr_status_updater_job_enabled
       end
 
-      include_examples 'engine status updater job with base forms', SavedClaim::HigherLevelReview
+      include_examples 'status updater job with base forms', SavedClaim::HigherLevelReview
     end
 
     context 'with flag disabled' do

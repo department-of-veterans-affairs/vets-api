@@ -27,33 +27,26 @@ module ClaimsApi
       end
 
       def call
-        # https://github.com/DataDog/dd-trace-rb/blob/master/docs/UpgradeGuide.md#distributed-tracing
-        trace_digest = Datadog::Tracing.active_trace&.to_digest
-
         @vnp_proc_id = create_vnp_proc[:vnp_proc_id]
 
         # Parallelize create_vnp_form and create_vnp_ptcpnt
         form_promise = Concurrent::Promise.execute do
-          Datadog::Tracing.continue_trace!(trace_digest) do
-            create_vnp_form
-          end
+          create_vnp_form
         end
 
         ptcpnt_promise = Concurrent::Promise.execute do
-          Datadog::Tracing.continue_trace!(trace_digest) do
-            create_vnp_ptcpnt(@veteran_participant_id)
-          end
+          create_vnp_ptcpnt(@veteran_participant_id)
         end
 
         # Wait for both promises and store the participant ID
         form_promise.value!
         @veteran_vnp_ptcpnt_id = ptcpnt_promise.value![:vnp_ptcpnt_id]
 
-        create_vonapp_data(@form_data[:veteran], @veteran_vnp_ptcpnt_id, trace_digest)
+        create_vonapp_data(@form_data[:veteran], @veteran_vnp_ptcpnt_id)
 
         if @has_claimant
           @claimant_vnp_ptcpnt_id = create_vnp_ptcpnt(@claimant_participant_id)[:vnp_ptcpnt_id]
-          create_vonapp_data(@form_data[:claimant], @claimant_vnp_ptcpnt_id, trace_digest)
+          create_vonapp_data(@form_data[:claimant], @claimant_vnp_ptcpnt_id)
         end
 
         create_veteran_representative
@@ -61,34 +54,26 @@ module ClaimsApi
 
       private
 
-      def create_vonapp_data(person, vnp_ptcpnt_id, trace_digest) # rubocop:disable Metrics/MethodLength
+      def create_vonapp_data(person, vnp_ptcpnt_id)
         promises = []
 
         promises << Concurrent::Promise.execute do
-          Datadog::Tracing.continue_trace!(trace_digest) do
-            create_vnp_person(person, vnp_ptcpnt_id)
-          end
+          create_vnp_person(person, vnp_ptcpnt_id)
         end
 
         promises << Concurrent::Promise.execute do
-          Datadog::Tracing.continue_trace!(trace_digest) do
-            create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
-          end
+          create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
         end
 
         if person[:email]
           promises << Concurrent::Promise.execute do
-            Datadog::Tracing.continue_trace!(trace_digest) do
-              create_vnp_email_address(person[:email], vnp_ptcpnt_id)
-            end
+            create_vnp_email_address(person[:email], vnp_ptcpnt_id)
           end
         end
 
         if person[:phone]
           promises << Concurrent::Promise.execute do
-            Datadog::Tracing.continue_trace!(trace_digest) do
-              create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
-            end
+            create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
           end
         end
 

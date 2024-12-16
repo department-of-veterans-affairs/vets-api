@@ -17,7 +17,8 @@ module Lighthouse
     # Only pension form configured to create async ITFs for now
     ITF_FORMS = {
       # '21-526EZ' => 'compensation',
-      # '21P-530EZ' => 'survivor',
+      # '21P-530' => 'survivor',
+      # '21P-530V2' => 'survivor',
       '21P-527EZ' => 'pension'
     }.freeze
 

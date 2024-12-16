@@ -228,6 +228,7 @@ FactoryBot.define do
       form_data do
         {
           "email": 'email@email.com',
+          "view:email_confirmation": 'email@email.com',
           "veteran_address": { "street": 'hgjghj', "city": 'hjkhjk', "postal_code": '44444', "country": 'USA',
                                "state": 'AL' },
           "view:does_mailing_match_home_address": true,

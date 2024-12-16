@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
 require_relative '../../../support/helpers/rails_helper'
-require_relative '../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::Dependents', type: :request do
-  include CommitteeHelper
-
   let!(:user) { sis_user(ssn: '796043735') }
 
   describe '#index' do
@@ -51,7 +48,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
         get('/mobile/v0/dependents', params: { id: user.participant_id }, headers: sis_headers)
       end
 
-      assert_schema_conform(200)
+      expect(response).to have_http_status(:ok)
       expect(response.parsed_body['data'].to_a).to match(expected_data)
     end
 
@@ -66,7 +63,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
         allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(BGS::ShareError)
         get('/mobile/v0/dependents', params: { id: user.participant_id }, headers: sis_headers)
 
-        assert_schema_conform(400)
+        expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body).to eq(expected_response)
       end
     end
@@ -89,7 +86,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
           post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
         end
 
-        assert_schema_conform(202)
+        expect(response).to have_http_status(:accepted)
         submit_form_job_id = BGS::SubmitForm686cJob.jobs.first['jid']
         expect(response.parsed_body['data'].to_h).to match(
           {
@@ -116,7 +113,7 @@ RSpec.describe 'Mobile::V0::Dependents', type: :request do
         VCR.use_cassette('bgs/dependent_service/submit_686c_form') do
           post('/mobile/v0/dependents', params: test_form, headers: sis_headers)
         end
-        assert_schema_conform(400)
+        expect(response).to have_http_status(:bad_request)
         expect(response.parsed_body).to eq({ 'errors' => [
                                              { 'title' => 'Operation failed',
                                                'detail' => 'Operation failed',

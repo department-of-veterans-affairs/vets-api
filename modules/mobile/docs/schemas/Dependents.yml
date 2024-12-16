@@ -37,46 +37,35 @@ properties:
             - veteranIndicator
           properties:
             awardIndicator:
-              type: string
+              type: [string, null]
               example: 'N'
-              nullable: true
             dateOfBirth:
-              type: string
+              type: [string, null]
               example: '01/02/1960'
-              nullable: true
             emailAddress:
-              type: string
+              type: [string, null]
               example: 'emailAddress'
-              nullable: true
             firstName:
-              type: string
+              type: [string, null]
               example: 'JANE'
-              nullable: true
             lastName:
-              type: string
+              type: [string, null]
               example: 'WEBB'
-              nullable: true
             middleName:
-              type: string
+              type: [string, null]
               example: 'M'
-              nullable: true
             proofOfDependency:
-              type: string
+              type: [string, null]
               example: 'N'
-              nullable: true
             ptcpntId:
-              type: string
+              type: [string, null]
               example: '600280661'
-              nullable: true
             relatedToVet:
-              type: string
+              type: [string, null]
               example: 'Y'
-              nullable: true
             relationship:
-              type: string
+              type: [string, null]
               example: 'Spouse'
-              nullable: true
             veteranIndicator:
-              type: string
+              type: [string, null]
               example: 'N'
-              nullable: true

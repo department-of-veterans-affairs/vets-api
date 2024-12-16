@@ -2955,7 +2955,7 @@
           }
         },
         "responses": {
-          "202": {
+          "200": {
             "content": {
               "application/json": {
                 "schema": {
@@ -3325,9 +3325,6 @@
             },
             "description": "OK"
           },
-          "400": {
-            "$ref": "#/components/responses/401"
-          },
           "401": {
             "$ref": "#/components/responses/401"
           },
@@ -3364,7 +3361,7 @@
         "summary": "/v0/efolder/documents"
       }
     },
-    "/v0/efolder/documents/{document_id}/download": {
+    "/v0/efolder/documents/{documentId}/download": {
       "post": {
         "description": "returns requested document",
         "parameters": [
@@ -13821,43 +13818,6 @@
               "additionalProperties": false,
               "$ref": "#/components/schemas/CommunityCareProvider"
             }
-          },
-          "meta": {
-            "type": "object",
-            "additionalProperties": false,
-            "required": [
-              "pagination"
-            ],
-            "properties": {
-              "pagination": {
-                "type": "object",
-                "additionalProperties": false,
-                "required": [
-                  "currentPage",
-                  "perPage",
-                  "totalPages",
-                  "totalEntries"
-                ],
-                "properties": {
-                  "currentPage": {
-                    "type": "integer",
-                    "example": 1
-                  },
-                  "perPage": {
-                    "type": "integer",
-                    "example": 10
-                  },
-                  "totalPages": {
-                    "type": "integer",
-                    "example": 2
-                  },
-                  "totalEntries": {
-                    "type": "integer",
-                    "example": 15
-                  }
-                }
-              }
-            }
           }
         }
       },
@@ -14044,8 +14004,7 @@
                   },
                   "personEntitled": {
                     "type": "string",
-                    "example": null,
-                    "nullable": true
+                    "example": null
                   },
                   "deductionCode": {
                     "type": "string",
@@ -14164,59 +14123,81 @@
                   ],
                   "properties": {
                     "awardIndicator": {
-                      "type": "string",
-                      "example": "N",
-                      "nullable": true
+                      "type": [
+                        "string",
+                        null
+                      ],
+                      "example": "N"
                     },
                     "dateOfBirth": {
-                      "type": "string",
-                      "example": "01/02/1960",
-                      "nullable": true
+                      "type": [
+                        "string",
+                        null
+                      ],
+                      "example": "01/02/1960"
                     },
                     "emailAddress": {
-                      "type": "string",
-                      "example": "emailAddress",
-                      "nullable": true
+                      "type": [
+                        "string",
+                        null
+                      ],
+                      "example": "emailAddress"
                     },
                     "firstName": {
-                      "type": "string",
-                      "example": "JANE",
-                      "nullable": true
+                      "type": [
+                        "string",
+                        null
+                      ],
+                      "example": "JANE"
                     },
                     "lastName": {
-                      "type": "string",
-                      "example": "WEBB",
-                      "nullable": true
+                      "type": [
+                        "string",
+                        null
+                      ],
+                      "example": "WEBB"
                     },
                     "middleName": {
-                      "type": "string",
-                      "example": "M",
-                      "nullable": true
+                      "type": [
+                        "string",
+                        null
+                      ],
+                      "example": "M"
                     },
                     "proofOfDependency": {
-                      "type": "string",
-                      "example": "N",
-                      "nullable": true
+                      "type": [
+                        "string",
+                        null
+                      ],
+                      "example": "N"
                     },
                     "ptcpntId": {
-                      "type": "string",
-                      "example": "600280661",
-                      "nullable": true
+                      "type": [
+                        "string",
+                        null
+                      ],
+                      "example": "600280661"
                     },
                     "relatedToVet": {
-                      "type": "string",
-                      "example": "Y",
-                      "nullable": true
+                      "type": [
+                        "string",
+                        null
+                      ],
+                      "example": "Y"
                     },
                     "relationship": {
-                      "type": "string",
-                      "example": "Spouse",
-                      "nullable": true
+                      "type": [
+                        "string",
+                        null
+                      ],
+                      "example": "Spouse"
                     },
                     "veteranIndicator": {
-                      "type": "string",
-                      "example": "N",
-                      "nullable": true
+                      "type": [
+                        "string",
+                        null
+                      ],
+                      "example": "N"
                     }
                   }
                 }
@@ -18017,8 +17998,7 @@
                         },
                         "sortOrderNumber": {
                           "type": "string",
-                          "example": "0",
-                          "nullable": true
+                          "example": "0"
                         },
                         "veteranId": {
                           "type": "string",
@@ -18052,8 +18032,7 @@
                         "modifiedProcess",
                         "ptcpntDiaryId",
                         "statusDate",
-                        "veteranId",
-                        "payeeType"
+                        "veteranId"
                       ],
                       "properties": {
                         "awardDiaryId": {
@@ -18131,11 +18110,6 @@
                         "veteranId": {
                           "type": "string",
                           "example": "13014883"
-                        },
-                        "payeeType": {
-                          "type": "string",
-                          "example": "11",
-                          "nullable": true
                         }
                       }
                     }
@@ -18166,13 +18140,11 @@
           },
           "effectiveDate": {
             "type": "string",
-            "example": "2005-01-01T00:00:00.000+00:00",
-            "nullable": true
+            "example": "2005-01-01T00:00:00.000+00:00"
           },
           "ratingPercentage": {
             "type": "number",
-            "example": 10,
-            "nullable": true
+            "example": 10
           },
           "diagnosticText": {
             "type": "string",
@@ -18264,10 +18236,6 @@
                 },
                 "timestamp": {
                   "type": "string"
-                },
-                "message": {
-                  "type": "string",
-                  "nullable": true
                 }
               }
             }
@@ -18305,20 +18273,20 @@
                   "type": "object",
                   "additionalProperties": false,
                   "required": [
-                    "docType",
-                    "typeDescription",
-                    "receivedAt"
+                    "doc_type",
+                    "type_description",
+                    "received_at"
                   ],
                   "properties": {
-                    "docType": {
+                    "doc_type": {
                       "type": "string",
                       "example": 1215
                     },
-                    "typeDescription": {
+                    "type_description": {
                       "type": "string",
                       "example": "DMC - Debt Increase Letter"
                     },
-                    "receivedAt": {
+                    "received_at": {
                       "type": "date",
                       "example": "2020-05-28"
                     }

@@ -24,16 +24,16 @@ properties:
           type: object
           additionalProperties: false
           required:
-            - docType
-            - typeDescription
-            - receivedAt
+            - doc_type
+            - type_description
+            - received_at
           properties:
-            docType:
+            doc_type:
               type: string
               example: 1215
-            typeDescription:
+            type_description:
               type: string
               example: DMC - Debt Increase Letter
-            receivedAt:
+            received_at:
               type: date
               example: 2020-05-28

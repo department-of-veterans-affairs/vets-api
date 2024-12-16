@@ -23,6 +23,3 @@ properties:
           type: string
         timestamp:
           type: string
-        message:
-          type: string
-          nullable: true
