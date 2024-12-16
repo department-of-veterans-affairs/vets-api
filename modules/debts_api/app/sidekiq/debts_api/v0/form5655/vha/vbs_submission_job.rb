@@ -12,14 +12,21 @@ module DebtsApi
 
     class MissingUserAttributesError < StandardError; end
 
-    sidekiq_retries_exhausted do |job, _ex|
+    sidekiq_retries_exhausted do |job, ex|
       StatsD.increment("#{STATS_KEY}.failure") # Deprecate this in favor of exhausted naming convention below
       StatsD.increment("#{STATS_KEY}.retries_exhausted")
       submission_id = job['args'][0]
       user_uuid = job['args'][1]
-      UserProfileAttributes.find(user_uuid)&.destroy
+
       submission = DebtsApi::V0::Form5655Submission.find(submission_id)
-      submission.register_failure("VBS Submission Failed: #{job['error_message']}.")
+      submission&.register_failure("VBS Submission Failed: #{ex.message}")
+
+      Rails.logger.error <<~LOG
+        V0::Form5655::VHA::VBSSubmissionJob retries exhausted:
+        submission_id: #{submission_id} | user_id: #{user_uuid}
+        Exception: #{ex.class} - #{ex.message}
+        Backtrace: #{ex.backtrace.join("\n")}
+      LOG
     end
 
     def perform(submission_id, user_uuid)
