@@ -1197,6 +1197,20 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#cerner?' do
+    it 'raises an ArgumentError if appt is nil' do
+      expect { subject.send(:cerner?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
+    end
+
+    it 'returns true for appointments with a "CERN" prefix' do
+      expect(subject.send(:cerner?, { id: 'CERN99999' })).to eq(true)
+    end
+
+    it 'returns false for appointments without a "CERN" prefix' do
+      expect(subject.send(:cerner?, { id: '99999' })).to eq(false)
+    end
+  end
+
   describe '#no_service_cat?' do
     it 'raises an ArgumentError if appt is nil' do
       expect { subject.send(:no_service_cat?, nil) }.to raise_error(ArgumentError, 'Appointment cannot be nil')
@@ -1728,6 +1742,72 @@ describe VAOS::V2::AppointmentsService do
       expect do
         subject.send(:set_modality)
       end.to raise_error(ArgumentError)
+    end
+  end
+
+  describe '#set_type' do
+    it 'has a type of request for Cerner appointments without end dates' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = 'CERN1234'
+      appt[:end] = nil
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('REQUEST')
+    end
+
+    it 'is a VA appointment for Cerner appointments with a valid end date' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = 'CERN1234'
+      appt[:end] = :end_date
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('VA')
+    end
+
+    it 'is a cc appointment for appointments with kind = "cc" and a valid start date' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = :id
+      appt[:start] = :start_date
+      appt[:requested_periods] = []
+      appt[:kind] = 'cc'
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('COMMUNITY_CARE_APPOINTMENT')
+    end
+
+    it 'is a cc request for appointments with kind = "cc" and at least one requested period' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = :id
+      appt[:kind] = 'cc'
+      appt[:requested_periods] = [{ start: '2024-06-26T12:00:00Z', end: '2024-06-26T13:00:00Z' }]
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('COMMUNITY_CARE_REQUEST')
+    end
+
+    it 'is a request for appointments with kind other than "cc" and at least one requested period' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = :id
+      appt[:kind] = 'telehealth'
+      appt[:requested_periods] = [{ start: '2024-06-26T12:00:00Z', end: '2024-06-26T13:00:00Z' }]
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('REQUEST')
+    end
+
+    it 'is a request for appointments with kind = "cc" and no start date or requested periods' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = :id
+      appt[:kind] = 'cc'
+      appt[:start] = nil
+      appt[:requested_periods] = []
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('COMMUNITY_CARE_APPOINTMENT')
+    end
+
+    it 'is a cc request for Cerner with no start date or requested periods' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:id] = 'CERN1234'
+      appt[:kind] = 'cc'
+      appt[:start] = nil
+      appt[:requested_periods] = []
+      subject.send(:set_type, appt)
+      expect(appt[:type]).to eq('COMMUNITY_CARE_REQUEST')
     end
   end
 end

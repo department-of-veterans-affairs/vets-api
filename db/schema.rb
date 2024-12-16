@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_12_09_231104) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_12_101623) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -354,6 +354,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_09_231104) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "email_template_id"
+    t.uuid "notification_id"
+    t.string "notification_type"
+    t.string "notification_status"
     t.index ["saved_claim_id"], name: "index_claim_va_notifications_on_saved_claim_id"
   end
 
@@ -1398,6 +1401,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_09_231104) do
     t.jsonb "callback_metadata"
     t.text "callback_klass"
     t.uuid "template_id"
+    t.text "to_ciphertext"
+    t.text "encrypted_kms_key"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
