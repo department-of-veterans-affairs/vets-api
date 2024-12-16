@@ -22,6 +22,10 @@ module SimpleFormsApi
       }
     end
 
+    def middle_initial
+      data.dig('full_name', 'middle')&.[](0)
+    end
+
     def submission_date_stamps(_timestamp)
       []
     end
