@@ -89,11 +89,33 @@ To address potential errors or delays in processing:
   - Utilize Sidekiq to run a background job daily during off-peak hours.
   - Job steps:
     1. Query `FormSubmission` records with an `updated_at` older than 60 days and a status of `"vbms"`.
-    2. Purge sensitive data from identified records.
-    3. Delete associated PDFs from S3.
+    2. Emit a `pii.deleting` event to notify subscribers before purging sensitive data.
+    3. Purge sensitive data from identified records.
+    4. Delete associated PDFs from S3.
+    5. Emit a `pii.deleted` event to log and track the completion of the purge process.
 
-- **ActiveSupport Notification for Deletion**:
-  - Emit an `ActiveSupport::Notification` event when deleting PII:
+- **ActiveSupport Notifications for Deletion**:
+
+  - **Pre-Deletion Notification**:
+    Emit an `ActiveSupport::Notification` event before purging sensitive data to allow subscribers to access any necessary information before it is deleted:
+
+    ```ruby
+    ActiveSupport::Notifications.instrument(
+      "pii.deleting",
+      {
+        record_type: "FormSubmission",
+        benefits_intake_uuid: form_submission.benefits_intake_uuid,
+        current_data: form_submission.attributes,
+        scheduled_for_deletion_at: Time.current
+      }
+    )
+    ```
+
+    This ensures that subscribers can process or archive any data required before the deletion occurs.
+
+  - **Post-Deletion Notification**:
+    Emit a `pii.deleted` event to track and log the final completion of the purge process:
+
     ```ruby
     ActiveSupport::Notifications.instrument(
       "pii.deleted",
@@ -104,7 +126,12 @@ To address potential errors or delays in processing:
       }
     )
     ```
-  - This enables tracking, metrics, and integration with other systems for audit trails or further cleanup.
+
+    This provides a clear audit trail and allows integration with downstream systems for cleanup or monitoring.
+
+  - **Benefits**:
+    - The `pii.deleting` event allows for any last-minute processing or backups by subscribing systems before sensitive data is purged.
+    - The `pii.deleted` event ensures accurate tracking of the purge process, enhancing transparency and system monitoring.
 
 ### 4.3. Testing Strategy
 
