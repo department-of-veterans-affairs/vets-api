@@ -1144,15 +1144,15 @@ describe SimpleFormsApi::NotificationEmail do
               'lighthouse_updated_at' => nil
             },
             'fake_secret',
-              {
-                callback_metadata: {
-                  form_number: 'vba_20_10207',
-                  notification_type:,
-                  statsd_tags: {
-                    'function' => 'vba_20_10207 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
-                  }
+            {
+              callback_metadata: {
+                form_number: 'vba_20_10207',
+                notification_type:,
+                statsd_tags: {
+                  'function' => 'vba_20_10207 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
                 }
               }
+            }
           )
           expect(VANotify::EmailJob).to have_received(:perform_at).with(
             time,
@@ -1165,15 +1165,15 @@ describe SimpleFormsApi::NotificationEmail do
               'lighthouse_updated_at' => nil
             },
             'fake_secret',
-              {
-                callback_metadata: {
-                  form_number: 'vba_20_10207',
-                  notification_type:,
-                  statsd_tags: {
-                    'function' => 'vba_20_10207 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
-                  }
+            {
+              callback_metadata: {
+                form_number: 'vba_20_10207',
+                notification_type:,
+                statsd_tags: {
+                  'function' => 'vba_20_10207 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
                 }
               }
+            }
           )
         end
       end
