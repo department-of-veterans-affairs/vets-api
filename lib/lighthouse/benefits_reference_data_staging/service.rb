@@ -21,7 +21,7 @@ module BenefitsReferenceData
 
       # ap @configuration.base_request_headers; exit
 
-      STATSD_KEY_PREFIX = 'api.benefits_reference_data'
+      STATSD_KEY_PREFIX = 'api.benefits_reference_data_staging'
 
       ##
       # Hit a Benefits Reference Data End-point
