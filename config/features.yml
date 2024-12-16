@@ -87,6 +87,9 @@ features:
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
+  disability_compensation_staging_lighthouse_brd:
+    actor_type: user
+    description: Switches to Lighthouse Staging BRD Service. NEVER ENABLE IN PRODUCTION.
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
