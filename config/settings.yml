@@ -1292,6 +1292,7 @@ vanotify:
         form20_10207_confirmation_email: form20_10207_confirmation_email_template_id
         form20_10207_error_email: form20_10207_error_email_template_id
         form20_10207_received_email: form20_10207_received_email_template_id
+        form20_10207_point_of_contact_error_email: form20_10207_point_of_contact_error_email_template_id
         form21_0845_confirmation_email: form21_0845_confirmation_email_template_id
         form21_0845_error_email: form21_0845_error_email_template_id
         form21_0845_received_email: form21_0845_received_email_template_id

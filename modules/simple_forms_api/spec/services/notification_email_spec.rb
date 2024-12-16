@@ -1115,6 +1115,68 @@ describe SimpleFormsApi::NotificationEmail do
           )
         end
       end
+
+      context 'error email', if: notification_type == :error do
+        let(:data) do
+          fixture_path = Rails.root.join(
+            'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_20_10207-veteran.json'
+          )
+          JSON.parse(fixture_path.read)
+        end
+        let(:user) { create(:user, :loa3) }
+        let(:time) { Time.zone.now }
+
+        it 'sends an error email to both the user and the point of contact' do
+          allow(VANotify::EmailJob).to receive(:perform_at).twice
+
+          subject = described_class.new(config, notification_type:, user:)
+
+          subject.send(at: time)
+
+          expect(VANotify::EmailJob).to have_received(:perform_at).with(
+            time,
+            user.va_profile_email,
+            'form20_10207_error_email_template_id',
+            {
+              'first_name' => 'John',
+              'date_submitted' => date_submitted,
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
+            },
+            'fake_secret',
+              {
+                callback_metadata: {
+                  form_number: 'vba_20_10207',
+                  notification_type:,
+                  statsd_tags: {
+                    'function' => 'vba_20_10207 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
+                  }
+                }
+              }
+          )
+          expect(VANotify::EmailJob).to have_received(:perform_at).with(
+            time,
+            'pointy@contacts.com',
+            'form20_10207_point_of_contact_error_email_template_id',
+            {
+              'first_name' => 'Pointy Mc Pointersons',
+              'date_submitted' => date_submitted,
+              'confirmation_number' => 'confirmation_number',
+              'lighthouse_updated_at' => nil
+            },
+            'fake_secret',
+              {
+                callback_metadata: {
+                  form_number: 'vba_20_10207',
+                  notification_type:,
+                  statsd_tags: {
+                    'function' => 'vba_20_10207 form submission to Lighthouse', 'service' => 'veteran-facing-forms'
+                  }
+                }
+              }
+          )
+        end
+      end
     end
   end
 end
