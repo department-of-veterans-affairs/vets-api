@@ -99,26 +99,31 @@ module VBADocuments
 
       # File Number is ssn, file number, or participant id.  Call BGS to get the
       # veterans birthdate
-      bgs_vet = bgss.people.find_by_ssn(file_number) ||
+      # rubocop:disable Rails/DynamicFindBy
+      bgs_vet = bgss.people.find_by_ssn(file_number) || # rubocop:disable Rails/DynamicFindBy
                 bgss.people.find_by_file_number(file_number) ||
                 bgss.people.find_person_by_ptcpnt_id(file_number)
+      # rubocop:enable Rails/DynamicFindBy
       return nil if bgs_vet.blank?
 
       # Go after ICN in MPI
       mpi = MPI::Service.new
-      r = mpi.find_profile_by_attributes( first_name: bgs_vet[:first_nm].to_s, 
-                                          last_name:  bgs_vet[:last_nm].to_s, 
-                                          ssn:        bgs_vet[:ssn_nbr].to_s, 
-                                          birth_date: bgs_vet[:brthdy_dt].strftime('%Y-%m-%d'))
+      r = mpi.find_profile_by_attributes(first_name: bgs_vet[:first_nm].to_s,
+                                         last_name: bgs_vet[:last_nm].to_s,
+                                         ssn: bgs_vet[:ssn_nbr].to_s,
+                                         birth_date: bgs_vet[:brthdy_dt].strftime('%Y-%m-%d'))
       return nil if r.blank? || r.profile.blank?
 
       r.profile.icn
 
     # at this point ICN is not required when submitting to EMMS, so have wide
     # exception handling, log and move on, any errors trying to get ICN should not stop us from submitting
+    # rubocop:disable Lint/RescueException
     rescue Exception => e
-      Rails.logger.error("Benefits Intake UploadProcessor find_icn failed. Guid: #{@upload.guid}, Exception: #{e.message}" )
-      return nil
+      Rails.logger.error("Benefits Intake UploadProcessor find_icn failed. Guid: #{@upload.guid},
+                          Exception: #{e.message}")
+      nil
+      # rubocop:enable Lint/RescueException
     end
 
     def validate_payload_size(tempfile)

@@ -83,18 +83,20 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     allow(bucket).to receive(:object).and_return(obj)
     allow(obj).to receive(:exists?).and_return(true)
     allow(version).to receive(:last_modified).and_return(DateTime.now.utc)
-    
+
     # Stub BGS(part of ICN lookup)
-    people_double = double()
-    allow(people_double).to receive(:find_by_ssn).and_return( { first_nm: 'JOE', last_nm: 'SMITH', ssn_nbr: '555-55-5555', brthdy_dt: Date.parse('1970-01-01')} )
+    people_double = double
+    allow(people_double).to receive(:find_by_ssn).and_return({ first_nm: 'JOE', last_nm: 'SMITH',
+                                                               ssn_nbr: '555-55-5555',
+                                                               brthdy_dt: Date.parse('1970-01-01') })
     bgs_double = instance_double('BGS::Services')
     allow(bgs_double).to receive(:people).and_return(people_double)
     allow(BGS::Services).to receive(:new).and_return(bgs_double)
 
     # Stub MPI(part of ICN lookup)
-    profile_double = double()
-    allow(profile_double).to receive(:icn).and_return("2112")
-    mpi_result = double()
+    profile_double = double
+    allow(profile_double).to receive(:icn).and_return('2112')
+    mpi_result = double
     allow(mpi_result).to receive(:profile).and_return(profile_double)
     mpi_double = instance_double('MPI::Service')
     allow(mpi_double).to receive(:find_profile_by_attributes).and_return(mpi_result)
@@ -212,9 +214,10 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
     end
 
     it 'parses and uploads a valid multipart payload when ICN lookup throws exception' do
-      allow(BGS::Services).to receive(:new).and_raise("Worst day ever")
+      allow(BGS::Services).to receive(:new).and_raise('Worst day ever')
       expect(Rails.logger).to receive(:error).with(
-        "Benefits Intake UploadProcessor find_icn failed. Guid: #{upload.guid}, Exception: Worst day ever")
+        "Benefits Intake UploadProcessor find_icn failed. Guid: #{upload.guid}, Exception: Worst day ever"
+      )
       allow(VBADocuments::MultipartParser).to receive(:parse) { valid_parts }
       allow(CentralMail::Service).to receive(:new) { client_stub }
       allow(faraday_response).to receive_messages(status: 200, body: '', success?: true)
