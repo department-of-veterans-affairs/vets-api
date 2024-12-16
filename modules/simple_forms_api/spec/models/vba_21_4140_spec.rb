@@ -19,6 +19,15 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     it { is_expected.to match(data) }
   end
 
+  describe '#first_name' do
+    subject { form.first_name }
+
+    it('is limited to twelve characters') do
+      expect(data.dig('full_name', 'first').length).to be > 12
+      expect(subject.length).to eq 12
+    end
+  end
+
   describe '#metadata' do
     subject { form.metadata }
 

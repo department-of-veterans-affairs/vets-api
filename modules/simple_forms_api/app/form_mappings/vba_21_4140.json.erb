@@ -1,8 +1,14 @@
 {
   "F[0].Page_1[0].Station_Address[0]": "<%= data.dig('Station_Address') %>",
+
+  <%# Page 1 %>
+
+  <%# Section 1: Veteran's Identification Information %>
+
+  <%# 1. Name of Veteran %>
+  "F[0].Page_1[0].VeteranFirstName[0]": "<%= data.first_name %>",
   "F[0].Page_1[0].VeteranLastName[0]": "<%= data.dig('VeteranLastName') %>",
   "F[0].Page_1[0].VeteranMiddleInitial1[0]": "<%= data.dig('VeteranMiddleInitial1') %>",
-  "F[0].Page_1[0].VeteranFirstName[0]": "<%= data.dig('VeteranFirstName') %>",
   "F[0].Page_1[0].DOByear[0]": "<%= data.dig('DOByear') %>",
   "F[0].Page_1[0].DOBday[0]": "<%= data.dig('DOBday') %>",
   "F[0].Page_1[0].DOBmonth[0]": "<%= data.dig('DOBmonth') %>",
