@@ -19,7 +19,7 @@ module DebtsApi
       user_uuid = job['args'][1]
 
       submission = DebtsApi::V0::Form5655Submission.find_by(id: submission_id)
-      submission.register_failure("VBASubmissionJob#perform: #{ex.message}")
+      submission&.register_failure("VBASubmissionJob#perform: #{ex.message}")
 
       Rails.logger.error <<~LOG
         V0::Form5655::VBASubmissionJob retries exhausted:
