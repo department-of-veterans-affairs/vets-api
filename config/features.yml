@@ -911,7 +911,7 @@ features:
     enable_in_development: true
   lighthouse_claims_api_v2_poa_va_notify:
     actor_type: user
-    description: Enable/disable the VA ntofication emails in V2 POA
+    description: Enable/disable the VA notification emails in V2 POA
     enable_in_development: false
   lighthouse_claims_v2_poa_requests_skip_bgs:
     actor_type: user
@@ -1951,7 +1951,10 @@ features:
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
+  lighthouse_veterans_health_debug_logging:
+    actor_type: user
+    description: Enable debug logging for Lighthouse Veterans Health API
+    enable_in_development: false
   benefits_non_disability_ch31_v2:
     actor_type: user
     description: If enabled, use new form and api endpoint for Ch31 VR&E form
-    enable_in_development: false
