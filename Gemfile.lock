@@ -85,6 +85,7 @@ PATH
   remote: modules
   specs:
     accredited_representative_portal (0.1.0)
+      blind_index
     appeals_api (0.0.1)
       jsonapi-serializer (>= 2.2.0)
       sidekiq
@@ -240,11 +241,12 @@ GEM
       base64
       gyoku (>= 0.4.0)
       nokogiri
+    argon2-kdf (0.2.0)
     ast (2.4.2)
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.1019.0)
+    aws-partitions (1.1022.0)
     aws-sdk-core (3.214.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -253,7 +255,7 @@ GEM
     aws-sdk-kms (1.96.0)
       aws-sdk-core (~> 3, >= 3.210.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.173.0)
+    aws-sdk-s3 (1.176.1)
       aws-sdk-core (~> 3, >= 3.210.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -273,6 +275,9 @@ GEM
     bigdecimal (3.1.8)
     bigdecimal (3.1.8-java)
     bindex (0.8.1)
+    blind_index (2.6.1)
+      activesupport (>= 7)
+      argon2-kdf (>= 0.2)
     blueprinter (1.1.2)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
@@ -308,7 +313,7 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     colored2 (3.1.2)
-    combine_pdf (1.0.26)
+    combine_pdf (1.0.29)
       matrix
       ruby-rc4 (>= 0.1.5)
     committee (5.4.0)
@@ -370,6 +375,9 @@ GEM
       libddwaf (~> 1.14.0.0.0)
       msgpack
     debase-ruby_core_source (3.3.1)
+    debug (1.9.2)
+      irb (~> 1.10)
+      reline (>= 0.3.8)
     declarative (0.0.20)
     deep_merge (1.2.2)
     descendants_tracker (0.0.4)
@@ -964,7 +972,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.52.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (3.2.0)
+    rubocop-rspec (3.3.0)
       rubocop (~> 1.61)
     rubocop-rspec_rails (2.30.0)
       rubocop (~> 1.61)
@@ -1150,6 +1158,7 @@ DEPENDENCIES
   banners!
   betamocks!
   bgs_ext!
+  blind_index
   blueprinter
   bootsnap
   brakeman
@@ -1175,6 +1184,7 @@ DEPENDENCIES
   date_validator
   ddtrace
   debts_api!
+  debug
   decision_reviews!
   dhp_connected_devices!
   dogstatsd-ruby (= 5.6.3)
