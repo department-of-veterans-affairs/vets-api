@@ -685,7 +685,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     end
 
     context 'when a submission includes 0781v2' do
-      let(:path_to_0781v2_fixture) { 'spec/fixtures/pdf_fill/21-0781v2/kitchen_sink.pdf' }
+      let(:path_to_0781v2_fixture) { 'spec/fixtures/pdf_fill/21-0781V2/kitchen_sink.pdf' }
       let(:parsed_0781v2_form) { JSON.parse(submission.form_to_json(Form526Submission::FORM_0781))['form0781v2'] }
       let(:form0781v2_only) do
         original = JSON.parse(form0781)
