@@ -43,7 +43,7 @@ module Vets
     private
 
     def validate_sort_clauses(clauses)
-      raise ArgumentError, "Order must have at least one sort clause" if clauses.empty?
+      raise ArgumentError, 'Order must have at least one sort clause' if clauses.empty?
 
       clauses.each do |attribute, direction|
         raise ArgumentError, "Attribute #{attribute} must be a symbol" unless attribute.is_a?(Symbol)

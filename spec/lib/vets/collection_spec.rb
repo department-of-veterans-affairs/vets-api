@@ -4,14 +4,6 @@ require 'rails_helper'
 require 'vets/collection'
 
 RSpec.describe Vets::Collection do
-
-end
-# frozen_string_literal: true
-
-require 'rails_helper'
-require 'vets/collection'
-
-RSpec.describe Vets::Collection do
   let(:dummy_class) do
     Class.new do
       attr_accessor :name, :age
@@ -50,7 +42,7 @@ RSpec.describe Vets::Collection do
       hashes = [{ name: 'Alice', age: 30 }, { name: 'Bob', age: 25 }]
       collection = Vets::Collection.from_hashes(dummy_class, hashes)
 
-      expect(collection.instance_variable_get(:@records).map(&:name)).to eq(['Alice', 'Bob'])
+      expect(collection.instance_variable_get(:@records).map(&:name)).to eq(%w[Alice Bob])
     end
 
     it 'raises an error if any element is not a hash' do
