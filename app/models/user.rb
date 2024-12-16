@@ -415,6 +415,8 @@ class User < Common::RedisStore
   end
 
   def vaprofile_contact_info
+    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && icn.present?
+
     @vaprofile_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 

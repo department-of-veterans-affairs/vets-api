@@ -5,6 +5,7 @@ require 'token_validation/v2/client'
 require_relative '../../rails_helper'
 
 RSpec.describe 'ClaimsApi::V2::VeteranIdentifier', openapi_spec: Rswag::TextHelpers.new.claims_api_docs,
+                                                   skip: 'Disabling tests for deactivated veteran-id:find endpoint',
                                                    type: :request do
   let(:path) { '/services/claims/v2/veteran-id:find' }
   let(:data) do
