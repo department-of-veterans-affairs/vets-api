@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 3.3.3'
+ruby '~> 3.3.6'
 
 # Modules
 path 'modules' do
@@ -18,6 +18,7 @@ path 'modules' do
   gem 'covid_research'
   gem 'covid_vaccine'
   gem 'debts_api'
+  gem 'decision_reviews'
   gem 'dhp_connected_devices'
   gem 'facilities_api'
   gem 'health_quest'
@@ -41,7 +42,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.1.3'
+gem 'rails', '~> 7.2.2'
 
 gem 'aasm'
 gem 'activerecord-import'
@@ -52,6 +53,7 @@ gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs', ref: '350e45ae69'
+gem 'blind_index'
 gem 'blueprinter'
 gem 'bootsnap', require: false
 gem 'breakers'

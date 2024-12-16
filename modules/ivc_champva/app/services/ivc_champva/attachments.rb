@@ -15,7 +15,13 @@ module IvcChampva
                         else
                           "#{uuid}_#{form_id}_supporting_doc-#{index}.pdf"
                         end
-        new_file_path = File.join(File.dirname(attachment), new_file_name)
+
+        new_file_path = if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
+                          File.join('tmp', new_file_name)
+                        else
+                          File.join(File.dirname(attachment), new_file_name)
+                        end
+
         File.rename(attachment, new_file_path)
         file_paths << new_file_path
       end

@@ -121,8 +121,13 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Allergies', type: :request do
       expect(response.body).to be_a(String)
 
       body = JSON.parse(response.body)
+
       expect(body['entry']).to be_an(Array)
       expect(body['entry'].size).to be 2
+
+      # Verify that items are sorted by recordedDate in descending order
+      expect(body['entry'][0]['resource']['recordedDate']).to eq('1967-05-28T12:25:29Z')
+      expect(body['entry'][1]['resource']['recordedDate']).to eq('1967-05-28T12:24:29Z')
 
       item = body['entry'][1]
       expect(item['resource']['resourceType']).to eq('AllergyIntolerance')
