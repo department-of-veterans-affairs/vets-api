@@ -1,51 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/shared_examples_for_base_form'
 
 RSpec.describe SimpleFormsApi::VBA2010207 do
-  describe 'zip_code_is_us_based' do
-    subject(:zip_code_is_us_based) { described_class.new(data).zip_code_is_us_based }
-
-    context 'veteran address is present and in US' do
-      let(:data) { { 'veteran_mailing_address' => { 'country' => 'USA' } } }
-
-      it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
-      end
-    end
-
-    context 'veteran address is present and not in US' do
-      let(:data) { { 'veteran_mailing_address' => { 'country' => 'Canada' } } }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
-      end
-    end
-
-    context 'non-veteran address is present and in US' do
-      let(:data) { { 'non_veteran_mailing_address' => { 'country' => 'USA' } } }
-
-      it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
-      end
-    end
-
-    context 'non-veteran address is present and not in US' do
-      let(:data) { { 'non_veteran_mailing_address' => { 'country' => 'Canada' } } }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
-      end
-    end
-
-    context 'no valid address is given' do
-      let(:data) { {} }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
-      end
-    end
-  end
+  it_behaves_like 'zip_code_is_us_based', %w[veteran_mailing_address non_veteran_mailing_address]
 
   describe 'requester_signature' do
     statement_of_truth_signature = 'John Veteran'
