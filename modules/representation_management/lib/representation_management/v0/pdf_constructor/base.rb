@@ -172,10 +172,14 @@ module RepresentationManagement
         end
 
         def combine_pdfs(next_steps_tempfile, template_tempfile)
-          pdf = CombinePDF.new
-          pdf << CombinePDF.load(next_steps_tempfile.path) if next_steps_page?
-          pdf << CombinePDF.load(template_tempfile.path)
-          pdf.save(@tempfile.path)
+          pdf = HexaPDF::Document.new
+          if next_steps_page?
+            next_steps_pdf = HexaPDF::Document.open(next_steps_tempfile.path)
+            next_steps_pdf.pages.each { |page| pdf.pages << pdf.import(page) }
+          end
+          template_pdf = HexaPDF::Document.open(template_tempfile.path)
+          template_pdf.pages.each { |page| pdf.pages << pdf.import(page) }
+          pdf.write(@tempfile.path, optimize: true)
           @tempfile.rewind
         end
 
