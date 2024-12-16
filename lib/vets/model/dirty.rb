@@ -6,6 +6,12 @@
 module Vets
   module Model
     module Dirty
+      extend ActiveSupport::Concern
+
+      included do
+        attr_reader :original_attributes
+      end
+
       def initialize(*, **)
         super(*, **) if defined?(super)
         @original_attributes = attribute_values.dup
@@ -25,8 +31,6 @@ module Vets
           result[key] = [original_value, current_value] if original_value != current_value
         end
       end
-
-      attr_reader :original_attributes
     end
   end
 end
