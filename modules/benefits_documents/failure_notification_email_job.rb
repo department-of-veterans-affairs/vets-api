@@ -8,6 +8,8 @@ module BenefitsDocuments
     sidekiq_options retry: false, unique_for: 30.minutes
 
     FAILED_STATUS = BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
+    MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
+    DD_ZSF_TAGS = ['service:claim-status', 'function: evidence upload to Lighthouse'].freeze
 
     # TODO: need to add statsd logic
     # STATSD_KEY_PREFIX = ''
@@ -37,21 +39,38 @@ module BenefitsDocuments
 
     def send_failed_evidence_submissions
       failed_uploads.each do |upload|
-        notify_client.send_email(
-          recipient_identifier: { id_value: icn, id_type: 'ICN' },
+        response = notify_client.send_email(
+          recipient_identifier: { id_value: upload.user_account.icn, id_type: 'ICN' },
           template_id: MAILER_TEMPLATE_ID,
-          personalisation: { first_name: upload.first_name, filename: upload.file_name, date_submitted:, date_failed: }
+          personalisation: upload.template_metadata_ciphertext.personalisation
         )
+
+        record_email_send_success(upload, response)
+      rescue => e
+        record_email_send_failure(upload, e)
       end
 
       nil
+    end
+
+    def record_email_send_success(upload, response)
+      EvidenceSubmission.update(id: upload.id, va_notify_id: response.id, va_notify_date: DateTime.now)
+      ::Rails.logger.info("#{upload.job_class} va notify failure email sent")
+      StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
+    end
+
+    def record_email_send_failure(upload, error)
+      ::Rails.logger.error("#{upload.job_class} va notify failure email failed to send",
+                           { message: error.message })
+      StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
+      log_exception_to_sentry(e)
     end
 
     # add va_notify_date to the evidence_submissions table - done
     # grab failed records that dont have a va_notify_date - done
     # reach out to va notify with an id of the template - go off of what was in the
     # call for this job app/sidekiq/lighthouse/failure_notification.rb, no retrys
-    # for each file
+    # for each file - done
     # va notify should return an id when a record is created (take a look at record_evidence_email_send_successful() for an example)
     # update evidence submissions with a va notify id, and va notify date
     #
