@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vets/attributes'
+require 'vets/model/pagination'
 
 # This will be moved after virtus is removed
 module Bool; end
