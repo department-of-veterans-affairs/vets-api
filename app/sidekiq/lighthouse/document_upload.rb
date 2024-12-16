@@ -9,6 +9,8 @@ class Lighthouse::DocumentUpload
   include Sidekiq::Job
   extend SentryLogging
 
+  attr_accessor :user_icn, :document_hash
+
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
   OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
 
@@ -72,6 +74,10 @@ class Lighthouse::DocumentUpload
     timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 
+  def self.notify_client
+    VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
+  end
+
   def perform(user_icn, document_hash)
     client = BenefitsDocuments::WorkerService.new
     document, file_body, uploader = nil
@@ -90,10 +96,68 @@ class Lighthouse::DocumentUpload
     end
     Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
       span.set_tag('Document File Size', file_body.size)
-      client.upload_document(file_body, document)
+      response = client.upload_document(file_body, document) # returns upload response which includes requestId
+      request_successful = response.dig(:data, :success)
+      if request_successful
+        request_id = response.dig(:data, :requestId)
+        evidence_submission.update(request_id:)
+      else
+        raise StandardError
+      end
     end
     Datadog::Tracing.trace('Remove Upload Document') do
       uploader.remove!
     end
+  end
+
+  private
+
+  def initialize_upload_document
+    Datadog::Tracing.trace('Config/Initialize Upload Document') do
+      Sentry.set_tags(source: 'documents-upload')
+      validate_document!
+      uploader.retrieve_from_store!(document.file_name)
+    end
+  end
+
+  def validate_document!
+    raise Common::Exceptions::ValidationErrors, document unless document.valid?
+  end
+
+  def client
+    @client ||= BenefitsDocuments::WorkerService.new
+  end
+
+  def document
+    @document ||= LighthouseDocument.new(document_hash)
+  end
+
+  def uploader
+    @uploader ||= LighthouseDocumentUploader.new(user_icn, document.uploader_ids)
+  end
+
+  def perform_initial_file_read
+    Datadog::Tracing.trace('Sidekiq read_for_upload') do
+      uploader.read_for_upload
+    end
+  end
+
+  def file_body
+    @file_body ||= perform_initial_file_read
+  end
+
+  def record_evidence_submission(claim_id, job_id, tracked_item_id, user_account_uuid)
+    user_account = UserAccount.find(user_account_uuid)
+    job_class = self.class.to_s
+    upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
+
+    evidence_submission = EvidenceSubmission.find_or_create_by(claim_id:,
+                                                               tracked_item_id:,
+                                                               job_id:,
+                                                               job_class:,
+                                                               upload_status:)
+    evidence_submission.user_account = user_account
+    evidence_submission.save!
+    evidence_submission
   end
 end
