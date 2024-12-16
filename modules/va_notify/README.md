@@ -115,7 +115,7 @@ Using option #2:
 
 ### VA Notify Callback Integration Guide for Vets-API
 
-To effectively track the status of individual notifications, VA Notify provides service callbacks. These callbacks enable you to determine whether a notification was successfully delivered or failed, allowing you to take appropriate action. This guide outlines two distinct approaches to integrating callback logic: Custom Callback Handler and Default Callback Class.
+To effectively track the status of individual notifications, VA Notify provides service callbacks. These callbacks enable you to determine whether a notification was successfully delivered or failed, allowing you to take appropriate action. This guide outlines integrating callback logic: Custom Callback Handler
 
 #### Why Teams Need to Integrate with Callback Logic
 
