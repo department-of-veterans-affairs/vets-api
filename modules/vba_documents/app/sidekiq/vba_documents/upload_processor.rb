@@ -120,8 +120,8 @@ module VBADocuments
     # exception handling, log and move on, any errors trying to get ICN should not stop us from submitting
     # rubocop:disable Lint/RescueException
     rescue Exception => e
-      Rails.logger.error("Benefits Intake UploadProcessor find_icn failed. Guid: #{@upload.guid},
-                          Exception: #{e.message}")
+      Rails.logger.error("Benefits Intake UploadProcessor find_icn failed. Guid: #{@upload.guid}, " \
+                         "Exception: #{e.message}")
       nil
       # rubocop:enable Lint/RescueException
     end
