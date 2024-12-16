@@ -12,6 +12,52 @@ This document outlines a data purge plan for `FormSubmission` records stored in 
 
 The `FormSubmission` table contains user-submitted data, including PII and PHI. Associated PDF backups are also stored in a team's S3 bucket. Current retention policies suggest removing user and form data after 60 days post-submission. While the form data is no longer required for operations, minimal metadata (`submission_date` and `benefits_intake_uuid`) will be retained for reporting and referencing. This purge process will help mitigate risks related to prolonged retention of sensitive data while maintaining functionality for users to download their PDF backups during the retention period.
 
+### 3.1 FormSubmission Status
+
+The status of a `FormSubmission` record is determined through a combination of attributes and a background job that queries the Lighthouse Benefits Intake API. This ensures the status is accurately updated, and appropriate actions are taken in response to errors or delays. The classification is as follows:
+
+1. **Expired**:
+
+   - Status is explicitly set to `'expired'`.
+   - OR, if no successful processing attempt is recorded within 10 days (`STALE_SLA`) of the latest `FormSubmissionAttempt` creation.
+   - Indicates that documents were not successfully uploaded within the expected window.
+
+2. **Errored**:
+
+   - Status is set to `'error'`, signaling a failure during processing.
+   - Includes additional error details logged from the API response, such as error codes and descriptions.
+
+3. **Successful**:
+
+   - Status is set to `'vbms'`, indicating the form submission has been successfully processed and uploaded into the Veteran's eFolder within the VBMS system.
+
+4. **Pending**:
+   - Any status that does not fall into the above categories is considered `'pending'`, representing submissions awaiting completion or further processing.
+
+### 3.2 Error Handling and Retry Mechanisms
+
+To address potential errors or delays in processing:
+
+- **Error Detection**:
+
+  - The `BenefitsIntakeStatusJob` identifies errors during the batch processing of pending submissions by querying the API.
+  - If a submission's status is `'error'` or `'expired'`, detailed error messages are logged, including the error code and description.
+
+- **Retries**:
+
+  - Submissions that encounter errors are not retried automatically (`Sidekiq.retry = false` for the job). However, a manual remediation process is in place:
+    - Notifications are sent to stakeholders, such as claimants, using email mechanisms tied to the form type.
+    - Failure logs and monitoring dashboards provide visibility into unresolved issues, enabling targeted reprocessing as necessary.
+
+- **Monitoring and Alerts**:
+
+  - Metrics are captured for each submission's status update, including success, failure, and staleness. These metrics are monitored through a Datadog dashboard, allowing for proactive identification of systemic issues.
+  - Notifications are sent via associated monitoring services (e.g., Burials, Pensions, Dependents), ensuring team members are aware of silent failures or recurring errors.
+
+- **Fallback and Recovery**:
+  - If errors persist, claimants associated with failed submissions receive notifications, enabling them to take corrective action or contact support for resolution.
+  - Records exceeding the SLA are flagged as `'stale'` for further investigation.
+
 ## 4. Proposal
 
 ### 4.1. Data Retention and Purge Process
