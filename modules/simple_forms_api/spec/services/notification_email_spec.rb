@@ -691,14 +691,14 @@ describe SimpleFormsApi::NotificationEmail do
           it 'veteran authorizer' do
             allow(VANotify::EmailJob).to receive(:perform_async)
             data['authorizer_type'] = 'veteran'
-            data['authorizer_email'] = 'authorizer_email@example.com'
+            data['veteran_email'] = 'veteran_email@example.com'
 
             subject = described_class.new(config, user: create(:user))
 
             subject.send
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
-              'authorizer_email@example.com',
+              'veteran_email@example.com',
               'form21_0845_confirmation_email_template_id',
               {
                 'first_name' => 'John',
