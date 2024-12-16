@@ -28,6 +28,15 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     end
   end
 
+  describe '#last_name' do
+    subject { form.last_name }
+
+    it('is limited to eighteen characters') do
+      expect(data.dig('full_name', 'last').length).to be > 18
+      expect(subject.length).to eq 18
+    end
+  end
+
   describe '#metadata' do
     subject { form.metadata }
 
