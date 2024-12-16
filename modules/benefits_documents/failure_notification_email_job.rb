@@ -72,14 +72,14 @@ module BenefitsDocuments
     # call for this job app/sidekiq/lighthouse/failure_notification.rb, no retrys
     # for each file - done
     # va notify should return an id when a record is created (take a look at record_evidence_email_send_successful() for an example)
-    # update evidence submissions with a va notify id, and va notify date
+    # update evidence submissions with a va notify id, and va notify date - done
     #
     # use job_class from the es table to determine if we
-    # should send evss or lighthouse log
+    # should send evss or lighthouse log - done
     # Update app/sidekiq/lighthouse/document_upload.rb method sidekiq_retries_exhausted()
-    # and create a new record and set the upload status to FAILED
+    # and create a new record and set the upload status to FAILED - done
     # Update app/sidekiq/evss/document_upload.rb method sidekiq_retries_exhausted()
-    # and set the upload status to FAILED
+    # and set the upload status to FAILED done
     #
     # Remove app/sidekiq/evss/failure_notification.rb and tests
     # Remove app/sidekiq/lighthouse/failure_notification.rb and tests

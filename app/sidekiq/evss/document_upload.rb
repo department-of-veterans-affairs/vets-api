@@ -39,32 +39,28 @@ class EVSS::DocumentUpload
   end
 
   sidekiq_retries_exhausted do |msg, _ex|
-    # There should be 3 values in msg['args']:
-    # 1) Auth headers needed to authenticate with EVSS
-    # 2) The uuid of the record in the UserAccount table
-    # 3) Document metadata
-
-    next unless Flipper.enabled?('cst_send_evidence_failure_emails')
-
-    icn = UserAccount.find(msg['args'][1]).icn
-    first_name = msg['args'].first['va_eauth_firstName'].titleize
-    filename = obscured_filename(msg['args'][2]['file_name'])
+    job_id = msg['jid']
+    job_class = 'EVSS::DocumentUpload'
+    first_name = msg['args'][1]['first_name'].titleize
+    claim_id = msg['args'][1]['claim_id']
+    tracked_item_id = msg['args'][1]['tracked_item_id']
+    filename = obscured_filename(msg['args'][1]['file_name'])
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
     date_failed = format_issue_instant_for_mailers(msg['failed_at'])
+    upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
+    uuid = msg['args'][1]['uuid']
+    user_account = UserAccount.find_or_create_by(uuid:)
+    personalisation = { first_name:, filename:, date_submitted:, date_failed: }
 
-    notify_client.send_email(
-      recipient_identifier: { id_value: icn, id_type: 'ICN' },
-      template_id: MAILER_TEMPLATE_ID,
-      personalisation: { first_name:, filename:, date_submitted:, date_failed: }
+    EvidenceSubmission.create(
+      job_id:,
+      job_class:,
+      claim_id:,
+      tracked_item_id:,
+      upload_status:,
+      user_account:,
+      template_metadata_ciphertext: { personalisation: }.to_json
     )
-
-    ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email sent')
-    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
-  rescue => e
-    ::Rails.logger.error('EVSS::DocumentUpload exhaustion handler email error',
-                         { message: e.message })
-    StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
-    log_exception_to_sentry(e)
   end
 
   def perform(auth_headers, user_uuid, document_hash)
