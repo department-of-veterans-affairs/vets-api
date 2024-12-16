@@ -99,10 +99,6 @@ class ClaimsApi::RswagConfig
         },
         tags: [
           {
-            name: 'Veteran Identifier',
-            description: "Allows authenticated veterans and veteran representatives to retrieve a veteran's id."
-          },
-          {
             name: 'Claims',
             description: <<~VERBIAGE
               Allows authenticated and authorized users to access claims data for a given Veteran. No data is returned if the user is not authenticated and authorized.
