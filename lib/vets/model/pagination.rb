@@ -24,15 +24,12 @@
 module Vets
   module Model
     module Pagination
+      extend ActiveSupport::Concern
+
       DEFAULT_PER_PAGE = 10
       DEFAULT_MAX_PER_PAGE = 100
 
-      def self.included(base)
-        base.extend ClassMethods
-        base.private_class_method :set_pagination
-      end
-
-      module ClassMethods
+      class_methods do
         # rubocop:disable ThreadSafety/ClassInstanceVariable
         def set_pagination(per_page:, max_per_page:)
           @per_page = per_page
