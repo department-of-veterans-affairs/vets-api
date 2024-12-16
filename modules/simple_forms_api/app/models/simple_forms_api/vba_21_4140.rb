@@ -10,6 +10,10 @@ module SimpleFormsApi
       data.dig('full_name', 'first')&.[](0..11)
     end
 
+    def last_name
+      data.dig('full_name', 'last')&.[](0..17)
+    end
+
     def metadata
       {
         'veteranFirstName' => data.dig('full_name', 'first'),
