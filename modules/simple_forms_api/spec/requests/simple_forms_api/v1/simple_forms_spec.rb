@@ -117,13 +117,13 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       describe 'unauthenticated forms' do
         unauthenticated_forms.each do |form|
-          include_examples 'form submission', form, false
+          it_behaves_like 'form submission', form, false
         end
       end
 
       describe 'authenticated forms' do
         authenticated_forms.each do |form|
-          include_examples 'form submission', form, true
+          it_behaves_like 'form submission', form, true
         end
       end
 
