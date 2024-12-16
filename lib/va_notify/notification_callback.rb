@@ -19,34 +19,36 @@ module VANotify
 
     # generic parent class for a notification callback
     class Default
+
+      STATSD_KEY = 'api.vanotify.notification.callback'
+
       # static call to handle notification callback
       # creates an instance of _this_ class and will call the status function
       def self.call(notification)
         callback = new(notification)
 
-        monitor = Logging::Monitor.new('vanotify-notificationcallback')
-        metric = 'api.vanotify.notification'
+        monitor = Logging::Monitor.new('vanotify-notification-callback')
         context = callback.context
 
         case notification.status
         when 'delivered'
           # success
           callback.on_delivered
-          monitor.track(:info, "#{callback.klass}: Delivered", "#{metric}.delivered", **context)
+          monitor.track(:info, "#{callback.klass}: Delivered", "#{STATSD_KEY}.delivered", **context)
 
         when 'permanent-failure'
           # delivery failed - log error
           callback.on_permanent_failure
-          monitor.track(:error, "#{callback.klass}: Permanent Failure", "#{metric}.permanent_failure", **context)
+          monitor.track(:error, "#{callback.klass}: Permanent Failure", "#{STATSD_KEY}.permanent_failure", **context)
 
         when 'temporary-failure'
           # the api will continue attempting to deliver - success is still possible
           callback.on_temporary_failure
-          monitor.track(:warn, "#{callback.klass}: Temporary Failure", "#{metric}.temporary_failure", **context)
+          monitor.track(:warn, "#{callback.klass}: Temporary Failure", "#{STATSD_KEY}.temporary_failure", **context)
 
         else
           callback.on_other_status
-          monitor.track(:warn, "#{callback.klass}: Other", "#{metric}.other", **context)
+          monitor.track(:warn, "#{callback.klass}: Other", "#{STATSD_KEY}.other", **context)
         end
       end
 
@@ -56,7 +58,7 @@ module VANotify
       #
       # @param notification [VANotify::Notification] model object from vanotify
       def initialize(notification)
-        raise CallbackClassMismatch(notification.callback_klass, klass) unless klass == notification.callback_klass
+        raise VANotify::NotificationCallback::CallbackClassMismatch.new(notification.callback_klass, klass) unless klass == notification.callback_klass
 
         @notification = notification
         @metadata = notification.callback_metadata || {}
@@ -75,12 +77,12 @@ module VANotify
       # default monitor tracking context
       def context
         {
-          callback_klass: klass,
           notification_id: notification.notification_id,
           notification_type: notification.notification_type,
           source: notification.source_location,
           status: notification.status,
-          status_reason: notification.status_reason
+          status_reason: notification.status_reason,
+          callback_klass: klass
         }
       end
 

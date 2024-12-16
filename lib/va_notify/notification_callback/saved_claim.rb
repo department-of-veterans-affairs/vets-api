@@ -67,7 +67,7 @@ module VANotify
 
       # additional information to be sent with ZSF tracking
       def zsf_additional_context
-        { metadata: }.merge(context)
+        context.merge({ callback_metadata: metadata })
       end
 
       # call location to be included with ZSF tracking
