@@ -8,7 +8,7 @@ module SimpleFormsApi
 
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
 
-    def initialize(stamped_template_path:, form:, current_loa: nil, timestamp: nil)
+    def initialize(stamped_template_path:, form: nil, current_loa: nil, timestamp: nil)
       @stamped_template_path = stamped_template_path
       @form = form
       @loa = current_loa
@@ -45,7 +45,7 @@ module SimpleFormsApi
     end
 
     def all_form_stamps
-      form.desired_stamps + form.submission_date_stamps(timestamp)
+      form ? form.desired_stamps + form.submission_date_stamps(timestamp) : []
     end
 
     def stamp_form(desired_stamp)
