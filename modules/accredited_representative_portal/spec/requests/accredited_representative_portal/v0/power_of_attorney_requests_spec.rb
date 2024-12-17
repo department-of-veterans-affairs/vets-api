@@ -4,28 +4,8 @@ require_relative '../../../rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
   let(:test_user) { create(:representative_user) }
-  let(:poa_request_details_id) { '123' }
-  let(:poa_request_details_mock_data) do
-    {
-      'status' => 'Pending',
-      'declinedReason' => nil,
-      'powerOfAttorneyCode' => '091',
-      'submittedAt' => '2024-04-30T11:03:17Z',
-      'acceptedOrDeclinedAt' => nil,
-      'isAddressChangingAuthorized' => false,
-      'isTreatmentDisclosureAuthorized' => true,
-      'veteran' => { 'firstName' => 'Jon', 'middleName' => nil, 'lastName' => 'Smith',
-                     'participantId' => '6666666666666' },
-      'representative' => { 'email' => 'j2@example.com', 'firstName' => 'Jane', 'lastName' => 'Doe' },
-      'claimant' => { 'firstName' => 'Sam', 'lastName' => 'Smith', 'participantId' => '777777777777777',
-                      'relationshipToVeteran' => 'Child' },
-      'claimantAddress' => { 'city' => 'Hartford', 'state' => 'CT', 'zip' => '06107', 'country' => 'GU',
-                             'militaryPostOffice' => nil, 'militaryPostalCode' => nil }
-    }
-  end
-  let(:poa_request_list_mock_data) do
-    [poa_request_details_mock_data, poa_request_details_mock_data, poa_request_details_mock_data]
-  end
+  let(:poa_request) { create(:power_of_attorney_request) }
+  let(:poa_requests) { create_list(:power_of_attorney_request, 3) }
 
   before do
     Flipper.enable(:accredited_representative_portal_pilot)
@@ -33,18 +13,49 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   end
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
-    it 'returns the list of a power of attorney request' do
+    it 'returns the list of power of attorney requests' do
+      poa_requests
+
       get('/accredited_representative_portal/v0/power_of_attorney_requests')
+
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)).to eq(poa_request_list_mock_data)
+      parsed_response = JSON.parse(response.body)
+
+      expected_response = AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer
+                          .new(poa_requests)
+                          .serializable_hash
+
+      expect(deep_stringify(parsed_response)).to eq(deep_stringify(expected_response))
     end
   end
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests/:id' do
-    it 'returns the details of a power of attorney request' do
-      get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request_details_id}")
+    it 'returns the details of a specific power of attorney request' do
+      get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
+
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)).to include(poa_request_details_mock_data)
+      parsed_response = JSON.parse(response.body)
+
+      expected_response = AccreditedRepresentativePortal::PowerOfAttorneyRequestSerializer
+                          .new(poa_request)
+                          .serializable_hash
+
+      expect(deep_stringify(parsed_response)).to eq(deep_stringify(expected_response))
+    end
+  end
+
+  def deep_stringify(value)
+    case value
+    when Hash
+      value.each_with_object({}) do |(k, v), result|
+        result[k.to_s] = deep_stringify(v) # Stringify keys and recursively process values
+      end
+    when Array
+      value.map { |v| deep_stringify(v) } # Recursively process arrays
+    when Symbol
+      value.to_s # Convert symbols to strings
+    else
+      value # Leave other primitives (e.g., strings, numbers, nil) as is
     end
   end
 end
