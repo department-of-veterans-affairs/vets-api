@@ -12,8 +12,8 @@ module Vets
         attr_reader :original_attributes
       end
 
-      def initialize(*args, **kwargs)
-        super(*args, **kwargs) if defined?(super)
+      def initialize(*, **)
+        super(*, **) if defined?(super)
         @original_attributes = attribute_values.dup
       end
 
