@@ -1,4 +1,4 @@
-class CreateEvidenceSubmissions < ActiveRecord::Migration[7.1]
+class CreateEvidenceSubmissions < ActiveRecord::Migration[7.2]
   def change
     create_table :evidence_submissions do |t|
       t.string :job_id
@@ -11,6 +11,7 @@ class CreateEvidenceSubmissions < ActiveRecord::Migration[7.1]
       t.string :upload_status
       t.string :va_notify_id
       t.string :va_notify_status
+      t.datetime :va_notify_date
       t.date :delete_date
       t.string :tracked_item_id
 
