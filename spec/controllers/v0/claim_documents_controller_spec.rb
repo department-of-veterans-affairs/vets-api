@@ -13,7 +13,7 @@ RSpec.describe V0::ClaimDocumentsController, type: :controller do
 
   before do
     allow(controller).to receive_messages(current_user: user, uploads_monitor: monitor, intake_service:)
-    allow(PersistentAttachments::PensionBurial).to receive(:new).and_return(attachment)
+    allow(PersistentAttachment).to receive(:new).and_return(attachment)
     allow(monitor).to receive_messages(track_document_upload_attempt: nil, track_document_upload_success: nil,
                                        track_document_upload_failed: nil)
   end

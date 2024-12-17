@@ -15,11 +15,12 @@ module V0
     def create
       uploads_monitor.track_document_upload_attempt(form_id, current_user)
 
-      @attachment = klass.new(form_id:)
+      @attachment = klass&.new(form_id:)
       # add the file after so that we have a form_id and guid for the uploader to use
       @attachment.file = unlock_file(params['file'], params['password'])
 
-      if Flipper.enabled?(:document_upload_validation_enabled) && !stamped_pdf_valid?
+      if Flipper.enabled?(:document_upload_validation_enabled) && !stamped_pdf_valid? &&
+         %w[21P-527EZ 21P-530 21P-530V2].include?(form_id)
         raise Common::Exceptions::ValidationErrors, @attachment
       end
 
@@ -39,7 +40,7 @@ module V0
 
     def klass
       case form_id
-      when '21P-527EZ', '21P-530EZ'
+      when '21P-527EZ', '21P-530EZ', '21P-530V2'
         PensionBurial::TagSentry.tag_sentry
         PersistentAttachments::PensionBurial
       when '21-686C', '686C-674'
@@ -81,7 +82,6 @@ module V0
     def stamped_pdf_valid?
       extension = File.extname(@attachment&.file&.id)
       allowed_types = PersistentAttachment::ALLOWED_DOCUMENT_TYPES
-
       unless allowed_types.include?(extension)
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: I18n.t('errors.messages.extension_allowlist_error', extension:, allowed_types:),
@@ -100,11 +100,11 @@ module V0
     end
 
     def intake_service
-      @intake_service = BenefitsIntake::Service.new
+      @intake_service ||= BenefitsIntake::Service.new
     end
 
     def uploads_monitor
-      @uploads_monitor ||= ClaimDocuments::Monitor.new(intake_service)
+      @uploads_monitor ||= ClaimDocuments::Monitor.new('claim_documents_controller')
     end
   end
 end
