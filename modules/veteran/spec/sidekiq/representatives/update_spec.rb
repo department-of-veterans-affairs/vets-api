@@ -13,6 +13,7 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { true }
 
     before do
+      Flipper.disable(:va_v3_contact_information_service)
       create_flagged_records(flag_type)
       allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
     end
@@ -48,6 +49,7 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { false }
 
     before do
+      Flipper.disable(:va_v3_contact_information_service)
       create_flagged_records(flag_type)
     end
 
@@ -218,6 +220,7 @@ RSpec.describe Representatives::Update do
 
     before do
       Flipper.disable(:va_v3_contact_information_service)
+      Flipper.disable(:va_v3_contact_information_service)
       allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response)
     end
 
@@ -259,6 +262,7 @@ RSpec.describe Representatives::Update do
 
       before do
         Flipper.disable(:va_v3_contact_information_service)
+        Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end
 
@@ -293,6 +297,7 @@ RSpec.describe Representatives::Update do
 
       before do
         Flipper.disable(:va_v3_contact_information_service)
+        Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end
 
@@ -326,6 +331,7 @@ RSpec.describe Representatives::Update do
       let!(:representative) { create_representative }
 
       before do
+        Flipper.disable(:va_v3_contact_information_service)
         Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end

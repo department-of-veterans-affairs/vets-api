@@ -27,14 +27,17 @@ require 'mhv_ac/configuration'
 require 'mpi/configuration'
 require 'pagerduty/configuration'
 require 'post911_sob/dgib/configuration'
+require 'post911_sob/dgib/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
 require 'search/configuration'
 require 'search_gsa/configuration'
+require 'search_gsa/configuration'
 require 'search_typeahead/configuration'
 require 'search_click_tracking/configuration'
 require 'va_profile/address_validation/configuration'
+require 'va_profile/v3/address_validation/configuration'
 require 'va_profile/v3/address_validation/configuration'
 require 'va_profile/contact_information/configuration'
 require 'va_profile/v2/contact_information/configuration'
@@ -69,9 +72,11 @@ Rails.application.reloader.to_prepare do
     MHVAC::Configuration.instance.breakers_service,
     MPI::Configuration.instance.breakers_service,
     Post911SOB::DGIB::Configuration.instance.breakers_service,
+    Post911SOB::DGIB::Configuration.instance.breakers_service,
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
     VAProfile::AddressValidation::Configuration.instance.breakers_service,
+    VAProfile::V3::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::V3::AddressValidation::Configuration.instance.breakers_service,
     VAProfile::ContactInformation::Configuration.instance.breakers_service,
     VAProfile::V2::ContactInformation::Configuration.instance.breakers_service,
@@ -81,13 +86,18 @@ Rails.application.reloader.to_prepare do
     VAProfile::VeteranStatus::Configuration.instance.breakers_service,
     Search::Configuration.instance.breakers_service,
     SearchGsa::Configuration.instance.breakers_service,
+    SearchGsa::Configuration.instance.breakers_service,
     SearchTypeahead::Configuration.instance.breakers_service,
     SearchClickTracking::Configuration.instance.breakers_service,
     VAOS::Configuration.instance.breakers_service,
+    Vye::DGIB::Configuration.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,
     CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
     VEText::Configuration.instance.breakers_service,
     PagerDuty::Configuration.instance.breakers_service,
+    ClaimsApi::LocalBGS.breakers_service,
+    MebApi::DGI::Configuration.instance.breakers_service,
+    MebApi::DGI::Letters::Configuration.instance.breakers_service
     ClaimsApi::LocalBGS.breakers_service,
     MebApi::DGI::Configuration.instance.breakers_service,
     MebApi::DGI::Letters::Configuration.instance.breakers_service

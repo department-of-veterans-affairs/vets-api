@@ -93,11 +93,16 @@ module ClaimsApi
           Service.new(
             bean: CorporateUpdateServiceBean::DEFINITION,
             path: 'CorporateUpdateWebService'
+            bean: CorporateUpdateServiceBean::DEFINITION,
+            path: 'CorporateUpdateWebService'
           )
 
         module UpdatePoaAccess
+        module UpdatePoaAccess
           DEFINITION =
             Action.new(
+              service: CorporateUpdateWebService::DEFINITION,
+              name: 'updatePoaAccess',
               service: CorporateUpdateWebService::DEFINITION,
               name: 'updatePoaAccess',
               key: 'return'
@@ -119,9 +124,18 @@ module ClaimsApi
           )
       end
 
+      module EBenefitsBenefitClaimStatusWebService
+        DEFINITION =
+          Service.new(
+            bean: EBenefitsBenefitClaimStatusWebServiceBean::DEFINITION,
+            path: 'EBenefitsBnftClaimStatusWebService'
+          )
+      end
+
       ##
       # IntentToFileWebServiceBean
       #
+      module IntentToFileWebService
       module IntentToFileWebService
         DEFINITION =
           Bean.new(
@@ -137,6 +151,7 @@ module ClaimsApi
       # OrgWebServiceBean
       #
       module OrgWebService
+      module OrgWebService
         DEFINITION =
           Bean.new(
             path: 'OrgWebServiceBean',
@@ -150,6 +165,7 @@ module ClaimsApi
       ##
       # PersonWebServiceBean
       #
+      module PersonWebService
       module PersonWebService
         DEFINITION =
           Bean.new(
@@ -165,7 +181,18 @@ module ClaimsApi
       # StandardDataService
       #
       module StandardDataService
+      ##
+      # StandardDataService
+      #
+      module StandardDataService
         DEFINITION =
+          Bean.new(
+            path: 'StandardDataService',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
           Bean.new(
             path: 'StandardDataService',
             namespaces: Namespaces.new(
@@ -178,6 +205,7 @@ module ClaimsApi
       ##
       # StandardDataWebServiceBean
       #
+      module StandardDataWebService
       module StandardDataWebService
         DEFINITION =
           Bean.new(
@@ -306,6 +334,27 @@ module ClaimsApi
       end
 
       ##
+      # VetRecordService
+      ##
+      module VetRecordServiceBean
+        DEFINITION =
+          Bean.new(
+            path: 'VetRecordServiceBean',
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      module VetRecordWebService
+        DEFINITION =
+          Service.new(
+            bean: VetRecordServiceBean::DEFINITION,
+            path: 'VetRecordWebService'
+          )
+      end
+
       # VetRecordService
       ##
       module VetRecordServiceBean
