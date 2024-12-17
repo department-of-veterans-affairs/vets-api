@@ -22,9 +22,6 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     after do
       Timecop.return
     end
-    after do
-      Timecop.return
-    end
 
     describe 'POST /v0/profile/email_addresses/create_or_update' do
       let(:email) { build(:email, vet360_id: user.vet360_id) }
@@ -34,15 +31,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         VCR.use_cassette('va_profile/contact_information/put_email_success') do
           post('/v0/profile/email_addresses/create_or_update', params: email.to_json, headers:)
         end
-      it 'calls update_email' do
-        expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:update_email).and_call_original
-        VCR.use_cassette('va_profile/contact_information/put_email_success') do
-          post('/v0/profile/email_addresses/create_or_update', params: email.to_json, headers:)
-        end
 
-        expect(response).to have_http_status(:ok)
-      end
-    end
         expect(response).to have_http_status(:ok)
       end
     end
@@ -54,15 +43,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         it 'matches the email address schema', :aggregate_failures do
           VCR.use_cassette('va_profile/contact_information/post_email_success') do
             post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
-      context 'with a 200 response' do
-        it 'matches the email address schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/contact_information/post_email_success') do
-            post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
 
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('va_profile/transaction_response')
-          end
-        end
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('va_profile/transaction_response')
           end
@@ -73,16 +54,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             post('/v0/profile/email_addresses',
                  params: { email_address: 'test@example.com' }.to_json,
                  headers: headers_with_camel)
-        it 'matches the email address camel-inflected schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/contact_information/post_email_success') do
-            post('/v0/profile/email_addresses',
-                 params: { email_address: 'test@example.com' }.to_json,
-                 headers: headers_with_camel)
 
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_camelized_response_schema('va_profile/transaction_response')
-          end
-        end
             expect(response).to have_http_status(:ok)
             expect(response).to match_camelized_response_schema('va_profile/transaction_response')
           end
@@ -95,25 +67,11 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             end.to change(AsyncTransaction::VAProfile::EmailTransaction, :count).from(0).to(1)
           end
         end
-        it 'creates a new AsyncTransaction::VAProfile::EmailTransaction db record' do
-          VCR.use_cassette('va_profile/contact_information/post_email_success') do
-            expect do
-              post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
-            end.to change(AsyncTransaction::VAProfile::EmailTransaction, :count).from(0).to(1)
-          end
-        end
 
         it 'invalidates the cache for the va-profile-contact-info-response Redis key' do
           VCR.use_cassette('va_profile/contact_information/post_email_success') do
             expect_any_instance_of(Common::RedisStore).to receive(:destroy)
-        it 'invalidates the cache for the va-profile-contact-info-response Redis key' do
-          VCR.use_cassette('va_profile/contact_information/post_email_success') do
-            expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-            post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
-          end
-        end
-      end
             post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
           end
         end
@@ -124,16 +82,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
           VCR.use_cassette('va_profile/contact_information/post_email_w_id_error') do
             post('/v0/profile/email_addresses',
                  params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
-      context 'with a 400 response' do
-        it 'matches the errors schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/contact_information/post_email_w_id_error') do
-            post('/v0/profile/email_addresses',
-                 params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
 
-            expect(response).to have_http_status(:bad_request)
-            expect(response).to match_response_schema('errors')
-          end
-        end
             expect(response).to have_http_status(:bad_request)
             expect(response).to match_response_schema('errors')
           end
@@ -144,16 +93,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             post('/v0/profile/email_addresses',
                  params: { id: 42, email_address: 'person42@example.com' }.to_json,
                  headers: headers_with_camel)
-        it 'matches the errors camel-inflected schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/contact_information/post_email_w_id_error') do
-            post('/v0/profile/email_addresses',
-                 params: { id: 42, email_address: 'person42@example.com' }.to_json,
-                 headers: headers_with_camel)
 
-            expect(response).to have_http_status(:bad_request)
-            expect(response).to match_camelized_response_schema('errors')
-          end
-        end
             expect(response).to have_http_status(:bad_request)
             expect(response).to match_camelized_response_schema('errors')
           end
@@ -162,15 +102,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         it 'does not invalidate the cache' do
           VCR.use_cassette('va_profile/contact_information/post_email_w_id_error') do
             expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
-        it 'does not invalidate the cache' do
-          VCR.use_cassette('va_profile/contact_information/post_email_w_id_error') do
-            expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
 
-            post('/v0/profile/email_addresses',
-                 params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
-          end
-        end
-      end
             post('/v0/profile/email_addresses',
                  params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
           end
@@ -181,15 +113,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         it 'returns a forbidden response' do
           VCR.use_cassette('va_profile/contact_information/post_email_status_403') do
             post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
-      context 'with a 403 response' do
-        it 'returns a forbidden response' do
-          VCR.use_cassette('va_profile/contact_information/post_email_status_403') do
-            post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
 
-            expect(response).to have_http_status(:forbidden)
-          end
-        end
-      end
             expect(response).to have_http_status(:forbidden)
           end
         end
@@ -198,14 +122,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
       context 'with a validation issue' do
         it 'matches the errors schema', :aggregate_failures do
           post('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers:)
-      context 'with a validation issue' do
-        it 'matches the errors schema', :aggregate_failures do
-          post('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers:)
 
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response).to match_response_schema('errors')
-          expect(errors_for(response)).to include "email-address - can't be blank"
-        end
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('errors')
           expect(errors_for(response)).to include "email-address - can't be blank"
@@ -213,15 +130,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
 
         it 'matches the errors camel-inflected schema', :aggregate_failures do
           post('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers_with_camel)
-        it 'matches the errors camel-inflected schema', :aggregate_failures do
-          post('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers_with_camel)
 
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response).to match_camelized_response_schema('errors')
-          expect(errors_for(response)).to include "email-address - can't be blank"
-        end
-      end
-    end
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_camelized_response_schema('errors')
           expect(errors_for(response)).to include "email-address - can't be blank"
@@ -237,16 +146,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
           VCR.use_cassette('va_profile/contact_information/put_email_success') do
             put('/v0/profile/email_addresses',
                 params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
-      context 'with a 200 response' do
-        it 'matches the email address schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/contact_information/put_email_success') do
-            put('/v0/profile/email_addresses',
-                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
 
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('va_profile/transaction_response')
-          end
-        end
             expect(response).to have_http_status(:ok)
             expect(response).to match_response_schema('va_profile/transaction_response')
           end
@@ -257,16 +157,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             put('/v0/profile/email_addresses',
                 params: { id: 42, email_address: 'person42@example.com' }.to_json,
                 headers: headers_with_camel)
-        it 'matches the email address camel-inflected schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/contact_information/put_email_success') do
-            put('/v0/profile/email_addresses',
-                params: { id: 42, email_address: 'person42@example.com' }.to_json,
-                headers: headers_with_camel)
 
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_camelized_response_schema('va_profile/transaction_response')
-          end
-        end
             expect(response).to have_http_status(:ok)
             expect(response).to match_camelized_response_schema('va_profile/transaction_response')
           end
@@ -280,18 +171,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             end.to change(AsyncTransaction::VAProfile::EmailTransaction, :count).from(0).to(1)
           end
         end
-        it 'creates a new AsyncTransaction::VAProfile::EmailTransaction db record' do
-          VCR.use_cassette('va_profile/contact_information/put_email_success') do
-            expect do
-              put('/v0/profile/email_addresses',
-                  params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
-            end.to change(AsyncTransaction::VAProfile::EmailTransaction, :count).from(0).to(1)
-          end
-        end
 
-        it 'invalidates the cache for the va-profile-contact-info-response Redis key' do
-          VCR.use_cassette('va_profile/contact_information/put_email_success') do
-            expect_any_instance_of(Common::RedisStore).to receive(:destroy)
         it 'invalidates the cache for the va-profile-contact-info-response Redis key' do
           VCR.use_cassette('va_profile/contact_information/put_email_success') do
             expect_any_instance_of(Common::RedisStore).to receive(:destroy)
@@ -301,15 +181,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
           end
         end
       end
-            put('/v0/profile/email_addresses',
-                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
-          end
-        end
-      end
 
-      context 'with a validation issue' do
-        it 'matches the errors schema', :aggregate_failures do
-          put('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers:)
       context 'with a validation issue' do
         it 'matches the errors schema', :aggregate_failures do
           put('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers:)
@@ -318,21 +190,10 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
           expect(response).to match_response_schema('errors')
           expect(errors_for(response)).to include "email-address - can't be blank"
         end
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response).to match_response_schema('errors')
-          expect(errors_for(response)).to include "email-address - can't be blank"
-        end
 
         it 'matches the errors camel-inflected schema', :aggregate_failures do
           put('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers_with_camel)
-        it 'matches the errors camel-inflected schema', :aggregate_failures do
-          put('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers_with_camel)
 
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response).to match_camelized_response_schema('errors')
-          expect(errors_for(response)).to include "email-address - can't be blank"
-        end
-      end
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_camelized_response_schema('errors')
           expect(errors_for(response)).to include "email-address - can't be blank"
@@ -346,18 +207,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
                         effective_end_date: '2019-04-09T11:52:03.000-06:00')
         end
         let(:id_in_cassette) { 42 }
-      context 'when effective_end_date is included' do
-        let(:email) do
-          build(:email, vet360_id: user.vet360_id,
-                        email_address: 'person42@example.com',
-                        effective_end_date: '2019-04-09T11:52:03.000-06:00')
-        end
-        let(:id_in_cassette) { 42 }
 
-        before do
-          allow_any_instance_of(User).to receive(:icn).and_return('1234')
-          email.id = id_in_cassette
-        end
         before do
           allow_any_instance_of(User).to receive(:icn).and_return('1234')
           email.id = id_in_cassette
@@ -372,27 +222,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             expect(response).to match_response_schema('va_profile/transaction_response')
           end
         end
-        it 'effective_end_date is NOT included in the request body', :aggregate_failures do
-          VCR.use_cassette('va_profile/contact_information/put_email_ignore_eed', VCR::MATCH_EVERYTHING) do
-            # The cassette we're using includes the effectiveEndDate in the body.
-            # So this test will not pass if it's missing
-            put('/v0/profile/email_addresses', params: email.to_json, headers:)
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('va_profile/transaction_response')
-          end
-        end
 
-        it 'effective_end_date is NOT included in the request body when camel-inflected', :aggregate_failures do
-          VCR.use_cassette('va_profile/contact_information/put_email_ignore_eed', VCR::MATCH_EVERYTHING) do
-            # The cassette we're using includes the effectiveEndDate in the body.
-            # So this test will not pass if it's missing
-            put('/v0/profile/email_addresses', params: email.to_json, headers: headers_with_camel)
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_camelized_response_schema('va_profile/transaction_response')
-          end
-        end
-      end
-    end
         it 'effective_end_date is NOT included in the request body when camel-inflected', :aggregate_failures do
           VCR.use_cassette('va_profile/contact_information/put_email_ignore_eed', VCR::MATCH_EVERYTHING) do
             # The cassette we're using includes the effectiveEndDate in the body.
@@ -415,21 +245,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         build(:email, vet360_id: user.vet360_id, email_address: 'person103@example.com')
       end
       let(:id_in_cassette) { 42 }
-      let(:email) do
-        build(:email, vet360_id: user.vet360_id, email_address: 'person103@example.com')
-      end
-      let(:id_in_cassette) { 42 }
 
-      context 'when the method is DELETE' do
-        it 'effective_end_date gets appended to the request body', :aggregate_failures do
-          VCR.use_cassette('va_profile/contact_information/delete_email_success', VCR::MATCH_EVERYTHING) do
-            # The cassette we're using includes the effectiveEndDate in the body.
-            # So this test will not pass if it's missing
-            delete('/v0/profile/email_addresses', params: email.to_json, headers:)
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('va_profile/transaction_response')
-          end
-        end
       context 'when the method is DELETE' do
         it 'effective_end_date gets appended to the request body', :aggregate_failures do
           VCR.use_cassette('va_profile/contact_information/delete_email_success', VCR::MATCH_EVERYTHING) do
@@ -476,28 +292,10 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         expect(response).to have_http_status(:ok)
       end
     end
-      it 'calls update_email' do
-        expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:update_email).and_call_original
-        VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
-          post('/v0/profile/email_addresses/create_or_update', params: email.to_json, headers:)
-        end
-        expect(response).to have_http_status(:ok)
-      end
-    end
 
     describe 'POST /v0/profile/email_addresses v2' do
       let(:email) { build(:email, :contact_info_v2, vet360_id: user.vet360_id) }
-    describe 'POST /v0/profile/email_addresses v2' do
-      let(:email) { build(:email, :contact_info_v2, vet360_id: user.vet360_id) }
 
-      context 'with a 200 response' do
-        it 'matches the email address schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
-            post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('va_profile/transaction_response')
-          end
-        end
       context 'with a 200 response' do
         it 'matches the email address schema', :aggregate_failures do
           VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
@@ -512,16 +310,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             post('/v0/profile/email_addresses',
                  params: { email_address: 'test@example.com' }.to_json,
                  headers: headers_with_camel)
-        it 'matches the email address camel-inflected schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
-            post('/v0/profile/email_addresses',
-                 params: { email_address: 'test@example.com' }.to_json,
-                 headers: headers_with_camel)
 
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_camelized_response_schema('va_profile/transaction_response')
-          end
-        end
             expect(response).to have_http_status(:ok)
             expect(response).to match_camelized_response_schema('va_profile/transaction_response')
           end
@@ -534,25 +323,11 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             end.to change(AsyncTransaction::VAProfile::EmailTransaction, :count).from(0).to(1)
           end
         end
-        it 'creates a new AsyncTransaction::VAProfile::EmailTransaction db record' do
-          VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
-            expect do
-              post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
-            end.to change(AsyncTransaction::VAProfile::EmailTransaction, :count).from(0).to(1)
-          end
-        end
 
         it 'invalidates the cache for the va-profile-v2-contact-info-response Redis key' do
           VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
             expect_any_instance_of(Common::RedisStore).to receive(:destroy)
-        it 'invalidates the cache for the va-profile-v2-contact-info-response Redis key' do
-          VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
-            expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-            post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
-          end
-        end
-      end
             post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
           end
         end
@@ -563,16 +338,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
           VCR.use_cassette('va_profile/v2/contact_information/post_email_w_id_error') do
             post('/v0/profile/email_addresses',
                  params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
-      context 'with a 400 response v2' do
-        it 'matches the errors schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/v2/contact_information/post_email_w_id_error') do
-            post('/v0/profile/email_addresses',
-                 params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
 
-            expect(response).to have_http_status(:bad_request)
-            expect(response).to match_response_schema('errors')
-          end
-        end
             expect(response).to have_http_status(:bad_request)
             expect(response).to match_response_schema('errors')
           end
@@ -583,16 +349,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             post('/v0/profile/email_addresses',
                  params: { id: 42, email_address: 'person42@example.com' }.to_json,
                  headers: headers_with_camel)
-        it 'matches the errors camel-inflected schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/v2/contact_information/post_email_w_id_error') do
-            post('/v0/profile/email_addresses',
-                 params: { id: 42, email_address: 'person42@example.com' }.to_json,
-                 headers: headers_with_camel)
 
-            expect(response).to have_http_status(:bad_request)
-            expect(response).to match_camelized_response_schema('errors')
-          end
-        end
             expect(response).to have_http_status(:bad_request)
             expect(response).to match_camelized_response_schema('errors')
           end
@@ -601,15 +358,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         it 'does not invalidate the cache' do
           VCR.use_cassette('va_profile/v2/contact_information/post_email_w_id_error') do
             expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
-        it 'does not invalidate the cache' do
-          VCR.use_cassette('va_profile/v2/contact_information/post_email_w_id_error') do
-            expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
 
-            post('/v0/profile/email_addresses',
-                 params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
-          end
-        end
-      end
             post('/v0/profile/email_addresses',
                  params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
           end
@@ -620,15 +369,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         it 'returns a forbidden response' do
           VCR.use_cassette('va_profile/v2/contact_information/post_email_status_400') do
             post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
-      context 'with a 400 response' do
-        it 'returns a forbidden response' do
-          VCR.use_cassette('va_profile/v2/contact_information/post_email_status_400') do
-            post('/v0/profile/email_addresses', params: { email_address: 'test@example.com' }.to_json, headers:)
 
-            expect(response).to have_http_status(:bad_request)
-          end
-        end
-      end
             expect(response).to have_http_status(:bad_request)
           end
         end
@@ -637,21 +378,12 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
       context 'with a validation issue' do
         it 'matches the errors schema', :aggregate_failures do
           post('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers:)
-      context 'with a validation issue' do
-        it 'matches the errors schema', :aggregate_failures do
-          post('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers:)
 
           expect(response).to have_http_status(:unprocessable_entity)
           expect(response).to match_response_schema('errors')
           expect(errors_for(response)).to include "email-address - can't be blank"
         end
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response).to match_response_schema('errors')
-          expect(errors_for(response)).to include "email-address - can't be blank"
-        end
 
-        it 'matches the errors camel-inflected schema', :aggregate_failures do
-          post('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers_with_camel)
         it 'matches the errors camel-inflected schema', :aggregate_failures do
           post('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers_with_camel)
 
@@ -661,23 +393,10 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         end
       end
     end
-          expect(response).to have_http_status(:unprocessable_entity)
-          expect(response).to match_camelized_response_schema('errors')
-          expect(errors_for(response)).to include "email-address - can't be blank"
-        end
-      end
-    end
 
     describe 'PUT /v0/profile/email_addresses v2' do
       let(:email) { build(:email, :contact_info_v2, vet360_id: user.vet360_id) }
-    describe 'PUT /v0/profile/email_addresses v2' do
-      let(:email) { build(:email, :contact_info_v2, vet360_id: user.vet360_id) }
 
-      context 'with a 200 response' do
-        it 'matches the email address schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
-            put('/v0/profile/email_addresses',
-                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
       context 'with a 200 response' do
         it 'matches the email address schema', :aggregate_failures do
           VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
@@ -688,26 +407,13 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             expect(response).to match_response_schema('va_profile/transaction_response')
           end
         end
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('va_profile/transaction_response')
-          end
-        end
 
         it 'matches the email address camel-inflected schema', :aggregate_failures do
           VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
             put('/v0/profile/email_addresses',
                 params: { id: 42, email_address: 'person42@example.com' }.to_json,
                 headers: headers_with_camel)
-        it 'matches the email address camel-inflected schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
-            put('/v0/profile/email_addresses',
-                params: { id: 42, email_address: 'person42@example.com' }.to_json,
-                headers: headers_with_camel)
 
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_camelized_response_schema('va_profile/transaction_response')
-          end
-        end
             expect(response).to have_http_status(:ok)
             expect(response).to match_camelized_response_schema('va_profile/transaction_response')
           end
@@ -721,27 +427,11 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             end.to change(AsyncTransaction::VAProfile::EmailTransaction, :count).from(0).to(1)
           end
         end
-        it 'creates a new AsyncTransaction::VAProfile::EmailTransaction db record' do
-          VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
-            expect do
-              put('/v0/profile/email_addresses',
-                  params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
-            end.to change(AsyncTransaction::VAProfile::EmailTransaction, :count).from(0).to(1)
-          end
-        end
 
         it 'invalidates the cache for the va-profile-v2-contact-info-response Redis key' do
           VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
             expect_any_instance_of(Common::RedisStore).to receive(:destroy)
-        it 'invalidates the cache for the va-profile-v2-contact-info-response Redis key' do
-          VCR.use_cassette('va_profile/v2/contact_information/put_email_success') do
-            expect_any_instance_of(Common::RedisStore).to receive(:destroy)
 
-            put('/v0/profile/email_addresses',
-                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
-          end
-        end
-      end
             put('/v0/profile/email_addresses',
                 params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
           end
@@ -752,16 +442,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         it 'matches the errors schema', :aggregate_failures do
           VCR.use_cassette('va_profile/v2/contact_information/person') do
             put('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers:)
-      context 'with a validation issue' do
-        it 'matches the errors schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/v2/contact_information/person') do
-            put('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers:)
 
-            expect(response).to have_http_status(:unprocessable_entity)
-            expect(response).to match_response_schema('errors')
-            expect(errors_for(response)).to include "email-address - can't be blank"
-          end
-        end
             expect(response).to have_http_status(:unprocessable_entity)
             expect(response).to match_response_schema('errors')
             expect(errors_for(response)).to include "email-address - can't be blank"
@@ -771,16 +452,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         it 'matches the errors camel-inflected schema', :aggregate_failures do
           VCR.use_cassette('va_profile/v2/contact_information/person') do
             put('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers_with_camel)
-        it 'matches the errors camel-inflected schema', :aggregate_failures do
-          VCR.use_cassette('va_profile/v2/contact_information/person') do
-            put('/v0/profile/email_addresses', params: { email_address: '' }.to_json, headers: headers_with_camel)
 
-            expect(response).to have_http_status(:unprocessable_entity)
-            expect(response).to match_camelized_response_schema('errors')
-            expect(errors_for(response)).to include "email-address - can't be blank"
-          end
-        end
-      end
             expect(response).to have_http_status(:unprocessable_entity)
             expect(response).to match_camelized_response_schema('errors')
             expect(errors_for(response)).to include "email-address - can't be blank"
@@ -795,20 +467,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
                                           effective_end_date: '2024-09-09T11:52:03.000-06:00')
         end
         let(:id_in_cassette) { 42 }
-      context 'when effective_end_date is included' do
-        let(:email) do
-          build(:email, :contact_info_v2, vet360_id: user.vet360_id,
-                                          email_address: 'person42@example.com',
-                                          effective_end_date: '2024-09-09T11:52:03.000-06:00')
-        end
-        let(:id_in_cassette) { 42 }
 
-        before do
-          allow_any_instance_of(User).to receive(:icn).and_return('1234')
-          email.id = id_in_cassette
-        end
-      end
-    end
         before do
           allow_any_instance_of(User).to receive(:icn).and_return('1234')
           email.id = id_in_cassette
@@ -828,9 +487,6 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
       after do
         Timecop.return
       end
-      after do
-        Timecop.return
-      end
 
       context 'when the method is DELETE' do
         it 'effective_end_date gets appended to the request body', :aggregate_failures do
@@ -840,21 +496,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
             expect(response).to match_response_schema('va_profile/transaction_response')
           end
         end
-      context 'when the method is DELETE' do
-        it 'effective_end_date gets appended to the request body', :aggregate_failures do
-          VCR.use_cassette('va_profile/v2/contact_information/delete_email_success', VCR::MATCH_EVERYTHING) do
-            delete('/v0/profile/email_addresses', params: email.to_json, headers:)
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_response_schema('va_profile/transaction_response')
-          end
-        end
 
-        it 'effective_end_date gets appended to the request body when camel-inflected', :aggregate_failures do
-          VCR.use_cassette('va_profile/v2/contact_information/delete_email_success', VCR::MATCH_EVERYTHING) do
-            delete('/v0/profile/email_addresses', params: email.to_json, headers: headers_with_camel)
-            expect(response).to have_http_status(:ok)
-            expect(response).to match_camelized_response_schema('va_profile/transaction_response')
-          end
         it 'effective_end_date gets appended to the request body when camel-inflected', :aggregate_failures do
           VCR.use_cassette('va_profile/v2/contact_information/delete_email_success', VCR::MATCH_EVERYTHING) do
             delete('/v0/profile/email_addresses', params: email.to_json, headers: headers_with_camel)

@@ -9,14 +9,7 @@ describe Common::CacheAside do
   unless Flipper.enabled?(:va_v3_contact_information_service)
     describe 'ContactInformationV1' do
       let(:person) { build :person }
-  unless Flipper.enabled?(:va_v3_contact_information_service)
-    describe 'ContactInformationV1' do
-      let(:person) { build :person }
 
-      before do
-        Flipper.disable(:va_v3_contact_information_service)
-        allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
-      end
       before do
         Flipper.disable(:va_v3_contact_information_service)
         allow(VAProfile::Models::Person).to receive(:build_from).and_return(person)
@@ -34,24 +27,7 @@ describe Common::CacheAside do
             )
           end
         end
-      describe '#do_cached_with' do
-        let(:person_response) do
-          if Flipper.enabled?(:va_v3_contact_information_service)
-            VAProfile::V2::ContactInformation::PersonResponse.from(
-              OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
-            )
-          else
-            VAProfile::ContactInformation::PersonResponse.from(
-              OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
-            )
-          end
-        end
 
-        it 'sets the attributes needed to perform redis actions', :aggregate_failures do
-          instance1 = VAProfileRedis::ContactInformation.for_user(user)
-          instance1.do_cached_with(key: 'test') { person_response }
-          expect(instance1.attributes[:uuid]).not_to be(nil)
-          expect(instance1.attributes[:response]).not_to be(nil)
         it 'sets the attributes needed to perform redis actions', :aggregate_failures do
           instance1 = VAProfileRedis::ContactInformation.for_user(user)
           instance1.do_cached_with(key: 'test') { person_response }

@@ -220,7 +220,6 @@ RSpec.describe Representatives::Update do
 
     before do
       Flipper.disable(:va_v3_contact_information_service)
-      Flipper.disable(:va_v3_contact_information_service)
       allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response)
     end
 
@@ -262,7 +261,6 @@ RSpec.describe Representatives::Update do
 
       before do
         Flipper.disable(:va_v3_contact_information_service)
-        Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end
 
@@ -297,7 +295,6 @@ RSpec.describe Representatives::Update do
 
       before do
         Flipper.disable(:va_v3_contact_information_service)
-        Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end
 
@@ -331,7 +328,6 @@ RSpec.describe Representatives::Update do
       let!(:representative) { create_representative }
 
       before do
-        Flipper.disable(:va_v3_contact_information_service)
         Flipper.disable(:va_v3_contact_information_service)
         create_flagged_records('address')
       end
@@ -733,10 +729,6 @@ RSpec.describe Representatives::Update do
       before do
         allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
         allow_any_instance_of(VAProfile::V3::AddressValidation::Service).to receive(:candidate).and_return(api_response)
-      end
-
-      after do
-        Flipper.disable(:va_v3_contact_information_service)
       end
 
       context 'when JSON parsing fails' do

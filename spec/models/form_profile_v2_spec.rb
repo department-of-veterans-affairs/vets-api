@@ -7,13 +7,30 @@ require 'gi/client'
 
 RSpec.describe FormProfile, type: :model do
   include SchemaMatchers
+
+  before do
+    Flipper.enable(:remove_pciu)
+    Flipper.enable(:va_v3_contact_information_service)
+    Flipper.enable(:disability_compensation_remove_pciu)
+    described_class.instance_variable_set(:@mappings, nil)
+    Flipper.disable(:disability_526_toxic_exposure)
+    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
+  end
+
+  after do
+    Flipper.disable(:remove_pciu)
+    Flipper.disable(:va_v3_contact_information_service)
+    Flipper.disable(:disability_compensation_remove_pciu)
+  end
+
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:va_profile_v3_address), vet360_id: '1781151') }
+  let(:contact_info) { form_profile.send :initialize_contact_information }
   let(:form_profile) do
     described_class.new(form_id: 'foo', user:)
   end
-  let(:va_profile_address) { form_profile.send :vet360_mailing_address_hash }
-  let(:us_phone) { form_profile.send :va_profile_phone }
-  let(:mobile_phone) { form_profile.send :va_profile_mobile_phone }
+  let(:va_profile_address) { contact_info&.address }
+  let(:us_phone) { contact_info&.home_phone }
+  let(:mobile_phone) { contact_info&.mobile_phone }
   let(:full_name) do
     {
       'first' => user.first_name&.capitalize,
@@ -44,7 +61,7 @@ RSpec.describe FormProfile, type: :model do
       'city' => va_profile_address[:city],
       'state' => va_profile_address[:state],
       'country' => va_profile_address[:country],
-      'postal_code' => va_profile_address[:zip_code]
+      'postal_code' => va_profile_address[:postal_code]
     }
   end
   let(:veteran_address) do
@@ -765,7 +782,7 @@ RSpec.describe FormProfile, type: :model do
               'city' => va_profile_address[:city],
               'stateCode' => va_profile_address[:state],
               'countryName' => va_profile_address[:country],
-              'zipCode5' => va_profile_address[:zip_code]
+              'zipCode5' => va_profile_address[:postal_code]
             },
             'phone' => {
               'areaCode' => us_phone[0..2],
@@ -975,22 +992,6 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  before do
-    Flipper.enable(:remove_pciu)
-    Flipper.enable(:va_v3_contact_information_service)
-    Flipper.enable(:disability_compensation_remove_pciu)
-    user.vet360_contact_info
-    described_class.instance_variable_set(:@mappings, nil)
-    Flipper.disable(:disability_526_toxic_exposure)
-    Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
-  end
-
-  after do
-    Flipper.disable(:remove_pciu)
-    Flipper.disable(:va_v3_contact_information_service)
-    Flipper.disable(:disability_compensation_remove_pciu)
-  end
-
   describe '#initialize_military_information', :skip_va_profile do
     context 'with military_information vaprofile' do
       it 'prefills military data from va profile' do
@@ -1057,27 +1058,6 @@ RSpec.describe FormProfile, type: :model do
     end
   end
 
-  describe '#va_profile_phone', :skip_va_profile, :skip_vet360 do
-    def self.test_va_profile_phone(primary, expected)
-      it "returns #{expected}" do
-        allow_any_instance_of(FormProfile).to receive(:extract_va_profile_phone).and_return(primary)
-        expect(form_profile.send(:va_profile_phone)).to eq(expected)
-      end
-    end
-
-    context 'with nil' do
-      test_va_profile_phone(nil, '')
-    end
-
-    context 'with a us phone number' do
-      test_va_profile_phone('5557940976', '5557940976')
-    end
-
-    context 'with a us 1+ phone number' do
-      test_va_profile_phone('15557940976', '5557940976')
-    end
-  end
-
   describe '#prefill_form' do
     def can_prefill_vaprofile(yes)
       expect(user).to receive(:authorize).at_least(:once).with(:va_profile, :access?).and_return(yes)
@@ -1115,6 +1095,7 @@ RSpec.describe FormProfile, type: :model do
 
         expect(errors.empty?).to eq(true), "schema errors: #{errors}"
       end
+
       expect(prefilled_data).to eq(
         form_profile.send(:clean!, public_send("v#{form_id.underscore}_expected"))
       )

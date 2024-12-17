@@ -93,7 +93,6 @@ class FormProfile
     evss: ['21-526EZ'],
     hca: %w[1010ez 10-10EZR],
     pension_burial: %w[21P-530EZ 21P-527EZ],
-    pension_burial: %w[21P-530EZ 21P-527EZ],
     dependents: ['686C-674'],
     decision_review: %w[20-0995 20-0996 10182],
     mdot: ['MDOT'],
@@ -106,8 +105,6 @@ class FormProfile
     ivc_champva: ['10-7959C'],
     form_upload_flow: ['FORM-UPLOAD-FLOW'],
     acc_rep_management: %w[21-22 21-22A],
-    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
-    dispute_debt: ['DISPUTE-DEBT']
     form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
     dispute_debt: ['DISPUTE-DEBT']
   }.freeze
@@ -130,7 +127,6 @@ class FormProfile
     '22-5490E' => ::FormProfiles::VA5490e,
     '22-5495' => ::FormProfiles::VA5495,
     '21P-530EZ' => ::FormProfiles::VA21p530ez,
-    '21P-530EZ' => ::FormProfiles::VA21p530ez,
     '21-686C' => ::FormProfiles::VA21686c,
     '686C-674' => ::FormProfiles::VA686c674,
     '40-10007' => ::FormProfiles::VA4010007,
@@ -151,8 +147,6 @@ class FormProfile
     'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
-    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
-    'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt
     'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
     'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt
   }.freeze
@@ -355,37 +349,6 @@ class FormProfile
     ''
   end
 
-  def extract_va_profile_phone
-    vet360_contact_info&.home_phone
-  end
-
-  def extract_va_profile_mobile_phone
-    vet360_contact_info&.mobile_phone
-  end
-
-  def va_profile_phone
-    home = extract_va_profile_phone
-    return '' if home.blank?
-
-    home = home.area_code + home.phone_number unless home.is_a?(String)
-    return home if home.size == 10 || home.size > 11
-    return home[1..] if home.size == 11 && home[0] == '1'
-
-    ''
-  end
-
-  def va_profile_mobile_phone
-    mobile = extract_va_profile_mobile_phone
-    return '' if mobile.blank?
-
-    mobile = mobile.area_code + mobile.phone_number unless mobile.is_a?(String)
-
-    return mobile if mobile.size == 10
-    return mobile[1..] if mobile.size == 11 && mobile[0] == '1'
-
-    ''
-  end
-
   def pciu_us_phone
     return '' if pciu_primary_phone.blank?
     return pciu_primary_phone if pciu_primary_phone.size == 10
@@ -399,7 +362,6 @@ class FormProfile
   # preference: vet360 mobile -> vet360 home -> pciu
   def phone_object
     mobile = vet360_contact_info&.mobile_phone
-    return mobile if mobile&.area_code && mobile.phone_number
     return mobile if mobile&.area_code && mobile.phone_number
 
     home = vet360_contact_info&.home_phone

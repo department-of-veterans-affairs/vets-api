@@ -19,7 +19,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
           response = subject.get_person
           expect(response).to be_ok
           expect(response.person).to be_a(VAProfile::Models::V3::Person)
-          expect(response.person).to be_a(VAProfile::Models::V3::Person)
         end
       end
 
@@ -46,14 +45,12 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
           response = subject.get_person
           expect(response).to be_ok
           expect(response.person).to be_a(VAProfile::Models::V3::Person)
-          expect(response.person).to be_a(VAProfile::Models::V3::Person)
         end
       end
     end
   end
 
   describe '#post_email' do
-    let(:email) { build(:email, :contact_info_v2, source_system_user: user.icn) }
     let(:email) { build(:email, :contact_info_v2, source_system_user: user.icn) }
 
     context 'when successful' do
@@ -86,7 +83,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       build(
         :email, :contact_info_v2, id: 318_927, email_address: 'person43@example.com',
                                   source_system_user: user.icn
-                                  source_system_user: user.icn
       )
     end
 
@@ -95,7 +91,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-            old_email = user.vaprofile_contact_info.email.email_address
             old_email = user.vaprofile_contact_info.email.email_address
             expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
 
@@ -117,7 +112,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   describe '#post_address' do
     let(:address) do
-      build(:va_profile_v3_address, source_system_user: user.icn)
       build(:va_profile_v3_address, source_system_user: user.icn)
     end
 
@@ -156,7 +150,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   describe '#put_address' do
     let(:address) do
       build(:va_profile_v3_address, :override, source_system_user: user.icn)
-      build(:va_profile_v3_address, :override, source_system_user: user.icn)
     end
 
     context 'when successful' do
@@ -180,7 +173,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     context 'with a validation key' do
       let(:address) do
         build(:va_profile_v3_address, :override, country_name: nil)
-        build(:va_profile_v3_address, :override, country_name: nil)
       end
 
       it 'overrides the address error', run_at: '2020-02-14T00:19:15.000Z' do
@@ -195,7 +187,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   end
 
   describe '#put_telephone' do
-    let(:telephone) { build(:telephone, :contact_info_v2, source_system_user: user.icn) }
     let(:telephone) { build(:telephone, :contact_info_v2, source_system_user: user.icn) }
 
     context 'when successful' do
@@ -213,7 +204,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   describe '#post_telephone' do
     let(:telephone) do
-      build(:telephone, :contact_info_v2, id: nil, source_system_user: user.icn)
       build(:telephone, :contact_info_v2, id: nil, source_system_user: user.icn)
     end
 
@@ -286,7 +276,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       {
         model_name: 'address',
         factory: 'va_profile_v3_address',
-        factory: 'va_profile_v3_address',
         trait: 'contact_info_v2',
         attr: 'residential_address',
         id: 577_127
@@ -309,7 +298,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
         context "when the #{spec_data[:model_name]} doesnt exist" do
           before do
-            allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(spec_data[:attr]).and_return(nil)
             allow_any_instance_of(VAProfileRedis::V2::ContactInformation).to receive(spec_data[:attr]).and_return(nil)
           end
 
@@ -430,7 +418,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         context 'users email is blank' do
           it 'doesnt send an email' do
             expect(user).to receive(:va_profile_v2_email).and_return(nil)
-            expect(user).to receive(:va_profile_v2_email).and_return(nil)
 
             expect(VANotifyEmailJob).not_to receive(:perform_async)
             subject.send(:send_contact_change_notification, transaction_status, :email)
@@ -443,7 +430,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
               allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
 
               expect(VANotifyEmailJob).to receive(:perform_async).with(
-                user.va_profile_v2_email,
                 user.va_profile_v2_email,
                 described_class::CONTACT_INFO_CHANGE_TEMPLATE,
                 { 'contact_info' => 'Email address' }
@@ -585,13 +571,10 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
       context 'for initializing va profile' do
         it 'increments the StatsD VAProfile init_va_profile counters' do
-      context 'for initializing va profile' do
-        it 'increments the StatsD VAProfile init_va_profile counters' do
           transaction_id = '153536a5-8b18-4572-a3d9-4030bea3ab5c'
 
           VCR.use_cassette('va_profile/v2/contact_information/person_transaction_status') do
             expect { subject.get_person_transaction_status(transaction_id) }.to trigger_statsd_increment(
-              "#{VAProfile::Service::STATSD_KEY_PREFIX}.init_va_profile.success"
               "#{VAProfile::Service::STATSD_KEY_PREFIX}.init_va_profile.success"
             )
           end

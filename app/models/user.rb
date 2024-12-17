@@ -35,7 +35,6 @@ class User < Common::RedisStore
   attribute :needs_accepted_terms_of_use, Boolean
   attribute :credential_lock, Boolean
   attribute :session_handle, String
-  attribute :session_handle, String
 
   def account
     @account ||= Identity::AccountCreator.new(self).call
@@ -47,10 +46,6 @@ class User < Common::RedisStore
 
   def account_id
     @account_id ||= account&.id
-  end
-
-  def initial_sign_in
-    user_account.created_at
   end
 
   def initial_sign_in
@@ -71,7 +66,6 @@ class User < Common::RedisStore
 
   def user_verification
     @user_verification ||= UserVerification.find_by(id: user_verification_id)
-    @user_verification ||= UserVerification.find_by(id: user_verification_id)
   end
 
   def user_account
@@ -79,7 +73,6 @@ class User < Common::RedisStore
   end
 
   def user_verification_id
-    @user_verification_id ||= get_user_verification&.id
     @user_verification_id ||= get_user_verification&.id
   end
 
@@ -142,10 +135,6 @@ class User < Common::RedisStore
     preferred_name_mpi
   end
 
-  def preferred_name
-    preferred_name_mpi
-  end
-
   def gender
     identity.gender.presence || gender_mpi
   end
@@ -172,12 +161,10 @@ class User < Common::RedisStore
                           else
                             log_mhv_user_account_error('User has no va_treatment_facility_ids')
 
-
                             nil
                           end
   rescue MHV::UserAccount::Errors::UserAccountError => e
     log_mhv_user_account_error(e.message)
-    raise
     raise
   end
 
@@ -251,10 +238,6 @@ class User < Common::RedisStore
 
   def first_name_mpi
     given_names&.first
-  end
-
-  def preferred_name_mpi
-    mpi_profile&.preferred_names&.first
   end
 
   def preferred_name_mpi
@@ -336,7 +319,6 @@ class User < Common::RedisStore
   # Other MPI
 
   def invalidate_mpi_cache
-    return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response
     return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response
 
     mpi.destroy
@@ -446,16 +428,6 @@ class User < Common::RedisStore
     vaprofile_contact_info&.email&.email_address
   end
 
-  def va_profile_phone
-    home = vaprofile_contact_info&.home_phone
-    home.area_code + home.phone_number
-  end
-
-  def va_profile_mobile_phone
-    mobile = vaprofile_contact_info&.mobile_phone
-    mobile&.area_code.to_s + mobile&.phone_number.to_s
-  end
-
   def all_emails
     the_va_profile_email =
       begin
@@ -496,18 +468,6 @@ class User < Common::RedisStore
 
   def relationships
     @relationships ||= get_relationships_array
-  end
-
-  def create_mhv_account_async
-    return unless can_create_mhv_account?
-
-    MHV::AccountCreatorJob.perform_async(user_verification_id)
-  end
-
-  def can_create_mhv_account?
-    return false unless Flipper.enabled?(:mhv_account_creation_after_login, user_account)
-
-    loa3? && va_patient? && !needs_accepted_terms_of_use
   end
 
   def create_mhv_account_async
