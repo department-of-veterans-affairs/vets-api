@@ -287,14 +287,14 @@ module ClaimsApi
         end
       end
 
+      ##
+      # VeteranRepresentativeService
+      ##
       module VeteranRepresentativeService
         DEFINITION =
-          Bean.new(
-            path: 'VDC/VeteranRepresentativeService',
-            namespaces: Namespaces.new(
-              target: 'http://gov.va.vba.benefits.vdc/services',
-              data: 'http://gov.va.vba.benefits.vdc/data'
-            )
+          Service.new(
+            bean: Vdc::DEFINITION,
+            path: 'VeteranRepresentativeService'
           )
       end
 
