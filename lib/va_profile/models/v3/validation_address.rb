@@ -23,7 +23,7 @@ module VAProfile
               cityName: @city,
               zipCode5: @zip_code,
               zipCode4: @zip_code_suffix,
-              country: { countryCodeISO2: @country_code_iso2, countryCodeISO3: @country_code_iso3,
+              country: { countryCodeISO3: @country_code_iso3,
                          countryName: @country_name, countryCodeFIPS: @country_code_fips },
               state: { stateCode: @state_code, stateName: @state_name },
               province: { provinceName: @province_name, provinceCode: @province_code },

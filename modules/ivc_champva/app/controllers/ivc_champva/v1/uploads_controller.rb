@@ -36,10 +36,42 @@ module IvcChampva
         render json: { error_message: "Error: #{e.message}" }, status: :internal_server_error
       end
 
+      # Modified from claim_documents_controller.rb:
+      def unlock_file(file, file_password)
+        return file unless File.extname(file) == '.pdf' && file_password
+
+        pdftk = PdfForms.new(Settings.binaries.pdftk)
+        tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
+
+        begin
+          pdftk.call_pdftk(file.tempfile.path, 'input_pw', file_password, 'output', tmpf.path)
+        rescue PdfForms::PdftkError => e
+          file_regex = %r{/(?:\w+/)*[\w-]+\.pdf\b}
+          password_regex = /(input_pw).*?(output)/
+          sanitized_message = e.message.gsub(file_regex, '[FILTERED FILENAME]').gsub(password_regex, '\1 [FILTERED] \2')
+          log_message_to_sentry(sanitized_message, 'warn')
+          raise Common::Exceptions::UnprocessableEntity.new(
+            detail: I18n.t('errors.messages.uploads.pdf.incorrect_password'),
+            source: 'IvcChampva::V1::UploadsController'
+          )
+        end
+
+        file.tempfile.unlink
+        file.tempfile = tmpf
+        file
+      end
+
       def submit_supporting_documents
         if %w[10-10D 10-7959C 10-7959F-2 10-7959A].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
-          attachment.file = params['file']
+
+          if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
+            unlocked = unlock_file(params['file'], params['password'])
+            attachment.file = params['password'] ? unlocked : params['file']
+          else
+            attachment.file = params['file']
+          end
+
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
@@ -49,10 +81,10 @@ module IvcChampva
 
       private
 
-      if Flipper.enabled?(:champva_multiple_stamp_retry, @user)
+      if Flipper.enabled?(:champva_multiple_stamp_retry, @current_user)
         def handle_file_uploads(form_id, parsed_form_data)
           attempt = 0
-          max_attempts = 1 # Only one retry attempt
+          max_attempts = 1
 
           begin
             file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
@@ -65,8 +97,8 @@ module IvcChampva
 
             if error_message_downcase.include?('failed to generate stamped file') ||
                (error_message_downcase.include?('unable to find file') && attempt <= max_attempts)
-              Rails.logger.error 'Retrying in 2 seconds...'
-              sleep 2
+              Rails.logger.error 'Retrying in 1 seconds...'
+              sleep 1
               retry
             else
               return [[], 'Error handling file uploads']
@@ -75,7 +107,6 @@ module IvcChampva
 
           [statuses, error_message]
         end
-
       else
         def handle_file_uploads(form_id, parsed_form_data)
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)

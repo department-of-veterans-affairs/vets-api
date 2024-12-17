@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_12_04_222335) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -310,7 +310,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_04_222335) do
     t.boolean "limit_subpage_inheritance"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "path"
     t.index ["entity_id"], name: "index_banners_on_entity_id"
+    t.index ["path"], name: "index_banners_on_path"
   end
 
   create_table "base_facilities", id: false, force: :cascade do |t|
@@ -354,6 +356,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_04_222335) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "email_template_id"
+    t.uuid "notification_id"
+    t.string "notification_type"
+    t.string "notification_status"
     t.index ["saved_claim_id"], name: "index_claim_va_notifications_on_saved_claim_id"
   end
 
@@ -1093,8 +1098,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_04_222335) do
     t.text "metadata"
     t.datetime "metadata_updated_at"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
+    t.index ["delete_date"], name: "index_saved_claims_on_delete_date"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
+    t.index ["id"], name: "index_partial_saved_claims_on_id_metadata_like_error", where: "(metadata ~~ '%error%'::text)"
   end
 
   create_table "schema_contract_validations", force: :cascade do |t|
@@ -1396,6 +1403,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_12_04_222335) do
     t.jsonb "callback_metadata"
     t.text "callback_klass"
     t.uuid "template_id"
+    t.text "to_ciphertext"
+    t.text "encrypted_kms_key"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|

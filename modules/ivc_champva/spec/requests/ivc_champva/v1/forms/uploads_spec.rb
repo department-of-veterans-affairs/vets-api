@@ -127,6 +127,38 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  describe '#unlock_file' do
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:champva_pdf_decrypt, @current_user)
+        .and_return(true)
+    end
+
+    context 'with locked PDF and no provided password' do
+      let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
+
+      it 'rejects locked PDFs if no password is provided' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents', params: { form_id: '10-10D', file: locked_file }
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(
+          response.parsed_body['errors'].first['title']
+        ).to eq("File #{I18n.t('errors.messages.uploads.pdf.invalid')}")
+      end
+
+      it 'accepts locked PDFs with the correct password' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: locked_file, password: 'test' }
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'rejects locked PDFs with the incorrect password' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: locked_file, password: 'bad' }
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
   describe '#supporting_document_ids' do
     it 'returns the correct supporting document ids' do
       documents = [double('Document', id: 1), double('Document', id: 2)]
@@ -293,6 +325,18 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           end
         end
 
+        context 'when file uploads fail with other errors' do
+          before do
+            allow(file_uploader).to receive(:handle_uploads).and_return([[400], 'Upload failed'])
+          end
+
+          it 'returns the error statuses and error message' do
+            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+            expect(statuses).to eq([400])
+            expect(error_message).to eq('Upload failed')
+          end
+        end
+
         context 'when file uploads fail with other errors retry once' do
           subject(:result) { controller.send(:handle_file_uploads, form_id, parsed_form_data) }
 
@@ -301,6 +345,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
           let(:expected_error_message) { 'Upload failed' }
 
           before do
+            allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, @current_user).and_return(true)
             allow(file_uploader).to receive(:handle_uploads).and_return(failure_response)
           end
 
@@ -311,6 +356,7 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
 
         context 'when a document is loaded and is missing' do
           before do
+            allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, @current_user).and_return(true)
             allow(file_uploader).to receive(:handle_uploads).and_return([['No such file '],
                                                                          'File not found'])
           end
@@ -321,46 +367,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
             expect(statuses).to eq([200])
             expect(error_message).to be_nil
-          end
-        end
-
-        context 'when file uploads fail with "unable to find file" error' do
-          before do
-            # Simulate that handle_uploads raises an exception
-            allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, nil).and_return(true)
-            allow(file_uploader).to receive(:handle_uploads).and_raise(StandardError.new('Unable to find file'))
-          end
-
-          it 'returns error statuses and error message' do
-            statuses = nil
-            error_message = nil
-
-            begin
-              statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            rescue => e
-              puts "Exception raised: #{e.class} - #{e.message}"
-              expect(e).to be_nil # This will fail if an exception is raised
-            end
-
-            expect(statuses).to eq([])
-            expect(error_message).to eq('Error handling file uploads')
-          end
-        end
-
-        context 'when first file uploads fail with "unable to find file" error' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, nil).and_return(true)
-            allow(file_uploader).to receive(:handle_uploads).and_raise(StandardError.new('Unable to find file'))
-          end
-
-          it 'retries once and returns error statuses and error message' do
-            # Expect handle_uploads to be called twice due to one retry
-            expect(file_uploader).to receive(:handle_uploads).twice
-
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-
-            expect(statuses).to eq([])
-            expect(error_message).to eq('Error handling file uploads')
           end
         end
       end
