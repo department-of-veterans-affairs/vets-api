@@ -326,7 +326,7 @@ paths:
         "503":
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
-          $ref: "#/components/responses/GatewayTimeout"  
+          $ref: "#/components/responses/GatewayTimeout"
   "/facilities":
     get:
       tags:
@@ -437,14 +437,14 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
-  "/v2/locations/recent_clinics":
+  "/v2/locations/recent_facilities":
     get:
       tags:
         - facilities
-      description: Returns the most recent clinics visited
+      description: Returns the most recent facilities visited
       responses:
         "200":
-          description: Returns the most recent clinics visited
+          description: Returns the most recent facilities visited
           content:
             application/json:
               schema:
@@ -452,7 +452,7 @@ paths:
                   - data
                 properties:
                   data:
-                    $ref: "#/components/schemas/Clinic"
+                    $ref: "#/components/schemas/Facility"
         "400":
           $ref: "#/components/responses/BadRequest"
         "401":
@@ -1202,7 +1202,7 @@ components:
           properties:
             eligible:
               type: "boolean"
-              example: true           
+              example: true
     ClinicalServiceType:
       type: "string"
       enum:
@@ -1844,4 +1844,4 @@ components:
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/Errors" 
+            $ref: "#/components/schemas/Errors"

@@ -169,7 +169,7 @@ module VAOS
         nil
       end
 
-      def get_recent_sorted_clinic_appointments
+      def get_recent_sorted_appointments
         end_time = Date.current.end_of_day.yesterday
         start_time = 1.year.ago
         statuses = 'booked,fulfilled,arrived'
@@ -186,7 +186,7 @@ module VAOS
             Rails.logger.info("VAOS appointment sorting filtered out id #{rem_appt.id} due to missing start time.")
           end
         end
-        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }
+        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }.reverse
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)

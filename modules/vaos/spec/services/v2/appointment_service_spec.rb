@@ -692,8 +692,8 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
-  describe '#get_recent_sorted_clinic_appointments' do
-    subject { instance_of_class.get_recent_sorted_clinic_appointments }
+  describe '#get_recent_sorted_appointments' do
+    subject { instance_of_class.get_recent_sorted_appointments }
 
     let(:instance_of_class) { described_class.new(user) }
     let(:mock_appointment_one) { double('Appointment', kind: 'clinic', start: '2022-12-02') }
@@ -708,7 +708,7 @@ describe VAOS::V2::AppointmentsService do
       end
 
       it 'returns the recent sorted clinic appointments' do
-        expect(subject).to eq([mock_appointment_two, mock_appointment_one, mock_appointment_three])
+        expect(subject).to eq([mock_appointment_three, mock_appointment_one, mock_appointment_two])
       end
     end
 
@@ -737,7 +737,7 @@ describe VAOS::V2::AppointmentsService do
       [mock_appointment_one, mock_appointment_two, mock_appointment_three, mock_appointment_four_no_start]
     end
     let(:appointments_input) { [mock_appointment_one, mock_appointment_two, mock_appointment_three] }
-    let(:filtered_sorted_appointments) { [mock_appointment_two, mock_appointment_one, mock_appointment_three] }
+    let(:filtered_sorted_appointments) { [mock_appointment_three, mock_appointment_one, mock_appointment_two] }
 
     context 'when appointments are available' do
       it 'sorts based on start time' do
