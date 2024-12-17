@@ -306,7 +306,7 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if Flipper.enabled?(:remove_pciu, user)
+    if Flipper.enabled?(:remove_pciu, user) && user.icn.present?
       @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
     elsif VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
