@@ -118,12 +118,10 @@ module VBADocuments
 
     # at this point ICN is not required when submitting to EMMS, so have wide
     # exception handling, log and move on, any errors trying to get ICN should not stop us from submitting
-    # rubocop:disable Lint/RescueException
-    rescue Exception => e
+    rescue => e
       Rails.logger.error("Benefits Intake UploadProcessor find_icn failed. Guid: #{@upload.guid}, " \
                          "Exception: #{e.message}")
       nil
-      # rubocop:enable Lint/RescueException
     end
 
     def validate_payload_size(tempfile)
