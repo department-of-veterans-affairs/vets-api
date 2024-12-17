@@ -32,10 +32,9 @@ module MyHealth
 
     def get_single_rx_from_grouped_list(prescriptions, id)
       grouped_list = group_prescriptions(prescriptions)
-      single_prescription = grouped_list.find { |rx|
+      grouped_list.find { |rx|
         prescription = rx['prescription_id'] == id
       }
-      single_prescription
     end
 
     private
