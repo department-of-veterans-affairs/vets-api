@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class PowerOfAttorneyRequestsPolicy < ApplicationPolicy
+  class PowerOfAttorneyRequestPolicy < ApplicationPolicy
     def index?
       authorize
     end
@@ -12,8 +12,7 @@ module AccreditedRepresentativePortal
 
     class Scope < ApplicationPolicy::Scope
       def resolve
-        byebug
-        POA_REQUEST_LIST_MOCK_DATA
+        ::AccreditedRepresentativePortal::POA_REQUEST_LIST_MOCK_DATA
       end
     end
 

@@ -11,5 +11,9 @@ module AccreditedRepresentativePortal
     has_one :resolution,
             class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
+
+    def self.policy_class
+      PowerOfAttorneyRequestPolicy
+    end
   end
 end
