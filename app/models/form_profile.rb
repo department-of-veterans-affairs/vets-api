@@ -397,11 +397,14 @@ class FormProfile
 
     home = vet360_contact_info&.home_phone
     return home if home&.area_code && home.phone_number
+<<<<<<< HEAD
 
     if Flipper.enabled?(:remove_pciu, user)
       # Track precense of home and mobile
       Rails.logger.info("VAProfile Phone Object: Home? #{home.present?}, Mobile? #{mobile.present?}")
     end
+=======
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
 
     phone_struct = Struct.new(:area_code, :phone_number)
 

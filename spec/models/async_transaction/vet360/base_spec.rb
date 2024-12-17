@@ -172,11 +172,18 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
 
   describe 'contact information v2' do
     before do
+<<<<<<< HEAD
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
       allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     end
 
     describe '.refresh_transaction_status() v2', :skip_vet360 do
+=======
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+    end
+
+    describe '.refresh_transaction_status() v2', :initiate_vaprofile, :skip_vet360 do
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       let(:user) { build(:user, :loa3) }
       let(:transaction1) do
         create(:address_transaction,

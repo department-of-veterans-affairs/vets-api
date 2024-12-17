@@ -9,7 +9,15 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   let(:user) { build(:user, :loa3) }
 
   before do
+<<<<<<< HEAD
     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+=======
+    Flipper.enable(:va_v3_contact_information_service)
+  end
+
+  after do
+    Flipper.disable(:va_v3_contact_information_service)
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
   end
 
   describe '#get_person' do
@@ -388,7 +396,11 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     end
   end
 
+<<<<<<< HEAD
   describe '#send_contact_change_notification', :skip_vet360 do
+=======
+  describe '#send_contact_change_notification', :initiate_vaprofile, :skip_vet360 do
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
     let(:transaction) { double }
     let(:transaction_status) do
       OpenStruct.new(
@@ -583,7 +595,11 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     end
   end
 
+<<<<<<< HEAD
   describe '#get_person error', :skip_va_profile_user do
+=======
+  describe '#get_person error' do
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
     let(:user) { build(:user, :loa3) }
 
     before do

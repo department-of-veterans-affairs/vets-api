@@ -916,7 +916,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'first_name' => 'Veteran',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
+<<<<<<< HEAD
                 'lighthouse_updated_at' => nil,
+=======
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
                 'intent_to_file_benefits' => 'survivors pension benefits',
                 'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
@@ -942,7 +945,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'first_name' => 'Veteran',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
+<<<<<<< HEAD
                 'lighthouse_updated_at' => nil,
+=======
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
                 'intent_to_file_benefits' => 'survivors pension benefits',
                 'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',

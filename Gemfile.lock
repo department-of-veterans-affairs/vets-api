@@ -85,6 +85,7 @@ PATH
   remote: modules
   specs:
     accredited_representative_portal (0.1.0)
+      blind_index
     appeals_api (0.0.1)
       jsonapi-serializer (>= 2.2.0)
       sidekiq
@@ -240,6 +241,7 @@ GEM
       base64
       gyoku (>= 0.4.0)
       nokogiri
+    argon2-kdf (0.2.0)
     ast (2.4.2)
     attr_extras (7.1.0)
     awesome_print (1.9.2)
@@ -273,6 +275,12 @@ GEM
     bigdecimal (3.1.8)
     bigdecimal (3.1.8-java)
     bindex (0.8.1)
+<<<<<<< HEAD
+=======
+    blind_index (2.6.1)
+      activesupport (>= 7)
+      argon2-kdf (>= 0.2)
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
     blueprinter (1.1.2)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
@@ -308,7 +316,7 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     colored2 (3.1.2)
-    combine_pdf (1.0.26)
+    combine_pdf (1.0.29)
       matrix
       ruby-rc4 (>= 0.1.5)
     committee (5.4.0)
@@ -370,6 +378,9 @@ GEM
       libddwaf (~> 1.14.0.0.0)
       msgpack
     debase-ruby_core_source (3.3.1)
+    debug (1.9.2)
+      irb (~> 1.10)
+      reline (>= 0.3.8)
     declarative (0.0.20)
     deep_merge (1.2.2)
     descendants_tracker (0.0.4)
@@ -1150,6 +1161,7 @@ DEPENDENCIES
   banners!
   betamocks!
   bgs_ext!
+  blind_index
   blueprinter
   bootsnap
   brakeman
@@ -1175,6 +1187,10 @@ DEPENDENCIES
   date_validator
   ddtrace
   debts_api!
+<<<<<<< HEAD
+=======
+  debug
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
   decision_reviews!
   dhp_connected_devices!
   dogstatsd-ruby (= 5.6.3)

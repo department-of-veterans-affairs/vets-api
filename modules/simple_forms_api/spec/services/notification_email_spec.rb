@@ -691,14 +691,22 @@ describe SimpleFormsApi::NotificationEmail do
           it 'veteran authorizer' do
             allow(VANotify::EmailJob).to receive(:perform_async)
             data['authorizer_type'] = 'veteran'
+<<<<<<< HEAD
             data['authorizer_email'] = 'authorizer_email@example.com'
+=======
+            data['veteran_email'] = 'veteran_email@example.com'
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
 
             subject = described_class.new(config, user: create(:user))
 
             subject.send
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
+<<<<<<< HEAD
               'authorizer_email@example.com',
+=======
+              'veteran_email@example.com',
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
               'form21_0845_confirmation_email_template_id',
               {
                 'first_name' => 'John',
@@ -785,6 +793,10 @@ describe SimpleFormsApi::NotificationEmail do
     end
 
     describe '21_0966' do
+<<<<<<< HEAD
+=======
+      let(:lighthouse_updated_at) { 1.day.ago }
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
       let(:data) do
         fixture_path = Rails.root.join(
@@ -794,7 +806,11 @@ describe SimpleFormsApi::NotificationEmail do
       end
       let(:config) do
         { form_data: data, form_number: 'vba_21_0966',
+<<<<<<< HEAD
           confirmation_number: 'confirmation_number', date_submitted: }
+=======
+          confirmation_number: 'confirmation_number', date_submitted:, lighthouse_updated_at: }
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       end
       let(:user) { create(:user, :loa3) }
 
@@ -812,7 +828,11 @@ describe SimpleFormsApi::NotificationEmail do
             'first_name' => 'Veteran',
             'date_submitted' => date_submitted,
             'confirmation_number' => 'confirmation_number',
+<<<<<<< HEAD
             'lighthouse_updated_at' => nil,
+=======
+            'lighthouse_updated_at' => lighthouse_updated_at,
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
             'intent_to_file_benefits' => 'survivors pension benefits',
             'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
@@ -841,7 +861,11 @@ describe SimpleFormsApi::NotificationEmail do
               'first_name' => 'I',
               'date_submitted' => date_submitted,
               'confirmation_number' => 'confirmation_number',
+<<<<<<< HEAD
               'lighthouse_updated_at' => nil,
+=======
+              'lighthouse_updated_at' => lighthouse_updated_at,
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
               'intent_to_file_benefits' => 'survivors pension benefits',
               'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                  '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
@@ -884,7 +908,10 @@ describe SimpleFormsApi::NotificationEmail do
                 'first_name' => 'Veteran',
                 'date_submitted' => date_submitted,
                 'confirmation_number' => 'confirmation_number',
+<<<<<<< HEAD
                 'lighthouse_updated_at' => nil,
+=======
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
                 'intent_to_file_benefits' => 'survivors pension benefits',
                 'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
@@ -913,7 +940,10 @@ describe SimpleFormsApi::NotificationEmail do
                   'first_name' => 'I',
                   'date_submitted' => date_submitted,
                   'confirmation_number' => 'confirmation_number',
+<<<<<<< HEAD
                   'lighthouse_updated_at' => nil,
+=======
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
                   'intent_to_file_benefits' => 'survivors pension benefits',
                   'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                      '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',

@@ -17,7 +17,10 @@ describe Vye::SundownSweep, type: :worker do
 
     expect(Vye::SundownSweep::ClearDeactivatedBdns).to have_enqueued_sidekiq_job
     expect(Vye::SundownSweep::DeleteProcessedS3Files).to have_enqueued_sidekiq_job
+<<<<<<< HEAD
     expect(Vye::SundownSweep::PurgeStaleVerifications).to have_enqueued_sidekiq_job
+=======
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
   end
 
   # Exceptions are tested one by one rather than all at once because it's easier to debug

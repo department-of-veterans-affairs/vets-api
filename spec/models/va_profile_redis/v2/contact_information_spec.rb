@@ -22,8 +22,17 @@ describe VAProfileRedis::V2::ContactInformation do
   end
 
   before do
+<<<<<<< HEAD
     allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
+=======
+    Flipper.enable(:va_v3_contact_information_service)
+    allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
+  end
+
+  after do
+    Flipper.disable(:va_v3_contact_information_service)
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
   end
 
   [404, 400].each do |status|

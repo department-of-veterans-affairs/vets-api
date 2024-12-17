@@ -51,7 +51,11 @@ describe Common::CacheAside do
         allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
       end
 
+<<<<<<< HEAD
       describe '#do_cached_with', :skip_vet360 do
+=======
+      describe '#do_cached_with', :initiate_vaprofile, :skip_vet360 do
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
         let(:person_response) do
           VAProfile::V2::ContactInformation::PersonResponse.from(
             OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })

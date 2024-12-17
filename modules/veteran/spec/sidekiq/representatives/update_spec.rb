@@ -13,6 +13,7 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { true }
 
     before do
+      Flipper.disable(:va_v3_contact_information_service)
       create_flagged_records(flag_type)
       allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
     end
@@ -48,6 +49,7 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { false }
 
     before do
+      Flipper.disable(:va_v3_contact_information_service)
       create_flagged_records(flag_type)
     end
 
@@ -76,11 +78,22 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { true }
 
     before do
+<<<<<<< HEAD
       allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+=======
+      Flipper.enable(:va_v3_contact_information_service)
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       create_flagged_records(flag_type)
       allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::V3::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
     end
 
+<<<<<<< HEAD
+=======
+    after do
+      Flipper.disable(:va_v3_contact_information_service)
+    end
+
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
     it "updates the #{flag_type} and the associated flagged records" do
       flagged_records =
         RepresentationManagement::FlaggedVeteranRepresentativeContactData
@@ -725,7 +738,11 @@ RSpec.describe Representatives::Update do
       end
 
       before do
+<<<<<<< HEAD
         allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
+=======
+        Flipper.enable(:va_v3_contact_information_service)
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
         allow_any_instance_of(VAProfile::V3::AddressValidation::Service).to receive(:candidate).and_return(api_response)
       end
 

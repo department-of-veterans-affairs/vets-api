@@ -428,6 +428,7 @@ class User < Common::RedisStore
     vaprofile_contact_info&.email&.email_address
   end
 
+<<<<<<< HEAD
   def va_profile_phone
     home = vaprofile_contact_info&.home_phone
     home.area_code + home.phone_number
@@ -438,6 +439,8 @@ class User < Common::RedisStore
     mobile&.area_code.to_s + mobile&.phone_number.to_s
   end
 
+=======
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
   def all_emails
     the_va_profile_email =
       begin

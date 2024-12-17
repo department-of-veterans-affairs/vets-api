@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'holidays'
+
 # @see https://crontab.guru/
 # @see https://en.wikipedia.org/wiki/Cron
 PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
@@ -249,10 +251,13 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
   mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
   mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
-
   # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
   mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
+<<<<<<< HEAD
 
   # Daily job for Vye: clears deactivated BDNs every evening.
+=======
+  # Daily 1900 job for Vye: clears deactivated BDNs every evening.
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
   mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 }

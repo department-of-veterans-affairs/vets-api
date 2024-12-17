@@ -270,7 +270,13 @@ module SimpleFormsApi
 
     def get_personalization(first_name)
       if @form_number.start_with? 'vba_21_0966'
+<<<<<<< HEAD
         default_personalization(first_name).merge(form21_0966_personalization)
+=======
+        personalization = default_personalization(first_name).merge(form21_0966_personalization)
+        personalization.except!('lighthouse_updated_at') unless lighthouse_updated_at
+        personalization
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       else
         default_personalization(first_name)
       end
@@ -325,7 +331,11 @@ module SimpleFormsApi
     def form21_0845_contact_info
       # (vet && signed in)
       if @form_data['authorizer_type'] == 'veteran'
+<<<<<<< HEAD
         [@form_data['authorizer_email'] || @user&.va_profile_email, @form_data.dig('veteran_full_name', 'first')]
+=======
+        [@form_data['veteran_email'] || @user&.va_profile_email, @form_data.dig('veteran_full_name', 'first')]
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
 
       # (non-vet && signed in) || (non-vet && anon)
       elsif @form_data['authorizer_type'] == 'nonVeteran'

@@ -20,7 +20,11 @@ def stub_vaprofile_user(person = nil)
     ],
     telephones: [
       build(:telephone, :contact_info_v2, :home, id: 458_781),
+<<<<<<< HEAD
       build(:telephone, :contact_info_v2_mobile, phone_type: VAProfile::Models::Telephone::MOBILE, id: 790),
+=======
+      build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::MOBILE, id: 790),
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::WORK, id: 791),
       build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::FAX, id: 792),
       build(:telephone, :contact_info_v2, :home, phone_type: VAProfile::Models::Telephone::TEMPORARY, id: 793)

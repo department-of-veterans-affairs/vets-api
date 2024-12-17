@@ -117,7 +117,11 @@ module ClaimsApi
 
         private
 
+<<<<<<< HEAD
         def shared_submit_methods
+=======
+        def shared_submit_methods # rubocop:disable Metrics/MethodLength
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:, form_data: form_attributes,
@@ -131,6 +135,14 @@ module ClaimsApi
             raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
               detail: auto_claim.errors.messages.to_s
             )
+          end
+
+          form_attributes['disabilities'].each do |disability|
+            if disability['classificationCode'].present?
+              ClaimsApi::Logger.log('526_classification_code',
+                                    classification_code: disability['classificationCode'],
+                                    cid: token.payload['cid'], version: 'v2')
+            end
           end
 
           track_pact_counter auto_claim

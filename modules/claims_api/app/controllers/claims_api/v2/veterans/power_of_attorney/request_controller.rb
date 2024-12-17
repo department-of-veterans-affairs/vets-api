@@ -123,6 +123,11 @@ module ClaimsApi
         end
 
         def send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
+<<<<<<< HEAD
+=======
+          return unless Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify)
+
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
           lockbox = Lockbox.new(key: Settings.lockbox.master_key)
           encrypted_ptcpnt_id = Base64.strict_encode64(lockbox.encrypt(ptcpnt_id))
           encrypted_first_name = Base64.strict_encode64(lockbox.encrypt(first_name))

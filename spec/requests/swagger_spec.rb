@@ -1089,6 +1089,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         Flipper.disable('disability_compensation_prevent_submission_job')
         Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
         Flipper.disable('disability_compensation_production_tester')
+        Flipper.disable(:disability_compensation_staging_lighthouse_brd)
       end
 
       let(:form526v2) do
@@ -2724,7 +2725,11 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
+<<<<<<< HEAD
     describe 'contact infromation v2', :skip_vet360 do
+=======
+    describe 'contact infromation v2' do
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       before do
         Flipper.enable(:va_v3_contact_information_service)
         Flipper.enable(:remove_pciu)
@@ -2733,7 +2738,10 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
       after do
         Flipper.disable(:va_v3_contact_information_service)
+<<<<<<< HEAD
         Flipper.disable(:remove_pciu)
+=======
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       end
 
       describe 'profiles v2', :skip_vet360, :initiate_vaprofile do

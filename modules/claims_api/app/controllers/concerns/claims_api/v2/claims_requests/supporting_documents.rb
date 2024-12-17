@@ -93,6 +93,7 @@ module ClaimsApi
         end
 
         def find_by_ssn(ssn)
+<<<<<<< HEAD
           if Flipper.enabled? :claims_api_use_person_web_service
             # rubocop:disable Rails/DynamicFindBy
             ClaimsApi::PersonWebService.new(
@@ -106,6 +107,14 @@ module ClaimsApi
             ).find_by_ssn(ssn)
             # rubocop:enable Rails/DynamicFindBy
           end
+=======
+          # rubocop:disable Rails/DynamicFindBy
+          ClaimsApi::PersonWebService.new(
+            external_uid: target_veteran.participant_id,
+            external_key: target_veteran.participant_id
+          ).find_by_ssn(ssn)
+          # rubocop:enable Rails/DynamicFindBy
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
         end
       end
     end

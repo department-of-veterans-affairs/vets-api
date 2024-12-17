@@ -291,7 +291,11 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
       allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     end
 
+<<<<<<< HEAD
     describe '.refresh_transaction_status() v2', :skip_vet360 do
+=======
+    describe '.refresh_transaction_status() v2', :initiate_vaprofile, :skip_vet360 do
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       let(:user) { build(:user, :loa3) }
       let(:transaction1) do
         create(:address_transaction,

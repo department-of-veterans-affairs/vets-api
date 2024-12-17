@@ -9,10 +9,16 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
 
+<<<<<<< HEAD
   describe 'ContactInformationV1', :skip_va_profile_user do
     before do
       allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+=======
+  describe 'ContactInformationV1' do
+    before do
+      Flipper.disable(:va_v3_contact_information_service)
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
@@ -24,6 +30,13 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'POST /v0/profile/email_addresses/create_or_update' do
+<<<<<<< HEAD
+=======
+      before do
+        Flipper.disable(:va_v3_contact_information_service)
+      end
+
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       let(:email) { build(:email, vet360_id: user.vet360_id) }
 
       it 'calls update_email' do
@@ -33,10 +46,22 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
         end
 
         expect(response).to have_http_status(:ok)
+<<<<<<< HEAD
+=======
       end
     end
 
     describe 'POST /v0/profile/email_addresses' do
+      before do
+        Flipper.disable(:va_v3_contact_information_service)
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
+      end
+    end
+
+<<<<<<< HEAD
+    describe 'POST /v0/profile/email_addresses' do
+=======
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       let(:email) { build(:email, vet360_id: user.vet360_id) }
 
       context 'with a 200 response' do
@@ -139,6 +164,13 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'PUT /v0/profile/email_addresses' do
+<<<<<<< HEAD
+=======
+      before do
+        Flipper.disable(:va_v3_contact_information_service)
+      end
+
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       let(:email) { build(:email, vet360_id: user.vet360_id) }
 
       context 'with a 200 response' do
@@ -237,6 +269,10 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
 
     describe 'DELETE /v0/profile/email_addresses' do
       before do
+<<<<<<< HEAD
+=======
+        Flipper.disable(:va_v3_contact_information_service)
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
         allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
         email.id = id_in_cassette
       end
@@ -270,14 +306,23 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
   end
 
+<<<<<<< HEAD
   describe 'ContactInformationV2', :skip_vet360 do
+=======
+  describe 'ContactInformationV2', :initiate_vaprofile, :skip_vet360 do
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
     let(:contact_info) { VAProfileRedis::V2::ContactInformation.for_user(user) }
 
     before do
       allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+<<<<<<< HEAD
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
+=======
+      allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
+      user.vaprofile_contact_info
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       sign_in_as(user)
     end
 
@@ -475,7 +520,11 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
       end
     end
 
+<<<<<<< HEAD
     describe 'DELETE /v0/profile/email_addresses v2', :skip_vet360 do
+=======
+    describe 'DELETE /v0/profile/email_addresses v2', :initiate_vaprofile, :skip_vet360 do
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       let(:email) do
         build(:email, vet360_id: user.vet360_id, email_address: 'person42@example.com')
       end

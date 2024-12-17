@@ -119,6 +119,17 @@ module ClaimsApi
           )
       end
 
+<<<<<<< HEAD
+=======
+      module EBenefitsBenefitClaimStatusWebService
+        DEFINITION =
+          Service.new(
+            bean: EBenefitsBenefitClaimStatusWebServiceBean::DEFINITION,
+            path: 'EBenefitsBnftClaimStatusWebService'
+          )
+      end
+
+>>>>>>> ef3c0288176bba86adfb7abaf6e3a2c9bd88c1aa
       ##
       # IntentToFileWebServiceBean
       #
