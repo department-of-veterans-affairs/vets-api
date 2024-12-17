@@ -9,13 +9,16 @@
   "F[0].Page_1[0].VeteranFirstName[0]": "<%= form.first_name %>",
   "F[0].Page_1[0].VeteranMiddleInitial1[0]": "<%= form.middle_initial %>",
   "F[0].Page_1[0].VeteranLastName[0]": "<%= form.last_name %>",
+
+  <%# 2. Social Security Number %>
+  "F[0].Page_1[0].Veterans_Social_SecurityNumber_FirstThreeNumbers[0]": "<%= form.ssn[0] %>",
+  "F[0].Page_1[0].Veterans_Social_SecurityNumber_SecondTwoNumbers[0]": "<%= form.ssn[1] %>",
+  "F[0].Page_1[0].Veterans_Social_SecurityNumber_LastFourNumbers[0]": "<%= form.ssn[2] %>",
+
   "F[0].Page_1[0].DOByear[0]": "<%= form.data.dig('DOByear') %>",
   "F[0].Page_1[0].DOBday[0]": "<%= form.data.dig('DOBday') %>",
   "F[0].Page_1[0].DOBmonth[0]": "<%= form.data.dig('DOBmonth') %>",
   "F[0].Page_1[0].VAFileNumber[0]": "<%= form.data.dig('VAFileNumber') %>",
-  "F[0].Page_1[0].Veterans_Social_SecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('Veterans_Social_SecurityNumber_LastFourNumbers') %>",
-  "F[0].Page_1[0].Veterans_Social_SecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('Veterans_Social_SecurityNumber_SecondTwoNumbers') %>",
-  "F[0].Page_1[0].Veterans_Social_SecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('Veterans_Social_SecurityNumber_FirstThreeNumbers') %>",
   "F[0].Page_1[0].VeteransServiceNumber[0]": "<%= form.data.dig('VeteransServiceNumber') %>",
   "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.data.dig('CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers') %>",
   "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= form.data.dig('CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers') %>",

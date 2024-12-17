@@ -6,8 +6,9 @@ require_relative '../support/shared_examples_for_base_form'
 RSpec.describe SimpleFormsApi::VBA214140 do
   subject(:form) { described_class.new(data) }
 
+  let(:fixture_file) { 'vba_21_4140.json' }
   let(:fixture_path) do
-    Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_4140.json')
+    Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', fixture_file)
   end
   let(:data) { JSON.parse(fixture_path.read) }
 
@@ -72,6 +73,32 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     it 'returns the date the instance was created' do
       Timecop.freeze(date) do
         expect(subject).to eq(date)
+      end
+    end
+  end
+
+  describe '#ssn' do
+    subject(:ssn) { form.ssn }
+
+    let(:first_three) { ssn[0] }
+    let(:second_two) { ssn[1] }
+    let(:last_four) { ssn[2] }
+
+    context 'when ssn exists' do
+      it 'returns an array of numbers' do
+        expect(first_three.length).to eq 3
+        expect(second_two.length).to eq 2
+        expect(last_four.length).to eq 4
+      end
+    end
+
+    context 'when ssn is missing' do
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it 'returns an array with empty values' do
+        expect(first_three).to eq nil
+        expect(second_two).to eq nil
+        expect(last_four).to eq nil
       end
     end
   end
