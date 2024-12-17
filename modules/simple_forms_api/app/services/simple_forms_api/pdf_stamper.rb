@@ -7,6 +7,7 @@ module SimpleFormsApi
     attr_reader :stamped_template_path, :form, :loa, :timestamp
 
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
+    FORM_UPLOAD_SUBMISSION_TEXT = 'Submitted via VA.gov at '
 
     def initialize(stamped_template_path:, form: nil, current_loa: nil, timestamp: nil)
       @stamped_template_path = stamped_template_path
@@ -148,18 +149,30 @@ module SimpleFormsApi
     def get_auth_text_stamp
       current_time = "#{Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')} "
       coords = [10, 10]
-      text = SUBMISSION_TEXT + current_time
+      submission_text = form ? SUBMISSION_TEXT : FORM_UPLOAD_SUBMISSION_TEXT
+      text = submission_text + current_time
       { coords:, text: }
     end
 
     def auth_text
-      case loa
-      when 3
-        'Signee signed with an identity-verified account.'
-      when 2
-        'Signee signed in but hasn’t verified their identity.'
+      if form
+        case loa
+        when 3
+          'Signee signed with an identity-verified account.'
+        when 2
+          'Signee signed in but hasn’t verified their identity.'
+        else
+          'Signee not signed in.'
+        end
       else
-        'Signee not signed in.'
+        case loa
+        when 3
+          'Signed in and submitted with an identity-verified account.'
+        when 2
+          'Signed in and submitted but has not verified their identity.'
+        else
+          'Signee not signed in.'
+        end
       end
     end
 
