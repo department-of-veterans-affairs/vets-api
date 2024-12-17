@@ -127,16 +127,16 @@ describe MAP::SecurityToken::Service do
         end
       end
 
-      context 'when response is malformed',
-              vcr: { cassette_name: 'map/security_token_service_200_malformed_response' } do
-        let(:expected_error) { Common::Client::Errors::ParsingError }
-        let(:expected_error_message) { "unexpected token at 'Not valid JSON'" }
-        let(:expected_logger_message) { "#{log_prefix} token failed, parsing error" }
-        let(:expected_log_values) { { application:, icn:, context: expected_error_message } }
+      context 'when response is an invalid token',
+              vcr: { cassette_name: 'map/security_token_service_200_invalid_token' } do
+        let(:expected_error) { JWT::DecodeError }
+        let(:expected_error_context) { 'Signature verification failed' }
+        let(:expected_logger_message) { "#{log_prefix} token failed, JWT decode error" }
+        let(:expected_log_values) { { application:, icn:, context: expected_error_context } }
 
-        it 'raises an gateway timeout error and creates a log' do
+        it 'raises a JWT Decode error and creates a log' do
           expect(Rails.logger).to receive(:error).with(expected_logger_message, expected_log_values)
-          expect { subject }.to raise_exception(expected_error, expected_error_message)
+          expect { subject }.to raise_exception(expected_error, expected_error_context)
         end
       end
 
