@@ -31,6 +31,6 @@ FactoryBot.define do
   end
 
   factory :va10282_full_form, class: 'SavedClaim::EducationBenefits::VA10282', parent: :education_benefits do
-    form { File.read(Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '10282', 'minimal.json')) }
+    form { Rails.root.join('spec', 'fixtures', 'education_benefits_claims', '10282', 'minimal.json').read }
   end
 end

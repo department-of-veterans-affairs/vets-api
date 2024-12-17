@@ -6,8 +6,8 @@ RSpec.describe ExcelFileEvent, type: :model do
   subject { described_class.new }
 
   it 'validates filename uniqueness' do
-    create(:excel_file_event, filename: 'test_file.xlsx')
-    duplicate = build(:excel_file_event, filename: 'test_file.xlsx')
+    create(:excel_file_event, filename: 'test_file.csv')
+    duplicate = build(:excel_file_event, filename: 'test_file.csv')
     expect(duplicate.valid?).to eq(false)
   end
 
@@ -31,7 +31,7 @@ RSpec.describe ExcelFileEvent, type: :model do
     end
 
     it 'returns a new event when filename pattern does not match existing events' do
-      filename = "#{Time.zone.now.strftime('%Y%m%d')}_vetsgov.xlsx"
+      filename = "#{Time.zone.now.strftime('%Y%m%d')}_vetsgov.csv"
       event = ExcelFileEvent.build_event(filename)
       expect(event.filename).to eq(filename)
       expect(event.retry_attempt).to eq(0)
