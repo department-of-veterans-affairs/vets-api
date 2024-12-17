@@ -56,6 +56,14 @@ module ClaimsApi
           ClaimsApi::Logger.log('526', claim_id: auto_claim.id, detail: 'Submitted to Lighthouse',
                                        pdf_gen_dis: form_attributes['autoCestPDFGenerationDisabled'])
 
+          form_attributes['disabilities'].each do |disability|
+            if disability['classificationCode'].present?
+              ClaimsApi::Logger.log('526_classification_code',
+                                    classification_code: disability['classificationCode'],
+                                    cid: token.payload['cid'], version: 'v1')
+            end
+          end
+
           # .create returns the resulting object whether the object was saved successfully to the database or not.
           # If it's lacking the ID, that means the create was unsuccessful and an identical claim already exists.
           # Find and return that claim instead.
