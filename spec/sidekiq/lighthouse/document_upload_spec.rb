@@ -76,6 +76,7 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
   context 'when cst_send_evidence_failure_emails is enabled' do
     before do
       Flipper.enable(:cst_send_evidence_failure_emails)
+      allow(Lighthouse::FailureNotification).to receive(:perform_async)
     end
 
     let(:job_id) { job }
@@ -98,26 +99,19 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
       timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
     end
 
-    it 'enqueues a failure notification mailer to send to the veteran' do
-      allow(VaNotify::Service).to receive(:new) { notify_client_stub }
-
-      described_class.within_sidekiq_retries_exhausted_block(args) do
-        expect(notify_client_stub).to receive(:send_email).with(
-          {
-            recipient_identifier: { id_value: user_account.icn, id_type: 'ICN' },
-            template_id: 'fake_template_id',
-            personalisation: {
-              first_name: 'Bob',
-              filename: 'docXXXX-XXte.pdf',
-              date_submitted: formatted_submit_date,
-              date_failed: formatted_submit_date
-            }
-          }
+    it 'calls Lighthouse::FailureNotification' do
+      subject.within_sidekiq_retries_exhausted_block(args) do
+        expect(Lighthouse::FailureNotification).to receive(:perform_async).with(
+          user_account.icn,
+          'Bob', # first_name
+          'docXXXX-XXte.pdf', # filename
+          formatted_submit_date, # date_submitted
+          formatted_submit_date # date_failed
         )
 
         expect(Rails.logger)
           .to receive(:info)
-          .with('Lighthouse::DocumentUpload exhaustion handler email sent')
+          .with('Lighthouse::DocumentUpload exhaustion handler email queued')
         expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
       end
     end
@@ -159,11 +153,9 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
 
     let(:issue_instant) { Time.now.to_i }
 
-    it 'does not enqueue a failure notification mailer to send to the veteran' do
-      allow(VaNotify::Service).to receive(:new) { notify_client_stub }
-
-      described_class.within_sidekiq_retries_exhausted_block(args) do
-        expect(notify_client_stub).not_to receive(:send_email)
+    it 'does not call Lighthouse::Failure Notification' do
+      subject.within_sidekiq_retries_exhausted_block(args) do
+        expect(Lighthouse::FailureNotification).not_to receive(:perform_async)
       end
     end
   end

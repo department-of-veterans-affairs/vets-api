@@ -486,7 +486,7 @@ module VAOS
       # @param appt [Hash] the appointment to check
       # @return [Boolean] true if the appointment cannot be cancelled
       def cannot_be_cancelled?(appointment)
-        cnp?(appointment) || covid?(appointment) ||
+        cnp?(appointment) || covid?(appointment) || appointment[:start]&.to_datetime&.past? ||
           (cc?(appointment) && booked?(appointment)) || telehealth?(appointment)
       end
 
@@ -512,6 +512,20 @@ module VAOS
       def filter_reason_code_text(request_object_body)
         text = request_object_body&.dig(:reason_code, :text)
         VAOS::Strings.filter_ascii_characters(text) if text.present?
+      end
+
+      # Determines if the appointment is a Cerner (Oracle Health) appointment.
+      # This is determined by the presence of a 'CERN' prefix in the appointment's id.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is a Cerner appointment, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def cerner?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt[:id].start_with?('CERN')
       end
 
       # Checks if the appointment is booked.
@@ -691,20 +705,45 @@ module VAOS
       end
 
       def set_type(appointment)
-        type = APPOINTMENT_TYPES[:request] if appointment[:kind] != 'cc' && appointment[:request_periods].present?
-
-        type ||= case appointment[:kind]
-                 when 'cc'
-                   if appointment[:start]
-                     APPOINTMENT_TYPES[:cc_appointment]
-                   else
-                     APPOINTMENT_TYPES[:cc_request]
-                   end
-                 else
-                   APPOINTMENT_TYPES[:va]
-                 end
+        type = if cerner?(appointment)
+                 cerner_type(appointment)
+               else
+                 non_cerner_type(appointment)
+               end
 
         appointment[:type] = type
+      end
+
+      # Determines the type of appointment for Cerner appointments.
+      # @param appointment [Hash] the appointment to determine the type for
+      #
+      # @return [String] the type of appointment
+      #
+      def cerner_type(appointment)
+        if appointment[:end].present?
+          appointment[:kind] == 'cc' ? APPOINTMENT_TYPES[:cc_appointment] : APPOINTMENT_TYPES[:va]
+        else
+          appointment[:kind] == 'cc' ? APPOINTMENT_TYPES[:cc_request] : APPOINTMENT_TYPES[:request]
+        end
+      end
+
+      # Determines the type of appointment for non-Cerner appointments.
+      # @param appointment [Hash] the appointment to determine the type for
+      #
+      # @return [String] the type of appointment
+      #
+      def non_cerner_type(appointment)
+        if appointment[:kind] == 'cc'
+          if appointment[:requested_periods].present?
+            APPOINTMENT_TYPES[:cc_request]
+          else
+            APPOINTMENT_TYPES[:cc_appointment]
+          end
+        elsif appointment[:requested_periods].present?
+          APPOINTMENT_TYPES[:request]
+        else
+          APPOINTMENT_TYPES[:va]
+        end
       end
 
       # Modifies the appointment, setting the cancellable flag to false
