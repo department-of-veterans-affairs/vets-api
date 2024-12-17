@@ -1961,3 +1961,7 @@ features:
   benefits_non_disability_ch31_v2:
     actor_type: user
     description: If enabled, use new form and api endpoint for Ch31 VR&E form
+  is_updated_gi:
+    actor_type: user
+    description: If enabled, use updated gi design
+  
