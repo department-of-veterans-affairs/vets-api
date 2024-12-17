@@ -79,6 +79,14 @@ module IvcChampva
         end
       end
 
+      def sleep_study
+        n = 5
+        n.times do |i|
+          Rails.logger.info("Sleep study iteration #{i}")
+          sleep 1
+        end
+      end
+
       private
 
       if Flipper.enabled?(:champva_multiple_stamp_retry, @current_user)
