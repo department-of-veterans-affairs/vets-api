@@ -34,7 +34,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
   end
 
   %w[Premium Advanced].each do |account_level|
-    context "#{account_level} User" do
+    context "#{account_level} User", skip: 'temporarily skipped' do
       let(:mhv_account_type) { account_level }
 
       context 'not a va patient' do

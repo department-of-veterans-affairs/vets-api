@@ -37,7 +37,7 @@ end
 def ci_test_command
   docker = 'docker compose run web bash -c'
   runtime_variables = 'CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true'
-  spec = "bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty'"
+  spec = "bundle exec parallel_rspec spec/ modules/ -n 8 -o '--color --tty --format documentation'"
   "#{docker} \"#{runtime_variables} #{spec}\""
 end
 
