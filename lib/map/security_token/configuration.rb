@@ -35,7 +35,7 @@ module MAP
       end
 
       def provider_jwks_path
-        Settings.map_services.provider_jwks_path
+        '/sts/oauth/v1/jwks'
       end
 
       def service_name

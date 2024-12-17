@@ -93,8 +93,8 @@ RSpec.describe 'V0::MapServices', type: :request do
           end
         end
 
-        context 'when MAP STS client returns a token with an invalid duration',
-                vcr: { cassette_name: 'map/security_token_service_200_response_invalid_token' } do
+        context 'when MAP STS client returns an invalid token',
+                vcr: { cassette_name: 'map/security_token_service_200_invalid_token' } do
           it 'responds with error details in response body' do
             call_endpoint
             expect(JSON.parse(response.body)).to eq(
