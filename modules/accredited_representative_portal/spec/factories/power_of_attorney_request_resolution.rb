@@ -18,5 +18,34 @@ FactoryBot.define do
       resolving_type { 'AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision' }
       resolving { create(:power_of_attorney_request_decision) }
     end
+
+    trait :with_invalid_type do
+      resolving_type { 'AccreditedRepresentativePortal::InvalidType' }
+      resolving { AccreditedRepresentativePortal::InvalidType.new }
+    end
+  end
+end
+
+module AccreditedRepresentativePortal
+  class InvalidType
+    def method_missing(_method, *_args) = self
+
+    def respond_to_missing?(_method, _include_private = false) = true
+
+    def id = nil
+
+    def self.method_missing(_method, *_args) = NullObject.new
+
+    def self.respond_to_missing?(_method, _include_private = false) = true
+  end
+
+  class NullObject
+    def method_missing(_method, *_args) = self
+
+    def respond_to_missing?(*) = true
+
+    def nil? = true
+
+    def to_s = ''
   end
 end

@@ -2,14 +2,11 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestDecision < ApplicationRecord
+    include PowerOfAttorneyRequestResolution::Resolving
+
+    self.inheritance_column = nil
+
     belongs_to :creator,
                class_name: 'UserAccount'
-
-    has_one :power_of_attorney_request_resolution,
-            as: :resolving,
-            inverse_of: :resolving,
-            dependent: :destroy
-
-    validates :type, presence: true, length: { maximum: 255 }
   end
 end

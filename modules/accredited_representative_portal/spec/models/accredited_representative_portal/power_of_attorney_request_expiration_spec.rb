@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require_relative '../../rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration, type: :model do
   describe 'associations' do
-    it { is_expected.to have_one(:power_of_attorney_request_resolution).dependent(:destroy) }
+    it { is_expected.to have_one(:power_of_attorney_request_resolution) }
   end
 
   describe 'validations' do

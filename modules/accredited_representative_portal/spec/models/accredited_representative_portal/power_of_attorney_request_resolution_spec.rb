@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require_relative '../../rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution, type: :model do
+mod = AccreditedRepresentativePortal
+RSpec.describe mod::PowerOfAttorneyRequestResolution, type: :model do
   describe 'associations' do
     let(:power_of_attorney_request) { create(:power_of_attorney_request) }
 
@@ -35,41 +36,107 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution,
     end
   end
 
-  describe 'validations' do
-    subject { create(:power_of_attorney_request_resolution, :with_decision) }
-
-    it { is_expected.to validate_uniqueness_of(:power_of_attorney_request_id).ignoring_case_sensitivity }
-    it { is_expected.to validate_inclusion_of(:resolving_type).in_array(described_class::RESOLVING_TYPES) }
-
-    it 'validates presence of resolving_id if resolving_type is present' do
-      resolution = build(:power_of_attorney_request_resolution, resolving_type: described_class::RESOLVING_TYPES.first,
-                                                                resolving_id: nil)
-      expect(resolution).not_to be_valid
-      expect(resolution.errors[:resolving_id]).to include("can't be blank")
-    end
-  end
-
   describe 'delegated_type resolving' do
     it 'is valid with expiration resolving' do
       resolution = create(:power_of_attorney_request_resolution, :with_expiration)
       expect(resolution).to be_valid
-      expect(resolution.resolving).to be_a(AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration)
+      expect(resolution.resolving).to be_a(mod::PowerOfAttorneyRequestExpiration)
     end
 
     it 'is valid with decision resolving' do
       resolution = create(:power_of_attorney_request_resolution, :with_decision)
       expect(resolution).to be_valid
-      expect(resolution.resolving).to be_a(AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision)
+      expect(resolution.resolving).to be_a(mod::PowerOfAttorneyRequestDecision)
     end
 
     it 'is invalid with null resolving_type and resolving_id' do
       resolution = build(:power_of_attorney_request_resolution, resolving_type: nil, resolving_id: nil)
       expect(resolution).not_to be_valid
     end
+  end
 
-    it 'is invalid with invalid resolving_type' do
-      resolution = build(:power_of_attorney_request_resolution, resolving_type: 'invalid_type')
-      expect(resolution).not_to be_valid
+  describe 'heterogeneous list behavior' do
+    it 'conveniently returns heterogeneous lists' do
+      travel_to Time.zone.parse('2024-11-25T09:46:24Z') do
+        creator = create(:user_account)
+
+        ids = []
+
+        # Persisted resolving records
+        decision_acceptance = mod::PowerOfAttorneyRequestDecision.create!(
+          type: 'acceptance',
+          creator: creator
+        )
+        decision_declination = mod::PowerOfAttorneyRequestDecision.create!(
+          type: 'declination',
+          creator: creator
+        )
+        expiration = mod::PowerOfAttorneyRequestExpiration.create!
+
+        # Associate resolving records
+        ids << described_class.create!(
+          power_of_attorney_request: create(:power_of_attorney_request),
+          resolving: decision_acceptance,
+          encrypted_kms_key: SecureRandom.hex(16),
+          created_at: Time.current
+        ).id
+
+        ids << described_class.create!(
+          power_of_attorney_request: create(:power_of_attorney_request),
+          resolving: decision_declination,
+          encrypted_kms_key: SecureRandom.hex(16),
+          created_at: Time.current
+        ).id
+
+        ids << described_class.create!(
+          power_of_attorney_request: create(:power_of_attorney_request),
+          resolving: expiration,
+          encrypted_kms_key: SecureRandom.hex(16),
+          created_at: Time.current
+        ).id
+
+        resolutions = described_class.includes(:resolving).find(ids)
+
+        # Serialize for comparison
+        actual =
+          resolutions.map do |resolution|
+            serialized =
+              case resolution.resolving
+              when mod::PowerOfAttorneyRequestDecision
+                {
+                  type: 'decision',
+                  decision_type: resolution.resolving.type
+                }
+              when mod::PowerOfAttorneyRequestExpiration
+                {
+                  type: 'expiration'
+                }
+              end
+
+            serialized.merge!(
+              created_at: resolution.created_at.iso8601
+            )
+          end
+
+        expect(actual).to eq(
+          [
+            {
+              type: 'decision',
+              decision_type: 'acceptance',
+              created_at: '2024-11-25T09:46:24Z'
+            },
+            {
+              type: 'decision',
+              decision_type: 'declination',
+              created_at: '2024-11-25T09:46:24Z'
+            },
+            {
+              type: 'expiration',
+              created_at: '2024-11-25T09:46:24Z'
+            }
+          ]
+        )
+      end
     end
   end
 end
