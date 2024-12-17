@@ -35,6 +35,7 @@ module Vets
           @per_page = per_page
           @max_per_page = max_per_page
         end
+        private :set_pagination
 
         # Provide default values if set_pagination has not been called
         def per_page
