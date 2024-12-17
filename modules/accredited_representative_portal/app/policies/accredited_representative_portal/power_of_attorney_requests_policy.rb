@@ -10,6 +10,13 @@ module AccreditedRepresentativePortal
       authorize
     end
 
+    class Scope < ApplicationPolicy::Scope
+      def resolve
+        byebug
+        POA_REQUEST_LIST_MOCK_DATA
+      end
+    end
+
     private
 
     def pilot_user_email_poa_codes
