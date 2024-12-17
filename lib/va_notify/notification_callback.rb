@@ -24,6 +24,8 @@ module VANotify
 
       # static call to handle notification callback
       # creates an instance of _this_ class and will call the status function
+      #
+      # @param notification [VANotify::Notification] ActiveRecord of notification.
       def self.call(notification)
         callback = new(notification)
 
@@ -113,8 +115,15 @@ module VANotify
 
       # is the notification an email
       # - currently the notification_type is 'email' or nil
+      #
+      # @return boolean
       def email?
         notification.notification_type == 'email'
+      end
+
+      # custom call location to be sent with monitoring
+      def call_location
+        nil
       end
     end
   end

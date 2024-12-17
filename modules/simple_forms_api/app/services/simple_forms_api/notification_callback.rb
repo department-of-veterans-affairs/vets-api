@@ -18,15 +18,15 @@ module SimpleFormsApi
 
     # notification was delivered
     def on_delivered
-      if email? && metadata.notification_type == 'error'
-        monitor.log_silent_failure_avoided(zsf_additional_context, email_confirmed: true, call_location:)
+      if email? && notification_type.to_s == 'error'
+        monitor.log_silent_failure_avoided(context, email_confirmed: true, call_location:)
       end
     end
 
     # notification has permanently failed
     def on_permanent_failure
-      if email? && metadata.notification_type == 'error'
-        monitor.log_silent_failure(zsf_additional_context, call_location:)
+      if email? && notification_type.to_s == 'error'
+        monitor.log_silent_failure(context, call_location:)
       end
     end
 
@@ -42,7 +42,7 @@ module SimpleFormsApi
 
     private
 
-    attr_reader :statsd_tags, :service, :function
+    attr_reader :notification_type, :statsd_tags, :service, :function
 
     # the monitor to be used
     # @see ZeroSilentFailures::Monitor
