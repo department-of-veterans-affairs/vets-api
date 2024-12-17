@@ -430,7 +430,7 @@ module ClaimsApi
       ##
       # VnpProcWebServiceBeanV2
       #
-      module VnpProcWebServiceV2
+      module VnpProcWebServiceBeanV2
         DEFINITION =
           Bean.new(
             path: 'VnpProcWebServiceBeanV2/VnpProcServiceV2',
@@ -438,6 +438,14 @@ module ClaimsApi
               target: 'http://procService.services.v2.vonapp.vba.va.gov/',
               data: nil
             )
+          )
+      end
+
+      module VnpProcServiceV2
+        DEFINITION =
+          Service.new(
+            bean: VnpProcWebServiceBeanV2::DEFINITION,
+            path: 'VnpProcServiceV2'
           )
       end
 
