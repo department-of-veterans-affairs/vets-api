@@ -30,6 +30,12 @@ module SimpleFormsApi
       data.dig('full_name', 'middle')&.[](0)
     end
 
+    def ssn
+      trimmed_ssn = data.dig('veteran_id', 'ssn')&.tr('-', '')
+
+      [trimmed_ssn&.[](0..2), trimmed_ssn&.[](3..4), trimmed_ssn&.[](5..8)]
+    end
+
     def submission_date_stamps(_timestamp)
       []
     end
