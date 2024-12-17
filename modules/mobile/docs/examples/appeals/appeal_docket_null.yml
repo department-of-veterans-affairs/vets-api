@@ -11,7 +11,7 @@ data:
     aod: null
     aoj: "vba"
     description: "1 insurance issue"
-    docket: null
+    docket: {}
     events:
       - type: "sc_request"
         date: "2023-02-02"

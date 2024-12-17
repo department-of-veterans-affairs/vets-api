@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - type
       - id
@@ -17,6 +19,7 @@ properties:
         example: "f26bc1f0-c389-4f3c-86e0-7712fb08fbe6"
       attributes:
         type: object
+        additionalProperties: false
         required:
           - id
           - aportnRecipId
@@ -50,8 +53,8 @@ properties:
           - netAmt
           - payeeTypeCd
           - priorEfctvDt
-          - ptcptBeneId
-          - ptcptVetId
+          - ptcpntBeneId
+          - ptcpntVetId
           - reasonOneTxt
           - spouseTxt
         properties:
@@ -60,8 +63,8 @@ properties:
             example: "f26bc1f0-c389-4f3c-86e0-7712fb08fbe6"
             description: user UUID
           aportnRecipId:
-            type: integer
-            example: 2810777
+            type: string
+            example: "2810777"
           awardAmt:
             type: decimal
             example: 541.83
@@ -90,23 +93,23 @@ properties:
             type: string
             example: "30"
           depHlplsThisNbr:
-            type: integer
-            example: 0
+            type: string
+            example: "0"
           depHlplsTotalNbr:
-            type: integer
-            example: 0
+            type: string
+            example: "0"
           depSchoolThisNbr:
-            type: integer
-            example: 0
+            type: string
+            example: "0"
           depSchoolTotalNbr:
-            type: integer
-            example: 0
+            type: string
+            example: "0"
           depThisNbr:
-            type: integer
-            example: 12
+            type: string
+            example: "12"
           depTotalNbr:
-            type: integer
-            example: 12
+            type: string
+            example: "12"
           efctvDt:
             type: date
             example: "2020-08-01T00:00:00.000-05:00"
@@ -114,8 +117,8 @@ properties:
             type: string
             example: "41"
           fileNbr:
-            type: integer
-            example: 796121200
+            type: string
+            example: "796121200"
           futureEfctvDt:
             type: string
             example: "2021-07-15T00:00:00.000-05:00"
@@ -152,10 +155,10 @@ properties:
           priorEfctvDt:
             type: string
             example: "2020-07-01T00:00:00.000"
-          ptcptBeneId:
+          ptcpntBeneId:
             type: string
             example: "2810777"
-          ptcptVetId:
+          ptcpntVetId:
             type: string
             example: "2810777"
           reasonOneTxt:

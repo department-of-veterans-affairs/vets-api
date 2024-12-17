@@ -2,7 +2,8 @@
 
 require 'rails_helper'
 
-RSpec.describe DirectDepositMailer, type: [:mailer] do
+RSpec.describe DirectDepositMailer, feature: :direct_deposit,
+                                    team_owner: :vfs_authenticated_experience_backend, type: :mailer do
   subject do
     described_class.build(email, google_analytics_client_id, dd_type).deliver_now
   end
@@ -19,12 +20,6 @@ RSpec.describe DirectDepositMailer, type: [:mailer] do
         "We're sending this email to confirm that you've recently changed your direct deposit "\
         'information in your VA.gov account profile.'
       )
-    end
-
-    it 'delivers the mail' do
-      expect { DirectDepositEmailJob.new.perform('test@example.com', 123_456_789, :comp_pen) }.to change {
-        ActionMailer::Base.deliveries.count
-      }.by(1)
     end
 
     context 'comp and pen email' do

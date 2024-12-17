@@ -10,7 +10,12 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     VAProfile::ContactInformation::Service
   end
 
-  describe 'GET /mobile/v0/user' do
+  before do
+    Flipper.disable(:va_v3_contact_information_service)
+    Flipper.disable(:remove_pciu)
+  end
+
+  describe 'GET /mobile/v0/user', :skip_va_profile_user do
     let!(:user) do
       sis_user(
         first_name: 'GREG',
@@ -25,7 +30,6 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     end
 
     before(:all) do
-      Flipper.disable(:va_v3_contact_information_service)
       Flipper.disable(:mobile_lighthouse_letters)
     end
 
@@ -459,7 +463,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
     end
   end
 
-  describe 'POST /mobile/v0/user/logged-in' do
+  describe 'POST /mobile/v0/user/logged-in', :skip_va_profile_user do
     let!(:user) { sis_user }
 
     it 'returns an ok response' do

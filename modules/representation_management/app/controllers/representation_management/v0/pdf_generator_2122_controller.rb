@@ -25,23 +25,18 @@ module RepresentationManagement
       private
 
       def form_params
-        params.require(:pdf_generator2122).permit(
-          params_permitted.unshift(:organization_name)
-        )
+        params.require(:pdf_generator2122).permit(params_permitted)
       end
 
       def flatten_form_params
         {
-          organization_name: form_params[:organization_name],
+          representative_id: form_params[:representative][:id],
+          organization_id: form_params[:representative][:organization_id],
           record_consent: form_params[:record_consent],
           consent_limits: form_params[:consent_limits],
           consent_address_change: form_params[:consent_address_change]
         }.merge(flatten_veteran_params(form_params))
           .merge(flatten_claimant_params(form_params))
-      end
-
-      def flatten_veteran_params(veteran_params)
-        super.merge(veteran_insurance_numbers: veteran_params.dig(:veteran, :insurance_numbers))
       end
     end
   end

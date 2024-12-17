@@ -13,7 +13,7 @@ class PrescriptionDetails < Prescription
   attribute :modified_date, Common::UTCTime, sortable: { order: 'ASC' }
   attribute :institution_id, String
   attribute :dial_cmop_division_phone, String
-  attribute :disp_status, String, sortable: { order: 'ASC' }
+  attribute :disp_status, String, sortable: { order: 'ASC' }, filterable: %w[eq not_eq]
   attribute :ndc, String
   attribute :reason, String
   attribute :prescription_number_index, String
@@ -31,6 +31,7 @@ class PrescriptionDetails < Prescription
   attribute :color, String
   attribute :back_imprint, String
   attribute :front_imprint, String
+  attribute :grouped_medications, Array[String]
 
   def sorted_dispensed_date
     has_refills = try(:rx_rf_records).present?

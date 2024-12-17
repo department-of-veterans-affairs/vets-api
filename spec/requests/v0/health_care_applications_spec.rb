@@ -15,6 +15,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     let(:current_user) { build(:ch33_dd_user) }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:hca_disable_bgs_service).and_return(false)
       sign_in_as(current_user)
     end
 
@@ -26,6 +27,22 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       expect(JSON.parse(response.body)['data']['attributes']).to eq(
         { 'user_percent_of_disability' => 100 }
       )
+    end
+
+    context 'hca_disable_bgs_service enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:hca_disable_bgs_service).and_return(true)
+      end
+
+      it 'does not call the BGS Service and returns the rating info as 0' do
+        expect_any_instance_of(BGS::Service).not_to receive(:find_rating_data)
+
+        get(rating_info_v0_health_care_applications_path)
+
+        expect(JSON.parse(response.body)['data']['attributes']).to eq(
+          { 'user_percent_of_disability' => 0 }
+        )
+      end
     end
 
     context 'User not found' do
@@ -209,7 +226,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
   end
 
   describe 'GET facilities' do
-    it 'responds with facilities data' do
+    it 'responds with facilities data for supported facilities' do
       StdInstitutionFacility.create(station_number: '042')
 
       VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
@@ -255,12 +272,30 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
                                               'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp' })
     end
 
-    it 'filters out facilities not yet supported downstream' do
-      VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
-        get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
+    context 'with hca_retrieve_facilities_without_repopulating disabled' do
+      it 'populates VES facilities cache if it returns no results' do
+        allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(false)
+        expect(StdInstitutionFacility.count).to eq(0)
+        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+          get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
+        end
+        expect(StdInstitutionFacility.all.any?).to eq(true)
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body[0]).to be_nil
       end
-      expect(response).to have_http_status(:ok)
-      expect(response.parsed_body[0]).to be_nil
+    end
+
+    context 'with hca_retrieve_facilities_without_repopulating enabled' do
+      it 'returns no results when the cache is empty without populating it' do
+        allow(Flipper).to receive(:enabled?).with(:hca_retrieve_facilities_without_repopulating).and_return(true)
+        expect(StdInstitutionFacility.count).to eq(0)
+        VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
+          get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
+        end
+        expect(StdInstitutionFacility.count).to eq(0)
+        expect(response).to have_http_status(:ok)
+        expect(response.parsed_body[0]).to be_nil
+      end
     end
   end
 
@@ -462,7 +497,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         end
       end
 
-      context 'with hca_use_facilities_API enabled' do
+      context 'with an arbitrary medical facility ID' do
         let(:current_user) { create(:user) }
         let(:params) do
           test_veteran['vaMedicalFacility'] = '000'
@@ -480,8 +515,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
         before do
           sign_in_as(current_user)
-          Flipper.disable(:hca_use_facilities_API)
-          Flipper.enable(:hca_use_facilities_API, current_user)
         end
 
         it 'does not error on vaMedicalFacility validation' do
@@ -489,28 +522,6 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
           expect(JSON.parse(response.body)['errors']).to be_blank
           expect(JSON.parse(response.body)['data']['attributes']).to eq(body)
-        end
-      end
-
-      context 'with hca_use_facilities_API disabled' do
-        let(:current_user) { create(:user) }
-        let(:params) do
-          test_veteran['vaMedicalFacility'] = '000'
-          {
-            form: test_veteran.to_json
-          }
-        end
-
-        before do
-          sign_in_as(current_user)
-          Flipper.disable(:hca_use_facilities_API)
-        end
-
-        it 'errors on vaMedicalFacility validation' do
-          subject
-
-          expect(JSON.parse(response.body)['errors']).not_to be_blank
-          expect(JSON.parse(response.body)['errors'].first['title']).to include('"000" did not match')
         end
       end
     end

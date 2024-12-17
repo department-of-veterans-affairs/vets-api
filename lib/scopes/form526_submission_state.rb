@@ -24,7 +24,9 @@ module Scopes
       }
 
       scope :accepted_to_primary_path, lambda {
-        accepted_to_lighthouse_primary_path.or(accepted_to_evss_primary_path)
+        lh = accepted_to_lighthouse_primary_path.pluck(:id)
+        evss = accepted_to_evss_primary_path.pluck(:id)
+        where(id: lh + evss)
       }
       scope :accepted_to_evss_primary_path, lambda {
         where.not(submitted_claim_id: nil)

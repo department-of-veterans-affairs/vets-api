@@ -4,6 +4,7 @@ require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
 require 'pensions/tag_sentry'
 require 'pensions/monitor'
+require 'pensions/notification_email'
 require 'pdf_utilities/datestamp_pdf'
 
 module Pensions
@@ -26,17 +27,18 @@ module Pensions
     # `source` attribute for upload metadata
     PENSION_SOURCE = __FILE__
 
-    # retry for one day
-    sidekiq_options retry: 14, queue: 'low'
+    # retry for 2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 16, queue: 'low'
 
     # retry exhaustion
     sidekiq_retries_exhausted do |msg|
-      pension_monitor = Pensions::Monitor.new
       begin
         claim = Pensions::SavedClaim.find(msg['args'].first)
       rescue
         claim = nil
       end
+      pension_monitor = Pensions::Monitor.new
       pension_monitor.track_submission_exhaustion(msg, claim)
     end
 
@@ -51,6 +53,8 @@ module Pensions
     #
     def perform(saved_claim_id, user_account_uuid = nil)
       init(saved_claim_id, user_account_uuid)
+
+      return if form_submission_pending_or_success
 
       # generate and validate claim pdf documents
       @form_path = process_document(@claim.to_pdf)
@@ -93,7 +97,21 @@ module Pensions
       @claim = Pensions::SavedClaim.find(saved_claim_id)
       raise PensionBenefitIntakeError, "Unable to find SavedClaim::Pension #{saved_claim_id}" unless @claim
 
-      @intake_service = BenefitsIntake::Service.new
+      set_signature_date
+
+      @intake_service = ::BenefitsIntake::Service.new
+    end
+
+    ##
+    # Check FormSubmissionAttempts for record with 'pending' or 'success'
+    #
+    # @return true if FormSubmissionAttempt has 'pending' or 'success'
+    # @return false if unable to find a FormSubmission or FormSubmissionAttempt not 'pending' or 'success'
+    #
+    def form_submission_pending_or_success
+      @claim&.form_submissions&.any? do |form_submission|
+        form_submission.non_failure_attempt.present?
+      end || false
     end
 
     ##
@@ -104,9 +122,15 @@ module Pensions
     # @return [String] path to stamped PDF
     #
     def process_document(file_path)
-      document = PDFUtilities::DatestampPdf.new(file_path).run(text: 'VA.GOV', x: 5, y: 5)
+      document = PDFUtilities::DatestampPdf.new(file_path).run(
+        text: 'VA.GOV',
+        timestamp: @claim.created_at,
+        x: 5,
+        y: 5
+      )
       document = PDFUtilities::DatestampPdf.new(document).run(
         text: 'FDC Reviewed - VA.gov Submission',
+        timestamp: @claim.created_at,
         x: 429,
         y: 770,
         text_only: true
@@ -151,7 +175,7 @@ module Pensions
       address = form['claimantAddress'] || form['veteranAddress']
 
       # also validates/maniuplates the metadata
-      BenefitsIntake::Metadata.generate(
+      ::BenefitsIntake::Metadata.generate(
         form['veteranFullName']['first'],
         form['veteranFullName']['last'],
         form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
@@ -172,14 +196,16 @@ module Pensions
       form_submission = {
         form_type: @claim.form_id,
         form_data: @claim.to_json,
-        benefits_intake_uuid: @intake_service.uuid,
         saved_claim: @claim,
         saved_claim_id: @claim.id
       }
       form_submission[:user_account] = @user_account unless @user_account_uuid.nil?
 
-      @form_submission = FormSubmission.create(**form_submission)
-      @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission)
+      FormSubmissionAttempt.transaction do
+        @form_submission = FormSubmission.create(**form_submission)
+        @form_submission_attempt = FormSubmissionAttempt.create(form_submission: @form_submission,
+                                                                benefits_intake_uuid: @intake_service.uuid)
+      end
 
       Datadog::Tracing.active_trace&.set_tag('benefits_intake_uuid', @intake_service.uuid)
     end
@@ -188,7 +214,7 @@ module Pensions
     # Being VANotify job to send email to veteran
     #
     def send_confirmation_email
-      @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
+      Pensions::NotificationEmail.new(@claim.id).deliver(:confirmation)
     rescue => e
       @pension_monitor.track_send_confirmation_email_failure(@claim, @intake_service, @user_account_uuid, e)
     end
@@ -202,6 +228,20 @@ module Pensions
       @attachment_paths&.each { |p| Common::FileHelpers.delete_file_if_exists(p) }
     rescue => e
       @pension_monitor.track_file_cleanup_error(@claim, @intake_service, @user_account_uuid, e)
+    end
+
+    ##
+    # Sets the signature date to the claim.created_at,
+    # so that retried claims will be considered signed on the date of submission.
+    # Signature date will be set to current date if not provided.
+    #
+    def set_signature_date
+      form_data = JSON.parse(@claim.form)
+      form_data['signatureDate'] = @claim.created_at&.strftime('%Y-%m-%d')
+      @claim.form = form_data.to_json
+      @claim.save
+    rescue => e
+      @pension_monitor.track_claim_signature_error(@claim, @intake_service, @user_account_uuid, e)
     end
   end
 end

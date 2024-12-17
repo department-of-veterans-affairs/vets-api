@@ -2,11 +2,14 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::PoaUpdater, type: :job do
+RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/find_by_ssn' do
   subject { described_class }
 
   before do
     Sidekiq::Job.clear_all
+    allow(Flipper).to receive(:enabled?).with(:claims_api_use_vet_record_service).and_return false
+    allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
+    allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
   end
 
   let(:user) { FactoryBot.create(:user, :loa3) }
@@ -19,6 +22,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
   context "when call to BGS 'update_birls_record' is successful" do
     context 'and the poaCode is retrieved successfully from the V2 2122a form data' do
       it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
+        allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
         create_mock_lighthouse_service
         expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
 
@@ -61,38 +65,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
         expect(poa.status).to eq('updated')
       end
     end
-
-    context 'and record consent is not granted' do
-      context "because 'recordConsent' is false" do
-        it "updates the form's status but does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-          create_mock_lighthouse_service
-          expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-
-          poa = create_poa
-          poa.form_data.merge!({ recordConsent: false, consentLimits: [] })
-          poa.save!
-
-          subject.new.perform(poa.id)
-          poa.reload
-          expect(poa.status).to eq('updated')
-        end
-      end
-
-      context "because a limitation exists in 'consentLimits'" do
-        it "updates the form's status but does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-          create_mock_lighthouse_service
-          expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-
-          poa = create_poa
-          poa.form_data.merge!({ recordConsent: true, consentLimits: %w[ALCOHOLISM] })
-          poa.save!
-
-          subject.new.perform(poa.id)
-          poa.reload
-          expect(poa.status).to eq('updated')
-        end
-      end
-    end
   end
 
   context "when call to BGS 'update_birls_record' fails" do
@@ -108,6 +80,64 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
       subject.new.perform(poa.id)
       poa.reload
       expect(poa.status).to eq('errored')
+    end
+  end
+
+  context 'deciding to send a VA Notify email' do
+    before do
+      create_mock_lighthouse_service
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return true
+    end
+
+    let(:poa) { create_poa }
+    let(:header_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY }
+
+    context 'when the header key and rep are present' do
+      it 'sends the vanotify job' do
+        poa.auth_headers.merge!({
+                                  header_key => 'this_value'
+                                })
+        poa.save!
+
+        expect(ClaimsApi::VANotifyAcceptedJob).to receive(:perform_async)
+
+        subject.new.perform(poa.id, 'Rep Data')
+      end
+    end
+
+    context 'when the flipper is on' do
+      it 'does not send the vanotify job' do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
+        Flipper.disable(:lighthouse_claims_api_v2_poa_va_notify)
+
+        poa.auth_headers.merge!({
+                                  header_key => 'this_value'
+                                })
+        poa.save!
+
+        expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
+
+        subject.new.perform(poa.id, 'Rep Data')
+      end
+    end
+
+    context 'does not send the va notify job' do
+      it 'when the rep is not present' do
+        poa.auth_headers.merge!({
+                                  header_key => 'this_value'
+                                })
+        poa.save!
+
+        expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
+
+        subject.new.perform(poa.id, nil)
+      end
+
+      it 'when the header key is not present' do
+        expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
+
+        subject.new.perform(poa.id, 'Rep data')
+      end
     end
   end
 
@@ -127,6 +157,44 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job do
           error: error_msg
         )
       end
+    end
+  end
+
+  describe 'when the claims_api_use_person_web_service flipper is on' do
+    let(:person_web_service) { instance_double(ClaimsApi::PersonWebService) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
+      allow(ClaimsApi::PersonWebService).to receive(:new).with(external_uid: anything,
+                                                               external_key: anything)
+                                                         .and_return(person_web_service)
+      allow(person_web_service).to receive(:find_by_ssn).and_return({ file_nbr: '796111863' })
+    end
+
+    it 'calls local bgs person web service instead of bgs-ext' do
+      poa = create_poa
+      subject.new.perform(poa.id)
+
+      expect(person_web_service).to have_received(:find_by_ssn)
+    end
+  end
+
+  describe 'when the claims_api_use_vet_record_service flipper is on' do
+    let(:vet_record_web_service) { instance_double(ClaimsApi::VetRecordWebService) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:claims_api_use_vet_record_service).and_return true
+      allow(ClaimsApi::VetRecordWebService).to receive(:new).with(external_uid: anything,
+                                                                  external_key: anything)
+                                                            .and_return(vet_record_web_service)
+      allow(vet_record_web_service).to receive(:update_birls_record).and_return({ return_code: 'BMOD0001' })
+    end
+
+    it 'calls local bgs vet record service instead of bgs-ext' do
+      poa = create_poa
+      subject.new.perform(poa.id)
+
+      expect(vet_record_web_service).to have_received(:update_birls_record)
     end
   end
 

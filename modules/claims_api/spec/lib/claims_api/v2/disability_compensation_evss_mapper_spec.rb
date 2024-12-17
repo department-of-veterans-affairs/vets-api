@@ -78,16 +78,25 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
           expect(claim_process_type).to eq('BDD_PROGRAM_CLAIM')
         end
       end
+
+      context 'claimSubmissionSource' do
+        it 'maps the source to VA.gov correctly' do
+          auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
+          evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
+          source = evss_data[:claimSubmissionSource]
+          expect(source).to eq('VA.gov')
+        end
+      end
     end
 
     context '526 section 1' do
       it 'maps the mailing address' do
         addr = evss_data[:veteran][:currentMailingAddress]
         expect(addr[:addressLine1]).to eq('1234 Couch Street')
-        expect(addr[:city]).to eq('Portland')
+        expect(addr[:city]).to eq('Schenectady')
         expect(addr[:country]).to eq('USA')
-        expect(addr[:zipFirstFive]).to eq('41726')
-        expect(addr[:state]).to eq('OR')
+        expect(addr[:zipFirstFive]).to eq('12345')
+        expect(addr[:state]).to eq('NY')
       end
 
       it 'maps the other veteran info' do
@@ -187,24 +196,10 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
       end
 
       context 'When there are special issues, a PACT disability and INCREASE action type' do
-        let(:disability) do
-          {
-            disabilityActionType: 'INCREASE',
-            name: 'hypertension',
-            approximateDate: nil,
-            classificationCode: '',
-            serviceRelevance: '',
-            isRelatedToToxicExposure: true,
-            exposureOrEventOrInjury: '',
-            ratedDisabilityId: '',
-            diagnosticCode: 0,
-            secondaryDisabilities: nil,
-            specialIssues: %w[POW EMP]
-          }
-        end
-
         it 'maps the special issues attributes correctly and does NOT append PACT' do
-          form_data['data']['attributes']['disabilities'][0] = disability
+          form_data['data']['attributes']['disabilities'][0][:disabilityActionType] = 'INCREASE'
+          form_data['data']['attributes']['disabilities'][0][:specialIssues] = %w[POW EMP]
+          form_data['data']['attributes']['disabilities'][0][:isRelatedToToxicExposure] = true
           auto_claim = create(:auto_established_claim, form_data: form_data['data']['attributes'])
           evss_data = ClaimsApi::V2::DisabilityCompensationEvssMapper.new(auto_claim).map_claim[:form526]
           includes_pow = evss_data[:disabilities][0][:specialIssues].include? 'POW'
@@ -254,7 +249,7 @@ describe ClaimsApi::V2::DisabilityCompensationEvssMapper do
         reserves_addition = evss_data[:serviceInformation][:reservesNationalGuardService]
 
         expect(reserves_addition[:title10Activation][:title10ActivationDate]).to eq('2023-10-01')
-        expect(reserves_addition[:title10Activation][:anticipatedSeparationDate]).to eq('2024-10-31')
+        expect(reserves_addition[:title10Activation][:anticipatedSeparationDate]).to eq('2025-10-31')
         expect(reserves_addition[:obligationTermOfServiceFromDate]).to eq('2019-06-04')
         expect(reserves_addition[:obligationTermOfServiceToDate]).to eq('2020-06-04')
         expect(reserves_addition[:unitName]).to eq('National Guard Unit Name')

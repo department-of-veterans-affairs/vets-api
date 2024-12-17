@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'sign_in/public_jwks'
 require 'sign_in/logingov/configuration'
 require 'sign_in/logingov/errors'
 require 'mockdata/writer'
@@ -7,6 +8,7 @@ require 'mockdata/writer'
 module SignIn
   module Logingov
     class Service < Common::Client::Base
+      include SignIn::PublicJwks
       configuration Configuration
 
       DEFAULT_SCOPES = [
@@ -30,7 +32,6 @@ module SignIn
       def render_auth(state: SecureRandom.hex,
                       acr: Constants::Auth::LOGIN_GOV_IAL1,
                       operation: Constants::Auth::AUTHORIZE)
-
         Rails.logger.info('[SignIn][Logingov][Service] Rendering auth, ' \
                           "state: #{state}, acr: #{acr}, operation: #{operation}, " \
                           "optional_scopes: #{optional_scopes}")
@@ -144,7 +145,7 @@ module SignIn
           encoded_jwt,
           nil,
           verify_expiration,
-          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: public_jwks }
+          { verify_expiration:, algorithm: config.jwt_decode_algorithm, jwks: method(:jwks_loader) }
         ).first
       rescue JWT::JWKError
         raise Errors::PublicJWKError, '[SignIn][Logingov][Service] Public JWK is malformed'
@@ -154,21 +155,6 @@ module SignIn
         raise Errors::JWTExpiredError, '[SignIn][Logingov][Service] JWT has expired'
       rescue JWT::DecodeError
         raise Errors::JWTDecodeError, '[SignIn][Logingov][Service] JWT is malformed'
-      end
-
-      def public_jwks
-        @public_jwks ||= Rails.cache.fetch(config.jwks_cache_key, expires_in: config.jwks_cache_expiration) do
-          response = perform(:get, config.public_jwks_path, nil, nil)
-          Rails.logger.info('[SignIn][Logingov][Service] Get Public JWKs Success')
-
-          parse_public_jwks(response:)
-        end
-      rescue Common::Client::Errors::ClientError => e
-        raise_client_error(e, 'Get Public JWKs')
-      end
-
-      def parse_public_jwks(response:)
-        JWT::JWK::Set.new(response.body).select { |key| key[:use] == 'sig' }
       end
 
       def get_authn_context(current_ial)

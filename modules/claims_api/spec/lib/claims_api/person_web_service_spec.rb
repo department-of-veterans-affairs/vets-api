@@ -2,9 +2,19 @@
 
 require 'rails_helper'
 require 'bgs_service/person_web_service'
+require 'bd/bd'
 
 describe ClaimsApi::PersonWebService do
-  subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
+  subject do
+    described_class.new external_uid: 'xUid', external_key: 'xKey'
+  end
+
+  before do
+    allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return true
+    allow(Flipper).to receive(:enabled?).with(:claims_status_v2_lh_benefits_docs_service_enabled).and_return true
+    allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
+      .to receive(:get_auth_token).and_return('some-value-here')
+  end
 
   describe '#find_dependents_by_ptcpnt_id' do
     context 'with a participant that has one dependent' do
@@ -54,10 +64,9 @@ describe ClaimsApi::PersonWebService do
             ptcpnt_id_a:,
             ptcpnt_id_b:
           }
-          result = subject.manage_ptcpnt_rlnshp_poa(options)
+          result = subject.manage_ptcpnt_rlnshp_poa(options:)
 
           expect(result).to be_a Hash
-          expect(result[:authzn_poa_access_ind]).to eq 'Y'
           expect(result[:comp_id][:ptcpnt_id_a]).to eq ptcpnt_id_a
           expect(result[:comp_id][:ptcpnt_id_b]).to eq ptcpnt_id_b
           expect(result[:comp_id][:ptcpnt_rlnshp_type_nm]).to eq 'Power of Attorney For'
@@ -74,7 +83,7 @@ describe ClaimsApi::PersonWebService do
           }
 
           expect do
-            subject.manage_ptcpnt_rlnshp_poa(options)
+            subject.manage_ptcpnt_rlnshp_poa(options:)
           end.to raise_error(Common::Exceptions::ServiceError) { |error|
                    expect(error.errors.first.detail).to eq 'PtcpntIdA has open claims.'
                  }

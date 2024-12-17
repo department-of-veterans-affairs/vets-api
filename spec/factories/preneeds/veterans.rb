@@ -9,7 +9,7 @@ FactoryBot.define do
     marital_status { 'Married' }
     military_service_number { '123456789' }
     place_of_birth { 'Brooklyn, NY' }
-    ssn { '123-45-6789' }
+    ssn { '123456789' }
     va_claim_number { '23456789' }
     military_status { 'A' }
     race { attributes_for(:race) }

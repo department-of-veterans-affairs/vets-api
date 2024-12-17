@@ -26,71 +26,146 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
     }
   end
 
-  path '/veterans/{veteranId}/526', vcr: 'claims_api/disability_comp' do
-    post 'Asynchronously establishes disability compensation claim' do
-      tags 'Disability Compensation Claims'
-      operationId 'post526Claim'
-      security [
-        { productionOauth: ['system/claim.read', 'system/claim.write'] },
-        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
-        { bearer_token: [] }
-      ]
-      consumes 'application/json'
-      produces 'application/json'
+  describe '526 submit', skip: 'Disabling tests for deactivated /veterans/{veteranId}/526 endpoint' do
+    path '/veterans/{veteranId}/526', vcr: 'claims_api/disability_comp' do
+      post 'Asynchronously establishes disability compensation claim' do
+        tags 'Disability Compensation Claims'
+        operationId 'post526Claim'
+        security [
+          { productionOauth: ['system/claim.read', 'system/claim.write'] },
+          { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
+          { bearer_token: [] }
+        ]
+        consumes 'application/json'
+        produces 'application/json'
 
-      get_schema_description = <<~VERBIAGE
-        Automatically establishes a disability compensation claim (21-526EZ) in Veterans Benefits Management System (VBMS).#{' '}
-        This endpoint generates a filled and electronically signed 526EZ form, establishes the disability claim in VBMS, and#{' '}
-        submits the form to the Veteran's eFolder.
+        get_schema_description = <<~VERBIAGE
+          Automatically establishes a disability compensation claim (21-526EZ) in Veterans Benefits Management System (VBMS).#{' '}
+          This endpoint generates a filled and electronically signed 526EZ form, establishes the disability claim in VBMS, and#{' '}
+          submits the form to the Veteran's eFolder.
 
-        A 202 response indicates the API submission was accepted. The claim has not reached VBMS until it has a CLAIM_RECEIVED status.#{' '}
-        Check claim status using the GET veterans/{veteranId}/claims/{id} endpoint.
+          A 202 response indicates the API submission was accepted. The claim has not reached VBMS until it has a CLAIM_RECEIVED status.#{' '}
+          Check claim status using the GET veterans/{veteranId}/claims/{id} endpoint.
 
-        **A substantially complete 526EZ claim must include:**
-        * Veteran's name
-        * Sufficient service information for VA to verify the claimed service
-        * At least one claimed disability or medical condition and how it relates to service
-        * Veteran and/or Representative signature
+          **A substantially complete 526EZ claim must include:**
+          * Veteran's name
+          * Sufficient service information for VA to verify the claimed service
+          * At least one claimed disability or medical condition and how it relates to service
+          * Veteran and/or Representative signature
 
-        **Standard and fully developed claims (FDCs)**
+          **Standard and fully developed claims (FDCs)**
 
-        [Fully developed claims (FDCs)](https://www.va.gov/disability/how-to-file-claim/evidence-needed/fully-developed-claims/)
-        are claims certified by the submitter to include all information needed for processing. These claims process faster#{' '}
-        than claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information,#{' '}
-        it will be processed as a standard claim.
+          [Fully developed claims (FDCs)](https://www.va.gov/disability/how-to-file-claim/evidence-needed/fully-developed-claims/)
+          are claims certified by the submitter to include all information needed for processing. These claims process faster#{' '}
+          than claims submitted through the standard claim process. If a claim is certified for the FDC, but is missing needed information,#{' '}
+          it will be processed as a standard claim.
 
-        To certify a claim for the FDC process, set the claimProcessType to FDC_PROGRAM.
-      VERBIAGE
-      description get_schema_description
-      parameter name: 'veteranId',
-                in: :path,
-                required: true,
-                type: :string,
-                example: '1012667145V762142',
-                description: 'ID of Veteran'
+          To certify a claim for the FDC process, set the claimProcessType to FDC_PROGRAM.
+        VERBIAGE
+        description get_schema_description
+        parameter name: 'veteranId',
+                  in: :path,
+                  required: true,
+                  type: :string,
+                  example: '1012667145V762142',
+                  description: 'ID of Veteran'
 
-      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-      let(:Authorization) { 'Bearer token' }
+        let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
+        let(:Authorization) { 'Bearer token' }
 
-      let(:scopes) { %w[system/claim.read system/claim.write] }
+        let(:scopes) { %w[system/claim.read system/claim.write] }
 
-      parameter name: :disability_comp_request, in: :body,
-                schema: SwaggerSharedComponents::V2.body_examples[:disability_compensation][:schema]
+        request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                                      'disability_compensation', 'form_526_json_api.json').read)
+        request_template['data']['attributes']['serviceInformation'].delete('federalActivation')
+        request_template['data']['attributes']['serviceInformation']['servicePeriods'].each do |per|
+          per.delete('separationLocationCode')
+        end
 
-      parameter in: :body, examples: {
-        'Minimum Required Attributes' => {
-          value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                            'disability_compensation', 'valid_526_minimum.json').read)
-        },
-        'Maximum Attributes' => {
-          value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                            'disability_compensation', 'form_526_json_api.json').read)
+        parameter name: :disability_comp_request, in: :body,
+                  schema: SwaggerSharedComponents::V2.body_examples[:disability_compensation][:schema]
 
+        parameter in: :body, examples: {
+          'Minimum Required Attributes' => {
+            value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                              'disability_compensation', 'valid_526_minimum.json').read)
+          },
+          'Maximum Attributes' => {
+            value: request_template
+
+          }
         }
-      }
 
-      describe 'Getting a successful response' do
-        response '202', 'Successful response' do
+        describe 'Getting a successful response' do
+          response '202', 'Successful response' do
+            let(:claim_date) { (Time.zone.today - 1.day).to_s }
+            let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+            let(:data) do
+              temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                     'disability_compensation', 'form_526_json_api.json').read
+              temp = JSON.parse(temp)
+              attributes = temp['data']['attributes']
+              attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+                anticipated_separation_date
+              temp['data']['attributes'] = attributes
+              temp.to_json
+              temp
+            end
+
+            let(:disability_comp_request) do
+              data
+            end
+
+            schema SwaggerSharedComponents::V2.schemas[:disability_compensation]
+
+            before do |example|
+              mock_ccg(scopes) do
+                submit_request(example.metadata)
+              end
+            end
+
+            it 'returns a valid 202 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
+          end
+        end
+
+        describe 'Getting an unauthorized response' do
+          response '401', 'Unauthorized' do
+            schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                              'disability_compensation', 'default.json').read)
+
+            let(:data) do
+              temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                     'disability_compensation', 'form_526_json_api.json').read
+              temp = JSON.parse(temp)
+              temp
+            end
+
+            let(:disability_comp_request) do
+              data
+            end
+
+            before do |example|
+              # skip ccg authorization to fail authorization
+              submit_request(example.metadata)
+            end
+
+            after do |example|
+              example.metadata[:response][:content] = {
+                'application/json' => {
+                  example: JSON.parse(response.body, symbolize_names: true)
+                }
+              }
+            end
+
+            it 'returns a 401 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
+          end
+        end
+
+        describe 'Getting a 404 response' do
           let(:claim_date) { (Time.zone.today - 1.day).to_s }
           let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
           let(:data) do
@@ -109,39 +184,12 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             data
           end
 
-          schema SwaggerSharedComponents::V2.schemas[:disability_compensation]
-
           before do |example|
+            expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
+            allow(veteran).to receive(:mpi).and_return(nil)
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
-          end
-
-          it 'returns a valid 202 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
-      describe 'Getting an unauthorized response' do
-        response '401', 'Unauthorized' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'disability_compensation', 'default.json').read)
-
-          let(:data) do
-            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'disability_compensation', 'form_526_json_api.json').read
-            temp = JSON.parse(temp)
-            temp
-          end
-
-          let(:disability_comp_request) do
-            data
-          end
-
-          before do |example|
-            # skip ccg authorization to fail authorization
-            submit_request(example.metadata)
           end
 
           after do |example|
@@ -152,109 +200,69 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
             }
           end
 
-          it 'returns a 401 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
+          response '404', 'Resource not found' do
+            schema JSON.parse(
+              Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                              'disability_compensation', 'default_without_source.json').read
+            )
 
-      describe 'Getting a 404 response' do
-        let(:claim_date) { (Time.zone.today - 1.day).to_s }
-        let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
-        let(:data) do
-          temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                 'disability_compensation', 'form_526_json_api.json').read
-          temp = JSON.parse(temp)
-          attributes = temp['data']['attributes']
-          attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
-            anticipated_separation_date
-          temp['data']['attributes'] = attributes
-          temp.to_json
-          temp
-        end
-
-        let(:disability_comp_request) do
-          data
-        end
-
-        before do |example|
-          expect(ClaimsApi::Veteran).to receive(:new).and_return(veteran)
-          allow(veteran).to receive(:mpi).and_return(nil)
-          mock_ccg(scopes) do
-            submit_request(example.metadata)
-          end
-        end
-
-        after do |example|
-          example.metadata[:response][:content] = {
-            'application/json' => {
-              example: JSON.parse(response.body, symbolize_names: true)
-            }
-          }
-        end
-
-        response '404', 'Resource not found' do
-          schema JSON.parse(
-            Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                            'disability_compensation', 'default_without_source.json').read
-          )
-
-          it 'returns a 404 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
-      describe 'Getting an unprocessable entity response' do
-        response '422', 'Unprocessable entity' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'disability_compensation', 'default_with_source.json').read)
-
-          def make_request(example)
-            mock_ccg(scopes) do
-              submit_request(example.metadata)
-            end
-          end
-
-          context 'Violates JSON Schema' do
-            let(:data) { { data: { attributes: nil } } }
-
-            let(:disability_comp_request) do
-              data
-            end
-
-            before do |example|
-              make_request(example)
-            end
-
-            after do |example|
-              append_example_metadata(example, response)
-            end
-
-            it 'returns a 422 response' do |example|
+            it 'returns a 404 response' do |example|
               assert_response_matches_metadata(example.metadata)
             end
           end
+        end
 
-          context 'Not a JSON Object' do
-            let(:data) do
-              'This is not valid JSON'
+        describe 'Getting an unprocessable entity response' do
+          response '422', 'Unprocessable entity' do
+            schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                              'disability_compensation', 'default_with_source.json').read)
+
+            def make_request(example)
+              mock_ccg(scopes) do
+                submit_request(example.metadata)
+              end
             end
 
-            let(:disability_comp_request) do
-              data
+            context 'Violates JSON Schema' do
+              let(:data) { { data: { attributes: nil } } }
+
+              let(:disability_comp_request) do
+                data
+              end
+
+              before do |example|
+                make_request(example)
+              end
+
+              after do |example|
+                append_example_metadata(example, response)
+              end
+
+              it 'returns a 422 response' do |example|
+                assert_response_matches_metadata(example.metadata)
+              end
             end
 
-            before do |example|
-              make_request(example)
-            end
+            context 'Not a JSON Object' do
+              let(:data) do
+                'This is not valid JSON'
+              end
 
-            after do |example|
-              append_example_metadata(example, response)
-            end
+              let(:disability_comp_request) do
+                data
+              end
 
-            it 'returns a 422 response' do |example|
-              assert_response_matches_metadata(example.metadata)
+              before do |example|
+                make_request(example)
+              end
+
+              after do |example|
+                append_example_metadata(example, response)
+              end
+
+              it 'returns a 422 response' do |example|
+                assert_response_matches_metadata(example.metadata)
+              end
             end
           end
         end
@@ -314,16 +322,25 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
       merged_values[:meta] = { transactionId: '00000000-0000-0000-0000-000000000000' }
       parsed_json = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                                'disability_compensation', 'form_526_json_api.json').read)
+      parsed_json['data']['attributes']['serviceInformation']['federalActivation']['anticipatedSeparationDate'] =
+        2.days.from_now.strftime('%Y-%m-%d')
+      parsed_json['data']['attributes']['serviceInformation']['servicePeriods'][-1]['activeDutyEndDate'] =
+        2.days.from_now.strftime('%Y-%m-%d')
       merged_values[:data] = parsed_json['data']
 
+      request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                                    'disability_compensation', 'form_526_json_api.json').read)
+      request_template['data']['attributes']['serviceInformation'].delete('federalActivation')
+      request_template['data']['attributes']['serviceInformation']['servicePeriods'].each do |per|
+        per.delete('separationLocationCode')
+      end
       parameter in: :body, examples: {
         'Minimum Required Attributes' => {
           value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                             'disability_compensation', 'valid_526_minimum.json').read)
         },
         'Maximum Attributes' => {
-          value: JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                            'disability_compensation', 'form_526_json_api.json').read)
+          value: request_template
 
         },
         'Transaction ID' => {
@@ -715,175 +732,177 @@ describe 'DisabilityCompensation', openapi_spec: Rswag::TextHelpers.new.claims_a
     end
   end
 
-  path '/veterans/{veteranId}/526/{id}/attachments', vcr: 'claims_api/disability_comp' do
-    post 'Upload documents supporting a 526 claim' do
-      tags 'Disability Compensation Claims'
-      operationId 'upload526Attachments'
-      security [
-        { productionOauth: ['system/claim.read', 'system/claim.write'] },
-        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
-        { bearer_token: [] }
-      ]
-      consumes 'multipart/form-data'
-      produces 'application/json'
-      put_description = <<~VERBIAGE
-        Uploads supporting documents related to a disability compensation claim. This endpoint accepts a document binary PDF as part of a multi-part payload.
-      VERBIAGE
-      description put_description
+  describe '526 attachments', skip: 'Disabling tests for deactivated /veterans/{veteranId}/526/{id}/attachments' do
+    path '/veterans/{veteranId}/526/{id}/attachments', vcr: 'claims_api/disability_comp' do
+      post 'Upload documents supporting a 526 claim' do
+        tags 'Disability Compensation Claims'
+        operationId 'upload526Attachments'
+        security [
+          { productionOauth: ['system/claim.read', 'system/claim.write'] },
+          { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
+          { bearer_token: [] }
+        ]
+        consumes 'multipart/form-data'
+        produces 'application/json'
+        put_description = <<~VERBIAGE
+          Uploads supporting documents related to a disability compensation claim. This endpoint accepts a document binary PDF as part of a multi-part payload.
+        VERBIAGE
+        description put_description
 
-      parameter name: :id, in: :path, required: true, type: :string,
-                description: 'UUID given when Disability Claim was submitted'
+        parameter name: :id, in: :path, required: true, type: :string,
+                  description: 'UUID given when Disability Claim was submitted'
 
-      parameter name: 'veteranId',
-                in: :path,
-                required: true,
-                type: :string,
-                example: '1012667145V762142',
-                description: 'ID of Veteran'
+        parameter name: 'veteranId',
+                  in: :path,
+                  required: true,
+                  type: :string,
+                  example: '1012667145V762142',
+                  description: 'ID of Veteran'
 
-      let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
-      let(:Authorization) { 'Bearer token' }
+        let(:veteranId) { '1013062086V794840' } # rubocop:disable RSpec/VariableName
+        let(:Authorization) { 'Bearer token' }
 
-      attachment_description = <<~VERBIAGE
-        Attachment contents. Must be provided in binary PDF or [base64 string](https://raw.githubusercontent.com/department-of-veterans-affairs/vets-api/master/modules/claims_api/spec/fixtures/base64pdf) format and less than 11 in x 11 in.
-      VERBIAGE
-      parameter name: :attachment1,
-                in: :formData,
-                schema: {
-                  type: :object,
-                  properties: {
-                    attachment1: {
-                      type: :file,
-                      description: attachment_description
-                    },
-                    attachment2: {
-                      type: :file,
-                      description: attachment_description
+        attachment_description = <<~VERBIAGE
+          Attachment contents. Must be provided in binary PDF or [base64 string](https://raw.githubusercontent.com/department-of-veterans-affairs/vets-api/master/modules/claims_api/spec/fixtures/base64pdf) format and less than 11 in x 11 in.
+        VERBIAGE
+        parameter name: :attachment1,
+                  in: :formData,
+                  schema: {
+                    type: :object,
+                    properties: {
+                      attachment1: {
+                        type: :file,
+                        description: attachment_description
+                      },
+                      attachment2: {
+                        type: :file,
+                        description: attachment_description
+                      }
                     }
                   }
+
+        describe 'Getting an accepted response' do
+          response '202', 'upload response' do
+            schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2',
+                                              'veterans', 'disability_compensation', 'attachments.json').read)
+
+            let(:data) do
+              temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                     'disability_compensation', 'form_526_json_api.json').read
+              temp = JSON.parse(temp)
+
+              temp
+            end
+
+            let(:scopes) { %w[system/claim.write] }
+            let(:auto_claim) { create(:auto_established_claim_v2) }
+            let(:attachment1) do
+              Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                      .to_s)
+            end
+            let(:attachment2) do
+              Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                      .to_s)
+            end
+            let(:id) { auto_claim.id }
+
+            before do |example|
+              mock_ccg(scopes) do
+                submit_request(example.metadata)
+              end
+            end
+
+            after do |example|
+              example.metadata[:response][:content] = {
+                'application/json' => {
+                  example: JSON.parse(response.body, symbolize_names: true)
                 }
+              }
+            end
 
-      describe 'Getting an accepted response' do
-        response '202', 'upload response' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2',
-                                            'veterans', 'disability_compensation', 'attachments.json').read)
-
-          let(:data) do
-            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'disability_compensation', 'form_526_json_api.json').read
-            temp = JSON.parse(temp)
-
-            temp
-          end
-
-          let(:scopes) { %w[system/claim.write] }
-          let(:auto_claim) { create(:auto_established_claim_v2) }
-          let(:attachment1) do
-            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                    .to_s)
-          end
-          let(:attachment2) do
-            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                    .to_s)
-          end
-          let(:id) { auto_claim.id }
-
-          before do |example|
-            mock_ccg(scopes) do
-              submit_request(example.metadata)
+            it 'returns a valid 202 response' do |example|
+              assert_response_matches_metadata(example.metadata)
             end
           end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a valid 202 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
         end
-      end
 
-      describe 'Getting a 401 response' do
-        response '401', 'Unauthorized' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'disability_compensation', 'default.json').read)
+        describe 'Getting a 401 response' do
+          response '401', 'Unauthorized' do
+            schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                              'disability_compensation', 'default.json').read)
 
-          let(:data) do
-            temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
-                                   'disability_compensation', 'form_526_json_api.json').read
-            temp = JSON.parse(temp)
+            let(:data) do
+              temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                     'disability_compensation', 'form_526_json_api.json').read
+              temp = JSON.parse(temp)
 
-            temp
-          end
+              temp
+            end
 
-          let(:scopes) { %w[system/claim.write] }
-          let(:auto_claim) { create(:auto_established_claim) }
-          let(:attachment1) do
-            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                    .to_s)
-          end
-          let(:attachment2) do
-            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                    .to_s)
-          end
-          let(:id) { auto_claim.id }
-          let(:Authorization) { nil }
+            let(:scopes) { %w[system/claim.write] }
+            let(:auto_claim) { create(:auto_established_claim) }
+            let(:attachment1) do
+              Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                      .to_s)
+            end
+            let(:attachment2) do
+              Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                      .to_s)
+            end
+            let(:id) { auto_claim.id }
+            let(:Authorization) { nil }
 
-          before do |example|
-            submit_request(example.metadata)
-          end
-
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
-              }
-            }
-          end
-
-          it 'returns a 401 response' do |example|
-            assert_response_matches_metadata(example.metadata)
-          end
-        end
-      end
-
-      describe 'Getting a 404 response' do
-        response '404', 'Resource not found' do
-          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                            'disability_compensation', 'default_without_source.json').read)
-
-          let(:scopes) { %w[claim.write] }
-          let(:attachment1) do
-            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                    .to_s)
-          end
-          let(:attachment2) do
-            Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
-                                                    .to_s)
-          end
-          let(:id) { 999_999_999 }
-
-          before do |example|
-            mock_ccg(scopes) do
+            before do |example|
               submit_request(example.metadata)
             end
-          end
 
-          after do |example|
-            example.metadata[:response][:content] = {
-              'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true)
+            after do |example|
+              example.metadata[:response][:content] = {
+                'application/json' => {
+                  example: JSON.parse(response.body, symbolize_names: true)
+                }
               }
-            }
-          end
+            end
 
-          it 'returns a 404 response' do |example|
-            assert_response_matches_metadata(example.metadata)
+            it 'returns a 401 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
+          end
+        end
+
+        describe 'Getting a 404 response' do
+          response '404', 'Resource not found' do
+            schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                              'disability_compensation', 'default_without_source.json').read)
+
+            let(:scopes) { %w[claim.write] }
+            let(:attachment1) do
+              Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                      .to_s)
+            end
+            let(:attachment2) do
+              Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/'))
+                                                      .to_s)
+            end
+            let(:id) { 999_999_999 }
+
+            before do |example|
+              mock_ccg(scopes) do
+                submit_request(example.metadata)
+              end
+            end
+
+            after do |example|
+              example.metadata[:response][:content] = {
+                'application/json' => {
+                  example: JSON.parse(response.body, symbolize_names: true)
+                }
+              }
+            end
+
+            it 'returns a 404 response' do |example|
+              assert_response_matches_metadata(example.metadata)
+            end
           end
         end
       end

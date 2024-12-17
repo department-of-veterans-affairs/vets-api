@@ -28,10 +28,23 @@ module Vye
       private
 
       def cert_through_date
-        # act_end is defined as timestamp without time zone
-        found = Time.new(1970, 1, 1, 0, 0, 0, 0) # '1970-01-01 00:00:00'
+        found = Time.new(1970, 1, 1, 0, 0, 0, 0)
+        current_date = Time.zone.today
 
-        pending_verifications.each { |pv| found = pv.act_end if pv.act_end > found }
+        # Get final award end date
+        final_award_end = pending_verifications.map { |pv| pv.act_end.to_date }.max
+
+        if current_date >= final_award_end # If we're on or past the final award, return that final date
+          return pending_verifications.find { |pv| pv.act_end.to_date == final_award_end }&.act_end
+        else
+          # Otherwise, return the end of the previous month
+          month_end = current_date.prev_month.end_of_month
+
+          # Find verification that includes this month end
+          pending_verifications.each do |pv|
+            found = month_end.to_time if pv.act_end.to_date >= month_end
+          end
+        end
 
         return nil if found.eql?(Time.new(1970, 1, 1, 0, 0, 0, 0))
 
@@ -44,7 +57,7 @@ module Vye
 
       def matching_awards?
         given = award_ids.sort
-        actual = pending_verifications.pluck(:award_id).sort
+        actual = pending_verifications.pluck(:award_id).uniq.sort
         given == actual
       end
 

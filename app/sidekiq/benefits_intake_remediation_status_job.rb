@@ -30,6 +30,7 @@ class BenefitsIntakeRemediationStatusJob
     form_submissions = FormSubmission.includes(:form_submission_attempts)
     failures = outstanding_failures(form_submissions.all)
 
+    # filter running this job to a specific form_id/form_type
     @form_id = form_id
     failures.select! { |f| f.form_type == form_id } if form_id
 
@@ -38,6 +39,9 @@ class BenefitsIntakeRemediationStatusJob
     submission_audit
 
     Rails.logger.info('BenefitsIntakeRemediationStatusJob ended', total_handled:)
+  rescue => e
+    # catch and log, but not re-raise to avoid sidekiq exhaustion alerts
+    Rails.logger.error('BenefitsIntakeRemediationStatusJob ERROR', class: self.class.name, message: e.message)
   end
 
   private
@@ -69,7 +73,7 @@ class BenefitsIntakeRemediationStatusJob
     intake_service = BenefitsIntake::Service.new
 
     failures.each_slice(batch_size) do |batch|
-      batch_uuids = batch.map(&:benefits_intake_uuid)
+      batch_uuids = batch.map { |submission| submission.latest_attempt&.benefits_intake_uuid }
       Rails.logger.info('BenefitsIntakeRemediationStatusJob processing batch', batch_uuids:)
 
       response = intake_service.bulk_status(uuids: batch_uuids)
@@ -79,9 +83,6 @@ class BenefitsIntakeRemediationStatusJob
 
       handle_response(data, batch)
     end
-  rescue => e
-    Rails.logger.error('BenefitsIntakeRemediationStatusJob ERROR processing batch', class: self.class.name,
-                                                                                    message: e.message)
   end
 
   # process response from Lighthouse to update outstanding failures
@@ -93,7 +94,7 @@ class BenefitsIntakeRemediationStatusJob
     response_data.each do |submission|
       uuid = submission['id']
       form_submission = failure_batch.find do |submission_from_db|
-        submission_from_db.benefits_intake_uuid == uuid
+        submission_from_db.latest_attempt&.benefits_intake_uuid == uuid
       end
       form_submission.form_type
 
@@ -113,9 +114,7 @@ class BenefitsIntakeRemediationStatusJob
   end
 
   # gather metrics - grouped by form type
-  # - unsubmitted: list of SavedClaim ids that do not have a FormSubmission record
-  # - orphaned: list of saved_claim_ids with a FormSubmission, but no SavedClaim
-  # - failures:  list of outstanding failures
+  # @see #submission_audit_metrics
   def submission_audit
     # requery form_submissions in case there was an update
     form_submissions = FormSubmission.includes(:form_submission_attempts)
@@ -124,9 +123,10 @@ class BenefitsIntakeRemediationStatusJob
     form_submission_groups.each do |form_type, submissions|
       next if form_id && form_id != form_type
 
-      fs_saved_claim_ids = submissions.map(&:saved_claim_id).uniq
+      fs_saved_claim_ids = submissions.map(&:saved_claim_id).uniq.compact
+      next unless (earliest = fs_saved_claim_ids.min)
 
-      claims = SavedClaim.where(form_id: form_type).where('id >= ?', fs_saved_claim_ids.min)
+      claims = SavedClaim.where(form_id: form_type).where('id >= ?', earliest)
       claim_ids = claims.map(&:id).uniq
 
       unsubmitted = claim_ids - fs_saved_claim_ids
@@ -134,15 +134,25 @@ class BenefitsIntakeRemediationStatusJob
 
       failures = outstanding_failures(submissions)
       failures.map! do |fs|
-        last_attempt = fs.form_submission_attempts.max_by(&:created_at)
-        { claim_id: fs.saved_claim_id, uuid: fs.benefits_intake_uuid, error_message: last_attempt.error_message }
+        { claim_id: fs.saved_claim_id, uuid: fs.latest_attempt.benefits_intake_uuid,
+          error_message: fs.latest_attempt.error_message }
       end
 
-      StatsD.gauge("#{STATS_KEY}.unsubmitted_claims", unsubmitted.length, tags: ["form_id:#{form_type}"])
-      StatsD.gauge("#{STATS_KEY}.orphaned_submissions", orphaned.length, tags: ["form_id:#{form_type}"])
-      StatsD.gauge("#{STATS_KEY}.outstanding_failures", failures.length, tags: ["form_id:#{form_type}"])
-      Rails.logger.info("BenefitsIntakeRemediationStatusJob submission audit #{form_id}", form_id:, unsubmitted:,
-                                                                                          orphaned:, failures:)
+      submission_audit_metrics(form_type, unsubmitted, orphaned, failures)
     end
+  end
+
+  # report metrics
+  #
+  # @param form_type [String] the saved_claim form id
+  # @param unsubmitted [Array<Integer>] list of SavedClaim ids that do not have a FormSubmission record
+  # @param orphaned [Array<Integer>] list of saved_claim_ids with a FormSubmission, but no SavedClaim
+  # @param failures [Array<Hash>] list of outstanding failures (claim.id, benefits_intake_uuid, error_message)
+  def submission_audit_metrics(form_type, unsubmitted, orphaned, failures)
+    audit_log = "BenefitsIntakeRemediationStatusJob submission audit #{form_type}"
+    StatsD.gauge("#{STATS_KEY}.unsubmitted_claims", unsubmitted.length, tags: ["form_id:#{form_type}"])
+    StatsD.gauge("#{STATS_KEY}.orphaned_submissions", orphaned.length, tags: ["form_id:#{form_type}"])
+    StatsD.gauge("#{STATS_KEY}.outstanding_failures", failures.length, tags: ["form_id:#{form_type}"])
+    Rails.logger.info(audit_log, form_id: form_type, unsubmitted:, orphaned:, failures:)
   end
 end

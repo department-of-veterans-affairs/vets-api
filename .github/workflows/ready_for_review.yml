@@ -1,17 +1,116 @@
 name: Pull Request Ready for Review
 on:
   pull_request:
-     types: [labeled, unlabeled, synchronize, ready_for_review, review_requested]
+     types: [opened, reopened, ready_for_review, converted_to_draft, review_requested, review_request_removed, labeled, unlabeled]
   workflow_run:
-    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Code Health Report"]
+    workflows: ["Code Checks", "Check CODEOWNERS Entries", "Code Health Report", "Audit Service Tags"]
     types: [completed]
 jobs:
-  ready_for_review:
-    permissions: write-all
+  get-pr-data:
+    name: Get PR Data
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    outputs:
+      pr_number: ${{ steps.get_pr_data.outputs.pr_number }}
+      pr_draft: ${{ steps.get_pr_data.outputs.pr_draft }}
+      pr_labels: ${{ steps.get_pr_data.outputs.pr_labels }}
+      pr_requested_teams: ${{ steps.get_pr_data.outputs.pr_requested_teams }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Get pull_request data
+        id: get_pr_data
+        run: |
+          if ${{ github.event_name == 'pull_request' }}; then
+            echo "pr_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+            echo "pr_draft=${{ github.event.pull_request.draft }}" >> $GITHUB_OUTPUT
+            echo "pr_labels=$(echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
+            echo "pr_requested_teams=$(echo '${{ toJSON(github.event.pull_request.requested_teams.*.name) }}' | jq -c '.')" >> $GITHUB_OUTPUT
+          elif ${{ github.event_name == 'workflow_run' }}; then
+            if ${{ github.event.workflow_run.event == 'push' }}; then
+              HEAD_BRANCH="${{ github.event.workflow_run.head_branch }}"
+              echo "Workflow was triggered by push to $HEAD_BRANCH. Labeling not required."
+              exit 0
+            elif ${{ toJSON(github.event.workflow_run.pull_requests) != '[]' }}; then
+              PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
+              echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
+            
+              # Fetch PR details from GitHub API
+              PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
+                draft: .draft,
+                labels: [.labels[].name],
+                requested_teams: [.requested_teams[].slug]
+              }')
+              
+              # Extract and store individual fields
+              echo "pr_draft=$(echo "$PR_INFO" | jq -r '.draft')" >> $GITHUB_OUTPUT
+              echo "pr_labels=$(echo "$PR_INFO" | jq -c '.labels')" >> $GITHUB_OUTPUT
+              echo "pr_requested_teams=$(echo "$PR_INFO" | jq -c '.requested_teams')" >> $GITHUB_OUTPUT
+            else
+              echo "Workflow run has no associated pull requests. Labeling not performed."
+              exit 0
+            fi
+          else
+            echo "event_name: ${{ github.event_name }}"
+            echo "Pull Request not successfully retrieved."
+            exit 1
+          fi
 
+  handle-draft-state:
+    name: Handle Draft State
+    needs: get-pr-data
+    if: needs.get-pr-data.outputs.pr_draft == 'true'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Remove ready-for-backend-review label
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ needs.get-pr-data.outputs.pr_number }}
+          labels: ready-for-backend-review
+
+  check-backend-requirement:
+    name: Check Backend Requirement
+    needs: get-pr-data
+    if: needs.get-pr-data.outputs.pr_draft == 'false'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+      pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
+      pr_requested_teams: ${{ needs.get-pr-data.outputs.pr_requested_teams }}
+    outputs:
+      backend_approval_required: ${{ steps.check_backend_requirement.outputs.backend_approval_required }}
+    steps:
+      - name: Check Backend Requirement
+        id: check_backend_requirement
+        if: ${{ contains(fromJSON(env.pr_requested_teams), 'backend-review-group') }}
+        run: |
+          echo "backend_approval_required=true" >> $GITHUB_OUTPUT
+
+      - name: Remove require-backend-approval label
+        uses: actions-ecosystem/action-remove-labels@v1
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'false' && contains(env.pr_labels, 'require-backend-approval')
+        with:
+          number: ${{ env.pr_number }}
+          labels: require-backend-approval
+
+      - name: Add require-backend-approval label
+        uses: actions-ecosystem/action-add-labels@v1
+        if: steps.check_backend_requirement.outputs.backend_approval_required == 'true'
+        with:
+          number: ${{ env.pr_number }}
+          labels: require-backend-approval
+
+  ready_for_review:
+    name: Ready for Review
+    needs: [get-pr-data, check-backend-requirement]
+    if: needs.check-backend-requirement.outputs.backend_approval_required == 'true'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    env:
+      pr_number: ${{ needs.get-pr-data.outputs.pr_number }}
+      pr_labels: ${{ needs.get-pr-data.outputs.pr_labels }}
+    steps:
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
         with:
@@ -25,48 +124,55 @@ jobs:
           ssm_parameter: /devops/VA_VSP_BOT_GITHUB_TOKEN
           env_variable_name: VA_VSP_BOT_GITHUB_TOKEN
 
-      - name: Audit PR Labels
+      - name: Check for failure labels
         id: audit_pr_labels
-        if: |
-          !contains(github.event.pull_request.labels.*.name, 'code-health-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'codeowners-addition-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'codeowners-delete-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'lint-failure') &&
-          !contains(github.event.pull_request.labels.*.name, 'test-failure')
         run: |
-          echo "no_failures=true" >> $GITHUB_OUTPUT
-
-      - name: Audit Test Passing Label
-        id: audit_passing_labels
-        if: |
-          contains(github.event.pull_request.labels.*.name, 'test-passing')
-        run: |
-          echo "ready_for_review=true" >> $GITHUB_OUTPUT
-
-      - name: Check backend-review-group approval status
-        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
-        id: check_backend_review_group_approval_status
-        uses: octokit/request-action@v2.x
-        with:
-          route: GET /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          if \
+            ${{ contains(env.pr_labels, 'audit-service-failure') }} || \
+            ${{ contains(env.pr_labels, 'code-health-failure') }} || \
+            ${{ contains(env.pr_labels, 'codeowners-addition-failure') }} || \
+            ${{ contains(env.pr_labels, 'codeowners-delete-failure') }} || \
+            ${{ contains(env.pr_labels, 'lint-failure') }} || \
+            ${{ contains(env.pr_labels, 'test-failure') }} ; then
+            echo "failures_detected=true" >> $GITHUB_OUTPUT
+            echo "Failure labels detected."
+          else
+            echo "failures_detected=false" >> $GITHUB_OUTPUT
+            echo "No failure labels detected."
+          fi
 
       - name: Get backend-review-group members
-        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: get_team_members
+        if: contains(env.pr_labels, 'require-backend-approval')
         uses: octokit/request-action@v2.x
         with:
           route: GET /orgs/department-of-veterans-affairs/teams/backend-review-group/members
         env:
           GITHUB_TOKEN: ${{ env.VA_VSP_BOT_GITHUB_TOKEN }}
 
+      - name: Get PR reviews
+        id: get_pr_reviews
+        if: contains(env.pr_labels, 'require-backend-approval')
+        uses: octokit/request-action@v2.x
+        with:
+          route: GET /repos/${{ github.repository }}/pulls/${{ env.pr_number }}/reviews
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Verify backend-review-group approval
-        if: contains(github.event.pull_request.labels.*.name, 'require-backend-approval')
         id: verify_approval
+        if: contains(env.pr_labels, 'require-backend-approval')
         run: |
-          BACKEND_REVIEWERS=$(echo '${{ steps.get_team_members.outputs.data }}' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//')
-          APPROVALS=$(echo '${{ steps.check_backend_review_group_approval_status.outputs.data }}' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l)
+          BACKEND_REVIEWERS=$(cat <<'EOF' | jq -r '.[].login' | tr '\n' '|' | sed 's/|$//'
+          ${{ steps.get_team_members.outputs.data }}
+          EOF
+          )
+
+          APPROVALS=$(cat <<'EOF' | jq -r '.[] | select(.state == "APPROVED") | .user.login' | grep -iE "$BACKEND_REVIEWERS" | wc -l
+          ${{ steps.get_pr_reviews.outputs.data }}
+          EOF
+          )
+
           echo "Number of backend-review-group approvals: $APPROVALS"
           if [ "$APPROVALS" -eq 0 ]; then
             echo "approval_status=required" >> $GITHUB_OUTPUT
@@ -74,30 +180,23 @@ jobs:
             echo "approval_status=confirmed" >> $GITHUB_OUTPUT
           fi
 
-      # Add ready-for-backend-review when all checks are passing and approval
-      - name: Add Review label
+      - name: Add ready-for-backend-review label
         uses: actions-ecosystem/action-add-labels@v1
         if: |
-          github.event.pull_request.draft == false &&
-          steps.audit_passing_labels.outputs.ready_for_review == 'true' &&
-          steps.audit_pr_labels.outputs.no_failures == 'true' &&
+          steps.audit_pr_labels.outputs.failures_detected == 'false' &&
           steps.verify_approval.outputs.approval_status == 'required'
         with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            ready-for-backend-review
+          number: ${{ env.pr_number }}
+          labels: ready-for-backend-review
 
-      - name: Remove Review label
+      - name: Remove ready-for-backend-review label
         uses: actions-ecosystem/action-remove-labels@v1
         if: |
-          github.event.pull_request.draft == true ||
-          (
-            contains(github.event.pull_request.labels.*.name, 'ready-for-backend-review') &&
-            steps.audit_passing_labels.outputs.ready_for_review != 'true' ||
-            steps.audit_pr_labels.outputs.no_failures != 'true' ||
+          ( 
+            steps.audit_pr_labels.outputs.failures_detected == 'true' ||
             steps.verify_approval.outputs.approval_status == 'confirmed'
-          )
+          ) &&
+          contains(env.pr_labels, 'ready-for-backend-review')
         with:
-          number: ${{ github.event.pull_request.number }}
-          labels: |
-            ready-for-backend-review
+          number: ${{ env.pr_number }}
+          labels: ready-for-backend-review

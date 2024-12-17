@@ -11,12 +11,13 @@ module MHV
         params = build_create_account_params(icn:, email:, tou_occurred_at:)
 
         create_account_with_cache(icn:, force: break_cache, expires_in: 1.day) do
+          Rails.logger.info("#{config.logging_prefix} create_account request", { icn: })
           response = perform(:post, config.account_creation_path, params, authenticated_header(icn:))
           normalize_response_body(response.body)
         end
       rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError => e
         Rails.logger.error("#{config.logging_prefix} create_account #{e.class.name.demodulize.underscore}",
-                           { error_message: e.message, body: e.body, icn: })
+                           { error_message: e.message, body: e.body, status: e.status, icn: })
         raise
       end
 
@@ -24,12 +25,16 @@ module MHV
 
       def create_account_with_cache(icn:, force:, expires_in:, &request)
         cache_hit = true
+        start = nil
         account = Rails.cache.fetch("#{config.service_name}_#{icn}", force:, expires_in:) do
           cache_hit = false
+          start = Time.current
           request.call
         end
-        Rails.logger.info("#{config.logging_prefix} create_account success", { icn:, account:, from_cache: cache_hit })
+        duration_ms = cache_hit ? nil : (Time.current - start).seconds.in_milliseconds
 
+        Rails.logger.info("#{config.logging_prefix} create_account success",
+                          { icn:, account:, duration_ms:, from_cache: cache_hit }.compact)
         account
       end
 
@@ -54,9 +59,9 @@ module MHV
 
       def normalize_response_body(response_body)
         {
-          user_profile_id: response_body['mhv_userprofileid'],
+          user_profile_id: response_body['mhv_userProfileId'],
           premium: response_body['isPremium'],
-          champ_va: response_body['isChampVA'],
+          champ_va: response_body['isChampVABeneficiary'],
           patient: response_body['isPatient'],
           sm_account_created: response_body['isSMAccountCreated'],
           message: response_body['message']

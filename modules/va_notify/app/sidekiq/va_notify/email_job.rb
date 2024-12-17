@@ -17,17 +17,24 @@ module VANotify
       StatsD.increment("sidekiq.jobs.#{job_class.underscore}.retries_exhausted")
     end
 
-    def perform(email, template_id, personalisation = nil, api_key = Settings.vanotify.services.va_gov.api_key)
-      notify_client = VaNotify::Service.new(api_key)
+    def perform(email, template_id, personalisation = nil, api_key = Settings.vanotify.services.va_gov.api_key,
+                callback_options = nil)
+      notify_client = VaNotify::Service.new(api_key, callback_options)
 
-      notify_client.send_email(
+      response = notify_client.send_email(
         {
           email_address: email,
           template_id:,
           personalisation:
         }.compact
       )
-    rescue Common::Exceptions::BackendServiceException => e
+      StatsD.increment('api.vanotify.email_job.success')
+      response
+    rescue VANotify::Error => e
+      handle_backend_exception(e, template_id, personalisation)
+    end
+
+    def handle_backend_exception(e, template_id, personalisation)
       if e.status_code == 400
         log_exception_to_sentry(
           e,

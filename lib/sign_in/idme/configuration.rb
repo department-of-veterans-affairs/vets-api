@@ -98,6 +98,10 @@ module SignIn
         30.minutes
       end
 
+      def log_prefix
+        '[SignIn][Idme][Service]'
+      end
+
       # Faraday connection object with breakers, snakecase and json response middleware
       # @return Faraday::Connection connection to make http calls
       #

@@ -1,0 +1,57 @@
+type: object
+additionalProperties: false
+required:
+  - id
+  - type
+  - attributes
+properties:
+  id:
+    type: string
+    example: "abe3f152-90b0-45cb-8776-4958bad0e0ef"
+    description: user UUID
+  type:
+    type: string
+    example: "user"
+  attributes:
+    type: object
+    additionalProperties: false
+    required:
+      - id
+      - firstName
+      - middleName
+      - lastName
+      - signinEmail
+      - birthDate
+      - signinService
+      - edipi
+    properties:
+      firstName:
+        type: string
+        example: "John"
+      middleName:
+        type: string
+        nullable: true
+        example: "A"
+      lastName:
+        type: string
+        example: "Smith"
+      signinEmail:
+        type: string
+        example: "john.a.smith@domain.com"
+      birthDate:
+        type: string
+        nullable: true
+        example: "1970-08-12"
+      signinService:
+        type: string
+        enum:
+          - IDME
+          - DSL
+          - MHV
+          - LOGINGOV
+      hasFacilityTransitioningToCerner:
+        type: boolean
+        description: The user has a treatment facility that is currently transitioning to cerner. This is temporary.
+      edipi:
+        type: string
+        example: "384759483"

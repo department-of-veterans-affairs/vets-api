@@ -151,10 +151,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         state = pdf_data[:data][:attributes][:identificationInformation][:mailingAddress][:state]
         expect(number_and_street).to eq('1234 Couch Street Unit 4 Room 1')
         expect(apartment_or_unit_number).to eq(nil)
-        expect(city).to eq('Portland')
+        expect(city).to eq('Schenectady')
         expect(country).to eq('US')
-        expect(zip).to eq('41726-1234')
-        expect(state).to eq('OR')
+        expect(zip).to eq('12345-1234')
+        expect(state).to eq('NY')
       end
 
       it 'maps the other veteran info' do
@@ -243,10 +243,10 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(type_of_addr_change).to eq('TEMPORARY')
         expect(number_and_street).to eq('10 Peach St Unit 4 Room 1')
         expect(apartment_or_unit_number).to eq(nil)
-        expect(city).to eq('Atlanta')
+        expect(city).to eq('Schenectady')
         expect(country).to eq('US')
-        expect(zip).to eq('42220-9897')
-        expect(state).to eq('GA')
+        expect(zip).to eq('12345-9897')
+        expect(state).to eq('NY')
       end
     end
 
@@ -692,7 +692,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
         expect(alt_names).to eq(['john jacob', 'johnny smith'])
         expect(fed_orders).to eq('YES')
         expect(fed_act).to eq({ month: '10', day: '01', year: '2023' })
-        expect(fed_sep).to eq({ month: '10', day: '31', year: '2024' })
+        expect(fed_sep).to eq({ month: '10', day: '31', year: '2025' })
         expect(served_after_nine_eleven).to eq('NO')
       end
 

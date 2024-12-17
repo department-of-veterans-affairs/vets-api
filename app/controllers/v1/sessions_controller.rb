@@ -28,13 +28,20 @@ module V1
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
     VERSION_TAG = 'version:v1'
     FIM_INVALID_MESSAGE_TIMESTAMP = 'invalid_message_timestamp'
+    OPERATION_TYPES = [AUTHORIZE = 'authorize',
+                       INTERSTITIAL_VERIFY = 'interstitial_verify',
+                       INTERSTITIAL_SIGNUP = 'interstitial_signup'].freeze
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SSOeSettingsService and SAML::URLService
+    # rubocop:disable Metrics/MethodLength
     def new
       type = params[:type]
       client_id = params[:application] || 'vaweb'
+      operation = params[:operation] || 'authorize'
+
+      validate_operation_params(operation)
 
       # As a temporary measure while we have the ability to authenticate either through SessionsController
       # or through SignInController, we will delete all SignInController cookies when authenticating with SSOe
@@ -60,8 +67,9 @@ module V1
       else
         render_login(type)
       end
-      new_stats(type, client_id)
+      new_stats(type, client_id, operation)
     end
+    # rubocop:enable Metrics/MethodLength
 
     def ssoe_slo_callback
       Rails.logger.info("SessionsController version:v1 ssoe_slo_callback, user_uuid=#{@current_user&.uuid}")
@@ -144,8 +152,8 @@ module V1
     def user_login(saml_response)
       user_session_form = UserSessionForm.new(saml_response)
       raise_saml_error(user_session_form) unless user_session_form.valid?
-      mhv_unverified_validation(user_session_form)
-
+      mhv_unverified_validation(user_session_form.user)
+      create_user_verification(user_session_form.user)
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
@@ -158,8 +166,18 @@ module V1
       login_stats(:success)
     end
 
-    def mhv_unverified_validation(user_session_form)
-      if html_escaped_relay_state['type'] == 'mhv_verified' && user_session_form.user.loa[:current] < LOA::THREE
+    def create_user_verification(user)
+      user_verifier_object = OpenStruct.new({ sign_in: user.identity.sign_in,
+                                              mhv_correlation_id: user.mhv_correlation_id,
+                                              idme_uuid: user.idme_uuid,
+                                              edipi: user.identity.edipi,
+                                              logingov_uuid: user.logingov_uuid,
+                                              icn: user.icn })
+      Login::UserVerifier.new(user_verifier_object).perform
+    end
+
+    def mhv_unverified_validation(user)
+      if html_escaped_relay_state['type'] == 'mhv_verified' && user.loa[:current] < LOA::THREE
         mhv_unverified_error = SAML::UserAttributeError::ERRORS[:mhv_unverified_blocked]
         Rails.logger.warn("SessionsController version:v1 #{mhv_unverified_error[:message]}")
         raise SAML::UserAttributeError.new(message: mhv_unverified_error[:message],
@@ -296,8 +314,9 @@ module V1
       end
     end
 
-    def new_stats(type, client_id)
-      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}"]
+    def new_stats(type, client_id, operation)
+      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
+
       StatsD.increment(STATSD_SSO_NEW_KEY, tags:)
       Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
     end
@@ -398,15 +417,15 @@ module V1
     end
 
     def after_login_actions
-      user_verifier_object = OpenStruct.new({ sign_in: @current_user.identity.sign_in,
-                                              mhv_correlation_id: @current_user.mhv_correlation_id,
-                                              idme_uuid: @current_user.idme_uuid,
-                                              edipi: @current_user.identity.edipi,
-                                              logingov_uuid: @current_user.logingov_uuid,
-                                              icn: @current_user.icn })
-      Login::UserVerifier.new(user_verifier_object).perform
-      Login::AfterLoginActions.new(@current_user).perform
+      Login::AfterLoginActions.new(@current_user, skip_mhv_account_creation).perform
       log_persisted_session_and_warnings
+    end
+
+    def skip_mhv_account_creation
+      skip_mhv_account_creation_client = url_service.tracker.payload_attr(:application) == SAML::User::MHV_ORIGINAL_CSID
+      skip_mhv_account_creation_type = url_service.tracker.payload_attr(:type) == 'custom'
+
+      skip_mhv_account_creation_client || skip_mhv_account_creation_type
     end
 
     def log_persisted_session_and_warnings
@@ -430,6 +449,10 @@ module V1
                                                 user: current_user,
                                                 params:,
                                                 loa3_context: LOA::IDME_LOA3)
+    end
+
+    def validate_operation_params(operation)
+      raise Common::Exceptions::InvalidFieldValue.new('operation', operation) unless OPERATION_TYPES.include?(operation)
     end
   end
 end

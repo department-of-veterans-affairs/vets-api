@@ -170,6 +170,10 @@ RSpec.describe Users::Profile do
         end
       end
 
+      it 'includes initial_sign_in' do
+        expect(profile[:initial_sign_in]).to eq(user.initial_sign_in)
+      end
+
       it 'includes email' do
         expect(profile[:email]).to eq(user.email)
       end
@@ -184,6 +188,10 @@ RSpec.describe Users::Profile do
 
       it 'includes last_name' do
         expect(profile[:last_name]).to eq(user.last_name)
+      end
+
+      it 'includes preferred_name' do
+        expect(profile[:preferred_name]).to eq(user.preferred_name)
       end
 
       it 'includes birth_date' do
@@ -445,7 +453,6 @@ RSpec.describe Users::Profile do
           expect(vet360_info[:work_phone]).to be_present
           expect(vet360_info[:fax_number]).to be_present
           expect(vet360_info[:temporary_phone]).to be_present
-          expect(vet360_info[:text_permission]).to be_present
         end
 
         it 'sets the status to 200' do

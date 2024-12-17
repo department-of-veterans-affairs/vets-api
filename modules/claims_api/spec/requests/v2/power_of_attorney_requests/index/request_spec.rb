@@ -302,7 +302,7 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests#index', :bgs, type: :requ
 
       result =
         mock_ccg(scopes) do
-          use_soap_cassette('healthy_parameter_set', use_spec_name_prefix: true, record: :new_episodes) do
+          use_soap_cassette('healthy_parameter_set', use_spec_name_prefix: true) do
             perform_request(
               'filter' => {
                 'poaCodes' => %w[

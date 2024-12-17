@@ -54,9 +54,9 @@ module ClaimsApi
             # Item 21
             "#{base_form}.I_Authorize[0]": data['consentAddressChange'] == true ? 1 : 0,
             # Item 22B
-            "#{base_form}.Date_Signed[0]": I18n.l(Time.zone.now.to_date, format: :va_form),
+            "#{base_form}.Date_Signed[0]": I18n.l(data['appointmentDate'].to_date, format: :va_form),
             # Item 23B
-            "#{base_form}.Date_Signed[1]": I18n.l(Time.zone.now.to_date, format: :va_form)
+            "#{base_form}.Date_Signed[1]": I18n.l(data['appointmentDate'].to_date, format: :va_form)
           }
         end
 
@@ -107,7 +107,7 @@ module ClaimsApi
             # Item 12
             "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('claimant', 'phone', 'areaCode')} #{data.dig('claimant', 'phone', 'phoneNumber')}",
             # Item 13
-            "#{base_form}.Claimants_EmailAddress_Optional[0]": data.dig('claimant', 'email'),
+            "#{base_form}.Claimants_EmailAddress_Optional[0]": data.dig('claimant', 'email')&.downcase,
             # Item 14
             "#{base_form}.Relationship_To_Veteran[0]": data.dig('claimant', 'relationship'),
 
@@ -121,7 +121,7 @@ module ClaimsApi
             # Item 17
             "#{base_form}.Email_Address[0]": data.dig('serviceOrganization', 'email'),
             # Item 18
-            "#{base_form}.Date_Of_This_Appointment[0]": I18n.l(Time.zone.now.to_date, format: :va_form)
+            "#{base_form}.Date_Of_This_Appointment[0]": I18n.l(data['appointmentDate'].to_date, format: :va_form)
           }
         end
         # rubocop:enable Metrics/MethodLength

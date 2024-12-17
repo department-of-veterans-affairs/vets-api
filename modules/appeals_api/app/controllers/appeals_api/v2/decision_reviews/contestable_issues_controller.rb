@@ -8,12 +8,16 @@ module AppealsApi::V2
   module DecisionReviews
     class ContestableIssuesController < AppealsApi::ApplicationController
       include AppealsApi::Schemas
+      include AppealsApi::GatewayOriginCheck
 
       skip_before_action :authenticate
       before_action :validate_json_schema, only: %i[index]
       before_action :validate_params, only: %i[index]
+      before_action :validate_receipt_date_header!, only: %i[index]
 
       VALID_DECISION_REVIEW_TYPES = %w[higher_level_reviews notice_of_disagreements supplemental_claims].freeze
+
+      AMA_ACTIVATION_DATE = Date.new(2019, 2, 19)
 
       SCHEMA_OPTIONS = {
         api_name: 'decision_reviews',
@@ -132,6 +136,20 @@ module AppealsApi::V2
           render_unprocessable_entity(
             "benefit_type must be one of: #{caseflow_benefit_type_mapping.keys.join(', ')}"
           )
+        end
+      end
+
+      def validate_receipt_date_header!
+        unless Date.parse(request_headers['X-VA-Receipt-Date']).after?(AMA_ACTIVATION_DATE)
+          error = {
+            title: I18n.t('appeals_api.errors.titles.validation_error'),
+            detail: I18n.t('appeals_api.errors.receipt_date_too_early'),
+            source: {
+              header: 'X-VA-Receipt-Date'
+            },
+            status: '422'
+          }
+          render json: { errors: [error] }, status: :unprocessable_entity
         end
       end
 

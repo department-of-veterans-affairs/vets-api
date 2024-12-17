@@ -8,6 +8,7 @@ class LighthouseDocument < Common::Base
   include ActiveModel::Validations::Callbacks
   include SentryLogging
 
+  attribute :first_name, String
   attribute :claim_id, Integer
   attribute :document_type, String
   attribute :file_name, String

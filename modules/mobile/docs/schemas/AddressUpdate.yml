@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - addressLine1
@@ -12,6 +13,7 @@ properties:
     example: "23fe358d-6e82-4541-804c-ce7562ba28f4"
   addressMetaData:
     type: object
+    additionalProperties: false
     properties:
       confidenceScore:
         type: integer
@@ -32,9 +34,11 @@ properties:
     type: string
     example: "1493 Martin Luther King Rd"
   addressLine2:
-    type: string, null
+    type: string
+    nullable: true
   addressLine3:
-    type: string, null
+    type: string
+    nullable: true
   addressPou:
     type: string
     enum: [ "RESIDENCE/CHOICE", "CORRESPONDENCE" ]
@@ -50,10 +54,12 @@ properties:
     type: string
     example: "US"
   internationalPostalCode:
-    type: string, null
+    type: string
+    nullable: true
     example: null
   province:
-    type: string, null
+    type: string
+    nullable: true
     example: null
   stateCode:
     type: string
@@ -62,5 +68,6 @@ properties:
     type: string
     example: "97062"
   zipCodeSuffix:
-    type: string, null
+    type: string
+    nullable: true
     example: "1234"

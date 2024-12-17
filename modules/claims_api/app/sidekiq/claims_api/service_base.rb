@@ -40,6 +40,29 @@ module ClaimsApi
 
     protected
 
+    def dependent_filing?(poa)
+      poa.auth_headers.key?('dependent')
+    end
+
+    def slack_alert_on_failure(job_name, msg)
+      notify_on_failure(
+        job_name,
+        msg
+      )
+    end
+
+    def notify_on_failure(job_name, notification_message)
+      slack_client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+                                             channel: '#api-benefits-claims-alerts',
+                                             username: "Failed #{job_name}")
+      slack_client.notify(notification_message)
+    end
+
+    def set_state_for_submission(submission, state)
+      submission.status = state
+      submission.save!
+    end
+
     def preserve_original_form_data(form_data)
       form_data.deep_dup.freeze
     end
@@ -59,6 +82,11 @@ module ClaimsApi
 
     def set_pending_state_on_claim(auto_claim)
       save_auto_claim!(auto_claim, ClaimsApi::AutoEstablishedClaim::PENDING)
+    end
+
+    def set_errored_state_on_poa(poa)
+      poa.status = poa_errored_state
+      poa.save!
     end
 
     def save_auto_claim!(auto_claim, status)
@@ -88,6 +116,16 @@ module ClaimsApi
       auto_claim.evss_response.concat(errors_to_add)
 
       auto_claim.save!
+    end
+
+    def enable_vbms_access?(poa_form:)
+      record_consent = poa_form.form_data['recordConsent']
+      record_consent.present? && record_consent && poa_form.form_data['consentLimits'].blank?
+    end
+
+    def set_vbms_error_message(poa, error)
+      poa.vbms_error_message = get_error_message(error)
+      poa.save!
     end
 
     def get_error_message(error)
@@ -164,6 +202,11 @@ module ClaimsApi
 
     def errored_state_value
       ClaimsApi::AutoEstablishedClaim::ERRORED
+    end
+
+    def save_poa_errored_state(poa)
+      poa.status = ClaimsApi::PowerOfAttorney::ERRORED
+      poa.save!
     end
 
     def log_job_progress(claim_id, detail, transaction_id = nil)

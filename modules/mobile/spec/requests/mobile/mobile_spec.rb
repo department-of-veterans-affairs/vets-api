@@ -1,13 +1,16 @@
 # frozen_string_literal: true
 
 require_relative '../../support/helpers/rails_helper'
+require_relative '../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile', type: :request do
+  include CommitteeHelper
+
   describe 'GET /mobile' do
     before { get '/mobile' }
 
-    it 'returns a 200' do
-      expect(response).to have_http_status(:ok)
+    it 'matches expected schema' do
+      assert_schema_conform(200)
     end
 
     it 'returns a welcome message and list of mobile endpoints' do

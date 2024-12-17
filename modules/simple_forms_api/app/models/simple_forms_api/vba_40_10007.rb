@@ -3,14 +3,8 @@
 require 'json'
 
 module SimpleFormsApi
-  class VBA4010007
-    include Virtus.model(nullify_blank: true)
+  class VBA4010007 < BaseForm
     STATS_KEY = 'api.simple_forms_api.40_10007'
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def not_veteran?(form_data)
       relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
@@ -272,40 +266,57 @@ module SimpleFormsApi
       # rubocop:enable Layout/LineLength
 
       Prawn::Document.generate(file_path) do |pdf|
-        pdf.text '40-10007 Overflow Data', align: :center, size: 20
-        pdf.move_down 20
+        pdf.text '40-10007 Overflow Data', align: :center, size: 15
+        pdf.move_down 10
         pdf.text 'The following pages contain data related to the application.', align: :center
-        pdf.move_down 20
+        pdf.move_down 10
 
         if @data['version']
-          pdf.text "Question 7a Veteran/Servicemember Sex: #{veteran_sex}", size: 8
+          pdf.text 'Question 7a Veteran/Servicemember Sex'
+          pdf.text "Veteran/Servicemember Sex: #{veteran_sex}", size: 8
           pdf.move_down 10
-          pdf.text "Question 8 Ethnicity: #{ethnicity}", size: 8
+
+          pdf.text 'Question 8 Ethnicity'
+          pdf.text "Ethnicity: #{ethnicity}", size: 8
           pdf.move_down 10
-          pdf.text "Question 8 Race: #{race}", size: 8
+
+          pdf.text 'Question 8 Race'
+          pdf.text "Race: #{race}", size: 8
           pdf.move_down 10
-          pdf.text "Question 8 Race Comment: #{race_comment}", size: 8
+
+          pdf.text 'Question 8 Race Comment'
+          pdf.text "Comment: #{race_comment}", size: 8
           pdf.move_down 10
-          pdf.text "Question 10 Veteran/Servicemember Place of Birth (City): #{city_of_birth}", size: 8
+
+          pdf.text 'Question 10 Veteran/Servicemember Place of Birth (City)'
+          pdf.text "Place of Birth (City): #{city_of_birth}", size: 8
           pdf.move_down 10
-          pdf.text "Question 10 Veteran/Servicemember Place of Birth (State): #{state_of_birth}", size: 8
+
+          pdf.text 'Question 10 Veteran/Servicemember Place of Birth (State)'
+          pdf.text "Place of Birth (State): #{state_of_birth}", size: 8
           pdf.move_down 10
-          pdf.text "Question 14 Military Status Used to Apply for Eligibility: #{military_status_label}", size: 8
+
+          pdf.text 'Question 14 Military Status Used to Apply for Eligibility'
+          pdf.text "Military Status: #{military_status_label}", size: 8
         else
           pdf.text 'Question 10 Place of Birth'
           pdf.text "Place of Birth: #{place_of_birth}", size: 8
         end
+
         pdf.move_down 10
+
         if @data['version']
           %w[a b c].each do |letter|
-            service_branch = binding.local_variable_get("service_branch_value_#{letter}")
-            discharge_type = binding.local_variable_get("discharge_type_#{letter}")
-            highest_rank = binding.local_variable_get("highest_rank_int_#{letter}")
-            pdf.text "Question 15 Branch of Service #{letter.upcase}: #{service_branch}", size: 8
+            pdf.text "Question 15 Branch of Service #{letter.upcase}"
+            pdf.text "Branch of Service: #{binding.local_variable_get("service_branch_value_#{letter}")}", size: 8
             pdf.move_down 10
-            pdf.text "Question 18 Discharge - Character of Service #{letter.upcase}: #{discharge_type}", size: 8
+
+            pdf.text "Question 18 Discharge - Character of Service #{letter.upcase}"
+            pdf.text "Discharge Type: #{binding.local_variable_get("discharge_type_#{letter}")}", size: 8
             pdf.move_down 10
-            pdf.text "Question 19 Highest Rank Attained #{letter.upcase}: #{highest_rank}", size: 8
+
+            pdf.text "Question 19 Highest Rank Attained #{letter.upcase}"
+            pdf.text "Highest Rank: #{binding.local_variable_get("highest_rank_int_#{letter}")}", size: 8
             pdf.move_down 10
           end
         else
@@ -313,23 +324,32 @@ module SimpleFormsApi
             pdf.text "Question 15 Branch of Service Line #{i + 1}"
             pdf.text "Branch of Service: #{binding.local_variable_get("service_branch_value_#{letter}")}", size: 8
             pdf.move_down 10
+
             pdf.text "Question 18 Discharge - Character of Service Line #{i + 1}"
             pdf.text "Character of Service: #{binding.local_variable_get("discharge_type_#{letter}")}", size: 8
             pdf.move_down 10
+
             pdf.text "Question 19 Highest Rank Attained Line #{i + 1}"
-            pdf.text "Highest Rank Attained: #{binding.local_variable_get("highest_rank_#{letter}")}", size: 8
+            pdf.text "Highest Rank: #{binding.local_variable_get("highest_rank_#{letter}")}", size: 8
             pdf.move_down 10
           end
         end
 
         if @data['version']
-          pdf.text "Question 24 Claimant Relationship to Servicemember or Veteran: #{relationship_to_veteran}", size: 8
+          pdf.text 'Question 24 Claimant Relationship to Servicemember or Veteran'
+          pdf.text "Claimant Relationship: #{relationship_to_veteran}", size: 8
           pdf.move_down 10
-          pdf.text "Sponsor Veteran/Servicemember Contact Details Email Address: #{sponsor_veteran_email}", size: 8
+
+          pdf.text 'Sponsor Veteran/Servicemember Contact Details Email Address'
+          pdf.text "Email Address: #{sponsor_veteran_email}", size: 8
           pdf.move_down 10
-          pdf.text "Sponsor Veteran/Servicemember Contact Details Phone Number: #{sponsor_veteran_phone}", size: 8
+
+          pdf.text 'Sponsor Veteran/Servicemember Contact Details Phone Number'
+          pdf.text "Phone Number: #{sponsor_veteran_phone}", size: 8
           pdf.move_down 10
-          pdf.text "Sponsor Veteran/Servicemember Maiden Name: #{sponsor_veteran_maiden}", size: 8
+
+          pdf.text 'Sponsor Veteran/Servicemember Maiden Name'
+          pdf.text "Maiden Name: #{sponsor_veteran_maiden}", size: 8
           pdf.move_down 10
         end
       end

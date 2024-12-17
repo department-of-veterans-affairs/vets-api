@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
   - meta
@@ -7,6 +8,7 @@ properties:
     type: array
     items:
       type: object
+      additionalProperties: false
       properties:
         id:
           type: string
@@ -19,12 +21,18 @@ properties:
             - claim
         attributes:
           type: object
+          additionalProperties: false
           required:
             - subtype
             - completed
             - dateFiled
             - updatedAt
             - displayTitle
+            - decisionLetterSent
+            - phase
+            - documentsNeeded
+            - developmentLetterSent
+            - claimTypeCode
           properties:
             subtype:
               type: string
@@ -35,23 +43,51 @@ properties:
             dateFiled:
               type: string
               format: date
+              nullable: true
               example: "2020-01-01"
             updatedAt:
               type: string
               format: date
+              nullable: true
               example: "2020-01-01"
             displayTitle:
               type: string
               description: Formatted title for display in mobile overview list
               example: "disability compensation appeal"
+            decisionLetterSent:
+              type: boolean
+              description: decision letter will be available from endpoint /v0/claims/decision-letters if true
+              example: "true"
+            phase:
+              type: integer
+              nullable: true
+              description: The phase of processing the claim is in. This does not apply to appeals. The integers used map to the phases as `1 => CLAIM_RECEIVED, 2 => UNDER_REVIEW, 3 => GATHERING_OF_EVIDENCE, 4 => REVIEW_OF_EVIDENCE, 5 => PREPARATION_FOR_DECISION, 6 => PENDING_DECISION_APPROVAL, 7 => PREPARATION_FOR_NOTIFICATION, 8 => COMPLETE`
+              example: 1
+            documentsNeeded:
+              type: boolean
+              nullable: true
+              description: Documents are still needed.
+              example: "true"
+            developmentLetterSent:
+              type: boolean
+              nullable: true
+              description: Development letter has been sent.
+              example: "true"
+            claimTypeCode:
+              type: string
+              description: Type of claim
+              nullable: true
+              example: "020NEW"
   meta:
     type: object
+    additionalProperties: false
     properties:
       errors:
         type: array
         description: Array of objects of failing upstream services. Used for debugging only.
         items:
           type: object
+          additionalProperties: false
           required:
             - service
             - errorDetails
@@ -67,6 +103,7 @@ properties:
               example: "Received a 500 response from the upstream server"
       pagination:
         type: object
+        additionalProperties: false
         required:
           - currentPage
           - perPage
@@ -85,3 +122,7 @@ properties:
           totalEntries:
             type: number
             example: 15
+      activeClaimsCount:
+        type: number
+        example: 3
+        description: Count of claims with `completed` set to false

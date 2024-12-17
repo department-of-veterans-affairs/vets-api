@@ -13,6 +13,9 @@ RSpec.describe ClaimsApi::ServiceBase do
   let(:claim_date) { (Time.zone.today - 1.day).to_s }
   let(:anticipated_separation_date) { 2.days.from_now.strftime('%m-%d-%Y') }
 
+  let(:ews) { create(:evidence_waiver_submission, :with_full_headers_tamara) }
+  let(:errored_ews) { create(:evidence_waiver_submission, :with_full_headers_tamara, status: 'errored') }
+
   let(:form_data) do
     temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
                            'form_526_json_api.json').read
@@ -29,6 +32,13 @@ RSpec.describe ClaimsApi::ServiceBase do
     claim.auth_headers = auth_headers
     claim.save
     claim
+  end
+
+  let(:poa) do
+    poa = create(:power_of_attorney)
+    poa.auth_headers = auth_headers
+    poa.save
+    poa
   end
 
   before do
@@ -52,6 +62,26 @@ RSpec.describe ClaimsApi::ServiceBase do
     end
   end
 
+  describe '#set_state_for_submission' do
+    it 'updates claim status as ERRORED' do
+      @service.send(:set_state_for_submission, claim, 'errored')
+      claim.reload
+      expect(claim.status).to eq('errored')
+    end
+
+    it 'updates EWS status as ERRORED' do
+      @service.send(:set_state_for_submission, ews, 'errored')
+      ews.reload
+      expect(ews.status).to eq('errored')
+    end
+
+    it 'updates EWS status as PENDING' do
+      @service.send(:set_state_for_submission, errored_ews, 'pending')
+      errored_ews.reload
+      expect(errored_ews.status).to eq('pending')
+    end
+  end
+
   describe '#preserve_original_form_data' do
     it 'preserves the form data as expected' do
       preserved_form_data = @service.send(:preserve_original_form_data, claim.form_data)
@@ -72,6 +102,44 @@ RSpec.describe ClaimsApi::ServiceBase do
     it 'saves claim with the validation_method property of v2' do
       @service.send(:save_auto_claim!, claim, claim.status)
       expect(claim.validation_method).to eq('v2')
+    end
+  end
+
+  describe '#enable_vbms_access?' do
+    context 'denies eFolder access' do
+      it 'if recordConsent is set to false' do
+        poa.form_data = poa.form_data.merge('recordConsent' => false)
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to eq(false)
+      end
+
+      it 'if recordConsent is not present' do
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to eq(false)
+      end
+
+      it 'if consentLimits are present' do
+        poa.form_data = poa.form_data.merge('recordConsent' => true)
+        poa.form_data = poa.form_data.merge('consentLimits' => ['HIV'])
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to eq(false)
+      end
+    end
+
+    context 'allows eFolder access' do
+      it 'if recordConsent is set to true' do
+        poa.form_data = poa.form_data.merge('recordConsent' => true)
+        poa.save
+
+        res = @service.send(:enable_vbms_access?, poa_form: poa)
+        expect(res).to eq(true)
+      end
     end
   end
 

@@ -6,6 +6,7 @@ RSpec.describe 'relationships', :skip_mvi, type: :request do
   before do
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    allow(Flipper).to receive(:enabled?).and_return(true)
   end
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
@@ -27,6 +28,9 @@ RSpec.describe 'relationships', :skip_mvi, type: :request do
             relationships = JSON.parse(response.body)['data']
             expect(relationships).not_to be_nil
             expect(relationships.length).to eq(4)
+            relationships.each do |relationship|
+              expect(relationship['type']).to eq('relationship')
+            end
           end
         end
       end

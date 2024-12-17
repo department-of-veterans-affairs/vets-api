@@ -108,6 +108,35 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(item_index).not_to be_nil
       end
 
+      context 'grouping medications' do
+        before do
+          Flipper.enable('mhv_medications_display_grouping')
+        end
+
+        it 'responds to GET #index by grouping medications and removes grouped medications from original list' do
+          VCR.use_cassette('rx_client/prescriptions/gets_a_paginated_list_of_grouped_prescriptions') do
+            get '/my_health/v1/prescriptions?page=1&per_page=20'
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('my_health/prescriptions/v1/prescriptions_list_paginated')
+          expect(JSON.parse(response.body)['data']).to be_truthy
+
+          grouped_med_list = (JSON.parse(response.body)['data'])
+          first_rx = grouped_med_list.find do |rx|
+            rx['attributes']['grouped_medications'].present?
+          end
+          rx_num_of_grouped_rx = first_rx['attributes']['grouped_medications'].first['prescription_number']
+          find_grouped_rx_in_base_list = grouped_med_list.find do |rx|
+            rx['attributes']['prescription_number'] == rx_num_of_grouped_rx
+          end
+          expect(find_grouped_rx_in_base_list).to be_falsey
+        end
+
+        Flipper.disable('mhv_medications_display_grouping')
+      end
+
       it 'responds to GET #get_prescription_image with image' do
         VCR.use_cassette('rx_client/prescriptions/gets_a_prescription_image_v1') do
           get '/my_health/v1/prescriptions?/prescriptions/get_prescription_image/00013264681'
@@ -155,6 +184,24 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
                            DateTime.parse(expired_date) >= cut_off_date)
           expect(meets_criteria).to eq(true)
         end
+      end
+
+      it 'responds to GET #index with filter metadata for specific disp_status' do
+        VCR.use_cassette('rx_client/prescriptions/index_with_disp_status_filter') do
+          get '/my_health/v1/prescriptions?filter[[disp_status][eq]]=Active,Expired'
+        end
+        expect(response).to be_successful
+        json_response = JSON.parse(response.body)
+        expect(json_response['meta']['filter_count']).to include(
+          'all_medications', 'active', 'recently_requested', 'renewal', 'non_active'
+        )
+        expect(json_response['meta']['filter_count']['all_medications']).to be >= 0
+        expect(json_response['meta']['filter_count']['active']).to be >= 0
+        expect(json_response['meta']['filter_count']['recently_requested']).to be >= 0
+        expect(json_response['meta']['filter_count']['renewal']).to be >= 0
+        expect(json_response['meta']['filter_count']['non_active']).to be >= 0
+        disp_statuses = json_response['data'].map { |prescription| prescription['attributes']['disp_status'] }
+        expect(disp_statuses).to all(be_in(%w[Active Expired]))
       end
 
       it 'responds to GET #index with pagination parameters when camel-inflected' do
@@ -265,6 +312,22 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         expect(response).to match_camelized_response_schema('my_health/prescriptions/v1/prescription_list_filtered')
       end
 
+      it 'responds to GET #index with filter and pagination' do
+        VCR.use_cassette('rx_client/prescriptions/gets_a_list_of_all_prescriptions_vagov') do
+          get '/my_health/v1/prescriptions?page=1&per_page=100&filter[[disp_status][eq]]=Active: Refill in Process'
+        end
+
+        filtered_response = JSON.parse(response.body)['data'].select do |i|
+          i['attributes']['disp_status'] == 'Active: Refill in Process'
+        end
+
+        expect(response).to be_successful
+        expect(response.body).to be_a(String)
+        expect(response).to match_response_schema('my_health/prescriptions/v1/prescription_list_filtered_with_pagination')
+        expect(filtered_response.length).to eq(JSON.parse(response.body)['data'].length)
+        expect(filtered_response.length).to eq(JSON.parse(response.body)['meta']['pagination']['total_entries'])
+      end
+
       it 'responds to POST #refill' do
         VCR.use_cassette('rx_client/prescriptions/refills_a_prescription') do
           patch '/my_health/v1/prescriptions/13650545/refill'
@@ -277,19 +340,18 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
       context 'prescription documentation' do
         it 'responds to GET #index of prescription documentation' do
           VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/13650541/documentation?ndc=71205042524'
+            get '/my_health/v1/prescriptions/21296515/documentation'
           end
-
           expect(response).to be_successful
           expect(response.body).to be_a(String)
           expect(response.body).to be_a(String)
           attrs = JSON.parse(response.body)['data']['attributes']
-          expect(attrs['html']).to include('<h1>Ibuprofen</h1>')
+          expect(attrs['html']).to include('<h1>Somatropin</h1>')
         end
 
         it 'responds with error when the API unable to find documentation for NDC' do
           VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/13650541/documentation?ndc=24'
+            get '/my_health/v1/prescriptions/13650541/documentation'
           end
           expect(response).to have_http_status(:service_unavailable)
           error = JSON.parse(response.body)['error']
@@ -299,7 +361,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
         it 'responds with not_found when the feature is disabled' do
           Flipper.disable(:mhv_medications_display_documentation_content)
           VCR.use_cassette('rx_client/prescriptions/gets_rx_documentation') do
-            get '/my_health/v1/prescriptions/13650541/documentation?ndc=71205042524'
+            get '/my_health/v1/prescriptions/21296515/documentation'
           end
           expect(response).to have_http_status(:not_found)
           expect(JSON.parse(response.body)).to eq({ 'error' => 'Documentation is not available' })

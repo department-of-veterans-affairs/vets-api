@@ -228,7 +228,6 @@ FactoryBot.define do
       form_data do
         {
           "email": 'email@email.com',
-          "view:email_confirmation": 'email@email.com',
           "veteran_address": { "street": 'hgjghj', "city": 'hjkhjk', "postal_code": '44444', "country": 'USA',
                                "state": 'AL' },
           "view:does_mailing_match_home_address": true,
@@ -335,6 +334,7 @@ FactoryBot.define do
 
     factory :in_progress_686c_form do
       user_uuid { SecureRandom.uuid }
+      user_account_id { nil }
       form_id { '686C-674' }
       metadata do
         {
