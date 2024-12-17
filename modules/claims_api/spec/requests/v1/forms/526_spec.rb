@@ -2484,20 +2484,15 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             before do
               allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
               if flipped
-                expect_any_instance_of(ClaimsApi::StandardDataService)
+                allow_any_instance_of(ClaimsApi::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
               else
-                expect_any_instance_of(BGS::StandardDataService)
+                allow_any_instance_of(BGS::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
               end
-
-              allow_any_instance_of(ClaimsApi::DisabilityCompensationValidations)
-                .to receive(:brd_disabilities).and_return([{
-                                                            id: 1111, endDateTime: 1.year.from_now.iso8601
-                                                          }])
             end
 
-            let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
+            let(:classification_type_codes) { [{ clsfcn_id: '1111', end_dt: 1.year.from_now.iso8601 }] }
 
             context "when 'disabilities.classificationCode' is valid and expires in the future" do
               it 'returns a successful response' do
@@ -2524,11 +2519,21 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
 
             context "when 'disabilities.classificationCode' is valid but expires in the past" do
               before do
-                allow_any_instance_of(ClaimsApi::DisabilityCompensationValidations)
-                  .to receive(:brd_disabilities).and_return([{
-                                                              id: 1111,
-                                                              endDateTime: 1.year.ago.iso8601
-                                                            }])
+                if Flipper.enabled?(:claims_api_526_validations_v1_local_bgs)
+                  allow_any_instance_of(ClaimsApi::StandardDataService)
+                    .to receive(:get_contention_classification_type_code_list)
+                    .and_return([{
+                                  clsfcn_id: '1111',
+                                  end_dt: 1.year.ago.iso8601
+                                }])
+                else
+                  allow_any_instance_of(BGS::StandardDataService)
+                    .to receive(:get_contention_classification_type_code_list)
+                    .and_return([{
+                                  clsfcn_id: '1111',
+                                  end_dt: 1.year.ago.iso8601
+                                }])
+                end
               end
 
               it 'responds with a bad request' do

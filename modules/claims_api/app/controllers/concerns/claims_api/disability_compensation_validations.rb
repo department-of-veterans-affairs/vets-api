@@ -3,12 +3,9 @@
 require 'common/exceptions'
 require 'brd/brd'
 require 'bgs_service/standard_data_service'
-require 'claims_api/v2/disability_compensation_shared_service_module'
 
 module ClaimsApi
   module DisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
-    include ClaimsApi::V2::DisabilityCompensationSharedServiceModule
-
     #
     # Any custom 526 submission validations above and beyond json schema validation
     #
@@ -428,29 +425,30 @@ module ClaimsApi
     end
 
     def validate_form_526_disability_classification_code_end_date!(classification_code, index)
-      brd_disability = brd_disabilities.find { |d| d[:id] == classification_code.to_i }
-      end_date_time = brd_disability[:endDateTime] if brd_disability
+      bgs_disability = contention_classification_type_code_list.find { |d| d[:clsfcn_id] == classification_code }
+      end_date = bgs_disability[:end_dt] if bgs_disability
 
-      return if end_date_time.nil?
+      return if end_date.nil?
 
-      return if Date.parse(end_date_time) >= Time.zone.today
+      return if Date.parse(end_date) >= Time.zone.today
 
       raise ::Common::Exceptions::InvalidFieldValue.new("disabilities.#{index}.classificationCode", classification_code)
     end
 
-    def bgs_classification_ids
-      return @bgs_classification_ids if @bgs_classification_ids.present?
+    def contention_classification_type_code_list
+      @contention_classification_type_code_list ||= if Flipper.enabled?(:claims_api_526_validations_v1_local_bgs)
+                                                      service = ClaimsApi::StandardDataService.new(
+                                                        external_uid: Settings.bgs.external_uid,
+                                                        external_key: Settings.bgs.external_key
+                                                      )
+                                                      service.get_contention_classification_type_code_list
+                                                    else
+                                                      bgs_service.data.get_contention_classification_type_code_list
+                                                    end
+    end
 
-      contention_classification_type_codes = if Flipper.enabled?(:claims_api_526_validations_v1_local_bgs)
-                                               contention_service = ClaimsApi::StandardDataService.new(
-                                                 external_uid: Settings.bgs.external_uid,
-                                                 external_key: Settings.bgs.external_key
-                                               )
-                                               contention_service.get_contention_classification_type_code_list
-                                             else
-                                               bgs_service.data.get_contention_classification_type_code_list
-                                             end
-      @bgs_classification_ids = contention_classification_type_codes.pluck(:clsfcn_id)
+    def bgs_classification_ids
+      contention_classification_type_code_list.pluck(:clsfcn_id)
     end
 
     def validate_form_526_disability_approximate_begin_date!
