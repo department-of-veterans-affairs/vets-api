@@ -16,9 +16,7 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
   end
 
   describe '#to_pdf' do
-    let(:claim) do
-      build(:caregivers_assistance_claim)
-    end
+    let(:claim) { build(:caregivers_assistance_claim) }
 
     it 'renders unicode chars correctly' do
       unicode = 'name’'
@@ -33,56 +31,202 @@ RSpec.describe SavedClaim::CaregiversAssistanceClaim do
     end
 
     it 'calls PdfFill::Filler#fill_form' do
-      if RUBY_VERSION =~ /2.7/
-        expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid, {}).once.and_return(:expected_file_paths)
-      else
-        expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid).once.and_return(:expected_file_paths)
-      end
+      expect(PdfFill::Filler).to receive(:fill_form).with(claim, claim.guid).once.and_return(:expected_file_paths)
       expect(claim.to_pdf).to eq(:expected_file_paths)
     end
 
-    it 'passes arguments to PdfFill::Filler#fill_form' do
-      if RUBY_VERSION =~ /2.7/
-        expect(PdfFill::Filler).to receive(
-          :fill_form
-        ).with(
-          claim,
-          'my_other_filename',
-          {}
-        ).once.and_return(:expected_file_paths)
-      else
+    context 'passes arguments to PdfFill::Filler#fill_form' do
+      it 'converts to pdf with the file name alone' do
         expect(PdfFill::Filler).to receive(
           :fill_form
         ).with(
           claim,
           'my_other_filename'
         ).once.and_return(:expected_file_paths)
+
+        # Calling with only filename
+        claim.to_pdf('my_other_filename')
       end
 
-      # Calling with only filename
-      claim.to_pdf('my_other_filename')
+      it 'converts to pdf with the options alone' do
+        expect(PdfFill::Filler).to receive(
+          :fill_form
+        ).with(
+          claim,
+          claim.guid,
+          save: true
+        ).once.and_return(:expected_file_paths)
 
-      expect(PdfFill::Filler).to receive(
-        :fill_form
-      ).with(
-        claim,
-        claim.guid,
-        save: true
-      ).once.and_return(:expected_file_paths)
+        # Calling with only options
+        claim.to_pdf(save: true)
+      end
 
-      # Calling with only options
-      claim.to_pdf(save: true)
+      it 'converts to pdf with the filename and options' do
+        expect(PdfFill::Filler).to receive(
+          :fill_form
+        ).with(
+          claim,
+          'my_other_filename',
+          save: false
+        ).once.and_return(:expected_file_paths)
 
-      expect(PdfFill::Filler).to receive(
-        :fill_form
-      ).with(
-        claim,
-        'my_other_filename',
-        save: false
-      ).once.and_return(:expected_file_paths)
+        # Calling with filename and options
+        claim.to_pdf('my_other_filename', save: false)
+      end
+    end
 
-      # Calling with filename and options
-      claim.to_pdf('my_other_filename', save: false)
+    context 'errors' do
+      let(:error_message) { 'fill form error' }
+
+      before do
+        allow(PdfFill::Filler).to receive(:fill_form).and_raise(StandardError, error_message)
+        allow(Rails.logger).to receive(:error)
+        allow(PersonalInformationLog).to receive(:create)
+      end
+
+      it 'logs the error, creates a PersonalInformationLog, and raises the error' do
+        expect(Rails.logger).to receive(:error).with("Failed to generate PDF: #{error_message}")
+        expect(PersonalInformationLog).to receive(:create).with(
+          data: { form: claim.parsed_form, file_name: claim.guid },
+          error_class: '1010CGPdfGenerationError'
+        )
+        expect { claim.to_pdf }.to raise_error(StandardError, error_message)
+      end
+    end
+  end
+
+  describe 'validations' do
+    let(:claim) { build(:caregivers_assistance_claim) }
+
+    before do
+      allow(Flipper).to receive(:enabled?).and_call_original
+    end
+
+    context 'caregiver_retry_form_validation disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_retry_form_validation).and_return(false)
+      end
+
+      context 'no validation errors' do
+        before do
+          allow(JSON::Validator).to receive(:fully_validate).and_return([])
+        end
+
+        it 'returns true' do
+          expect(claim.validate).to eq true
+        end
+      end
+
+      context 'validation errors' do
+        it 'calls the parent method when the toggle is off' do
+          allow(claim).to receive(:form_matches_schema).and_call_original
+
+          claim.validate
+
+          expect(claim).to have_received(:form_matches_schema)
+        end
+      end
+    end
+
+    context 'caregiver_retry_form_validation enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:caregiver_retry_form_validation).and_return(true)
+      end
+
+      context 'no validation errors' do
+        before do
+          allow(JSON::Validator).to receive(:fully_validate).and_return([])
+        end
+
+        it 'returns true' do
+          expect(Rails.logger).not_to receive(:info)
+            .with('Form validation succeeded on attempt 1/3')
+
+          expect(claim.validate).to eq true
+        end
+      end
+
+      context 'validation errors' do
+        let(:schema_errors) { [{ fragment: 'error' }] }
+
+        context 'when JSON:Validator.fully_validate returns errors' do
+          before do
+            allow(JSON::Validator).to receive(:fully_validate).and_return(schema_errors)
+          end
+
+          it 'adds validation errors to the form' do
+            expect(JSON::Validator).not_to receive(:fully_validate_schema)
+
+            expect(Rails.logger).not_to receive(:info)
+              .with('Form validation succeeded on attempt 1/3')
+
+            claim.validate
+            expect(claim.errors.full_messages).not_to be_empty
+          end
+        end
+
+        context 'when JSON:Validator.fully_validate throws an exception' do
+          let(:exception_text) { 'Some exception' }
+          let(:exception) { StandardError.new(exception_text) }
+
+          context '3 times' do
+            let(:schema) { 'schema_content' }
+
+            before do
+              allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
+              allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
+            end
+
+            it 'logs exceptions and raises exception' do
+              expect(Rails.logger).to receive(:warn)
+                .with("Retrying form validation due to error: #{exception_text} (Attempt 1/3)").once
+              expect(Rails.logger).not_to receive(:info)
+                .with('Form validation succeeded on attempt 1/3')
+              expect(Rails.logger).to receive(:warn)
+                .with("Retrying form validation due to error: #{exception_text} (Attempt 2/3)").once
+              expect(Rails.logger).to receive(:warn)
+                .with("Retrying form validation due to error: #{exception_text} (Attempt 3/3)").once
+
+              expect(Rails.logger).to receive(:error)
+                .with('Error during form validation after maximimum retries', { error: exception.message,
+                                                                                backtrace: anything, schema: })
+
+              expect(PersonalInformationLog).to receive(:create).with(
+                data: { schema: schema,
+                        parsed_form: claim.parsed_form,
+                        params: { errors_as_objects: true } },
+                error_class: 'SavedClaim FormValidationError'
+              )
+
+              expect { claim.validate }.to raise_error(exception.class, exception.message)
+            end
+          end
+
+          context '1 time but succeeds after retrying' do
+            before do
+              # Throws exception the first time, returns empty array on subsequent calls
+              call_count = 0
+              allow(JSON::Validator).to receive(:fully_validate).and_wrap_original do
+                call_count += 1
+                if call_count == 1
+                  raise exception
+                else
+                  []
+                end
+              end
+            end
+
+            it 'logs exception and validates succesfully after the retry' do
+              expect(Rails.logger).to receive(:warn)
+                .with("Retrying form validation due to error: #{exception_text} (Attempt 1/3)").once
+              expect(Rails.logger).to receive(:info)
+                .with('Form validation succeeded on attempt 2/3').once
+
+              expect(claim.validate).to eq true
+            end
+          end
+        end
+      end
     end
   end
 

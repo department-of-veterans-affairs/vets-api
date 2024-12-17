@@ -42,6 +42,10 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)
     uploaded_forms << form_id
     save
+  rescue => e
+    Rails.logger.debug('DependencyClaim: Issue Uploading to VBMS in upload_pdf method',
+                       { saved_claim_id: id, form_id:, error: e })
+    raise e
   end
 
   def process_pdf(pdf_path, timestamp = nil, form_id = nil)
@@ -128,6 +132,38 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     self.form_id = form_id
 
     PdfFill::Filler.fill_form(self, nil, { created_at: })
+  end
+
+  # this failure email is not the ideal way to handle the Notification Emails as
+  # part of the ZSF work, but with the initial timeline it handles the email as intended.
+  # Future work will be integrating into the Va Notify common lib:
+  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/va_notify/notification_email.rb
+
+  def send_failure_email(email) # rubocop:disable Metrics/MethodLength
+    # if the claim is both a 686c and a 674, send a combination email.
+    # otherwise, check to see which individual type it is and send the corresponding email.
+    template_id = if submittable_686? && submittable_674?
+                    Settings.vanotify.services.va_gov.template_id.form21_686c_674_action_needed_email
+                  elsif submittable_686?
+                    Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email
+                  elsif submittable_674?
+                    Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email
+                  else
+                    Rails.logger.error('Email template cannot be assigned for SavedClaim', saved_claim_id: id)
+                    nil
+                  end
+
+    if email.present? && template_id.present?
+      VANotify::EmailJob.perform_async(
+        email,
+        template_id,
+        {
+          'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => confirmation_number
+        }
+      )
+    end
   end
 
   private

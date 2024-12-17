@@ -27,18 +27,24 @@ module Vet360
     end
 
     def invalidate_cache
-      VAProfileRedis::Cache.invalidate(@current_user)
+      if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+        VAProfileRedis::V2::Cache.invalidate(@current_user)
+      else
+        VAProfileRedis::Cache.invalidate(@current_user)
+      end
     end
 
     private
 
     def build_record(type, params)
       # This needs to be refactored after V2 upgrade is complete
-      model = if type == 'address' && Flipper.enabled?(:va_v3_contact_information_service, @current_user)
-                'VAProfile::Models::V2::Address'
-              else
-                "VAProfile::Models::#{type.capitalize}"
-              end
+      if type == 'address' && Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+        model = 'VAProfile::Models::V3::Address'
+        # Ensures the address_pou is valid
+        params[:address_pou] = 'RESIDENCE' if params[:address_pou] == 'RESIDENCE/CHOICE'
+      else
+        model = "VAProfile::Models::#{type.capitalize}"
+      end
       model.constantize
            .new(params)
            .set_defaults(@current_user)

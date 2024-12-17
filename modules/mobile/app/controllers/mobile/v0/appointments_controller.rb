@@ -5,9 +5,10 @@ require 'mobile/v0/exceptions/custom_errors'
 module Mobile
   module V0
     class AppointmentsController < ApplicationController
-      UPCOMING_DAYS_LIMIT = 7
+      include AppointmentAuthorization
+      before_action :authorize_with_facilities
+      UPCOMING_DAYS_LIMIT = 30
 
-      before_action { authorize }
       after_action :clear_appointments_cache, only: %i[cancel create]
 
       def index
@@ -24,8 +25,6 @@ module Mobile
         )
 
         render json: Mobile::V0::AppointmentSerializer.new(page_appointments, page_meta_data), status:
-      rescue VAOS::ServiceException => e
-        raise Common::Exceptions::BadGateway.new(detail: e.errors.first&.detail)
       end
 
       def cancel
@@ -132,24 +131,6 @@ module Mobile
 
       def appointments_cache_interface
         @appointments_cache_interface ||= Mobile::AppointmentsCacheInterface.new
-      end
-
-      def authorize
-        raise_access_denied unless current_user.authorize(:vaos, :access?)
-        raise_access_denied_no_icn if current_user.icn.blank?
-        raise_access_denied_no_facilities unless current_user.authorize(:vaos, :facilities_access?)
-      end
-
-      def raise_access_denied
-        raise Common::Exceptions::Forbidden, detail: 'You do not have access to online scheduling'
-      end
-
-      def raise_access_denied_no_icn
-        raise Common::Exceptions::Forbidden, detail: 'No patient ICN found'
-      end
-
-      def raise_access_denied_no_facilities
-        raise Common::Exceptions::Forbidden, detail: 'No facility associated with user'
       end
 
       def staging_custom_error

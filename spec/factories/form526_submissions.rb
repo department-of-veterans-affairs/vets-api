@@ -81,12 +81,24 @@ FactoryBot.define do
     end
   end
 
+  trait :als_claim_for_increase do
+    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    form_json do
+      File.read("#{submissions_path}/only_526_als.json")
+    end
+  end
+
+  trait :als_claim_for_increase_terminally_ill do
+    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    form_json do
+      File.read("#{submissions_path}/only_526_als_terminally_ill.json")
+    end
+  end
+
   trait :asthma_claim_for_increase do
     user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
-      File.read(::Rails.root.join(
-        *'/spec/support/disability_compensation_form/submissions/only_526_asthma.json'.split('/')
-      ).to_s)
+      File.read("#{submissions_path}/only_526_asthma.json")
     end
   end
 
@@ -321,6 +333,25 @@ FactoryBot.define do
              form526_submission: submission,
              lifecycle: ['i am no longer remediated'],
              success: false)
+    end
+  end
+
+  trait :with_uploads_and_ancillary_forms do
+    form_json do
+      with_ancillary = JSON.parse(File.read("#{submissions_path}/with_everything.json"))
+      with_uploads = JSON.parse(File.read("#{submissions_path}/with_uploads.json"))['form526_uploads']
+      with_uploads.each do |upload|
+        create(:supporting_evidence_attachment, :with_file_data, guid: upload['confirmationCode'])
+      end
+
+      with_ancillary['form526_uploads'] = with_uploads
+      with_ancillary.to_json
+    end
+  end
+
+  trait :with_empty_disabilities do
+    form_json do
+      File.read("#{submissions_path}/only_526_empty_disabilities.json")
     end
   end
 end

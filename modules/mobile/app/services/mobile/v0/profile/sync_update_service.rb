@@ -58,8 +58,8 @@ module Mobile
         end
 
         def build_record(type, params)
-          if type == :address && Flipper.enabled?(:va_v3_contact_information_service, @user)
-            'VAProfile::Models::V2::Address'
+          if type == :address && Flipper.enabled?(:mobile_v2_contact_info, @user)
+            'VAProfile::Models::V3::Address'
               .constantize
               .new(params)
               .set_defaults(@user)

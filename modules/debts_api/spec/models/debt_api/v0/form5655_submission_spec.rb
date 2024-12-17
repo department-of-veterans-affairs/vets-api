@@ -40,7 +40,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
   end
 
   describe '.upsert_in_progress_form' do
-    let(:user) { create(:form5655_submission) }
+    let(:user) { create(:form5655_submission, '') }
     let(:form5655_submission) { create(:debts_api_form5655_submission, user_uuid: 'b2fab2b56af045e1a9e2394347af91ef') }
     let(:in_progress_form) { create(:in_progress_5655_form, user_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef') }
 
@@ -142,16 +142,57 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
     end
 
     context 'failure' do
+      let(:id) { SecureRandom.uuid }
       let(:status) do
         OpenStruct.new(
           failures: 1,
-          failure_info: [SecureRandom.uuid]
+          failure_info: [id]
         )
       end
 
       it 'sets the submission as failed' do
+        allow(Rails.logger).to receive(:error)
         described_class.new.set_vha_completed_state(status, { 'submission_id' => form5655_submission.id })
-        expect(form5655_submission.failed?).to eq(true)
+        expect(form5655_submission.error_message).to eq("VHA set completed state: [\"#{id}\"]")
+        expect(Rails.logger).to have_received(:error).with('Batch FSR Processing Failed', [id])
+      end
+    end
+  end
+
+  describe '#register_failure' do
+    let(:form5655_submission) { create(:debts_api_form5655_submission) }
+    let(:message) { 'This is an error message' }
+
+    it 'saves error message and logs error' do
+      expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
+      expect(StatsD).to receive(:increment).with(
+        'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
+      )
+      expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
+      form5655_submission.register_failure(message)
+      expect(form5655_submission.error_message).to eq(message)
+    end
+
+    it 'saves generic error message with call_location when message is blank' do
+      form5655_submission.register_failure(nil)
+      expect(form5655_submission.error_message).to start_with(
+        'An unknown error occurred while submitting the form from call_location:'
+      )
+    end
+
+    context 'combined form' do
+      it 'saves error message and logs error' do
+        form5655_submission.public_metadata = { combined: true }
+        form5655_submission.save
+
+        expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
+        expect(StatsD).to receive(:increment).with(
+          'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
+        )
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
+        expect(StatsD).to receive(:increment).with('api.fsr_submission.combined.failure')
+        form5655_submission.register_failure(message)
+        expect(form5655_submission.error_message).to eq(message)
       end
     end
   end

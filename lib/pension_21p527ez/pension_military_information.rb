@@ -7,7 +7,7 @@ module Pension21p527ez
   ##
   # extends FormMilitaryInformation to add additional military information fields to Pension prefill.
   # @see app/models/form_profile.rb FormProfile::FormMilitaryInformation
-  class PensionFormMilitaryInformation < FormMilitaryInformation
+  class PensionFormMilitaryInformation < FormProfile::FormMilitaryInformation
     include Virtus.model
 
     attribute :first_uniformed_entry_date, String
@@ -58,10 +58,16 @@ module Pension21p527ez
 
     # @return [Hash] { army => true, navy => true, ... } in the format required for pensions.serviceBranch
     def service_branches_for_pensions
-      map_service_episodes_to_branches.uniq.index_with { true }
+      format_service_branches_for_pensions(map_service_episodes_to_branches)
     rescue => e
       Rails.logger.error("Error fetching service branches for Pension prefill: #{e}")
       {}
+    end
+
+    # @return [Hash] { army => true, navy => true, ... }
+    # Filters out any unknown branches
+    def format_service_branches_for_pensions(branches)
+      branches.uniq.compact_blank.index_with { true }
     end
 
     ##

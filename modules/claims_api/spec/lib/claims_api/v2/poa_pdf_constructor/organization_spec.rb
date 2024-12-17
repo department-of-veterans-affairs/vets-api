@@ -30,7 +30,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
         firstName: 'Lillian',
         middleInitial: 'A',
         lastName: 'Disney',
-        email: 'lillian@disney.com',
+        email: 'LILLIAN@disney.com',
         relationship: 'Spouse',
         address: {
           addressLine1: '2688 S Camino Real',
@@ -78,6 +78,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
           'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
         },
+        'appointmentDate' => power_of_attorney.created_at,
         'text_signatures' => {
           'page2' => [
             {

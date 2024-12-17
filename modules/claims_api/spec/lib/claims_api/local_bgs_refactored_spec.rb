@@ -2,8 +2,9 @@
 
 require 'rails_helper'
 require 'bgs_service/local_bgs_proxy'
+require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
-describe ClaimsApi::LocalBGSProxy do
+describe ClaimsApi::EbenefitsBnftClaimStatusWebService do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
   before do
@@ -15,47 +16,6 @@ describe ClaimsApi::LocalBGSProxy do
   end
 
   let(:soap_error_handler) { ClaimsApi::LocalBGSRefactored::ErrorHandler }
-
-  describe '#find_poa_by_participant_id' do
-    it 'responds as expected, with extra ClaimsApi::Logger logging' do
-      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
-        # Events logged:
-        # 1: built_request - how long to build the request
-        # 2: connection_post - how long does the post itself take for the request cycle
-        # 3: parsed_response - how long to parse the response
-        # 4: transformed_response - how long to transform the response
-        expect(ClaimsApi::Logger).to receive(:log).exactly(4).times
-        result = subject.find_poa_by_participant_id('does-not-matter')
-        expect(result).to be_a Hash
-        expect(result[:end_date]).to eq '08/26/2020'
-      end
-    end
-
-    describe 'breakers' do
-      it 'returns a Bad Gateway' do
-        stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService").to_timeout
-        expect do
-          subject.find_poa_by_participant_id('also-does-not-matter')
-        end.to raise_error(Common::Exceptions::BadGateway)
-      end
-
-      it 'hits breakers' do
-        ClaimsApi::BGSClient.breakers_service.begin_forced_outage!
-        expect { subject.find_poa_by_participant_id('also-does-not-matter') }.to raise_error(Breakers::OutageException)
-        ClaimsApi::BGSClient.breakers_service.end_forced_outage!
-      end
-    end
-
-    it 'triggers StatsD measurements' do
-      VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id',
-                       allow_playback_repeats: true) do
-        %w[built_request connection_post parsed_response transformed_response].each do |event|
-          expect { subject.find_poa_by_participant_id('does-not-matter') }
-            .to trigger_statsd_measure("api.claims_api.local_bgs.#{event}.duration")
-        end
-      end
-    end
-  end
 
   # Testing potential ways the current check could be tricked
   describe '#all' do
@@ -69,7 +29,7 @@ describe ClaimsApi::LocalBGSProxy do
       it 'returns an empty array' do
         expect(error_message.count).to eq(2) # trick the claims count check
         # error message should trigger return
-        allow(subject_instance.proxied).to(
+        allow(subject_instance).to(
           receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(error_message)
         )
         expect(subject.all(id)).to eq([]) # verify correct return
@@ -81,7 +41,7 @@ describe ClaimsApi::LocalBGSProxy do
         VCR.use_cassette('claims_api/bgs/claims/claims_trimmed_down') do
           claims = subject_instance.find_benefit_claims_status_by_ptcpnt_id('600061742')
           claims[:benefit_claims_dto][:benefit_claim] = claims[:benefit_claims_dto][:benefit_claim][0]
-          allow(subject_instance.proxied).to(
+          allow(subject_instance).to(
             receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(claims)
           )
 
@@ -100,7 +60,7 @@ describe ClaimsApi::LocalBGSProxy do
     context 'when an empty array gets returned it still does not pass the count check' do
       it 'returns an empty array' do
         # error message should trigger return
-        allow(subject_instance.proxied).to(
+        allow(subject_instance).to(
           receive(:find_benefit_claims_status_by_ptcpnt_id).with(id).and_return(empty_array)
         )
         expect(subject.all(id)).to eq([]) # verify correct return

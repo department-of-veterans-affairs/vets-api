@@ -92,7 +92,7 @@ class FormProfile
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
     hca: %w[1010ez 10-10EZR],
-    pension_burial: %w[21P-530 21P-527EZ 21P-530V2],
+    pension_burial: %w[21P-530EZ 21P-527EZ],
     dependents: ['686C-674'],
     decision_review: %w[20-0995 20-0996 10182],
     mdot: ['MDOT'],
@@ -105,7 +105,8 @@ class FormProfile
     ivc_champva: ['10-7959C'],
     form_upload_flow: ['FORM-UPLOAD-FLOW'],
     acc_rep_management: %w[21-22 21-22A],
-    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS']
+    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
+    dispute_debt: ['DISPUTE-DEBT']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -125,8 +126,7 @@ class FormProfile
     '22-5490' => ::FormProfiles::VA5490,
     '22-5490E' => ::FormProfiles::VA5490e,
     '22-5495' => ::FormProfiles::VA5495,
-    '21P-530' => ::FormProfiles::VA21p530,
-    '21P-530V2' => ::FormProfiles::VA21p530v2,
+    '21P-530EZ' => ::FormProfiles::VA21p530ez,
     '21-686C' => ::FormProfiles::VA21686c,
     '686C-674' => ::FormProfiles::VA686c674,
     '40-10007' => ::FormProfiles::VA4010007,
@@ -147,7 +147,8 @@ class FormProfile
     'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
-    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns
+    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
+    'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i
@@ -181,8 +182,6 @@ class FormProfile
 
   def self.mappings_for_form(form_id)
     @mappings ||= {}
-    # temporarily using a different mapping for 21P-527EZ to keep the change behind the pension_military_prefill flag
-    form_id = '21P-527EZ-military' if form_id == '21P-527EZ' && Flipper.enabled?(:pension_military_prefill, @user)
     @mappings[form_id] || (@mappings[form_id] = load_form_mapping(form_id))
   end
 
@@ -206,6 +205,7 @@ class FormProfile
     @contact_information = initialize_contact_information
     @military_information = initialize_military_information
     form = form_id == '1010EZ' ? '1010ez' : form_id
+
     if FormProfile.prefill_enabled_forms.include?(form)
       mappings = self.class.mappings_for_form(form_id)
 
@@ -283,10 +283,14 @@ class FormProfile
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
-    Rails.logger.info("User Vet360 Contact Info, Address? #{opt[:address].present?}
-      Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
-
+    if Flipper.enabled?(:remove_pciu, user)
+      # Monitor logs to validate the presence of Contact Information V2 user data
+      Rails.logger.info("VAProfile Contact Info: Address? #{opt[:address].present?},
+        Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
+    end
     opt[:address] ||= user_address_hash
+
+    # The following pciu lines need to removed when tearing down the EVSS PCIU service.
     opt[:email] ||= extract_pciu_data(:pciu_email)
     if opt[:home_phone].nil?
       opt[:home_phone] = pciu_primary_phone
@@ -294,7 +298,6 @@ class FormProfile
     end
 
     format_for_schema_compatibility(opt)
-
     FormContactInformation.new(opt)
   end
 
@@ -303,7 +306,9 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
+    if Flipper.enabled?(:remove_pciu, user)
+      @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
+    elsif VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
       @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
     else
       Rails.logger.info('Vet360 Contact Info Null')
@@ -331,7 +336,6 @@ class FormProfile
       opt[:address][:street2] = apt[1]
       opt[:address][:street] = opt[:address][:street].gsub(/\W?\s+#{apt[1]}/, '').strip
     end
-
     %i[home_phone us_phone mobile_phone].each do |phone|
       opt[phone] = opt[phone].gsub(/\D/, '') if opt[phone]
     end
@@ -342,6 +346,37 @@ class FormProfile
   def extract_pciu_data(method)
     user&.send(method)
   rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException, EVSS::ErrorMiddleware::EVSSError
+    ''
+  end
+
+  def extract_va_profile_phone
+    vet360_contact_info&.home_phone
+  end
+
+  def extract_va_profile_mobile_phone
+    vet360_contact_info&.mobile_phone
+  end
+
+  def va_profile_phone
+    home = extract_va_profile_phone
+    return '' if home.blank?
+
+    home = home.area_code + home.phone_number unless home.is_a?(String)
+    return home if home.size == 10 || home.size > 11
+    return home[1..] if home.size == 11 && home[0] == '1'
+
+    ''
+  end
+
+  def va_profile_mobile_phone
+    mobile = extract_va_profile_mobile_phone
+    return '' if mobile.blank?
+
+    mobile = mobile.area_code + mobile.phone_number unless mobile.is_a?(String)
+
+    return mobile if mobile.size == 10
+    return mobile[1..] if mobile.size == 11 && mobile[0] == '1'
+
     ''
   end
 
@@ -358,10 +393,15 @@ class FormProfile
   # preference: vet360 mobile -> vet360 home -> pciu
   def phone_object
     mobile = vet360_contact_info&.mobile_phone
-    return mobile if mobile&.area_code && mobile&.phone_number
+    return mobile if mobile&.area_code && mobile.phone_number
 
     home = vet360_contact_info&.home_phone
-    return home if home&.area_code && home&.phone_number
+    return home if home&.area_code && home.phone_number
+
+    if Flipper.enabled?(:remove_pciu, user)
+      # Track precense of home and mobile
+      Rails.logger.info("VAProfile Phone Object: Home? #{home.present?}, Mobile? #{mobile.present?}")
+    end
 
     phone_struct = Struct.new(:area_code, :phone_number)
 
@@ -425,7 +465,7 @@ class FormProfile
   end
 
   def clean_hash!(hash)
-    hash.deep_transform_keys! { |k| k.camelize(:lower) }
+    hash.deep_transform_keys! { |k| k.to_s.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
     hash.delete_if { |_k, v| v.blank? }
   end

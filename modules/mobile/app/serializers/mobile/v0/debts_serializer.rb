@@ -7,18 +7,19 @@ module Mobile
 
       set_type :debts
 
-      attributes :fileNumber,
-                 :payeeNumber,
-                 :personEntitled,
-                 :deductionCode,
-                 :benefitType,
-                 :diaryCode,
-                 :diaryCodeDescription,
-                 :amountOverpaid,
-                 :amountWithheld,
-                 :originalAR,
-                 :currentAR,
-                 :debtHistory
+      attributes :file_number,
+                 :payee_number,
+                 :person_entitled,
+                 :deduction_code,
+                 :benefit_type,
+                 :diary_code,
+                 :diary_code_description,
+                 :amount_overpaid,
+                 :amount_withheld,
+                 :original_ar,
+                 :current_ar,
+                 :debt_history
+
       def initialize(debts, id = nil)
         resource = if debts.is_a? Array
                      debts.map { |debt| serialize_debt(debt, id) }
@@ -36,34 +37,28 @@ module Mobile
       end
 
       def serialize_debt(debt, id = nil)
-        DebtStruct.new(id: id || debt['id'],
-                       fileNumber: debt['fileNumber'],
-                       payeeNumber: debt['payeeNumber'],
-                       personEntitled: debt['personEntitled'],
-                       deductionCode: debt['deductionCode'],
-                       benefitType: debt['benefitType'],
-                       diaryCode: debt['diaryCode'],
-                       diaryCodeDescription: debt['diaryCodeDescription'],
-                       amountOverpaid: debt['amountOverpaid'],
-                       amountWithheld: debt['amountWithheld'],
-                       originalAR: debt['originalAR'],
-                       currentAR: debt['currentAR'],
-                       debtHistory: debt['debtHistory'])
+        debt_history = Array.wrap(debt['debtHistory']).map do |history|
+          {
+            date: history['date'],
+            letter_code: history['letterCode'],
+            description: history['description']
+          }
+        end
+
+        Debt.new(id: id || debt['id'],
+                 file_number: debt['fileNumber'],
+                 payee_number: debt['payeeNumber'],
+                 person_entitled: debt['personEntitled'],
+                 deduction_code: debt['deductionCode'],
+                 benefit_type: debt['benefitType'],
+                 diary_code: debt['diaryCode'],
+                 diary_code_description: debt['diaryCodeDescription'],
+                 amount_overpaid: debt['amountOverpaid'],
+                 amount_withheld: debt['amountWithheld'],
+                 original_ar: debt['originalAR'],
+                 current_ar: debt['currentAR'],
+                 debt_history:)
       end
     end
-
-    DebtStruct = Struct.new(:id,
-                            :fileNumber,
-                            :payeeNumber,
-                            :personEntitled,
-                            :deductionCode,
-                            :benefitType,
-                            :diaryCode,
-                            :diaryCodeDescription,
-                            :amountOverpaid,
-                            :amountWithheld,
-                            :originalAR,
-                            :currentAR,
-                            :debtHistory)
   end
 end

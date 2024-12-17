@@ -34,8 +34,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::PersonResponse] wrapper around an person object
         def get_person
           with_monitoring do
-            vet360_id_present!
-            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(uuid_with_aaid)}")
+            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}")
             PersonResponse.from(raw_response)
           end
         rescue Common::Client::Errors::ClientError => e
@@ -64,7 +63,7 @@ module VAProfile
 
         def update_address(address)
           address_type =
-            if address.address_pou == VAProfile::Models::V2::BaseAddress::RESIDENCE
+            if address.address_pou == VAProfile::Models::V3::BaseAddress::RESIDENCE
               'residential'
             else
               'mailing'
@@ -138,7 +137,7 @@ module VAProfile
         def put_email(email)
           old_email =
             begin
-              @user.va_profile_email
+              @user.va_profile_v2_email
             rescue
               nil
             end
@@ -195,7 +194,7 @@ module VAProfile
         end
 
         # GET's the status of a person transaction from the VAProfile api. Does not validate the presence of
-        # a vet360_id before making the service call, as POSTing a person initializes a vet360_id.
+        # user's icn before making the service call, as POSTing a person initializes a icn.
         #
         # @param transaction_id [String] the transaction_id to check
         # @return [VAProfile::V2::ContactInformation::PersonTransactionResponse] wrapper around a transaction object
@@ -203,7 +202,7 @@ module VAProfile
         def get_person_transaction_status(transaction_id)
           with_monitoring do
             raw_response = perform(:get, "status/#{transaction_id}")
-            VAProfile::Stats.increment_transaction_results(raw_response, 'init_vet360_id')
+            VAProfile::Stats.increment_transaction_results(raw_response, 'init_va_profile')
 
             VAProfile::V2::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
           end
@@ -213,12 +212,8 @@ module VAProfile
 
         private
 
-        def uuid_with_aaid
-          return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
-          return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
-          return "#{vet360_id}^PI^200VETS^USDVA" if @user.idme_uuid.blank? && @user.logingov_uuid.blank?
-
-          nil
+        def icn_with_aaid
+          "#{@user.icn}^NI^200M^USVHA"
         end
 
         def vet360_id
@@ -226,7 +221,7 @@ module VAProfile
         end
 
         def update_model(model, attr, method_name)
-          contact_info = VAProfileRedis::ContactInformation.for_user(@user)
+          contact_info = VAProfileRedis::V2::ContactInformation.for_user(@user)
           model.id = contact_info.public_send(attr)&.id
           verb = model.id.present? ? 'put' : 'post'
 
@@ -238,15 +233,13 @@ module VAProfile
         end
 
         def send_contact_change_notification(transaction_status, personalisation)
-          return unless Flipper.enabled?(:contact_info_change_email, @user)
-
           transaction = transaction_status.transaction
 
           if transaction.completed_success?
             transaction_id = transaction.id
             return if TransactionNotification.find(transaction_id).present?
 
-            email = @user.va_profile_email
+            email = @user.va_profile_v2_email
             return if email.blank?
 
             VANotifyEmailJob.perform_async(
@@ -260,8 +253,6 @@ module VAProfile
         end
 
         def send_email_change_notification(transaction_status)
-          return unless Flipper.enabled?(:contact_info_change_email, @user)
-
           transaction = transaction_status.transaction
 
           if transaction.completed_success?
@@ -283,15 +274,11 @@ module VAProfile
           end
         end
 
-        def vet360_id_present!
-          raise 'User does not have a vet360_id' if @user&.vet360_id.blank?
-        end
-
         def post_or_put_data(method, model, path, response_class)
           with_monitoring do
-            vet360_id_present!
-            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(uuid_with_aaid)}" + "/#{path}"
-            raw_response = perform(method, request_path, model.in_json)
+            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
+            # in_json method should replace in_json_v2 after Contact Information V1 has depreciated
+            raw_response = perform(method, request_path, model.in_json_v2)
             response_class.from(raw_response)
           end
         rescue => e

@@ -7,11 +7,10 @@ require 'search/response'
 require 'search/configuration'
 
 module Search
-  # This class builds a wrapper around Search.gov or api.gsa.gov web results API. Creating a new instance of class
+  # This class builds a wrapper around Search.gov web results API. Creating a new instance of class
   # will and calling #results will return a ResultsResponse upon success or an exception upon failure.
   #
   # @see https://search.usa.gov/sites/7378/api_instructions
-  # @see https://open.gsa.gov/api/searchgov-results/
   #
   class Service < Common::Client::Base
     include Common::Client::Concerns::Monitoring
@@ -49,7 +48,6 @@ module Search
     # Optional params [enable_highlighting, limit, offset, sort_by]
     #
     # @see https://search.usa.gov/sites/7378/api_instructions
-    # @see https://open.gsa.gov/api/searchgov-results/
     #
     def query_params
       {
@@ -129,9 +127,7 @@ module Search
     end
 
     def error_code_name(error_status)
-      error_code_prefix = self.class.configuration.flipper_enabled? ? 'SEARCH_GSA' : 'SEARCH'
-
-      "#{error_code_prefix}_#{error_status}"
+      "SEARCH_#{error_status}"
     end
   end
 end

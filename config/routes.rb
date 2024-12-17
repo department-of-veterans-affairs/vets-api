@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'flipper/admin_user_constraint'
+require 'flipper/route_authorization_constraint'
 
 Rails.application.routes.draw do
   match '/v0/*path', to: 'application#cors_preflight', via: [:options]
@@ -99,7 +99,12 @@ Rails.application.routes.draw do
 
     resource :user, only: [:show] do
       get 'icn', to: 'users#icn'
+      collection do
+        get 'credential_emails'
+      end
+      resource :mhv_user_account, only: [:show], controller: 'user/mhv_user_accounts'
     end
+
     resource :veteran_onboarding, only: %i[show update]
 
     resource :education_benefits_claims, only: %i[create show] do
@@ -121,8 +126,12 @@ Rails.application.routes.draw do
     resource :hca_attachments, only: :create
     resource :form1010_ezr_attachments, only: :create
 
-    resources :caregivers_assistance_claims, only: :create
-    post 'caregivers_assistance_claims/download_pdf', to: 'caregivers_assistance_claims#download_pdf'
+    resources :caregivers_assistance_claims, only: :create do
+      collection do
+        get(:facilities)
+        post(:download_pdf)
+      end
+    end
 
     namespace :form1010cg do
       resources :attachments, only: :create
@@ -168,8 +177,6 @@ Rails.application.routes.draw do
     resource :rated_disabilities_discrepancies, only: %i[show]
 
     namespace :virtual_agent do
-      get 'claim', to: 'virtual_agent_claim#index'
-      get 'claim/:id', to: 'virtual_agent_claim#show'
       get 'claims', to: 'virtual_agent_claim_status#index'
       get 'claims/:id', to: 'virtual_agent_claim_status#show'
     end
@@ -277,6 +284,7 @@ Rails.application.routes.draw do
 
     namespace :my_va do
       resource :submission_statuses, only: :show
+      resource :submission_pdf_urls, only: :create
     end
 
     namespace :profile do
@@ -290,6 +298,7 @@ Rails.application.routes.draw do
 
       # Lighthouse
       resource :direct_deposits, only: %i[show update]
+      resource :vet_verification_status, only: :show
 
       # Vet360 Routes
       resource :addresses, only: %i[create update destroy] do
@@ -333,7 +342,7 @@ Rails.application.routes.draw do
     get 'profile/mailing_address', to: 'addresses#show'
     put 'profile/mailing_address', to: 'addresses#update'
 
-    resources :backend_statuses, param: :service, only: %i[index show]
+    resources :backend_statuses, only: %i[index]
 
     resources :apidocs, only: [:index]
 
@@ -366,6 +375,8 @@ Rails.application.routes.draw do
     resources :form1010_ezrs, only: %i[create]
 
     post 'map_services/:application/token', to: 'map_services#token', as: :map_services_token
+
+    get 'banners', to: 'banners#by_path'
   end
   # end /v0
 
@@ -379,10 +390,6 @@ Rails.application.routes.draw do
     resource :sessions, only: [] do
       post :saml_callback, to: 'sessions#saml_callback'
       post :saml_slo_callback, to: 'sessions#saml_slo_callback'
-    end
-
-    namespace :facilities, module: 'facilities' do
-      resources :va, only: %i[index show]
     end
 
     namespace :gi, module: 'gids' do
@@ -402,6 +409,18 @@ Rails.application.routes.draw do
       resources :yellow_ribbon_programs, only: :index, defaults: { format: :json }
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
+
+      resources :lce, only: :index, defaults: { format: :json }
+
+      namespace :lce do
+        resources :certifications, only: :show, defaults: { format: :json }
+
+        resources :exams, only: :show, defaults: { format: :json }
+
+        resources :licenses, only: :show, defaults: { format: :json }
+
+        resources :preps, only: :show, defaults: { format: :json }
+      end
     end
 
     resource :decision_review_evidence, only: :create
@@ -424,9 +443,12 @@ Rails.application.routes.draw do
     resources :supplemental_claims, only: %i[create show]
 
     scope format: false do
-      resources :nod_callbacks, only: [:create]
-      resources :pension_ipf_callbacks, only: [:create]
+      resources :nod_callbacks, only: [:create], controller: :decision_review_notification_callbacks
     end
+  end
+
+  namespace :v2, defaults: { format: 'json' } do
+    resources :higher_level_reviews, only: %i[create show]
   end
 
   root 'v0/example#index', module: 'v0'
@@ -460,9 +482,11 @@ Rails.application.routes.draw do
   mount Mobile::Engine, at: '/mobile'
   mount MyHealth::Engine, at: '/my_health', as: 'my_health'
   mount TravelPay::Engine, at: '/travel_pay'
+  mount VaNotify::Engine, at: '/va_notify'
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
+  mount DecisionReviews::Engine, at: '/decision_reviews'
   # End Modules
 
   require 'sidekiq/web'
@@ -481,8 +505,9 @@ Rails.application.routes.draw do
     mount MockedAuthentication::Engine, at: '/mocked_authentication'
   end
 
-  get '/flipper/features/logout', to: 'flipper#logout'
-  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::AdminUserConstraint
+  get '/flipper/logout', to: 'flipper#logout'
+  get '/flipper/login', to: 'flipper#login'
+  mount Flipper::UI.app(Flipper.instance) => '/flipper', constraints: Flipper::RouteAuthorizationConstraint
 
   unless Rails.env.test?
     mount Coverband::Reporters::Web.new, at: '/coverband', constraints: GithubAuthentication::CoverbandReportersWeb.new

@@ -140,7 +140,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
     it 'handles the error' do
       worker = described_class.new
       expect(worker).to receive(:log_exception_to_sentry).with(
-        instance_of(Common::Exceptions::BackendServiceException),
+        instance_of(VANotify::Forbidden),
         { phone_number: patient_cell_phone_last_four, template_id: @success_template_id, claim_number: claim_last4 },
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
@@ -152,7 +152,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
 
       VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do
         VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_200', match_requests_on: [:host]) do
-          expect { worker.perform(uuid, appt_date) }.to raise_error(Common::Exceptions::BackendServiceException)
+          expect { worker.perform(uuid, appt_date) }.to raise_error(VANotify::Forbidden)
         end
       end
     end
@@ -224,6 +224,8 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
     allow(Flipper).to receive(:enabled?).with(:check_in_experience_check_claim_status_on_timeout)
                                         .and_return(true)
+    allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
 
     allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
                                             station_number:, facility_type: nil)

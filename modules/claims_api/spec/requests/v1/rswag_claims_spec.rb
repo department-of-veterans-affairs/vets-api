@@ -127,7 +127,7 @@ Rspec.describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/s
           before do |example|
             stub_poa_verification
 
-            allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:all).and_raise(
+            allow_any_instance_of(ClaimsApi::EbenefitsBnftClaimStatusWebService).to receive(:all).and_raise(
               Common::Exceptions::ResourceNotFound.new(detail: 'The Resource was not found.')
             )
             mock_acg(scopes) do
@@ -193,7 +193,7 @@ Rspec.describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/s
 
           let(:scopes) { %w[claim.read] }
           let(:claim) do
-            create(:auto_established_claim_with_supporting_documents, :status_established, source: 'abraham lincoln')
+            create(:auto_established_claim_with_supporting_documents, :established, source: 'abraham lincoln')
           end
           let(:id) { claim.id }
 
@@ -294,13 +294,14 @@ Rspec.describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/s
 
           let(:scopes) { %w[claim.read] }
           let(:claim) do
-            create(:auto_established_claim_with_supporting_documents, :status_errored)
+            create(:auto_established_claim_with_supporting_documents)
           end
           let(:id) { claim.id }
 
           before do |example|
             stub_poa_verification
 
+            claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
             claim.evss_response = [] # induce a 422 response
             allow(ClaimsApi::AutoEstablishedClaim).to receive(:find_by).and_return(claim)
 

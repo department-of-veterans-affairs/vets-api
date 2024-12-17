@@ -26,6 +26,15 @@ FactoryBot.define do
       zip_suffix { '6789' }
       lat { '39' }
       long { '-75' }
+      location { "POINT(#{long} #{lat})" }
+    end
+
+    trait :vso do
+      user_types { ['veteran_service_officer'] }
+    end
+
+    trait :claim_agents do
+      user_types { ['claim_agents'] }
     end
   end
 end

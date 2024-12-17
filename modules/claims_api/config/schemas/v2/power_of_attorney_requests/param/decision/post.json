@@ -10,61 +10,46 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "type",
         "attributes"
       ],
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": [
-            "powerOfAttorneyRequestDecision"
-          ]
-        },
         "attributes": {
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "status",
-            "decliningReason",
-            "createdBy"
+            "procId",
+            "decision"
           ],
           "properties": {
-            "status": {
+            "procId": {
               "type": "string",
-              "description": "TODO",
+              "description": "The unique identifier of a process."
+            },
+            "decision": {
+              "type": "string",
+              "description": "The decision of the request.",
               "enum": [
-                "accepting",
-                "declining"
+                "ACCEPTED",
+                "DECLINED"
               ]
             },
-            "decliningReason": {
+            "declinedReason": {
               "type": [
                 "string",
                 "null"
               ],
-              "description": "TODO",
+              "description": "The reason for declining the request.",
               "nullable": true
             },
-            "createdBy": {
-              "type": "object",
-              "description": "TODO",
-              "additionalProperties": false,
-              "required": [
-                "firstName",
-                "lastName",
-                "email"
-              ],
-              "properties": {
-                "firstName": {
-                  "type": "string"
-                },
-                "lastName": {
-                  "type": "string"
-                },
-                "email": {
-                  "type": "string"
-                }
-              }
+            "participantId": {
+              "type": "string",
+              "description": "The unique identifier of the requestʼs participant. Required if the decision is DECLINED.",
+              "nullable": true
+            },
+            "representativeId": {
+              "type": "string",
+              "description": "The unique identifier of the requestʼs representative. Required if the decision is DECLINED.",
+              "nullable": true
             }
           }
         }

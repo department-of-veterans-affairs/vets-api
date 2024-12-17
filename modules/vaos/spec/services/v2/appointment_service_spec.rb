@@ -19,24 +19,26 @@ describe VAOS::V2::AppointmentsService do
 
   let(:appt_med) do
     { kind: 'clinic', service_category: [{ coding:
-                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
+                                             [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
   end
   let(:appt_non) do
-    { kind: 'clinic', service_category: [{ coding:
-                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'SERVICE CONNECTED' }] }],
+    { kind: 'clinic', service_category: [
+                        { coding:
+                                                               [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'SERVICE CONNECTED' }] }
+                      ],
       service_type: 'SERVICE CONNECTED', service_types: [{ coding: [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'SERVICE CONNECTED' }] }] }
   end
   let(:appt_cnp) do
     { kind: 'clinic', service_category: [{ coding:
-                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'COMPENSATION & PENSION' }] }] }
+                                             [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'COMPENSATION & PENSION' }] }] }
   end
   let(:appt_cc) do
     { kind: 'cc', service_category: [{ coding:
-                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
+                                         [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
   end
   let(:appt_telehealth) do
     { kind: 'telehealth', service_category: [{ coding:
-                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
+                                                 [{ system: 'http://www.va.gov/terminology/vistadefinedterms/409_1', code: 'REGULAR' }] }] }
   end
   let(:appt_no_service_cat) { { kind: 'clinic' } }
 
@@ -59,6 +61,7 @@ describe VAOS::V2::AppointmentsService do
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     Flipper.enable_actor(:appointments_consolidation, user)
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
   describe '#post_appointment' do
@@ -371,6 +374,16 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
+      context 'when an appointment is in the past' do
+        let(:appointment) { { status: 'booked', start: '2022-09-01T10:00:00-07:00' } }
+
+        it 'changes cancellable status to false' do
+          expect(subject.send(:cannot_be_cancelled?, appointment)).to be false
+          appointment[:start] = '2021-09-01T10:00:00-07:00'
+          expect(subject.send(:cannot_be_cancelled?, appointment)).to be true
+        end
+      end
+
       context 'when there are CnP and covid appointments in the list' do
         it 'changes the cancellable status to false for CnP and covid appointments only' do
           VCR.use_cassette('vaos/v2/appointments/get_appointments_cnp_covid',
@@ -675,6 +688,70 @@ describe VAOS::V2::AppointmentsService do
 
       it 'returns the most recent clinic appointment' do
         expect(subject).to eq(mock_appointment_three)
+      end
+    end
+  end
+
+  describe '#get_recent_sorted_clinic_appointments' do
+    subject { instance_of_class.get_recent_sorted_clinic_appointments }
+
+    let(:instance_of_class) { described_class.new(user) }
+    let(:mock_appointment_one) { double('Appointment', kind: 'clinic', start: '2022-12-02') }
+    let(:mock_appointment_two) { double('Appointment', kind: 'telehealth', start: '2022-12-01T21:38:01.476Z') }
+    let(:mock_appointment_three) { double('Appointment', kind: 'clinic', start: '2022-12-09T21:38:01.476Z') }
+
+    context 'when appointments are available' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [mock_appointment_one,
+                                                                                   mock_appointment_two,
+                                                                                   mock_appointment_three] })
+      end
+
+      it 'returns the recent sorted clinic appointments' do
+        expect(subject).to eq([mock_appointment_two, mock_appointment_one, mock_appointment_three])
+      end
+    end
+
+    context 'when no appointments are available' do
+      before do
+        allow(instance_of_class).to receive(:get_appointments).and_return({ data: [] })
+      end
+
+      it 'returns nil' do
+        expect(subject.first).to be_nil
+      end
+    end
+  end
+
+  describe '#sort_recent_appointments' do
+    subject { instance_of_class }
+
+    let(:instance_of_class) { described_class.new(user) }
+    let(:mock_appointment_one) { double('Appointment', id: '123', kind: 'clinic', start: '2022-12-02') }
+    let(:mock_appointment_two) do
+      double('Appointment', id: '124', kind: 'telehealth', start: '2022-12-01T21:38:01.476Z')
+    end
+    let(:mock_appointment_three) { double('Appointment', id: '125', kind: 'clinic', start: '2022-12-09T21:38:01.476Z') }
+    let(:mock_appointment_four_no_start) { double('Appointment', id: '126', kind: 'clinic', start: nil) }
+    let(:appointments_input_no_start) do
+      [mock_appointment_one, mock_appointment_two, mock_appointment_three, mock_appointment_four_no_start]
+    end
+    let(:appointments_input) { [mock_appointment_one, mock_appointment_two, mock_appointment_three] }
+    let(:filtered_sorted_appointments) { [mock_appointment_two, mock_appointment_one, mock_appointment_three] }
+
+    context 'when appointments are available' do
+      it 'sorts based on start time' do
+        expect(subject.send(:sort_recent_appointments, appointments_input)).to eq(filtered_sorted_appointments)
+        expect(Rails.logger).not_to receive(:info)
+      end
+    end
+
+    context 'when appointments are available and at least one is missing a start time' do
+      it 'filters before sorting and logs removed appointments' do
+        allow(Rails.logger).to receive(:info)
+        expect(subject.send(:sort_recent_appointments, appointments_input_no_start)).to eq(filtered_sorted_appointments)
+        expect(Rails.logger).to have_received(:info)
+          .with('VAOS appointment sorting filtered out id 126 due to missing start time.')
       end
     end
   end
@@ -1183,7 +1260,8 @@ describe VAOS::V2::AppointmentsService do
 
     it 'Modifies the appointment with service type(s) removed from appointment' do
       expect { subject.send(:remove_service_type, appt_non) }.to change(appt_non, :keys)
-        .from(%i[kind service_category service_type service_types])
+        .from(%i[kind service_category service_type
+                 service_types])
         .to(%i[kind service_category])
     end
   end

@@ -1,192 +1,236 @@
 type: object
+additionalProperties: false
 required:
-  - insuranceVerificationNeeded
-  - needsConfirmation
-  - mailingAddress
-  - residentialAddress
-  - homePhone
-  - officePhone
-  - cellPhone
-  - email
-  - emergencyContact
-  - nextOfKin
+  - data
 properties:
-  insuranceVerificationNeeded:
-    type: boolean
-    example: true
-  needsConfirmation:
-    type: boolean
-    example: true
-  mailingAddress:
+  data:
     type: object
+    additionalProperties: false
     required:
-      - street1
-      - street2
-      - street3
-      - city
-      - county
-      - state
-      - zip
-      - zip4
-      - country
+      - type
+      - id
+      - attributes
     properties:
-      street1:
+      type:
         type: string
-      street2:
+        example: "checkInDemographics"
+      id:
         type: string
-      street3:
-        type: string
-      city:
-        type: string
-      county:
-        type: string
-      state:
-        type: string
-      zip:
-        type: string
-      zip4:
-        type: string
-      country:
-        type: string
-  residentialAddress:
-    type: object
-    required:
-      - street1
-      - street2
-      - street3
-      - city
-      - county
-      - state
-      - zip
-      - zip4
-      - country
-    properties:
-      street1:
-        type: string
-      street2:
-        type: string
-      street3:
-        type: string
-      city:
-        type: string
-      county:
-        type: string
-      state:
-        type: string
-      zip:
-        type: string
-      zip4:
-        type: string
-      country:
-        type: string
-  homePhone:
-    type: string
-  officePhone:
-    type: string
-  cellPhone:
-    type: string
-  email:
-    type: string
-  emergencyContact:
-    type: object
-    required:
-      - needsConfirmation
-      - name
-      - relationship
-      - phone
-      - workPhone
-      - address
-    properties:
-      needsConfirmation:
-        type: boolean
-      name:
-        type: string
-      relationship:
-        type: string
-      phone:
-        type: string
-      workPhone:
-        type: string
-      address:
+        example: "75db6a5c-84ae-4ca4-bba2-ef4c41d563ab"
+        description: user uuid
+      attributes:
         type: object
+        additionalProperties: false
         required:
-          - street1
-          - street2
-          - street3
-          - city
-          - county
-          - state
-          - zip
-          - zip4
-          - country
+          - insuranceVerificationNeeded
+          - needsConfirmation
+          - mailingAddress
+          - residentialAddress
+          - homePhone
+          - officePhone
+          - cellPhone
+          - email
+          - emergencyContact
+          - nextOfKin
         properties:
-          street1:
+          insuranceVerificationNeeded:
+            type: boolean
+            example: true
+          needsConfirmation:
+            type: boolean
+            example: true
+          mailingAddress:
+            type: object
+            additionalProperties: false
+            required:
+              - street1
+              - street2
+              - street3
+              - city
+              - county
+              - state
+              - zip
+              - zip4
+              - country
+            properties:
+              street1:
+                type: string
+              street2:
+                type: string
+              street3:
+                type: string
+              city:
+                type: string
+              county:
+                type: string
+              state:
+                type: string
+              zip:
+                type: string
+              zip4:
+                type: string
+                nullable: true
+              country:
+                type: string
+          residentialAddress:
+            type: object
+            additionalProperties: false
+            required:
+              - street1
+              - street2
+              - street3
+              - city
+              - county
+              - state
+              - zip
+              - zip4
+              - country
+            properties:
+              street1:
+                type: string
+              street2:
+                type: string
+              street3:
+                type: string
+              city:
+                type: string
+              county:
+                type: string
+              state:
+                type: string
+              zip:
+                type: string
+              zip4:
+                type: string
+                nullable: true
+              country:
+                type: string
+          homePhone:
             type: string
-          street2:
+          officePhone:
             type: string
-          street3:
+          cellPhone:
             type: string
-          city:
+          email:
             type: string
-          county:
-            type: string
-          state:
-            type: string
-          zip:
-            type: string
-          zip4:
-            type: string
-          country:
-            type: string
-  nextOfKin:
-    type: object
-    required:
-      - needsConfirmation
-      - name
-      - relationship
-      - phone
-      - workPhone
-      - address
-    properties:
-      needsConfirmation:
-        type: boolean
-      name:
-        type: string
-      relationship:
-        type: string
-      phone:
-        type: string
-      workPhone:
-        type: string
-      address:
-        type: object
-        required:
-          - street1
-          - street2
-          - street3
-          - city
-          - county
-          - state
-          - zip
-          - zip4
-          - country
-        properties:
-          street1:
-            type: string
-          street2:
-            type: string
-          street3:
-            type: string
-          city:
-            type: string
-          county:
-            type: string
-          state:
-            type: string
-          zip:
-            type: string
-          zip4:
-            type: string
-          country:
-            type: string
+          emergencyContact:
+            type: object
+            additionalProperties: false
+            required:
+              - needsConfirmation
+              - name
+              - relationship
+              - phone
+              - workPhone
+              - address
+            properties:
+              needsConfirmation:
+                type: boolean
+              name:
+                type: string
+              relationship:
+                type: string
+              phone:
+                type: string
+              workPhone:
+                type: string
+              address:
+                type: object
+                additionalProperties: false
+                required:
+                  - street1
+                  - street2
+                  - street3
+                  - city
+                  - county
+                  - state
+                  - zip
+                  - zip4
+                  - country
+                properties:
+                  street1:
+                    type: string
+                  street2:
+                    type: string
+                  street3:
+                    type: string
+                  city:
+                    type: string
+                  county:
+                    type: string
+                  state:
+                    type: string
+                  zip:
+                    type: string
+                  zip4:
+                    type: string
+                    nullable: true
+                  country:
+                    type: string
+          nextOfKin:
+            type: object
+            additionalProperties: false
+            required:
+              - needsConfirmation
+              - name
+              - relationship
+              - phone
+              - workPhone
+              - address
+            properties:
+              needsConfirmation:
+                type: boolean
+              name:
+                type: string
+                nullable: true
+              relationship:
+                type: string
+                nullable: true
+              phone:
+                type: string
+                nullable: true
+              workPhone:
+                type: string
+                nullable: true
+              address:
+                type: object
+                additionalProperties: false
+                required:
+                  - street1
+                  - street2
+                  - street3
+                  - city
+                  - county
+                  - state
+                  - zip
+                  - zip4
+                  - country
+                properties:
+                  street1:
+                    type: string
+                    nullable: true
+                  street2:
+                    type: string
+                    nullable: true
+                  street3:
+                    type: string
+                    nullable: true
+                  city:
+                    type: string
+                    nullable: true
+                  county:
+                    type: string
+                    nullable: true
+                  state:
+                    type: string
+                    nullable: true
+                  zip:
+                    type: string
+                    nullable: true
+                  zip4:
+                    type: string
+                    nullable: true
+                  country:
+                    type: string
+                    nullable: true
 

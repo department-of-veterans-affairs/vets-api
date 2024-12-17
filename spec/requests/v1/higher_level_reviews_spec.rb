@@ -18,7 +18,8 @@ RSpec.describe 'V1::HigherLevelReviews', type: :request do
       http: {
         status_code: 200,
         body: '[Redacted]'
-      }
+      },
+      version: 'V1'
     }
   end
   let(:error_log_args) do
@@ -32,8 +33,20 @@ RSpec.describe 'V1::HigherLevelReviews', type: :request do
       is_success: false,
       http: {
         status_code: 422,
-        body: anything
-      }
+        body: response_error_body
+      },
+      version: 'V1'
+    }
+  end
+
+  let(:response_error_body) do
+    {
+      'errors' => [{ 'title' => 'Missing required fields',
+                     'detail' => 'One or more expected fields were not found',
+                     'code' => '145',
+                     'source' => { 'pointer' => '/' },
+                     'status' => '422',
+                     'meta' => { 'missing_fields' => %w[data included] } }]
     }
   end
 

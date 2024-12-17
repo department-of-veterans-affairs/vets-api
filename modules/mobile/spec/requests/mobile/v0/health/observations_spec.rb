@@ -61,7 +61,7 @@ RSpec.describe 'Mobile::V0::Health::Observations', type: :request do
         get '/mobile/v0/health/observations/I2-ILWORI4YUOUAR5H2GCH6ATEFRM000000', headers: sis_headers
       end
     end
-
+    expect(PersonalInformationLog.count).to eq(0)
     expect(response).to be_successful
     expect(response.parsed_body['data']).to eq(observation_response)
   end

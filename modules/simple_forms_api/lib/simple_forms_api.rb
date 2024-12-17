@@ -39,6 +39,8 @@ module SimpleFormsApi
           words_to_remove += SimpleFormsApi::VBA210966.new(params).words_to_remove
         when '20-10207'
           words_to_remove += SimpleFormsApi::VBA2010207.new(params).words_to_remove
+        when '20-10206'
+          words_to_remove += SimpleFormsApi::VBA2010206.new(params).words_to_remove
         when '40-10007'
           words_to_remove += SimpleFormsApi::VBA4010007.new(params).words_to_remove
         else
@@ -73,5 +75,7 @@ module SimpleFormsApi
         words.uniq.sort_by(&:length).reverse
       end
     end
+
+    class BenefitsClaimsApiDownError < RuntimeError; end
   end
 end

@@ -33,10 +33,10 @@ module Pensions
         claim = claim_class.find_by!(guid: params[:id]) # raises ActiveRecord::RecordNotFound
         render json: SavedClaimSerializer.new(claim)
       rescue ActiveRecord::RecordNotFound => e
-        pension_monitor.track_show404(params[:id], current_user, e)
+        monitor.track_show404(params[:id], current_user, e)
         render(json: { error: e.to_s }, status: :not_found)
       rescue => e
-        pension_monitor.track_show_error(params[:id], current_user, e)
+        monitor.track_show_error(params[:id], current_user, e)
         raise e
       end
 
@@ -45,28 +45,38 @@ module Pensions
         Pensions::TagSentry.tag_sentry
 
         claim = claim_class.new(form: filtered_params[:form])
-        pension_monitor.track_create_attempt(claim, current_user)
+        monitor.track_create_attempt(claim, current_user)
 
         in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
         claim.form_start_date = in_progress_form.created_at if in_progress_form
 
         unless claim.save
+          monitor.track_create_validation_error(in_progress_form, claim, current_user)
           log_validation_error_to_metadata(in_progress_form, claim)
           raise Common::Exceptions::ValidationErrors, claim.errors
         end
 
-        claim.upload_to_lighthouse(current_user)
+        process_and_upload_to_lighthouse(in_progress_form, claim)
 
-        pension_monitor.track_create_success(in_progress_form, claim, current_user)
+        monitor.track_create_success(in_progress_form, claim, current_user)
 
         clear_saved_form(claim.form_id)
         render json: SavedClaimSerializer.new(claim)
       rescue => e
-        pension_monitor.track_create_error(in_progress_form, claim, current_user, e)
+        monitor.track_create_error(in_progress_form, claim, current_user, e)
         raise e
       end
 
       private
+
+      def process_and_upload_to_lighthouse(in_progress_form, claim)
+        claim.process_attachments!
+
+        Pensions::PensionBenefitIntakeJob.perform_async(claim.id, current_user&.user_account_uuid)
+      rescue => e
+        monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+        raise e
+      end
 
       # Filters out the parameters to form access.
       def filtered_params
@@ -93,7 +103,7 @@ module Pensions
       #
       # @return [Pensions::Monitor]
       #
-      def pension_monitor
+      def monitor
         @monitor ||= Pensions::Monitor.new
       end
     end

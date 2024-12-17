@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - type
       - id
@@ -16,6 +18,7 @@ properties:
         description: Upstream identifier. Same as provided id.
       attributes:
         type: object
+        additionalProperties: false
         required:
           - appealIds
           - active
@@ -34,7 +37,7 @@ properties:
           - type
           - updated
         properties:
-          appealsIds:
+          appealIds:
             type: array
             items:
               type: string
@@ -56,7 +59,8 @@ properties:
           description:
             type: string
           docket:
-            type: object, null
+            type: object
+            nullable: true
           events:
             type: array
             items:
@@ -91,11 +95,16 @@ properties:
               - fiduciary
               - other
               - multiple
+              - vha
+              - voc_rehub
+              - voc_rehab
           status:
             type: object
+            additionalProperties: false
             properties:
               details:
                 type: object
+                additionalProperties: false
                 properties:
                   lastSocDate:
                     type: string
@@ -157,6 +166,8 @@ properties:
                   - hlr_decision
                   - hlr_closed
                   - statutory_opt_in
+                  - motion
+                  - pre_docketed
           type:
             type: string
             enum:

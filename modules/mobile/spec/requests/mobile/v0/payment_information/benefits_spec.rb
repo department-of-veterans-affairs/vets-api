@@ -204,7 +204,6 @@ Payment account info missing for user #{user.uuid}",
 
     context 'with a valid response' do
       it 'matches the ppiu schema' do
-        allow(DirectDepositEmailJob).to receive(:send_to_emails)
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
                                                          headers: sis_headers(json: true)

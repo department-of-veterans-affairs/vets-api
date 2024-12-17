@@ -6,7 +6,9 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
   include SchemaMatchers
 
   before do
+    allow(Settings.mhv).to receive(:facility_range).and_return([[1, 999]])
     Flipper.enable('va_online_scheduling')
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
     Flipper.enable_actor('appointments_consolidation', current_user)
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
@@ -329,7 +331,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
         context 'using VAOS' do
           before do
             Flipper.disable(:va_online_scheduling_use_vpg)
-            Flipper.enable(:va_online_scheduling_after_visit_summary)
           end
 
           it 'fetches appointment list and includes avs on past booked appointments' do
@@ -656,7 +657,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       context 'when the VAOS service returns a single appointment' do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
-          Flipper.enable(:va_online_scheduling_after_visit_summary)
         end
 
         let(:avs_path) do
@@ -798,6 +798,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
       context 'when the VAOS service errors on retrieving an appointment' do
         before do
           Flipper.disable(:va_online_scheduling_use_vpg)
+          Flipper.disable(:va_online_scheduling_vaos_alternate_route)
         end
 
         it 'returns a 502 status code' do

@@ -6,10 +6,11 @@ module Login
   class AfterLoginActions
     include Accountable
 
-    attr_reader :current_user
+    attr_reader :current_user, :skip_mhv_account_creation
 
-    def initialize(user)
+    def initialize(user, skip_mhv_account_creation)
       @current_user = user
+      @skip_mhv_account_creation = skip_mhv_account_creation
     end
 
     def perform
@@ -20,6 +21,7 @@ module Login
       Login::UserAcceptableVerifiedCredentialUpdater.new(user_account: @current_user.user_account).perform
       update_account_login_stats(login_type)
       id_mismatch_validations
+      create_mhv_account
 
       if Settings.test_user_dashboard.env == 'staging'
         TestUserDashboard::UpdateUser.new(current_user).call(Time.current)
@@ -28,6 +30,12 @@ module Login
     end
 
     private
+
+    def create_mhv_account
+      return if skip_mhv_account_creation
+
+      current_user.create_mhv_account_async
+    end
 
     def login_type
       @login_type ||= current_user.identity.sign_in[:service_name]

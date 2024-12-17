@@ -2,44 +2,44 @@
 
 require 'pension_burial/tag_sentry'
 require 'burials/monitor'
+require 'common/exceptions/validation_errors'
 
 module V0
-  class BurialClaimsController < ClaimsBaseController
+  class BurialClaimsController < ApplicationController
+    skip_before_action(:authenticate)
+    before_action :load_user, only: :create
+
     service_tag 'burial-application'
 
     def show
       claim = claim_class.find_by!(guid: params[:id])
-      form_submission = claim&.form_submissions&.last
-      submission_attempt = form_submission&.form_submission_attempts&.last
-      if submission_attempt
-        state = submission_attempt.aasm_state == 'failure' ? 'failure' : 'success'
-        render(json: { data: { attributes: { state: } } })
-      elsif central_mail_submission
-        render json: CentralMailSubmissionSerializer.new(central_mail_submission)
-      end
+      render json: SavedClaimSerializer.new(claim)
     rescue ActiveRecord::RecordNotFound => e
       monitor.track_show404(params[:id], current_user, e)
-      render(json: { data: { attributes: { state: 'not found' } } }, status: :not_found)
+      render(json: { error: e.to_s }, status: :not_found)
     rescue => e
       monitor.track_show_error(params[:id], current_user, e)
-      render(json: { data: { attributes: { state: 'error processing request' } } }, status: :unprocessable_entity)
+      raise e
     end
 
     def create
       PensionBurial::TagSentry.tag_sentry
 
-      claim = create_claim
+      claim = claim_class.new(form: filtered_params[:form])
       monitor.track_create_attempt(claim, current_user)
-
-      track_claim_save_failure(claim) unless claim.save
-
-      # this method also calls claim.process_attachments!
-      claim.submit_to_structured_data_services!
-
-      Rails.logger.info "ClaimID=#{claim.confirmation_number} Form=#{claim.form_id}"
 
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
       claim.form_start_date = in_progress_form.created_at if in_progress_form
+
+      unless claim.save
+        Sentry.set_tags(team: 'benefits-memorial-1') # tag sentry logs with team name
+        monitor.track_create_validation_error(in_progress_form, claim, current_user)
+        log_validation_error_to_metadata(in_progress_form, claim)
+        raise Common::Exceptions::ValidationErrors, claim.errors
+      end
+
+      process_and_upload_to_lighthouse(in_progress_form, claim)
+
       monitor.track_create_success(in_progress_form, claim, current_user)
 
       clear_saved_form(claim.form_id)
@@ -49,41 +49,30 @@ module V0
       raise e
     end
 
-    def create_claim
-      if Flipper.enabled?(:va_burial_v2)
-        form = filtered_params[:form]
-        claim_class.new(form:, formV2: form.present? ? JSON.parse(form)['formV2'] : nil)
-      else
-        claim_class.new(form: filtered_params[:form])
-      end
-    end
+    private
 
+    # an identifier that matches the parameter that the form will be set as in the JSON submission.
     def short_name
       'burial_claim'
     end
 
+    # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
     def claim_class
       SavedClaim::Burial
     end
 
-    private
+    def process_and_upload_to_lighthouse(in_progress_form, claim)
+      claim.process_attachments!
 
-    def central_mail_submission
-      CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
+      Lighthouse::SubmitBenefitsIntakeClaim.perform_async(claim.id)
+    rescue => e
+      monitor.track_process_attachment_error(in_progress_form, claim, current_user)
+      raise e
     end
 
-    def in_progress_form
-      current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
-    end
-
-    def track_claim_save_failure(claim)
-      StatsD.increment("#{stats_key}.failure")
-      Sentry.set_tags(team: 'benefits-memorial-1') # tag sentry logs with team name
-      Rails.logger.error('Burial claim was not saved', {  error_messages: claim.errors,
-                                                          user_uuid: current_user&.uuid,
-                                                          in_progress_form_id: in_progress_form&.id })
-      log_validation_error_to_metadata(in_progress_form, claim)
-      raise Common::Exceptions::ValidationErrors, claim
+    # Filters out the parameters to form access.
+    def filtered_params
+      params.require(short_name.to_sym).permit(:form)
     end
 
     ##

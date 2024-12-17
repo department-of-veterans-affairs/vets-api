@@ -59,6 +59,7 @@ FactoryBot/ConsistentParenthesesStyle:
     - 'spec/models/user_spec.rb'
     - 'spec/models/va_profile_redis/cache_spec.rb'
     - 'spec/models/va_profile_redis/contact_information_spec.rb'
+    - 'spec/models/va_profile_redis/v2/contact_information_spec.rb'
     - 'spec/rakelib/form526_spec.rb'
     - 'spec/serializers/category_serializer_spec.rb'
     - 'spec/serializers/cemetery_serializer_spec.rb'
@@ -294,9 +295,11 @@ Lint/MissingSuper:
     - 'lib/saml/post_url_service.rb'
     - 'lib/search/service.rb'
     - 'lib/search_click_tracking/service.rb'
+    - 'lib/search_gsa/service.rb'
     - 'lib/search_typeahead/service.rb'
     - 'lib/token_validation/v2/client.rb'
     - 'lib/va_profile/address_validation/service.rb'
+    - 'lib/va_profile/v3/address_validation/service.rb'
     - 'lib/va_profile/service.rb'
     - 'lib/vbs/requests/list_statements.rb'
     - 'lib/vic/id_card_attribute_error.rb'
@@ -1213,7 +1216,7 @@ Style/StringChars:
     - 'modules/claims_api/app/controllers/claims_api/v2/veterans/claims_controller.rb'
 
 # Offense count: 60
-ThreadSafety/InstanceVariableInClassMethod:
+ThreadSafety/ClassInstanceVariable:
   Exclude:
     - 'app/models/base_facility.rb'
     - 'app/models/concerns/redis_caching.rb'

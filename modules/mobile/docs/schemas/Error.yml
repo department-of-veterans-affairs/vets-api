@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - title
   - detail
@@ -14,9 +15,13 @@ properties:
   status:
     type: string
   source:
-    type: string
+    type:
+      anyOf:
+        - string
+        - object
   meta:
     type: object
+    additionalProperties: false
     required:
       - messages
     properties:
@@ -24,6 +29,7 @@ properties:
         type: array
         items:
           type: object
+          additionalProperties: false
           required:
             - key
             - severity

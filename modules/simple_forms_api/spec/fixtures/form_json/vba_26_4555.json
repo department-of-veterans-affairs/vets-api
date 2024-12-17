@@ -59,5 +59,6 @@
       "postal_code": "54890"
     }
   },
-  "remarks": "Lengthy remarks here \nabout what is needed\tand such"
+  "remarks": "Lengthy remarks here about what is needed and such",
+  "statement_of_truth_signature": "Veteran Surname"
 }

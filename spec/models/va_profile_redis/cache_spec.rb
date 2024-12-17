@@ -35,39 +35,4 @@ describe VAProfileRedis::Cache, :skip_vet360 do
       end
     end
   end
-
-  describe 'ContactInformationServiceV2' do
-    before do
-      Flipper.enable(:va_v3_contact_information_service)
-      allow(user).to receive(:vet360_id).and_return('1781151')
-      allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-    end
-
-    after do
-      Flipper.disable(:va_v3_contact_information_service)
-    end
-
-    describe '.invalidate v2' do
-      context 'when user.vet360_contact_info is present' do
-        it 'invalidates the va-profile-contact-info-response cache' do
-          VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
-            VAProfileRedis::ContactInformation.for_user(user)
-          end
-          expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(true)
-
-          VAProfileRedis::Cache.invalidate(user)
-
-          expect(VAProfileRedis::ContactInformation.exists?(user.uuid)).to eq(false)
-        end
-      end
-
-      context 'when user.vet360_contact_info is nil' do
-        it 'does not call #destroy' do
-          expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
-
-          VAProfileRedis::Cache.invalidate(user)
-        end
-      end
-    end
-  end
 end

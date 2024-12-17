@@ -6,12 +6,14 @@ describe Mobile::V0::Profile::SyncUpdateService do
   let(:user) { create(:user, :api_auth) }
   let(:service) { Mobile::V0::Profile::SyncUpdateService.new(user) }
 
-  # DO THIS
-  describe '#save_and_await_response' do
-    before do
-      Flipper.disable(:va_v3_contact_information_service)
-    end
+  before do
+    allow(Flipper).to receive(:enabled?).with(:mobile_v2_contact_info, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+  end
 
+  # DO THIS
+  describe '#save_and_await_response', :skip_va_profile_user do
     let(:params) { build(:va_profile_address, vet360_id: user.vet360_id, validation_key: nil) }
 
     context 'when it succeeds after one incomplete status check' do
@@ -99,7 +101,7 @@ describe Mobile::V0::Profile::SyncUpdateService do
 
   #   let(:user) { create(:user, :api_auth_v2) }
 
-  #   let(:params) { build(:va_profile_address_v2, :override, validation_key: nil) }
+  #   let(:params) { build(:va_profile_v3_address, :override, validation_key: nil) }
 
   #   context 'when it succeeds' do
   #     let(:transaction) do
