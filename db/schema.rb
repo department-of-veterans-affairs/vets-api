@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_12_101623) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -310,7 +310,9 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_12_101623) do
     t.boolean "limit_subpage_inheritance"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "path"
     t.index ["entity_id"], name: "index_banners_on_entity_id"
+    t.index ["path"], name: "index_banners_on_path"
   end
 
   create_table "base_facilities", id: false, force: :cascade do |t|
