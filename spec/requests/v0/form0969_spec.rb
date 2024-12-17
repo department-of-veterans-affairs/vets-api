@@ -43,11 +43,20 @@ RSpec.describe 'V0::Form0969', type: %i[request serializer] do
           it 'shows the validation errors' do
             subject
             expect(response).to have_http_status(:unprocessable_entity)
-            expect(
-              JSON.parse(response.body)['errors'][0]['detail'].include?(
-                "The property '#/veteranSocialSecurityNumber' value \"just a string\" did not match the regex"
-              )
-            ).to eq(true)
+
+            if flipper_value
+              expect(
+                JSON.parse(response.body)['errors'][0]['detail'].include?(
+                  "/veteran-social-security-number - string at `/veteranSocialSecurityNumber` does not match pattern: ^[0-9]{9}$"
+                )
+              ).to eq(true)
+            else
+              expect(
+                  JSON.parse(response.body)['errors'][0]['detail'].include?(
+                    "The property '#/veteranSocialSecurityNumber' value \"just a string\" did not match the regex"
+                  )
+                ).to eq(true)
+            end
           end
         end
 
