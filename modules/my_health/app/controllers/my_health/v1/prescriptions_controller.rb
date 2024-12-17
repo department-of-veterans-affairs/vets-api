@@ -39,10 +39,10 @@ module MyHealth
       def show
         id = params[:id].try(:to_i)
         resource = if Flipper.enabled?(:mhv_medications_display_grouping)
-                      get_single_rx_from_grouped_list(collection_resource.data, id)
-                    else
-                      client.get_rx_details(id)
-                    end
+                     get_single_rx_from_grouped_list(collection_resource.data, id)
+                   else
+                     client.get_rx_details(id)
+                   end
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
         options = if Flipper.enabled?(:mhv_medications_display_grouping)
