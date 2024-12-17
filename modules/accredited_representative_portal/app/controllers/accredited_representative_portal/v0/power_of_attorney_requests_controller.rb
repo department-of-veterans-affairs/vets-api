@@ -4,11 +4,13 @@ module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
       def index
-        render json: policy_scope(PowerOfAttorneyRequestsPolicy)
+        data = policy_scope(PowerOfAttorneyRequest)
+        render json: { data: data, meta: { totalRecords: data.size } }
       end
 
       def show
-        render json: POA_REQUEST_ITEM_MOCK_DATA
+        authorize
+        render json: ::AccreditedRepresentativePortal::PENDING_POA_REQUEST_MOCK_DATA
       end
     end
   end
