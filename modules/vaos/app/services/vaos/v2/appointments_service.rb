@@ -115,6 +115,7 @@ module VAOS
           extract_appointment_fields(new_appointment)
           merge_clinic(new_appointment)
           merge_facility(new_appointment)
+          set_modality(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -336,6 +337,8 @@ module VAOS
         merge_facility(appointment) if include[:facilities]
 
         set_type(appointment)
+
+        set_modality(appointment)
       end
 
       def find_and_merge_provider_name(appointment)
@@ -751,6 +754,39 @@ module VAOS
       # @param appointment [Hash] the appointment to modify
       def set_cancellable_false(appointment)
         appointment[:cancellable] = false
+      end
+
+      def set_modality(appointment)
+        raise ArgumentError, 'Appointment cannot be nil' if appointment.nil?
+
+        modality = nil
+        if appointment[:service_type] == 'covid'
+          modality = 'vaInPersonVaccine'
+        elsif appointment.dig(:service_category, 0, :text) == 'COMPENSATION & PENSION'
+          modality = 'claimExamAppointment'
+        elsif appointment[:kind] == 'clinic'
+          modality = 'vaInPerson'
+        elsif appointment[:kind] == 'telehealth'
+          modality = telehealth_modality(appointment)
+        elsif appointment[:kind] == 'phone'
+          modality = 'vaPhone'
+        elsif appointment[:kind] == 'cc'
+          modality = 'communityCare'
+        end
+
+        Rails.logger.error("VAOS appointment id #{appointment[:id]} modality cannot be determined.") if modality.nil?
+
+        appointment[:modality] = modality
+      end
+
+      def telehealth_modality(appointment)
+        if !appointment.dig(:telehealth, :atlas).nil?
+          'vaVideoCareAtAnAtlasLocation'
+        elsif %w[CLINIC_BASED STORE_FORWARD].include?(appointment.dig(:telehealth, :vvs_kind))
+          'vaVideoCareAtAVaLocation'
+        elsif appointment.dig(:telehealth, :vvs_kind) == 'MOBILE_ANY/ADHOC'
+          appointment.dig(:extension, :patient_has_mobile_gfe) ? 'vaVideoCareOnGfe' : 'vaVideoCareAtHome'
+        end
       end
 
       def ds_error_details(e)

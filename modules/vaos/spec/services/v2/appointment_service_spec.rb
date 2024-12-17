@@ -1658,6 +1658,93 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#set_modality' do
+    it 'is vaInPersonVaccine for covid service_type' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:service_type] = 'covid'
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaInPersonVaccine')
+    end
+
+    it 'is vaInPerson for clinic kind' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaInPerson')
+    end
+
+    it 'is vaVideoCareAtAVaLocation for CLINIC_BASED vvsKind' do
+      appt = FactoryBot.build(:appointment_form_v2, :telehealth).attributes
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
+    end
+
+    it 'is vaVideoCareAtAVaLocation for STORE_FORWARD vvsKind' do
+      appt = FactoryBot.build(:appointment_form_v2, :telehealth).attributes
+      appt[:telehealth][:vvs_kind] = 'STORE_FORWARD'
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
+    end
+
+    it 'is vaVideoCareOnGfe for MOBILE_ANY/ADHOC vvsKind and patient has GFE' do
+      appt = FactoryBot.build(:appointment_form_v2, :telehealth).attributes
+      appt[:telehealth][:vvs_kind] = 'MOBILE_ANY/ADHOC'
+      appt[:extension][:patient_has_mobile_gfe] = true
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaVideoCareOnGfe')
+    end
+
+    it 'is vaVideoCareAtHome for MOBILE_ANY/ADHOC vvsKind and patient does not have GFE' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
+      appt[:telehealth][:vvs_kind] = 'MOBILE_ANY/ADHOC'
+      appt[:extension][:patient_has_mobile_gfe] = false
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaVideoCareAtHome')
+    end
+
+    it 'is vaVideoCareAtAnAtlasLocation for telehealth appointment with atlas' do
+      appt = FactoryBot.build(:appointment_form_v2, :telehealth).attributes
+      appt[:telehealth][:atlas] = {}
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaVideoCareAtAnAtlasLocation')
+    end
+
+    it 'is vaPhone for phone kind' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'phone'
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('vaPhone')
+    end
+
+    it 'is claimExamAppointment for comp & pen service_category' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:service_category] = [{ text: 'COMPENSATION & PENSION' }]
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('claimExamAppointment')
+    end
+
+    it 'is communityCare for cc kind' do
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'cc'
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to eq('communityCare')
+    end
+
+    it 'logs failure to determine modality' do
+      allow(Rails.logger).to receive(:error).at_least(:once)
+      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt[:kind] = 'none'
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to be_nil
+      expect(Rails.logger).to have_received(:error).at_least(:once)
+    end
+
+    it 'requires appointment' do
+      expect do
+        subject.send(:set_modality)
+      end.to raise_error(ArgumentError)
+    end
+  end
+
   describe '#set_type' do
     it 'has a type of request for Cerner appointments without end dates' do
       appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
