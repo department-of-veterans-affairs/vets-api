@@ -2,20 +2,14 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequest < ApplicationRecord
-    belongs_to :claimant,
-               class_name: 'UserAccount'
+    belongs_to :claimant, class_name: 'UserAccount'
 
-    has_one :form,
+    has_one :power_of_attorney_form,
             class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyForm',
-            inverse_of: :power_of_attorney_request,
-            dependent: :destroy
+            inverse_of: :power_of_attorney_request
 
     has_one :resolution,
             class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution',
-            inverse_of: :power_of_attorney_request,
-            dependent: :destroy
-
-    # Validations
-    validates :created_at, presence: true
+            inverse_of: :power_of_attorney_request
   end
 end
