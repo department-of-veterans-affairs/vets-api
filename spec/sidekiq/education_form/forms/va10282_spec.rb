@@ -24,9 +24,9 @@ RSpec.describe EducationForm::Forms::VA10282 do
 
     describe '#name fields' do
       it 'correctly formats full name' do
-        expect(subject.name).to eq('a c')
-        expect(subject.first_name).to eq('a')
-        expect(subject.last_name).to eq('c')
+        expect(subject.name).to eq('Mark Olson')
+        expect(subject.first_name).to eq('Mark')
+        expect(subject.last_name).to eq('Olson')
       end
     end
 
@@ -38,7 +38,7 @@ RSpec.describe EducationForm::Forms::VA10282 do
 
     describe '#email_address' do
       it 'returns the email address' do
-        expect(subject.email_address).to eq('a@c.com')
+        expect(subject.email_address).to eq('test@sample.com')
       end
     end
 

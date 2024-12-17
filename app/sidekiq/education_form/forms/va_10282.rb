@@ -60,6 +60,7 @@ module EducationForm::Forms
       @education_benefits_claim = education_benefits_claim
       @applicant = education_benefits_claim.parsed_form
     end
+    # rubocop:enable Lint/MissingSuper
 
     def name
       "#{first_name} #{last_name}"

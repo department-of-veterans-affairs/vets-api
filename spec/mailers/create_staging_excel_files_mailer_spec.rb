@@ -17,7 +17,7 @@ RSpec.describe CreateStagingExcelFilesMailer, type: %i[mailer aws_helpers] do
                 'Gender of Applicant', 'What is your highest level of education?',
                 'Are you currently employed?', 'What is your current salary?',
                 'Are you currently working in the technology industry? (If so, please select one)']
-        csv << ['a c', 'a', 'c', 'veteran', '1234567890', 'a@c.com', 'United States', 'FL',
+        csv << ['Mark Olson', 'Mark', 'Olson', 'veteran', '1234567890', 'test@sample.com', 'United States', 'FL',
                 '{"isBlackOrAfricanAmerican"=>true}', 'M', 'MD', 'true', 'moreThanSeventyFive', 'CP']
       end
     end
