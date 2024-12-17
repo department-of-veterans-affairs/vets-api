@@ -213,7 +213,7 @@ class SavedClaim < ApplicationRecord
   # to be formatted like json_schema errors, which keeps
   # the error logging smooth and identical for both options.
   def reformatted_schemer_errors(errors)
-    errors.map! { |h| h.symbolize_keys }
+    errors.map!(&:symbolize_keys)
     errors.each do |error|
       error[:fragment] = error[:data_pointer]
       error[:message] = error[:error]
