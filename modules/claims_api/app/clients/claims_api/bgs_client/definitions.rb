@@ -200,8 +200,7 @@ module ClaimsApi
       ##
       # TrackedItemService
       #
-      # Adding 'Bean' to the end to differentiate from the service
-      module TrackedItemService
+      module TrackedItemServiceBean
         DEFINITION =
           Bean.new(
             path: 'TrackedItemService',
@@ -209,6 +208,14 @@ module ClaimsApi
               target: 'http://services.mapd.benefits.vba.va.gov/',
               data: nil
             )
+          )
+      end
+
+      module TrackedItemService
+        DEFINITION =
+          Service.new(
+            bean: TrackedItemServiceBean::DEFINITION,
+            path: 'TrackedItemService'
           )
       end
 
