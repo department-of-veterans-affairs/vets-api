@@ -27,7 +27,7 @@ module AccreditedRepresentativePortal
       private
 
       def in_progress_forms
-        InProgressForm.for_user(@current_user).map do |form|
+        policy_scope(InProgressForm).map do |form|
           {
             form: form.form_id,
             metadata: form.metadata,

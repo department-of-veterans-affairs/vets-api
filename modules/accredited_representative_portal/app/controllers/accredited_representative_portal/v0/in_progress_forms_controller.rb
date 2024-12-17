@@ -4,8 +4,10 @@ module AccreditedRepresentativePortal
   module V0
     class InProgressFormsController < ApplicationController
       def update
-        form = find_form || build_form
-        form.update!(
+        @form = find_form || build_form
+        authorize @form
+
+        @form.update!(
           form_data: params[:form_data],
           metadata: params[:metadata]
         )
@@ -14,14 +16,15 @@ module AccreditedRepresentativePortal
       end
 
       def show
-        form = find_form
-        render json: form&.data_and_metadata || {}
+        @form = find_form
+        authorize @form
+        render json: @form&.data_and_metadata || {}
       end
 
       def destroy
-        form = find_form or
+        @form = find_form or
           raise Common::Exceptions::RecordNotFound, params[:id]
-        form.destroy
+        @form.destroy
 
         head :no_content
       end
@@ -29,11 +32,11 @@ module AccreditedRepresentativePortal
       private
 
       def find_form
-        InProgressForm.form_for_user(params[:id], @current_user)
+        @form = InProgressForm.form_for_user(params[:id], @current_user)
       end
 
       def build_form
-        build_form_for_user(params[:id], @current_user)
+        @form = build_form_for_user(params[:id], @current_user)
       end
 
       # NOTE: The in-progress form module can upstream this convenience that
