@@ -478,15 +478,6 @@ module ClaimsApi
             bean: VnpPtcpntAddrsWebServiceBean::DEFINITION,
             path: 'VnpPtcpntAddrsService'
           )
-
-        module VnpPtcpntAddrsCreate
-          DEFINITION =
-            Action.new(
-              service: VnpPtcpntAddrsService::DEFINITION,
-              name: 'vnpPtcpntAddrsCreate',
-              key: 'return'
-            )
-        end
       end
 
       ##
