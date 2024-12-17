@@ -25,9 +25,7 @@ module SimpleFormsApi
 
     # notification has permanently failed
     def on_permanent_failure
-      if email? && notification_type.to_s == 'error'
-        monitor.log_silent_failure(context, call_location:)
-      end
+      monitor.log_silent_failure(context, call_location:) if email? && notification_type.to_s == 'error'
     end
 
     # notification has temporarily failed

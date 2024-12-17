@@ -13,7 +13,7 @@ RSpec.describe VANotify::NotificationCallback::Default do
       status: 'delivered',
       status_reason: 'success',
       callback_klass: klass.to_s,
-      callback_metadata: { foo: 'bar'}
+      callback_metadata: { foo: 'bar' }
     )
   end
   let(:callback) { klass.new(notification) }
@@ -37,7 +37,8 @@ RSpec.describe VANotify::NotificationCallback::Default do
 
       it 'tracks a `delivered` notification' do
         expect(callback).to receive(:on_delivered)
-        expect(monitor).to receive(:track).with(:info, "#{callback.klass}: Delivered", "#{metric}.delivered", callback.context)
+        expect(monitor).to receive(:track).with(:info, "#{callback.klass}: Delivered", "#{metric}.delivered",
+                                                callback.context)
 
         klass.call(notification)
       end
@@ -47,7 +48,8 @@ RSpec.describe VANotify::NotificationCallback::Default do
         context = hash_including(status: 'permanent-failure')
 
         expect(callback).to receive(:on_permanent_failure)
-        expect(monitor).to receive(:track).with(:error, "#{callback.klass}: Permanent Failure", "#{metric}.permanent_failure", context)
+        expect(monitor).to receive(:track).with(:error, "#{callback.klass}: Permanent Failure",
+                                                "#{metric}.permanent_failure", context)
 
         klass.call(notification)
       end
@@ -57,7 +59,8 @@ RSpec.describe VANotify::NotificationCallback::Default do
         context = hash_including(status: 'temporary-failure')
 
         expect(callback).to receive(:on_temporary_failure)
-        expect(monitor).to receive(:track).with(:warn, "#{callback.klass}: Temporary Failure", "#{metric}.temporary_failure", context)
+        expect(monitor).to receive(:track).with(:warn, "#{callback.klass}: Temporary Failure",
+                                                "#{metric}.temporary_failure", context)
 
         klass.call(notification)
       end
@@ -71,9 +74,6 @@ RSpec.describe VANotify::NotificationCallback::Default do
 
         klass.call(notification)
       end
-
     end
-
   end
-
 end

@@ -11,7 +11,7 @@ shared_examples_for 'a SavedClaim Notification Callback' do |callback_klass, cal
       status_reason: 'success',
       callback_klass: klass.to_s,
       callback_metadata: { email_type: :error }
-      )
+    )
   end
   let(:callback) { klass.new(notification) }
   let(:db_record) { double(ClaimVANotification) }
@@ -38,7 +38,7 @@ shared_examples_for 'a SavedClaim Notification Callback' do |callback_klass, cal
   context 'notification_type == email and email_type == error' do
     describe '#on_deliver' do
       it 'updates database and records silent failure avoided - confirmed' do
-        expect(db_record).to receive(:update).with **notification_context
+        expect(db_record).to receive(:update).with(**notification_context)
 
         expect(monitor_klass).to receive(:new).and_return monitor
         expect(monitor).to receive(:log_silent_failure_avoided).with(
@@ -53,7 +53,7 @@ shared_examples_for 'a SavedClaim Notification Callback' do |callback_klass, cal
       it 'updates database and records silent failure' do
         allow(notification).to receive(:status).and_return 'permanent-failure'
 
-        expect(db_record).to receive(:update).with **notification_context
+        expect(db_record).to receive(:update).with(**notification_context)
 
         expect(monitor_klass).to receive(:new).and_return monitor
         expect(monitor).to receive(:log_silent_failure).with callback.context, call_location: nil
@@ -66,7 +66,7 @@ shared_examples_for 'a SavedClaim Notification Callback' do |callback_klass, cal
       it 'updates database and no monitoring' do
         allow(notification).to receive(:status).and_return 'temporary-failure'
 
-        expect(db_record).to receive(:update).with **notification_context
+        expect(db_record).to receive(:update).with(**notification_context)
         expect(monitor_klass).not_to receive(:new)
 
         klass.call(notification)
@@ -77,7 +77,7 @@ shared_examples_for 'a SavedClaim Notification Callback' do |callback_klass, cal
       it 'updates database and no monitoring' do
         allow(notification).to receive(:status).and_return 'other'
 
-        expect(db_record).to receive(:update).with **notification_context
+        expect(db_record).to receive(:update).with(**notification_context)
         expect(monitor_klass).not_to receive(:new)
 
         klass.call(notification)
@@ -87,14 +87,13 @@ shared_examples_for 'a SavedClaim Notification Callback' do |callback_klass, cal
 
   context 'notification_type == email and email_type != error' do
     before do
-      allow(notification).to receive(:callback_metadata).and_return( { email_type: :confirmation })
+      allow(notification).to receive(:callback_metadata).and_return({ email_type: :confirmation })
       allow(callback).to receive(:email_type).and_return :confirmation
     end
 
     describe '#on_deliver' do
       it 'updates database and no monitoring' do
-
-        expect(db_record).to receive(:update).with **notification_context
+        expect(db_record).to receive(:update).with(**notification_context)
         expect(monitor_klass).not_to receive(:new)
 
         klass.call(notification)
@@ -105,7 +104,7 @@ shared_examples_for 'a SavedClaim Notification Callback' do |callback_klass, cal
       it 'updates database and no monitoring' do
         allow(notification).to receive(:status).and_return 'permanent-failure'
 
-        expect(db_record).to receive(:update).with **notification_context
+        expect(db_record).to receive(:update).with(**notification_context)
         expect(monitor_klass).not_to receive(:new)
 
         klass.call(notification)
@@ -116,7 +115,7 @@ shared_examples_for 'a SavedClaim Notification Callback' do |callback_klass, cal
       it 'updates database and no monitoring' do
         allow(notification).to receive(:status).and_return 'temporary-failure'
 
-        expect(db_record).to receive(:update).with **notification_context
+        expect(db_record).to receive(:update).with(**notification_context)
         expect(monitor_klass).not_to receive(:new)
 
         klass.call(notification)
@@ -127,7 +126,7 @@ shared_examples_for 'a SavedClaim Notification Callback' do |callback_klass, cal
       it 'updates database and no monitoring' do
         allow(notification).to receive(:status).and_return 'other'
 
-        expect(db_record).to receive(:update).with **notification_context
+        expect(db_record).to receive(:update).with(**notification_context)
         expect(monitor_klass).not_to receive(:new)
 
         klass.call(notification)

@@ -17,8 +17,7 @@ RSpec.describe Burials::NotificationEmail do
         anything,
         Settings.vanotify.services['21p_530ez'].api_key,
         { callback_klass: Burials::NotificationCallback.to_s,
-          callback_metadata: anything
-        }
+          callback_metadata: anything }
       ]
       expect(VANotify::EmailJob).to receive(:perform_async).with(*args)
 

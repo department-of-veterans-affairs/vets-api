@@ -21,8 +21,7 @@ RSpec.describe Pensions::NotificationEmail do
         },
         Settings.vanotify.services['21p_527ez'].api_key,
         { callback_klass: Pensions::NotificationCallback.to_s,
-          callback_metadata: anything
-        }
+          callback_metadata: anything }
       ]
       expect(VANotify::EmailJob).to receive(:perform_async).with(*args)
 

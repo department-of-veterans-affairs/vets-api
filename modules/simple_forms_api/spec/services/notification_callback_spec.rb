@@ -43,7 +43,8 @@ RSpec.describe SimpleFormsApi::NotificationCallback do
         allow(notification).to receive(:status).and_return 'permanent-failure'
 
         expect(monitor_klass).to receive(:new).and_return monitor
-        expect(monitor).to receive(:log_silent_failure).with callback.context, call_location: be_a(Logging::CallLocation)
+        expect(monitor).to receive(:log_silent_failure).with callback.context,
+                                                             call_location: be_a(Logging::CallLocation)
 
         klass.call(notification)
       end

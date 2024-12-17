@@ -19,7 +19,6 @@ module VANotify
 
     # generic parent class for a notification callback
     class Default
-
       STATSD = 'api.vanotify.notification.callback'
 
       # static call to handle notification callback
@@ -60,7 +59,10 @@ module VANotify
       #
       # @param notification [VANotify::Notification] model object from vanotify
       def initialize(notification)
-        raise VANotify::NotificationCallback::CallbackClassMismatch.new(notification.callback_klass, klass) unless klass == notification.callback_klass
+        unless klass == notification.callback_klass
+          raise VANotify::NotificationCallback::CallbackClassMismatch.new(notification.callback_klass,
+                                                                          klass)
+        end
 
         @notification = notification
         @metadata = notification.callback_metadata || {}
