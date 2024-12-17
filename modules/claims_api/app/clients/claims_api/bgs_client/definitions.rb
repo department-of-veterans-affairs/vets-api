@@ -337,7 +337,7 @@ module ClaimsApi
 
       # VnpAtchmsWebServiceBean
       #
-      module VnpAtchmsWebService
+      module VnpAtchmsWebServiceBean
         DEFINITION =
           Bean.new(
             path: 'VnpAtchmsWebServiceBean',
@@ -345,6 +345,14 @@ module ClaimsApi
               target: 'http://atchmsService.services.vonapp.vba.va.gov/',
               data: nil
             )
+          )
+      end
+
+      module VnpAtchmsService
+        DEFINITION =
+          Service.new(
+            bean: VnpAtchmsWebServiceBean::DEFINITION,
+            path: 'VnpAtchmsService'
           )
       end
 
