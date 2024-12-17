@@ -11,7 +11,7 @@ module Burials
     # the monitor to be used
     # @see Burials::Monitor
     def monitor
-      @monitor ||= Burials::Monitor
+      @monitor ||= Burials::Monitor.new
     end
   end
 end

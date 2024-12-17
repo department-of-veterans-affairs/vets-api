@@ -11,7 +11,7 @@ module Pensions
     # the monitor to be used
     # @see Pensions::Monitor
     def monitor
-      @monitor ||= Pensions::Monitor
+      @monitor ||= Pensions::Monitor.new
     end
   end
 end

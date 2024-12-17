@@ -14,7 +14,7 @@ module VANotify
       def on_delivered
         update_database if email?
 
-        if email? && email_type == 'error'
+        if email? && email_type.to_s == 'error'
           monitor.log_silent_failure_avoided(zsf_additional_context, email_confirmed: true, call_location:)
         end
       end
@@ -23,7 +23,7 @@ module VANotify
       def on_permanent_failure
         update_database if email?
 
-        monitor.log_silent_failure(zsf_additional_context, call_location:) if email? && email_type == 'error'
+        monitor.log_silent_failure(zsf_additional_context, call_location:) if email? && email_type.to_s == 'error'
       end
 
       # notification has temporarily failed
@@ -66,8 +66,9 @@ module VANotify
       end
 
       # additional information to be sent with ZSF tracking
+      # @see ::VANotify::NotificationCallback::Default#context
       def zsf_additional_context
-        context.merge({ callback_metadata: metadata })
+        context
       end
 
       # call location to be included with ZSF tracking

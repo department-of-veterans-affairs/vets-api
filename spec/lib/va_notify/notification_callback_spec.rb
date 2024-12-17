@@ -18,7 +18,7 @@ RSpec.describe VANotify::NotificationCallback::Default do
   end
   let(:callback) { klass.new(notification) }
   let(:monitor) { double(Logging::Monitor) }
-  let(:metric) { klass::STATSD_KEY }
+  let(:metric) { klass::STATSD }
 
   describe 'VANotify::NotificationCallback::Default.call' do
     it 'raises an error if callback class does not match notification.callback_klass' do

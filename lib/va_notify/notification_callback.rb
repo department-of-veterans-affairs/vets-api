@@ -20,7 +20,7 @@ module VANotify
     # generic parent class for a notification callback
     class Default
 
-      STATSD_KEY = 'api.vanotify.notification.callback'
+      STATSD = 'api.vanotify.notification.callback'
 
       # static call to handle notification callback
       # creates an instance of _this_ class and will call the status function
@@ -34,21 +34,21 @@ module VANotify
         when 'delivered'
           # success
           callback.on_delivered
-          monitor.track(:info, "#{callback.klass}: Delivered", "#{STATSD_KEY}.delivered", **context)
+          monitor.track(:info, "#{callback.klass}: Delivered", "#{STATSD}.delivered", **context)
 
         when 'permanent-failure'
           # delivery failed - log error
           callback.on_permanent_failure
-          monitor.track(:error, "#{callback.klass}: Permanent Failure", "#{STATSD_KEY}.permanent_failure", **context)
+          monitor.track(:error, "#{callback.klass}: Permanent Failure", "#{STATSD}.permanent_failure", **context)
 
         when 'temporary-failure'
           # the api will continue attempting to deliver - success is still possible
           callback.on_temporary_failure
-          monitor.track(:warn, "#{callback.klass}: Temporary Failure", "#{STATSD_KEY}.temporary_failure", **context)
+          monitor.track(:warn, "#{callback.klass}: Temporary Failure", "#{STATSD}.temporary_failure", **context)
 
         else
           callback.on_other_status
-          monitor.track(:warn, "#{callback.klass}: Other", "#{STATSD_KEY}.other", **context)
+          monitor.track(:warn, "#{callback.klass}: Other", "#{STATSD}.other", **context)
         end
       end
 
@@ -82,7 +82,8 @@ module VANotify
           source: notification.source_location,
           status: notification.status,
           status_reason: notification.status_reason,
-          callback_klass: klass
+          callback_klass: klass,
+          callback_metadata: metadata
         }
       end
 
