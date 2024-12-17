@@ -43,7 +43,7 @@ module VetsAPI
 
     # RAILS 7 CONFIG START
     # 7.1
-    config.add_autoload_paths_to_load_path = true
+    config.add_autoload_paths_to_load_path = false
     config.active_record.raise_on_assign_to_attr_readonly = false
 
     # 7.0
