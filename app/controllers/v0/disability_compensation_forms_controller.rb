@@ -122,7 +122,7 @@ module V0
         saved_claim_id: saved_claim.id,
         auth_headers_json: auth_headers.to_json,
         form_json: saved_claim.to_submission_data(@current_user),
-        submit_endpoint: includes_toxic_exposure? ? 'claims_api' : 'evss'
+        submit_endpoint: 'claims_api'
       ) { |sub| sub.add_birls_ids @current_user.birls_id }
 
       if missing_disabilities?(submission)
@@ -159,11 +159,6 @@ module V0
 
     def stats_key
       'api.disability_compensation'
-    end
-
-    def includes_toxic_exposure?
-      # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
-      form_content['form526']['startedFormVersion']
     end
 
     def missing_disabilities?(submission)
