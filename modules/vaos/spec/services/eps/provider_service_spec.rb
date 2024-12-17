@@ -143,6 +143,26 @@ describe Eps::ProviderService do
                                               ] })
     end
 
+    context 'when provider_id is invalid' do
+      it 'raises ArgumentError when provider_id is nil' do
+        expect do
+          service.get_provider_slots(nil, nextToken: 'token123')
+        end.to raise_error(ArgumentError, 'provider_id is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when provider_id is empty' do
+        expect do
+          service.get_provider_slots('', nextToken: 'token123')
+        end.to raise_error(ArgumentError, 'provider_id is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when provider_id is blank' do
+        expect do
+          service.get_provider_slots('   ', nextToken: 'token123')
+        end.to raise_error(ArgumentError, 'provider_id is required and cannot be blank')
+      end
+    end
+
     context 'when nextToken is provided' do
       it 'makes request with nextToken parameter' do
         next_token = 'token123'

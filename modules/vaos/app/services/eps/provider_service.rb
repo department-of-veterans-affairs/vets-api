@@ -53,6 +53,8 @@ module Eps
     # @return [OpenStruct] Response containing available slots
     #
     def get_provider_slots(provider_id, opts = {})
+      raise ArgumentError, 'provider_id is required and cannot be blank' if provider_id.blank?
+
       params = if opts[:nextToken]
                  { nextToken: opts[:nextToken] }
                else
