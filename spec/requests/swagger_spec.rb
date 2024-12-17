@@ -296,15 +296,16 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports adding a claim document' do
-      expect(subject).to validate(
-        :post,
-        '/v0/claim_attachments',
-        200,
-        '_data' => {
-          'form_id' => '21P-530EZ',
-          file: fixture_file_upload('spec/fixtures/files/doctors-note.pdf')
-        }
-      )
+      VCR.use_cassette('uploads/validate_document') do
+        expect(subject).to validate(
+          :post,
+          '/v0/claim_attachments',
+          200,
+          '_data' => {
+            'form_id' => '21P-530EZ',
+            file: fixture_file_upload('spec/fixtures/files/doctors-note.pdf')
+          }
+        )
 
         expect(subject).to validate(
           :post,

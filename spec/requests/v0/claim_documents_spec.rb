@@ -60,33 +60,36 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
   end
 
   context 'with an invalid file' do
-    let(:file) do
-      fixture_file_upload('empty_file.txt', 'text/plain')
-    end
+    let(:file) { fixture_file_upload('tiny.pdf') }
 
     it 'does not upload the file' do
-      params = { file:, form_id: '21P-527EZ' }
-      expect do
-        post('/v0/claim_attachments', params:)
-      end.not_to change(PersistentAttachment, :count)
-      expect(response).to have_http_status(:unprocessable_entity)
-      resp = JSON.parse(response.body)
-      expect(resp['errors'][0]['title']).to eq('Unprocessable Entity')
+      VCR.use_cassette('uploads/validate_document') do
+        params = { file:, form_id: '21P-527EZ' }
+        expect do
+          post('/v0/claim_attachments', params:)
+        end.not_to change(PersistentAttachment, :count)
+        expect(response).to have_http_status(:unprocessable_entity)
+        resp = JSON.parse(response.body)
+        expect(resp['errors'][0]['title']).to eq('File size must not be less than 1.0 KB')
+      end
     end
 
     it 'logs the error' do
-      expect(Rails.logger).to receive(:info).with('Creating PersistentAttachment FormID=21P-527EZ',
-                                                  { statsd: 'api.document_upload.attempt', user_account_uuid: nil })
-      expect(Rails.logger).not_to receive(:info).with(
-        /^Success creating PersistentAttachment FormID=21P-527EZ AttachmentID=\d+/
-      )
-      expect(Rails.logger).to receive(:error).with(
-        'Error creating PersistentAttachment FormID=21P-527EZ AttachmentID= Common::Exceptions::UnprocessableEntity',
-        instance_of(Hash)
-      )
+      VCR.use_cassette('uploads/validate_document') do
+        expect(Rails.logger).to receive(:info).with('Creating PersistentAttachment FormID=21P-527EZ',
+                                                    hash_including(user_account_uuid: nil,
+                                                                   statsd: 'api.document_upload.attempt'))
+        expect(Rails.logger).not_to receive(:info).with(
+          /^Success creating PersistentAttachment FormID=21P-527EZ AttachmentID=\d+/
+        )
+        expect(Rails.logger).to receive(:error).with(
+          'Error creating PersistentAttachment FormID=21P-527EZ AttachmentID= Common::Exceptions::ValidationErrors',
+          instance_of(Hash)
+        )
 
-      params = { file:, form_id: '21P-527EZ' }
-      post('/v0/claim_attachments', params:)
+        params = { file:, form_id: '21P-527EZ' }
+        post('/v0/claim_attachments', params:)
+      end
     end
   end
 
