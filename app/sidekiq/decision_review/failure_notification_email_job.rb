@@ -20,6 +20,8 @@ module DecisionReview
     STATSD_KEY_PREFIX = 'worker.decision_review.failure_notification_email'
 
     def perform
+      Rails.logger.warn("#{self.class.name} job is deprecated and will be replaced by DR engine job")
+
       return unless should_perform?
 
       send_form_emails
