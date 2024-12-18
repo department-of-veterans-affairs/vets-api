@@ -47,7 +47,7 @@ module SimpleFormsApi
       def submit_supporting_documents
         return unless SupportingDocuments::Submission::FORMS_WITH_SUPPORTING_DOCUMENTS.include?(params[:form_id])
 
-        submission = SupportingDocuments::Submission.new(@current_user, params).submit
+        submission = SupportingDocuments::Submission.new(@current_user, params)
         submission.submit
       end
 
