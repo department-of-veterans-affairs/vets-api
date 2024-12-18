@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/supporting_forms/intent_to_file'
+
 module SimpleFormsApi
   module IntentToFile
     class Submission

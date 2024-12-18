@@ -2,7 +2,6 @@
 
 require 'ddtrace'
 require 'simple_forms_api_submission/metadata_validator'
-require 'lgy/service'
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 require 'benefits_intake_service/service'

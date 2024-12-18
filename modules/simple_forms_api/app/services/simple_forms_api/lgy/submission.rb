@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'lgy/service'
+
 module SimpleFormsApi
   module LGY
     class Submission
