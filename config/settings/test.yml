@@ -259,6 +259,20 @@ lighthouse:
   benefits_intake:
       api_key: fake_api_key
 
+vaos:
+  eps:
+    key_path: modules/health_quest/config/rsa/sandbox_rsa
+    mock: false
+    client_id: "fake_client_id"
+    kid: "fake_kid"
+    grant_type: "client_credentials"
+    client_assertion_type: "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+    audience_claim_url: "https://login.wellhive.com/oauth2/default/v1/token"
+    access_token_url: "https://login.wellhive.com/oauth2/default/v1/token"
+    api_url: "https://api.wellhive.com"
+    base_path: "care-navigation/v1"
+    scopes: "care-nav"
+
 rrd:
   alerts:
     recipients:
