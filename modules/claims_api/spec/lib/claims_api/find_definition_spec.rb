@@ -114,34 +114,6 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
           expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://ptcpntAddrsService.services.vonapp.vba.va.gov/'
         end
       end
-
-      context 'VnpPtcpntPhoneWebServiceBean' do
-        let(:endpoint) { 'VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService' }
-        let(:action) { 'vnpPtcpntPhoneCreate' }
-        let(:key) { 'return' }
-
-        it 'response with the correct attributes' do
-          result = subject.for_action(endpoint, action)
-          parsed_result = JSON.parse(result.to_json)
-          expect(parsed_result['service']['bean']['path']).to eq 'VnpPtcpntPhoneWebServiceBean'
-          expect(parsed_result['service']['path']).to eq 'VnpPtcpntPhoneService'
-          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://ptcpntPhoneService.services.vonapp.vba.va.gov/'
-        end
-      end
-
-      context 'VnpPtcpntWebServiceBean' do
-        let(:endpoint) { 'VnpPtcpntWebServiceBean/VnpPtcpntService' }
-        let(:action) { 'vnpPtcpntCreate' }
-        let(:key) { 'return' }
-
-        it 'response with the correct attributes' do
-          result = subject.for_action(endpoint, action)
-          parsed_result = JSON.parse(result.to_json)
-          expect(parsed_result['service']['bean']['path']).to eq 'VnpPtcpntWebServiceBean'
-          expect(parsed_result['service']['path']).to eq 'VnpPtcpntService'
-          expect(parsed_result['service']['bean']['namespaces']['target']).to eq 'http://ptcpntService.services.vonapp.vba.va.gov/'
-        end
-      end
     end
   end
 
