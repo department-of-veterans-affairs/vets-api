@@ -47,7 +47,7 @@ module IvcChampva
       def headers(date_start, date_end)
         {
           :content_type => 'application/json',
-          'x-api-key' => Settings.ivc_champva.pega_api.api_key.to_s, # TODO don't forget to populate this in the parameter store
+          'x-api-key' => Settings.ivc_champva.pega_api.api_key.to_s,
           'date_start' => date_start.to_s,
           'date_end' => date_end.to_s,
           'case_id' => '' # case_id seems to have no effect, but it is required by the API
