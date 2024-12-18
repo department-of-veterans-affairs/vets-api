@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_notify/notification_email/burial'
+require 'burials/notification_email'
 
 RSpec.describe Burials::NotificationEmail do
   let(:claim) { build(:burial_claim) }

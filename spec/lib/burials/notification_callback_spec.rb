@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
 require 'burials/monitor'
-require 'va_notify/notification_callback/burial'
+require 'burials/notification_callback'
 
+# relative to `spec` folder
 require 'rails_helper'
 require 'lib/va_notify/notification_callback/shared/saved_claim'
 

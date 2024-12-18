@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_intake/submission_handler/saved_claim'
-require 'va_notify/notification_email/burial'
+require 'burials/notification_email'
 require 'burials/monitor'
 
 module Burials
