@@ -1,121 +1,104 @@
 {
-  "type": "array",
-  "items": {
-    "type": "object",
-    "properties": {
-      "VSOUserEmail": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "VSOUserFirstName": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "VSOUserLastName": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "changeAddressAuth": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "claimantCity": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "claimantCountry": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "claimantMilitaryPO": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "claimantMilitaryPostalCode": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "claimantState": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "claimantZip": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "dateRequestActioned": {
-        "type": "string"
-      },
-      "dateRequestReceived": {
-        "type": "string"
-      },
-      "declinedReason": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "healthInfoAuth": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "poaCode": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "procID": {
-        "type": "string"
-      },
-      "secondaryStatus": {
-        "type": "string"
-      },
-      "vetFirstName": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "vetLastName": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "vetMiddleName": {
-        "type": [
-          "string",
-          "null"
-        ]
-      },
-      "vetPtcpntID": {
-        "type": [
-          "string",
-          "null"
-        ]
+  "type": "object",
+  "required": ["data"],
+  "properties": {
+    "data": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["type", "attributes"],
+        "properties": {
+          "id": {
+            "type": ["string", "null"],
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["power-of-attorney-request"]
+          },
+          "attributes": {
+            "type": "object",
+            "required": ["veteran", "claimant", "representative"],
+            "properties": {
+              "veteran": {
+                "type": "object",
+                "properties": {
+                  "firstName": {
+                    "type": ["string", "null"]
+                  },
+                  "lastName": {
+                    "type": ["string", "null"]
+                  },
+                  "middleName": {
+                    "type": ["string", "null"]
+                  }
+                }
+              },
+              "claimant": {
+                "type": "object",
+                "properties": {
+                  "city": {
+                    "type": ["string", "null"]
+                  },
+                  "country": {
+                    "type": ["string", "null"]
+                  },
+                  "militaryPo": {
+                    "type": ["string", "null"]
+                  },
+                  "militaryPostalCode": {
+                    "type": ["string", "null"]
+                  },
+                  "state": {
+                    "type": ["string", "null"]
+                  },
+                  "zip": {
+                    "type": ["string", "null"]
+                  }
+                }
+              },
+              "representative": {
+                "type": "object",
+                "properties": {
+                  "poaCode": {
+                    "type": ["string", "null"]
+                  },
+                  "vsoUserEmail": {
+                    "type": ["string", "null"]
+                  },
+                  "vsoUserFirstName": {
+                    "type": ["string", "null"]
+                  },
+                  "vsoUserLastName": {
+                    "type": ["string", "null"]
+                  }
+                }
+              },
+              "receivedDate": {
+                "type": ["string", "null"],
+                "format": "date-time"
+              },
+              "decisionDate": {
+                "type": ["string", "null"],
+                "format": "date-time"
+              },
+              "status": {
+                "type": ["string", "null"]
+              },
+              "declinedReason": {
+                "type": ["string", "null"]
+              },
+              "changeAddressAuthorization": {
+                "type": ["string", "null"],
+                "enum": ["Y", "N", null]
+              },
+              "healthInfoAuthorization": {
+                "type": ["string", "null"],
+                "enum": ["Y", "N", null]
+              }
+            }
+          }
+        }
       }
     }
   }
