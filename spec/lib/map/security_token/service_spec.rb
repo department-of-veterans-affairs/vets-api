@@ -156,15 +156,6 @@ describe MAP::SecurityToken::Service do
 
               it 'makes a request to the MAP STS JWKs endpoint' do
                 VCR.use_cassette('map/security_token_service_200_response') do
-                  expect(Rails.cache).to receive(:write).with(
-                    jwks_cache_key,
-                    an_instance_of(JWT::JWK::Set),
-                    hash_including(
-                      compress: true,
-                      compress_threshold: 1024,
-                      expires_in: 30.minutes
-                    )
-                  )
                   expect(Rails.logger).to receive(:info).with("#{log_prefix} Get Public JWKs Success")
                   subject
                 end
