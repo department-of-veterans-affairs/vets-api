@@ -723,8 +723,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'Veteran',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
@@ -765,8 +764,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'Jack',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
@@ -813,8 +811,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'Arthur',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
@@ -856,8 +853,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'Prepare',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
