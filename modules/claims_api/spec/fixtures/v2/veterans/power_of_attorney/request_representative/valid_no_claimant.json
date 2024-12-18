@@ -1,7 +1,5 @@
 {
   "data": {
-    "id": null,
-    "type": "power-of-attorney-request",
     "attributes": {
       "veteran": {
         "serviceNumber": "123678453",
