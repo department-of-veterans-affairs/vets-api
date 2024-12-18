@@ -60,7 +60,7 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
   end
 
   context 'with an invalid file' do
-    let(:file) { fixture_file_upload('tiny.pdf') }
+    let(:file) { fixture_file_upload('empty-file.jpg') }
 
     it 'does not upload the file' do
       VCR.use_cassette('uploads/validate_document') do
@@ -70,7 +70,7 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
         end.not_to change(PersistentAttachment, :count)
         expect(response).to have_http_status(:unprocessable_entity)
         resp = JSON.parse(response.body)
-        expect(resp['errors'][0]['title']).to eq('File size must not be less than 1.0 KB')
+        expect(resp['errors'][0]['detail']).to eq('File size must not be less than 1.0 KB')
       end
     end
 
@@ -78,12 +78,12 @@ RSpec.describe 'V0::ClaimDocuments', type: :request do
       VCR.use_cassette('uploads/validate_document') do
         expect(Rails.logger).to receive(:info).with('Creating PersistentAttachment FormID=21P-527EZ',
                                                     hash_including(user_account_uuid: nil,
-                                                                   statsd: 'api.document_upload.attempt'))
+                                                                   statsd: 'api.claim_documents.attempt'))
         expect(Rails.logger).not_to receive(:info).with(
           /^Success creating PersistentAttachment FormID=21P-527EZ AttachmentID=\d+/
         )
         expect(Rails.logger).to receive(:error).with(
-          'Error creating PersistentAttachment FormID=21P-527EZ AttachmentID= Common::Exceptions::ValidationErrors',
+          'Error creating PersistentAttachment FormID=21P-527EZ AttachmentID= Common::Exceptions::UnprocessableEntity',
           instance_of(Hash)
         )
 

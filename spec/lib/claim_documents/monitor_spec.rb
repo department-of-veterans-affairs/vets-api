@@ -5,9 +5,9 @@ require 'claim_documents/monitor'
 
 RSpec.describe ClaimDocuments::Monitor do
   let(:service) { OpenStruct.new(uuid: 'uuid') }
-  let(:monitor) { described_class.new(service) }
+  let(:monitor) { described_class.new }
   let(:document_stats_key) { described_class::DOCUMENT_STATS_KEY }
-  let(:form_id) { '21P-527EZ' }
+  let(:form_id) { 'ABC123' }
   let(:attachment_id) { '12345' }
   let(:current_user) { create(:user) }
   let(:error) { StandardError.new('An error occurred') }
