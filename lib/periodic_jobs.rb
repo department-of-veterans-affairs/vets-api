@@ -255,4 +255,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
   # Daily 1900 job for Vye: clears deactivated BDNs every evening.
   mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
+
+  # Send Benefits Documents failure notification emails to Veteran for failed evidence submissions
+  mgr.register('5 0 * * *', 'Lighthouse::BenefitsDocuments::FailureNotificationEmailJob')
 }
