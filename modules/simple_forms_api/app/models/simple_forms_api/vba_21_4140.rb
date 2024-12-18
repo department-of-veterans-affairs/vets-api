@@ -40,6 +40,9 @@ module SimpleFormsApi
       []
     end
 
+    # At the moment, we only allow veterans to submit Form Engine forms.
+    def track_user_identity(confirmation_number); end
+
     def zip_code_is_us_based
       data.dig('address', 'country') == 'USA'
     end
