@@ -76,8 +76,8 @@ module MAP
       end
 
       def validate_map_token(encoded_token)
-        public_cert = config.provider_certificate
-        JWT.decode(encoded_token, public_cert, true, algorithm: 'RS512')
+        jwk = config.public_jwks.first
+        JWT.decode(encoded_token, jwk.public_key, true, algorithm: 'RS512')
       end
 
       def client_id_from_application(application)

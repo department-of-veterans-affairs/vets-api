@@ -34,6 +34,14 @@ module MAP
         Settings.map_services.client_cert_path
       end
 
+      def jwks_cache_key
+        'map_public_jwks'
+      end
+
+      def jwks_cache_expiration
+        30.minutes
+      end
+
       def provider_jwks_path
         '/sts/oauth/v1/jwks'
       end
@@ -82,14 +90,19 @@ module MAP
         OpenSSL::X509::Certificate.new(File.read(client_cert_path))
       end
 
-      def provider_certificate
-        @provider_certificate ||= build_provider_certificate
+      def public_jwks
+        @public_jwks ||= Rails.cache.fetch(jwks_cache_key, expires_in: jwks_cache_expiration) do
+          response = connection.get(provider_jwks_path)
+          Rails.logger.info("#{logging_prefix} Get Public JWKs Success")
+
+          parse_public_jwks(response:)
+        end
       end
 
-      def build_provider_certificate
-        response = connection.get(provider_jwks_path)
-        jwk = response.body['keys'].first
-        JWT::JWK.import(jwk).keypair.public_key
+      def parse_public_jwks(response:)
+        keys_array = response.body['keys']
+        filtered_keys = keys_array.select { |key| key['use'] == 'sig' }
+        JWT::JWK::Set.new(filtered_keys)
       end
 
       def connection
