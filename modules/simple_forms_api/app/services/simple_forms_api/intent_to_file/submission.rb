@@ -6,7 +6,6 @@ module SimpleFormsApi
       def initialize(current_user, params)
         @current_user = current_user
         @params = params
-        @intent_service = SimpleFormsApi::SupportingForms::IntentToFile.new(current_user, params)
       end
 
       def submit
@@ -26,7 +25,11 @@ module SimpleFormsApi
 
       private
 
-      attr_reader :current_user, :params, :intent_service
+      attr_reader :current_user, :params
+
+      def intent_service
+        @intent_service ||= SimpleFormsApi::SupportingForms::IntentToFile.new(@current_user, params)
+      end
 
       def track_user_identity(confirmation_number)
         return unless confirmation_number
