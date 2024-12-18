@@ -147,12 +147,17 @@ module EVSS
         @submission = Form526Submission.find_by(id: submission_id)
 
         file_type_and_file_objs = []
-        { 'form0781' => FORM_ID_0781, 'form0781a' => FORM_ID_0781A }.each do |form_type_key, actual_form_types|
-          if parsed_forms[form_type_key].present?
+        {
+          'form0781' => FORM_ID_0781,
+          'form0781a' => FORM_ID_0781A,
+          'form0781v2' => FORM_ID_0781V2
+        }.each do |form_type_key, actual_form_types|
+          form_content = parsed_forms[form_type_key]
+
+          if form_content.present?
             file_type_and_file_objs << {
               type: actual_form_types,
-              file: process_0781(uuid, actual_form_types, parsed_forms[form_type_key],
-                                 upload: false)
+              file: process_0781(uuid, actual_form_types, form_content, upload: false)
             }
           end
         end
