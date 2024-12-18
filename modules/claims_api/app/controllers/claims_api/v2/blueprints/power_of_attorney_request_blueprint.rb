@@ -4,97 +4,62 @@ module ClaimsApi
   module V2
     module Blueprints
       class PowerOfAttorneyRequestBlueprint < Blueprinter::Base
-        class Veteran < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
+        view :index do
+          field :id do |request|
+            request['id']
+          end
 
-          fields(
-            :first_name,
-            :middle_name,
-            :last_name
-          )
+          field :type do
+            'power-of-attorney-request'
+          end
+
+          field :attributes do |request|
+            {
+              veteran: {
+                first_name: request['vetFirstName'],
+                last_name: request['vetLastName'],
+                middle_name: request['vetMiddleName']
+              },
+              claimant: {
+                city: request['claimantCity'],
+                country: request['claimantCountry'],
+                military_po: request['claimantMilitaryPO'],
+                military_postal_code: request['claimantMilitaryPostalCode'],
+                state: request['claimantState'],
+                zip: request['claimantZip']
+              },
+              representative: {
+                poa_code: request['poaCode'],
+                vso_user_email: request['VSOUserEmail'],
+                vso_user_first_name: request['VSOUserFirstName'],
+                vso_user_last_name: request['VSOUserLastName']
+              },
+              received_date: request['dateRequestReceived'],
+              decision_date: request['dateRequestActioned'],
+              status: request['secondaryStatus'],
+              declined_reason: request['declinedReason'],
+              change_address_authorization: request['changeAddressAuth'],
+              health_info_authorization: request['healthInfoAuth']
+            }
+          end
+
+          transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end
 
-        class Representative < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
+        view :create do
+          field :id do |request|
+            request['id']
+          end
 
-          fields(
-            :first_name,
-            :last_name,
-            :email
-          )
-        end
+          field :type do
+            'power-of-attorney-request'
+          end
 
-        class Decision < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
+          field :attributes do |request|
+            request.except('id')
+          end
 
-          fields(
-            :status,
-            :declining_reason
-          )
-
-          field(
-            :created_at,
-            datetime_format: :iso8601.to_proc
-          )
-
-          association :created_by, blueprint: Representative
-        end
-
-        class Claimant < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
-
-          fields(
-            :first_name,
-            :last_name,
-            :relationship_to_veteran
-          )
-        end
-
-        class Address < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
-
-          fields(
-            :city, :state, :zip, :country,
-            :military_post_office,
-            :military_postal_code
-          )
-        end
-
-        class Attributes < Blueprinter::Base
-          transform Transformers::LowerCamelTransformer
-
-          fields(
-            :power_of_attorney_code
-          )
-
-          field(
-            :authorizes_address_changing,
-            name: :is_address_changing_authorized
-          )
-
-          field(
-            :authorizes_treatment_disclosure,
-            name: :is_treatment_disclosure_authorized
-          )
-
-          association :veteran, blueprint: Veteran
-          association :claimant, blueprint: Claimant
-          association :claimant_address, blueprint: Address
-          association :decision, blueprint: Decision
-
-          field(
-            :created_at,
-            datetime_format: :iso8601.to_proc
-          )
-        end
-
-        transform Transformers::LowerCamelTransformer
-
-        identifier :id
-        field(:type) { 'powerOfAttorneyRequest' }
-
-        association :attributes, blueprint: Attributes do |poa_request|
-          poa_request
+          transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
         end
       end
     end

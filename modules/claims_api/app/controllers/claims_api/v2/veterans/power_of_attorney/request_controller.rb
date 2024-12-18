@@ -35,7 +35,9 @@ module ClaimsApi
 
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
-          render json: Array.wrap(poa_list), status: :ok
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
+            poa_list, view: :index, root: :data
+          ), status: :ok
         end
 
         def decide
