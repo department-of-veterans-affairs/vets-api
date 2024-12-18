@@ -83,7 +83,7 @@ RSpec.describe SignIn::UserLoader do
         context 'when validating the user\'s MPI profile' do
           context 'and the MPI profile has a deceased date' do
             let(:deceased_date) { '20020202' }
-            let(:expected_error) { SignIn::Errors::MPILockedAccountError }
+            let(:expected_error) { MPI::Errors::AccountLockedError }
             let(:expected_error_message) { 'Death Flag Detected' }
 
             it 'raises an MPI locked account error' do
@@ -93,7 +93,7 @@ RSpec.describe SignIn::UserLoader do
 
           context 'and the MPI profile has an id theft flag' do
             let(:id_theft_flag) { true }
-            let(:expected_error) { SignIn::Errors::MPILockedAccountError }
+            let(:expected_error) { MPI::Errors::AccountLockedError }
             let(:expected_error_message) { 'Theft Flag Detected' }
 
             it 'raises an MPI locked account error' do

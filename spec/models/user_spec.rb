@@ -249,9 +249,9 @@ RSpec.describe User, type: :model do
         let(:deceased_date) { '20020202' }
         let(:expected_error_message) { 'Death Flag Detected' }
 
-        it 'raises an MPI Locked Account error' do
+        it 'raises an MPI Account Locked error' do
           expect { subject.validate_mpi_profile }
-            .to raise_error(SignIn::Errors::MPILockedAccountError)
+            .to raise_error(MPI::Errors::AccountLockedError)
             .with_message(expected_error_message)
         end
       end
@@ -260,9 +260,9 @@ RSpec.describe User, type: :model do
         let(:id_theft_flag) { true }
         let(:expected_error_message) { 'Theft Flag Detected' }
 
-        it 'raises an MPI Locked Account error' do
+        it 'raises an MPI Account Locked error' do
           expect { subject.validate_mpi_profile }
-            .to raise_error(SignIn::Errors::MPILockedAccountError)
+            .to raise_error(MPI::Errors::AccountLockedError)
             .with_message(expected_error_message)
         end
       end
