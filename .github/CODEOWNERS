@@ -461,7 +461,6 @@ app/services/mhv_account_type_service.rb @department-of-veterans-affairs/octo-id
 app/services/mhv_logging_service.rb @department-of-veterans-affairs/octo-identity
 app/services/rapid_ready_for_decision @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/services/sign_in @department-of-veterans-affairs/octo-identity
-app/services/submission_pdf_url_service.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/services/terms_of_use @department-of-veterans-affairs/octo-identity
 app/services/users @department-of-veterans-affairs/octo-identity
 app/swagger/readme.md @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group

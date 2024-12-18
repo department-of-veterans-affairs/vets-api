@@ -26,7 +26,7 @@
     }
   },
   "representative": {
-    "organization_id": "This will be a UUID you'll have to find in the console",
-    "id": "Same as above"
-  }
+		"id": "bd22d501-b3df-4a52-9229-5c25b4d2036a",
+		"organization_id": "8f4242b6-6f17-4f60-b91c-cfe4d7e01d91"
+	}
 }
