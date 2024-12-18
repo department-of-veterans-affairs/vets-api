@@ -5,6 +5,10 @@ require_relative 'veteran_representative_service/read_all_veteran_representative
 
 module ClaimsApi
   class VeteranRepresentativeService < ClaimsApi::LocalBGS
+    def bean_name
+      'VDC/VeteranRepresentativeService'
+    end
+
     private
 
     def make_request(namespace:, **args)

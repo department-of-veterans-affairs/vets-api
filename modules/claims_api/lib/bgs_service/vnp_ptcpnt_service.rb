@@ -3,6 +3,11 @@
 module ClaimsApi
   class VnpPtcpntService < ClaimsApi::LocalBGS
     # vnpPtcpntCreate - This service is used to create VONAPP participant information
+    #
+    def bean_name
+      'VnpPtcpntWebServiceBean/VnpPtcpntService'
+    end
+
     def vnp_ptcpnt_create(options)
       arg_strg = convert_nil_values(options)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML

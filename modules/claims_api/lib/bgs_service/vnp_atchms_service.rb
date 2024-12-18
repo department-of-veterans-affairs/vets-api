@@ -2,6 +2,10 @@
 
 module ClaimsApi
   class VnpAtchmsService < ClaimsApi::LocalBGS
+    def bean_name
+      'VnpAtchmsWebServiceBean/VnpAtchmsService'
+    end
+
     # Takes an object with a minimum of (other fields are camelized and passed to BGS):
     # vnp_proc_id: BGS procID
     # atchms_file_nm: File name
