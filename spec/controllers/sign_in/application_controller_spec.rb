@@ -116,23 +116,25 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     shared_context 'mpi profile validation' do
       context 'and the MPI profile has a deceased date' do
         let(:deceased_date) { '20020202' }
-        let(:expected_errors) { 'Death Flag Detected' }
+        let(:expected_error) { 'Death Flag Detected' }
 
         it 'raises an MPI locked account error' do
           response = subject
-          expect(response).to have_http_status(:unauthorized)
-          expect(JSON.parse(response.body)['errors']).to eq(expected_errors)
+          expect(response.status).to eq(500)
+          error_body = JSON.parse(response.body)['errors'].first
+          expect(error_body['meta']['exception']).to eq(expected_error)
         end
       end
 
       context 'and the MPI profile has an id theft flag' do
         let(:id_theft_flag) { true }
-        let(:expected_errors) { 'Theft Flag Detected' }
+        let(:expected_error) { 'Theft Flag Detected' }
 
         it 'raises an MPI locked account error' do
           response = subject
-          expect(response).to have_http_status(:unauthorized)
-          expect(JSON.parse(response.body)['errors']).to eq(expected_errors)
+          expect(response.status).to eq(500)
+          error_body = JSON.parse(response.body)['errors'].first
+          expect(error_body['meta']['exception']).to eq(expected_error)
         end
       end
     end
@@ -190,8 +192,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           end
           let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
           let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+          let(:deceased_date) { nil }
+          let(:id_theft_flag) { false }
+          let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:) }
+
+          before { allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile) }
 
           it_behaves_like 'user fingerprint validation'
+
+          it_behaves_like 'mpi profile validation'
 
           it 'returns ok status' do
             expect(subject).to have_http_status(:ok)
