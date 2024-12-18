@@ -23,7 +23,12 @@
   "F[0].Page_1[0].DOBday[0]": "<%= form.dob[2] %>",
   "F[0].Page_1[0].DOByear[0]": "<%= form.dob[0] %>",
 
-  "F[0].Page_1[0].VeteransServiceNumber[0]": "<%= form.data.dig('VeteransServiceNumber') %>",
+  <%# 5. Veteran's Service Number %>
+  "F[0].Page_1[0].VeteransServiceNumber[0]": "<%= form.data['service_number'] %>",
+
+  <%# 6. E-mail Address %>
+  "F[0].Page_1[0].E-Mail_Address[0]": "<%= form.data['email_address'] %>",
+
   "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.data.dig('CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers') %>",
   "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= form.data.dig('CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers') %>",
   "F[0].Page_1[0].CurrentMailingAddress_Country[0]": "<%= form.data.dig('CurrentMailingAddress_Country') %>",
@@ -31,7 +36,6 @@
   "F[0].Page_1[0].CurrentMailingAddress_City[0]": "<%= form.data.dig('CurrentMailingAddress_City') %>",
   "F[0].Page_1[0].CurrentMailingAddress_ApartmentOrUnitNumber[0]": "<%= form.data.dig('CurrentMailingAddress_ApartmentOrUnitNumber') %>",
   "F[0].Page_1[0].CurrentMailingAddress_NumberAndStreet[0]": "<%= form.data.dig('CurrentMailingAddress_NumberAndStreet') %>",
-  "F[0].Page_1[0].E-Mail_Address[0]": "<%= form.data.dig('E-Mail_Address') %>",
   "F[0].Page_1[0].Type_Of_Work[0]": "<%= form.data.dig('Type_Of_Work') %>",
   "F[0].Page_1[0].Time_Lost_From_Illness[0]": "<%= form.data.dig('Time_Lost_From_Illness') %>",
   "F[0].Page_1[0].Name_And_Address_Of_Employer[0]": "<%= form.data.dig('Name_And_Address_Of_Employer') %>",
