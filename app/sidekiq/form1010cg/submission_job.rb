@@ -5,20 +5,17 @@ require 'sidekiq/monitored_worker'
 module Form1010cg
   class SubmissionJob
     STATSD_KEY_PREFIX = "#{Form1010cg::Auditor::STATSD_KEY_PREFIX}.async.".freeze
-    SERVICE = 'caregiver-application'
-    FUNCTION_NAME = '10-10CG async form submission'
 
     DD_ZSF_TAGS = [
-      SERVICE,
-      "function: #{FUNCTION_NAME}"
+      'service:caregiver-application',
+      'function: 10-10CG async form submission'
     ].freeze
 
     CALLBACK_METADATA = {
       callback_metadata: {
         notification_type: 'error',
         form_number: '10-10CG',
-        statsd_tags: { service: SERVICE,
-                       function: FUNCTION_NAME }
+        statsd_tags: DD_ZSF_TAGS
       }
     }.freeze
 
@@ -72,7 +69,7 @@ module Form1010cg
     class << self
       def send_failure_email(claim)
         unless can_send_failure_email?(claim)
-          StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
+          StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
           return
         end
 
