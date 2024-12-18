@@ -20,6 +20,32 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     it { is_expected.to match(data) }
   end
 
+  describe '#dob' do
+    subject(:dob) { form.dob }
+
+    let(:year) { dob[0] }
+    let(:month) { dob[1] }
+    let(:day) { dob[2] }
+
+    context 'when dob exists' do
+      it 'returns an array of numbers' do
+        expect(year).to eq data['date_of_birth'][0..3]
+        expect(month).to eq data['date_of_birth'][5..6]
+        expect(day).to eq data['date_of_birth'][8..9]
+      end
+    end
+
+    context 'when dob is missing' do
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it 'returns an array with empty values' do
+        expect(year).to eq nil
+        expect(month).to eq nil
+        expect(day).to eq nil
+      end
+    end
+  end
+
   describe '#first_name' do
     subject { form.first_name }
 

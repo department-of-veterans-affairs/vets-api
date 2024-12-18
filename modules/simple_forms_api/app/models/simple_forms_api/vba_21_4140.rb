@@ -6,6 +6,13 @@ module SimpleFormsApi
       []
     end
 
+    def dob
+      # date_of_birth is in YYYY-MM-DD format
+      trimmed_dob = data['date_of_birth']&.tr('-', '')
+
+      [trimmed_dob&.[](0..3), trimmed_dob&.[](4..5), trimmed_dob&.[](6..7)]
+    end
+
     def first_name
       data.dig('full_name', 'first')&.[](0..11)
     end

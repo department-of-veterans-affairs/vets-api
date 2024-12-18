@@ -15,10 +15,14 @@
   "F[0].Page_1[0].Veterans_Social_SecurityNumber_SecondTwoNumbers[0]": "<%= form.ssn[1] %>",
   "F[0].Page_1[0].Veterans_Social_SecurityNumber_LastFourNumbers[0]": "<%= form.ssn[2] %>",
 
-  "F[0].Page_1[0].DOByear[0]": "<%= form.data.dig('DOByear') %>",
-  "F[0].Page_1[0].DOBday[0]": "<%= form.data.dig('DOBday') %>",
-  "F[0].Page_1[0].DOBmonth[0]": "<%= form.data.dig('DOBmonth') %>",
-  "F[0].Page_1[0].VAFileNumber[0]": "<%= form.data.dig('VAFileNumber') %>",
+  <%# 3. VA File Number %>
+  "F[0].Page_1[0].VAFileNumber[0]": "<%= form.data.dig('veteran_id', 'va_file_number') %>",
+
+  <%# 4. Date of Birth (MM/DD/YYYY) %>
+  "F[0].Page_1[0].DOBmonth[0]": "<%= form.dob[1] %>",
+  "F[0].Page_1[0].DOBday[0]": "<%= form.dob[2] %>",
+  "F[0].Page_1[0].DOByear[0]": "<%= form.dob[0] %>",
+
   "F[0].Page_1[0].VeteransServiceNumber[0]": "<%= form.data.dig('VeteransServiceNumber') %>",
   "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.data.dig('CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers') %>",
   "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= form.data.dig('CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers') %>",
