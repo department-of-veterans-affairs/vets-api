@@ -19,8 +19,6 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       job.instance_variable_set(:@claim, claim)
       allow(SavedClaim).to receive(:find).and_return(claim)
 
-      Flipper.enable(:va_burial_v2)
-
       allow(BenefitsIntakeService::Service).to receive(:new).and_return(service)
       allow(service).to receive(:uuid)
       allow(service).to receive_messages(location:, upload_doc: response)
@@ -80,30 +78,9 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       job.init(claim.id)
     end
 
-    it 'processes a record and add stamps' do
+    it 'processes a 21P-530EZ record and add stamps' do
       record = double
-      allow(record).to receive_messages({ created_at: nil, form_id: '21P-530' })
-      datestamp_double1 = double
-      datestamp_double2 = double
-
-      expect(record).to receive(:to_pdf).and_return('path1')
-      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp: nil).and_return('path2')
-      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
-      expect(datestamp_double2).to receive(:run).with(
-        text: 'FDC Reviewed - va.gov Submission',
-        x: 400,
-        y: 770,
-        text_only: true
-      ).and_return('path3')
-      allow(service).to receive(:valid_document?).and_return('path3')
-
-      expect(job.process_record(record)).to eq('path3')
-    end
-
-    it 'processes a 21P-530V2 record and add stamps' do
-      record = double
-      allow(record).to receive_messages({ created_at: claim.created_at, form_id: '21P-530V2' })
+      allow(record).to receive_messages({ created_at: claim.created_at, form_id: '21P-530EZ' })
       datestamp_double1 = double
       datestamp_double2 = double
       datestamp_double3 = double
@@ -129,7 +106,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         timestamp:,
         page_number: 5,
         size: 9,
-        template: 'lib/pdf_fill/forms/pdfs/21P-530V2.pdf',
+        template: 'lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
         multistamp: true
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_return(path)
@@ -137,31 +114,9 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       expect(job.process_record(record)).to eq(path)
     end
 
-    it 'handles an invalid record' do
+    it 'handles an invalid 21P-530EZ record' do
       record = double
-      allow(record).to receive_messages({ created_at: nil, form_id: '21P-530' })
-      datestamp_double1 = double
-      datestamp_double2 = double
-
-      expect(record).to receive(:to_pdf).and_return('path1')
-      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path1').and_return(datestamp_double1)
-      expect(datestamp_double1).to receive(:run).with(text: 'VA.GOV', x: 5, y: 5, timestamp: nil).and_return('path2')
-      expect(PDFUtilities::DatestampPdf).to receive(:new).with('path2').and_return(datestamp_double2)
-      expect(datestamp_double2).to receive(:run).with(
-        text: 'FDC Reviewed - va.gov Submission',
-        x: 400,
-        y: 770,
-        text_only: true
-      ).and_return('path3')
-      allow(service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError)
-      expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.document_upload_error')
-
-      expect { job.process_record(record) }.to raise_error(BenefitsIntakeService::Service::InvalidDocumentError)
-    end
-
-    it 'handles an invalid 21P-530V2 record' do
-      record = double
-      allow(record).to receive_messages({ created_at: claim.created_at, form_id: '21P-530V2' })
+      allow(record).to receive_messages({ created_at: claim.created_at, form_id: '21P-530EZ' })
       datestamp_double1 = double
       datestamp_double2 = double
       datestamp_double3 = double
@@ -186,7 +141,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
         timestamp:,
         page_number: 5,
         size: 9,
-        template: 'lib/pdf_fill/forms/pdfs/21P-530V2.pdf',
+        template: 'lib/pdf_fill/forms/pdfs/21P-530EZ.pdf',
         multistamp: true
       ).and_return(path)
       allow(service).to receive(:valid_document?).and_raise(BenefitsIntakeService::Service::InvalidDocumentError)
