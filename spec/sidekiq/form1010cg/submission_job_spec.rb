@@ -137,7 +137,14 @@ RSpec.describe Form1010cg::SubmissionJob do
           {
             'salutation' => "Dear #{claim.parsed_form.dig('veteran', 'fullName', 'first')},"
           },
-          api_key
+          api_key,
+          {
+            callback_metadata: {
+              notification_type: 'error',
+              form_number: claim.form_id,
+              statsd_tags: { service: 'caregiver-application', function: '10-10CG async form submission' }
+            }
+          }
         ]
       end
 
@@ -230,7 +237,7 @@ RSpec.describe Form1010cg::SubmissionJob do
               tags: ["claim_id:#{claim.id}"]
             )
             expect(StatsD).to receive(:increment).with(
-              'silent_failure_avoided_no_confirmation', tags: zsf_tags
+              'silent_failure_avoided', tags: zsf_tags
             )
 
             job.perform(claim.id)

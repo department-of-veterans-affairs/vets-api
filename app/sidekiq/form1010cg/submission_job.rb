@@ -5,10 +5,23 @@ require 'sidekiq/monitored_worker'
 module Form1010cg
   class SubmissionJob
     STATSD_KEY_PREFIX = "#{Form1010cg::Auditor::STATSD_KEY_PREFIX}.async.".freeze
+    SERVICE = 'caregiver-application'
+    FUNCTION_NAME = '10-10CG async form submission'
+
     DD_ZSF_TAGS = [
-      'caregiver-application',
-      'function: 10-10CG async form submission'
+      SERVICE,
+      "function: #{FUNCTION_NAME}"
     ].freeze
+
+    CALLBACK_METADATA = {
+      callback_metadata: {
+        notification_type: 'error',
+        form_number: '10-10CG',
+        statsd_tags: { service: SERVICE,
+                       function: FUNCTION_NAME }
+      }
+    }.freeze
+
     include Sidekiq::Job
     include Sidekiq::MonitoredWorker
     include SentryLogging
@@ -19,7 +32,6 @@ module Form1010cg
 
     sidekiq_retries_exhausted do |msg, _e|
       StatsD.increment("#{STATSD_KEY_PREFIX}failed_no_retries_left", tags: ["claim_id:#{msg['args'][0]}"])
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
 
       claim = SavedClaim::CaregiversAssistanceClaim.find(msg['args'][0])
       send_failure_email(claim)
@@ -49,8 +61,6 @@ module Form1010cg
       end
     rescue CARMA::Client::MuleSoftClient::RecordParseError
       StatsD.increment("#{STATSD_KEY_PREFIX}record_parse_error", tags: ["claim_id:#{claim_id}"])
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
-
       self.class.send_failure_email(claim)
     rescue => e
       log_exception_to_sentry(e)
@@ -59,25 +69,40 @@ module Form1010cg
       raise
     end
 
-    def self.send_failure_email(claim)
-      return unless Flipper.enabled?(:caregiver_use_va_notify_on_submission_failure)
-      return unless claim.parsed_form.dig('veteran', 'email')
+    class << self
+      def send_failure_email(claim)
+        unless can_send_failure_email?(claim)
+          StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
+          return
+        end
 
-      parsed_form = claim.parsed_form
-      first_name = parsed_form.dig('veteran', 'fullName', 'first')
-      email = parsed_form.dig('veteran', 'email')
-      template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_cg_failure_email
-      api_key = Settings.vanotify.services.health_apps_1010.api_key
-      salutation = first_name ? "Dear #{first_name}," : ''
+        StatsD.increment('silent_failure_avoided', tags: DD_ZSF_TAGS)
 
-      VANotify::EmailJob.perform_async(
-        email,
-        template_id,
-        { 'salutation' => salutation },
-        api_key
-      )
+        parsed_form = claim.parsed_form
+        first_name = parsed_form.dig('veteran', 'fullName', 'first')
+        email = parsed_form.dig('veteran', 'email')
+        template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_cg_failure_email
+        api_key = Settings.vanotify.services.health_apps_1010.api_key
+        salutation = first_name ? "Dear #{first_name}," : ''
 
-      StatsD.increment("#{STATSD_KEY_PREFIX}submission_failure_email_sent")
+        VANotify::EmailJob.perform_async(
+          email,
+          template_id,
+          { 'salutation' => salutation },
+          api_key,
+          CALLBACK_METADATA
+        )
+
+        StatsD.increment("#{STATSD_KEY_PREFIX}submission_failure_email_sent")
+      end
+
+      private
+
+      def can_send_failure_email?(claim)
+        Flipper.enabled?(:caregiver_use_va_notify_on_submission_failure) && claim.parsed_form.dig(
+          'veteran', 'email'
+        )
+      end
     end
   end
 end
