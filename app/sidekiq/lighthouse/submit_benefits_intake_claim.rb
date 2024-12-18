@@ -4,11 +4,11 @@ require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pension_burial/tag_sentry'
 require 'burials/monitor'
+require 'burials/notification_email'
 require 'pcpg/monitor'
 require 'benefits_intake_service/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'pdf_info'
-require 'va_notify/notification_email/burial'
 
 module Lighthouse
   class SubmitBenefitsIntakeClaim
