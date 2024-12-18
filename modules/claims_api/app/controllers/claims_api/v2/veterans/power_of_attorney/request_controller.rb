@@ -29,12 +29,9 @@ module ClaimsApi
 
           validate_filter!(filter)
 
-          service = ClaimsApi::ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
-                                                               external_key: 'power_of_attorney_request_key')
+          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(poa_codes:, page_size:, page_index:, filter:)
 
-          res = service.read_poa_request(poa_codes:, page_size:, page_index:, filter:)
-
-          poa_list = res['poaRequestRespondReturnVOList']
+          poa_list = service.get_poa_list
 
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
@@ -49,8 +46,8 @@ module ClaimsApi
 
           validate_decide_params!(proc_id:, decision:)
 
-          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
-                                                    external_key: 'power_of_attorney_request_key')
+          service = ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
+                                                               external_key: Settings.bgs.external_key)
 
           if decision == 'declined'
             poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
