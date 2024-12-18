@@ -20,7 +20,7 @@ module SignIn
       @current_user.present?
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden
-    rescue Errors::StandardError, MPI::Errors::AccountLockedError => e
+    rescue Errors::StandardError => e
       handle_authenticate_error(e)
     end
 
