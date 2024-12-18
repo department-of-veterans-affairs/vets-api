@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 require 'pdf_fill/forms/va21p0969'
-require 'pdf_fill/forms/va21p530'
-require 'pdf_fill/forms/va21p530v2'
+require 'pdf_fill/forms/va21p530ez'
 require 'pdf_fill/forms/va214142'
 require 'pdf_fill/forms/va210781a'
 require 'pdf_fill/forms/va210781'
@@ -48,8 +47,8 @@ module PdfFill
     # Registers form classes for various form IDs.
     {
       '21P-0969' => PdfFill::Forms::Va21p0969,
-      '21P-530' => PdfFill::Forms::Va21p530,
-      '21P-530V2' => PdfFill::Forms::Va21p530v2,
+      '21P-530V2' => PdfFill::Forms::Va21p530ez,
+      '21P-530EZ' => PdfFill::Forms::Va21p530ez,
       '21-4142' => PdfFill::Forms::Va214142,
       '21-0781a' => PdfFill::Forms::Va210781a,
       '21-0781' => PdfFill::Forms::Va210781,
