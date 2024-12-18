@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe CreateStagingExcelFilesMailer, type: %i[mailer aws_helpers] do
+RSpec.describe CreateExcelFilesMailer, type: %i[mailer aws_helpers] do
   describe '#build' do
     subject do
       File.write("tmp/#{filename}", csv_contents)

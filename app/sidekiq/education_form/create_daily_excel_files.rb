@@ -67,7 +67,7 @@ module EducationForm
         formatted_records = format_records(records)
         write_csv_file(formatted_records, filename)
 
-        email_staging_excel_files(filename) if local_or_staging_env?
+        email_excel_files(filename)
 
         # Make records processed and add excel file event for rake job
         records.each { |r| r.update(processed_at: Time.zone.now) }
@@ -187,12 +187,8 @@ module EducationForm
       logger.info(message)
     end
 
-    def email_staging_excel_files(contents)
-      CreateStagingExcelFilesMailer.build(contents).deliver_now
-    end
-
-    def local_or_staging_env?
-      Rails.env.eql?('development') || Settings.hostname.eql?('staging-api.va.gov')
+    def email_excel_files(contents)
+      CreateExcelFilesMailer.build(contents).deliver_now
     end
   end
 end

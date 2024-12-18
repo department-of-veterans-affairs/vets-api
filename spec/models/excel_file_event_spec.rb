@@ -31,7 +31,7 @@ RSpec.describe ExcelFileEvent, type: :model do
     end
 
     it 'returns a new event when filename pattern does not match existing events' do
-      filename = "#{Time.zone.now.strftime('%Y%m%d')}_vetsgov.csv"
+      filename = "22-10282_#{Time.zone.now.strftime('%Y%m%d')}.csv"
       event = ExcelFileEvent.build_event(filename)
       expect(event.filename).to eq(filename)
       expect(event.retry_attempt).to eq(0)
