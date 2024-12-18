@@ -92,7 +92,7 @@ class FormProfile
             22-5495 22-0993 22-0994 FEEDBACK-TOOL 22-10203 22-1990S 22-1990EZ],
     evss: ['21-526EZ'],
     hca: %w[1010ez 10-10EZR],
-    pension_burial: %w[21P-530 21P-527EZ 21P-530V2],
+    pension_burial: %w[21P-530EZ 21P-527EZ],
     dependents: ['686C-674'],
     decision_review: %w[20-0995 20-0996 10182],
     mdot: ['MDOT'],
@@ -105,7 +105,8 @@ class FormProfile
     ivc_champva: ['10-7959C'],
     form_upload_flow: ['FORM-UPLOAD-FLOW'],
     acc_rep_management: %w[21-22 21-22A],
-    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS']
+    form_mock_ae_design_patterns: ['FORM-MOCK-AE-DESIGN-PATTERNS'],
+    dispute_debt: ['DISPUTE-DEBT']
   }.freeze
 
   FORM_ID_TO_CLASS = {
@@ -125,8 +126,7 @@ class FormProfile
     '22-5490' => ::FormProfiles::VA5490,
     '22-5490E' => ::FormProfiles::VA5490e,
     '22-5495' => ::FormProfiles::VA5495,
-    '21P-530' => ::FormProfiles::VA21p530,
-    '21P-530V2' => ::FormProfiles::VA21p530v2,
+    '21P-530EZ' => ::FormProfiles::VA21p530ez,
     '21-686C' => ::FormProfiles::VA21686c,
     '686C-674' => ::FormProfiles::VA686c674,
     '40-10007' => ::FormProfiles::VA4010007,
@@ -147,7 +147,8 @@ class FormProfile
     'FORM-UPLOAD-FLOW' => ::FormProfiles::FormUploadFlow,
     '21-22' => ::FormProfiles::VA2122,
     '21-22A' => ::FormProfiles::VA2122a,
-    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns
+    'FORM-MOCK-AE-DESIGN-PATTERNS' => ::FormProfiles::FormMockAeDesignPatterns,
+    'DISPUTE-DEBT' => ::FormProfiles::DisputeDebt
   }.freeze
 
   APT_REGEX = /\S\s+((apt|apartment|unit|ste|suite).+)/i

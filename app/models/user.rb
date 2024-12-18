@@ -131,6 +131,10 @@ class User < Common::RedisStore
     }
   end
 
+  def preferred_name
+    preferred_name_mpi
+  end
+
   def gender
     identity.gender.presence || gender_mpi
   end
@@ -234,6 +238,10 @@ class User < Common::RedisStore
 
   def first_name_mpi
     given_names&.first
+  end
+
+  def preferred_name_mpi
+    mpi_profile&.preferred_names&.first
   end
 
   def middle_name_mpi
@@ -407,7 +415,9 @@ class User < Common::RedisStore
   end
 
   def vaprofile_contact_info
-    @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
+    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && icn.present?
+
+    @vaprofile_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
   def va_profile_v2_email

@@ -7,6 +7,17 @@ RSpec.describe Form1010cg::SubmissionJob do
   let(:claim) { create(:caregivers_assistance_claim, form:) }
   let(:statsd_key_prefix) { described_class::STATSD_KEY_PREFIX }
   let(:zsf_tags) { described_class::DD_ZSF_TAGS }
+  let(:email_address) { 'jane.doe@example.com' }
+  let(:form_with_email) do
+    data = JSON.parse(VetsJsonSchema::EXAMPLES['10-10CG'].clone.to_json)
+    data['veteran']['email'] = email_address
+    data.to_json
+  end
+
+  before do
+    allow(VANotify::EmailJob).to receive(:perform_async)
+    allow(Flipper).to receive(:enabled?).and_call_original
+  end
 
   it 'has a retry count of 16' do
     expect(described_class.get_sidekiq_options['retry']).to eq(16)
@@ -90,7 +101,7 @@ RSpec.describe Form1010cg::SubmissionJob do
               tags: ["claim_id:#{claim.id}"]
             )
             expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: zsf_tags)
-            expect(described_class).not_to receive(:send_failure_email)
+            expect(VANotify::EmailJob).not_to receive(:perform_async)
           end
         end
       end
@@ -108,19 +119,14 @@ RSpec.describe Form1010cg::SubmissionJob do
               tags: ["claim_id:#{claim.id}"]
             )
             expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: zsf_tags)
-            expect(described_class).not_to receive(:send_failure_email)
+            expect(VANotify::EmailJob).not_to receive(:perform_async)
           end
         end
       end
     end
 
     context 'when the parsed form has an email' do
-      let(:email_address) { 'jane.doe@example.com' }
-      let(:form) do
-        data = JSON.parse(VetsJsonSchema::EXAMPLES['10-10CG'].clone.to_json)
-        data['veteran']['email'] = email_address
-        data.to_json
-      end
+      let(:form) { form_with_email }
 
       let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
       let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_cg_failure_email }
@@ -148,9 +154,7 @@ RSpec.describe Form1010cg::SubmissionJob do
               tags: ["claim_id:#{claim.id}"]
             )
 
-            allow(VANotify::EmailJob).to receive(:perform_async)
             expect(VANotify::EmailJob).to receive(:perform_async).with(*template_params)
-
             expect(StatsD).to receive(:increment).with(
               "#{statsd_key_prefix}submission_failure_email_sent"
             )
@@ -170,7 +174,7 @@ RSpec.describe Form1010cg::SubmissionJob do
               "#{statsd_key_prefix}failed_no_retries_left",
               tags: ["claim_id:#{claim.id}"]
             )
-            expect(described_class).not_to receive(:send_failure_email)
+            expect(VANotify::EmailJob).not_to receive(:perform_async)
           end
         end
       end
@@ -202,16 +206,72 @@ RSpec.describe Form1010cg::SubmissionJob do
     end
 
     context 'when the service throws a record parse error' do
-      it 'rescues the error and increments statsd' do
-        expect_any_instance_of(Form1010cg::Service).to receive(
-          :process_claim_v2!
-        ).and_raise(CARMA::Client::MuleSoftClient::RecordParseError.new)
+      context 'the send failure email flipper is enabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(true)
+        end
 
-        expect do
-          job.perform(claim.id)
-        end.to trigger_statsd_increment('api.form1010cg.async.record_parse_error', tags: ["claim_id:#{claim.id}"])
+        context 'form has email' do
+          let(:form) { form_with_email }
 
-        expect(SavedClaim.exists?(id: claim.id)).to eq(true)
+          it 'rescues the error, increments statsd, and attempts to send failure email' do
+            expect_any_instance_of(Form1010cg::Service).to receive(
+              :process_claim_v2!
+            ).and_raise(CARMA::Client::MuleSoftClient::RecordParseError.new)
+
+            expect(SavedClaim.exists?(id: claim.id)).to eq(true)
+
+            expect(VANotify::EmailJob).to receive(:perform_async)
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}submission_failure_email_sent"
+            )
+            expect(StatsD).to receive(:increment).with(
+              "#{statsd_key_prefix}record_parse_error",
+              tags: ["claim_id:#{claim.id}"]
+            )
+            expect(StatsD).to receive(:increment).with(
+              'silent_failure_avoided_no_confirmation', tags: zsf_tags
+            )
+
+            job.perform(claim.id)
+          end
+        end
+
+        context 'form does not have email' do
+          it 'rescues the error, increments statsd, and attempts to send failure email' do
+            expect_any_instance_of(Form1010cg::Service).to receive(
+              :process_claim_v2!
+            ).and_raise(CARMA::Client::MuleSoftClient::RecordParseError.new)
+
+            expect do
+              job.perform(claim.id)
+            end.to trigger_statsd_increment('api.form1010cg.async.record_parse_error', tags: ["claim_id:#{claim.id}"])
+              .and trigger_statsd_increment('silent_failure_avoided_no_confirmation', tags: zsf_tags)
+
+            expect(SavedClaim.exists?(id: claim.id)).to eq(true)
+            expect(VANotify::EmailJob).not_to receive(:perform_async)
+          end
+        end
+      end
+
+      context 'the send failure email flipper is disabled' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:caregiver_use_va_notify_on_submission_failure).and_return(false)
+        end
+
+        it 'rescues the error and increments statsd' do
+          expect_any_instance_of(Form1010cg::Service).to receive(
+            :process_claim_v2!
+          ).and_raise(CARMA::Client::MuleSoftClient::RecordParseError.new)
+
+          expect do
+            job.perform(claim.id)
+          end.to trigger_statsd_increment('api.form1010cg.async.record_parse_error', tags: ["claim_id:#{claim.id}"])
+            .and trigger_statsd_increment('silent_failure_avoided_no_confirmation', tags: zsf_tags)
+
+          expect(SavedClaim.exists?(id: claim.id)).to eq(true)
+          expect(VANotify::EmailJob).not_to receive(:perform_async)
+        end
       end
     end
 

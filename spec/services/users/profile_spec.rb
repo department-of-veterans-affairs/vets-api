@@ -190,6 +190,10 @@ RSpec.describe Users::Profile do
         expect(profile[:last_name]).to eq(user.last_name)
       end
 
+      it 'includes preferred_name' do
+        expect(profile[:preferred_name]).to eq(user.preferred_name)
+      end
+
       it 'includes birth_date' do
         expect(profile[:birth_date]).to eq(user.birth_date)
       end
@@ -449,7 +453,6 @@ RSpec.describe Users::Profile do
           expect(vet360_info[:work_phone]).to be_present
           expect(vet360_info[:fax_number]).to be_present
           expect(vet360_info[:temporary_phone]).to be_present
-          expect(vet360_info[:text_permission]).to be_present
         end
 
         it 'sets the status to 200' do

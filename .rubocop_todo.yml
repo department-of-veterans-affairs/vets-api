@@ -312,6 +312,7 @@ Lint/MissingSuper:
     - 'modules/va_notify/lib/va_notify/service.rb'
     - 'modules/vaos/app/services/vaos/session_service.rb'
     - 'modules/veteran/app/models/veteran/user.rb'
+    - 'lib/vye/dgib/service.rb'
 
 # Offense count: 5
 Lint/NoReturnInBeginEndBlocks:
@@ -1206,7 +1207,7 @@ Style/StringChars:
     - 'modules/claims_api/app/controllers/claims_api/v2/veterans/claims_controller.rb'
 
 # Offense count: 60
-ThreadSafety/InstanceVariableInClassMethod:
+ThreadSafety/ClassInstanceVariable:
   Exclude:
     - 'app/models/base_facility.rb'
     - 'app/models/concerns/redis_caching.rb'

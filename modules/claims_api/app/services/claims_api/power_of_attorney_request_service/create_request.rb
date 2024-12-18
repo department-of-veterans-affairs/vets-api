@@ -7,6 +7,7 @@ require 'bgs_service/vnp_proc_service_v2'
 require 'bgs_service/vnp_ptcpnt_addrs_service'
 require 'bgs_service/vnp_ptcpnt_phone_service'
 require 'bgs_service/vnp_ptcpnt_service'
+require 'concurrent-ruby'
 
 module ClaimsApi
   module PowerOfAttorneyRequestService
@@ -26,25 +27,73 @@ module ClaimsApi
       end
 
       def call
+        # https://github.com/DataDog/dd-trace-rb/blob/master/docs/UpgradeGuide.md#distributed-tracing
+        trace_digest = Datadog::Tracing.active_trace&.to_digest
+
         @vnp_proc_id = create_vnp_proc[:vnp_proc_id]
-        create_vnp_form
-        @veteran_vnp_ptcpnt_id = create_vnp_ptcpnt(@veteran_participant_id)[:vnp_ptcpnt_id]
-        create_vonapp_data(@form_data[:veteran], @veteran_vnp_ptcpnt_id)
+
+        # Parallelize create_vnp_form and create_vnp_ptcpnt
+        form_promise = Concurrent::Promise.execute do
+          Datadog::Tracing.continue_trace!(trace_digest) do
+            create_vnp_form
+          end
+        end
+
+        ptcpnt_promise = Concurrent::Promise.execute do
+          Datadog::Tracing.continue_trace!(trace_digest) do
+            create_vnp_ptcpnt(@veteran_participant_id)
+          end
+        end
+
+        # Wait for both promises and store the participant ID
+        form_promise.value!
+        @veteran_vnp_ptcpnt_id = ptcpnt_promise.value![:vnp_ptcpnt_id]
+
+        create_vonapp_data(@form_data[:veteran], @veteran_vnp_ptcpnt_id, trace_digest)
+
         if @has_claimant
           @claimant_vnp_ptcpnt_id = create_vnp_ptcpnt(@claimant_participant_id)[:vnp_ptcpnt_id]
-          create_vonapp_data(@form_data[:claimant], @claimant_vnp_ptcpnt_id)
+          create_vonapp_data(@form_data[:claimant], @claimant_vnp_ptcpnt_id, trace_digest)
         end
+
         create_veteran_representative
       end
 
       private
 
-      def create_vonapp_data(person, vnp_ptcpnt_id)
-        create_vnp_person(person, vnp_ptcpnt_id)
-        create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
-        create_vnp_email_address(person[:email], vnp_ptcpnt_id) if person[:email]
+      def create_vonapp_data(person, vnp_ptcpnt_id, trace_digest) # rubocop:disable Metrics/MethodLength
+        promises = []
 
-        create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id) if person[:phone]
+        promises << Concurrent::Promise.execute do
+          Datadog::Tracing.continue_trace!(trace_digest) do
+            create_vnp_person(person, vnp_ptcpnt_id)
+          end
+        end
+
+        promises << Concurrent::Promise.execute do
+          Datadog::Tracing.continue_trace!(trace_digest) do
+            create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
+          end
+        end
+
+        if person[:email]
+          promises << Concurrent::Promise.execute do
+            Datadog::Tracing.continue_trace!(trace_digest) do
+              create_vnp_email_address(person[:email], vnp_ptcpnt_id)
+            end
+          end
+        end
+
+        if person[:phone]
+          promises << Concurrent::Promise.execute do
+            Datadog::Tracing.continue_trace!(trace_digest) do
+              create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
+            end
+          end
+        end
+
+        # Wait for all promises to complete and raise any errors that occurred
+        promises.each(&:value!)
       end
 
       def create_vnp_proc
@@ -65,23 +114,21 @@ module ClaimsApi
       end
 
       def create_vnp_ptcpnt(participant_id)
-        ClaimsApi::VnpPtcpntService
-          .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
-          .vnp_ptcpnt_create(
-            {
-              vnp_proc_id: @vnp_proc_id,
-              vnp_ptcpnt_id: nil,
-              fraud_ind: nil,
-              legacy_poa_cd: nil,
-              misc_vendor_ind: nil,
-              ptcpnt_short_nm: nil,
-              ptcpnt_type_nm: PTCPNT_TYPE,
-              tax_idfctn_nbr: nil,
-              tin_waiver_reason_type_cd: nil,
-              ptcpnt_fk_ptcpnt_id: nil,
-              corp_ptcpnt_id: participant_id
-            }.merge(bgs_jrn_fields)
-          )
+        vnp_ptcpnt_service.vnp_ptcpnt_create(
+          {
+            vnp_proc_id: @vnp_proc_id,
+            vnp_ptcpnt_id: nil,
+            fraud_ind: nil,
+            legacy_poa_cd: nil,
+            misc_vendor_ind: nil,
+            ptcpnt_short_nm: nil,
+            ptcpnt_type_nm: PTCPNT_TYPE,
+            tax_idfctn_nbr: nil,
+            tin_waiver_reason_type_cd: nil,
+            ptcpnt_fk_ptcpnt_id: nil,
+            corp_ptcpnt_id: participant_id
+          }.merge(bgs_jrn_fields)
+        )
       end
 
       def create_vnp_person(person, vnp_ptcpnt_id)
@@ -102,8 +149,7 @@ module ClaimsApi
 
       # rubocop: disable Metrics/MethodLength
       def create_vnp_mailing_address(address, vnp_ptcpnt_id)
-        ClaimsApi::VnpPtcpntAddrsService
-          .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
+        vnp_ptcpnt_addrs_service
           .vnp_ptcpnt_addrs_create(
             {
               vnp_ptcpnt_addrs_id: nil,
@@ -148,8 +194,7 @@ module ClaimsApi
 
       # rubocop: disable Metrics/MethodLength
       def create_vnp_email_address(email, vnp_ptcpnt_id)
-        ClaimsApi::VnpPtcpntAddrsService
-          .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
+        vnp_ptcpnt_addrs_service
           .vnp_ptcpnt_addrs_create(
             {
               vnp_ptcpnt_addrs_id: nil,
@@ -247,6 +292,16 @@ module ClaimsApi
       end
       # rubocop: enable Metrics/MethodLength
       # rubocop: enable Naming/VariableNumber
+
+      def vnp_ptcpnt_service
+        @vnp_ptcpnt_service ||= ClaimsApi::VnpPtcpntService
+                                .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
+      end
+
+      def vnp_ptcpnt_addrs_service
+        @vnp_ptcpnt_addrs_service ||= ClaimsApi::VnpPtcpntAddrsService
+                                      .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
+      end
 
       def bgs_jrn_fields
         {

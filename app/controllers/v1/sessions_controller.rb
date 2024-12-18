@@ -28,13 +28,20 @@ module V1
     STATSD_LOGIN_LATENCY = 'api.auth.latency'
     VERSION_TAG = 'version:v1'
     FIM_INVALID_MESSAGE_TIMESTAMP = 'invalid_message_timestamp'
+    OPERATION_TYPES = [AUTHORIZE = 'authorize',
+                       INTERSTITIAL_VERIFY = 'interstitial_verify',
+                       INTERSTITIAL_SIGNUP = 'interstitial_signup'].freeze
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
     # For more details see SAML::SSOeSettingsService and SAML::URLService
+    # rubocop:disable Metrics/MethodLength
     def new
       type = params[:type]
       client_id = params[:application] || 'vaweb'
+      operation = params[:operation] || 'authorize'
+
+      validate_operation_params(operation)
 
       # As a temporary measure while we have the ability to authenticate either through SessionsController
       # or through SignInController, we will delete all SignInController cookies when authenticating with SSOe
@@ -60,8 +67,9 @@ module V1
       else
         render_login(type)
       end
-      new_stats(type, client_id)
+      new_stats(type, client_id, operation)
     end
+    # rubocop:enable Metrics/MethodLength
 
     def ssoe_slo_callback
       Rails.logger.info("SessionsController version:v1 ssoe_slo_callback, user_uuid=#{@current_user&.uuid}")
@@ -306,8 +314,9 @@ module V1
       end
     end
 
-    def new_stats(type, client_id)
-      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}"]
+    def new_stats(type, client_id, operation)
+      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
+
       StatsD.increment(STATSD_SSO_NEW_KEY, tags:)
       Rails.logger.info("SSO_NEW_KEY, tags: #{tags}")
     end
@@ -408,8 +417,15 @@ module V1
     end
 
     def after_login_actions
-      Login::AfterLoginActions.new(@current_user).perform
+      Login::AfterLoginActions.new(@current_user, skip_mhv_account_creation).perform
       log_persisted_session_and_warnings
+    end
+
+    def skip_mhv_account_creation
+      skip_mhv_account_creation_client = url_service.tracker.payload_attr(:application) == SAML::User::MHV_ORIGINAL_CSID
+      skip_mhv_account_creation_type = url_service.tracker.payload_attr(:type) == 'custom'
+
+      skip_mhv_account_creation_client || skip_mhv_account_creation_type
     end
 
     def log_persisted_session_and_warnings
@@ -433,6 +449,10 @@ module V1
                                                 user: current_user,
                                                 params:,
                                                 loa3_context: LOA::IDME_LOA3)
+    end
+
+    def validate_operation_params(operation)
+      raise Common::Exceptions::InvalidFieldValue.new('operation', operation) unless OPERATION_TYPES.include?(operation)
     end
   end
 end

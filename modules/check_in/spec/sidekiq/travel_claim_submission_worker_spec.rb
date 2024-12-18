@@ -16,6 +16,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       @statsd_timeout = CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT
       @statsd_error = CheckIn::Constants::OH_STATSD_BTSSS_ERROR
       @statsd_notify_success = CheckIn::Constants::STATSD_NOTIFY_SUCCESS
+      @statsd_silent_failure_tag = CheckIn::Constants::STATSD_OH_SILENT_FAILURE_TAGS
 
       allow(redis_client).to receive(:facility_type).and_return('oh')
     else
@@ -30,6 +31,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
       @statsd_timeout = CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT
       @statsd_error = CheckIn::Constants::CIE_STATSD_BTSSS_ERROR
       @statsd_notify_success = CheckIn::Constants::STATSD_NOTIFY_SUCCESS
+      @statsd_silent_failure_tag = CheckIn::Constants::STATSD_CIE_SILENT_FAILURE_TAGS
 
       allow(redis_client).to receive(:facility_type).and_return(nil)
     end
@@ -140,7 +142,7 @@ shared_examples 'travel claims worker #perform' do |facility_type|
     it 'handles the error' do
       worker = described_class.new
       expect(worker).to receive(:log_exception_to_sentry).with(
-        instance_of(Common::Exceptions::BackendServiceException),
+        instance_of(VANotify::Forbidden),
         { phone_number: patient_cell_phone_last_four, template_id: @success_template_id, claim_number: claim_last4 },
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
@@ -152,7 +154,32 @@ shared_examples 'travel claims worker #perform' do |facility_type|
 
       VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do
         VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_200', match_requests_on: [:host]) do
-          expect { worker.perform(uuid, appt_date) }.to raise_error(Common::Exceptions::BackendServiceException)
+          expect { worker.perform(uuid, appt_date) }.to raise_error(VANotify::Forbidden)
+        end
+      end
+    end
+  end
+
+  context "when #{facility_type} facility and both submit_claim & send_sms returns an error" do
+    it 'logs the silent_failure error' do
+      worker = described_class.new
+      expect(worker).to receive(:log_exception_to_sentry).with(
+        instance_of(VANotify::Forbidden),
+        { phone_number: patient_cell_phone_last_four, template_id: @error_template_id, claim_number: nil },
+        { error: :check_in_va_notify_job, team: 'check-in' }
+      )
+
+      expect(StatsD).not_to receive(:increment)
+        .with(CheckIn::Constants::STATSD_NOTIFY_SUCCESS)
+      expect(StatsD).to receive(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SILENT_FAILURE,
+                                                 { tags: @statsd_silent_failure_tag })
+                                           .exactly(1).time
+      expect(StatsD).to receive(:increment)
+        .with(CheckIn::Constants::STATSD_NOTIFY_ERROR).exactly(1).time
+
+      VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do
+        VCR.use_cassette('check_in/btsss/submit_claim/submit_claim_400_multiple', match_requests_on: [:host]) do
+          expect { worker.perform(uuid, appt_date) }.to raise_error(VANotify::Forbidden)
         end
       end
     end
@@ -225,6 +252,7 @@ describe CheckIn::TravelClaimSubmissionWorker, type: :worker do
     allow(Flipper).to receive(:enabled?).with(:check_in_experience_check_claim_status_on_timeout)
                                         .and_return(true)
     allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
 
     allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
                                             station_number:, facility_type: nil)

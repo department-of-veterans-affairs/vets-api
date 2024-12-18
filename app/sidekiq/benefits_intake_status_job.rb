@@ -139,10 +139,10 @@ class BenefitsIntakeStatusJob
     }
     call_location = caller_locations.first
 
-    if %w[21P-530V2 21P-530].include?(form_id)
+    if %w[21P-530EZ 21P-530V2].include?(form_id)
       claim = SavedClaim::Burial.find(saved_claim_id)
       if claim
-        Burials::NotificationEmail.new(claim).deliver(:error)
+        Burials::NotificationEmail.new(claim.id).deliver(:error)
         Burials::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         Burials::Monitor.new.log_silent_failure(context, nil, call_location:)
@@ -152,7 +152,7 @@ class BenefitsIntakeStatusJob
     if %w[21P-527EZ].include?(form_id)
       claim = Pensions::SavedClaim.find(saved_claim_id)
       if claim
-        Pensions::NotificationEmail.new(claim).deliver(:error)
+        Pensions::NotificationEmail.new(claim.id).deliver(:error)
         Pensions::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         Pensions::Monitor.new.log_silent_failure(context, nil, call_location:)
@@ -162,8 +162,11 @@ class BenefitsIntakeStatusJob
     # Dependents
     if %w[686C-674].include?(form_id)
       claim = SavedClaim::DependencyClaim.find(saved_claim_id)
-      if claim
-        claim.send_failure_email
+      email = if claim.present?
+                claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address')
+              end
+      if claim.present? && email.present?
+        claim.send_failure_email(email)
         Dependents::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         Dependents::Monitor.new.log_silent_failure(context, nil, call_location:)
@@ -173,8 +176,9 @@ class BenefitsIntakeStatusJob
     # PCPG
     if %w[28-8832].include?(form_id)
       claim = SavedClaim::EducationCareerCounselingClaim.find(saved_claim_id)
-      if claim
-        claim.send_failure_email
+      email = claim.parsed_form.dig('claimantInformation', 'emailAddress') if claim.present?
+      if claim.present? && email.present?
+        claim.send_failure_email(email)
         PCPG::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         PCPG::Monitor.new.log_silent_failure(ocntext, nil, call_location:)
@@ -184,8 +188,9 @@ class BenefitsIntakeStatusJob
     # VRE
     if %w[28-1900].include?(form_id)
       claim = SavedClaim::VeteranReadinessEmploymentClaim.find(saved_claim_id)
-      if claim
-        claim.send_failure_email
+      email = claim.parsed_form['email'] if claim.present?
+      if claim.present? && email.present?
+        claim.send_failure_email(email)
         VRE::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         VRE::Monitor.new.log_silent_failure(context, nil, call_location:)

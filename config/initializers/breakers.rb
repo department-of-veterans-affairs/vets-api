@@ -6,6 +6,12 @@ require 'caseflow/configuration'
 require 'central_mail/configuration'
 require 'debt_management_center/debts_configuration'
 require 'decision_review/configuration'
+require 'vye/dgib/service'
+require 'dgi/automation/configuration'
+require 'dgi/eligibility/configuration'
+require 'dgi/status/configuration'
+require 'dgi/submission/configuration'
+require 'dgi/letters/configuration'
 require 'evss/claims_service'
 require 'evss/common_service'
 require 'evss/dependents/configuration'
@@ -21,6 +27,7 @@ require 'lighthouse/benefits_education/configuration'
 require 'mhv_ac/configuration'
 require 'mpi/configuration'
 require 'pagerduty/configuration'
+require 'post911_sob/dgib/configuration'
 require 'preneeds/configuration'
 require 'rx/configuration'
 require 'sm/configuration'
@@ -62,6 +69,7 @@ Rails.application.reloader.to_prepare do
     HCA::Configuration.instance.breakers_service,
     MHVAC::Configuration.instance.breakers_service,
     MPI::Configuration.instance.breakers_service,
+    Post911SOB::DGIB::Configuration.instance.breakers_service,
     Preneeds::Configuration.instance.breakers_service,
     SM::Configuration.instance.breakers_service,
     VAProfile::AddressValidation::Configuration.instance.breakers_service,
@@ -77,11 +85,14 @@ Rails.application.reloader.to_prepare do
     SearchTypeahead::Configuration.instance.breakers_service,
     SearchClickTracking::Configuration.instance.breakers_service,
     VAOS::Configuration.instance.breakers_service,
+    Vye::DGIB::Configuration.instance.breakers_service,
     IAMSSOeOAuth::Configuration.instance.breakers_service,
     CovidVaccine::V0::VetextConfiguration.instance.breakers_service,
     VEText::Configuration.instance.breakers_service,
     PagerDuty::Configuration.instance.breakers_service,
-    ClaimsApi::LocalBGS.breakers_service
+    ClaimsApi::LocalBGS.breakers_service,
+    MebApi::DGI::Configuration.instance.breakers_service,
+    MebApi::DGI::Letters::Configuration.instance.breakers_service
   ]
 
   services << CentralMail::Configuration.instance.breakers_service if Settings.central_mail&.upload&.enabled

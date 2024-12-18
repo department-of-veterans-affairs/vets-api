@@ -1,7 +1,22 @@
 {
   "record_consent": true,
   "consent_address_change": true,
-  "consent_limits": [],
+  "consent_limits": [
+    "ALCOHOLISM",
+    "DRUG_ABUSE"
+  ],
+  "consent_inside_access": true,
+  "consent_outside_access": true,
+  "consent_team_members": [
+    "Jane M Representative",
+    "John M Representative",
+    "Jane M Doe",
+    "John M Doe",
+    "Bobbie M Law",
+    "Bob M Law",
+    "Alice M Aster",
+    "Arthur M Aster"
+  ],
   "claimant": {
     "date_of_birth": "1980-12-31",
     "relationship": "Spouse",
@@ -46,6 +61,6 @@
     }
   },
   "representative": {
-    "id": "This will be a UUID you'll have to find in the console"
-  }
+		"id": "bd22d501-b3df-4a52-9229-5c25b4d2036a"
+	}
 }

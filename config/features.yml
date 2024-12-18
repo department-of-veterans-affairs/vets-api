@@ -23,6 +23,10 @@ features:
     actor_type: user
     description: Enables the endpoints of the accredited representative portal
     enable_in_development: true
+  aedp_vadx:
+    actor_type: user
+    description: Enables the VADX experimental features in the AEDP application
+    enable_in_development: true
   all_claims_add_disabilities_enhancement:
     actor_type: user
     description: Enables enhancement to the 21-526EZ "Add Disabilities" page being implemented by the Conditions Team.
@@ -80,6 +84,12 @@ features:
     actor_type: user
     description: Send 10-10CG submission failure email to Veteran using VANotify.
     enable_in_development: true
+  caregiver_retry_form_validation:
+    actor_type: user
+    description: Enables 1010CG to retry schema validation
+  disability_compensation_staging_lighthouse_brd:
+    actor_type: user
+    description: Switches to Lighthouse Staging BRD Service. NEVER ENABLE IN PRODUCTION.
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -112,6 +122,9 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
+  hca_log_email_diff_in_progress_form:
+    actor_type: user
+    description: Enable using database instead of redis to log email differences between va_profile and in progress forms.
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
@@ -157,15 +170,21 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
-  champva_unique_temp_file_names:
+  champva_multiple_stamp_retry:
     actor_type: user
-    description: Enables unique temp file names for CHAMPVA PDF files
-  champva_file_recreate:
-    actor_type: user
-    description: Enhances file creation reliability by adding retry functionality in the vets-api tmp folder
+    description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
   champva_failure_email_job_enabled:
     actor_type: user
     description: Enables sending failure notification emails for IVC CHAMPVA form submissions that lack a Pega status
+  champva_confirmation_email_bugfix:
+    actor_type: user
+    description: Enables fix for a bug where confirmation emails may get sent when Pega reports a status of 'Not Processed'
+  champva_enhanced_monitor_logging:
+    actor_type: user
+    description: Enables using the new IVC CHAMPVA Monitoring logging class for enhanced Stats D info.
+  champva_pdf_decrypt:
+    actor_type: user
+    description: Enables unlocking password protected file submissions in IVC CHAMPVA forms.
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -214,9 +233,21 @@ features:
     actor_type: user
     description: Enables users to access the claim letters page
     enable_in_development: true
+  claims_api_special_issues_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables special issues updater to use local_bgs
+    enable_in_development: true
+  claims_api_flash_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables flash updater to use local_bgs
+    enable_in_development: true
   claims_api_local_bgs_refactor:
     actor_type: user
     description: Diverts codepath to LocalBGSRefactored
+    enable_in_development: true
+  claims_api_poa_vbms_updater_uses_local_bgs:
+    actor_type: user
+    description: Enables poa vbms updater to use local_bgs
     enable_in_development: true
   claims_api_bd_refactor:
     actor_type: user
@@ -233,6 +264,18 @@ features:
   claims_api_poa_uploads_bd_refactor:
     actor_type: user
     description: When enabled, sends poa forms to BD via the refactored logic
+    enable_in_development: true
+  claims_api_526_validations_v1_local_bgs:
+    actor_type: user
+    description: Enables the method calls in the v1 526 validations use local_bgs
+    enable_in_development: true
+  claims_api_use_person_web_service:
+    actor_type: user
+    description: Uses person web service rather than local bgs
+    enable_in_development: true
+  claims_api_use_vet_record_service:
+    actor_type: user
+    description: Uses local_bgs rather than bgs-ext
     enable_in_development: true
   claims_api_526_v2_uploads_bd_refactor:
     actor_type: user
@@ -407,6 +450,10 @@ features:
     actor_type: user
     description: Enable using MAR 2024 revision of 200996 Higher Level Review form when submitting to EMMS for intake
     enable_in_development: false
+  decision_review_sc_form_v4_enabled:
+    actor_type: user
+    description: Enable using MAY 2024 revision of 200995 Supplemental Claim form when submitting to EMMS for intake
+    enable_in_development: false
   decision_review_saved_claim_hlr_status_updater_job_enabled:
     actor_type: user
     description: Enable job to set delete_date for completed SavedClaim::HigherLevelReviews
@@ -435,6 +482,15 @@ features:
     actor_type: user
     description: Enable sending an email if a 4142 submission is not successful in Lighthouse
     enable_in_development: true
+  decision_review_hlr_new_api:
+    actor_type: user
+    description: Enable to switch to new HLR modularized Decision Review endpoint
+  decision_review_nod_new_api:
+    actor_type: user
+    description: Enable to switch to new NOD modularized Decision Review endpoint
+  decision_review_sc_new_api:
+    actor_type: user
+    description: Enable to switch to new Supplemental Claim modularized Decision Review endpoint
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
@@ -473,6 +529,10 @@ features:
   disability_526_ep_merge_api:
     actor_type: user
     description: enables sending 526 claims with a pending EP to VRO EP Merge API for automated merging.
+  disability_526_ee_process_als_flash:
+    actor_type: user
+    description: enables adding applicable flashes to disability_526 prior to submission.
+    enable_in_development: true
   disability_526_toxic_exposure:
     actor_type: user
     description: enables new pages, processing, and submission of toxic exposure claims
@@ -485,6 +545,9 @@ features:
   disability_526_toxic_exposure_document_upload_polling:
     actor_type: user
     description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
+  disability_526_call_received_email_from_polling:
+    actor_type: user
+    description: enables received email in poll_form526_pdf job and disables calling from form526_submission
   disability_526_improved_autosuggestions_add_disabilities_page:
     actor_type: user
     description: enables new version of add disabilities page, with updates to content and search functionality
@@ -497,6 +560,9 @@ features:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
     enable_in_development: true
+  disability_compensation_temp_separation_location_code_string:
+    actor_type: user
+    description: enables forcing separation location code to be a string in submit_all_claim endpoint.
   disability_compensation_form4142_supplemental:
     actor_type: user
     description: Use Lighthouse API to submit supplemental Form 21-4142 from Form 526EZ submissions
@@ -529,12 +595,13 @@ features:
     actor_type: user
     description: Iteration of new features for discharge wizard
     enable_in_development: true
+  dispute_debt:
+    actor_type: user
+    description: Enables the Dispute Debt feature
+    enable_in_development: true
   facilities_ppms_suppress_all:
     actor_type: user
     description: Hide all ppms search options
-  facilities_ppms_suppress_community_care:
-    actor_type: user
-    description: Hide ppms community care searches
   facilities_ppms_suppress_pharmacies:
     actor_type: user
     description: Front End Flag to suppress the ability to search for pharmacies
@@ -542,16 +609,9 @@ features:
     actor_type: user
     description: Send only lat/long values (no bounding box or address) to the API when querying for facilities.
     enable_in_development: true
-  facility_locator_ppms_legacy_urgent_care_to_pos_locator:
-    actor_type: user
-    description: force the legacy urgent care path to use the new POS locator
   facility_locator_predictive_location_search:
     actor_type: user
     description: Use predictive location search in the Facility Locator UI
-  facility_locator_pull_operating_status_from_lighthouse:
-    actor_type: user
-    description: A fast and dirty way to get the operating status from lighthouse
-    enable_in_development: true
   facility_locator_rails_engine:
     actor_type: user
     description: Use rails engine routes for all Facility Locator API calls
@@ -739,6 +799,10 @@ features:
     actor_type: user
     description: Enables form email notifications upon certain state changes (error and received)
     enable_in_development: true
+  simple_forms_notification_callbacks:
+    actor_type: user
+    description: Enables form email notification callback for Simple Forms
+    enable_in_development: true
   form2010206:
     actor_type: user
     description: If enabled shows the digital form experience for form 20-10206
@@ -770,7 +834,7 @@ features:
     actor_type: user
     description: If enabled shows the digital form experience for form 40-0247
   form1010d:
-    actor_type: user
+    actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
   form107959c:
     actor_type: user
@@ -827,13 +891,13 @@ features:
     actor_type: user
     description: Enable/disable 526ez in progress form reminders (sent via VaNotify)
     enable_in_development: true
-  va_notify_user_account_job:
-    actor_type: user
-    description: Enable/disable UserAccountJob in VANotify (replacement for IcnJob)
-    enable_in_development: true
   letters_check_discrepancies:
     actor_type: user
     description: Enables ability to log letter discrepancies between evss and lighthouse
+    enable_in_development: true
+  lighthouse_claims_api_v2_add_person_proxy:
+    actor_type: user
+    description: Lighthouse Benefits Claims API v2 uses add_person_proxy service when target Veteran is missing a Participant ID
     enable_in_development: true
   lighthouse_claims_api_poa_dependent_claimants:
     actor_type: user
@@ -841,7 +905,7 @@ features:
     enable_in_development: true
   lighthouse_claims_api_v2_poa_va_notify:
     actor_type: user
-    description: Enable/disable the VA ntofication emails in V2 POA
+    description: Enable/disable the VA notification emails in V2 POA
     enable_in_development: false
   lighthouse_claims_v2_poa_requests_skip_bgs:
     actor_type: user
@@ -874,13 +938,25 @@ features:
     actor_type: user
     description: Enables notifications to be sent for new copay statements
     enable_in_development: true
+  mhv_account_creation_api_consumption:
+    actor_type: user
+    descriptiom: Enables access to alerts related to MHV Account Creation API
+    enable_in_development: true
   mhv_account_creation_after_login:
     actor_type: user
     descriptiom: Enables access to MHV Account Creation API
     enable_in_development: true
+  mhv_accelerated_delivery_enabled:
+    actor_type: user
+    description: Control whether vets-api allows fetching MR data from LightHouse
+    enable_in_development: false
   mhv_accelerated_delivery_allergies_enabled:
     actor_type: user
     description: Control fetching OH allergies data
+    enable_in_development: false
+  mhv_accelerated_delivery_vital_signs_enabled:
+    actor_type: user
+    description: Control fetching OH vitals data
     enable_in_development: false
   mhv_va_health_chat_enabled:
     actor_type: user
@@ -927,6 +1003,9 @@ features:
     actor_type: user
     description: Disables/Enables Secure Messaging optgroups in recipient dropdown on Start a new message page
     enable_in_development: true
+  mhv_secure_messaging_recipient_combobox:
+    actor_type: user
+    description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -997,6 +1076,10 @@ features:
   mhv_medications_display_filter:
     actor_type: user
     description: Enables/disables filter feature for medications list
+    enable_in_development: true
+  mhv_medications_display_grouping:
+    actor_type: user
+    description: Enables/disables grouping medications related work
     enable_in_development: true
   mobile_allergy_intolerance_model:
     actor_type: user
@@ -1140,9 +1223,6 @@ features:
   my_va_lighthouse_uploads_report:
     actor_type: user
     description: Use lighthouse /uploads/report endpoint for Form status
-  my_va_form_submission_statuses:
-    actor_type: user
-    description: Enables users to view the status of submitted forms.
   my_va_form_submission_pdf_link:
     actor_type: user
     description: Enables users to view PDF link within submitted forms cards
@@ -1165,10 +1245,6 @@ features:
   search_representative:
     actor_type: user
     description: Enable frontend application and cta for Search Representative application
-    enable_in_development: true
-  search_dropdown_component_enabled:
-    actor_type: user
-    description: Enables typeahead 2.0 functionality
     enable_in_development: true
   search_gov_maintenance:
     actor_type: user
@@ -1316,6 +1392,9 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
+  va_notify_custom_errors:
+    actor_type: user
+    description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments
@@ -1364,10 +1443,6 @@ features:
     actor_type: user
     description: Toggle for new vaos service va appointments.
     enable_in_development: true
-  va_online_scheduling_facilities_service_v2:
-    actor_type: user
-    description: Toggle for new mobile facility service v2 endpoints
-    enable_in_development: true
   va_online_scheduling_vaos_v2_next:
     actor_type: user
     enable_in_development: true
@@ -1392,14 +1467,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for proof of concept to help Veteran contact a facility when the type of care is not available
-  va_online_scheduling_after_visit_summary:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for After visit summary feature.
-  va_online_scheduling_start_scheduling_link:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for Start Scheduling action link.
   va_dependents_v2:
     actor_type: user
     description: Allows us to toggle bewteen V1 and V2 of the 686c-674 forms.
@@ -1446,13 +1513,10 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle to enable request workflow for Oracle Health appointments.
-  vaos_online_scheduling_remove_podiatry:
+  va_online_scheduling_remove_podiatry:
     actor_type: user
     enable_in_development: true
     description: Toggle to remove Podiatry from the type of care list when scheduling an online appointment.
-  va_burial_v2:
-    actor_type: user
-    description: Allows us to toggle between 21-P530 and 21-P530V2
   va_v2_person_service:
     actor_type: user
     description: When enabled, the VAProfile::V2::Person::Service will be enabled
@@ -1461,6 +1525,10 @@ features:
     actor_type: user
     description: When enabled, the VAProfile::V3::ContactInformation will be enabled
     enable_in_development: true
+  validate_saved_claims_with_json_schemer:
+    actor_type: user
+    description: When enabled, Saved Claims will be validated using the JSON Schemer gem rather than JSON Schema
+    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1473,6 +1541,14 @@ features:
   veteran_onboarding_show_welcome_message_to_new_users:
     actor_type: user
     description: Conditionally display the "Welcome to VA" message to new (LOA1 or LOA3) users
+    enable_in_development: false
+  veteran_status_card_use_lighthouse:
+    actor_type: user
+    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display
+    enable_in_development: false
+  veteran_status_card_use_lighthouse_frontend:
+    actor_type: user
+    description: Enables the use of LH API instead of Profile API for the Veteran Status Card display, story 1145
     enable_in_development: false
   vre_trigger_action_needed_email:
     actor_type: user
@@ -1585,6 +1661,9 @@ features:
   mobile_v2_contact_info:
     actor_type: user
     description: For mobile app, enables ContactInformationV2 Service.
+  mobile_push_register_logging:
+    actor_type: user
+    description: For mobile app, logs push register errors for debugging
   form526_backup_submission_temp_killswitch:
     actor_type: user
     description: Provide a temporary killswitch to disable form526 backup submission if something were to go awry
@@ -1677,6 +1756,10 @@ features:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true
+  sc_confirmation_update:
+    actor_type: user
+    description: Show updated confirmation page with form data & downloadable PDF
+    enable_in_development: true
   hlr_updateed_contnet:
     actor_type: user
     description: HLR show form content updates
@@ -1707,9 +1790,9 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
-  burial_form_v2:
+  burial_confirmation_page:
     actor_type: user
-    description: Enable Burial form v2 re-design
+    description: Toggle showing the updated confirmation page
     enable_in_development: true
   burial_error_email_notification:
     actor_type: cookie_id
@@ -1717,6 +1800,9 @@ features:
   burial_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
+  burial_browser_monitoring_enabled:
+    actor_type: user
+    description: Burial Datadog RUM monitoring
   pension_form_enabled:
     actor_type: user
     description: Enable the pension form
@@ -1773,11 +1859,6 @@ features:
       Controls how the GI Bill State of Benefits (SOB) application is presented.
       When enabled: it use the new SOB application that works 24/7.
       When disabled: it will use the old SOB application that only works from 0600 to 2200 hrs
-  sob_print_page_update:
-    actor_type: user
-    description: >-
-      Changes classname by which query selector looks for breadcrumbs on print page of GI Bill Statement of Benefits (SOB)
-      application. Used to test fix in staging.
   travel_pay_power_switch:
     actor_type: user
     enable_in_development: true
@@ -1841,6 +1922,9 @@ features:
   show_yellow_ribbon_table:
     actor_type: user
     description: Used to show yellow ribbon table in Comparison Tool
+  banner_update_alternative_banners:
+    actor_type: user
+    description: Used to toggle the DB updating of alternative banners
   banner_use_alternative_banners:
     actor_type: user
     description: Used to toggle use of alternative banners.
@@ -1856,9 +1940,23 @@ features:
   gi_comparison_tool_lce_toggle_flag:
     actor_type: user
     description: Used to show lce page in comparison tool
+  va_notify_in_progress_metadata:
+    actor_type: user
+    description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
   va_notify_notification_creation:
     actor_type: user
     description: If enabled, emails and sms sent through VaNotify::Service will be stored as notifications.
   is_DGIB_endpoint:
     actor_type: user
     description: used to call data from DGIB endpoints for MGIB VYE application
+  lighthouse_veterans_health_debug_logging:
+    actor_type: user
+    description: Enable debug logging for Lighthouse Veterans Health API
+    enable_in_development: false
+  benefits_non_disability_ch31_v2:
+    actor_type: user
+    description: If enabled, use new form and api endpoint for Ch31 VR&E form
+  is_updated_gi:
+    actor_type: user
+    description: If enabled, use updated gi design
+  

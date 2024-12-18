@@ -2,8 +2,10 @@
 
 require 'rails_helper'
 require_relative '../../../../support/pdf_matcher'
+require_relative '../../../../support/pdf_fill_helper'
 
 describe RepresentationManagement::V0::PdfConstructor::Form2122a do
+  include PdfFillHelper
   let(:representative) do
     create(:accredited_individual,
            first_name: 'John',
@@ -14,7 +16,7 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
            state_code: 'OR',
            country_code_iso3: 'USA',
            zip_code: '12345',
-           phone: '5555555555',
+           phone: '555-555-5555', # We're adding dashes here to make sure they aren't present in the pdf output.
            email: 'representative@example.com',
            individual_type: 'attorney')
   end
@@ -54,8 +56,24 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
       representative_id: representative.id,
 
       record_consent: true,
-      consent_limits: [],
-      consent_address_change: true
+      consent_limits: %w[
+        ALCOHOLISM
+        DRUG_ABUSE
+      ],
+      consent_address_change: true,
+      consent_inside_access: true,
+      consent_outside_access: true,
+      consent_team_members: [
+        'Jane M Representative',
+        'John M Representative',
+        'Jane M Doe',
+        'John M Doe',
+        'Bobbie M Law',
+        'Bob M Law',
+        'Alice M Aster',
+        'Arthur M Aster'
+      ]
+
     }
   end
 
@@ -70,8 +88,27 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
                                      'fixtures',
                                      '21-22A',
                                      'v0',
+                                     'default',
                                      '2122a_conditions_and_limitations.pdf')
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
+    end
+    # The Tempfile is automatically deleted after the block ends
+  end
+
+  it 'matches the field values of a pdf with conditions present when unflattened' do
+    form = RepresentationManagement::Form2122aData.new(data)
+    Tempfile.create do |tempfile|
+      tempfile.binmode
+      RepresentationManagement::V0::PdfConstructor::Form2122a.new(tempfile).construct(form, flatten: false)
+      expected_pdf = Rails.root.join('modules',
+                                     'representation_management',
+                                     'spec',
+                                     'fixtures',
+                                     '21-22A',
+                                     'v0',
+                                     'unflattened', # <- Important difference
+                                     '2122a_conditions_and_limitations.pdf')
+      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
     end
     # The Tempfile is automatically deleted after the block ends
   end
@@ -88,8 +125,28 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
                                      'fixtures',
                                      '21-22A',
                                      'v0',
+                                     'default',
                                      '2122a_conditions_and_limitations_no_claimant.pdf')
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
+    end
+    # The Tempfile is automatically deleted after the block ends
+  end
+
+  it 'matches the field values of a pdf with no claimant with conditions present when unflattened' do
+    data.delete_if { |key, _| key.to_s.include?('claimant') }
+    form = RepresentationManagement::Form2122aData.new(data)
+    Tempfile.create do |tempfile|
+      tempfile.binmode
+      RepresentationManagement::V0::PdfConstructor::Form2122a.new(tempfile).construct(form, flatten: false)
+      expected_pdf = Rails.root.join('modules',
+                                     'representation_management',
+                                     'spec',
+                                     'fixtures',
+                                     '21-22A',
+                                     'v0',
+                                     'unflattened', # <- Important difference
+                                     '2122a_conditions_and_limitations_no_claimant.pdf')
+      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
     end
     # The Tempfile is automatically deleted after the block ends
   end

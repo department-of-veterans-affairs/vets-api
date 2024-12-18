@@ -174,7 +174,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
             claim_id: submission.submitted_claim_id,
             participant_id: user.participant_id,
             document_type: upload_data.first['attachmentId'],
-            file_name: attachment.converted_filename,
+            file_name: upload_data.first['name'],
             supporting_evidence_attachment: attachment
           )
         end
@@ -231,27 +231,41 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           expect(Lighthouse526DocumentUpload.where(**upload_attributes).count).to eq(1)
         end
 
-        context 'when Lighthouse returns an error response' do
-          let(:error_response_body) do
-            # From vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_form_526_document_upload_400.yml
-            {
-              'errors' => [
-                {
-                  'detail' => 'Something broke',
-                  'status' => 400,
-                  'title' => 'Bad Request',
-                  'instance' => Faker::Internet.uuid
-                }
-              ]
-            }
+        # This is a possibility accounted for in the existing EVSS submission code.
+        # The original attachment object does not have a converted_filename.
+        context 'when the SupportingEvidenceAttachment returns a converted_filename' do
+          before do
+            attachment.update!(file_data: JSON.parse(attachment.file_data)
+                      .merge('converted_filename' => 'converted_filename.pdf').to_json)
           end
 
-          before do
-            allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
-              .with(file.read, expected_lighthouse_document)
-              .and_return(faraday_response)
+          let(:expected_lighthouse_document_with_converted_file_name) do
+            LighthouseDocument.new(
+              claim_id: submission.submitted_claim_id,
+              participant_id: user.participant_id,
+              document_type: upload_data.first['attachmentId'],
+              file_name: 'converted_filename.pdf',
+              supporting_evidence_attachment: attachment
+            )
+          end
 
-            allow(faraday_response).to receive(:body).and_return(error_response_body)
+          it 'uses the converted_filename instead of the metadata in upload_data["name"]' do
+            expect(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+              .with(file.read, expected_lighthouse_document_with_converted_file_name)
+
+            perform_upload
+          end
+        end
+
+        context 'when Lighthouse returns an error response' do
+          let(:exception_errors) { [{ detail: 'Something Broke' }] }
+
+          before do
+            # Skip additional logging that occurs in Lighthouse::ServiceException handling
+            allow(Rails.logger).to receive(:error)
+
+            allow(BenefitsDocuments::Form526::UploadSupplementalDocumentService).to receive(:call)
+              .and_raise(Common::Exceptions::BadRequest.new(errors: exception_errors))
           end
 
           it 'logs the Lighthouse error response' do
@@ -264,11 +278,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
                 user_uuid: submission.user_uuid,
                 va_document_type_code: 'L451',
                 primary_form: 'Form526',
-                lighthouse_error_response: error_response_body
+                error_info: exception_errors
               }
             )
 
-            perform_upload
+            expect { perform_upload }.to raise_error(Common::Exceptions::BadRequest)
           end
 
           it 'increments the correct status failure metric' do
@@ -276,7 +290,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
               "#{expected_statsd_metrics_prefix}.upload_failure"
             )
 
-            perform_upload
+            expect { perform_upload }.to raise_error(Common::Exceptions::BadRequest)
           end
         end
       end
@@ -292,7 +306,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitUploads, type: :job do
           EVSSClaimDocument.new(
             evss_claim_id: submission.submitted_claim_id,
             document_type: upload_data.first['attachmentId'],
-            file_name: attachment.converted_filename
+            file_name: upload_data.first['name']
           )
         end
 

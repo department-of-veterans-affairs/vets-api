@@ -71,6 +71,13 @@ module EVSS
           bgjob_errors: bgjob_errors.merge(new_error)
         )
 
+        if Flipper.enabled?(:disability_compensation_use_api_provider_for_0781_uploads)
+          submission = Form526Submission.find(form526_submission_id)
+
+          provider = api_upload_provider(submission, FORM_ID_0781)
+          provider.log_uploading_job_failure(self, error_class, error_message)
+        end
+
         StatsD.increment("#{STATSD_KEY_PREFIX}.exhausted")
 
         if Flipper.enabled?(:form526_send_0781_failure_notification)
@@ -142,7 +149,7 @@ module EVSS
           if parsed_forms[form_type_key].present?
             file_type_and_file_objs << {
               type: actual_form_types,
-              file: process_0781(uuid, FORM_ID_0781, parsed_forms[form_type_key],
+              file: process_0781(uuid, actual_form_types, parsed_forms[form_type_key],
                                  upload: false)
             }
           end
