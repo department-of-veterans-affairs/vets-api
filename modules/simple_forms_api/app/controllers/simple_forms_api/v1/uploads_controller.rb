@@ -34,13 +34,7 @@ module SimpleFormsApi
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
 
-        response = if intent_service.use_intent_api?
-                     submit_intent_to_file
-                   elsif params[:form_number] == '26-4555'
-                     handle264555
-                   else
-                     submit_form_to_benefits_intake
-                   end
+        response = submission.submit
         clear_saved_form(params[:form_number])
 
         render response
@@ -51,25 +45,10 @@ module SimpleFormsApi
       end
 
       def submit_supporting_documents
-        if %w[40-0247 20-10207 40-10007].include?(params[:form_id])
-          attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
-          attachment.file = params['file']
-          file_path = params['file'].tempfile.path
-          # Validate the document using BenefitsIntakeService
-          if %w[40-0247 40-10007].include?(params[:form_id])
-            begin
-              service = BenefitsIntakeService::Service.new
-              service.valid_document?(document: file_path)
-            rescue BenefitsIntakeService::Service::InvalidDocumentError => e
-              render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
-              return
-            end
-          end
-          raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+        return unless SupportingDocuments::Submission::FORMS_WITH_SUPPORTING_DOCUMENTS.include?(params[:form_id])
 
-          attachment.save
-          render json: PersistentAttachmentSerializer.new(attachment)
-        end
+        submission = SupportingDocuments::Submission.new(@current_user, params).submit
+        submission.submit
       end
 
       def get_intents_to_file
@@ -88,7 +67,7 @@ module SimpleFormsApi
       end
 
       def intent_service
-        @intent_service ||= SimpleFormsApi::SupportingForms::IntentToFile.new(@current_user, params)
+        @intent_service ||= SupportingForms::IntentToFile.new(@current_user, params)
       end
 
       def skip_authentication?
@@ -132,6 +111,16 @@ module SimpleFormsApi
 
       def form_is264555_and_should_use_lgy_api
         params[:form_number] == '26-4555' && @current_user&.icn
+      end
+
+      def submission
+        if intent_service.use_intent_api?
+          IntentToFile::Submission.new(@current_user, params)
+        elsif LGY::Submission::LGY_API_FORMS.include?(params[:form_number])
+          LGY::Submission.new(@current_user, params)
+        else
+          BenefitsIntake::Submission.new(@current_user, params)
+        end
       end
 
       def send_intent_received_email(parsed_form_data, confirmation_number, expiration_date)
