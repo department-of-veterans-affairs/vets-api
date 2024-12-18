@@ -114,13 +114,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
     end
 
     shared_context 'mpi profile validation' do
+      before { allow_any_instance_of(SignIn::UserLoader).to receive(:find_valid_user).and_return(nil) }
+
       context 'and the MPI profile has a deceased date' do
         let(:deceased_date) { '20020202' }
         let(:expected_error) { 'Death Flag Detected' }
 
         it 'raises an MPI locked account error' do
           response = subject
-          expect(response.status).to eq(500)
+          expect(response).to have_http_status(:internal_server_error)
           error_body = JSON.parse(response.body)['errors'].first
           expect(error_body['meta']['exception']).to eq(expected_error)
         end
@@ -132,7 +134,7 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
 
         it 'raises an MPI locked account error' do
           response = subject
-          expect(response.status).to eq(500)
+          expect(response).to have_http_status(:internal_server_error)
           error_body = JSON.parse(response.body)['errors'].first
           expect(error_body['meta']['exception']).to eq(expected_error)
         end
