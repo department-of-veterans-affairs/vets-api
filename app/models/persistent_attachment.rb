@@ -9,6 +9,7 @@ class PersistentAttachment < ApplicationRecord
   include SetGuid
 
   ALLOWED_DOCUMENT_TYPES = %w[.pdf .jpg .jpeg .png].freeze
+  MINIMUM_FILE_SIZE = 1.kilobyte.freeze
 
   has_kms_key
   has_encrypted :file_data, key: :kms_key, **lockbox_options

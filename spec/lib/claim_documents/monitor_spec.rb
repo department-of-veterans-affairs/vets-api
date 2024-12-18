@@ -5,9 +5,9 @@ require 'claim_documents/monitor'
 
 RSpec.describe ClaimDocuments::Monitor do
   let(:service) { OpenStruct.new(uuid: 'uuid') }
-  let(:monitor) { described_class.new(service) }
+  let(:monitor) { described_class.new }
   let(:document_stats_key) { described_class::DOCUMENT_STATS_KEY }
-  let(:form_id) { '21P-527EZ' }
+  let(:form_id) { 'ABC123' }
   let(:attachment_id) { '12345' }
   let(:current_user) { create(:user) }
   let(:error) { StandardError.new('An error occurred') }
@@ -41,7 +41,7 @@ RSpec.describe ClaimDocuments::Monitor do
       expect(StatsD).to receive(:increment).with("#{document_stats_key}.failure", tags: ["form_id:#{form_id}"])
       expect(Rails.logger).to receive(:error).with(
         "Error creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment_id} #{error}",
-        hash_including(user_account_uuid: current_user.user_account_uuid, statsd: 'api.document_upload.failure')
+        hash_including(user_account_uuid: current_user.user_account_uuid, statsd: "#{document_stats_key}.failure")
       )
 
       monitor.track_document_upload_failed(form_id, attachment_id, current_user, error)

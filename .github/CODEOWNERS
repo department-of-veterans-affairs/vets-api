@@ -1114,7 +1114,6 @@ spec/controllers/v0/benefits_claims_controller_spec.rb @department-of-veterans-a
 spec/controllers/v0/benefits_reference_data_controller_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/burial_claims_controller_spec.rb @department-of-veterans-affairs/mbs-core-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/caregivers_assistance_claims_controller_spec.rb @department-of-veterans-affairs/vfs-10-10
-spec/controllers/v0/claim_documents_controller_spec.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/claim_letters_controller_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/contact_us @department-of-veterans-affairs/ask-va-team @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/controllers/v0/debt_letters_controller_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group

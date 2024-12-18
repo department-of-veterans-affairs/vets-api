@@ -19,8 +19,9 @@ module V0
       # add the file after so that we have a form_id and guid for the uploader to use
       @attachment.file = unlock_file(params['file'], params['password'])
 
-      if Flipper.enabled?(:document_upload_validation_enabled) && !stamped_pdf_valid? &&
-         %w[21P-527EZ 21P-530 21P-530V2].include?(form_id)
+      if %w[21P-527EZ 21P-530 21P-530V2].include?(form_id) &&
+         Flipper.enabled?(:document_upload_validation_enabled) && !stamped_pdf_valid?
+
         raise Common::Exceptions::ValidationErrors, @attachment
       end
 
@@ -79,13 +80,20 @@ module V0
       file
     end
 
+    # rubocop:disable Metrics/MethodLength
     def stamped_pdf_valid?
       extension = File.extname(@attachment&.file&.id)
       allowed_types = PersistentAttachment::ALLOWED_DOCUMENT_TYPES
-      unless allowed_types.include?(extension)
+
+      if allowed_types.exclude?(extension)
         raise Common::Exceptions::UnprocessableEntity.new(
           detail: I18n.t('errors.messages.extension_allowlist_error', extension:, allowed_types:),
-          source: 'PersistentAttachment.unlock_file'
+          source: 'PersistentAttachment.stamped_pdf_valid?'
+        )
+      elsif @attachment&.file&.size&.< PersistentAttachment::MINIMUM_FILE_SIZE
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'File size must not be less than 1.0 KB',
+          source: 'PersistentAttachment.stamped_pdf_valid?'
         )
       end
 
@@ -98,13 +106,14 @@ module V0
       @attachment.errors.add(:attachment, 'File is corrupt and cannot be uploaded')
       false
     end
+    # rubocop:enable Metrics/MethodLength
 
     def intake_service
       @intake_service ||= BenefitsIntake::Service.new
     end
 
     def uploads_monitor
-      @uploads_monitor ||= ClaimDocuments::Monitor.new('claim_documents_controller')
+      @uploads_monitor ||= ClaimDocuments::Monitor.new
     end
   end
 end

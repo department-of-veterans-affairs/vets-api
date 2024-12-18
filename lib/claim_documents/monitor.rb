@@ -9,12 +9,15 @@ module ClaimDocuments
   #
   class Monitor < ::Logging::Monitor
     # statsd key for document uploads
-    DOCUMENT_STATS_KEY = 'api.document_upload'
+    DOCUMENT_STATS_KEY = 'api.claim_documents'
+
+    def initialize
+      super('claim_documents')
+    end
 
     def track_document_upload_attempt(form_id, current_user)
       additional_context = {
         user_account_uuid: current_user&.user_account_uuid,
-        statsd: "#{DOCUMENT_STATS_KEY}.attempt",
         tags: ["form_id:#{form_id}"]
       }
       track_request('info', "Creating PersistentAttachment FormID=#{form_id}", "#{DOCUMENT_STATS_KEY}.attempt",
@@ -25,8 +28,7 @@ module ClaimDocuments
       additional_context = {
         attachment_id:,
         user_account_uuid: current_user&.user_account_uuid,
-        tags: ["form_id:#{form_id}"],
-        statsd: "#{DOCUMENT_STATS_KEY}.success"
+        tags: ["form_id:#{form_id}"]
       }
       track_request('info', "Success creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment_id}",
                     "#{DOCUMENT_STATS_KEY}.success", **additional_context)
@@ -37,7 +39,6 @@ module ClaimDocuments
         attachment_id:,
         user_account_uuid: current_user&.user_account_uuid,
         tags: ["form_id:#{form_id}"],
-        statsd: "#{DOCUMENT_STATS_KEY}.failure",
         message: e&.message
       }
       track_request('error', "Error creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment_id} #{e}",
