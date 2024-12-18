@@ -22,7 +22,7 @@ module BGS
       @saved_claim = saved_claim
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
-      @proc_state = 'Ready'
+      @proc_state = 'Ready' if Flipper.enabled?(:va_dependents_submit_674)
     end
 
     def submit(payload)
@@ -35,7 +35,8 @@ module BGS
 
       #note - do we ever need to do manual 674? if so, set state here in a get_state_type_method
 
-      #set_claim_type('MANUAL_VAGOV') # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
+      # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
+      set_claim_type('MANUAL_VAGOV') unless Flipper.enabled?(:va_dependents_submit_674)
 
       # temporary logging to troubleshoot
       log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
