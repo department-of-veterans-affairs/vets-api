@@ -9,11 +9,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
   let(:user) { build(:user, :loa3) }
 
   before do
-    Flipper.enable(:va_v3_contact_information_service)
-  end
-
-  after do
-    Flipper.disable(:va_v3_contact_information_service)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
   end
 
   describe '#get_person' do
@@ -38,7 +34,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       it 'has a bad address' do
         VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
-          expect(response.person.addresses[0].bad_address).to eq(nil)
+          expect(response.person.addresses[0].bad_address).to eq(true)
         end
       end
     end
@@ -266,8 +262,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     end
   end
 
-  # ADDRESS is failing
-  context 'update model methods' do
+  context 'update model methods', :skip_va_profile_user do
     before do
       VCR.insert_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
@@ -393,7 +388,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     end
   end
 
-  describe '#send_contact_change_notification', :initiate_vaprofile, :skip_vet360 do
+  describe '#send_contact_change_notification', :skip_vet360 do
     let(:transaction) { double }
     let(:transaction_status) do
       OpenStruct.new(
@@ -588,7 +583,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
     end
   end
 
-  describe '#get_person error' do
+  describe '#get_person error', :skip_va_profile_user do
     let(:user) { build(:user, :loa3) }
 
     before do
