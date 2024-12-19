@@ -113,6 +113,34 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       end
     end
 
+    shared_context 'mpi profile validation' do
+      before { allow_any_instance_of(SignIn::UserLoader).to receive(:find_valid_user).and_return(nil) }
+
+      context 'and the MPI profile has a deceased date' do
+        let(:deceased_date) { '20020202' }
+        let(:expected_error) { 'Death Flag Detected' }
+
+        it 'raises an MPI locked account error' do
+          response = subject
+          expect(response).to have_http_status(:internal_server_error)
+          error_body = JSON.parse(response.body)['errors'].first
+          expect(error_body['meta']['exception']).to eq(expected_error)
+        end
+      end
+
+      context 'and the MPI profile has an id theft flag' do
+        let(:id_theft_flag) { true }
+        let(:expected_error) { 'Theft Flag Detected' }
+
+        it 'raises an MPI locked account error' do
+          response = subject
+          expect(response).to have_http_status(:internal_server_error)
+          error_body = JSON.parse(response.body)['errors'].first
+          expect(error_body['meta']['exception']).to eq(expected_error)
+        end
+      end
+    end
+
     context 'when authorization header does not exist' do
       let(:access_token) { nil }
 
@@ -166,8 +194,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           end
           let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
           let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+          let(:deceased_date) { nil }
+          let(:id_theft_flag) { false }
+          let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:) }
+
+          before { allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile) }
 
           it_behaves_like 'user fingerprint validation'
+
+          it_behaves_like 'mpi profile validation'
 
           it 'returns ok status' do
             expect(subject).to have_http_status(:ok)
@@ -218,8 +253,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         end
         let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
         let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+        let(:deceased_date) { nil }
+        let(:id_theft_flag) { false }
+        let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:) }
+
+        before { allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile) }
 
         it_behaves_like 'user fingerprint validation'
+
+        it_behaves_like 'mpi profile validation'
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
@@ -259,6 +301,30 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
 
         it 'does not prevent authentication' do
           expect(subject).to have_http_status(:ok)
+        end
+      end
+    end
+
+    shared_context 'mpi profile validation' do
+      context 'and the MPI profile has a deceased date' do
+        let(:deceased_date) { '20020202' }
+        let(:expected_error) { 'Death Flag Detected' }
+
+        it 'returns an empty response' do
+          response = subject
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_empty
+        end
+      end
+
+      context 'and the MPI profile has an id theft flag' do
+        let(:id_theft_flag) { true }
+        let(:expected_error) { 'Theft Flag Detected' }
+
+        it 'returns an empty response' do
+          response = subject
+          expect(response).to have_http_status(:ok)
+          expect(response.body).to be_empty
         end
       end
     end
@@ -311,8 +377,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
           end
           let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
           let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+          let(:deceased_date) { nil }
+          let(:id_theft_flag) { false }
+          let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:) }
+
+          before { allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile) }
 
           it_behaves_like 'user fingerprint validation'
+
+          it_behaves_like 'mpi profile validation'
 
           it 'returns ok status' do
             expect(subject).to have_http_status(:ok)
@@ -367,8 +440,15 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         end
         let(:user_serializer) { SignIn::IntrospectSerializer.new(user) }
         let(:expected_introspect_response) { JSON.parse(user_serializer.to_json) }
+        let(:deceased_date) { nil }
+        let(:id_theft_flag) { false }
+        let(:mpi_profile) { build(:mpi_profile, deceased_date:, id_theft_flag:) }
+
+        before { allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile) }
 
         it_behaves_like 'user fingerprint validation'
+
+        it_behaves_like 'mpi profile validation'
 
         it 'returns ok status' do
           expect(subject).to have_http_status(:ok)
@@ -543,9 +623,11 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       let(:authorization) { "Bearer #{access_token}" }
       let(:access_token_object) { create(:access_token) }
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
+      let(:mpi_profile) { build(:mpi_profile) }
 
       before do
         request.headers['Authorization'] = authorization
+        allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile)
       end
 
       it 'appends user uuid to payload' do
@@ -592,11 +674,13 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
                     fingerprint: request.remote_ip)
     end
     let(:expected_error) { 'Service unavailable' }
+    let(:mpi_profile) { build(:mpi_profile, icn: user_account.icn) }
 
     before do
       request.headers['Authorization'] = authorization
       allow_any_instance_of(Rx::Client).to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
       allow(Settings.sentry).to receive(:dsn).and_return('T')
+      allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile)
     end
 
     it 'makes a call to sentry with request uuid and service unavailable error' do
