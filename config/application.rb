@@ -36,7 +36,7 @@ module VetsAPI
     # Please, add to the `ignore` list any other `lib` subdirectories that do
     # not contain `.rb` files, or that should not be reloaded or eager loaded.
     # Common ones are `templates`, `generators`, or `middleware`, for example.
-    config.autoload_lib(ignore: %w[assets])
+    # config.autoload_lib(ignore: %w[assets])
 
     # Configuration for the application, engines, and railties goes here.
     #
@@ -45,6 +45,16 @@ module VetsAPI
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # RAILS 7 CONFIG START
+    # 7.1
+    config.add_autoload_paths_to_load_path = true
+    config.active_record.raise_on_assign_to_attr_readonly = false
+
+    # 7.0
+    config.action_controller.raise_on_open_redirects = false
+
+    # RAILS 7 CONFIG END
 
     # Only loads a smaller set of middleware suitable for API only apps.
     # Middleware like session, flash, cookies can be added back manually.
