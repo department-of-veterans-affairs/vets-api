@@ -7,10 +7,21 @@ require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 require 'bgs_service/local_bgs'
 
-# doc generation for V2 ITFs temporarily disabled by API-13879
 describe 'PowerOfAttorney',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   let(:local_bgs) { ClaimsApi::LocalBGS }
+
+  claimant_data = {
+    'claimantId' => '1013093331V548481',
+    'address' => {
+      'addressLine1' => '123 anystreet',
+      'city' => 'anytown',
+      'stateCode' => 'OR',
+      'countryCode' => 'US',
+      'zipCode' => '12345'
+    },
+    'relationship' => 'Spouse'
+  }
 
   path '/veterans/{veteranId}/power-of-attorney' do
     get 'Find current Power of Attorney for a Veteran.' do
@@ -212,6 +223,27 @@ describe 'PowerOfAttorney',
       let(:poa_code) { '067' }
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
+      request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                                    'power_of_attorney', '2122a', 'valid.json').read)
+
+      request_template_with_dependent = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
+                                                                   'veterans', 'power_of_attorney', '2122a',
+                                                                   'valid.json').read)
+
+      request_template_with_dependent['data']['attributes']['claimant'] = claimant_data
+
+      parameter name: :power_of_attorney_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a][:schema]
+
+      parameter in: :body, examples: {
+        'POA for Veteran' => {
+          value: request_template
+        },
+        'POA for Dependent Claimant' => {
+          value: request_template_with_dependent
+        }
+      }
+
       describe 'Getting a successful response' do
         response '202', 'Valid request response' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
@@ -222,6 +254,10 @@ describe 'PowerOfAttorney',
             temp = JSON.parse(temp)
 
             temp
+          end
+
+          let(:power_of_attorney_request) do
+            data
           end
 
           before do |example|
@@ -388,6 +424,28 @@ describe 'PowerOfAttorney',
       let(:scopes) { %w[system/claim.write] }
       let(:organization_poa_code) { '083' }
       let(:bgs_poa) { { person_org_name: "#{organization_poa_code} name-here" } }
+
+      request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                                    'power_of_attorney', '2122', 'valid.json').read)
+
+      request_template_with_dependent = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
+                                                                   'veterans', 'power_of_attorney', '2122',
+                                                                   'valid.json').read)
+
+      request_template_with_dependent['data']['attributes']['claimant'] = claimant_data
+
+      parameter name: :power_of_attorney_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a][:schema]
+
+      parameter in: :body, examples: {
+        'POA for Veteran' => {
+          value: request_template
+        },
+        'POA for Dependent Claimant' => {
+          value: request_template_with_dependent
+        }
+      }
+
       let(:data) do
         temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                'power_of_attorney', '2122', 'valid.json').read
@@ -412,6 +470,10 @@ describe 'PowerOfAttorney',
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
+          end
+
+          let(:power_of_attorney_request) do
+            data
           end
 
           after do |example|
@@ -991,9 +1053,10 @@ describe 'PowerOfAttorney',
                                                       'power_of_attorney', 'request_representative', 'submit.json')))
 
           before do |example|
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return false
             allow_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
               .to receive(:submit_request)
-              .and_return(true)
+              .and_return({ 'procId' => '12345' })
             FactoryBot.create(:veteran_representative, representative_id: '999999999999', poa_codes: ['067'],
                                                        first_name: 'Abraham', last_name: 'Lincoln',
                                                        user_types: ['veteran_service_officer'])
@@ -1007,10 +1070,7 @@ describe 'PowerOfAttorney',
           after do |example|
             example.metadata[:response][:content] = {
               'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true).tap do |json|
-                  json[:data][:attributes]
-                    .merge!(procId: '3857415')
-                end
+                example: JSON.parse(response.body, symbolize_names: true)
               }
             }
           end

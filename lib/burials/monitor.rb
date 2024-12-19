@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_notify/notification_email/burial'
+require 'burials/notification_email'
 require 'zero_silent_failures/monitor'
 
 module Burials
@@ -73,7 +73,7 @@ module Burials
         user_account_uuid: current_user&.user_account_uuid,
         tags:
       }
-      track_request('error', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt",
+      track_request('info', '21P-530EZ submission to Sidekiq begun', "#{CLAIM_STATS_KEY}.attempt",
                     call_location: caller_locations.first, **additional_context)
     end
 
@@ -180,7 +180,7 @@ module Burials
       call_location = caller_locations.first
 
       if claim
-        Burials::NotificationEmail.new(claim).deliver(:error)
+        Burials::NotificationEmail.new(claim.id).deliver(:error)
         log_silent_failure_avoided(additional_context, user_account_uuid, call_location:)
       else
         log_silent_failure(additional_context, user_account_uuid, call_location:)

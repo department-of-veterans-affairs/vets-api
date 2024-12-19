@@ -32,7 +32,6 @@ module SignIn
       def render_auth(state: SecureRandom.hex,
                       acr: Constants::Auth::LOGIN_GOV_IAL1,
                       operation: Constants::Auth::AUTHORIZE)
-
         Rails.logger.info('[SignIn][Logingov][Service] Rendering auth, ' \
                           "state: #{state}, acr: #{acr}, operation: #{operation}, " \
                           "optional_scopes: #{optional_scopes}")

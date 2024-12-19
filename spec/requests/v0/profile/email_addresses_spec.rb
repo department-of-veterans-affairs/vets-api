@@ -286,7 +286,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     let(:contact_info) { VAProfileRedis::V2::ContactInformation.for_user(user) }
 
     before do
-      Flipper.enable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vaprofile_contact_info
       sign_in_as(user)
