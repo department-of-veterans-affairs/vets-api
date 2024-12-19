@@ -43,10 +43,6 @@ module SimpleFormsApi
 
       private
 
-      def lighthouse_service
-        @lighthouse_service ||= BenefitsIntake::Service.new
-      end
-
       def intent_service
         @intent_service ||= SupportingForms::IntentToFile.new(@current_user, params)
       end
