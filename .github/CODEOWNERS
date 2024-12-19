@@ -1388,11 +1388,8 @@ spec/sidekiq/income_limits @department-of-veterans-affairs/vfs-public-websites-f
 spec/sidekiq/in_progress_form_cleaner_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/kms_key_rotation @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/lighthouse @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-<<<<<<< Updated upstream
-=======
 spec/sidekiq/lighthouse/failure_notification_spec.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-management-tools-be
 spec/sidekiq/lighthouse/evidence_submission_document_upload_polling_job_spec.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
->>>>>>> Stashed changes
 spec/sidekiq/load_average_days_for_claim_completion_job_spec.rb @department-of-veterans-affairs/benefits-microservices @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/mhv @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/sidekiq/mhv/account_creator_job_spec.rb @department-of-veterans-affairs/octo-identity
