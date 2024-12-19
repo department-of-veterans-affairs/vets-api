@@ -28,24 +28,25 @@ module VANotify
       def self.call(notification)
         callback = new(notification)
 
-        monitor = Logging::Monitor.new('vanotify-notification-callback')
-        context = callback.context
+        monitor, call_location, context = callback.tracking
 
         case notification.status
         when 'delivered'
           # success
           callback.on_delivered
-          monitor.track(:info, "#{callback.klass}: Delivered", "#{STATSD}.delivered", **context)
+          monitor.track(:info, "#{callback.klass}: Delivered", "#{STATSD}.delivered", call_location:, **context)
 
         when 'permanent-failure'
           # delivery failed - log error
           callback.on_permanent_failure
-          monitor.track(:error, "#{callback.klass}: Permanent Failure", "#{STATSD}.permanent_failure", **context)
+          monitor.track(:error, "#{callback.klass}: Permanent Failure",
+                        "#{STATSD}.permanent_failure", call_location:, **context)
 
         when 'temporary-failure'
           # the api will continue attempting to deliver - success is still possible
           callback.on_temporary_failure
-          monitor.track(:warn, "#{callback.klass}: Temporary Failure", "#{STATSD}.temporary_failure", **context)
+          monitor.track(:warn, "#{callback.klass}: Temporary Failure",
+                        "#{STATSD}.temporary_failure", call_location:, **context)
 
         else
           callback.on_other_status
@@ -78,19 +79,6 @@ module VANotify
         self.class.to_s
       end
 
-      # default monitor tracking context
-      def context
-        {
-          notification_id: notification.notification_id,
-          notification_type: notification.notification_type,
-          source: notification.source_location,
-          status: notification.status,
-          status_reason: notification.status_reason,
-          callback_klass: klass,
-          callback_metadata: metadata
-        }
-      end
-
       # handle the notification callback - inheriting class should override
 
       # notification was delivered
@@ -113,6 +101,10 @@ module VANotify
         nil
       end
 
+      def tracking
+        [monitor, call_location, context]
+      end
+
       private
 
       # is the notification an email
@@ -123,9 +115,28 @@ module VANotify
         notification.notification_type == 'email'
       end
 
+      # the monitor to be used
+      # @see Logging::Monitor
+      def monitor
+        @monitor ||= Logging::Monitor.new(klass)
+      end
+
       # custom call location to be sent with monitoring
       def call_location
         nil
+      end
+
+      # default monitor tracking context
+      def context
+        {
+          notification_id: notification.notification_id,
+          notification_type: notification.notification_type,
+          source: notification.source_location,
+          status: notification.status,
+          status_reason: notification.status_reason,
+          callback_klass: klass,
+          callback_metadata: metadata
+        }
       end
     end
   end

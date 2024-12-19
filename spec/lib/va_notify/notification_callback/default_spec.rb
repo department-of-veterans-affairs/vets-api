@@ -32,13 +32,15 @@ RSpec.describe VANotify::NotificationCallback::Default do
     context 'correct class is called for the notification' do
       before do
         allow(klass).to receive(:new).and_return callback
-        allow(Logging::Monitor).to receive(:new).with('vanotify-notification-callback').and_return monitor
+        allow(Logging::Monitor).to receive(:new).with(klass.to_s).and_return monitor
       end
 
       it 'tracks a `delivered` notification' do
+        context = hash_including(status: 'delivered')
+
         expect(callback).to receive(:on_delivered)
         expect(monitor).to receive(:track).with(:info, "#{callback.klass}: Delivered", "#{metric}.delivered",
-                                                callback.context)
+                                                context)
 
         klass.call(notification)
       end
