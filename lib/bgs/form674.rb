@@ -36,7 +36,7 @@ module BGS
       #note - do we ever need to do manual 674? if so, set state here in a get_state_type_method
 
       # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
-      if !Flipper.enabled?(:va_dependents_submit_674)
+      if !Flipper.enabled?(:va_dependents_submit_674) || @saved_claim.submittable_686?
         set_claim_type('MANUAL_VAGOV') 
         @proc_state = 'MANUAL_VAGOV'
       end
