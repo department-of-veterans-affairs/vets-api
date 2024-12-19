@@ -7,19 +7,15 @@ module AccreditedRepresentativePortal
     attributes :id, :claimant_id
 
     attribute :created_at do |object|
-      object.created_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ')
+      object.created_at.iso8601
     end
 
     attribute :resolution do |object|
-      next nil unless object.resolution
+      next nil if object.resolution.blank?
 
-      {
-        id: object.resolution.id,
-        type: object.resolution.resolving_type&.demodulize&.underscore,
-        created_at: object.resolution.created_at.strftime('%Y-%m-%dT%H:%M:%S.%LZ'),
-        reason: object.resolution&.reason,
-        creator_id: object.resolution.resolving.try(:creator_id)
-      }.compact
+      AccreditedRepresentativePortal::PowerOfAttorneyRequestResolutionSerializer.new(
+        object.resolution
+      ).serializable_hash[:data][:attributes]
     end
   end
 end

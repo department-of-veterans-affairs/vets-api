@@ -25,7 +25,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
                           .new(poa_requests)
                           .serializable_hash
 
-      expect(deep_stringify(parsed_response)).to eq(deep_stringify(expected_response))
+      expect(parsed_response.to_json).to eq(expected_response.to_json)
     end
   end
 
@@ -40,22 +40,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
                           .new(poa_request)
                           .serializable_hash
 
-      expect(deep_stringify(parsed_response)).to eq(deep_stringify(expected_response))
-    end
-  end
-
-  def deep_stringify(value)
-    case value
-    when Hash
-      value.each_with_object({}) do |(k, v), result|
-        result[k.to_s] = deep_stringify(v) # Stringify keys and recursively process values
-      end
-    when Array
-      value.map { |v| deep_stringify(v) } # Recursively process arrays
-    when Symbol
-      value.to_s # Convert symbols to strings
-    else
-      value # Leave other primitives (e.g., strings, numbers, nil) as is
+      expect(parsed_response.to_json).to eq(expected_response.to_json)
     end
   end
 end
