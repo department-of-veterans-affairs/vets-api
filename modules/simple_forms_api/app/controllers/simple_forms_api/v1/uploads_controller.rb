@@ -125,6 +125,18 @@ module SimpleFormsApi
           'Simple forms api - sent to lgy',
           { form_number: params[:form_number], status:, reference_number: }
         )
+
+        if Flipper.enabled?(:simple_forms_email_confirmations)
+          case status
+          when 'VALIDATED', 'ACCEPTED'
+            send_sahsha_email(parsed_form_data, reference_number, :confirmation)
+          when 'REJECTED'
+            send_sahsha_email(parsed_form_data, reference_number, :rejected)
+          when 'DUPLICATE'
+            send_sahsha_email(parsed_form_data, reference_number, :duplicate)
+          end
+        end
+
         { json: { reference_number:, status: }, status: lgy_response.status }
       end
 
@@ -322,6 +334,21 @@ module SimpleFormsApi
         notification_email = SimpleFormsApi::NotificationEmail.new(
           config,
           notification_type: :received,
+          user: @current_user
+        )
+        notification_email.send
+      end
+
+      def send_sahsha_email(parsed_form_data, confirmation_number, notification_type)
+        config = {
+          form_data: parsed_form_data,
+          form_number: 'vba_26_4555',
+          confirmation_number:,
+          date_submitted: Time.zone.today.strftime('%B %d, %Y')
+        }
+        notification_email = SimpleFormsApi::NotificationEmail.new(
+          config,
+          notification_type:,
           user: @current_user
         )
         notification_email.send
