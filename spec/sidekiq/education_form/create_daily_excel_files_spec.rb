@@ -59,7 +59,7 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
         allow(Rails.env).to receive('development?').and_return(true)
         application_form.saved_claim.form = {}.to_json
         application_form.saved_claim.save!(validate: false) # Make this claim malformed
-        FactoryBot.create(:va10282_full_form)
+        FactoryBot.create(:va10282)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob('tmp/*.csv'))
       end
@@ -73,7 +73,7 @@ RSpec.describe EducationForm::CreateDailyExcelFiles, form: :education_benefits, 
     context 'with records in staging', run_at: '2016-09-16 03:00:00 EDT' do
       before do
         application_form.saved_claim.form = {}.to_json
-        FactoryBot.create(:va10282_full_form)
+        FactoryBot.create(:va10282)
         ActionMailer::Base.deliveries.clear
       end
 

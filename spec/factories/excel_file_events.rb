@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :excel_file_event do
-    sequence(:filename) { |n| "#{Time.zone.now.strftime('%Y%m%d')}_#{n}_vetsgov.xlsx" }
+    sequence(:filename) { |n| "22-10282_#{Time.zone.now.strftime('%Y%m%d')}_#{n}.csv" }
     retry_attempt { 0 }
 
     trait :successful do
