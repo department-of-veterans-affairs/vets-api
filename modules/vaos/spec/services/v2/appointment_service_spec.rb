@@ -84,7 +84,7 @@ describe VAOS::V2::AppointmentsService do
     context 'using VAOS' do
       before do
         Flipper.disable(:va_online_scheduling_use_vpg)
-        Flipper.disable(:va_online_scheduling_enable_OH_requests)
+        Flipper.disable(:va_online_scheduling_OH_request)
       end
 
       context 'when va appointment create request is valid' do
@@ -190,7 +190,7 @@ describe VAOS::V2::AppointmentsService do
     context 'using VPG' do
       before do
         Flipper.enable(:va_online_scheduling_use_vpg)
-        Flipper.enable(:va_online_scheduling_enable_OH_requests)
+        Flipper.enable(:va_online_scheduling_OH_request)
       end
 
       context 'when va appointment create request is valid' do
