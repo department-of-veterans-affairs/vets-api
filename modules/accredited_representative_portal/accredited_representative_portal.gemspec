@@ -20,5 +20,6 @@ Gem::Specification.new do |spec|
   spec.test_files = Dir['spec/**/*']
 
   spec.add_dependency 'blind_index'
+  spec.add_development_dependency 'activerecord'
   spec.add_development_dependency 'rspec-rails'
 end
