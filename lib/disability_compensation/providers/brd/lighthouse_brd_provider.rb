@@ -25,7 +25,7 @@ class LighthouseBRDProvider
   def transform(data)
     separation_locations = data['items'].map do |intake_site|
       DisabilityCompensation::ApiProvider::SeparationLocation.new(
-        code: intake_site['id'],
+        code: intake_site['id'].to_s,
         description: intake_site['description']
       )
     end
