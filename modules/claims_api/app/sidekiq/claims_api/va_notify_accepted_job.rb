@@ -173,7 +173,12 @@ module ClaimsApi
     end
 
     def claimant_first_name(poa)
-      poa.auth_headers['va_eauth_firstName']
+      claimant = poa.form_data['claimant'].present?
+      if claimant
+        poa.form_data['claimant']['firstName']
+      else
+        poa.auth_headers['va_eauth_firstName']
+      end
     end
 
     def organization_filing?(form_data)
