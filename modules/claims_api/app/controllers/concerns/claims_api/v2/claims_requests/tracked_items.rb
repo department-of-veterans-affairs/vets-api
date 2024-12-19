@@ -9,7 +9,7 @@ module ClaimsApi
         def find_tracked_items!(claim_id)
           return if claim_id.blank?
 
-          @tracked_items = local_bgs_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
+          @tracked_items = tracked_item_service.find_tracked_items(claim_id)[:dvlpmt_items] || []
         end
 
         def find_tracked_item(id)
