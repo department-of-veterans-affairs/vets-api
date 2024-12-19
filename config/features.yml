@@ -1973,6 +1973,6 @@ features:
     description: If enabled, use updated gi design
   show_rudisill_1995:
     actor_type: user
-     description: If enabled, show rudisill review in 22-1995
+    description: If enabled, show rudisill review in 22-1995
 
   
