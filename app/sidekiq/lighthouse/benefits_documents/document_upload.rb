@@ -7,7 +7,6 @@ require 'lighthouse/benefits_documents/constants'
 
 class Lighthouse::BenefitsDocuments::DocumentUpload
   include Sidekiq::Job
-  extend SentryLogging
 
   attr_accessor :user_icn, :document_hash
 
@@ -49,7 +48,6 @@ class Lighthouse::BenefitsDocuments::DocumentUpload
     error_message = "#{job_class} failed to create EvidenceSubmission"
     ::Rails.logger.info(error_message, { messsage: e.message })
     StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
-    log_exception_to_sentry(e)
   end
 
   def self.obscured_filename(original_filename)

@@ -119,7 +119,7 @@ RSpec.describe DecisionReview::FailureNotificationEmailJob, type: :job do
             submission2 = AppealSubmission.find_by(submitted_appeal_uuid: guid2)
             expect(submission2.failure_notification_sent_at).to eq DateTime.new(2023, 1, 2)
 
-            submission3 = AppealSubmission.find_by(submitted_appeal_uuid: guid3)
+            submission3 = AppealSubmission.find_by  (submitted_appeal_uuid: guid3)
             expect(submission3.failure_notification_sent_at).to be_nil
 
             expect(mpi_service).not_to have_received(:find_profile_by_identifier)

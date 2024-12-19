@@ -51,15 +51,12 @@ RSpec.describe Lighthouse::BenefitsDocuments::DocumentUpload, type: :job do
 
   context 'when upload succeeds' do
     let(:uploader_stub) { instance_double(LighthouseDocumentUploader) }
-    let(:evidence_submission_stub) do
-      evidence_submission = EvidenceSubmission.new(claim_id: '4567',
-                                                   tracked_item_id: tracked_item_ids,
-                                                   job_id: job_id,
-                                                   job_class: described_class,
-                                                   upload_status: 'pending')
-      evidence_submission.user_account = user_account
-      evidence_submission.save!
-      evidence_submission
+    let(:evidence_submission_pending) do
+      create(:bd_evidence_submission_pending,
+             tracked_item_id: tracked_item_ids,
+             claim_id:,
+             job_id:,
+             job_class: described_class)
     end
     let(:response) do
       {
@@ -84,7 +81,7 @@ RSpec.describe Lighthouse::BenefitsDocuments::DocumentUpload, type: :job do
                 job_id:,
                 job_class:,
                 upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING] })
-        .and_return(evidence_submission_stub)
+        .and_return(evidence_submission_pending)
       described_class.drain # runs all queued jobs of this class
       # After running DocumentUpload job, there should be a new EvidenceSubmission record
       # with the response request_id

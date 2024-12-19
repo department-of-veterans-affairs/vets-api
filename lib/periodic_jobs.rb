@@ -257,5 +257,5 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 
   # Send Benefits Documents failure notification emails to Veteran for failed evidence submissions
-  mgr.register('5 0 * * *', 'Lighthouse::BenefitsDocuments::FailureNotificationEmailJob')
+  mgr.register('5 0 * * *', 'BenefitsDocuments::FailureNotificationEmailJob')
 }
