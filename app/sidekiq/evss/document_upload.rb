@@ -12,6 +12,7 @@ class EVSS::DocumentUpload
 
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
   OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
+  DD_ZSF_TAGS = ['service:claim-status', 'function: evidence upload to EVSS'].freeze
 
   attr_accessor :auth_headers, :user_uuid, :document_hash
 
@@ -28,16 +29,13 @@ class EVSS::DocumentUpload
   )
 
   # retry for one day
-  sidekiq_options retry: 0, queue: 'low'
+  sidekiq_options retry: 16, queue: 'low'
   # Set minimum retry time to ~1 hour
-  # sidekiq_retry_in do |count, _exception|
-  #   rand(3600..3660) if count < 9
-  # end
+  sidekiq_retry_in do |count, _exception|
+    rand(3600..3660) if count < 9
+  end
 
   sidekiq_retries_exhausted do |msg, _ex|
-    byebug
-    puts 'hello test'
-
     job_id = msg['jid']
     job_class = 'EVSS::DocumentUpload'
     first_name = msg['args'][0]['va_eauth_firstName'].titleize
@@ -50,7 +48,7 @@ class EVSS::DocumentUpload
     uuid = msg['args'][2]['uuid']
     user_account = UserAccount.find_or_create_by(id: uuid)
     personalisation = { first_name:, filename:, date_submitted:, date_failed: }
-    puts 'peri test'
+
     EvidenceSubmission.create(
       job_id:,
       job_class:,
@@ -60,10 +58,10 @@ class EVSS::DocumentUpload
       user_account:,
       template_metadata_ciphertext: { personalisation: }.to_json
     )
-    puts 'peri test2'
   rescue => e
-    puts 'there was an error'
-    puts e
+    error_message = "#{job_class} failed to create EvidenceSubmission"
+    ::Rails.logger.info(error_message, { messsage: e.message })
+    StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
   end
 
   def perform(auth_headers, user_uuid, document_hash)

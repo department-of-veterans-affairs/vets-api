@@ -45,6 +45,10 @@ class Lighthouse::BenefitsDocuments::DocumentUpload
       user_account:,
       template_metadata_ciphertext: { personalisation: }.to_json
     )
+  rescue => e
+    error_message = "#{job_class} failed to create EvidenceSubmission"
+    ::Rails.logger.info(error_message, { messsage: e.message })
+    StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
   end
 
   def self.obscured_filename(original_filename)

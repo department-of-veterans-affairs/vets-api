@@ -9,11 +9,8 @@ module BenefitsDocuments
 
     FAILED_STATUS = BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
     MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
-    DD_ZSF_TAGS = ['service:claim-status', 'function: evidence upload to Lighthouse'].freeze
-
     # TODO: need to add statsd logic
     # STATSD_KEY_PREFIX = ''
-    #
 
     def perform
       return unless should_perform?
@@ -54,14 +51,16 @@ module BenefitsDocuments
 
     def record_email_send_success(upload, response)
       EvidenceSubmission.update(id: upload.id, va_notify_id: response.id, va_notify_date: DateTime.now)
-      ::Rails.logger.info("#{upload.job_class} va notify failure email sent")
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
+      error_message = "#{upload.job_class} va notify failure email queued"
+      ::Rails.logger.info(error_message)
+      StatsD.increment('silent_failure_avoided_no_confirmation',
+                       tags: ['service:claim-status', "function: #{error_message}"])
     end
 
     def record_email_send_failure(upload, error)
-      ::Rails.logger.error("#{upload.job_class} va notify failure email failed to send",
-                           { message: error.message })
-      StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
+      error_message = "#{upload.job_class} va notify failure email errored"
+      ::Rails.logger.error(error_message, { message: error.message })
+      StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
       log_exception_to_sentry(e)
     end
 

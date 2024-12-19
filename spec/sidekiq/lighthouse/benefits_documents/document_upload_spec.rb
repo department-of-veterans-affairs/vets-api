@@ -87,10 +87,8 @@ RSpec.describe Lighthouse::BenefitsDocuments::DocumentUpload, type: :job do
   let(:tags) { described_class::DD_ZSF_TAGS }
 
   before do
-    allow(Rails.logger).to receive(:info)
     allow(StatsD).to receive(:increment)
   end
-
 
   it 'calls Lighthouse::FailureNotification' do
     subject.within_sidekiq_retries_exhausted_block(args) do
