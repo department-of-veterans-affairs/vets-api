@@ -402,7 +402,7 @@ module ClaimsApi
       module VnpProcFormWebServiceBean
         DEFINITION =
           Bean.new(
-            path: 'VnpProcFormWebServiceBean',
+            path: 'VnpProcFormWebServiceBean/VnpProcFormService',
             namespaces: Namespaces.new(
               target: 'http://procFormService.services.vonapp.vba.va.gov/',
               data: nil
@@ -416,15 +416,6 @@ module ClaimsApi
             bean: VnpProcFormWebServiceBean::DEFINITION,
             path: 'VnpProcFormService'
           )
-
-        module VnpProcFormCreate
-          DEFINITION =
-            Action.new(
-              service: VnpProcFormService::DEFINITION,
-              name: 'vnpProcFormCreate',
-              key: 'return'
-            )
-        end
       end
 
       ##
