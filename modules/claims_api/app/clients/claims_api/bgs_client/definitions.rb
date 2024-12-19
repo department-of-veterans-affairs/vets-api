@@ -354,15 +354,6 @@ module ClaimsApi
             bean: VnpAtchmsWebServiceBean::DEFINITION,
             path: 'VnpAtchmsService'
           )
-
-        module VnpAtchmsCreate
-          DEFINITION =
-            Action.new(
-              service: VnpAtchmsService::DEFINITION,
-              name: 'vnpAtchmsCreate',
-              key: 'return'
-            )
-        end
       end
 
       ##
