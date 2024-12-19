@@ -25,7 +25,7 @@ module V0
     def create
       PensionBurial::TagSentry.tag_sentry
 
-      claim = create_claim
+      claim = claim_class.new(form: filtered_params[:form])
       monitor.track_create_attempt(claim, current_user)
 
       in_progress_form = current_user ? InProgressForm.form_for_user(claim.form_id, current_user) : nil
@@ -59,15 +59,6 @@ module V0
     # a subclass of SavedClaim, runs json-schema validations and performs any storage and attachment processing
     def claim_class
       SavedClaim::Burial
-    end
-
-    def create_claim
-      if Flipper.enabled?(:va_burial_v2)
-        form = filtered_params[:form]
-        claim_class.new(form:, formV2: form.present? ? JSON.parse(form)['formV2'] : nil)
-      else
-        claim_class.new(form: filtered_params[:form])
-      end
     end
 
     def process_and_upload_to_lighthouse(in_progress_form, claim)

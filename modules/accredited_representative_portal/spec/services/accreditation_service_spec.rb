@@ -11,7 +11,7 @@ RSpec.describe AccreditationService do
   describe '#submit_form21a' do
     context 'when the request is successful' do
       it 'returns a successful response' do
-        stub_request(:post, 'http://localhost:5000/api/v1/accreditation/applications/form21a')
+        stub_request(:post, Settings.ogc.form21a_service_url.url)
           .to_return(status: 200, body: parsed_body.to_json, headers: { 'Content-Type' => 'application/json' })
 
         response = described_class.submit_form21a(parsed_body, user_uuid)
@@ -23,12 +23,12 @@ RSpec.describe AccreditationService do
 
     context 'when the connection fails' do
       it 'logs the error and returns a service unavailable status' do
-        stub_request(:post, 'http://localhost:5000/api/v1/accreditation/applications/form21a')
+        stub_request(:post, Settings.ogc.form21a_service_url.url)
           .to_raise(Faraday::ConnectionFailed.new('Accreditation Service connection failed'))
 
         expect(Rails.logger).to receive(:error).with(
           "Accreditation Service connection failed for user with user_uuid=#{user_uuid}: " \
-          'Accreditation Service connection failed, URL: http://localhost:5000/api/v1/accreditation/applications/form21a'
+          "Accreditation Service connection failed, URL: #{Settings.ogc.form21a_service_url.url}"
         )
 
         response = described_class.submit_form21a(parsed_body, user_uuid)
@@ -40,7 +40,7 @@ RSpec.describe AccreditationService do
 
     context 'when the request times out' do
       it 'logs the error and returns a request timeout status' do
-        stub_request(:post, 'http://localhost:5000/api/v1/accreditation/applications/form21a')
+        stub_request(:post, Settings.ogc.form21a_service_url.url)
           .to_raise(Faraday::TimeoutError.new('Request timed out'))
 
         expect(Rails.logger).to receive(:error).with(

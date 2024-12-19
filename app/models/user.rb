@@ -156,13 +156,7 @@ class User < Common::RedisStore
   end
 
   def mhv_user_account
-    @mhv_user_account ||= if va_patient?
-                            MHV::UserAccount::Creator.new(user_verification:).perform
-                          else
-                            log_mhv_user_account_error('User has no va_treatment_facility_ids')
-
-                            nil
-                          end
+    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:).perform
   rescue MHV::UserAccount::Errors::UserAccountError => e
     log_mhv_user_account_error(e.message)
     raise
@@ -415,6 +409,8 @@ class User < Common::RedisStore
   end
 
   def vaprofile_contact_info
+    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && icn.present?
+
     @vaprofile_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
@@ -471,9 +467,7 @@ class User < Common::RedisStore
   end
 
   def can_create_mhv_account?
-    return false unless Flipper.enabled?(:mhv_account_creation_after_login, user_account)
-
-    loa3? && va_patient? && !needs_accepted_terms_of_use
+    loa3? && !needs_accepted_terms_of_use
   end
 
   private
