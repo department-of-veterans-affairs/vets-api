@@ -25,7 +25,7 @@ class Lighthouse::BenefitsDocuments::DocumentUpload
   sidekiq_retries_exhausted do |msg, _ex|
     job_id = msg['jid']
     job_class = 'Lighthouse::BenefitsDocuments::DocumentUpload'
-    first_name = msg['args'][1]['first_name'].titleize
+    first_name = msg['args'][1]['first_name'].titleize unless msg['args'][1]['first_name'].nil?
     claim_id = msg['args'][1]['claim_id']
     tracked_item_id = msg['args'][1]['tracked_item_id']
     filename = obscured_filename(msg['args'][1]['file_name'])

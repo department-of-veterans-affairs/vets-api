@@ -33,10 +33,6 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   let(:client_stub) { instance_double('EVSS::DocumentsService') }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
 
-  before do
-    allow(StatsD).to receive(:increment)
-  end
-
   context 'when upload succeeds' do
     let(:uploader_stub) { instance_double('EVSSClaimDocumentUploader') }
     let(:file) { Rails.root.join('spec', 'fixtures', 'files', filename).read }
@@ -85,8 +81,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
         expect(EvidenceSubmission).not_to receive(:create)
         expect(Rails.logger)
           .to receive(:info)
-          .with('EVSS::DocumentUpload failed to create EvidenceSubmission',
-                { messsage: "undefined method `[]' for nil" })
+          .with(error_message, { messsage: "undefined method `[]' for nil" })
         expect(StatsD).to receive(:increment).with('silent_failure', tags: tags)
       end
     end

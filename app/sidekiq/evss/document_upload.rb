@@ -38,7 +38,7 @@ class EVSS::DocumentUpload
   sidekiq_retries_exhausted do |msg, _ex|
     job_id = msg['jid']
     job_class = 'EVSS::DocumentUpload'
-    first_name = msg['args'][0]['va_eauth_firstName'].titleize
+    first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
     claim_id = msg['args'][2]['evss_claim_id']
     tracked_item_id = msg['args'][2]['tracked_item_id']
     filename = obscured_filename(msg['args'][2]['file_name'])
