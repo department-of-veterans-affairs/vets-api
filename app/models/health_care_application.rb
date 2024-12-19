@@ -259,7 +259,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def log_async_submission_failure
-    log_zero_silent_failures
+    log_zero_silent_failures unless Flipper.enabled?(:hca_zero_silent_failures)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
     log_submission_failure_details
@@ -295,11 +295,7 @@ class HealthCareApplication < ApplicationRecord
     api_key = Settings.vanotify.services.health_apps_1010.api_key
 
     salutation = first_name ? "Dear #{first_name}," : ''
-    VANotify::EmailJob.perform_async(
-      email,
-      template_id,
-      { 'salutation' => salutation },
-      api_key,
+    metadata =
       {
         callback_metadata: {
           notification_type: 'error',
@@ -307,7 +303,11 @@ class HealthCareApplication < ApplicationRecord
           statsd_tags: DD_ZSF_TAGS
         }
       }
-    )
+
+    params = [email, template_id, { 'salutation' => salutation }, api_key]
+    params << metadata if Flipper.enabled?(:hca_zero_silent_failures)
+
+    VANotify::EmailJob.perform_async(*params)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
   rescue => e
     log_exception_to_sentry(e)
