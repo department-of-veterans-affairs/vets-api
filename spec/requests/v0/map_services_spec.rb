@@ -93,7 +93,25 @@ RSpec.describe 'V0::MapServices', type: :request do
           end
         end
 
-        context 'when MAP STS client returns an access token',
+        context 'when MAP STS client returns an invalid token',
+                vcr: { cassette_name: 'map/security_token_service_200_invalid_token' } do
+          it 'responds with error details in response body' do
+            call_endpoint
+            expect(JSON.parse(response.body)).to eq(
+              {
+                'error' => 'server_error',
+                'error_description' => 'STS failed to return a valid token.'
+              }
+            )
+          end
+
+          it 'returns HTTP status bad_gateway' do
+            call_endpoint
+            expect(response).to have_http_status(:bad_gateway)
+          end
+        end
+
+        context 'when MAP STS client returns a valid access token',
                 vcr: { cassette_name: 'map/security_token_service_200_response' } do
           it 'responds with STS-issued token in response body' do
             call_endpoint
