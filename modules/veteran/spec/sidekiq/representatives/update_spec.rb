@@ -78,13 +78,9 @@ RSpec.shared_examples 'a representative email or phone update process' do |flag_
     let(:address_exists) { true }
 
     before do
-      Flipper.enable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
       create_flagged_records(flag_type)
       allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::V3::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
-    end
-
-    after do
-      Flipper.disable(:va_v3_contact_information_service)
     end
 
     it "updates the #{flag_type} and the associated flagged records" do
@@ -731,12 +727,8 @@ RSpec.describe Representatives::Update do
       end
 
       before do
-        Flipper.enable(:va_v3_contact_information_service)
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service).and_return(true)
         allow_any_instance_of(VAProfile::V3::AddressValidation::Service).to receive(:candidate).and_return(api_response)
-      end
-
-      after do
-        Flipper.disable(:va_v3_contact_information_service)
       end
 
       context 'when JSON parsing fails' do
