@@ -1,13 +1,19 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class PowerOfAttorneyRequestsPolicy < ApplicationPolicy
+  class PowerOfAttorneyRequestPolicy < ApplicationPolicy
     def index?
       authorize
     end
 
     def show?
       authorize
+    end
+
+    class Scope < ApplicationPolicy::Scope
+      def resolve
+        ::AccreditedRepresentativePortal::POA_REQUEST_LIST_MOCK_DATA
+      end
     end
 
     private
@@ -23,7 +29,7 @@ module AccreditedRepresentativePortal
       return false unless @user
 
       pilot_user_poa_codes = Set.new(pilot_user_email_poa_codes[@user&.email])
-      poa_requests_poa_codes = Set.new(Array.wrap(@record), &:poa_code)
+      poa_requests_poa_codes = Set.new(Array.wrap(@record)) { |r| r.dig(:attributes, :powerOfAttorneyCode) }
 
       pilot_user_poa_codes >= poa_requests_poa_codes
     end
