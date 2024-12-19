@@ -625,11 +625,9 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
       let(:authorization) { "Bearer #{access_token}" }
       let(:access_token_object) { create(:access_token) }
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
-      let(:mpi_profile) { build(:mpi_profile) }
 
       before do
         request.headers['Authorization'] = authorization
-        allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile)
       end
 
       it 'appends user uuid to payload' do
@@ -676,13 +674,11 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
                     fingerprint: request.remote_ip)
     end
     let(:expected_error) { 'Service unavailable' }
-    let(:mpi_profile) { build(:mpi_profile, icn: user_account.icn) }
 
     before do
       request.headers['Authorization'] = authorization
       allow_any_instance_of(Rx::Client).to receive(:connection).and_raise(Faraday::ConnectionFailed, 'some message')
       allow(Settings.sentry).to receive(:dsn).and_return('T')
-      allow_any_instance_of(MPIData).to receive(:profile).and_return(mpi_profile)
     end
 
     it 'makes a call to sentry with request uuid and service unavailable error' do
