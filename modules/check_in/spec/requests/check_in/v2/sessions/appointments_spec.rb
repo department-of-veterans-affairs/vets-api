@@ -212,7 +212,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
           VCR.use_cassette 'check_in/clinics/get_clinics_200' do
             VCR.use_cassette 'check_in/facilities/get_facilities_200' do
               VCR.use_cassette 'check_in/appointments/get_appointments_200' do
-                VCR.use_cassette 'check_in/map/security_token_service_200' do
+                VCR.use_cassette 'map/security_token_service_200_response' do
                   get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
                 end
               end
@@ -302,7 +302,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
           VCR.use_cassette 'check_in/clinics/get_clinics_200' do
             VCR.use_cassette 'check_in/facilities/get_facilities_200' do
               VCR.use_cassette 'check_in/appointments/get_appointments_without_location_200' do
-                VCR.use_cassette 'check_in/map/security_token_service_200' do
+                VCR.use_cassette 'map/security_token_service_200_response' do
                   get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
                 end
               end
@@ -390,7 +390,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
         it 'returns appointments' do
           VCR.use_cassette 'check_in/facilities/get_facilities_200' do
             VCR.use_cassette 'check_in/appointments/get_appointments_without_clinic_200' do
-              VCR.use_cassette 'check_in/map/security_token_service_200' do
+              VCR.use_cassette 'map/security_token_service_200_response' do
                 get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
               end
             end
@@ -417,7 +417,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
 
         it 'returns error' do
           VCR.use_cassette 'check_in/appointments/get_appointments_500' do
-            VCR.use_cassette 'check_in/map/security_token_service_200' do
+            VCR.use_cassette 'map/security_token_service_200_response' do
               get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
             end
           end
@@ -444,7 +444,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
         it 'returns error' do
           VCR.use_cassette 'check_in/facilities/get_facilities_500' do
             VCR.use_cassette 'check_in/appointments/get_appointments_200' do
-              VCR.use_cassette 'check_in/map/security_token_service_200' do
+              VCR.use_cassette 'map/security_token_service_200_response' do
                 get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
               end
             end
@@ -473,7 +473,7 @@ RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
           VCR.use_cassette 'check_in/clinics/get_clinics_500' do
             VCR.use_cassette 'check_in/facilities/get_facilities_200' do
               VCR.use_cassette 'check_in/appointments/get_appointments_200' do
-                VCR.use_cassette 'check_in/map/security_token_service_200' do
+                VCR.use_cassette 'map/security_token_service_200_response' do
                   get "/check_in/v2/sessions/#{id}/appointments", params: { start: start_date, end: end_date }
                 end
               end

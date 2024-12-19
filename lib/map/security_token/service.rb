@@ -21,6 +21,10 @@ module MAP
         Rails.logger.error("#{config.logging_prefix} token failed, parsing error", application:, icn:,
                                                                                    context: e.message)
         raise e
+      rescue JWT::DecodeError => e
+        Rails.logger.error("#{config.logging_prefix} token failed, JWT decode error", application:, icn:,
+                                                                                      context: e.message)
+        raise e
       rescue Common::Client::Errors::ClientError => e
         parse_and_raise_error(e, icn, application)
       rescue Common::Exceptions::GatewayTimeout => e
@@ -57,15 +61,23 @@ module MAP
 
       def parse_response(response, application, icn)
         response_body = response.body
+        validate_map_token(response_body['access_token'])
 
         {
           access_token: response_body['access_token'],
           expiration: Time.zone.now + response_body['expires_in']
         }
+      rescue JWT::DecodeError => e
+        raise e
       rescue => e
         message = "#{config.logging_prefix} token failed, response unknown"
         Rails.logger.error(message, application:, icn:)
         raise e, "#{message}, application: #{application}, icn: #{icn}"
+      end
+
+      def validate_map_token(encoded_token)
+        jwk = config.public_jwks.first
+        JWT.decode(encoded_token, jwk.public_key, true, algorithm: 'RS512')
       end
 
       def client_id_from_application(application)
