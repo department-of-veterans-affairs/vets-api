@@ -15,7 +15,13 @@ module Vets
 
         raise TypeError, "#{@name} must be an Array" unless value.is_a?(::Array)
 
-        value.map { |item| @element_type.cast(item) }
+        casted_value = value.map { |item| @element_type.cast(item) }
+
+        unless casted_value.all? { |item| item.is_a?(@klass) }
+          raise TypeError, "All elements of #{@name} must be of type #{@klass}"
+        end
+
+        casted_value
       end
     end
   end

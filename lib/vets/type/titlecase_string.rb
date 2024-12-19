@@ -8,7 +8,7 @@ module Vets
       def cast(value)
         return nil if value.nil?
 
-        value.downcase.titlecase
+        value.to_s.downcase.titlecase
       end
     end
   end
