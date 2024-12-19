@@ -705,10 +705,8 @@ GEM
     nio4r (2.7.4-java)
     nkf (0.2.0)
     nkf (0.2.0-java)
-    nokogiri (1.16.8)
+    nokogiri (1.17.2)
       mini_portile2 (~> 2.8.2)
-      racc (~> 1.4)
-    nokogiri (1.16.8-java)
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal

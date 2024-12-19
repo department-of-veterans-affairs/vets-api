@@ -17,7 +17,15 @@ class Form526SubmissionFailureEmailJob
     'form4142' => 'VA Form 21-4142',
     'form0781' => 'VA Form 21-0781',
     'form0781a' => 'VA Form 21-0781a',
+    'form0781v2' => 'VA Form 21-0781',
     'form8940' => 'VA Form 21-8940'
+  }.freeze
+  FORM_KEYS = {
+    'form4142' => 'form4142',
+    'form0781' => 'form0781.form0781',
+    'form0781a' => 'form0781.form0781a',
+    'form0781v2' => 'form0781.form0781v2',
+    'form8940' => 'form8940'
   }.freeze
 
   # retry for  2d 1h 47m 12s
@@ -86,11 +94,8 @@ class Form526SubmissionFailureEmailJob
   end
 
   def list_forms_submitted
-    [].tap do |forms|
-      forms << FORM_DESCRIPTIONS['form4142'] if form['form4142'].present?
-      forms << FORM_DESCRIPTIONS['form0781'] if form['form0781'].present?
-      forms << FORM_DESCRIPTIONS['form0781a'] if form.dig('form0781', 'form0781a').present?
-      forms << FORM_DESCRIPTIONS['form8940'] if form['form8940'].present?
+    FORM_KEYS.each_with_object([]) do |(key, path), forms|
+      forms << FORM_DESCRIPTIONS[key] if form.dig(*path.split('.')).present?
     end
   end
 
