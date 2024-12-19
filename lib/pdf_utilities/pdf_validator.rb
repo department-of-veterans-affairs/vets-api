@@ -97,14 +97,15 @@ module PDFUtilities
       end
 
       def check_page_size
-        if @pdf_metadata.present?
-          dimensions = @pdf_metadata.page_size_inches
-          width_limit = @options[:width_limit_in_inches]
-          height_limit = @options[:height_limit_in_inches]
+        return if @pdf_metadata.blank?
 
-          if dimensions[:width] > width_limit || dimensions[:height] > height_limit
-            @result.add_error("#{PAGE_SIZE_LIMIT_EXCEEDED_MSG} of #{width_limit} in. x #{height_limit} in.")
-          end
+        width_limit = @options[:width_limit_in_inches]
+        height_limit = @options[:height_limit_in_inches]
+
+        oversized_pages = @pdf_metadata.oversized_pages(width_limit, height_limit)
+
+        if oversized_pages.present?
+          @result.add_error("#{PAGE_SIZE_LIMIT_EXCEEDED_MSG} of #{width_limit} in. x #{height_limit} in.")
         end
       end
     end
