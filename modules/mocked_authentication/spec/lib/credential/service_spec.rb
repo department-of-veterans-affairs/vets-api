@@ -35,6 +35,18 @@ describe MockedAuthentication::Credential::Service do
       expect(subject.to_s).to include(type)
     end
 
+    it 'renders operation value' do
+      expect(subject.to_s).to include(operation)
+    end
+
+    context 'when operation is not supplied' do
+      let(:operation) { '' }
+
+      it 'defaults to authorize' do
+        expect(subject.to_s).to include(operation)
+      end
+    end
+
     it 'directs to the Mocked Authorization frontend page' do
       expect(subject.to_s).to include(expected_redirect_url)
     end

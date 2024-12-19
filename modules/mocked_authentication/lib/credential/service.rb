@@ -8,7 +8,7 @@ module MockedAuthentication
     class Service
       attr_accessor :type
 
-      def render_auth(state:, acr:, operation:)
+      def render_auth(state:, acr:, operation: SignIn::Constants::Auth::AUTHORIZE)
         renderer.render(template: 'oauth_get_form',
                         locals: { url: redirect_uri_with_params(state, acr, operation) },
                         format: :html)
@@ -25,6 +25,7 @@ module MockedAuthentication
       end
 
       def normalized_attributes(user_info, credential_level)
+        # binding.pry
         case type
         when SignIn::Constants::Auth::LOGINGOV
           logingov_auth_service.normalized_attributes(user_info, credential_level)
