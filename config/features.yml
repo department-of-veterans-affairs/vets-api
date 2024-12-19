@@ -31,9 +31,6 @@ features:
     actor_type: user
     description: Enables enhancement to the 21-526EZ "Add Disabilities" page being implemented by the Conditions Team.
     enable_in_development: true
-  appointments_consolidation:
-    actor_type: user
-    description: For features being tested while merging logic for appointments between web and mobile
   ask_va_form_feature:
     actor_type: user
     description: show/hide experimental features for Ask VA 0873
