@@ -12,7 +12,7 @@ module DecisionReview
     STATSD_KEY_PREFIX = 'worker.decision_review.delete_saved_claim_records'
 
     def perform
-      Rails.logger.warn("#{self.class.name} job is deprecated and will be replaced by DR engine job")
+      ActiveSupport::Deprecation.new.warn("#{self.class.name} job is deprecated and will be replaced by DR engine job")
 
       return unless enabled?
 
