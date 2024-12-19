@@ -31,7 +31,7 @@ module V0
       ::Rails.logger.info(message, {
                             message_type: 'lh.rated_disabilities.length_discrepancy',
                             evss_length: evss_ratings.length,
-                            evss_rating_ids: evss_ratings.pluck('rated_disability_id'),
+                            evss_rating_ids: evss_ratings.map(&:rated_disability_id),
                             lighthouse_length: lh_ratings.length,
                             lighthouse_rating_ids: lh_ratings.pluck('disability_rating_id'),
                             revision: 5
