@@ -134,6 +134,31 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
           expect(find_grouped_rx_in_base_list).to be_falsey
         end
 
+        it 'responds to GET #show with a single grouped medication' do
+          prescription_id = '24891624'
+          VCR.use_cassette('rx_client/prescriptions/gets_a_single_grouped_prescription') do
+            get "/my_health/v1/prescriptions/#{prescription_id}"
+          end
+
+          expect(response).to be_successful
+          expect(response.body).to be_a(String)
+          expect(response).to match_response_schema('my_health/prescriptions/v1/prescription_single')
+          data = JSON.parse(response.body)['data']
+          expect(data).to be_truthy
+          expect(data['attributes']['prescription_id']).to eq(prescription_id.to_i)
+        end
+
+        it 'responds to GET #show with record not found when prescription_id is a part of a grouped medication' do
+          prescription_id = '22565799'
+          VCR.use_cassette('rx_client/prescriptions/gets_grouped_med_record_not_found') do
+            get "/my_health/v1/prescriptions/#{prescription_id}"
+          end
+
+          errors = JSON.parse(response.body)['errors'][0]
+          expect(errors).to be_truthy
+          expect(errors['detail']).to eq("The record identified by #{prescription_id} could not be found")
+        end
+
         Flipper.disable('mhv_medications_display_grouping')
       end
 

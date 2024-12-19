@@ -2,8 +2,10 @@
 
 require 'rails_helper'
 require_relative '../../../../support/pdf_matcher'
+require_relative '../../../../support/pdf_fill_helper'
 
 describe RepresentationManagement::V0::PdfConstructor::Form2122a do
+  include PdfFillHelper
   let(:representative) do
     create(:accredited_individual,
            first_name: 'John',
@@ -86,8 +88,27 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
                                      'fixtures',
                                      '21-22A',
                                      'v0',
+                                     'default',
                                      '2122a_conditions_and_limitations.pdf')
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
+    end
+    # The Tempfile is automatically deleted after the block ends
+  end
+
+  it 'matches the field values of a pdf with conditions present when unflattened' do
+    form = RepresentationManagement::Form2122aData.new(data)
+    Tempfile.create do |tempfile|
+      tempfile.binmode
+      RepresentationManagement::V0::PdfConstructor::Form2122a.new(tempfile).construct(form, flatten: false)
+      expected_pdf = Rails.root.join('modules',
+                                     'representation_management',
+                                     'spec',
+                                     'fixtures',
+                                     '21-22A',
+                                     'v0',
+                                     'unflattened', # <- Important difference
+                                     '2122a_conditions_and_limitations.pdf')
+      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
     end
     # The Tempfile is automatically deleted after the block ends
   end
@@ -104,8 +125,28 @@ describe RepresentationManagement::V0::PdfConstructor::Form2122a do
                                      'fixtures',
                                      '21-22A',
                                      'v0',
+                                     'default',
                                      '2122a_conditions_and_limitations_no_claimant.pdf')
       expect(tempfile.path).to match_pdf_content_of(expected_pdf)
+    end
+    # The Tempfile is automatically deleted after the block ends
+  end
+
+  it 'matches the field values of a pdf with no claimant with conditions present when unflattened' do
+    data.delete_if { |key, _| key.to_s.include?('claimant') }
+    form = RepresentationManagement::Form2122aData.new(data)
+    Tempfile.create do |tempfile|
+      tempfile.binmode
+      RepresentationManagement::V0::PdfConstructor::Form2122a.new(tempfile).construct(form, flatten: false)
+      expected_pdf = Rails.root.join('modules',
+                                     'representation_management',
+                                     'spec',
+                                     'fixtures',
+                                     '21-22A',
+                                     'v0',
+                                     'unflattened', # <- Important difference
+                                     '2122a_conditions_and_limitations_no_claimant.pdf')
+      expect(pdfs_fields_match?(tempfile.path, expected_pdf)).to eq(true)
     end
     # The Tempfile is automatically deleted after the block ends
   end
