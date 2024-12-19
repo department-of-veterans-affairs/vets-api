@@ -287,9 +287,6 @@ module ClaimsApi
         end
       end
 
-      ##
-      # VeteranRepresentativeService
-      ##
       module VeteranRepresentativeService
         DEFINITION =
           Service.new(
