@@ -261,6 +261,7 @@ module VAOS
           )
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       def start_date
