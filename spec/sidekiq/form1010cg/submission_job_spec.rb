@@ -236,9 +236,6 @@ RSpec.describe Form1010cg::SubmissionJob do
               "#{statsd_key_prefix}record_parse_error",
               tags: ["claim_id:#{claim.id}"]
             )
-            expect(StatsD).to receive(:increment).with(
-              'silent_failure_avoided', tags: zsf_tags
-            )
 
             job.perform(claim.id)
           end

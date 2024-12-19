@@ -73,8 +73,6 @@ module Form1010cg
           return
         end
 
-        StatsD.increment('silent_failure_avoided', tags: DD_ZSF_TAGS)
-
         parsed_form = claim.parsed_form
         first_name = parsed_form.dig('veteran', 'fullName', 'first')
         email = parsed_form.dig('veteran', 'email')
