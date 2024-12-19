@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
+RSpec.describe Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, :uploader_helpers do
   stub_virus_scan
   subject(:job) { described_class.new }
 
@@ -49,8 +49,12 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
 
   let(:monitor) { double('monitor') }
   let(:exhaustion_msg) do
-    { 'args' => [], 'class' => 'CentralMail::SubmitCentralForm686cJob', 'error_message' => 'An error occured',
-      'queue' => nil }
+    {
+      'args' => [],
+      'class' => 'Lighthouse::BenefitsIntake::SubmitCentralForm686cJob',
+      'error_message' => 'An error occured',
+      'queue' => nil
+    }
   end
 
   describe '#perform' do
@@ -113,12 +117,12 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
     context 'with an response error' do
       let(:success) { false }
 
-      it 'raises CentralMailResponseError and updates submission to failed' do
+      it 'raises BenefitsIntakeResponseError and updates submission to failed' do
         mailer_double = double('Mail::Message')
         allow(mailer_double).to receive(:deliver_now)
         expect(claim).to receive(:submittable_686?).and_return(true).exactly(:twice)
         expect(claim).to receive(:submittable_674?).and_return(false)
-        expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(CentralMail::SubmitCentralForm686cJob::CentralMailResponseError) # rubocop:disable Layout/LineLength
+        expect { subject.perform(claim.id, encrypted_vet_info, encrypted_user_struct) }.to raise_error(Lighthouse::BenefitsIntake::SubmitCentralForm686cJob::BenefitsIntakeResponseError) # rubocop:disable Layout/LineLength
 
         expect(central_mail_submission.reload.state).to eq('failed')
       end
@@ -265,7 +269,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
     end
 
     it 'logs the error to zsf and sends an email with the 686C template' do
-      CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
         { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
       ) do
         exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
@@ -285,7 +289,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
     end
 
     it 'logs the error to zsf and sends an email with the 674 template' do
-      CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
         { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
       ) do
         exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
@@ -305,7 +309,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
     end
 
     it 'logs the error to zsf and a combo email with 686c-674' do
-      CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
         { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
       ) do
         exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
@@ -324,7 +328,7 @@ RSpec.describe CentralMail::SubmitCentralForm686cJob, :uploader_helpers do
     end
 
     it 'logs the error to zsf and does not send an email' do
-      CentralMail::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.within_sidekiq_retries_exhausted_block(
         { 'args' => [claim.id, encrypted_vet_info, encrypted_user_struct] }
       ) do
         exhaustion_msg['args'] = [claim.id, encrypted_vet_info, encrypted_user_struct]
