@@ -1262,7 +1262,8 @@ RSpec.describe User, type: :model do
   end
 
   describe '#mhv_user_account' do
-    let(:user) { build(:user, :loa3) }
+    let(:user) { build(:user, :loa3, vha_facility_ids:) }
+    let(:vha_facility_ids) { %w[450MH] }
     let(:icn) { user.icn }
 
     let!(:user_verification) do
@@ -1287,62 +1288,80 @@ RSpec.describe User, type: :model do
 
     before do
       allow(Rails.logger).to receive(:info)
-      allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
-      allow(mhv_client).to receive(:create_account).and_return(mhv_response)
     end
 
-    context 'when the user has all required attributes' do
-      it 'returns a MHVUserAccount with the expected attributes' do
-        mhv_user_account = user.mhv_user_account
-
-        expect(mhv_user_account).to be_a(MHVUserAccount)
-        expect(mhv_user_account.attributes).to eq(mhv_response.with_indifferent_access)
+    context 'when the user is a va_patient' do
+      before do
+        allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
+        allow(mhv_client).to receive(:create_account).and_return(mhv_response)
       end
-    end
 
-    context 'when there is an error creating the account' do
-      shared_examples 'mhv_user_account error' do
-        let(:expected_log_message) { '[User] mhv_user_account error' }
-        let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
+      context 'when the user has all required attributes' do
+        it 'returns a MHVUserAccount with the expected attributes' do
+          mhv_user_account = user.mhv_user_account
 
-        it 'logs and re-raises the error' do
-          expect { user.mhv_user_account }.to raise_error(MHV::UserAccount::Errors::UserAccountError)
-          expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+          expect(mhv_user_account).to be_a(MHVUserAccount)
+          expect(mhv_user_account.attributes).to eq(mhv_response.with_indifferent_access)
         end
       end
 
-      context 'when the user does not have a terms_of_use_agreement' do
-        let(:terms_of_use_agreement) { nil }
-        let(:expected_error_message) { 'Current terms of use agreement must be present' }
+      context 'when there is an error creating the account' do
+        shared_examples 'mhv_user_account error' do
+          let(:expected_log_message) { '[User] mhv_user_account error' }
+          let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
 
-        it_behaves_like 'mhv_user_account error'
+          it 'logs and re-raises the error' do
+            expect { user.mhv_user_account }.to raise_error(MHV::UserAccount::Errors::UserAccountError)
+            expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+          end
+        end
+
+        context 'when the user does not have a terms_of_use_agreement' do
+          let(:terms_of_use_agreement) { nil }
+          let(:expected_error_message) { 'Current terms of use agreement must be present' }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+
+        context 'when the user has not accepted the terms of use' do
+          let(:terms_of_use_response) { 'declined' }
+          let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+
+        context 'when the user does not have a user_credential_email' do
+          let(:user_credential_email) { nil }
+          let(:expected_error_message) { 'Email must be present' }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+
+        context 'when the user does not have an icn' do
+          let(:icn) { nil }
+          let(:expected_error_message) { 'ICN must be present' }
+
+          it_behaves_like 'mhv_user_account error'
+        end
       end
+    end
 
-      context 'when the user has not accepted the terms of use' do
-        let(:terms_of_use_response) { 'declined' }
-        let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
+    context 'when the user is not a va_patient' do
+      let(:vha_facility_ids) { [] }
+      let(:expected_log_message) { '[User] mhv_user_account error' }
+      let(:expected_log_payload) { { error_message: expected_error_message, icn: user.icn } }
+      let(:expected_error_message) { 'User has no va_treatment_facility_ids' }
 
-        it_behaves_like 'mhv_user_account error'
-      end
-
-      context 'when the user does not have a user_credential_email' do
-        let(:user_credential_email) { nil }
-        let(:expected_error_message) { 'Email must be present' }
-
-        it_behaves_like 'mhv_user_account error'
-      end
-
-      context 'when the user does not have an icn' do
-        let(:icn) { nil }
-        let(:expected_error_message) { 'ICN must be present' }
-
-        it_behaves_like 'mhv_user_account error'
+      it 'logs an error and returns nil' do
+        expect(user.mhv_user_account).to be_nil
+        expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
       end
     end
   end
 
   describe '#can_create_mhv_account?' do
-    let(:user) { build(:user, :loa3, needs_accepted_terms_of_use:) }
+    let(:user) { build(:user, :loa3, vha_facility_ids:, needs_accepted_terms_of_use:) }
+    let(:vha_facility_ids) { %w[450MH] }
     let(:needs_accepted_terms_of_use) { false }
 
     context 'when the user is loa3' do
@@ -1361,10 +1380,18 @@ RSpec.describe User, type: :model do
           end
         end
       end
+
+      context 'when the user is not a va_patient' do
+        let(:vha_facility_ids) { [] }
+
+        it 'returns false' do
+          expect(user.can_create_mhv_account?).to be false
+        end
+      end
     end
 
     context 'when the user is not loa3' do
-      let(:user) { build(:user, needs_accepted_terms_of_use:) }
+      let(:user) { build(:user, vha_facility_ids:, needs_accepted_terms_of_use:) }
 
       it 'returns false' do
         expect(user.can_create_mhv_account?).to be false
