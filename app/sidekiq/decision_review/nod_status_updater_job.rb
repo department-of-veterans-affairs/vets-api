@@ -4,6 +4,11 @@ require_relative 'saved_claim_status_updater_job'
 
 module DecisionReview
   class NodStatusUpdaterJob < SavedClaimStatusUpdaterJob
+    def perform
+      Rails.logger.warn("#{self.class.name} job is deprecated and will be replaced by DR engine job")
+      super
+    end
+
     private
 
     def records_to_update
