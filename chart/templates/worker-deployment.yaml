@@ -204,10 +204,10 @@ spec:
                 - -c
                 - netstat -anu | grep 8125
             initialDelaySeconds: 30
-            periodSeconds: 10
-            failureThreshold: 10
-            timeoutSeconds: 30
-            successThreshold: 2
+            failureThreshold: {{ $root.Values.socat.readinessProbe.failureThreshold }}
+            periodSeconds: {{ $root.Values.socat.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ $root.Values.socat.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ $root.Values.socat.readinessProbe.successThreshold }}
           startupProbe:
             exec:
               command:

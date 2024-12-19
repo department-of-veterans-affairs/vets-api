@@ -156,6 +156,12 @@ worker:
 # cronJobs configuration
 cronJobs: {}
 
+socat:
+  readinessProbe:
+    failureThreshold: 10
+    periodSeconds: 10
+    timeoutSeconds: 30
+    successThreshold: 2
 
 # clamav configuration
 # Clamav is specific for vets-api helm charts. Please do not enable.
