@@ -1493,10 +1493,6 @@ features:
     actor_type: user
     enable_in_development: true
     description: Toggle for routing eligibility requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
-  va_online_scheduling_enable_OH_requests:
-    actor_type: user
-    enable_in_development: true
-    description: Toggle for routing new appointment requests to the VetsAPI Gateway Service(VPG) instead of vaos-service
   va_online_scheduling_enable_OH_slots_search:
     actor_type: user
     enable_in_development: true
