@@ -15,7 +15,9 @@ describe ClaimsApi::VeteranRepresentativeService do
     it 'does not raise ArgumentError' do
       service = described_class.new(**header_params)
       expect do
-        service.send(:make_request, namespace: 'testspace', action: 'testAction', body: 'this is the body',
+        service.send(:make_request, endpoint: 'endpoint', namespaces: { 'testspace' => '/test' },
+                                    action: 'testAction',
+                                    body: 'this is the body',
                                     key: 'ThisIsTheKey')
       end.not_to raise_error(ArgumentError)
     end
