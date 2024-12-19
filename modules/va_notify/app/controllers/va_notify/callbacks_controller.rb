@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'va_notify/default_callback'
-
 module VANotify
   class CallbacksController < VANotify::ApplicationController
     include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -19,7 +17,7 @@ module VANotify
       if (notification = VANotify::Notification.find_by(notification_id: notification_id))
         Rails.logger.info("va_notify callbacks - Updating notification #{notification.id}")
         notification.update(notification_params)
-        VANotify::DefaultCallback.new(notification).call
+
         VANotify::StatusUpdate.new.delegate(notification_params.merge(id: notification_id))
       else
         Rails.logger.info("va_notify callbacks - Received update for unknown notification #{notification_id}")

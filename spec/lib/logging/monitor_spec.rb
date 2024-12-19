@@ -13,11 +13,10 @@ RSpec.describe Logging::Monitor do
     {
       statsd: 'OVERRIDE',
       service:,
-      user_account_uuid: additional_context[:user_account_uuid],
       function: call_location.base_label,
       file: call_location.path,
       line: call_location.lineno,
-      additional_context:
+      context: additional_context
     }
   end
 
@@ -25,8 +24,9 @@ RSpec.describe Logging::Monitor do
     describe '#track_request' do
       it 'logs a request with call location' do
         payload[:statsd] = 'api.monitor.404'
+        tags = ["service:#{service}", "function:#{call_location.base_label}", 'form_id:21P-50EZ']
 
-        expect(StatsD).to receive(:increment).with(metric, { tags: ['form_id:21P-50EZ'] })
+        expect(StatsD).to receive(:increment).with(metric, tags:)
         expect(Rails.logger).to receive(:error).with('404 Not Found!', payload)
 
         monitor.track_request('error', '404 Not Found!', metric, call_location:, **additional_context)
@@ -34,8 +34,11 @@ RSpec.describe Logging::Monitor do
 
       it 'logs an invalid log level' do
         error_level = 'BAD_LEVEL'
-        expect(StatsD).to receive(:increment).with(metric, { tags: ['form_id:21P-50EZ'] })
+        tags = ["service:#{service}", "function:#{call_location.base_label}", 'form_id:21P-50EZ']
+
+        expect(StatsD).to receive(:increment).with(metric, tags:)
         expect(Rails.logger).to receive(:error).with("Invalid log error_level: #{error_level}")
+
         monitor.track_request(error_level, 'TEST', metric, call_location:, **additional_context)
       end
     end

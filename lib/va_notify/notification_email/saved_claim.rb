@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'va_notify/notification_callback/saved_claim'
 require 'va_notify/notification_email'
 
 module VANotify
@@ -62,14 +63,14 @@ module VANotify
 
       attr_reader :claim, :email_type, :email_template_id
 
-      # the type of SavedClaim to be queried
-      def claim_class
-        ::SavedClaim
-      end
-
       # return or default the service_name to be used
       def vanotify_service
         @vanotify_service ||= claim&.form_id&.downcase&.gsub(/-/, '_')
+      end
+
+      # return the current service config being used
+      def service_config
+        @service_config ||= Settings.vanotify.services[vanotify_service]
       end
 
       # flipper exists and is enabled
@@ -80,10 +81,9 @@ module VANotify
 
       # check prerequisites before attempting to send the email
       def valid_attempt?
-        config = Settings.vanotify.services[vanotify_service]
-        raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless config
+        raise ArgumentError, "Invalid service_name '#{vanotify_service}'" unless service_config
 
-        email_config = config.email[email_type]
+        email_config = service_config.email[email_type]
         raise ArgumentError, "Invalid email_type '#{email_type}'" unless email_config
 
         @email_template_id = email_config.template_id
@@ -105,13 +105,8 @@ module VANotify
         tags = ["service_name:#{vanotify_service}",
                 "form_id:#{claim.form_id}",
                 "email_template_id:#{email_template_id}"]
-        context = {
-          form_id: claim.form_id,
-          saved_claim_id: claim.id,
-          service_name: vanotify_service,
-          email_type:,
-          email_template_id:
-        }
+        context = callback_metadata
+
         [tags, context]
       end
 
@@ -124,7 +119,9 @@ module VANotify
           at,
           email,
           email_template_id,
-          personalization
+          personalization,
+          service_config.api_key,
+          { callback_klass:, callback_metadata: }
         )
       end
 
@@ -135,23 +132,47 @@ module VANotify
         VANotify::EmailJob.perform_async(
           email,
           email_template_id,
-          personalization
+          personalization,
+          service_config.api_key,
+          { callback_klass:, callback_metadata: }
         )
       end
 
+      # OVERRIDES
+      # handlers which inherit this class may want to override the below methods
+
+      # the type of SavedClaim to be queried
+      def claim_class
+        ::SavedClaim
+      end
+
       # retrieve the email from the _claim_
-      # - specific claim types should have an `email` function defined
-      # - or should inherit this class and override this function
+      # - specific claim models should have an `email` method defined
       def email
         claim.email
       end
 
       # assemble details for personalization in the email
-      # - specific claim types should inherit this class and override this function
       def personalization
         {
           'date_submitted' => claim.submitted_at,
           'confirmation_number' => claim.confirmation_number
+        }
+      end
+
+      # assign the callback class to be used for the notification
+      def callback_klass
+        VANotify::NotificationCallback::SavedClaim.to_s
+      end
+
+      # assemble the metadata to be sent with the notification
+      def callback_metadata
+        {
+          form_id: claim.form_id,
+          saved_claim_id: claim.id,
+          service_name: vanotify_service,
+          email_type:,
+          email_template_id:
         }
       end
     end
