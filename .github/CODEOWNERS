@@ -781,6 +781,7 @@ config/initializers/staccato.rb @department-of-veterans-affairs/vfs-10-10 @depar
 config/initializers/statsd_instrument_monkeypatch.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/statsd.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/strong_migrations.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+config/initializers/va_notify_callbacks.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/vbms.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/warden_github.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/zcta.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/digital-health-platform @department-of-veterans-affairs/backend-review-group
@@ -844,7 +845,7 @@ lib/benefits_intake_service @department-of-veterans-affairs/benefits-dependents-
 lib/bgs @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/bid @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/bip_claims @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-lib/burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+lib/burials @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/carma @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/caseflow @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 lib/central_mail @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
