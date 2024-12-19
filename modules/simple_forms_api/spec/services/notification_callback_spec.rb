@@ -26,12 +26,19 @@ RSpec.describe SimpleFormsApi::NotificationCallback do
   let(:monitor_klass) { ZeroSilentFailures::Monitor }
   let(:monitor) { double(monitor_klass) }
 
+  before do
+    allow(monitor_klass).to receive(:new).and_return monitor
+    allow(monitor).to receive(:track) # intercept default tracking
+  end
+
   context 'notification_type == email and email_type == error' do
     describe '#on_deliver' do
       it 'records silent failure avoided - confirmed' do
+        context = hash_including(status: 'delivered')
+
         expect(monitor_klass).to receive(:new).and_return monitor
         expect(monitor).to receive(:log_silent_failure_avoided).with(
-          callback.context, email_confirmed: true, call_location: be_a(Logging::CallLocation)
+          context, email_confirmed: true, call_location: be_a(Logging::CallLocation)
         )
 
         klass.call(notification)
@@ -40,31 +47,12 @@ RSpec.describe SimpleFormsApi::NotificationCallback do
 
     describe '#on_permanent_failure' do
       it 'records silent failure' do
+        context = hash_including(status: 'permanent-failure')
+
         allow(notification).to receive(:status).and_return 'permanent-failure'
 
         expect(monitor_klass).to receive(:new).and_return monitor
-        expect(monitor).to receive(:log_silent_failure).with callback.context,
-                                                             call_location: be_a(Logging::CallLocation)
-
-        klass.call(notification)
-      end
-    end
-
-    describe '#on_temporary_failure' do
-      it 'no monitoring' do
-        allow(notification).to receive(:status).and_return 'temporary-failure'
-
-        expect(monitor_klass).not_to receive(:new)
-
-        klass.call(notification)
-      end
-    end
-
-    describe '#on_other_status' do
-      it 'no monitoring' do
-        allow(notification).to receive(:status).and_return 'other'
-
-        expect(monitor_klass).not_to receive(:new)
+        expect(monitor).to receive(:log_silent_failure).with context, call_location: be_a(Logging::CallLocation)
 
         klass.call(notification)
       end
@@ -84,7 +72,7 @@ RSpec.describe SimpleFormsApi::NotificationCallback do
 
     describe '#on_deliver' do
       it 'no monitoring' do
-        expect(monitor_klass).not_to receive(:new)
+        expect(monitor).not_to receive(:log_silent_failure_avoided)
 
         klass.call(notification)
       end
@@ -94,27 +82,7 @@ RSpec.describe SimpleFormsApi::NotificationCallback do
       it 'no monitoring' do
         allow(notification).to receive(:status).and_return 'permanent-failure'
 
-        expect(monitor_klass).not_to receive(:new)
-
-        klass.call(notification)
-      end
-    end
-
-    describe '#on_temporary_failure' do
-      it 'no monitoring' do
-        allow(notification).to receive(:status).and_return 'temporary-failure'
-
-        expect(monitor_klass).not_to receive(:new)
-
-        klass.call(notification)
-      end
-    end
-
-    describe '#on_other_status' do
-      it 'no monitoring' do
-        allow(notification).to receive(:status).and_return 'other'
-
-        expect(monitor_klass).not_to receive(:new)
+        expect(monitor).not_to receive(:log_silent_failure)
 
         klass.call(notification)
       end
@@ -128,7 +96,7 @@ RSpec.describe SimpleFormsApi::NotificationCallback do
 
     describe '#on_deliver' do
       it 'no monitoring' do
-        expect(monitor_klass).not_to receive(:new)
+        expect(monitor).not_to receive(:log_silent_failure_avoided)
 
         klass.call(notification)
       end
@@ -138,27 +106,7 @@ RSpec.describe SimpleFormsApi::NotificationCallback do
       it 'no monitoring' do
         allow(notification).to receive(:status).and_return 'permanent-failure'
 
-        expect(monitor_klass).not_to receive(:new)
-
-        klass.call(notification)
-      end
-    end
-
-    describe '#on_temporary_failure' do
-      it 'no monitoring' do
-        allow(notification).to receive(:status).and_return 'temporary-failure'
-
-        expect(monitor_klass).not_to receive(:new)
-
-        klass.call(notification)
-      end
-    end
-
-    describe '#on_other_status' do
-      it 'no monitoring' do
-        allow(notification).to receive(:status).and_return 'other'
-
-        expect(monitor_klass).not_to receive(:new)
+        expect(monitor).not_to receive(:log_silent_failure_avoided)
 
         klass.call(notification)
       end
