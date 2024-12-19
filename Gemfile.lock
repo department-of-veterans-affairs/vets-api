@@ -705,10 +705,8 @@ GEM
     nio4r (2.7.4-java)
     nkf (0.2.0)
     nkf (0.2.0-java)
-    nokogiri (1.16.8)
+    nokogiri (1.17.2)
       mini_portile2 (~> 2.8.2)
-      racc (~> 1.4)
-    nokogiri (1.16.8-java)
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal
@@ -766,8 +764,8 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.5.9)
-    pg_query (5.1.0)
-      google-protobuf (>= 3.22.3)
+    pg_query (6.0.0)
+      google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
       activerecord (>= 6.1)
       activesupport (>= 6.1)
