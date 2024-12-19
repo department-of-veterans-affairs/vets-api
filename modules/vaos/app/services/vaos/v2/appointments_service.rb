@@ -70,8 +70,8 @@ module VAOS
           }
         end
       rescue Common::Client::Errors::ParsingError, Common::Client::Errors::ClientError,
-             Common::Exceptions::GatewayTimeout, MAP::SecurityToken::Errors::ApplicationMismatchError,
-             MAP::SecurityToken::Errors::MissingICNError => e
+        Common::Exceptions::GatewayTimeout, MAP::SecurityToken::Errors::ApplicationMismatchError,
+        MAP::SecurityToken::Errors::MissingICNError => e
         {
           data: {},
           meta: pagination(pagination_params).merge({
@@ -103,14 +103,14 @@ module VAOS
         params.compact_blank!
         with_monitoring do
           response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
+            Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
                        perform(:post, appointments_base_path_vpg, params, headers)
                      else
                        perform(:post, appointments_base_path_vaos, params, headers)
                      end
 
           if request_object_body[:kind] == 'clinic' &&
-             booked?(request_object_body) # a direct scheduled appointment
+            booked?(request_object_body) # a direct scheduled appointment
             modify_desired_date(request_object_body, get_facility_timezone(request_object_body[:location_id]))
           end
 
@@ -131,7 +131,7 @@ module VAOS
       def update_appointment(appt_id, status)
         with_monitoring do
           if Flipper.enabled?(ORACLE_HEALTH_CANCELLATIONS, user) &&
-             Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
+            Flipper.enabled?(APPOINTMENTS_USE_VPG, user)
             update_appointment_vpg(appt_id, status)
             get_appointment(appt_id)
           else
@@ -233,11 +233,11 @@ module VAOS
         Time.zone.parse(start_time) + 60.minutes
       end
 
-      def merge_appointments(new_appointments, basic_appointments)
-        normalized_new = new_appointments[:appointments].map { |appt| normalize_eps_appointment(appt) }
-        basic_data = basic_appointments[:data].is_a?(Array) ? basic_appointments[:data] : [basic_appointments[:data]]
-        existing_ids = basic_data.to_set { |a| a[:referralId] }
-        merged_data = basic_data + normalized_new.reject { |a| existing_ids.include?(a[:referralId]) }
+      def merge_appointments(eps_appointments, appointments)
+        normalized_new = eps_appointments[:appointments].map { |appt| normalize_eps_appointment(appt) }
+        appointment_data = appointments[:data].is_a?(Array) ? appointments[:data] : [appointments[:data]]
+        existing_ids = appointment_data.to_set { |a| a[:referralId] }
+        merged_data = appointment_data + normalized_new.reject { |a| existing_ids.include?(a[:referralId]) }
         sorted_data = merged_data.sort_by { |appt| appt.dig(:requestedPeriods, 0, :start) || '' }
 
         { data: sorted_data }
