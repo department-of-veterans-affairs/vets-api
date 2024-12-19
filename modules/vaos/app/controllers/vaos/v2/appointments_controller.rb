@@ -317,7 +317,7 @@ module VAOS
       end
 
       def create_method_logging_name
-        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_enable_OH_requests)
+        if Flipper.enabled?(:va_online_scheduling_use_vpg) && Flipper.enabled?(:va_online_scheduling_OH_request)
           APPT_CREATE_VPG
         else
           APPT_CREATE_VAOS
