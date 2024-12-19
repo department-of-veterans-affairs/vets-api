@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vets/attributes'
+require 'vets/model/pagination'
 
 # This will be moved after virtus is removed
 module Bool; end
@@ -14,6 +15,7 @@ module Vets
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
     include Vets::Attributes
+    include Vets::Model::Pagination
 
     included do
       extend ActiveModel::Naming
