@@ -36,6 +36,12 @@ module PdfFill
         'OTHER' => 5
       }.freeze
 
+      ACCOUNT_INCOME_TYPES = {
+        'INTEREST' => 0,
+        'DIVIDENDS' => 1,
+        'OTHER' => 2
+      }.freeze
+
       KEY = {
         # 1a
         'veteranFullName' => {
@@ -166,6 +172,91 @@ module PdfFill
             question_suffix: '(5)',
             question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)'
           }
+        },
+        # 4a
+        'associatedIncome' => {
+          key: 'F[0].Page_6[0].DependentsReceiving4a[0]'
+        },
+        # 4b - 4f
+        'associatedIncomes' => {
+          limit: 5,
+          first_key: 'recipientRelationship',
+          'recipientRelationship' => {
+            key: "F[0].IncomeRecipients4[#{ITERATOR}]"
+          },
+          'recipientRelationshipOverflow' => {
+            question_num: 4,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          'otherRecipientRelationshipType' => {
+            key: "F[0].OtherRelationship4[#{ITERATOR}]",
+            question_num: 4,
+            question_suffix: '(1)',
+            question_text: "SPECIFY INCOME RECIPIENT'S RELATIONSHIP TO VETERAN"
+          },
+          'recipientName' => {
+            key: "F[0].NameofIncomeRecipient4[#{ITERATOR}]",
+            question_num: 4,
+            question_suffix: '(2)',
+            question_text:
+              'SPECIFY NAME OF INCOME RECIPIENT (Only needed if Custodian of child, child, parent, or other)'
+          },
+          'payer' => {
+            key: "F[0].IncomePayer4[#{ITERATOR}]",
+            question_num: 4,
+            question_suffix: '(3)',
+            question_text: 'SPECIFY INCOME PAYER (Name of business, financial institution, or program, etc.)'
+          },
+          'incomeType' => {
+            key: "F[0].TypeOfIncome4[#{ITERATOR}]"
+          },
+          'incomeTypeOverflow' => {
+            question_num: 4,
+            question_suffix: '(4)',
+            question_text: 'SPECIFY THE TYPE OF INCOME'
+          },
+          'otherIncomeType' => {
+            key: "F[0].OtherIncomeType4[#{ITERATOR}]",
+            question_num: 4,
+            question_suffix: '(4)',
+            question_text: 'SPECIFY THE TYPE OF INCOME'
+          },
+          'grossMonthlyIncome' => {
+            'thousands' => {
+              key: "F[0].GrossMonthlyIncome1_4[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].GrossMonthlyIncome2_4[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].GrossMonthlyIncome3_4[#{ITERATOR}]"
+            }
+          },
+          'grossMonthlyIncomeOverflow' => {
+            question_num: 4,
+            question_suffix: '(5)',
+            question_text: 'GROSS MONTHLY INCOME'
+          },
+          'accountValue' => {
+            'millions' => {
+              key: "F[0].ValueOfAccount1_4[#{ITERATOR}]"
+            },
+            'thousands' => {
+              key: "F[0].ValueOfAccount2_4[#{ITERATOR}]"
+            },
+            'dollars' => {
+              key: "F[0].ValueOfAccount3_4[#{ITERATOR}]"
+            },
+            'cents' => {
+              key: "F[0].ValueOfAccount4_4[#{ITERATOR}]"
+            }
+          },
+          'accountValueOverflow' => {
+            question_num: 4,
+            question_suffix: '(6)',
+            question_text: 'VALUE OF ACCOUNT'
+          },
         }
       }.freeze
 
@@ -180,6 +271,7 @@ module PdfFill
         expand_veteran_info
         expand_claimant_info
         expand_unassociated_incomes
+        expand_associated_incomes
 
         form_data
       end
@@ -242,6 +334,35 @@ module PdfFill
         }
       end
 
+      def expand_associated_incomes
+        associated_incomes = form_data['associatedIncomes']
+        form_data['associatedIncome'] = associated_incomes&.length ? 0 : 1
+        form_data['associatedIncomes'] = associated_incomes&.map do |income|
+          expand_associated_income(income)
+        end
+      end
+
+      def expand_associated_income(income)
+        recipient_relationship = income['recipientRelationship']
+        income_type = income['incomeType']
+        gross_monthly_income = income['grossMonthlyIncome']
+        account_value = income['accountValue']
+        {
+          'recipientRelationship' => RECIPIENTS[recipient_relationship],
+          'recipientRelationshipOverflow' => recipient_relationship,
+          'otherRecipientRelationshipType' => income['otherRecipientRelationshipType'],
+          'recipientName' => income['recipientName'],
+          'payer' => income['payer'],
+          'incomeType' => ACCOUNT_INCOME_TYPES[income_type],
+          'incomeTypeOverflow' => income_type,
+          'otherIncomeType' => income['otherIncomeType'],
+          'grossMonthlyIncome' => gross_monthly_income ? split_currency_amount(gross_monthly_income) : {},
+          'grossMonthlyIncomeOverflow' => gross_monthly_income,
+          'accountValue' => account_value ? split_account_value(account_value) : {},
+          'accountValueOverflow' => account_value
+        }
+      end
+
       # Format a YYYY-MM-DD date string to MM/DD/YYYY
       #
       # @param date_string [String] a date string in the format YYYY-MM-DD
@@ -262,6 +383,18 @@ module PdfFill
           'cents' => get_currency_field(arr, -1, 2),
           'dollars' => get_currency_field(arr, -2, 3),
           'thousands' => get_currency_field(arr, -3, 2)
+        }
+      end
+
+      def split_account_value(amount)
+        return {} if amount.negative? || amount >= 10_000_000
+
+        arr = number_to_currency(amount).to_s.split(/[,.$]/).reject(&:empty?)
+        {
+          'cents' => get_currency_field(arr, -1, 2),
+          'dollars' => get_currency_field(arr, -2, 3),
+          'thousands' => get_currency_field(arr, -3, 3),
+          'millions' => get_currency_field(arr, -4, 2)
         }
       end
 
