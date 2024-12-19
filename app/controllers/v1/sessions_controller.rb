@@ -374,7 +374,7 @@ module V1
                 else
                   exc.message
                 end
-      conditional_log_message_to_sentry(message, level, context, code)
+      conditional_log_message_to_sentry(message, level, context)
       Rails.logger.info("SessionsController version:v1 saml_callback failure, user_uuid=#{@current_user&.uuid}")
 
       unless performed?
@@ -393,14 +393,11 @@ module V1
     end
     # rubocop:enable Metrics/ParameterLists
 
-    def conditional_log_message_to_sentry(message, level, context, code)
-      # If our error is that we have multiple mhv ids, this is a case where we won't log in the user,
-      # but we give them a path to resolve this. So we don't want to throw an error, and we don't want
-      # to pollute Sentry with this condition, but we will still log in case we want metrics in
-      # Cloudwatch or any other log aggregator. Additionally, if the user has an invalid message timestamp
+    def conditional_log_message_to_sentry(message, level, context)
+      # If the user has an invalid message timestamp
       # error, this means they have waited too long in the log in page to progress, so it's not really an
       # appropriate Sentry error
-      if code == SAML::UserAttributeError::MULTIPLE_MHV_IDS_CODE || invalid_message_timestamp_error?(message)
+      if invalid_message_timestamp_error?(message)
         Rails.logger.warn("SessionsController version:v1 context:#{context} message:#{message}")
       else
         log_message_to_sentry(message, level, extra_context: context)
