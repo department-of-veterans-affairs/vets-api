@@ -27,7 +27,7 @@ module SimpleFormsApi
         # Exceptions::BenefitsClaimsApiDownError: The Intent to File API is down or timed out
         # In either case, we revert to sending a PDF to Central Mail through the Benefits Intake API
         prepare_params_for_benefits_intake_and_log_error(e)
-        SimpleFormsApi::BenefitsIntake::Submission.new(@current_user, params).submit
+        SimpleFormsApi::BenefitsIntake::Submission.new(current_user, params).submit
       end
 
       private
@@ -35,7 +35,7 @@ module SimpleFormsApi
       attr_accessor :current_user, :params
 
       def intent_service
-        @intent_service ||= SimpleFormsApi::SupportingForms::IntentToFile.new(@current_user, params)
+        @intent_service ||= SimpleFormsApi::SupportingForms::IntentToFile.new(current_user, params)
       end
 
       def send_intent_received_email(parsed_form_data, confirmation_number, expiration_date)
@@ -49,7 +49,7 @@ module SimpleFormsApi
         notification_email = SimpleFormsApi::NotificationEmail.new(
           config,
           notification_type: :received,
-          user: @current_user
+          user: current_user
         )
         notification_email.send
       end
@@ -72,14 +72,14 @@ module SimpleFormsApi
           'last' => params['full_name']['last']
         }
         params['veteran_id'] ||= { 'ssn' => params['ssn'] }
-        params['veteran_mailing_address'] ||= { 'postal_code' => @current_user.address[:postal_code] || '00000' }
+        params['veteran_mailing_address'] ||= { 'postal_code' => current_user.address[:postal_code] || '00000' }
         Rails.logger.info(
           'Simple forms api - 21-0966 Benefits Claims Intent to File API error,' \
           'reverting to filling a PDF and sending it to Benefits Intake API',
           {
             error: e,
-            is_current_user_participant_id_present: @current_user.participant_id ? true : false,
-            current_user_account_uuid: @current_user.user_account_uuid
+            is_current_user_participant_id_present: current_user.participant_id ? true : false,
+            current_user_account_uuid: current_user.user_account_uuid
           }
         )
       end
