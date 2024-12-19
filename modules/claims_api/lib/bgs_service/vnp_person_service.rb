@@ -2,6 +2,10 @@
 
 module ClaimsApi
   class VnpPersonService < ClaimsApi::LocalBGS
+    def bean_name
+      'VnpPersonWebServiceBean/VnpPersonService'
+    end
+
     # Takes an object with a minimum of (other fields are camelized and passed to BGS):
     # vnp_proc_id: BGS procID
     # vnp_ptcpnt_id: Veteran's participant id
