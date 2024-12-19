@@ -186,7 +186,18 @@ OkComputer::Registry.register 'benefits-documents',
 OkComputer::Registry.register 'form-526-docker-container',
                               Form526DockerContainerCheck.new('wss-form526-services-web/tools/version.jsp')
 OkComputer::Registry.register 'pdf-generator', PDFGenratorCheck.new('form-526ez-pdf-generator/actuator/health')
-# new bgs services 12/24
+OkComputer::Registry.register 'localbgs-org',
+                              FaradayBGSCheck.new('OrgWebServiceBean/OrgWebService')
+OkComputer::Registry.register 'localbgs-trackeditem',
+                              FaradayBGSCheck.new('TrackedItemService/TrackedItemService')
+
+# new bgs services 12/2024
+OkComputer::Registry.register 'benefit-claim-web-service', BGSServiceCheck.new(
+  'BenefitClaimServiceBean', 'BenefitClaimWebService', ClaimsApi::BenefitClaimService
+)
+OkComputer::Registry.register 'claim-management-service', BGSServiceCheck.new(
+  'ClaimManagementService', 'ClaimManagementService', ClaimsApi::ClaimManagementService
+)
 OkComputer::Registry.register 'claimant-service', BGSServiceCheck.new(
   'ClaimantServiceBean', 'ClaimantWebService', ClaimsApi::ClaimantWebService
 )
@@ -202,6 +213,9 @@ OkComputer::Registry.register 'e-benefits-bnft-claim-status-web-service', BGSSer
 )
 OkComputer::Registry.register 'intent-to-file-service', BGSServiceCheck.new(
   'IntentToFileWebServiceBean', 'IntentToFileWebService', ClaimsApi::IntentToFileWebService
+)
+OkComputer::Registry.register 'manage-rep-service', BGSServiceCheck.new(
+  'VDC', 'ManageRepresentativeService', ClaimsApi::ManageRepresentativeService
 )
 # future service
 # OkComputer::Registry.register 'org-web-service', BGSServiceCheck.new(
@@ -219,9 +233,6 @@ OkComputer::Registry.register 'standard-data-service', BGSServiceCheck.new(
 # OkComputer::Registry.register 'tracked-item-service', BGSServiceCheck.new(
 #   'TrackedItemService', 'TrackedItemService', ClaimsApi::TrackedItemService
 # )
-OkComputer::Registry.register 'manage-rep-service', BGSServiceCheck.new(
-  'VDC', 'ManageRepresentativeService', ClaimsApi::ManageRepresentativeService
-)
 OkComputer::Registry.register 'vet-rep-service', BGSServiceCheck.new(
   'VDC', 'VeteranRepresentativeService', ClaimsApi::VeteranRepresentativeService
 )
@@ -237,15 +248,15 @@ OkComputer::Registry.register 'vnp-person-web-service', BGSServiceCheck.new(
 OkComputer::Registry.register 'vnp-proc-form-web-service', BGSServiceCheck.new(
   'VnpProcFormWebServiceBean', 'VnpProcFormService', ClaimsApi::VnpProcFormService
 )
-OkComputer::Registry.register 'vnp-proc-web-v2-service', BGSServiceCheck.new(
+OkComputer::Registry.register 'vnp-proc-service-v2', BGSServiceCheck.new(
   'VnpProcWebServiceBeanV2', 'VnpProcServiceV2', ClaimsApi::VnpProcServiceV2
 )
-OkComputer::Registry.register 'vnp-ptcpnt-addrs-web-service', BGSServiceCheck.new(
+OkComputer::Registry.register 'vnp-ptcpnt-addrs-service', BGSServiceCheck.new(
   'VnpPtcpntAddrsWebServiceBean', 'VnpPtcpntAddrsService', ClaimsApi::VnpPtcpntAddrsService
 )
 OkComputer::Registry.register 'vnp-ptcpnt-phone-service', BGSServiceCheck.new(
   'VnpPtcpntPhoneWebServiceBean', 'VnpPtcpntPhoneService', ClaimsApi::VnpPtcpntPhoneService
 )
-OkComputer::Registry.register 'vnp-ptcpnt-web-service', BGSServiceCheck.new(
+OkComputer::Registry.register 'vnp-ptcpnt-service', BGSServiceCheck.new(
   'VnpPtcpntWebServiceBean', 'VnpPtcpntService', ClaimsApi::VnpPtcpntService
 )
