@@ -509,15 +509,6 @@ module ClaimsApi
             bean: VnpPtcpntPhoneWebServiceBean::DEFINITION,
             path: 'VnpPtcpntPhoneService'
           )
-
-        module FindPersonBySSN
-          DEFINITION =
-            Action.new(
-              service: VnpPtcpntPhoneService::DEFINITION,
-              name: 'vnpPtcpntPhoneCreate',
-              key: 'return'
-            )
-        end
       end
 
       ##
@@ -540,15 +531,6 @@ module ClaimsApi
             bean: VnpPtcpntWebServiceBean::DEFINITION,
             path: 'VnpPtcpntService'
           )
-
-        module VnpPtcpntCreate
-          DEFINITION =
-            Action.new(
-              service: VnpPtcpntService::DEFINITION,
-              name: 'vnpPtcpntCreate',
-              key: 'return'
-            )
-        end
       end
     end
   end
