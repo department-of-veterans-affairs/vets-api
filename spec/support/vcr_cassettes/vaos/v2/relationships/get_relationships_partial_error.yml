@@ -120,7 +120,17 @@ http_interactions:
                 }
               ]
             },
-            "failures": []
+            "failures": [
+              {
+                "system":"CFA",
+                "id":"id-string",
+                "status":"status-string",
+                "code":0,
+                "traceId":"traceId-string",
+                "message":"Failed to fetch relationships from CFA",
+                "detail":"detail-string"
+              }
+            ]
           }
     recorded_at: Fri, 23 Aug 2024 14:46:55 GMT
 recorded_with: VCR 6.2.0
