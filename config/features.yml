@@ -87,6 +87,9 @@ features:
   caregiver_retry_form_validation:
     actor_type: user
     description: Enables 1010CG to retry schema validation
+  disability_compensation_staging_lighthouse_brd:
+    actor_type: user
+    description: Switches to Lighthouse Staging BRD Service. NEVER ENABLE IN PRODUCTION.
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -1534,6 +1537,10 @@ features:
     actor_type: user
     description: When enabled, the VAProfile::V3::ContactInformation will be enabled
     enable_in_development: true
+  validate_saved_claims_with_json_schemer:
+    actor_type: user
+    description: When enabled, Saved Claims will be validated using the JSON Schemer gem rather than JSON Schema
+    enable_in_development: false
   veteran_onboarding_beta_flow:
     actor_type: user
     description: Conditionally display the new veteran onboarding flow to user
@@ -1961,3 +1968,7 @@ features:
   benefits_non_disability_ch31_v2:
     actor_type: user
     description: If enabled, use new form and api endpoint for Ch31 VR&E form
+  is_updated_gi:
+    actor_type: user
+    description: If enabled, use updated gi design
+  
