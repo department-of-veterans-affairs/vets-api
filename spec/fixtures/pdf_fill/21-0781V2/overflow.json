@@ -2,9 +2,9 @@
   "vaFileNumber": "12345678",
   "veteranSocialSecurityNumber": "123456789",
   "veteranFullName": {
-    "first": "Testy",
+    "first": "XXXXXXXXXXXXX",
     "middle": "Tester",
-    "last": "Testerson"
+    "last": "XXXXXXXXXXXXXXXXXX"
   },
   "veteranDateOfBirth": "1981-11-05",
   "veteranServiceNumber": "987654321",
@@ -21,13 +21,38 @@
   "eventsDetails": [
     {
       "details": "Lorem ipsum dolor sit amet.",
-      "location": "abcdefghijklmn opqrstuvwxyz1234a",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "timing": "Summer of '70"
     },
     {
       "details": "Lorem ipsum dolor sit amet.",
-      "location": "abcdefghijklmn opqrstuvwxyz1234a",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
       "timing": "June 2007"
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet..",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "February 14, 2020"
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet..",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "Autumn of 1995"
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "Winter of '68"
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "Spring of '72"
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "Summer of '69"
     }
   ],
   "reports": {
@@ -109,6 +134,10 @@
     {
       "facilityInfo": "Cedarwood Behavioral Health Center, 4321 Oak Ridge Rd, Maplewood, MN",
       "treatmentYear": "2024"
+    },
+    {
+      "facilityInfo": "Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL",
+      "noDates": true
     },
     {
       "facilityInfo": "Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL",
