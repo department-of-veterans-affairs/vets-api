@@ -29,7 +29,7 @@ module AccreditedRepresentativePortal
       return false unless @user
 
       pilot_user_poa_codes = Set.new(pilot_user_email_poa_codes[@user&.email])
-      poa_requests_poa_codes = Set.new(Array.wrap(@record), &:poa_code)
+      poa_requests_poa_codes = Set.new(Array.wrap(@record)) { |r| r.dig(:attributes, :powerOfAttorneyCode) }
 
       pilot_user_poa_codes >= poa_requests_poa_codes
     end
