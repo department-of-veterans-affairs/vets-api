@@ -296,6 +296,7 @@ module ClaimsApi
             bean: Vdc::DEFINITION,
             path: 'VeteranRepresentativeService'
           )
+
         module ReadAllVeteranRepresentatives
           DEFINITION =
             Action.new(
