@@ -22,12 +22,9 @@ module Vets
   module Model
     module Sortable
       include Comparable
+      extend ActiveSupport::Concern
 
-      def self.included(base)
-        base.extend ClassMethods
-      end
-
-      module ClassMethods
+      class_methods do
         # sets the default sorting criteria
         # required for use with Array#sort
         # rubocop:disable ThreadSafety/ClassInstanceVariable
