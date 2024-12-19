@@ -13,9 +13,7 @@ module BenefitsClaims
     FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
 
     def initialize(icn)
-      # @icn = icn
-      # @icn = '1012830774V793840' # icn for user 23
-      @icn = '1012830712V627751' # icn for user 19
+      @icn = icn
       if icn.blank?
         raise ArgumentError, 'no ICN passed in for LH API request.'
       else

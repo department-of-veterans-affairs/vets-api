@@ -62,6 +62,7 @@ class EVSS::DocumentUpload
     error_message = "#{job_class} failed to create EvidenceSubmission"
     ::Rails.logger.info(error_message, { messsage: e.message })
     StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
+    log_exception_to_sentry(e)
   end
 
   def perform(auth_headers, user_uuid, document_hash)
