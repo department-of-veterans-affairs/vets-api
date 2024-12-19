@@ -15,7 +15,7 @@ namespace :simple_forms_api do
       next unless form_submission
 
       # Re-generate the form PDF
-      form_id = SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP[form_submission.form_type]
+      form_id = SimpleFormsApi::BenefitsIntake::Submission::FORM_NUMBER_MAP[form_submission.form_type]
       parsed_form_data = JSON.parse(form_submission.form_data)
       form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
       filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)

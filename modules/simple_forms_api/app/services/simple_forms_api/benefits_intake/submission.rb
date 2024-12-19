@@ -1,8 +1,26 @@
 # frozen_string_literal: true
 
+require 'simple_forms_api/form_remediation/configuration/vff_config'
+require 'simple_forms_api_submission/metadata_validator'
+
 module SimpleFormsApi
   module BenefitsIntake
     class Submission
+      FORM_NUMBER_MAP = {
+        '20-10206' => 'vba_20_10206',
+        '20-10207' => 'vba_20_10207',
+        '21-0845' => 'vba_21_0845',
+        '21-0966' => 'vba_21_0966',
+        '21-0972' => 'vba_21_0972',
+        '21-10210' => 'vba_21_10210',
+        '21-4138' => 'vba_21_4138',
+        '21-4142' => 'vba_21_4142',
+        '21P-0847' => 'vba_21p_0847',
+        '26-4555' => 'vba_26_4555',
+        '40-0247' => 'vba_40_0247',
+        '40-10007' => 'vba_40_10007'
+      }.freeze
+
       def initialize(current_user, params)
         @current_user = current_user
         @params = params

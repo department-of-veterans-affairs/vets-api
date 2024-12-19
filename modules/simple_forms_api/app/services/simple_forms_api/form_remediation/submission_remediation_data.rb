@@ -103,7 +103,7 @@ module SimpleFormsApi
       end
 
       def valid_forms_map
-        SimpleFormsApi::V1::UploadsController::FORM_NUMBER_MAP
+        SimpleFormsApi::BenefitsIntake::Submission::FORM_NUMBER_MAP
       end
 
       def valid_form?
