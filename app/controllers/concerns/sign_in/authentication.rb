@@ -30,7 +30,7 @@ module SignIn
       @current_user.present?
     rescue Errors::AccessTokenExpiredError => e
       render json: { errors: e }, status: :forbidden unless skip_expiration_check
-    rescue Errors::StandardError, MPI::Errors::AccountLockedError
+    rescue Errors::StandardError
       nil
     end
 

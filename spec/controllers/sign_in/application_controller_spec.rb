@@ -310,10 +310,11 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:deceased_date) { '20020202' }
         let(:expected_error) { 'Death Flag Detected' }
 
-        it 'returns an empty response' do
+        it 'raises an MPI locked account error' do
           response = subject
-          expect(response).to have_http_status(:ok)
-          expect(response.body).to be_empty
+          expect(response).to have_http_status(:internal_server_error)
+          error_body = JSON.parse(response.body)['errors'].first
+          expect(error_body['meta']['exception']).to eq(expected_error)
         end
       end
 
@@ -321,10 +322,11 @@ RSpec.describe SignIn::ApplicationController, type: :controller do
         let(:id_theft_flag) { true }
         let(:expected_error) { 'Theft Flag Detected' }
 
-        it 'returns an empty response' do
+        it 'raises an MPI locked account error' do
           response = subject
-          expect(response).to have_http_status(:ok)
-          expect(response.body).to be_empty
+          expect(response).to have_http_status(:internal_server_error)
+          error_body = JSON.parse(response.body)['errors'].first
+          expect(error_body['meta']['exception']).to eq(expected_error)
         end
       end
     end
