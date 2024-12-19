@@ -2,6 +2,7 @@
 
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 require 'simple_forms_api_submission/metadata_validator'
+require 'lighthouse/benefits_intake/service'
 
 module SimpleFormsApi
   module BenefitsIntake
@@ -23,7 +24,7 @@ module SimpleFormsApi
 
       def initialize(current_user, params)
         @current_user = current_user
-        @params = params
+        @params = params.deep_symbolize_keys
       end
 
       def submit
@@ -57,6 +58,12 @@ module SimpleFormsApi
 
       private
 
+      attr_accessor :current_user, :params
+
+      def lighthouse_service
+        @lighthouse_service ||= ::BenefitsIntake::Service.new
+      end
+
       def build_response(confirmation_number, presigned_s3_url, status)
         json = get_json(confirmation_number || nil, presigned_s3_url || nil)
         { json:, status: }
@@ -65,18 +72,19 @@ module SimpleFormsApi
       def get_file_paths_and_metadata(parsed_form_data)
         form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
         # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
-        if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && @current_user
-          form = form.populate_veteran_data(@current_user)
+        if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && current_user
+          form = form.populate_veteran_data(current_user)
         end
         filler = SimpleFormsApi::PdfFiller.new(form_number: form_id, form:)
 
-        file_path = if @current_user
-                      filler.generate(@current_user.loa[:current])
+        file_path = if current_user
+                      filler.generate(current_user.loa[:current])
                     else
                       filler.generate
                     end
-        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(form.metadata,
-                                                                        zip_code_is_us_based: form.zip_code_is_us_based)
+        metadata = SimpleFormsApiSubmission::MetadataValidator.validate(
+          form.metadata, zip_code_is_us_based: form.zip_code_is_us_based
+        )
 
         form.handle_attachments(file_path) if %w[vba_40_0247 vba_40_10007].include?(form_id)
 
@@ -117,7 +125,7 @@ module SimpleFormsApi
         FormSubmission.create(
           form_type: params[:form_number],
           form_data: params.to_json,
-          user_account: @current_user&.user_account
+          user_account: current_user&.user_account
         )
       end
 
@@ -170,7 +178,7 @@ module SimpleFormsApi
         notification_email = SimpleFormsApi::NotificationEmail.new(
           config,
           notification_type: :confirmation,
-          user: @current_user
+          user: current_user
         )
         notification_email.send
       end
