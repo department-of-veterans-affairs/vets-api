@@ -72,7 +72,8 @@ module SimpleFormsApi
 
       def log_error(error)
         Rails.logger.info(
-          'Simple forms api - 21-0966 Benefits Claims Intent to File API error, reverting to filling a PDF and sending it to Benefits Intake API',
+          'Simple forms api - 21-0966 Benefits Claims Intent to File API error, \
+            reverting to filling a PDF and sending it to Benefits Intake API',
           {
             error: error,
             is_current_user_participant_id_present: current_user.participant_id.present?,
