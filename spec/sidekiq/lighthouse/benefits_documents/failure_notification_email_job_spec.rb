@@ -2,10 +2,10 @@
 
 require 'rails_helper'
 
-require 'lighthouse/failure_notification'
+require 'lighthouse/benefits_documents/failure_notification'
 require 'va_notify/service'
 
-RSpec.describe Lighthouse::FailureNotification, type: :job do
+RSpec.describe Lighthouse::BenefitsDocuments::FailureNotificationEmailJob, type: :job do
   subject { described_class }
 
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
