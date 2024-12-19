@@ -46,7 +46,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
     before do
-      Flipper.enable(:va_burial_v2)
       create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id)
     end
 
@@ -302,7 +301,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         '/v0/claim_attachments',
         200,
         '_data' => {
-          'form_id' => '21P-530V2',
+          'form_id' => '21P-530EZ',
           file: fixture_file_upload('spec/fixtures/files/doctors-note.pdf')
         }
       )
@@ -312,7 +311,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         '/v0/claim_attachments',
         422,
         '_data' => {
-          'form_id' => '21P-530V2',
+          'form_id' => '21P-530EZ',
           file: fixture_file_upload('spec/fixtures/files/empty_file.txt')
         }
       )
@@ -409,7 +408,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           200,
           '_data' => {
             'burial_claim' => {
-              'form' => build(:burial_claim_v2).form
+              'form' => build(:burial_claim).form
             }
           }
         )
@@ -1099,6 +1098,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         Flipper.disable('disability_compensation_prevent_submission_job')
         Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
         Flipper.disable('disability_compensation_production_tester')
+        Flipper.disable(:disability_compensation_staging_lighthouse_brd)
       end
 
       let(:form526v2) do
