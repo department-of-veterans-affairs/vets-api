@@ -49,6 +49,11 @@ module SimpleFormsApi
         error: Settings.vanotify.services.va_gov.template_id.form20_10207_error_email,
         received: Settings.vanotify.services.va_gov.template_id.form20_10207_received_email
       },
+      'vba_20_10207_point_of_contact' => {
+        confirmation: nil,
+        error: Settings.vanotify.services.va_gov.template_id.form20_10207_point_of_contact_error_email,
+        received: nil
+      },
       'vba_40_0247' => {
         confirmation: Settings.vanotify.services.va_gov.template_id.form40_0247_confirmation_email,
         error: Settings.vanotify.services.va_gov.template_id.form40_0247_error_email,
@@ -89,6 +94,10 @@ module SimpleFormsApi
                           else
                             send_email_now(template_id)
                           end
+      if form_number == 'vba_20_10207' && notification_type == :error
+        sent_to_va_notify = send_email_to_point_of_contact(at)
+      end
+
       StatsD.increment('silent_failure', tags: statsd_tags) if error_notification? && !sent_to_va_notify
     end
 
@@ -196,6 +205,16 @@ module SimpleFormsApi
           get_personalization(first_name)
         )
       end
+    end
+
+    def send_email_to_point_of_contact(at)
+      email_from_form_data = @form_data['point_of_contact_email']
+      name_from_form_data = @form_data['point_of_contact_name']
+      return unless email_from_form_data && name_from_form_data
+
+      # We're intercepting, modifying, and hardcoding template_id here to specify the point_of_contact variant
+      point_of_contact_template_id = TEMPLATE_IDS['vba_20_10207_point_of_contact'][notification_type]
+      async_job_with_form_data(email_from_form_data, name_from_form_data, at, point_of_contact_template_id)
     end
 
     def get_email_address_from_form_data
