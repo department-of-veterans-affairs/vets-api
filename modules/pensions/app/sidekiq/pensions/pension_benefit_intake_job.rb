@@ -33,7 +33,6 @@ module Pensions
 
     # retry exhaustion
     sidekiq_retries_exhausted do |msg|
-      byebug
       begin
         claim = Pensions::SavedClaim.find(msg['args'].first)
       rescue
