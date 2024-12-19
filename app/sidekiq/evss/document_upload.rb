@@ -12,7 +12,6 @@ class EVSS::DocumentUpload
 
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
   OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
-  DD_ZSF_TAGS = ['service:claim-status', 'function: evidence upload to EVSS'].freeze
 
   attr_accessor :auth_headers, :user_uuid, :document_hash
 
