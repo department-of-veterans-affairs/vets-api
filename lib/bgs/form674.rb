@@ -36,7 +36,10 @@ module BGS
       #note - do we ever need to do manual 674? if so, set state here in a get_state_type_method
 
       # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
-      set_claim_type('MANUAL_VAGOV') unless Flipper.enabled?(:va_dependents_submit_674)
+      if !Flipper.enabled?(:va_dependents_submit_674)
+        set_claim_type('MANUAL_VAGOV') 
+        @proc_state = 'MANUAL_VAGOV'
+      end
 
       # temporary logging to troubleshoot
       log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
