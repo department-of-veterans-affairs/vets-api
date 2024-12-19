@@ -3,6 +3,16 @@
 module AccreditedRepresentativePortal
   class Engine < ::Rails::Engine
     isolate_namespace AccreditedRepresentativePortal
+
+    # `isolate_namespace` redefines `table_name_prefix` on load of
+    # `active_record`, so we append our own callback to redefine it again how we
+    # want.
+    ActiveSupport.on_load(:active_record) do
+      AccreditedRepresentativePortal.redefine_singleton_method(:table_name_prefix) do
+        'ar_'
+      end
+    end
+
     config.generators.api_only = true
 
     # So that the app-wide migration command notices our engine's migrations.
