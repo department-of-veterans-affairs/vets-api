@@ -70,10 +70,10 @@ describe VANotify::InProgressFormReminder, type: :worker do
                 'fake_secret',
                 { callback_klass: VANotify::NotificationCallback::Default.to_s,
                   callback_metadata: {
-                  form_number: '686C-674', notification_type: 'in_progress_reminder', statsd_tags: {
-                    'function' => '686C-674 in progress reminder', 'service' => 'va-notify'
-                  }
-                } })
+                    form_number: '686C-674', notification_type: 'in_progress_reminder', statsd_tags: {
+                      'function' => '686C-674 in progress reminder', 'service' => 'va-notify'
+                    }
+                  } })
       end
     end
 
@@ -155,10 +155,10 @@ describe VANotify::InProgressFormReminder, type: :worker do
           'fake_secret',
           { callback_klass: VANotify::NotificationCallback::Default.to_s,
             callback_metadata: {
-            form_number: 'multiple', notification_type: 'in_progress_reminder', statsd_tags: {
-              'function' => 'multiple in progress reminder', 'service' => 'va-notify'
-            }
-          } }
+              form_number: 'multiple', notification_type: 'in_progress_reminder', statsd_tags: {
+                'function' => 'multiple in progress reminder', 'service' => 'va-notify'
+              }
+            } }
         )
         # rubocop:enable Layout/LineLength
       end
