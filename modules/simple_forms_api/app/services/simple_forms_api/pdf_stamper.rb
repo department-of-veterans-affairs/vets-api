@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pdf_utilities/datestamp_pdf'
+require 'fileutils'
 
 module SimpleFormsApi
   class PdfStamper
@@ -64,7 +65,7 @@ module SimpleFormsApi
 
     def stamp_all_pages(desired_stamp, append_to_stamp: nil)
       current_file_path = call_datestamp_pdf(desired_stamp[:coords], desired_stamp[:text], append_to_stamp)
-      File.rename(current_file_path, stamped_template_path)
+      FileUtils.mv(current_file_path, stamped_template_path)
     end
 
     def verified_multistamp(stamp, page_configuration)
@@ -93,7 +94,7 @@ module SimpleFormsApi
 
     def multistamp_cleanup(out_path)
       Common::FileHelpers.delete_file_if_exists(stamped_template_path)
-      File.rename(out_path, stamped_template_path)
+      FileUtils.mv(out_path, stamped_template_path)
     end
 
     def verify
