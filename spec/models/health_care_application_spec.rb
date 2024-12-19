@@ -11,6 +11,9 @@ RSpec.describe HealthCareApplication, type: :model do
     short_form
   end
   let(:inelig_character_of_discharge) { HCA::EnrollmentEligibility::Constants::INELIG_CHARACTER_OF_DISCHARGE }
+  let(:statsd_key_prefix) { HCA::Service::STATSD_KEY_PREFIX }
+  let(:zsf_tags) { described_class::DD_ZSF_TAGS }
+  let(:form_id) { described_class::FORM_ID }
 
   describe 'LOCKBOX' do
     it 'can encrypt strings over 4kb' do
@@ -419,7 +422,7 @@ RSpec.describe HealthCareApplication, type: :model do
           expect do
             described_class.new(form: { mothersMaidenName: 'm' }.to_json).process!
           end.to raise_error(Common::Exceptions::ValidationErrors)
-        end.to trigger_statsd_increment('api.1010ez.validation_error_short_form')
+        end.to trigger_statsd_increment("#{statsd_key_prefix}.validation_error_short_form")
       end
 
       it 'triggers statsd' do
@@ -427,7 +430,7 @@ RSpec.describe HealthCareApplication, type: :model do
           expect do
             described_class.new(form: {}.to_json).process!
           end.to raise_error(Common::Exceptions::ValidationErrors)
-        end.to trigger_statsd_increment('api.1010ez.validation_error')
+        end.to trigger_statsd_increment("#{statsd_key_prefix}.validation_error")
       end
     end
 
@@ -501,7 +504,7 @@ RSpec.describe HealthCareApplication, type: :model do
           end
 
           it 'increments statsd' do
-            expect(StatsD).to receive(:increment).with('api.1010ez.sync_submission_failed')
+            expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed")
 
             expect do
               health_care_application.process!
@@ -515,8 +518,8 @@ RSpec.describe HealthCareApplication, type: :model do
             end
 
             it 'increments statsd and short_form statsd' do
-              expect(StatsD).to receive(:increment).with('api.1010ez.sync_submission_failed')
-              expect(StatsD).to receive(:increment).with('api.1010ez.sync_submission_failed_short_form')
+              expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed")
+              expect(StatsD).to receive(:increment).with("#{statsd_key_prefix}.sync_submission_failed_short_form")
 
               expect do
                 health_care_application.process!
@@ -557,7 +560,14 @@ RSpec.describe HealthCareApplication, type: :model do
               {
                 'salutation' => "Dear #{health_care_application.parsed_form['veteranFullName']['first']},"
               },
-              api_key
+              api_key,
+              {
+                callback_metadata: {
+                  notification_type: 'error',
+                  form_number: form_id,
+                  statsd_tags: zsf_tags
+                }
+              }
             ]
           end
 
@@ -575,7 +585,7 @@ RSpec.describe HealthCareApplication, type: :model do
           end
 
           it 'increments statsd' do
-            expect { subject }.to trigger_statsd_increment('api.1010ez.submission_failure_email_sent')
+            expect { subject }.to trigger_statsd_increment("#{statsd_key_prefix}.submission_failure_email_sent")
           end
 
           context 'without first name' do
@@ -591,7 +601,14 @@ RSpec.describe HealthCareApplication, type: :model do
                 {
                   'salutation' => ''
                 },
-                api_key
+                api_key,
+                {
+                  callback_metadata: {
+                    notification_type: 'error',
+                    form_number: form_id,
+                    statsd_tags: zsf_tags
+                  }
+                }
               ]
             end
 
@@ -652,7 +669,7 @@ RSpec.describe HealthCareApplication, type: :model do
 
     describe '#log_async_submission_failure' do
       it 'triggers failed_wont_retry statsd' do
-        expect { subject }.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
+        expect { subject }.to trigger_statsd_increment("#{statsd_key_prefix}.failed_wont_retry")
       end
 
       it 'triggers zero silent failures statsd' do
@@ -666,8 +683,8 @@ RSpec.describe HealthCareApplication, type: :model do
         end
 
         it 'triggers statsd' do
-          expect { subject }.to trigger_statsd_increment('api.1010ez.failed_wont_retry')
-            .and trigger_statsd_increment('api.1010ez.failed_wont_retry_short_form')
+          expect { subject }.to trigger_statsd_increment("#{statsd_key_prefix}.failed_wont_retry")
+            .and trigger_statsd_increment("#{statsd_key_prefix}.failed_wont_retry_short_form")
         end
       end
 
