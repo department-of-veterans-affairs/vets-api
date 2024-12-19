@@ -6,5 +6,13 @@ FactoryBot.define do
     id { Faker::Internet.uuid }
     association :creator, factory: :user_account
     type { 'Approval' }
+
+    trait :declination do
+      type { 'Declination' }
+    end
+
+    trait :approval do
+      type { 'Approval' }
+    end
   end
 end

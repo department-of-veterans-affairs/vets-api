@@ -55,18 +55,6 @@ RSpec.describe mod::PowerOfAttorneyRequestResolution, type: :model do
     end
   end
 
-<<<<<<< HEAD
-=======
-    it 'does not allow invalid resolving_type values' do
-      resolution = build(:power_of_attorney_request_resolution, :with_invalid_type)
-      resolution.resolving_type = 'AccreditedRepresentativePortal::InvalidType'
-
-      expect(resolution).not_to be_valid
-      expect(resolution.errors[:resolving_type]).to include('is not included in the list')
-    end
-  end
-
->>>>>>> 3815598394 ((fix) Apply requested PR changes; all specs passing)
   describe 'heterogeneous list behavior' do
     it 'conveniently returns heterogeneous lists' do
       travel_to Time.zone.parse('2024-11-25T09:46:24Z') do
