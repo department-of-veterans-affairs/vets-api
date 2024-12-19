@@ -172,7 +172,7 @@ module ClaimsApi
       ##
       # StandardDataService
       #
-      module StandardDataService
+      module StandardDataServiceBean
         DEFINITION =
           Bean.new(
             path: 'StandardDataService',
@@ -180,6 +180,14 @@ module ClaimsApi
               target: 'http://services.mapd.benefits.vba.va.gov/',
               data: nil
             )
+          )
+      end
+
+      module StandardDataService
+        DEFINITION =
+          Service.new(
+            bean: StandardDataServiceBean::DEFINITION,
+            path: 'StandardDataService'
           )
       end
 
