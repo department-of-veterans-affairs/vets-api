@@ -2,17 +2,17 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestsPolicy do
+RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestPolicy do
   let(:user) { build(:representative_user, email: 'test@va.gov') }
   let(:unassociated_user) { build(:representative_user, email: 'other@va.gov') }
   let(:poa_request) do
-    Struct.new(:poa_code).new('123')
+    ::AccreditedRepresentativePortal::PENDING_POA_REQUEST_MOCK_DATA
   end
   let(:poa_requests) { [poa_request] }
 
   before do
     allow_any_instance_of(described_class).to receive(:pilot_user_email_poa_codes)
-      .and_return({ 'test@va.gov' => ['123'] })
+      .and_return({ 'test@va.gov' => ['091'] })
   end
 
   describe '#authorize' do

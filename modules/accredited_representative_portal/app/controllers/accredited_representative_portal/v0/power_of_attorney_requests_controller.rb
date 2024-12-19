@@ -9,8 +9,19 @@ module AccreditedRepresentativePortal
       end
 
       def show
-        authorize
-        render json: ::AccreditedRepresentativePortal::PENDING_POA_REQUEST_MOCK_DATA
+        if poa_request && PowerOfAttorneyRequestPolicy.new(current_user, poa_request).show?
+          render json: { data: poa_request }
+        else
+          head :not_found
+        end
+      end
+
+      private
+
+      def poa_request
+        ::AccreditedRepresentativePortal::POA_REQUEST_LIST_MOCK_DATA.find do |poa|
+          poa[:id].to_s == params['id']
+        end
       end
     end
   end
