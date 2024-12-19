@@ -151,6 +151,30 @@ describe ClaimsApi::LocalBGSRefactored::FindDefinition do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
       end
 
+      context 'StandardDataServiceBean' do
+        let(:endpoint) { 'StandardDataServiceBean/StandardDataService' }
+
+        it 'responds with the correct namespace' do
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'StandardDataServiceBean'
+          expect(parsed_result['path']).to eq 'StandardDataService'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://bepdev.vba.va.gov/'
+        end
+      end
+
+      context 'StandardDataWebServiceBean' do
+        let(:endpoint) { 'StandardDataWebServiceBean/StandardDataWebService' }
+
+        it 'responds with the correct namespace' do
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq 'StandardDataWebServiceBean'
+          expect(parsed_result['path']).to eq 'StandardDataWebService'
+          expect(parsed_result['bean']['namespaces']['target']).to eq 'http://standarddata.services.vetsnet.vba.va.gov/'
+        end
+      end
+
       context 'TrackedItemService' do
         let(:endpoint) { 'TrackedItemService/TrackedItemService' }
 
