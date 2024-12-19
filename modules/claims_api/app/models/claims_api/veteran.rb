@@ -68,6 +68,10 @@ module ClaimsApi
       @mpi ||= MPIData.for_user(self)
     end
 
+    def mpi_no_cache
+      MPIData.for_user(self)
+    end
+
     def mpi_record?(user_key: uuid)
       mpi&.mvi_response(user_key:)&.ok?
     end
