@@ -22,7 +22,7 @@ class FormProfiles::VA2122 < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/claimant-information'
+      returnUrl: '/claimant-type'
     }
   end
 
