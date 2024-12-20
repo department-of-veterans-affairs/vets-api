@@ -85,10 +85,16 @@ RSpec.describe SimpleFormsApi::VBA214140 do
   describe '#middle_initial' do
     subject { form.middle_initial }
 
-    it('is limited to one character') do
+    it 'is limited to one character' do
       expect(data.dig('full_name', 'middle').length).to be > 1
       expect(subject.length).to eq 1
     end
+  end
+
+  describe '#phone_primary' do
+    subject { form.phone_primary }
+
+    it { is_expected.to match(/\d{3}-\d{3}-\d{4}/) }
   end
 
   describe '#signature_date' do

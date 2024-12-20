@@ -37,6 +37,10 @@ module SimpleFormsApi
       data.dig('full_name', 'middle')&.[](0)
     end
 
+    def phone_primary
+      data['home_phone'].insert(-8, '-').insert(-5, '-')
+    end
+
     def ssn
       trimmed_ssn = data.dig('veteran_id', 'ssn')&.tr('-', '')
 
