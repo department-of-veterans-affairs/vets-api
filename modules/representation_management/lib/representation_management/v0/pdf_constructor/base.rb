@@ -151,10 +151,16 @@ module RepresentationManagement
         #
         def fill_and_combine_pdf(data, flatten: true)
           pdftk = PdfForms.new(Settings.binaries.pdftk)
-          next_steps_tempfile = generate_next_steps_page(data) if next_steps_page?
           template_tempfile = fill_template_form(pdftk, data, flatten: flatten)
+          # Only combine PDFs if needed.  Otherwise directly write the template to the output tempfile.
+          if next_steps_page?
+            next_steps_tempfile = generate_next_steps_page(data)
+            combine_pdfs(next_steps_tempfile, template_tempfile)
+          else
+            FileUtils.copy_file(template_tempfile.path, @tempfile.path)
+            @tempfile.rewind
+          end
 
-          combine_pdfs(next_steps_tempfile, template_tempfile)
           cleanup_tempfiles(template_tempfile, next_steps_tempfile)
         end
 
@@ -207,10 +213,12 @@ module RepresentationManagement
         end
 
         def combine_pdfs(next_steps_tempfile, template_tempfile)
-          pdf = CombinePDF.new
-          pdf << CombinePDF.load(next_steps_tempfile.path) if next_steps_page?
-          pdf << CombinePDF.load(template_tempfile.path)
-          pdf.save(@tempfile.path)
+          pdf = HexaPDF::Document.new
+          next_steps_pdf = HexaPDF::Document.open(next_steps_tempfile.path)
+          next_steps_pdf.pages.each { |page| pdf.pages << pdf.import(page) }
+          template_pdf = HexaPDF::Document.open(template_tempfile.path)
+          template_pdf.pages.each { |page| pdf.pages << pdf.import(page) }
+          pdf.write(@tempfile.path, optimize: true)
           @tempfile.rewind
         end
 
