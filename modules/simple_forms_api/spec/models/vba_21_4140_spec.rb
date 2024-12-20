@@ -14,6 +14,10 @@ RSpec.describe SimpleFormsApi::VBA214140 do
 
   it_behaves_like 'zip_code_is_us_based', %w[address]
 
+  shared_examples 'hyphenated_phone_number' do
+    it { is_expected.to match(/\d{3}-\d{3}-\d{4}/) }
+  end
+
   describe '#data' do
     subject { form.data }
 
@@ -91,10 +95,16 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     end
   end
 
+  describe '#phone_alternate' do
+    subject { form.phone_alternate }
+
+    it_behaves_like 'hyphenated_phone_number'
+  end
+
   describe '#phone_primary' do
     subject { form.phone_primary }
 
-    it { is_expected.to match(/\d{3}-\d{3}-\d{4}/) }
+    it_behaves_like 'hyphenated_phone_number'
   end
 
   describe '#signature_date' do

@@ -37,6 +37,10 @@ module SimpleFormsApi
       data.dig('full_name', 'middle')&.[](0)
     end
 
+    def phone_alternate
+      data['mobile_phone'].insert(-8, '-').insert(-5, '-')
+    end
+
     def phone_primary
       data['home_phone'].insert(-8, '-').insert(-5, '-')
     end
