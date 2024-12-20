@@ -131,6 +131,10 @@ RSpec.describe V0::InProgressFormsController do
     end
 
     describe '#show' do
+      before do
+        Flipper.disable('remove_pciu_2')
+      end
+
       let(:user) { build(:user, :loa3, address: build(:mpi_profile_address)) }
       let!(:in_progress_form) { create(:in_progress_form, :with_nested_metadata, user_uuid: user.uuid) }
 
