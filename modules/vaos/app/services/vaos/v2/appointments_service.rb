@@ -52,6 +52,11 @@ module VAOS
             cnp_count += 1 if cnp?(appt)
           end
 
+          if include[:eps]
+            # TODO: prepare eps_appointments differently than vaos appointments
+            appointments = merge_appointments(eps_appointments, appointments)
+          end
+
           if Flipper.enabled?(:appointments_consolidation, user)
             filterer = AppointmentsPresentationFilter.new
             appointments = appointments.keep_if { |appt| filterer.user_facing?(appt) }
@@ -205,6 +210,16 @@ module VAOS
         facility_info[:timezone]&.[](:time_zone_id)
       end
 
+      def merge_appointments(eps_appointments, appointments)
+        normalized_new = eps_appointments[:appointments].map { |appt| eps_serializer.new(appt) }
+        appointment_data = appointments[:data].is_a?(Array) ? appointments[:data] : [appointments[:data]]
+        existing_ids = appointment_data.to_set { |a| a[:referralId] }
+        merged_data = appointment_data + normalized_new.reject { |a| existing_ids.include?(a[:referralId]) }
+        sorted_data = merged_data.sort_by { |appt| appt.dig(:requestedPeriods, 0, :start) || '' }
+
+        { data: sorted_data }
+      end
+
       memoize :get_facility_timezone_memoized
 
       private
@@ -235,6 +250,7 @@ module VAOS
           { message:, status:, icn: sanitized_icn, context: }
         end
       end
+
       # rubocop:enable Metrics/MethodLength
 
       # Modifies the appointment, extracting individual fields from the appointment. This currently includes:
@@ -901,6 +917,20 @@ module VAOS
         return unless response.success? && response.body[:data].present?
 
         SchemaContract::ValidationInitiator.call(user:, response:, contract_name:)
+      end
+
+      def eps_appointments_service
+        @eps_appointments_service ||=
+          Eps::AppointmentService.new(user)
+      end
+
+      def eps_appointments
+        @eps_appointments ||=
+          eps_appointments_service.get_appointments
+      end
+
+      def eps_serializer
+        @eps_serializer ||= VAOS::Eps::EpsAppointmentSerializer
       end
     end
   end
