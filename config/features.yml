@@ -90,6 +90,10 @@ features:
   disability_compensation_staging_lighthouse_brd:
     actor_type: user
     description: Switches to Lighthouse Staging BRD Service. NEVER ENABLE IN PRODUCTION.
+  document_upload_validation_enabled:
+    actor_type: user
+    description: Enables stamped PDF validation on document upload
+    enable_in_development: true
   hca_browser_monitoring_enabled:
     actor_type: user
     description: Enables browser monitoring for the health care application.
@@ -128,6 +132,9 @@ features:
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
+  hca_zero_silent_failures:
+    actor_type: user
+    description: Pass callback metadata to vanotify sidekiq job
   cg1010_oauth_2_enabled:
     actor_type: user
     description: Use OAuth 2.0 Authentication for 10-10CG Form Mulesoft integration.
@@ -503,6 +510,12 @@ features:
   decision_review_sc_new_api:
     actor_type: user
     description: Enable to switch to new Supplemental Claim modularized Decision Review endpoint
+  decision_review_new_engine_4142_job:
+    actor_type: user
+    description: Enable to switch to new modularized Decision Review Form4142Submit job
+  decision_review_new_engine_submit_upload_job:
+    actor_type: user
+    description: Enable to switch to new modularized Decision Review SubmitUpload job
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
