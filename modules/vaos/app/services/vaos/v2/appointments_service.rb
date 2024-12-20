@@ -209,32 +209,8 @@ module VAOS
         facility_info[:timezone]&.[](:time_zone_id)
       end
 
-      def normalize_eps_appointment(appt)
-        {
-          id: appt[:id].to_s,
-          status: appt[:state] == 'submitted' ? 'booked' : 'proposed',
-          patientIcn: appt[:patientId],
-          created: appt.dig(:appointmentDetails, :lastRetrieved),
-          requestedPeriods: [
-            {
-              start: appt.dig(:appointmentDetails, :start),
-              end: calculate_end_time(appt.dig(:appointmentDetails, :start))
-            }
-          ].compact,
-          locationId: appt[:locationId],
-          clinic: appt[:clinic],
-          contact: appt[:contact]
-        }.compact
-      end
-
-      def calculate_end_time(start_time)
-        return nil unless start_time
-
-        Time.zone.parse(start_time) + 60.minutes
-      end
-
       def merge_appointments(eps_appointments, appointments)
-        normalized_new = eps_appointments[:appointments].map { |appt| normalize_eps_appointment(appt) }
+        normalized_new = eps_appointments[:appointments].map { |appt| VAOS::Eps::EpsAppointmentSerializer.new(appt) }
         appointment_data = appointments[:data].is_a?(Array) ? appointments[:data] : [appointments[:data]]
         existing_ids = appointment_data.to_set { |a| a[:referralId] }
         merged_data = appointment_data + normalized_new.reject { |a| existing_ids.include?(a[:referralId]) }
@@ -870,12 +846,16 @@ module VAOS
 
       def eps_appointments_service
         @eps_appointments_service ||=
-          Eps::AppointmentService.new(current_user)
+          Eps::AppointmentService.new(user)
       end
 
       def eps_appointments
         @eps_appointments ||=
           eps_appointments_service.get_appointments
+      end
+
+      def eps_serializer
+        @eps_serializer ||= VAOS::Eps::EpsAppointmentSerializer
       end
     end
   end
