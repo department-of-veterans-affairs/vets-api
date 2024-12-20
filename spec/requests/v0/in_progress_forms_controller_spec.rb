@@ -13,6 +13,8 @@ RSpec.describe V0::InProgressFormsController do
 
     before do
       sign_in_as(user)
+      Flipper.disable(:va_v3_contact_information_service)
+      Flipper.disable(:remove_pciu)
       enabled_forms = FormProfile.prefill_enabled_forms << 'FAKEFORM'
       allow(FormProfile).to receive(:prefill_enabled_forms).and_return(enabled_forms)
       allow(FormProfile).to receive(:load_form_mapping).with('FAKEFORM').and_return(
