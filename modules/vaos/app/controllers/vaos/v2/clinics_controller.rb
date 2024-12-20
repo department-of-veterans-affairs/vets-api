@@ -41,9 +41,9 @@ module VAOS
         render json: VAOS::V2::ClinicsSerializer.new(clinic)
       end
 
-      def recent_clinics
-        sorted_clinics = []
-        sorted_appointments = appointments_service.get_recent_sorted_clinic_appointments
+      def recent_facilities
+        sorted_facilities = []
+        sorted_appointments = appointments_service.get_recent_sorted_appointments
 
         if sorted_appointments.blank?
           render json: { message: 'No appointments found' }, status: :not_found
@@ -51,23 +51,22 @@ module VAOS
         end
         sorted_appointments.each do |appt|
           # if we don't have the information to lookup the clinic, return 'unable to lookup' message
-          if unable_to_lookup_clinic?(appt)
-            log_unable_to_lookup_clinic(appt)
+          if unable_to_lookup_facility?(appt)
+            log_unable_to_lookup_facility(appt)
           else
-            # get the clinic details using the station id and clinic id
+            # get the facility details using the location id
             location_id = appt.location_id
-            clinic_ids = appt.clinic
-            clinic = mobile_facility_service.get_clinic_with_cache(station_id: location_id, clinic_id: clinic_ids)
-            log_recent_clinic_details(location_id, clinic_ids, clinic)
+            facility = mobile_facility_service.get_facility(location_id)
+            log_recent_facility_details(location_id, facility)
 
-            # if clinic details are not returned, log 'not found' message
-            clinic.nil? ? log_no_clinic_details_found(location_id, clinic_ids) : sorted_clinics.push(clinic)
+            # if facility details are not returned, log 'not found' message
+            facility.nil? ? log_no_facility_details_found(location_id) : sorted_facilities.push(facility)
           end
         end
         # remove duplicate clinics
-        sorted_clinics = sorted_clinics.uniq
+        sorted_facilities = sorted_facilities.uniq
 
-        render json: VAOS::V2::ClinicsSerializer.new(sorted_clinics)
+        render json: FacilitiesSerializer.new(sorted_facilities)
       end
 
       private
@@ -95,13 +94,31 @@ module VAOS
                                                       "and clinic: #{clinic_id}"
       end
 
-      def log_recent_clinic_details(station_id, clinic_id, clinic)
-        Rails.logger.info("VAOS recent_clinics details for station: #{station_id} and clinic: #{clinic_id} " \
-                          "- #{clinic.to_json}")
-      end
-
       def unable_to_lookup_clinic?(appt)
         appt.nil? || appt.location_id.nil? || appt.clinic.nil?
+      end
+
+      def log_unable_to_lookup_facility(appt)
+        message = ''
+        if appt.nil?
+          message = 'Appointment not found'
+        elsif appt.location_id.nil?
+          message = 'Appointment does not have location id'
+        end
+
+        Rails.logger.info('VAOS recent_facilities', message) if message.present?
+      end
+
+      def log_no_facility_details_found(location_id)
+        Rails.logger.info 'VAOS recent_facilities', "No clinic details found for location: #{location_id}"
+      end
+
+      def log_recent_facility_details(location_id, facility)
+        Rails.logger.info("VAOS recent_facilities details for location: #{location_id} - #{facility.to_json}")
+      end
+
+      def unable_to_lookup_facility?(appt)
+        appt.nil? || appt.location_id.nil?
       end
 
       def systems_service
