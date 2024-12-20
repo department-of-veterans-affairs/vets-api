@@ -15,7 +15,7 @@ module ClaimsApi
         body.xpath("./*[local-name()='#{k}']")[0].content = v
       end
 
-      make_request(endpoint: 'OrgWebServiceBean/OrgWebService', action: 'findPoaHistoryByPtcpntId', body:,
+      make_request(endpoint: bean_name, action: 'findPoaHistoryByPtcpntId', body:,
                    key: 'PoaHistory')
     end
   end
