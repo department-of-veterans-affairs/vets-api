@@ -11,10 +11,6 @@ RSpec.describe 'Mobile::V2::User', type: :request do
     let(:get_user) { get '/mobile/v2/user', headers: sis_headers }
     let(:attributes) { response.parsed_body.dig('data', 'attributes') }
 
-    before { Flipper.enable_actor(:mobile_v1_lighthouse_facilities, user) }
-
-    after { Flipper.disable(:mobile_v1_lighthouse_facilities) }
-
     it 'returns an ok response' do
       get_user
       expect(response).to have_http_status(:ok)
@@ -45,6 +41,11 @@ RSpec.describe 'Mobile::V2::User', type: :request do
     it 'includes sign-in service' do
       get_user
       expect(attributes['signinService']).to eq('idme')
+    end
+
+    it 'includes edipi' do
+      get_user
+      expect(attributes['edipi']).to eq('384759483')
     end
 
     describe 'has_facility_transitioning_to_cerner' do

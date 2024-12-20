@@ -2,19 +2,19 @@
 http_interactions:
 - request:
     method: get
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/1/telephones/status/a2af8cd1-472c-4e6f-bd5a-f95e31e351b7
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/telephones/status/c6ee12e2-d219-4d12-81e0-3eecdd5eb871
     body:
       encoding: US-ASCII
       string: ''
     headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
       User-Agent:
       - Vets.gov Agent
+      Content-Type:
+      - application/json
       Cufsystemname:
       - VETSGOV
+      Accept:
+      - application/json
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -22,32 +22,42 @@ http_interactions:
       code: 200
       message: ''
     headers:
-      Date:
-      - Thu, 16 Jan 2020 02:44:12 GMT
-      Expires:
-      - '0'
-      Vet360txauditid:
-      - c81ba386-66f5-4bde-8304-101e8e40a16c
-      X-Frame-Options:
-      - DENY
-      Pragma:
-      - no-cache
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-144285402", dtSInfo;desc="0"
+      - dtRpid;desc="1704421025", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - b7c79151-c221-40d2-826a-10883935b76f
       X-Content-Type-Options:
       - nosniff
-      - nosniff
       X-Xss-Protection:
-      - 1; mode=block
+      - '0'
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 05 Sep 2024 18:16:03 GMT
+      Referrer-Policy:
+      - no-referrer
       Content-Type:
-      - application/json;charset=UTF-8
-      Content-Length:
-      - '1068'
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"a2af8cd1-472c-4e6f-bd5a-f95e31e351b7","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"telephoneId":17259,"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551238","textMessageCapableInd":true,"textMessagePermInd":true,"voiceMailAcceptableInd":true,"ttyInd":true,"sourceDate":"2020-01-16T02:41:21Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","vet360Id":1},"txOutput":[{"telephoneId":17259,"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551238","textMessageCapableInd":true,"textMessagePermInd":true,"voiceMailAcceptableInd":true,"ttyInd":true,"createDate":"2018-09-07T02:36:56Z","updateDate":"2020-01-16T02:41:28Z","txAuditId":"a2af8cd1-472c-4e6f-bd5a-f95e31e351b7","sourceSystem":"VETSGOV","sourceDate":"2020-01-16T02:41:21Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2020-01-16T02:41:21.000Z","vet360Id":1}]}'
-    http_version:
-  recorded_at: Thu, 16 Jan 2020 02:44:13 GMT
-recorded_with: VCR 5.0.0
+      string: '{"txAuditId":"c6ee12e2-d219-4d12-81e0-3eecdd5eb871","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"sourceDate":"2024-08-27T18:51:06Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551234","voiceMailAcceptableInd":true},"txOutput":[{"createDate":"2024-08-27T19:13:04Z","updateDate":"2024-08-27T19:13:04Z","txAuditId":"c6ee12e2-d219-4d12-81e0-3eecdd5eb871","sourceSystem":"VETSGOV","sourceDate":"2024-08-27T18:51:06Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","effectiveStartDate":"2024-08-27T18:51:06Z","vaProfileId":1781151,"telephoneId":458781,"internationalIndicator":false,"phoneType":"MOBILE","countryCode":"1","areaCode":"303","phoneNumber":"5551234","carrier":"Multiple
+        OCN Listing","classification":{"classificationCode":4,"classificationName":"OTHER"}}]}'
+  recorded_at: Thu, 05 Sep 2024 18:16:03 GMT
+recorded_with: VCR 6.3.1

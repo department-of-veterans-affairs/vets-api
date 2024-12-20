@@ -5,9 +5,8 @@ module Vye
     include Sidekiq::Worker
 
     def perform
-      ClearDeactivatedBdn.perform_async
+      ClearDeactivatedBdns.perform_async
       DeleteProcessedS3Files.perform_async
-      PurgesStaleVerifications.perform_async
     end
   end
 end

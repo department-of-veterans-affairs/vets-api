@@ -23,6 +23,7 @@ module Mobile
       def index
         payment_information = if lighthouse?
                                 data = lighthouse_service.get_payment_info
+                                validate_response!(data)
                                 adapted_data = lighthouse_adapter.parse(data, current_user.uuid)
                                 Mobile::V0::PaymentInformation.new(adapted_data)
                               else
@@ -107,6 +108,18 @@ module Mobile
 
       def send_lighthouse_confirmation_email
         VANotifyDdEmailJob.send_to_emails(@current_user.all_emails, 'comp_and_pen')
+      end
+
+      # this handles a bug that has been observed in datadog.
+      # lighthouse has been informed that this is happening and will hopefully fix it soon.
+      # remove this code if the detail messages below do not exist in the logs
+      def validate_response!(data)
+        errors = []
+        errors << "Control information missing for user #{current_user.uuid}" if data.control_information.nil?
+        errors << "Payment account info missing for user #{current_user.uuid}" if data.payment_account.nil?
+        return if errors.empty?
+
+        raise Common::Exceptions::UnprocessableEntity.new(detail: errors.join('. '))
       end
     end
   end

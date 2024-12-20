@@ -3,7 +3,7 @@
 Vets API requires:
 
 
-- Ruby 3.3.3
+- Ruby 3.3.6
 - PostgreSQL 15.x (including PostGIS 3)
 - Redis 6.2.x
 
@@ -22,15 +22,16 @@ If the repo's Ruby version is updated later, you will need to install the newer 
 
 ### RVM Troubleshooting
 
-If you see an error like `Error running '__rvm_make -j10'` while installing a ruby version, this usually occurs because of a mismatch with the openssl package. 
+If you see an error like `Error running '__rvm_make -j10'` while installing a ruby version, this usually occurs because of a mismatch with the openssl package.
 
-Many of these types of errors occur because either the openssl path needs to be specified or there's a compatibility issue with the ruby version and the install openssl version. They may get resolved by explicitly adding the directory or trying newer openssl version.    
+Many of these types of errors occur because either the openssl path needs to be specified or there's a compatibility issue with the ruby version and the install openssl version. They may get resolved by explicitly adding the directory or trying newer openssl version.
 
-For example: `rvm install 3.3.3 -C --with-openssl-dir=/$(brew --prefix openssl@3)`
+For example: `rvm install 3.3.6 -C --with-openssl-dir=/$(brew --prefix openssl@3)`
 
 ## Base Setup
 
-1. Follow the common [base setup](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md#Base%20setup).
+1. Follow the common [base setup](https://github.com/department-of-veterans-affairs/vets-api/blob/master/README.md#Base%20setup). Or alternatively use [binstubs](binstubs.md).
+
 
 1. Install Bundler to manage Ruby dependencies
 
@@ -112,7 +113,7 @@ clamav:
 
 #### Mock ClamAV
 
-If you wish to mock ClamAV, please set the clamav mock setting to true in settings.local.yml. This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/common/virus_scan.rb#L14-L23). 
+If you wish to mock ClamAV, please set the clamav mock setting to true in settings.local.yml. This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/common/virus_scan.rb#L14-L23).
 
 ```
 clamav:
@@ -156,7 +157,7 @@ All of the OSX instructions assume `homebrew` is your [package manager](https://
 3. Install binary dependencies:
     ```bash
     brew bundle
-    ```	 
+    ```
 
 
 4. (Optional see Running Natively for more info) Enable ClamAV daemon:

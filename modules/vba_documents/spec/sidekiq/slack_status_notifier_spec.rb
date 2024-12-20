@@ -57,10 +57,10 @@ RSpec.describe 'VBADocuments::SlackStatusNotifier', type: :job do
       expect(VBADocuments::Slack::Messenger).to have_received(:new).with(
         {
           class: 'VBADocuments::SlackStatusNotifier',
-          alert: "1(50.0%) out of 2 Benefits Intake uploads created since #{t} " \
+          alert: "1 (50.0%) out of 2 Benefits Intake uploads created since #{t} " \
                  'have expired with no consumer uploads to S3' \
                  "\nThis could indicate an S3 issue impacting consumers.",
-          details: "\n\t(Consumer, Expired Rate)\n\tvagov: 100.0%\n\tsometech: 0.0%\n"
+          details: "\n\t(Consumer, Expired Rate)\n\tsometech: 0.0%, 0/1\n\tvagov: 100.0%, 1/1\n"
         }
       )
     end

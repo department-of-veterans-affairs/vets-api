@@ -8,10 +8,7 @@ module Vye
 
     validates(:source_ind, presence: true)
 
-    enum(
-      source_ind: { web: 'W', phone: 'P' },
-      _prefix: :source
-    )
+    enum :source_ind, { web: 'W', phone: 'P' }, prefix: :source
 
     scope :export_ready, lambda {
       self
@@ -30,7 +27,7 @@ module Vye
 
           yield({
             stub_nm: user_info.stub_nm,
-            ssn: user_info.ssn,
+            td_number: user_info.td_number,
             transact_date: record.transact_date.strftime('%Y%m%d'),
             rpo_code: user_info.rpo_code,
             indicator: user_info.indicator,
@@ -44,7 +41,7 @@ module Vye
       YAML.load(<<-END_OF_TEMPLATE).gsub(/\n/, '')
       |-
         %-7<stub_nm>s
-        %-9<ssn>s
+        %-9<td_number>s
         %-8<transact_date>s
         %-3<rpo_code>s
         %-1<indicator>s

@@ -68,9 +68,9 @@
   "F[0].#subform[1].Veterans_SocialSecurityNumber_SecondTwoNumbers[0]": "<%= form.data['veteran_ssn']&.[](3..4) %>",
   "F[0].#subform[1].Veterans_SocialSecurityNumber_LastFourNumbers[0]": "<%= form.data['veteran_ssn']&.[](5..8) %>",
 
-  "F[0].#subform[2].Date_Signed_Month[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m') %>",
-  "F[0].#subform[2].Date_Signed_Day[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>",
-  "F[0].#subform[2].Date_Signed_Year[0]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
+  "F[0].#subform[2].Date_Signed_Month[0]": "<%= form&.signature_date&.strftime('%m') %>",
+  "F[0].#subform[2].Date_Signed_Day[0]": "<%= form&.signature_date&.strftime('%d') %>",
+  "F[0].#subform[2].Date_Signed_Year[0]": "<%= form&.signature_date&.strftime('%Y') %>",
   "F[0].#subform[2].Digital_Signature[0]": "<%= %>",
   "F[0]": "<%= 'F' %>"
 }

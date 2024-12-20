@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'ivc_champva/monitor'
+
 module IvcChampva
   class FileUploader
     def initialize(form_id, metadata, file_paths, insert_db_row = false) # rubocop:disable Style/OptionalBooleanParameter
@@ -48,6 +50,10 @@ module IvcChampva
         s3_status: response_status,
         pega_status:
       )
+
+      if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
+        monitor.track_insert_form(@metadata['uuid'], @form_id)
+      end
     rescue ActiveRecord::RecordInvalid => e
       Rails.logger.error("Database Insertion Error for #{@metadata['uuid']}: #{e.message}")
     end
@@ -80,8 +86,6 @@ module IvcChampva
     def client
       @client ||= IvcChampva::S3.new(
         region: Settings.ivc_forms.s3.region,
-        access_key_id: Settings.ivc_forms.s3.aws_access_key_id,
-        secret_access_key: Settings.ivc_forms.s3.aws_secret_access_key,
         bucket: Settings.ivc_forms.s3.bucket
       )
     end
@@ -90,6 +94,15 @@ module IvcChampva
       return nil unless email.present? && email.match?(/\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i)
 
       email
+    end
+
+    ##
+    # retreive a monitor for tracking
+    #
+    # @return [IvcChampva::Monitor]
+    #
+    def monitor
+      @monitor ||= IvcChampva::Monitor.new
     end
   end
 end

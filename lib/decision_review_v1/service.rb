@@ -34,21 +34,21 @@ module DecisionReviewV1
     # @param user [User] Veteran who the form is in regard to
     # @return [Faraday::Response]
     #
-    def create_higher_level_review(request_body:, user:)
+    def create_higher_level_review(request_body:, user:, version: 'V1')
       with_monitoring_and_error_handling do
         headers = create_higher_level_review_headers(user)
         common_log_params = { key: :overall_claim_submission, form_id: '996', user_uuid: user.uuid,
-                              downstream_system: 'Lighthouse' }
+                              downstream_system: 'Lighthouse', params: { version: } }
         begin
           response = perform :post, 'higher_level_reviews', request_body, headers
           log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
         rescue => e
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
         raise_schema_error_unless_200_status response.status
         validate_against_schema json: response.body, schema: HLR_CREATE_RESPONSE_SCHEMA,
-                                append_to_error_class: ' (HLR_V1)'
+                                append_to_error_class: " (HLR_#{version}})"
         response
       end
     end
@@ -88,7 +88,7 @@ module DecisionReviewV1
         rescue => e
           # We can freely log Lighthouse's error responses because they do not include PII or PHI.
           # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v1.
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
         raise_schema_error_unless_200_status response.status
@@ -144,16 +144,13 @@ module DecisionReviewV1
           key: :overall_claim_submission,
           form_id: '10182',
           user_uuid: user.uuid,
-          downstream_system: 'Lighthouse',
-          params: {
-            version_number: 'v2'
-          }
+          downstream_system: 'Lighthouse'
         }
         begin
           response = perform :post, 'notice_of_disagreements', request_body, headers
           log_formatted(**common_log_params.merge(is_success: true, status_code: response.status, body: '[Redacted]'))
         rescue => e
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
         raise_schema_error_unless_200_status response.status
@@ -230,7 +227,7 @@ module DecisionReviewV1
         rescue => e
           # We can freely log Lighthouse's error responses because they do not include PII or PHI.
           # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v2
-          log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+          log_formatted(**common_log_params.merge(error_log_params(e)))
           raise e
         end
       end
@@ -279,7 +276,7 @@ module DecisionReviewV1
       rescue => e
         # We can freely log Lighthouse's error responses because they do not include PII or PHI.
         # See https://developer.va.gov/explore/api/decision-reviews/docs?version=v2
-        log_formatted(**common_log_params.merge(is_success: false, response_error: e))
+        log_formatted(**common_log_params.merge(error_log_params(e)))
         raise e
       end
     ensure
@@ -417,6 +414,12 @@ module DecisionReviewV1
         error:
       }
       ::Rails.logger.info(info)
+    end
+
+    def error_log_params(error)
+      log_params = { is_success: false, response_error: error }
+      log_params[:body] = error.body if error.try(:status) == 422
+      log_params
     end
 
     def handle_error(error:, message: nil)

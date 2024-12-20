@@ -9,50 +9,110 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
   describe 'GET /mobile/v0/appointments/facilities/:facility_id/clinics', :aggregate_failures do
-    context 'when both facility id and service type is found' do
-      let(:facility_id) { '983' }
-      let(:params) { { service_type: 'audiology' } }
+    context 'using VAOS' do
+      before do
+        Flipper.disable(:va_online_scheduling_use_vpg)
+      end
 
-      it 'returns 200' do
-        VCR.use_cassette('mobile/appointments/get_facility_clinics_200', match_requests_on: %i[method uri]) do
-          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: sis_headers
+      context 'when both facility id and service type is found' do
+        let(:facility_id) { '983' }
+        let(:params) { { service_type: 'audiology' } }
 
-          expect(response).to have_http_status(:ok)
-          expect(response.body).to match_json_schema('clinic')
+        it 'returns 200' do
+          VCR.use_cassette('mobile/appointments/get_facility_clinics_200', match_requests_on: %i[method uri]) do
+            get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: sis_headers
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to match_json_schema('clinic')
+          end
+        end
+      end
+
+      context 'when facility id is not found' do
+        let(:facility_id) { '999AA' }
+        let(:params) { { service_type: 'audiology' } }
+
+        it 'returns 200 with empty response' do
+          VCR.use_cassette('mobile/appointments/get_facility_clinics_bad_facility_id_200',
+                           match_requests_on: %i[method uri]) do
+            get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: sis_headers
+
+            expect(response).to have_http_status(:ok)
+            expect(response.parsed_body['data']).to eq([])
+          end
+        end
+      end
+
+      context 'when service type is not found' do
+        let(:facility_id) { '983' }
+        let(:params) { { service_type: 'badservice' } }
+
+        it 'returns bad request' do
+          VCR.use_cassette('mobile/appointments/get_facility_clinics_bad_service_400',
+                           match_requests_on: %i[method uri]) do
+            get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: sis_headers
+
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.parsed_body.dig('errors', 0, 'source',
+                                                       'vamfBody')) ['message'])
+              .to eq('clinicalService: param is invalid')
+          end
         end
       end
     end
 
-    context 'when facility id is not found' do
-      let(:facility_id) { '999AA' }
-      let(:params) { { service_type: 'audiology' } }
+    context 'using VPG' do
+      before do
+        Flipper.enable(:va_online_scheduling_use_vpg)
+      end
 
-      it 'returns 200 with empty response' do
-        VCR.use_cassette('mobile/appointments/get_facility_clinics_bad_facility_id_200',
-                         match_requests_on: %i[method uri]) do
-          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: sis_headers
+      context 'when both facility id and service type is found' do
+        let(:facility_id) { '983' }
+        let(:params) { { service_type: 'audiology' } }
 
-          expect(response).to have_http_status(:ok)
-          expect(response.parsed_body['data']).to eq([])
+        it 'returns 200' do
+          VCR.use_cassette('mobile/appointments/get_facility_clinics_200_vpg', match_requests_on: %i[method uri]) do
+            get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: sis_headers
+
+            expect(response).to have_http_status(:ok)
+            expect(response.body).to match_json_schema('clinic')
+          end
         end
       end
-    end
 
-    context 'when service type is not found' do
-      let(:facility_id) { '983' }
-      let(:params) { { service_type: 'badservice' } }
+      context 'when facility id is not found' do
+        let(:facility_id) { '999AA' }
+        let(:params) { { service_type: 'audiology' } }
 
-      it 'returns bad request' do
-        VCR.use_cassette('mobile/appointments/get_facility_clinics_bad_service_400',
-                         match_requests_on: %i[method uri]) do
-          get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: sis_headers
+        it 'returns 200 with empty response' do
+          VCR.use_cassette('mobile/appointments/get_facility_clinics_bad_facility_id_200_vpg',
+                           match_requests_on: %i[method uri]) do
+            get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: sis_headers
 
-          expect(response).to have_http_status(:bad_request)
-          expect(JSON.parse(response.parsed_body.dig('errors', 0, 'source',
-                                                     'vamfBody'))['message']).to eq('clinicalService: param is invalid')
+            expect(response).to have_http_status(:ok)
+            expect(response.parsed_body['data']).to eq([])
+          end
+        end
+      end
+
+      context 'when service type is not found' do
+        let(:facility_id) { '983' }
+        let(:params) { { service_type: 'badservice' } }
+
+        it 'returns bad request' do
+          VCR.use_cassette('mobile/appointments/get_facility_clinics_bad_service_400_vpg',
+                           match_requests_on: %i[method uri]) do
+            get "/mobile/v0/appointments/facilities/#{facility_id}/clinics", params:, headers: sis_headers
+
+            expect(response).to have_http_status(:bad_request)
+            expect(JSON.parse(response.parsed_body.dig('errors', 0, 'source',
+                                                       'vamfBody'))['message'])
+              .to eq('clinicalService: param is invalid')
+          end
         end
       end
     end

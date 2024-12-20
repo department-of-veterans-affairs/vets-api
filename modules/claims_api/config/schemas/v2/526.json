@@ -86,13 +86,13 @@
               "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
               "minLength": 1,
               "maxLength": 30,
-              "example": "Portland"
+              "example": "Schenectady"
             },
             "state": {
               "description": "State for the Veteran's current mailing address. Required if 'country' is 'USA'.",
               "type": ["string", "null"],
               "pattern": "^[a-z,A-Z]{2}$",
-              "example": "OR",
+              "example": "NY",
               "nullable": true
             },
             "country": {
@@ -116,10 +116,11 @@
               "nullable": true
             },
             "internationalPostalCode": {
-              "description": "International postal code for the Veteran's current mailing address. Required if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+              "description": "International postal code for the Veteran's current mailing address. Do not include if 'country' is 'USA'.",
               "type": ["string", "null"],
-              "maxLength": 100,
-              "nullable": true
+              "maxLength": 16,
+              "nullable": true,
+              "pattern": "^[a-zA-Z0-9]*$"
             }
           }
         },
@@ -130,9 +131,9 @@
           "properties": {
             "email": {
               "type": ["string", "null"],
-              "pattern": "^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$",
+              "pattern": "^[^\\s@]+@([^\\s@.,]+\\.)+[^\\s@.,]{2,}$",
               "description": "The most current email address of the Veteran.",
-              "maxLength": 50,
+              "maxLength": 80,
               "nullable": true
             },
             "agreeToEmailRelatedToClaim": {
@@ -152,7 +153,7 @@
       }
     },
     "changeOfAddress": {
-      "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'dates.beginDate', 'addressLine1', 'city', 'state', 'country', 'zipFirstFive'.",
+      "description": "If 'changeOfAddress' is included, the following attributes are required: 'typeOfAddressChange', 'addressLine1', 'city', 'country'.",
       "type": ["object", "null"],
       "nullable": true,
       "additionalProperties": false,
@@ -192,13 +193,13 @@
           "pattern": "^$|([a-zA-Z0-9\\'-'.# ]([a-zA-Z0-9\\'-'.# ])?)+$",
           "minLength": 0,
           "maxLength": 30,
-          "example": "Portland"
+          "example": "Schenectady"
         },
         "state": {
           "description": "State for the Veteran's new address. Required if 'country' is 'USA'.",
           "type": ["string", "null"],
           "pattern": "^$|^[a-z,A-Z]{2}$",
-          "example": "OR",
+          "example": "NY",
           "nullable": true
         },
         "country": {
@@ -222,10 +223,11 @@
           "example": "6789"
         },
         "internationalPostalCode": {
-          "description": "International postal code for the Veteran's new address. Requried if 'country' is not 'USA'. Do not include if 'country' is 'USA'.",
+          "description": "International postal code for the Veteran's new address. Do not include if 'country' is 'USA'.",
           "type": ["string", "null"],
-          "maxLength": 100,
-          "nullable": true
+          "maxLength": 16,
+          "nullable": true,
+          "pattern": "^[a-zA-Z0-9]*$"
         },
         "dates": {
           "type": "object",
@@ -233,7 +235,8 @@
             "beginDate": {
               "description": "Begin date for the Veteran's new address.",
               "pattern": "^(?:[0-9]{4})-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2][0-9]|3[0-1])$",
-              "type": "string",
+              "type": ["string", "null"],
+              "nullable": true,
               "example": "2018-06-04"
             },
             "endDate": {
@@ -869,6 +872,7 @@
           }
         },
         "federalActivation": {
+          "description": "If federalActivation is present then reservesNationalGuardService.obligationTermsOfService.beginDate, reservesNationalGuardService.obligationTermsOfService.endDate and reservesNationalGuardService.unitName are required",
           "type": ["object", "null"],
           "nullable": true,
           "additionalProperties": false,

@@ -3,6 +3,7 @@
 require 'rails_helper'
 require 'lighthouse/benefits_intake/service'
 require 'lighthouse/benefits_intake/metadata'
+require 'pensions/notification_email'
 
 RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
   stub_virus_scan
@@ -37,7 +38,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     end
 
     it 'submits the saved claim successfully' do
-      allow(job).to receive(:process_document).and_return(pdf_path)
+      allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
 
       expect(FormSubmission).to receive(:create)
       expect(FormSubmissionAttempt).to receive(:create)
@@ -84,12 +85,50 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     # perform
   end
 
+  describe '#form_submission_pending_or_success' do
+    before do
+      job.instance_variable_set(:@claim, claim)
+      allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+    end
+
+    context 'with no form submissions' do
+      it 'returns false' do
+        expect(job.send(:form_submission_pending_or_success)).to eq(false).or be_nil
+      end
+    end
+
+    context 'with pending form submission attempt' do
+      let(:claim) { create(:pensions_module_pension_claim, :pending) }
+
+      it 'return true' do
+        expect(job.send(:form_submission_pending_or_success)).to eq(true)
+      end
+    end
+
+    context 'with success form submission attempt' do
+      let(:claim) { create(:pensions_module_pension_claim, :success) }
+
+      it 'return true' do
+        expect(job.send(:form_submission_pending_or_success)).to eq(true)
+      end
+    end
+
+    context 'with failure form submission attempt' do
+      let(:claim) { create(:pensions_module_pension_claim, :failure) }
+
+      it 'return false' do
+        expect(job.send(:form_submission_pending_or_success)).to eq(false)
+      end
+    end
+  end
+
   describe '#process_document' do
     let(:service) { double('service') }
     let(:pdf_path) { 'random/path/to/pdf' }
 
     before do
       job.instance_variable_set(:@intake_service, service)
+      job.instance_variable_set(:@claim, claim)
     end
 
     it 'returns a datestamp pdf path' do
@@ -116,58 +155,102 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       allow(monitor).to receive(:track_file_cleanup_error)
     end
 
-    it 'returns expected hash' do
+    it 'errors and logs but does not reraise' do
       expect(monitor).to receive(:track_file_cleanup_error)
-      expect { job.send(:cleanup_file_paths) }.to raise_error(
-        Pensions::PensionBenefitIntakeJob::PensionBenefitIntakeError,
-        anything
-      )
+      job.send(:cleanup_file_paths)
+    end
+  end
+
+  describe '#set_signature_date' do
+    before do
+      job.instance_variable_set(:@pension_monitor, monitor)
+      allow(monitor).to receive(:track_claim_signature_error)
+    end
+
+    it 'errors and logs but does not reraise' do
+      expect(monitor).to receive(:track_claim_signature_error)
+      job.send(:set_signature_date)
+    end
+
+    it 'sets the signature date to claim.created_at' do
+      job.instance_variable_set(:@claim, claim)
+      job.send(:set_signature_date)
+      form_data = JSON.parse(claim.form)
+      expect(form_data['signatureDate']).to eq(claim.created_at.strftime('%Y-%m-%d'))
+    end
+  end
+
+  describe '#send_confirmation_email' do
+    let(:monitor_error) { create(:monitor_error) }
+    let(:notification) { double('notification') }
+
+    before do
+      job.instance_variable_set(:@claim, claim)
+
+      allow(Pensions::NotificationEmail).to receive(:new).and_return(notification)
+      allow(notification).to receive(:deliver).and_raise(monitor_error)
+
+      job.instance_variable_set(:@pension_monitor, monitor)
+      allow(monitor).to receive(:track_send_confirmation_email_failure)
+    end
+
+    it 'errors and logs but does not reraise' do
+      expect(Pensions::NotificationEmail).to receive(:new).with(claim.id)
+      expect(notification).to receive(:deliver).with(:confirmation)
+      expect(monitor).to receive(:track_send_confirmation_email_failure)
+      job.send(:send_confirmation_email)
     end
   end
 
   describe 'sidekiq_retries_exhausted block' do
+    let(:exhaustion_msg) do
+      { 'args' => [], 'class' => 'Pensions::PensionBenefitIntakeJob', 'error_message' => 'An error occured',
+        'queue' => nil }
+    end
+
+    before do
+      allow(Pensions::Monitor).to receive(:new).and_return(monitor)
+    end
+
     context 'when retries are exhausted' do
       it 'logs a distinct error when no claim_id provided' do
         Pensions::PensionBenefitIntakeJob.within_sidekiq_retries_exhausted_block do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: nil, user_uuid: nil, claim_id: nil)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
 
       it 'logs a distinct error when only claim_id provided' do
         Pensions::PensionBenefitIntakeJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: claim.confirmation_number,
-                                     user_uuid: nil, claim_id: claim.id)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+          allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+          expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+
+          exhaustion_msg['args'] = [claim.id]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim_id and user_uuid provided' do
         Pensions::PensionBenefitIntakeJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id, 2] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: claim.confirmation_number, user_uuid: 2, claim_id: claim.id)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+          allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+          expect(Pensions::SavedClaim).to receive(:find).with(claim.id)
+
+          exhaustion_msg['args'] = [claim.id, 2]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, claim)
         end
       end
 
       it 'logs a distinct error when claim is not found' do
         Pensions::PensionBenefitIntakeJob
           .within_sidekiq_retries_exhausted_block({ 'args' => [claim.id - 1, 2] }) do
-          expect(Rails.logger).to receive(:error).exactly(:once).with(
-            'Lighthouse::PensionBenefitIntakeJob submission to LH exhausted!',
-            hash_including(:message, confirmation_number: nil, user_uuid: 2, claim_id: claim.id - 1)
-          )
-          expect(StatsD).to receive(:increment).with('worker.lighthouse.pension_benefit_intake_job.exhausted')
+          expect(Pensions::SavedClaim).to receive(:find).with(claim.id - 1)
+
+          exhaustion_msg['args'] = [claim.id - 1, 2]
+
+          expect(monitor).to receive(:track_submission_exhaustion).with(exhaustion_msg, nil)
         end
       end
     end

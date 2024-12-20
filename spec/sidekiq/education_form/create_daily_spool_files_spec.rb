@@ -10,6 +10,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
   let(:line_break) { EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK }
 
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+  end
+
   after(:all) do
     FileUtils.rm_rf('tmp/spool_files')
   end
@@ -126,7 +130,6 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     context 'with records in staging', run_at: '2016-09-16 03:00:00 EDT' do
       before do
-        ENV['HOSTNAME'] = 'staging-api.va.gov'
         application_1606.saved_claim.form = {}.to_json
         FactoryBot.create(:va1990_western_region)
         FactoryBot.create(:va1995_full_form)
@@ -134,14 +137,12 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         ActionMailer::Base.deliveries.clear
       end
 
-      after do
-        ENV['HOSTNAME'] = nil
-      end
-
       it 'processes the valid messages' do
-        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
-        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(0)
-        expect(ActionMailer::Base.deliveries.count).to be > 0
+        with_settings(Settings, hostname: 'staging-api.va.gov') do
+          expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
+          expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(0)
+          expect(ActionMailer::Base.deliveries.count).to be > 0
+        end
       end
     end
 

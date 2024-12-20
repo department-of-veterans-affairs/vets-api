@@ -5,6 +5,8 @@ require 'common/exceptions'
 module VAOS
   module V2
     class AppointmentsController < VAOS::BaseController
+      before_action :authorize_with_facilities
+
       STATSD_KEY = 'api.vaos.va_mobile.response.partial'
       PAP_COMPLIANCE_TELE = 'PAP COMPLIANCE/TELE'
       FACILITY_ERROR_MSG = 'Error fetching facility details'
@@ -20,9 +22,7 @@ module VAOS
 
       def index
         appointments[:data].each do |appt|
-          if include_params[:facilities] && appt[:location_id].present? && appt[:location].nil?
-            appt[:location] = FACILITY_ERROR_MSG
-          end
+          set_facility_error_msg(appt) if include_index_params[:facilities]
           scrape_appt_comments_and_log_details(appt, index_method_logging_name, PAP_COMPLIANCE_TELE)
           log_appt_creation_time(appt)
         end
@@ -41,15 +41,7 @@ module VAOS
 
       def show
         appointment
-
-        unless appointment[:clinic].nil? || appointment[:location_id].nil?
-          clinic = mobile_facility_service.get_clinic(appointment[:location_id], appointment[:clinic])
-          appointment[:service_name] = clinic&.[](:service_name)
-          appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
-          appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
-        end
-
-        add_location(appointment)
+        set_facility_error_msg(appointment)
 
         scrape_appt_comments_and_log_details(appointment, show_method_logging_name, PAP_COMPLIANCE_TELE)
         log_appt_creation_time(appointment)
@@ -61,15 +53,7 @@ module VAOS
 
       def create
         new_appointment
-
-        unless new_appointment[:clinic].nil? || new_appointment[:location_id].nil?
-          clinic = mobile_facility_service.get_clinic(new_appointment[:location_id], new_appointment[:clinic])
-          new_appointment[:service_name] = clinic&.[](:service_name)
-          new_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
-          new_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
-        end
-
-        add_location(new_appointment)
+        set_facility_error_msg(new_appointment)
 
         scrape_appt_comments_and_log_details(new_appointment, create_method_logging_name, PAP_COMPLIANCE_TELE)
 
@@ -80,14 +64,7 @@ module VAOS
 
       def update
         updated_appointment
-        unless updated_appointment[:clinic].nil? || updated_appointment[:location_id].nil?
-          clinic = mobile_facility_service.get_clinic(updated_appointment[:location_id], updated_appointment[:clinic])
-          updated_appointment[:service_name] = clinic&.[](:service_name)
-          updated_appointment[:physical_location] = clinic&.[](:physical_location) if clinic&.[](:physical_location)
-          updated_appointment[:friendly_name] = clinic&.[](:service_name) if clinic&.[](:service_name)
-        end
-
-        add_location(updated_appointment)
+        set_facility_error_msg(updated_appointment)
 
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(updated_appointment, 'appointments')
@@ -95,6 +72,10 @@ module VAOS
       end
 
       private
+
+      def set_facility_error_msg(appointment)
+        appointment[:location] = FACILITY_ERROR_MSG if appointment[:location_id].present? && appointment[:location].nil?
+      end
 
       def appointments_service
         @appointments_service ||=
@@ -106,20 +87,14 @@ module VAOS
           VAOS::V2::MobileFacilityService.new(current_user)
       end
 
-      def add_location(appointment)
-        return if appointment[:location_id].nil?
-
-        appointment[:location] = mobile_facility_service.get_facility(appointment[:location_id]) || FACILITY_ERROR_MSG
-      end
-
       def appointments
         @appointments ||=
-          appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_params)
+          appointments_service.get_appointments(start_date, end_date, statuses, pagination_params, include_index_params)
       end
 
       def appointment
         @appointment ||=
-          appointments_service.get_appointment(appointment_id)
+          appointments_service.get_appointment(appointment_id, include_show_params)
       end
 
       def new_appointment
@@ -203,10 +178,14 @@ module VAOS
         params.require(:status)
       end
 
-      def appointment_params
+      def appointment_index_params
         params.require(:start)
         params.require(:end)
         params.permit(:start, :end, :_include)
+      end
+
+      def appointment_show_params
+        params.permit(:_include)
       end
 
       # rubocop:disable Metrics/MethodLength
@@ -285,22 +264,30 @@ module VAOS
       # rubocop:enable Metrics/MethodLength
 
       def start_date
-        DateTime.parse(appointment_params[:start]).in_time_zone
+        DateTime.parse(appointment_index_params[:start]).in_time_zone
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('start', params[:start])
       end
 
       def end_date
-        DateTime.parse(appointment_params[:end]).in_time_zone
+        DateTime.parse(appointment_index_params[:end]).in_time_zone
       rescue ArgumentError
         raise Common::Exceptions::InvalidFieldValue.new('end', params[:end])
       end
 
-      def include_params
-        included = appointment_params[:_include]&.split(',')
+      def include_index_params
+        included = appointment_index_params[:_include]&.split(',')
         {
           clinics: ActiveModel::Type::Boolean.new.deserialize(included&.include?('clinics')),
-          facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities'))
+          facilities: ActiveModel::Type::Boolean.new.deserialize(included&.include?('facilities')),
+          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs'))
+        }
+      end
+
+      def include_show_params
+        included = appointment_show_params[:_include]&.split(',')
+        {
+          avs: ActiveModel::Type::Boolean.new.deserialize(included&.include?('avs'))
         }
       end
 

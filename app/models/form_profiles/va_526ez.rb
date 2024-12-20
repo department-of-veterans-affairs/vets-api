@@ -73,6 +73,7 @@ module VA526ez
     include Virtus.model
 
     attribute :started_form_version, String
+    attribute :sync_modern_0781_flow, Boolean
   end
 end
 
@@ -132,8 +133,8 @@ class FormProfiles::VA526ez < FormProfile
       current_user: user,
       feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND
     )
-
-    response = api_provider.get_rated_disabilities
+    invoker = 'FormProfiles::VA526ez#initialize_rated_disabilities_information'
+    response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
     ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response)
 
     # Remap response object to schema fields
@@ -168,7 +169,8 @@ class FormProfiles::VA526ez < FormProfile
     VA526ez::Form526Prefill.new(
       # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
       # '2022' means the Toxic Exposure 1.0 flag.
-      started_form_version: Flipper.enabled?(:disability_526_toxic_exposure, user) ? '2022' : nil
+      started_form_version: Flipper.enabled?(:disability_526_toxic_exposure, user) ? '2022' : nil,
+      sync_modern_0781_flow: Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user)
     )
   end
 

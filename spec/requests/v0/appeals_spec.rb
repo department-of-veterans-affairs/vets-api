@@ -6,8 +6,6 @@ RSpec.describe 'V0::Appeals', type: :request do
   include SchemaMatchers
 
   appeals_endpoint = '/v0/appeals'
-  hlr_endpoint = '/v0/higher_level_reviews'
-  hlr_get_contestable_issues_endpoint = "#{hlr_endpoint}/contestable_issues"
 
   before { sign_in_as(user) }
 
@@ -110,93 +108,6 @@ RSpec.describe 'V0::Appeals', type: :request do
           expect(response).to have_http_status(:ok)
           expect(response.body).to be_a(String)
           expect(response).to match_response_schema('appeals')
-        end
-      end
-    end
-
-    describe 'GET /contestable_issues' do
-      let(:ssn_with_mockdata) { '212222112' }
-      let(:user) { build(:user, :loa3, ssn: ssn_with_mockdata) }
-      let(:benefit_type) { 'compensation' }
-
-      it 'returns a valid response' do
-        VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-200') do
-          get "#{hlr_get_contestable_issues_endpoint}/#{benefit_type}"
-          expect(response).to have_http_status(:ok)
-          expect { JSON.parse(response.body) }.not_to raise_error
-          expect(JSON.parse(response.body)).to be_a Hash
-        end
-      end
-
-      context 'with invalid request' do
-        let(:benefit_type) { 'apricot' }
-
-        it 'returns an invalid response' do
-          VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-422') do
-            get "#{hlr_get_contestable_issues_endpoint}/#{benefit_type}"
-            expect(response).to have_http_status(:unprocessable_entity)
-            expect { JSON.parse(response.body) }.not_to raise_error
-            expect(JSON.parse(response.body)).to be_a Hash
-          end
-        end
-      end
-
-      context 'with veteran not found' do
-        before do
-          allow_any_instance_of(User).to receive(:ssn).and_return('000000000')
-        end
-
-        it 'returns 404' do
-          VCR.use_cassette('decision_review/HLR-GET-CONTESTABLE-ISSUES-RESPONSE-404') do
-            get "#{hlr_get_contestable_issues_endpoint}/#{benefit_type}"
-            expect(response).to have_http_status(:not_found)
-          end
-        end
-      end
-    end
-
-    describe 'GET /higher_level_reviews' do
-      context 'with a valid higher review response' do
-        it 'higher level review endpoint returns a successful response' do
-          VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-200') do
-            get "#{hlr_endpoint}/75f5735b-c41d-499c-8ae2-ab2740180254"
-            expect(response).to have_http_status(:ok)
-            expect { JSON.parse(response.body) }.not_to raise_error
-            expect(JSON.parse(response.body)).to be_a Hash
-          end
-        end
-      end
-
-      context 'with a higher review response id that does not exist' do
-        it 'returns a 404 error' do
-          VCR.use_cassette('decision_review/HLR-SHOW-RESPONSE-404') do
-            get "#{hlr_endpoint}/0"
-            expect(response).to have_http_status(:not_found)
-          end
-        end
-      end
-    end
-
-    describe 'POST /higher_level_reviews' do
-      context 'with an accepted response' do
-        it 'higher level review endpoint returns a successful response' do
-          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200') do
-            request_body = VetsJsonSchema::EXAMPLES['HLR-CREATE-REQUEST-BODY']
-            post hlr_endpoint, params: request_body.to_json
-            expect(response).to have_http_status(:ok)
-            expect { JSON.parse(response.body) }.not_to raise_error
-            expect(JSON.parse(response.body)).to be_a Hash
-          end
-        end
-      end
-
-      context 'with a malformed request' do
-        it 'higher level review endpoint returns a 400 error' do
-          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422') do
-            post hlr_endpoint
-            expect(response).to have_http_status(:unprocessable_entity)
-            expect(JSON.parse(response.body)['errors'][0]['detail']).to eq "The request body isn't a JSON object"
-          end
         end
       end
     end

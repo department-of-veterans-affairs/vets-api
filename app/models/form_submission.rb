@@ -10,7 +10,36 @@ class FormSubmission < ApplicationRecord
 
   validates :form_type, presence: true
 
+  class << self
+    def with_latest_benefits_intake_uuid(user_account)
+      select('form_submissions.id, form_submissions.form_type, la.benefits_intake_uuid, form_submissions.created_at')
+        .from('form_submissions')
+        .joins(
+          "LEFT JOIN (#{FormSubmissionAttempt.latest_attempts.to_sql}) AS la " \
+          'ON form_submissions.id = la.form_submission_id'
+        )
+        .order('form_submissions.id')
+        .where(user_account:)
+    end
+
+    def with_form_types(form_types)
+      if form_types.present?
+        where(form_type: form_types)
+      else
+        where.not(form_type: nil)
+      end
+    end
+  end
+
+  def latest_attempt
+    form_submission_attempts.order(created_at: :asc).last
+  end
+
   def latest_pending_attempt
     form_submission_attempts.where(aasm_state: 'pending').order(created_at: :asc).last
+  end
+
+  def non_failure_attempt
+    form_submission_attempts.where(aasm_state: %w[pending success]).first
   end
 end

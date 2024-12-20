@@ -3,7 +3,7 @@
 require 'va_profile/models/transaction'
 require 'va_profile/response'
 
-# rubocop:disable ThreadSafety/InstanceVariableInClassMethod
+# rubocop:disable ThreadSafety/ClassInstanceVariable
 module VAProfile
   module V2
     module ContactInformation
@@ -56,9 +56,9 @@ module VAProfile
           address_pou = response_body['tx_output'][0]['address_pou']
 
           case address_pou
-          when VAProfile::Models::BaseAddress::RESIDENCE
+          when VAProfile::Models::V3::BaseAddress::RESIDENCE
             :residence_address
-          when VAProfile::Models::BaseAddress::CORRESPONDENCE
+          when VAProfile::Models::V3::BaseAddress::CORRESPONDENCE
             :correspondence_address
           else
             :address
@@ -76,7 +76,7 @@ module VAProfile
                     'originating_source_system',
                     'source_system_user',
                     'effective_start_date',
-                    'vet360_id'
+                    'va_profile_id'
                   ),
                   errors: @response_body['tx_messages']
                 }
@@ -172,4 +172,4 @@ module VAProfile
     end
   end
 end
-# rubocop:enable ThreadSafety/InstanceVariableInClassMethod
+# rubocop:enable ThreadSafety/ClassInstanceVariable

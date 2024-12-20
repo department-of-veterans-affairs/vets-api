@@ -3,9 +3,10 @@
 require 'rails_helper'
 
 RSpec.describe Crm::CacheData do
+  subject(:cache_data_instance) { described_class.new(service:, cache_client:) }
+
   let(:service) { Crm::Service.new(icn: nil) }
   let(:cache_client) { AskVAApi::RedisClient.new }
-  let(:cache_data_instance) { Crm::CacheData.new(service:, cache_client:) }
   let(:cache_data) { { Topics: [{ id: 1, name: 'Topic 1' }] } }
 
   before do
@@ -32,7 +33,7 @@ RSpec.describe Crm::CacheData do
       end
     end
 
-    context 'when an error occurs' do
+    context 'when an ApiServiceError occurs' do
       let(:body) do
         '{"Data":null,"Message":"Data Validation: Invalid OptionSet Name iris_branchofservic, valid' \
           ' values are iris_inquiryabout, iris_inquirysource, iris_inquirytype, iris_levelofauthentication,' \
@@ -60,7 +61,28 @@ RSpec.describe Crm::CacheData do
       end
 
       it 'handles the service error through the ErrorHandler' do
-        expect { response }.to raise_error(ErrorHandler::ServiceError)
+        expect { response }.to raise_error(Crm::CacheDataError)
+      end
+    end
+
+    context 'when a Redis::BaseError occurs' do
+      let(:response) do
+        cache_data_instance.call(
+          endpoint: 'optionset',
+          cache_key: 'branchofservice',
+          payload: { name: 'iris_branchofservice' }
+        )
+      end
+
+      before do
+        allow_any_instance_of(AskVAApi::RedisClient).to receive(:fetch)
+          .and_raise(Redis::BaseError, 'Redis connection error')
+      end
+
+      it 'raises a CacheStoreError' do
+        expect { response }.to raise_error(
+          Crm::CacheDataError, 'Crm::CacheStoreError: Cache store failure: Redis connection error'
+        )
       end
     end
   end

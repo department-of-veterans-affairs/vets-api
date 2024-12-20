@@ -71,6 +71,7 @@ module Users
         first_name: user.first_name,
         middle_name: user.middle_name,
         last_name: user.last_name,
+        preferred_name: user.preferred_name,
         birth_date: user.birth_date,
         gender: user.gender,
         zip: user.postal_code,
@@ -87,7 +88,8 @@ module Users
         sec_id: user.sec_id,
         logingov_uuid: user.logingov_uuid,
         idme_uuid: user.idme_uuid,
-        id_theft_flag: user.id_theft_flag
+        id_theft_flag: user.id_theft_flag,
+        initial_sign_in: user.initial_sign_in
       }
     end
     # rubocop:enable Metrics/MethodLength
@@ -117,11 +119,13 @@ module Users
     end
 
     def vet360_contact_information
-      person = user.vet360_contact_info
+      contact_info_v2_enabled = Flipper.enabled?(:va_v3_contact_information_service, user)
+      person = contact_info_v2_enabled ? user.vaprofile_contact_info : user.vet360_contact_info
       return {} if person.blank?
 
       {
         vet360_id: user.vet360_id,
+        va_profile_id: user.vet360_id,
         email: person.email,
         residential_address: person.residential_address,
         mailing_address: person.mailing_address,
@@ -129,8 +133,7 @@ module Users
         home_phone: person.home_phone,
         work_phone: person.work_phone,
         temporary_phone: person.temporary_phone,
-        fax_number: person.fax_number,
-        text_permission: person.text_permission
+        fax_number: person.fax_number
       }
     rescue => e
       scaffold.errors << Users::ExceptionHandler.new(e, 'VAProfile').serialize_error

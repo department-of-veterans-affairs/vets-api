@@ -1,0 +1,154 @@
+{
+  "vaFileNumber": "12345678",
+  "veteranSocialSecurityNumber": "123456789",
+  "veteranFullName": {
+    "first": "XXXXXXXXXXXXX",
+    "middle": "Tester",
+    "last": "XXXXXXXXXXXXXXXXXX"
+  },
+  "veteranDateOfBirth": "1981-11-05",
+  "veteranServiceNumber": "987654321",
+  "email": "testy.testerson@gmail.com",
+  "veteranPhone": "2123456789",
+  "veteranSecondaryPhone": "3133456789",
+  "additionalInformation": "Lorem ipsum dolor sit amet",
+  "eventTypes": {
+    "combat": true,
+    "mst": false,
+    "nonMst": true,
+    "other": false
+  },
+  "eventsDetails": [
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "Summer of '70"
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "June 2007"
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet..",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "February 14, 2020"
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet..",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "Autumn of 1995"
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "Winter of '68"
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "Spring of '72"
+    },
+    {
+      "details": "Lorem ipsum dolor sit amet.",
+      "location": "abcdefghijklmn opqrstuvwxyz1234a bpqrstuvwxyz1234a",
+      "timing": "Summer of '69"
+    }
+  ],
+  "reports": {
+    "yes": true,
+    "no": false,
+    "restricted": true,
+    "unrestricted": false,
+    "neither": false,
+    "police": true,
+    "other": true
+  },
+  "reportsDetails": {
+    "police": {
+      "agency": "SVI",
+      "city": "Dallas",
+      "state": "TX",
+      "township": "",
+      "country": "USA"
+    },
+    "other": "incident report"
+  },
+  "behaviors": {
+    "reassignment": true,
+    "absences": false,
+    "performance": true,
+    "consultations": false,
+    "episodes": true,
+    "medications": false,
+    "selfMedication": true,
+    "substances": false,
+    "appetite": true,
+    "pregnancy": false,
+    "screenings": true,
+    "socialEconomic": false,
+    "relationships": true,
+    "misconduct": false,
+    "otherBehavior": "Lorem"
+  },
+  "behaviorsDetails": {
+    "reassignment": "requested duty assignment",
+    "performance": "poor evaluations",
+    "episodes": "severe depression",
+    "selfMedication": "stopped treating headaches",
+    "appetite": "skipping meals",
+    "screenings": "positive tests",
+    "relationships": "separation",
+    "otherBehavior": "Lorem ipsum dolor sit amet."
+  },
+  "evidence": {
+    "crisisCenter": true,
+    "counseling": true,
+    "family": true,
+    "faculty": true,
+    "police": true,
+    "medical": true,
+    "clergy": true,
+    "peers": true,
+    "journal": true,
+    "none": true,
+    "other": true,
+    "otherDetails": "photographic evidence"
+  },
+  "traumaTreatment": false,
+  "treatmentProviders": {
+    "privateCare": true,
+    "vetCenter": false,
+    "communityCare": false,
+    "vamc": true,
+    "cboc": false,
+    "mtf": true,
+    "none": false
+  },
+  "treatmentProvidersDetails": [
+    {
+      "facilityInfo": "Walter Reed, Bethesda, MD",
+      "treatmentMonth": "02",
+      "treatmentYear": "2014"
+    },
+    {
+      "facilityInfo": "Cedarwood Behavioral Health Center, 4321 Oak Ridge Rd, Maplewood, MN",
+      "treatmentYear": "2024"
+    },
+    {
+      "facilityInfo": "Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL",
+      "noDates": true
+    },
+    {
+      "facilityInfo": "Silver Oak Recovery Center, 745 Greenfield Avenue, Clearwater, FL",
+      "noDates": true
+    }
+  ],
+  "optionIndicator": {
+    "yes": false,
+    "no": false,
+    "revoke": false,
+    "notEnrolled": true
+  },
+  "signatureDate": "2016-01-31"
+}

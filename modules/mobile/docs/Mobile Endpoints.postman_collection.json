@@ -1,0 +1,1053 @@
+{
+	"info": {
+		"_postman_id": "593c0b6e-77da-43b0-a37a-3c1fcf62227d",
+		"name": "Mobile Endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "22438103"
+	},
+	"item": [
+		{
+			"name": "/v0/letters",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/letters",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"letters"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/letters/beneficiary",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/letters/beneficiary",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"letters",
+						"beneficiary"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/messaging/health/folders",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/messaging/health/folders",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"messaging",
+						"health",
+						"folders"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/messaging/health/folders/{id}",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/messaging/health/folders/:id",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"messaging",
+						"health",
+						"folders",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{folder_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/messaging/health/folders/{id}/messages",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/messaging/health/folders/:id/messages",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"messaging",
+						"health",
+						"folders",
+						":id",
+						"messages"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{folder_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/messaging/health/messages/categories",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/messaging/health/messages/categories",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"messaging",
+						"health",
+						"messages",
+						"categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/messaging/health/messages/signature",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/messaging/health/messages/signature",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"messaging",
+						"health",
+						"messages",
+						"signature"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/messaging/health/messages/{id}",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/messaging/health/messages/:id",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"messaging",
+						"health",
+						"messages",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{message_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/messaging/health/messages/{id}/thread",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/messaging/health/messages/:id/thread",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"messaging",
+						"health",
+						"messages",
+						":id",
+						"thread"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{message_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/messaging/health/recipients",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/messaging/health/recipients",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"messaging",
+						"health",
+						"recipients"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/health/immunizations",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/health/immunizations",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"health",
+						"immunizations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/health/locations/{id}",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/health/locations/:id",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"health",
+						"locations",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{location_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/community-care-providers",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/community-care-providers?serviceType=primaryCare",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"community-care-providers"
+					],
+					"query": [
+						{
+							"key": "serviceType",
+							"value": "primaryCare"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v1/health/immunizations",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v1/health/immunizations",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v1",
+						"health",
+						"immunizations"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/maintenance_windows",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/maintenance_windows",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"maintenance_windows"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/appointments",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/appointments?include[]=pending&page[size]=900",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"appointments"
+					],
+					"query": [
+						{
+							"key": "include[]",
+							"value": "pending"
+						},
+						{
+							"key": "page[size]",
+							"value": "900"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/claims-and-appeals-overview",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/claims-and-appeals-overview?page[size]=250",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"claims-and-appeals-overview"
+					],
+					"query": [
+						{
+							"key": "page[size]",
+							"value": "250"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/appeal/{id}",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/appeal/:id",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"appeal",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{appeal_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/claim/{id}",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/claim/:id",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"claim",
+						":id"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{claim_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/disability-rating",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/disability-rating",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"disability-rating"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/health/rx/prescriptions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/health/rx/prescriptions",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"health",
+						"rx",
+						"prescriptions"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/health/rx/prescriptions/{id}/tracking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/health/rx/prescriptions/:id/tracking",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"health",
+						"rx",
+						"prescriptions",
+						":id",
+						"tracking"
+					],
+					"variable": [
+						{
+							"key": "id",
+							"value": "{{prescription_id}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/military-service-history",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/military-service-history",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"military-service-history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/payment-history",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/payment-history",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"payment-history"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/payment-information/benefits",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/payment-information/benefits",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"payment-information",
+						"benefits"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/push/prefs/{endpointSid}",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/push/prefs/:endpointSid",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"push",
+						"prefs",
+						":endpointSid"
+					],
+					"variable": [
+						{
+							"key": "endpointSid",
+							"value": "{{endpointSid}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v0/user",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v0/user",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v0",
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/v1/user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authentication-Method",
+						"value": "SIS",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://staging-api.va.gov/mobile/v1/user",
+					"protocol": "https",
+					"host": [
+						"staging-api",
+						"va",
+						"gov"
+					],
+					"path": [
+						"mobile",
+						"v1",
+						"user"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer"
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

@@ -23,46 +23,6 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
     allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(find_profile_response)
   end
 
-  describe 'GET #current_status' do
-    subject { get :current_status, params: { icn: } }
-
-    it 'returns ok status' do
-      subject
-      expect(response).to have_http_status(:ok)
-    end
-
-    context 'when a terms of use agreement exists for the authenticated user' do
-      let!(:terms_of_use_acceptance) do
-        create(:terms_of_use_agreement, user_account:, response: terms_response, agreement_version:)
-      end
-
-      context 'and terms of use agreement has been accepted' do
-        let(:terms_response) { 'accepted' }
-
-        it 'returns accepted status' do
-          subject
-          expect(JSON.parse(response.body)['agreement_status']).to eq(terms_response)
-        end
-      end
-
-      context 'and terms of use agreement has been declined' do
-        let(:terms_response) { 'declined' }
-
-        it 'returns declined status' do
-          subject
-          expect(JSON.parse(response.body)['agreement_status']).to eq(terms_response)
-        end
-      end
-    end
-
-    context 'when a terms of use agreement does not exist for the authenticated user' do
-      it 'returns nil status' do
-        subject
-        expect(JSON.parse(response.body)['agreement_status']).to eq(nil)
-      end
-    end
-  end
-
   describe 'GET #latest' do
     subject { get :latest, params: { version: agreement_version, terms_code: } }
 
@@ -96,7 +56,7 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
     end
 
     context 'when user is authenticated with a sign in service cookie' do
-      let(:access_token_object) { create(:access_token, user_uuid: user.uuid) }
+      let(:access_token_object) { create(:access_token, user_uuid: user.uuid, session_handle: user.session_handle) }
       let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
 
       before do
@@ -140,7 +100,9 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
   end
 
   describe 'POST #accept' do
-    subject { post :accept, params: { version: agreement_version, terms_code: } }
+    subject { post :accept, params: { version: agreement_version, terms_code:, skip_mhv_account_creation: }.compact }
+
+    let(:skip_mhv_account_creation) { nil }
 
     shared_examples 'authenticated agreements acceptance' do
       context 'when the agreement is accepted successfully' do
@@ -169,6 +131,24 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
             '[TermsOfUseAgreement] [Accepted]',
             hash_including(:terms_of_use_agreement_id, :user_account_uuid, :icn, :agreement_version, :response)
           )
+        end
+
+        context 'when creating a MHV account' do
+          context 'when skip_mhv_account_creation is true' do
+            let(:skip_mhv_account_creation) { true }
+
+            it 'does not create an MHV account' do
+              expect(user).not_to receive(:create_mhv_account_async)
+              subject
+            end
+          end
+
+          context 'when skip_mhv_account_creation is not present' do
+            it 'does not create an MHV account' do
+              expect(user).not_to receive(:create_mhv_account_async)
+              subject
+            end
+          end
         end
       end
 
@@ -318,7 +298,12 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
   end
 
   describe 'POST #accept_and_provision' do
-    subject { post :accept_and_provision, params: { version: agreement_version, terms_code: } }
+    subject do
+      post :accept_and_provision,
+           params: { version: agreement_version, terms_code:, skip_mhv_account_creation: }.compact
+    end
+
+    let(:skip_mhv_account_creation) { nil }
 
     shared_examples 'successful acceptance and provisioning' do
       let(:expected_status) { :created }
@@ -345,6 +330,24 @@ RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
       it 'logs the expected log' do
         subject
         expect(Rails.logger).to have_received(:info).with(expected_log, { icn: })
+      end
+
+      context 'when creating a MHV account' do
+        context 'when skip_mhv_account_creation is true' do
+          let(:skip_mhv_account_creation) { true }
+
+          it 'does not create an MHV account' do
+            expect(user).not_to receive(:create_mhv_account_async)
+            subject
+          end
+        end
+
+        context 'when skip_mhv_account_creation is not present' do
+          it 'does not create an MHV account' do
+            expect(user).not_to receive(:create_mhv_account_async)
+            subject
+          end
+        end
       end
     end
 

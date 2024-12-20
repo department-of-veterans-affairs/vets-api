@@ -20,6 +20,10 @@ module Vye
       Aws::S3::Client.new(**credentials)
     end
 
+    def holiday?
+      Holidays.on(Time.zone.today, :us, :observed).any?
+    end
+
     def tmp_dir
       result = Rails.root / "tmp/vye/#{SecureRandom.uuid}"
       result.mkpath
@@ -67,7 +71,18 @@ module Vye
         .contents
         .map { |obj| obj.key unless obj.key.ends_with?('/') }
         .compact
-        .each { |key| s3_client.delete_object(bucket:, key:) }
+        .each { |key| delete_file_from_bucket(bucket, key) }
+    end
+
+    def delete_file_from_bucket(bucket, key)
+      s3_client.delete_object(bucket:, key:)
+    rescue Aws::S3::Errors::NoSuchBucket,
+           Aws::S3::Errors::NoSuchKey,
+           Aws::S3::Errors::AccessDenied,
+           Aws::S3::Errors::ServiceError => e
+      Rails.logger.error "SundownSweep: could not delete #{key} from #{bucket}: #{e.message}"
+
+      raise
     end
 
     def check_s3_location!(bucket:, path:)
@@ -75,7 +90,7 @@ module Vye
       when external_bucket
         raise ArgumentError, 'invalid external path' unless %w[inbound outbound].include?(path)
       when self.bucket
-        raise ArgumentError, 'invalid internal path' unless %w[scanned processed].include?(path)
+        raise ArgumentError, 'invalid internal path' unless %w[chunks scanned processed].include?(path)
       else
         raise ArgumentError, 'bucket must be either the internal one or the external one'
       end
@@ -90,6 +105,48 @@ module Vye
         body = file.read
 
         s3_client.put_object(bucket:, key:, body:)
+      end
+    end
+
+    # We need to clear out two buckets, scanned and chunked.
+    # in scanned, we are only concerned with removing 2 files,
+    # but in chunked, we want to remove everything.
+    def remove_aws_files_from_s3_buckets
+      # remove from the scanned bucket
+      [Vye::BatchTransfer::TimsChunk::FEED_FILENAME, Vye::BatchTransfer::BdnChunk::FEED_FILENAME].each do |filename|
+        delete_file_from_bucket(:internal, "scanned/#{filename}")
+      end
+
+      # remove everything from the chunked bucket
+      clear_from(path: 'chunks')
+    end
+
+    # There's a requirement to deleting deactivated bdns.
+    # Because of the RI rules and the performance hit that causes, we start from the
+    # bottom of the RI treee and work our way up.
+    # We do NOT delete the verifications but rather nullify their reference to parent rows
+    # UserInfo and Award.
+    def delete_inactive_bdns
+      bdn_clone_ids = Vye::BdnClone.where(is_active: nil, export_ready: nil).pluck(:id)
+      bdn_clone_ids.each do |bdn_clone_id|
+        Vye::DirectDepositChange.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
+        Vye::AddressChange.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
+        Vye::Award.joins(:user_info).where(vye_user_infos: { bdn_clone_id: }).in_batches.delete_all
+
+        # We're not worried about validations here because it wouldn't be in the table if it wasn't valid
+        # rubocop:disable Rails/SkipsModelValidations
+        Vye::Verification
+          .joins(:user_info)
+          .where(vye_user_infos: { bdn_clone_id: })
+          .in_batches
+          .update_all(user_info_id: nil, award_id: nil)
+        # rubocop:enable Rails/SkipsModelValidations
+
+        # nuke user infos
+        Vye::UserInfo.where(bdn_clone_id:).delete_all
+
+        # nuke bdn_clone
+        Vye::BdnClone.find(bdn_clone_id).destroy
       end
     end
   end

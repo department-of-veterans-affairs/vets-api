@@ -15,7 +15,7 @@ module MHV
       end
 
       def account_creation_path
-        'mhvapi/v1/usermgmt/account-service/account'
+        'v1/usermgmt/account-service/account'
       end
 
       def logging_prefix
@@ -36,6 +36,10 @@ module MHV
 
       def tou_doc_title
         'VA Enterprise Terms of Use'
+      end
+
+      def access_key
+        Settings.mhv.account_creation.access_key
       end
 
       def connection

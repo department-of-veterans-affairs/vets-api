@@ -18,7 +18,8 @@ RSpec.describe 'V1::HigherLevelReviews', type: :request do
       http: {
         status_code: 200,
         body: '[Redacted]'
-      }
+      },
+      version: 'V1'
     }
   end
   let(:error_log_args) do
@@ -32,8 +33,20 @@ RSpec.describe 'V1::HigherLevelReviews', type: :request do
       is_success: false,
       http: {
         status_code: 422,
-        body: anything
-      }
+        body: response_error_body
+      },
+      version: 'V1'
+    }
+  end
+
+  let(:response_error_body) do
+    {
+      'errors' => [{ 'title' => 'Missing required fields',
+                     'detail' => 'One or more expected fields were not found',
+                     'code' => '145',
+                     'source' => { 'pointer' => '/' },
+                     'status' => '422',
+                     'meta' => { 'missing_fields' => %w[data included] } }]
     }
   end
 
@@ -79,30 +92,58 @@ RSpec.describe 'V1::HigherLevelReviews', type: :request do
       end
     end
 
-    it 'adds to the PersonalInformationLog when an exception is thrown' do
-      VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422_V1') do
-        expect(personal_information_logs.count).to be 0
+    context 'when an error occurs with the api call' do
+      it 'adds to the PersonalInformationLog' do
+        VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-422_V1') do
+          expect(personal_information_logs.count).to be 0
 
-        allow(Rails.logger).to receive(:error)
-        expect(Rails.logger).to receive(:error).with(error_log_args)
-        expect(Rails.logger).to receive(:error).with(
-          message: "Exception occurred while submitting Higher Level Review: #{extra_error_log_message}",
-          backtrace: anything
-        )
-        expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
-        allow(StatsD).to receive(:increment)
-        expect(StatsD).to receive(:increment).with('decision_review.form_996.overall_claim_submission.failure')
+          allow(Rails.logger).to receive(:error)
+          expect(Rails.logger).to receive(:error).with(error_log_args)
+          expect(Rails.logger).to receive(:error).with(
+            message: "Exception occurred while submitting Higher Level Review: #{extra_error_log_message}",
+            backtrace: anything
+          )
+          expect(Rails.logger).to receive(:error).with(extra_error_log_message, anything)
+          allow(StatsD).to receive(:increment)
+          expect(StatsD).to receive(:increment).with('decision_review.form_996.overall_claim_submission.failure')
 
-        subject
-        expect(personal_information_logs.count).to be 1
-        pil = personal_information_logs.first
-        %w[
-          first_name last_name birls_id icn edipi mhv_correlation_id
-          participant_id vet360_id ssn assurance_level birth_date
-        ].each { |key| expect(pil.data['user'][key]).to be_truthy }
-        %w[message backtrace key response_values original_status original_body]
-          .each { |key| expect(pil.data['error'][key]).to be_truthy }
-        expect(pil.data['additional_data']['request']['body']).not_to be_empty
+          subject
+          expect(personal_information_logs.count).to be 1
+          pil = personal_information_logs.first
+          %w[
+            first_name last_name birls_id icn edipi mhv_correlation_id
+            participant_id vet360_id ssn assurance_level birth_date
+          ].each { |key| expect(pil.data['user'][key]).to be_truthy }
+          %w[message backtrace key response_values original_status original_body]
+            .each { |key| expect(pil.data['error'][key]).to be_truthy }
+          expect(pil.data['additional_data']['request']['body']).not_to be_empty
+        end
+      end
+    end
+
+    context 'when an error occurs in the transaction' do
+      shared_examples 'rolledback transaction' do |model|
+        before do
+          allow_any_instance_of(model).to receive(:save!).and_raise(ActiveModel::Error) # stub a model error
+        end
+
+        it 'rollsback transaction' do
+          VCR.use_cassette('decision_review/HLR-CREATE-RESPONSE-200_V1') do
+            expect(subject).to eq 500
+
+            # check that transaction rolled back / records were not persisted
+            expect(AppealSubmission.count).to eq 0
+            expect(SavedClaim.count).to eq 0
+          end
+        end
+      end
+
+      context 'for AppealSubmission' do
+        it_behaves_like 'rolledback transaction', AppealSubmission
+      end
+
+      context 'for SavedClaim' do
+        it_behaves_like 'rolledback transaction', SavedClaim
       end
     end
   end

@@ -1,57 +1,62 @@
 ---
 http_interactions:
-  - request:
-      method: put
-      uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/addresses
-      body:
-        encoding: UTF-8
-        string: '{"bio":{"addressId":15035,"addressLine1":"1494 Martin Luther King Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE/CHOICE","addressType":"DOMESTIC","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":"USA","county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"1","effectiveStartDate":null,"effectiveEndDate":null}}'
-      headers:
-        Accept:
-          - application/json
-        Content-Type:
-          - application/json
-        User-Agent:
-          - Vets.gov Agent
-        Cufsystemname:
-          - VETSGOV
-        Accept-Encoding:
-          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-    response:
-      status:
-        code: 200
-        message: ''
-      headers:
-        Date:
-          - Tue, 14 Jan 2020 06:42:09 GMT
-        Expires:
-          - '0'
-        Vet360txauditid:
-          - 1f450c8e-4bb2-4f5d-a5f3-0d907941625a
-        X-Frame-Options:
-          - DENY
-        Pragma:
-          - no-cache
-        X-Content-Type-Options:
-          - nosniff
-          - nosniff
-        X-Xss-Protection:
-          - 1; mode=block
-        Cache-Control:
-          - no-cache, no-store, max-age=0, must-revalidate
-        X-Ua-Compatible:
-          - IE-edge,chrome=1
-        Content-Type:
-          - application/json;charset=UTF-8
-        Content-Length:
-          - '831'
-      body:
-        encoding: UTF-8
-        string: |-
-          {
-            "tx_audit_id": "1f450c8e-4bb2-4f5d-a5f3-0d907941625a",
-            "status": "RECEIVED"
-          }
-      http_version:
-    recorded_at: Tue, 14 Jan 2020 06:42:09 GMT
-recorded_with: VCR 5.0.0
+- request:
+    method: put
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA/addresses
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"addressId":15035,"addressLine1":"1494 Martin Luther King Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE","addressType":"Domestic","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":"USA","county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2024-08-30T18:51:06.012Z","vet360Id":"1","effectiveStartDate":null,"effectiveEndDate":null}}'
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="36100222", dtSInfo;desc="0"
+      - dtRpid;desc="773565466", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - '08756e0a-9729-4cae-bd0f-95f82612633f'
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 12 Sep 2024 16:37:36 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"1bfcadca-fbfa-427c-8da2-96da9111f16b","status":"RECEIVED"}'
+  recorded_at: Thu, 12 Sep 2024 16:37:36 GMT
+recorded_with: VCR 6.3.1

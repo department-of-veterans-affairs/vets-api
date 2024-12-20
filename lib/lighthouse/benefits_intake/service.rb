@@ -9,10 +9,11 @@ module BenefitsIntake
   ##
   # Proxy Service for the Lighthouse Benefits Intake API
   #
-  # Use this to submit claims that cannot be auto-established,
-  # via paper submission (electronic PDF submission to CMP)
+  # Use this to submit claims that cannot be auto-established, via paper submission (electronic PDF submission to CMP).
+  # It is the responsibility of any team sending submissions to Lighthouse to monitor those submissions.
   #
-  # https://developer.va.gov/explore/api/benefits-intake/docs
+  # @see https://depo-platform-documentation.scrollhelp.site/developer-docs/endpoint-monitoring
+  # @see https://developer.va.gov/explore/api/benefits-intake/docs
   #
   class Service < Common::Client::Base
     configuration BenefitsIntake::Configuration
@@ -47,8 +48,7 @@ module BenefitsIntake
       upload_url, _uuid = request_upload unless upload_url
 
       metadata = JSON.parse(metadata)
-      meta_tmp = Common::FileHelpers.generate_clamav_temp_file(metadata.to_json,
-                                                               "#{STATSD_KEY_PREFIX}.#{@uuid}.metadata.json")
+      meta_tmp = Common::FileHelpers.generate_random_file(metadata.to_json)
 
       params = {}
       params[:metadata] = Faraday::UploadIO.new(meta_tmp, Mime[:json].to_s, 'metadata.json')
@@ -58,6 +58,8 @@ module BenefitsIntake
       end
 
       perform :put, upload_url, params, { 'Content-Type' => 'multipart/form-data' }
+    ensure
+      Common::FileHelpers.delete_file_if_exists(meta_tmp) if meta_tmp
     end
 
     ##

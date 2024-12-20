@@ -1,112 +1,65 @@
 ---
 http_interactions:
-  - request:
-      method: get
-      uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/1/addresses/status/1f450c8e-4bb2-4f5d-a5f3-0d907941625a
-      body:
-        encoding: US-ASCII
-        string: ''
-      headers:
-        Accept:
-          - application/json
-        Content-Type:
-          - application/json
-        User-Agent:
-          - Vets.gov Agent
-        Cufsystemname:
-          - VETSGOV
-        Accept-Encoding:
-          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-    response:
-      status:
-        code: 200
-        message: ''
-      headers:
-        Date:
-          - Thu, 16 Jan 2020 03:26:45 GMT
-        Expires:
-          - '0'
-        Vet360txauditid:
-          - 1f450c8e-4bb2-4f5d-a5f3-0d907941625a
-        X-Frame-Options:
-          - DENY
-        Pragma:
-          - no-cache
-        X-Content-Type-Options:
-          - nosniff
-          - nosniff
-        X-Xss-Protection:
-          - 1; mode=block
-        Cache-Control:
-          - no-cache, no-store, max-age=0, must-revalidate
-        X-Ua-Compatible:
-          - IE-edge,chrome=1
-        Content-Type:
-          - application/json;charset=UTF-8
-        Content-Length:
-          - '1328'
-      body:
-        encoding: UTF-8
-        string: |-
-          {
-          	"tx_audit_id": "1f450c8e-4bb2-4f5d-a5f3-0d907941625a",
-          	"status": "COMPLETED_SUCCESS",
-          	"tx_status": "COMPLETED_SUCCESS",
-          	"tx_type": "PUSH",
-          	"tx_interaction_type": "ATTENDED",
-          	"tx_push_input": {
-          		"source_date": "2020-12-04T18:58:35Z",
-          		"originating_source_system": "VETSGOV",
-          		"source_system_user": "1012829932V238054",
-          		"effective_start_date": "2020-12-04T18:58:35Z",
-          		"vet360_id": 1411910,
-          		"address_id": 199433,
-          		"address_type": "DOMESTIC",
-          		"address_pou": "CORRESPONDENCE",
-          		"address_line1": "531 Arbolado Dr",
-          		"city_name": "Fullerton",
-          		"state_code": "CA",
-          		"zip_code5": "92835",
-          		"county": {
-          		},
-          		"country_name": "United States",
-          		"country_code_iso3": "USA"
-          	},
-          	"tx_output": [
-          		{
-          			"create_date": "2020-10-02T20:02:57Z",
-          			"update_date": "2020-12-04T18:58:36Z",
-          			"tx_audit_id": "1f450c8e-4bb2-4f5d-a5f3-0d907941625a",
-          			"source_system": "VETSGOV",
-          			"source_date": "2020-12-04T18:58:35Z",
-          			"originating_source_system": "VETSGOV",
-          			"source_system_user": "1012829932V238054",
-          			"effective_start_date": "2020-12-04T18:58:35Z",
-          			"vet360_id": 1411910,
-          			"address_id": 199433,
-          			"address_type": "Domestic",
-          			"address_pou": "CORRESPONDENCE",
-          			"address_line1": "531 Arbolado Dr",
-          			"city_name": "Fullerton",
-          			"state_code": "CA",
-          			"zip_code5": "92835",
-          			"zip_code4": "1803",
-          			"county": {
-          				"county_name": "Orange County",
-          				"county_code": "06059"
-          			},
-          			"country_name": "United States",
-          			"country_code_fips": "US",
-          			"country_code_iso2": "US",
-          			"country_code_iso3": "USA",
-          			"confidence_score": "100",
-          			"latitude": "33.9093",
-          			"longitude": "-117.9221",
-          			"geocode_precision": "31",
-          			"geocode_date": "2020-12-04T18:58:36Z"
-          		}
-          	]
-          }
-      http_version:
-    recorded_at: Thu, 16 Jan 2020 03:26:45 GMT
-recorded_with: VCR 5.0.0
+- request:
+    method: get
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/addresses/status/0ea91332-4713-4008-bd57-40541ee8d4d4
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Content-Type:
+      - application/json
+      Cufsystemname:
+      - VETSGOV
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1504319669", dtSInfo;desc="0"
+      - dtRpid;desc="-197812444", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 81891db1-9784-46a1-adcb-95f31ef25057
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 12 Sep 2024 16:06:29 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"0ea91332-4713-4008-bd57-40541ee8d4d4","status":"COMPLETED_SUCCESS","txStatus":"COMPLETED_SUCCESS","txType":"PUSH","txInteractionType":"ATTENDED","txPushInput":{"sourceDate":"2024-08-28T18:51:06Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","addressId":15035,"addressPOU":"RESIDENCE","addressLine1":"1494
+        Martin Luther King Rd","cityName":"Fulton","zipCode5":"38843","country":{}},"txOutput":[{"createDate":"2018-09-05T16:58:15Z","updateDate":"2024-09-12T16:06:11Z","txAuditId":"0ea91332-4713-4008-bd57-40541ee8d4d4","sourceSystem":"VETSGOV","sourceDate":"2024-08-28T18:51:06Z","originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","effectiveStartDate":"2024-08-28T18:51:06Z","vaProfileId":1,"addressId":15035,"addressType":"Domestic","addressPOU":"RESIDENCE","addressLine1":"1494
+        Martin Luther King Rd","cityName":"Fulton","state":{"stateName":"Mississippi","stateCode":"MS"},"zipCode5":"38843","county":{"countyName":"Itawamba
+        County","countyCode":"28057"},"country":{"countryName":"United States","countryCodeFIPS":"US","countryCodeISO2":"US","countryCodeISO3":"USA"},"latitude":"34.1987","longitude":"-88.5259","geocodePrecision":"31","geocodeDate":"2024-09-12T16:06:11Z"}]}'
+  recorded_at: Thu, 12 Sep 2024 16:06:29 GMT
+recorded_with: VCR 6.3.1

@@ -9,6 +9,10 @@ Rspec.describe 'V0::Search', type: :request do
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }
 
+  before do
+    Flipper.disable(:search_use_v2_gsa)
+  end
+
   describe 'GET /v0/search' do
     context 'with a 200 response' do
       it 'matches the search schema', :aggregate_failures do
@@ -65,7 +69,7 @@ Rspec.describe 'V0::Search', type: :request do
     end
 
     context 'with un-sanitized parameters' do
-      it 'sanitizes the input, stripping all tags and attributes that are not whitelisted' do
+      it 'sanitizes the input, stripping all tags and attributes that are not allowlisted' do
         VCR.use_cassette('search/success') do
           dirty_params     = '<script>alert(document.cookie);</script>'
           sanitized_params = 'alert(document.cookie);'

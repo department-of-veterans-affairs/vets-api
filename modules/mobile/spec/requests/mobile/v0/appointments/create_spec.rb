@@ -16,11 +16,13 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
   let!(:user) { sis_user(icn: '1012846043V576341') }
 
   before do
+    allow_any_instance_of(User).to receive(:va_patient?).and_return(true)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
     allow_any_instance_of(VAOS::V2::MobileFacilityService).to \
       receive(:get_clinic).and_return(mock_clinic)
     allow_any_instance_of(VAOS::V2::MobileFacilityService).to \
       receive(:get_facility).and_return(mock_facility)
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
   after(:all) do
@@ -39,15 +41,6 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
     end
 
     describe 'authorization' do
-      context 'when feature flag is off' do
-        before { Flipper.disable('va_online_scheduling') }
-
-        it 'returns forbidden' do
-          post '/mobile/v0/appointment', params: va_proposed_request_body, headers: sis_headers
-          expect(response).to have_http_status(:forbidden)
-        end
-      end
-
       context 'when user does not have access' do
         let!(:user) { sis_user(:api_auth, :loa1, icn: nil) }
 
@@ -57,7 +50,7 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
         end
       end
 
-      context 'when feature flag is on and user has access' do
+      context 'when user has access' do
         context 'using VAOS' do
           before do
             Flipper.disable(:va_online_scheduling_use_vpg)
@@ -196,7 +189,6 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
           VCR.use_cassette('mobile/appointments/post_appointments_va_proposed_clinic_200',
                            match_requests_on: %i[method uri]) do
             post '/mobile/v0/appointment', params: {}, headers: sis_headers
-
             expect(response).to have_http_status(:created)
             expect(json_body_for(response)).to match_camelized_schema('vaos/v2/appointment', { strict: false })
           end

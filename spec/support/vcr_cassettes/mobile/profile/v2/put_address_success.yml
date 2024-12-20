@@ -2,17 +2,17 @@
 http_interactions:
 - request:
     method: put
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/addresses
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/1%5EPI%5E200VETS%5EUSDVA/addresses
     body:
       encoding: UTF-8
-      string: '{"bio":{"addressId":15035,"addressLine1":"1494 Martin Luther King Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE/CHOICE","addressType":"DOMESTIC","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":"USA","county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"1","effectiveStartDate":null,"effectiveEndDate":null}}'
+      string: '{"bio":{"addressId":15035,"addressLine1":"1494 Martin Luther King Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE","addressType":"Domestic","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":"USA","county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2024-08-27T18:51:06.012Z","vet360Id":"1","effectiveStartDate":null,"effectiveEndDate":null}}'
     headers:
+      User-Agent:
+      - Vets.gov Agent
       Accept:
       - application/json
       Content-Type:
       - application/json
-      User-Agent:
-      - Vets.gov Agent
       Cufsystemname:
       - VETSGOV
       Accept-Encoding:
@@ -22,40 +22,41 @@ http_interactions:
       code: 200
       message: ''
     headers:
-      Date:
-      - Tue, 14 Jan 2020 06:42:09 GMT
-      Expires:
-      - '0'
-      Vet360txauditid:
-      - 329f4834-3a92-4920-bcf9-f596739679af
-      X-Frame-Options:
-      - DENY
-      Pragma:
-      - no-cache
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1693013171", dtSInfo;desc="0"
+      - dtRpid;desc="-417493416", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - fc25116f-42f2-40f1-ac3e-9870df88814a
       X-Content-Type-Options:
       - nosniff
-      - nosniff
       X-Xss-Protection:
-      - 1; mode=block
+      - '0'
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 12 Sep 2024 16:06:10 GMT
+      Referrer-Policy:
+      - no-referrer
       Content-Type:
-      - application/json;charset=UTF-8
-      Content-Length:
-      - '831'
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"messages":[{"code":"CORE110","key":"_CUF_SOURCE_DATE_VERSION_VIOLATION","severity":"WARN","text":"Source
-        dates are outdated for Type AddressDio with a ID of 15035.  Previous source
-        date was 2019-10-24 19:55:21.0 but received new source date of Mon Apr 09
-        17:52:03 UTC 2018.  Source dates may not be null, and new must be greater
-        than the previous.  Please correct your request and try again!"},{"code":"CORE104","key":"_CUF_NO_CHANGES_DETECTED","severity":"INFO","text":"Your
-        request was received and processed without error, however no differences were
-        detected between current data and the data you sent.  This message is informational
-        only, please verify your request if you believe you sent actual changes that
-        should be applied."}],"txAuditId":"a030185b-e88b-4e0d-a043-93e4f34c60d6","status":"COMPLETED_NO_CHANGES_DETECTED"}'
-    http_version:
-  recorded_at: Tue, 14 Jan 2020 06:42:09 GMT
-recorded_with: VCR 5.0.0
+      string: '{"txAuditId":"0ea91332-4713-4008-bd57-40541ee8d4d4","status":"RECEIVED"}'
+  recorded_at: Thu, 12 Sep 2024 16:06:10 GMT
+recorded_with: VCR 6.3.1

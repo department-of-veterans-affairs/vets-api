@@ -16,7 +16,7 @@ RSpec.describe 'V0::Preneeds::BurialForm', type: :request do
 
     let(:submission_record) { OpenStruct.new(application_uuid: 'UUID') }
     let(:form) do
-      Preneeds::BurialForm.new(params).tap do |f|
+      Preneeds::BurialForm.new(params[:application]).tap do |f|
         f.claimant = Preneeds::Claimant.new(
           email: 'foo@foo.com',
           name: Preneeds::FullName.new(

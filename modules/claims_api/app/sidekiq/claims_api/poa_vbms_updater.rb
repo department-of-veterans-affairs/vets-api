@@ -1,30 +1,27 @@
 # frozen_string_literal: true
 
 require 'bgs'
+require 'bgs_service/corporate_update_web_service'
 
 module ClaimsApi
   class PoaVBMSUpdater < ClaimsApi::ServiceBase
     def perform(power_of_attorney_id) # rubocop:disable Metrics/MethodLength
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
-      service = BGS::Services.new(
-        external_uid: poa_form.external_uid,
-        external_key: poa_form.external_key
-      )
+      @external_uid = poa_form.external_uid
+      @external_key = poa_form.external_key
       poa_code = extract_poa_code(poa_form.form_data)
 
       ClaimsApi::Logger.log(
         'poa_vbms_updater',
         poa_id: power_of_attorney_id,
         detail: 'Updating Access',
-        poa_code:
-      )
-      # allow_poa_c_add reports 'No Data' if sent lowercase
-      response = service.corporate_update.update_poa_access(
-        participant_id: poa_form.auth_headers['va_eauth_pid'],
         poa_code:,
-        allow_poa_access: 'y',
-        allow_poa_c_add: allow_address_change?(poa_form, power_of_attorney_id) ? 'Y' : 'N'
+        allow_poa_access: enable_vbms_access?(poa_form:),
+        allow_poa_c_add: allow_address_change?(poa_form)
       )
+
+      response = update_poa_access(poa_form:, participant_id: poa_form.auth_headers['va_eauth_pid'],
+                                   poa_code:)
 
       if response[:return_code] == 'GUIE50000'
         poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
@@ -48,10 +45,37 @@ module ClaimsApi
       ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BGS Error', error: e)
     end
 
-    def allow_address_change?(poa_form, power_of_attorney_id)
-      ClaimsApi::Logger.log('poa_vbms_updater', poa_id: power_of_attorney_id,
-                                                detail: 'consent to change address has changed')
+    def allow_address_change?(poa_form)
       poa_form.form_data['consentAddressChange']
+    end
+
+    def update_poa_access(poa_form:, participant_id:, poa_code:)
+      # allow_poa_c_add reports 'No Data' if sent lowercase
+      service = if Flipper.enabled? :claims_api_poa_vbms_updater_uses_local_bgs
+                  corporate_update_service
+                else
+                  bgs_ext_service.corporate_update
+                end
+      service.update_poa_access(
+        participant_id:,
+        poa_code:,
+        allow_poa_access: enable_vbms_access?(poa_form:) ? 'Y' : 'N',
+        allow_poa_c_add: allow_address_change?(poa_form) ? 'Y' : 'N'
+      )
+    end
+
+    def corporate_update_service
+      ClaimsApi::CorporateUpdateWebService.new(
+        external_uid: @external_uid,
+        external_key: @external_key
+      )
+    end
+
+    def bgs_ext_service
+      BGS::Services.new(
+        external_uid: @external_uid,
+        external_key: @external_key
+      )
     end
   end
 end

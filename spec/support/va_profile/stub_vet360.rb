@@ -1,26 +1,16 @@
 # frozen_string_literal: true
 
 require 'va_profile/contact_information/service'
-require 'va_profile/v2/contact_information/service'
 require 'va_profile/contact_information/person_response'
-require 'va_profile/v2/contact_information/person_response'
 require 'va_profile/models/address'
 require 'va_profile/models/telephone'
 require 'va_profile/models/permission'
 
 # rubocop:disable Metrics/MethodLength
 def stub_vet360(person = nil)
-  service = if Flipper.enabled?(:va_v3_contact_information_service)
-              VAProfile::V2::ContactInformation::Service
-            else
-              VAProfile::ContactInformation::Service
-            end
-
-  person_response = if Flipper.enabled?(:va_v3_contact_information_service)
-                      VAProfile::V2::ContactInformation::PersonResponse
-                    else
-                      VAProfile::ContactInformation::PersonResponse
-                    end
+  Flipper.disable(:va_v3_contact_information_service)
+  service = VAProfile::ContactInformation::Service
+  person_response = VAProfile::ContactInformation::PersonResponse
 
   person ||= build(
     :person,

@@ -2,7 +2,9 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
+RSpec.describe V0::Profile::DirectDepositsController, feature: :direct_deposit,
+                                                      team_owner: :vfs_authenticated_experience_backend,
+                                                      type: :controller do
   let(:user) { create(:user, :loa3, :accountable, icn: '1012666073V986297') }
 
   before do
@@ -10,7 +12,6 @@ RSpec.describe V0::Profile::DirectDepositsController, type: :controller do
     token = 'abcdefghijklmnop'
     allow_any_instance_of(DirectDeposit::Configuration).to receive(:access_token).and_return(token)
     allow(Rails.logger).to receive(:info)
-    Flipper.disable(:profile_show_direct_deposit_single_form)
   end
 
   describe '#show' do

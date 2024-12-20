@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 3.3.3'
+ruby '~> 3.3.6'
 
 # Modules
 path 'modules' do
@@ -11,11 +11,14 @@ path 'modules' do
   gem 'apps_api'
   gem 'ask_va_api'
   gem 'avs'
+  gem 'banners'
+  gem 'burials'
   gem 'check_in'
   gem 'claims_api'
   gem 'covid_research'
   gem 'covid_vaccine'
   gem 'debts_api'
+  gem 'decision_reviews'
   gem 'dhp_connected_devices'
   gem 'facilities_api'
   gem 'health_quest'
@@ -39,7 +42,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.1.3'
+gem 'rails', '~> 7.2.2'
 
 gem 'aasm'
 gem 'activerecord-import'
@@ -50,6 +53,7 @@ gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs', ref: '350e45ae69'
+gem 'blind_index'
 gem 'blueprinter'
 gem 'bootsnap', require: false
 gem 'breakers'
@@ -62,7 +66,7 @@ gem 'connect_vbms', git: 'https://github.com/adhocteam/connect_vbms', tag: 'v2.1
 gem 'csv'
 gem 'date_validator'
 gem 'ddtrace'
-gem 'dogstatsd-ruby', '5.6.1'
+gem 'dogstatsd-ruby', '5.6.3'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
@@ -137,6 +141,7 @@ gem 'rails-session_cookie'
 gem 'redis'
 gem 'redis-namespace'
 gem 'request_store'
+gem 'require_all'
 gem 'restforce'
 gem 'rgeo-geojson'
 gem 'roo'
@@ -179,7 +184,8 @@ group :development do
 end
 
 group :test do
-  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.0.0.vsp'
+  gem 'apivore', git: 'https://github.com/department-of-veterans-affairs/apivore', tag: 'v2.1.0.vsp'
+  gem 'committee-rails'
   gem 'mock_redis'
   gem 'pdf-inspector'
   gem 'rspec_junit_formatter'
@@ -201,6 +207,7 @@ group :development, :test do
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'danger'
   gem 'database_cleaner'
+  gem 'debug'
   gem 'factory_bot_rails'
   gem 'faker'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to

@@ -1,107 +1,50 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../../../support/authentication'
+require_relative '../../../rails_helper'
 
-RSpec.describe 'AccreditedRepresentativePortal::V0::PowerOfAttorneyRequests', type: :request do
-  let(:representative_user) { create(:representative_user) }
+RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
+  let(:test_user) { create(:representative_user) }
+  let(:poa_request_details_id) { '123' }
+  let(:poa_request_details_mock_data) do
+    {
+      'status' => 'Pending',
+      'declinedReason' => nil,
+      'powerOfAttorneyCode' => '091',
+      'submittedAt' => '2024-04-30T11:03:17Z',
+      'acceptedOrDeclinedAt' => nil,
+      'isAddressChangingAuthorized' => false,
+      'isTreatmentDisclosureAuthorized' => true,
+      'veteran' => { 'firstName' => 'Jon', 'middleName' => nil, 'lastName' => 'Smith',
+                     'participantId' => '6666666666666' },
+      'representative' => { 'email' => 'j2@example.com', 'firstName' => 'Jane', 'lastName' => 'Doe' },
+      'claimant' => { 'firstName' => 'Sam', 'lastName' => 'Smith', 'participantId' => '777777777777777',
+                      'relationshipToVeteran' => 'Child' },
+      'claimantAddress' => { 'city' => 'Hartford', 'state' => 'CT', 'zip' => '06107', 'country' => 'GU',
+                             'militaryPostOffice' => nil, 'militaryPostalCode' => nil }
+    }
+  end
+  let(:poa_request_list_mock_data) do
+    [poa_request_details_mock_data, poa_request_details_mock_data, poa_request_details_mock_data]
+  end
 
   before do
-    Flipper.disable(:accredited_representative_portal_pilot)
-    login_as(representative_user)
+    Flipper.enable(:accredited_representative_portal_pilot)
+    login_as(test_user)
   end
 
-  describe 'POST /accept' do
-    let(:id) { '123' }
-
-    it 'returns a successful response with an accepted message' do
-      Flipper.enable(:accredited_representative_portal_pilot, representative_user)
-      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{id}/accept"
+  describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
+    it 'returns the list of a power of attorney request' do
+      get('/accredited_representative_portal/v0/power_of_attorney_requests')
       expect(response).to have_http_status(:ok)
-      json = JSON.parse(response.body)
-      expect(json['message']).to eq('Accepted')
+      expect(JSON.parse(response.body)).to eq(poa_request_list_mock_data)
     end
   end
 
-  describe 'POST /decline' do
-    let(:id) { '123' }
-
-    it 'returns a successful response with a declined message' do
-      Flipper.enable(:accredited_representative_portal_pilot, representative_user)
-      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{id}/decline"
+  describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests/:id' do
+    it 'returns the details of a power of attorney request' do
+      get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request_details_id}")
       expect(response).to have_http_status(:ok)
-      json = JSON.parse(response.body)
-      expect(json['message']).to eq('Declined')
-    end
-  end
-
-  describe 'GET /index' do
-    context 'when valid POA codes are provided' do
-      it 'returns a successful response with matching POA requests' do
-        Flipper.enable(:accredited_representative_portal_pilot, representative_user)
-        get '/accredited_representative_portal/v0/power_of_attorney_requests', params: { poa_codes: '091,A1Q' }
-        expect(response).to have_http_status(:ok)
-        json = JSON.parse(response.body)
-        expect(json['records']).to be_an_instance_of(Array)
-        expect(json['records_count']).to eq(json['records'].size)
-      end
-    end
-
-    context 'when no POA codes are provided' do
-      it 'returns a bad request status with an error message' do
-        Flipper.enable(:accredited_representative_portal_pilot, representative_user)
-        get '/accredited_representative_portal/v0/power_of_attorney_requests'
-        expect(response).to have_http_status(:bad_request)
-        json = JSON.parse(response.body)
-        expect(json['error']).to eq('POA codes are required')
-      end
-    end
-
-    context 'when POA codes parameter is empty' do
-      it 'returns a bad request status with an error message' do
-        Flipper.enable(:accredited_representative_portal_pilot, representative_user)
-        get '/accredited_representative_portal/v0/power_of_attorney_requests', params: { poa_codes: '' }
-        expect(response).to have_http_status(:bad_request)
-        expect(JSON.parse(response.body)['error']).to eq('POA codes are required')
-      end
-    end
-
-    context 'when there are no records for the provided POA codes' do
-      it 'returns an empty records array and zero records count' do
-        Flipper.enable(:accredited_representative_portal_pilot, representative_user)
-        get '/accredited_representative_portal/v0/power_of_attorney_requests', params: { poa_codes: 'XYZ,ABC' }
-        expect(response).to have_http_status(:ok)
-        json = JSON.parse(response.body)
-        expect(json['records']).to be_an_instance_of(Array)
-        expect(json['records']).to be_empty
-        expect(json['records_count']).to eq(0)
-      end
-    end
-
-    context 'when pilot feature flag not enabled for the user' do
-      let(:id) { '123' }
-      let(:representative_user) { create(:representative_user) }
-      let(:non_enabled_representative_user) { create(:representative_user) }
-
-      before do
-        Flipper.enable(:accredited_representative_portal_pilot, representative_user)
-        login_as(non_enabled_representative_user)
-      end
-
-      it 'returns a forbidden status for POST /accept' do
-        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{id}/accept"
-        expect(response).to have_http_status(:forbidden)
-      end
-
-      it 'returns a forbidden status for POST /decline' do
-        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{id}/decline"
-        expect(response).to have_http_status(:forbidden)
-      end
-
-      it 'returns a forbidden status for GET POA codes' do
-        get '/accredited_representative_portal/v0/power_of_attorney_requests', params: { poa_codes: 'XYZ,ABC' }
-        expect(response).to have_http_status(:forbidden)
-      end
+      expect(JSON.parse(response.body)).to include(poa_request_details_mock_data)
     end
   end
 end

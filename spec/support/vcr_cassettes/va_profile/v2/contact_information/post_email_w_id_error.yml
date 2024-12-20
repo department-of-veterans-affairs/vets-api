@@ -2,19 +2,21 @@
 http_interactions:
 - request:
     method: post
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/emails
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/emails
     body:
       encoding: UTF-8
-      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":42,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2018-04-09T11:52:03.000-06:00","vet360Id":"1","effectiveStartDate":null,"effectiveEndDate":null}}'
+      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":42,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-08-27T18:51:06.012Z","effectiveStartDate":null,"effectiveEndDate":null}}'
     headers:
+      User-Agent:
+      - Vets.gov Agent
       Accept:
       - application/json
       Content-Type:
       - application/json
-      User-Agent:
-      - Vets.gov Agent
       Cufsystemname:
       - VETSGOV
+      Accept:
+      - application/json
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -22,33 +24,42 @@ http_interactions:
       code: 400
       message: ''
     headers:
-      Date:
-      - Fri, 10 Jan 2020 20:54:36 GMT
-      Expires:
-      - '0'
-      Vet360txauditid:
-      - cdb846ad-f3e7-46e4-b03a-43537ab1cee0
-      X-Frame-Options:
-      - DENY
-      Pragma:
-      - no-cache
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1095093543", dtSInfo;desc="0"
+      - dtRpid;desc="2025554968", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - f163ae96-593c-478f-9376-ef4fabf29ba0
       X-Content-Type-Options:
       - nosniff
-      - nosniff
       X-Xss-Protection:
-      - 1; mode=block
+      - '0'
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 12 Sep 2024 22:26:38 GMT
+      Referrer-Policy:
+      - no-referrer
       Content-Type:
-      - application/json;charset=UTF-8
-      Content-Length:
-      - '167'
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"messages":[{"code":"EMAIL200","key":"emailId.Null","severity":"ERROR","text":"must
-        be null"}],"txAuditId":"5604e15d-4d86-4e96-9ef1-4251ea469376","status":"REJECTED"}'
-    http_version:
-  recorded_at: Fri, 10 Jan 2020 20:54:36 GMT
-recorded_with: VCR 5.0.0
+      string: '{"messages":[{"code":"EMAIL200","key":"emailId.Null","text":"must be
+        null","severity":"ERROR"}],"txAuditId":"58496b2b-7319-49bd-b46a-57772bb74fa5","status":"REJECTED"}'
+  recorded_at: Thu, 12 Sep 2024 22:26:38 GMT
+recorded_with: VCR 6.3.1

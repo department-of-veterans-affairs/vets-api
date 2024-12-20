@@ -73,6 +73,33 @@ RSpec.describe 'Mobile::V0::PaymentInformation::Benefits', type: :request do
       end
     end
 
+    context 'when response body is missing control_information or payment_account' do
+      it 'returns not found' do
+        # stubbing instead of creating a new cassette because this is not a real use case supported by
+        # the lighthouse api. We've talked to lighthouse about it and hope they'll fix it in the future.
+        allow_any_instance_of(Lighthouse::DirectDeposit::Response).to receive(:control_information).and_return(nil)
+        allow_any_instance_of(Lighthouse::DirectDeposit::Response).to receive(:payment_account).and_return(nil)
+
+        VCR.use_cassette('lighthouse/direct_deposit/show/200_valid') do
+          get '/mobile/v0/payment-information/benefits', headers: sis_headers
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(response.parsed_body).to eq(
+            {
+              'errors' => [
+                {
+                  'title' => 'Unprocessable Entity',
+                  'detail' => "Control information missing for user #{user.uuid}. \
+Payment account info missing for user #{user.uuid}",
+                  'code' => '422',
+                  'status' => '422'
+                }
+              ]
+            }
+          )
+        end
+      end
+    end
+
     context 'with a 500 server error type' do
       it 'returns a service error response' do
         VCR.use_cassette('lighthouse/direct_deposit/show/errors/400_unspecified_error') do
@@ -177,7 +204,6 @@ RSpec.describe 'Mobile::V0::PaymentInformation::Benefits', type: :request do
 
     context 'with a valid response' do
       it 'matches the ppiu schema' do
-        allow(DirectDepositEmailJob).to receive(:send_to_emails)
         VCR.use_cassette('lighthouse/direct_deposit/update/200_valid') do
           put '/mobile/v0/payment-information/benefits', params: payment_info_request,
                                                          headers: sis_headers(json: true)

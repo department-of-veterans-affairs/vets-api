@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe MebApi::V0::FormsController, type: :request do
+Rspec.describe 'MebApi::V0 Forms', type: :request do
   include SchemaMatchers
   include ActiveSupport::Testing::TimeHelpers
 
@@ -63,6 +63,14 @@ RSpec.describe MebApi::V0::FormsController, type: :request do
       it 'returns a 200 status with toe claimant info' do
         VCR.use_cassette('dgi/post_toe_claimant_info') do
           get '/meb_api/v0/forms_claimant_info'
+          expect(response).to have_http_status(:ok)
+          expect(response).to match_response_schema('dgi/toe_claimant_info_response', { strict: false })
+        end
+      end
+
+      it 'returns a claimant info 200 status with type as a parameter' do
+        VCR.use_cassette('dgi/post_chapter35_claimant_info') do
+          get '/meb_api/v0/forms_claimant_info', params: { type: 'chapter35' }
           expect(response).to have_http_status(:ok)
           expect(response).to match_response_schema('dgi/toe_claimant_info_response', { strict: false })
         end

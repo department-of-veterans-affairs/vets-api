@@ -9,6 +9,7 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
   include AppealsApi::MPIVeteran
   include AppealsApi::Schemas
   include AppealsApi::PdfDownloads
+  include AppealsApi::GatewayOriginCheck
 
   skip_before_action :authenticate
   before_action :validate_icn_header, only: %i[index download]
@@ -44,7 +45,12 @@ class AppealsApi::V2::DecisionReviews::SupplementalClaimsController < AppealsApi
 
     sc.save
 
-    AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', 'v3')
+    if Flipper.enabled?(:decision_review_sc_form_v4_enabled)
+      AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', 'v4')
+    else
+      AppealsApi::PdfSubmitJob.perform_async(sc.id, 'AppealsApi::SupplementalClaim', 'v3')
+    end
+
     AppealsApi::AddIcnUpdater.perform_async(sc.id, 'AppealsApi::SupplementalClaim') if sc.veteran_icn.blank?
 
     render json: AppealsApi::SupplementalClaimSerializer.new(sc).serializable_hash

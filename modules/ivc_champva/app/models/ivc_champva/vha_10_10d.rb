@@ -107,13 +107,18 @@ module IvcChampva
     def applicant_stamps
       stamps = []
       applicants = @data.fetch('applicants', [])
+
       applicants.each_with_index do |applicant, index|
         next if index.zero?
 
         coords_y = 470 - (116 * index)
         applicant_country = applicant.dig('applicant_address', 'country')
-        stamps << { coords: [520, coords_y], text: applicant_country, page: 0 } if applicant_country
+
+        if applicant_country && stamps.count { |stamp| stamp[:text] == applicant_country } < 2
+          stamps << { coords: [520, coords_y], text: applicant_country, page: 0 }
+        end
       end
+
       stamps
     end
   end

@@ -65,6 +65,7 @@ module AccreditedRepresentativePortal
 
       user = RepresentativeUser.new
       user.uuid = access_token.user_uuid
+      user.user_account_uuid = session.user_account.id
       user.icn = session.user_account.icn
       user.email = session.credential_email
       user.first_name = session.user_attributes_hash['first_name']

@@ -6,10 +6,10 @@ module AskVAApi
     class AttachmentsRetrieverError < StandardError; end
 
     class Retriever < BaseRetriever
-      attr_reader :id, :service, :user_mock_data, :entity_class
+      attr_reader :id, :service
 
-      def initialize(id:, entity_class:, user_mock_data: nil, service: nil)
-        super(user_mock_data:, entity_class:)
+      def initialize(id:, service: nil, **args)
+        super(**args)
         @id = id
         @service = service || default_service
       end

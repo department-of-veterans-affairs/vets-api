@@ -1,5 +1,9 @@
 <%= parse_with_template_path('header_1995') %>
+<% if @applicant.benefitAppliedFor -%>
 <%= @applicant.benefitAppliedFor&.titleize %>
+<% else -%>
+<%= form_benefit %>
+<% end -%>
 *START*
 VA Form 22-1995
 OMB Control #: 2900-0074

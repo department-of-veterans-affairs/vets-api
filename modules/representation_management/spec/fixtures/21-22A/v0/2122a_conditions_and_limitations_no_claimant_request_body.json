@@ -1,0 +1,46 @@
+{
+  "record_consent": true,
+  "consent_address_change": true,
+  "consent_limits": [
+    "ALCOHOLISM",
+    "DRUG_ABUSE"
+  ],
+  "consent_inside_access": true,
+  "consent_outside_access": true,
+  "consent_team_members": [
+    "Jane M Representative",
+    "John M Representative",
+    "Jane M Doe",
+    "John M Doe",
+    "Bobbie M Law",
+    "Bob M Law",
+    "Alice M Aster",
+    "Arthur M Aster"
+  ],
+  "veteran": {
+    "ssn": "123456789",
+    "va_file_number": "123456789",
+    "date_of_birth": "1980-12-31",
+    "service_number": "123456789",
+    "service_branch": "USPHS",
+    "phone": "5555555555",
+    "email": "veteran@example.com",
+    "name": {
+      "first": "John",
+      "middle": "M",
+      "last": "Veteran"
+    },
+    "address": {
+      "address_line1": "123 Fake Veteran St",
+      "address_line2": "",
+      "city": "Portland",
+      "state_code": "OR",
+      "country": "US",
+      "zip_code": "12345",
+      "zip_code_suffix": "6789"
+    }
+  },
+  "representative": {
+		"id": "bd22d501-b3df-4a52-9229-5c25b4d2036a"
+	}
+}

@@ -3,21 +3,35 @@
 require 'json'
 
 module SimpleFormsApi
-  class VBA4010007
-    include Virtus.model(nullify_blank: true)
+  class VBA4010007 < BaseForm
     STATS_KEY = 'api.simple_forms_api.40_10007'
 
-    attribute :data
+    def not_veteran?(form_data)
+      relationship = form_data.dig('application', 'claimant', 'relationship_to_vet')
+      relationship != '1' && relationship != 'veteran'
+    end
 
-    def initialize(data)
-      @data = data
+    def dig_data(form_data, field_veteran, field_claimant)
+      not_veteran?(form_data) ? form_data.dig(*field_veteran) : form_data.dig(*field_claimant)
+    end
+
+    def veteran_or_claimant_first_name(form_data)
+      dig_data(form_data, %w[application veteran current_name first], %w[application claimant name first])
+    end
+
+    def veteran_or_claimant_last_name(form_data)
+      dig_data(form_data, %w[application veteran current_name last], %w[application claimant name last])
+    end
+
+    def veteran_or_claimant_file_number(form_data)
+      dig_data(form_data, %w[application veteran ssn], %w[application claimant ssn]) || ''
     end
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('application', 'claimant', 'name', 'first'),
-        'veteranLastName' => @data.dig('application', 'claimant', 'name', 'last'),
-        'fileNumber' => @data.dig('application', 'claimant', 'ssn')&.gsub('-', ''),
+        'veteranFirstName' => veteran_or_claimant_first_name(@data),
+        'veteranLastName' => veteran_or_claimant_last_name(@data),
+        'fileNumber' => veteran_or_claimant_file_number(@data)&.gsub('-', ''),
         'zipCode' => @data.dig('application', 'claimant', 'address', 'postal_code'),
         'source' => 'VA Platform Digital Forms',
         'docType' => @data['form_number'],
@@ -61,7 +75,7 @@ module SimpleFormsApi
     end
 
     def words_to_remove
-      race_and_privacy + veteran_ssn_and_file_number + veteran_dates_of_birth_and_death + postal_code +
+      veteran_ssn_and_file_number + veteran_dates_of_birth_and_death + postal_code +
         phone_number + email
     end
 
@@ -252,40 +266,57 @@ module SimpleFormsApi
       # rubocop:enable Layout/LineLength
 
       Prawn::Document.generate(file_path) do |pdf|
-        pdf.text '40-10007 Overflow Data', align: :center, size: 20
-        pdf.move_down 20
+        pdf.text '40-10007 Overflow Data', align: :center, size: 15
+        pdf.move_down 10
         pdf.text 'The following pages contain data related to the application.', align: :center
-        pdf.move_down 20
+        pdf.move_down 10
 
         if @data['version']
-          pdf.text "Question 7a Veteran/Servicemember Sex: #{veteran_sex}", size: 8
+          pdf.text 'Question 7a Veteran/Servicemember Sex'
+          pdf.text "Veteran/Servicemember Sex: #{veteran_sex}", size: 8
           pdf.move_down 10
-          pdf.text "Question 8 Ethnicity: #{ethnicity}", size: 8
+
+          pdf.text 'Question 8 Ethnicity'
+          pdf.text "Ethnicity: #{ethnicity}", size: 8
           pdf.move_down 10
-          pdf.text "Question 8 Race: #{race}", size: 8
+
+          pdf.text 'Question 8 Race'
+          pdf.text "Race: #{race}", size: 8
           pdf.move_down 10
-          pdf.text "Question 8 Race Comment: #{race_comment}", size: 8
+
+          pdf.text 'Question 8 Race Comment'
+          pdf.text "Comment: #{race_comment}", size: 8
           pdf.move_down 10
-          pdf.text "Question 10 Veteran/Servicemember Place of Birth (City): #{city_of_birth}", size: 8
+
+          pdf.text 'Question 10 Veteran/Servicemember Place of Birth (City)'
+          pdf.text "Place of Birth (City): #{city_of_birth}", size: 8
           pdf.move_down 10
-          pdf.text "Question 10 Veteran/Servicemember Place of Birth (State): #{state_of_birth}", size: 8
+
+          pdf.text 'Question 10 Veteran/Servicemember Place of Birth (State)'
+          pdf.text "Place of Birth (State): #{state_of_birth}", size: 8
           pdf.move_down 10
-          pdf.text "Question 14 Military Status Used to Apply for Eligibility: #{military_status_label}", size: 8
+
+          pdf.text 'Question 14 Military Status Used to Apply for Eligibility'
+          pdf.text "Military Status: #{military_status_label}", size: 8
         else
           pdf.text 'Question 10 Place of Birth'
           pdf.text "Place of Birth: #{place_of_birth}", size: 8
         end
+
         pdf.move_down 10
+
         if @data['version']
           %w[a b c].each do |letter|
-            service_branch = binding.local_variable_get("service_branch_value_#{letter}")
-            discharge_type = binding.local_variable_get("discharge_type_#{letter}")
-            highest_rank = binding.local_variable_get("highest_rank_int_#{letter}")
-            pdf.text "Question 15 Branch of Service #{letter.upcase}: #{service_branch}", size: 8
+            pdf.text "Question 15 Branch of Service #{letter.upcase}"
+            pdf.text "Branch of Service: #{binding.local_variable_get("service_branch_value_#{letter}")}", size: 8
             pdf.move_down 10
-            pdf.text "Question 18 Discharge - Character of Service #{letter.upcase}: #{discharge_type}", size: 8
+
+            pdf.text "Question 18 Discharge - Character of Service #{letter.upcase}"
+            pdf.text "Discharge Type: #{binding.local_variable_get("discharge_type_#{letter}")}", size: 8
             pdf.move_down 10
-            pdf.text "Question 19 Highest Rank Attained #{letter.upcase}: #{highest_rank}", size: 8
+
+            pdf.text "Question 19 Highest Rank Attained #{letter.upcase}"
+            pdf.text "Highest Rank: #{binding.local_variable_get("highest_rank_int_#{letter}")}", size: 8
             pdf.move_down 10
           end
         else
@@ -293,41 +324,54 @@ module SimpleFormsApi
             pdf.text "Question 15 Branch of Service Line #{i + 1}"
             pdf.text "Branch of Service: #{binding.local_variable_get("service_branch_value_#{letter}")}", size: 8
             pdf.move_down 10
+
             pdf.text "Question 18 Discharge - Character of Service Line #{i + 1}"
             pdf.text "Character of Service: #{binding.local_variable_get("discharge_type_#{letter}")}", size: 8
             pdf.move_down 10
+
             pdf.text "Question 19 Highest Rank Attained Line #{i + 1}"
-            pdf.text "Highest Rank Attained: #{binding.local_variable_get("highest_rank_#{letter}")}", size: 8
+            pdf.text "Highest Rank: #{binding.local_variable_get("highest_rank_#{letter}")}", size: 8
             pdf.move_down 10
           end
         end
 
         if @data['version']
-          pdf.text "Question 24 Claimant Relationship to Servicemember or Veteran: #{relationship_to_veteran}", size: 8
+          pdf.text 'Question 24 Claimant Relationship to Servicemember or Veteran'
+          pdf.text "Claimant Relationship: #{relationship_to_veteran}", size: 8
           pdf.move_down 10
-          pdf.text "Sponsor Veteran/Servicemember Contact Details Email Address: #{sponsor_veteran_email}", size: 8
+
+          pdf.text 'Sponsor Veteran/Servicemember Contact Details Email Address'
+          pdf.text "Email Address: #{sponsor_veteran_email}", size: 8
           pdf.move_down 10
-          pdf.text "Sponsor Veteran/Servicemember Contact Details Phone Number: #{sponsor_veteran_phone}", size: 8
+
+          pdf.text 'Sponsor Veteran/Servicemember Contact Details Phone Number'
+          pdf.text "Phone Number: #{sponsor_veteran_phone}", size: 8
           pdf.move_down 10
-          pdf.text "Sponsor Veteran/Servicemember Maiden Name: #{sponsor_veteran_maiden}", size: 8
+
+          pdf.text 'Sponsor Veteran/Servicemember Maiden Name'
+          pdf.text "Maiden Name: #{sponsor_veteran_maiden}", size: 8
           pdf.move_down 10
         end
       end
     end
 
-    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
     def handle_attachments(file_path)
       attachments = get_attachments
-      combined_pdf = CombinePDF.new
-      combined_pdf << CombinePDF.load(file_path)
 
+      merged_pdf = HexaPDF::Document.open(file_path)
       attachment_page_path = 'attachment_page.pdf'
       create_attachment_page(attachment_page_path)
-      combined_pdf << CombinePDF.load(attachment_page_path)
+      attachment_pdf = HexaPDF::Document.open(attachment_page_path)
+      attachment_pdf.pages.each do |page|
+        merged_pdf.pages << merged_pdf.import(page)
+      end
 
       if attachments.count.positive?
         attachments.each do |attachment|
-          combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
+          attachment_pdf = HexaPDF::Document.open(attachment)
+          attachment_pdf.pages.each do |page|
+            merged_pdf.pages << merged_pdf.import(page)
+          end
         rescue => e
           Rails.logger.error(
             'Simple forms api - failed to load attachment for 40-10007',
@@ -336,10 +380,11 @@ module SimpleFormsApi
           raise
         end
       end
-      combined_pdf.save file_path
 
+      merged_pdf.write(file_path, optimize: true)
       FileUtils.rm_f(attachment_page_path)
     end
+    # rubocop:enable Metrics/MethodLength, Metrics/AbcSize
 
     def track_user_identity(confirmation_number)
       identity = get_relationship_to_vet(@data.dig('application', 'claimant', 'relationship_to_vet'))
@@ -356,19 +401,6 @@ module SimpleFormsApi
     end
 
     private
-
-    def race_and_privacy
-      [
-        @data.dig('application', 'veteran', 'race', 'is_american_indian_or_alaskan_native'),
-        @data.dig('application', 'veteran', 'race', 'is_asian'),
-        @data.dig('application', 'veteran', 'race', 'is_black_or_african_american'),
-        @data.dig('application', 'veteran', 'race', 'is_spanish_hispanic_latino'),
-        @data.dig('application', 'veteran', 'race', 'not_spanish_hispanic_latino'),
-        @data.dig('application', 'veteran', 'race', 'is_native_hawaiian_or_other_pacific_islander'),
-        @data.dig('application', 'veteran', 'race', 'is_white'),
-        @data.dig('application', 'privacy_agreement_accepted')
-      ]
-    end
 
     def veteran_ssn_and_file_number
       [

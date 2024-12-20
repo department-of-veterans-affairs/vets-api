@@ -12,7 +12,7 @@ module TravelClaim
   # @!attribute [r] redis_client
   #   @return [RedisClient]
   class Service
-    attr_reader :check_in, :appointment_date, :client, :redis_client, :response
+    attr_reader :check_in, :appointment_date, :redis_client, :response, :facility_type, :settings
 
     ##
     # Builds a Service instance
@@ -27,9 +27,10 @@ module TravelClaim
     end
 
     def initialize(opts = {})
+      @settings = Settings.check_in.travel_reimbursement_api_v2
       @check_in = opts[:check_in]
       @appointment_date = opts.dig(:params, :appointment_date)
-      @client = Client.build(check_in:)
+      @facility_type = opts.dig(:params, :facility_type) || ''
       @redis_client = RedisClient.build
       @response = Response
     end
@@ -48,7 +49,7 @@ module TravelClaim
 
         resp = client.token
 
-        Oj.load(resp.body)&.fetch('access_token').tap do |access_token|
+        Oj.safe_load(resp.body)&.fetch('access_token').tap do |access_token|
           redis_client.save_token(token: access_token)
         end
       end
@@ -85,6 +86,11 @@ module TravelClaim
     end
 
     private
+
+    def client
+      client_number = facility_type.downcase == 'oh' ? settings.client_number_oh : settings.client_number
+      @client ||= Client.build(check_in:, client_number:)
+    end
 
     def patient_icn
       redis_client.icn(uuid: check_in.uuid)

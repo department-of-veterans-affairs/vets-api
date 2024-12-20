@@ -2,54 +2,58 @@
 http_interactions:
 - request:
     method: get
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/6767671
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/6767671%5EPN%5E200VIDM%5EUSDVA
     body:
       encoding: US-ASCII
       string: ''
     headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
       User-Agent:
-      - Vets.gov Agent
-      Cufsystemname:
-      - VETSGOV
+      - Faraday v2.8.1
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
   response:
     status:
       code: 400
       message: ''
     headers:
-      Date:
-      - Fri, 10 Jan 2020 20:54:30 GMT
-      Expires:
-      - '0'
-      Vet360txauditid:
-      - f6cc9ff0-f060-4b03-89a6-a8a94eb3f056
-      X-Frame-Options:
-      - DENY
-      Pragma:
-      - no-cache
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1255010618", dtSInfo;desc="0"
+      - dtRpid;desc="-1860739622", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - f5cb7d8b-a99a-485b-9fbd-4c916b4dde66
       X-Content-Type-Options:
       - nosniff
-      - nosniff
       X-Xss-Protection:
-      - 1; mode=block
+      - '0'
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Tue, 27 Aug 2024 18:39:27 GMT
+      Referrer-Policy:
+      - no-referrer
       Content-Type:
-      - application/json;charset=UTF-8
-      Content-Length:
-      - '563'
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","severity":"ERROR","text":"The
-        ContactInformationBio for id/criteria mdm.cuf.contact.information.bio.ContactInformationBio@561d7b7c[vet360Id=6767671,addresses=[],telephones=[],emails=[],permissions=[],changed=<null>,createDate=<null>,updateDate=<null>,txAuditId=<null>,sourceSystem=<null>,sourceDate=<null>,originatingSourceSystem=<null>,sourceSystemUser=<null>]
-        could not be found. Please correct your request and try again!"}],"txAuditId":"4bdd2ae2-1559-4f7f-abc0-a615cae27cde","status":"COMPLETED_FAILURE"}'
-    http_version:
-  recorded_at: Fri, 10 Jan 2020 20:54:31 GMT
-recorded_with: VCR 5.0.0
+      string: '{"messages":[{"code":"MVI201","key":"MviNotFound","text":"The person
+        with the identifier requested was not found in MVI.","severity":"ERROR","potentiallySelfCorrectingOnRetry":false}],"txAuditId":"f5cb7d8b-a99a-485b-9fbd-4c916b4dde66","status":"COMPLETED_FAILURE"}'
+  recorded_at: Tue, 27 Aug 2024 18:39:28 GMT
+recorded_with: VCR 6.3.1

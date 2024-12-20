@@ -3,80 +3,53 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
-      before_action :verify_pilot_enabled_for_user
+      POA_REQUEST_ITEM_MOCK_DATA = {
+        status: 'Pending',
+        declinedReason: nil,
+        powerOfAttorneyCode: '091',
+        submittedAt: '2024-04-30T11:03:17Z',
+        acceptedOrDeclinedAt: nil,
+        isAddressChangingAuthorized: false,
+        isTreatmentDisclosureAuthorized: true,
+        veteran: {
+          firstName: 'Jon',
+          middleName: nil,
+          lastName: 'Smith',
+          participantId: '6666666666666'
+        },
+        representative: {
+          email: 'j2@example.com',
+          firstName: 'Jane',
+          lastName: 'Doe'
+        },
+        claimant: {
+          firstName: 'Sam',
+          lastName: 'Smith',
+          participantId: '777777777777777',
+          relationshipToVeteran: 'Child'
+        },
+        claimantAddress: {
+          city: 'Hartford',
+          state: 'CT',
+          zip: '06107',
+          country: 'GU',
+          militaryPostOffice: nil,
+          militaryPostalCode: nil
+        }
+      }.freeze
 
-      def accept
-        id = params[:id]
-        result = update_poa_request(id, 'Accepted')
-
-        if result[:success]
-          render json: { message: 'Accepted' }, status: :ok
-        else
-          render json: { error: result[:error] }, status: :unprocessable_entity
-        end
-      end
-
-      def decline
-        id = params[:id]
-        result = update_poa_request(id, 'Declined')
-
-        if result[:success]
-          render json: { message: 'Declined' }, status: :ok
-        else
-          render json: { error: result[:error] }, status: :unprocessable_entity
-        end
-      end
+      POA_REQUEST_LIST_MOCK_DATA = [
+        POA_REQUEST_ITEM_MOCK_DATA,
+        POA_REQUEST_ITEM_MOCK_DATA,
+        POA_REQUEST_ITEM_MOCK_DATA
+      ].freeze
 
       def index
-        poa_codes = permitted_params[:poa_codes]&.split(',') || []
-
-        return render json: { error: 'POA codes are required' }, status: :bad_request if poa_codes.blank?
-
-        poa_requests = AccreditedRepresentativePortal::Services::FetchPoaRequests.new(poa_codes).call
-
-        render json: { records: poa_requests['records'], records_count: poa_requests['meta']['totalRecords'].to_i },
-               status: :ok
+        render json: POA_REQUEST_LIST_MOCK_DATA
       end
 
-      private
-
-      def permitted_params
-        params.permit(:poa_codes)
-      end
-
-      # TODO: This class is slated for update to use the Lighthouse API once the appropriate endpoint
-      # is available. For more information on the transition plan, refer to:
-      # https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/80195
-      def update_poa_request(id, action)
-        # TODO: Update the below to use the RepresentativeUser's profile data
-        # representative = {
-        #   first_name: 'John',
-        #   last_name: 'Doe'
-        # }
-
-        # Simulating the interaction with an external service to update POA.
-        # In real implementation, this method will make an actual API call.
-        # service_response = ClaimsApi::ManageRepresentativeService.new.update_poa_request(
-        #   representative:,
-        #   id:
-        # )
-
-        if %w[Accepted Declined].include?(action)
-          {
-            success: true,
-            response: {
-              id:,
-              action:,
-              responseStatus: 'updated',
-              acceptedOrDeclinedAt: Time.current.iso8601,
-              status: action == 'Accepted' ? 'obsolete' : 'cancelled'
-            }
-          }
-        else
-          { success: false, error: 'Invalid action' }
-        end
-      rescue => e
-        { success: false, error: e.message }
+      def show
+        render json: POA_REQUEST_ITEM_MOCK_DATA
       end
     end
   end

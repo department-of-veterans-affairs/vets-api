@@ -5,13 +5,9 @@ require 'common/client/errors'
 
 RSpec.describe 'Mobile::V1::User', type: :request do
   include JsonSchemaMatchers
-
+  Flipper.disable(:va_v3_contact_information_service)
   let(:contact_information_service) do
-    if Flipper.enabled?(:va_v3_contact_information_service)
-      VAProfile::V2::ContactInformation::Service
-    else
-      VAProfile::ContactInformation::Service
-    end
+    VAProfile::ContactInformation::Service
   end
 
   describe 'GET /mobile/v1/user' do
@@ -27,10 +23,6 @@ RSpec.describe 'Mobile::V1::User', type: :request do
         vha_facility_ids: %w[757 358 999]
       )
     end
-
-    before { Flipper.enable_actor(:mobile_v1_lighthouse_facilities, user) }
-
-    after { Flipper.disable(:mobile_v1_lighthouse_facilities) }
 
     context 'with no upstream errors' do
       before do

@@ -77,14 +77,43 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
         gids_response = build(:gids_response)
         allow_any_instance_of(::GI::Client).to receive(:get_institution_details_v0)
           .and_return(gids_response)
-
-        allow_any_instance_of(ActionMailer::MessageDelivery).to receive(:deliver_now)
       end
 
       it 'sco email sent is true' do
         subject.perform(claim.id, true, '1')
         db_claim = SavedClaim::EducationBenefits::VA10203.find(claim.id)
         expect(db_claim.parsed_form['scoEmailSent']).to eq(true)
+      end
+
+      it 'sends the SCO and applicant emails with correct contents' do
+        # Clear any previous deliveries
+        ActionMailer::Base.deliveries.clear
+
+        # Perform the action that triggers email sending
+        subject.perform(claim.id, true, '1')
+
+        # Fetch the updated claim
+        db_claim = SavedClaim::EducationBenefits::VA10203.find(claim.id)
+
+        # Verify that scoEmailSent is true
+        expect(db_claim.parsed_form['scoEmailSent']).to eq(true)
+
+        # Verify that two emails were sent
+        expect(ActionMailer::Base.deliveries.count).to eq(2)
+
+        # Find the SCO email
+        sco_email = ActionMailer::Base.deliveries.find do |email|
+          email.to.include?('user@school.edu')
+        end
+        expect(sco_email).not_to be_nil
+
+        # Verify the SCO email contents
+        expect(sco_email.subject).to eq('Applicant for VA Rogers STEM Scholarship')
+        expect(sco_email.from).to include('stage.va-notifications@public.govdelivery.com')
+        expect(sco_email.body.encoded).to include('<p>Dear VA School Certifying Official,</p>')
+
+        # Add a line to download the contents of the email to a file
+        File.write('tmp/sco_email_body.html', sco_email.body)
       end
     end
   end

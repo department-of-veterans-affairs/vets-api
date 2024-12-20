@@ -2,19 +2,19 @@
 http_interactions:
 - request:
     method: put
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/emails
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/emails
     body:
       encoding: UTF-8
-      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":42,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2018-06-06T15:35:55.000Z","vet360Id":"1","effectiveStartDate":"2018-06-06T15:35:55.000Z","effectiveEndDate":null}}'
+      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":8087,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-08-27T18:51:06.012Z","effectiveStartDate":null}}'
     headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
       User-Agent:
       - Vets.gov Agent
+      Content-Type:
+      - application/json
       Cufsystemname:
       - VETSGOV
+      Accept:
+      - application/json
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -22,29 +22,41 @@ http_interactions:
       code: 200
       message: ''
     headers:
-      Date:
-      - Wed, 25 Apr 2018 18:16:06 GMT
-      Expires:
-      - '0'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="1348458096", dtSInfo;desc="0"
+      - dtRpid;desc="695068944", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 65297739-b3d2-4896-82e6-837710e7699c
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
-      - 1; mode=block
-      X-Frame-Options:
-      - DENY
+      - '0'
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
       Pragma:
       - no-cache
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Tue, 10 Sep 2024 15:46:08 GMT
+      Referrer-Policy:
+      - no-referrer
       Content-Type:
-      - application/json;charset=UTF-8
+      - application/json
       Transfer-Encoding:
       - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"0b6344e3-3348-419c-bad9-c1a634e3d621","status":"RECEIVED"}'
-    http_version:
-  recorded_at: Wed, 25 Apr 2018 18:16:06 GMT
-recorded_with: VCR 3.0.3
+      string: '{"txAuditId":"c44c13b3-2822-4fb1-b25f-46696fc7222c","status":"RECEIVED"}'
+  recorded_at: Tue, 10 Sep 2024 15:46:08 GMT
+recorded_with: VCR 6.3.1

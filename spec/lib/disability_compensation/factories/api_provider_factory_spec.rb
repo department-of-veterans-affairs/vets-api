@@ -247,6 +247,8 @@ RSpec.describe ApiProviderFactory do
 
   context 'upload supplemental document' do
     let(:submission) { create(:form526_submission) }
+    # BDD Document Type
+    let(:va_document_type) { 'L023' }
 
     def provider(api_provider = nil)
       ApiProviderFactory.call(
@@ -254,10 +256,11 @@ RSpec.describe ApiProviderFactory do
         provider: api_provider,
         options: {
           form526_submission: submission,
-          file_body: ''
+          document_type: va_document_type,
+          statsd_metric_prefix: 'my_stats_metric_prefix'
         },
         current_user:,
-        feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT
+        feature_toggle: nil
       )
     end
 
@@ -269,18 +272,33 @@ RSpec.describe ApiProviderFactory do
       expect(provider(:lighthouse).class).to equal(LighthouseSupplementalDocumentUploadProvider)
     end
 
-    it 'provides upload_supplemental_document provider based on Flipper' do
-      Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT)
-      expect(provider.class).to equal(LighthouseSupplementalDocumentUploadProvider)
-
-      Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT)
-      expect(provider.class).to equal(EVSSSupplementalDocumentUploadProvider)
-    end
-
     it 'throw error if provider unknown' do
       expect do
         provider(:random)
       end.to raise_error NotImplementedError
+    end
+
+    context 'for 0781 uploads' do
+      def provider
+        ApiProviderFactory.call(
+          type: ApiProviderFactory::FACTORIES[:supplemental_document_upload],
+          options: {
+            form526_submission: submission,
+            document_type: 'L228', # 0781 VA Doc Type
+            statsd_metric_prefix: 'my_stats_metric_prefix_0781'
+          },
+          current_user:,
+          feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781
+        )
+      end
+
+      it 'provides a SupplementalDocumentUploadProvider based on a Flipper' do
+        Flipper.enable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781)
+        expect(provider.class).to equal(LighthouseSupplementalDocumentUploadProvider)
+
+        Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_UPLOAD_0781)
+        expect(provider.class).to equal(EVSSSupplementalDocumentUploadProvider)
+      end
     end
   end
 end

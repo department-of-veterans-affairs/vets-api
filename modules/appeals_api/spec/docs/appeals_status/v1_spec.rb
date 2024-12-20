@@ -104,6 +104,16 @@ describe 'Appeals Status', openapi_spec:, type: :request do
                         scopes: %w[veteran/AppealsStatus.read]
       end
 
+      response '404', 'Not Found' do
+        schema '$ref' => '#/components/schemas/errorModel'
+
+        it_behaves_like 'rswag example',
+                        desc: 'Not Found',
+                        extract_desc: true,
+                        cassette: %w[caseflow/not_found mpi/find_candidate/valid],
+                        scopes: %w[veteran/AppealsStatus.read]
+      end
+
       response '422', "Invalid 'icn' parameter" do
         schema '$ref' => '#/components/schemas/errorModel'
         let(:scopes) { %w[representative/AppealsStatus.read] }

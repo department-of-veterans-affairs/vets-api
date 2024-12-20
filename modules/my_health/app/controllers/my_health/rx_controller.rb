@@ -12,7 +12,10 @@ module MyHealth
     protected
 
     def client
-      @client ||= Rx::MedicationsClient.new(session: { user_id: current_user.mhv_correlation_id })
+      @client ||= Rx::MedicationsClient.new(
+        session: { user_id: current_user.mhv_correlation_id },
+        upstream_request: request
+      )
     end
 
     def authorize

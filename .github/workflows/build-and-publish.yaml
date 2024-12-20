@@ -33,7 +33,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2.0.1
         with:
           mask-password: true
-      - name: Build Docker Image
+      - name: Build vets-api Docker Image
         uses: docker/build-push-action@v6
         env:
           DOCKER_BUILD_SUMMARY: false

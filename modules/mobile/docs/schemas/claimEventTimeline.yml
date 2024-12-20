@@ -9,18 +9,22 @@ properties:
   description:
     type: string
     example: 'The information provided concerning your prior marital history is inconsistent. In order to resolve these inconsistencies you should submit certified copies of the public record of the termination (death, divorce or annulment) for each of your prior marriages.'
+    nullable: true
   display_name:
     type: string
     example: 'Claimant marital history inconsistent - need proof'
   overdue:
     type: boolean
     example: true
+    nullable: true
   status:
     type: string
     example: 'NEEDED'
+    nullable: true
   uploaded:
     type: boolean
     example: true
+    nullable: true
   uploads_allowed:
     type: boolean
     example: true
@@ -43,12 +47,14 @@ properties:
     type: array
     items:
       $ref: "./claimDocument.yml"
+    nullable: true
   upload_date:
     type: string
     example: '2023-05-30'
   date:
     type: string
     example: '2023-05-30'
+    nullable: true
   file_type:
     type: integer
     example: 'Civilian Police Reports'
@@ -58,3 +64,9 @@ properties:
   filename:
     type: string
     example: '7B434B58-477C-4379-816F-05E6D3A10487.pdf'
+    nullable: true
+  document_id:
+    type: string
+    description: 'Only used for other_documents_list type event for untracked documents'
+    nullable: true
+    example: '{6A6DFA79-4EC9-4E58-9653-25BDCFB06A03}'

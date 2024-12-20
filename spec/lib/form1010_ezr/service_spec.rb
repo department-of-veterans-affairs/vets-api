@@ -91,12 +91,13 @@ RSpec.describe Form1010Ezr::Service do
         'hca/ee/lookup_user',
         VCR::MATCH_EVERYTHING.merge(erb: true)
       ) do
-        expect(form['isEssentialAcaCoverage']).to eq(nil)
-        expect(form['vaMedicalFacility']).to eq(nil)
+        expect(form.keys).not_to include('isEssentialAcaCoverage', 'vaMedicalFacility')
 
         service.send(:post_fill_required_fields, form)
 
         expect(form.keys).to include('isEssentialAcaCoverage', 'vaMedicalFacility')
+        expect(form['isEssentialAcaCoverage']).to eq(false)
+        expect(form['vaMedicalFacility']).to eq('988')
       end
     end
   end
@@ -152,6 +153,36 @@ RSpec.describe Form1010Ezr::Service do
         required_user_fields.each do |key, value|
           expect(parsed_form[key]).to eq(value)
         end
+      end
+    end
+  end
+
+  describe '#log_submission_failure' do
+    context "when 'parsed_form' is not present" do
+      it 'only increments StatsD' do
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+
+        described_class.new(nil).log_submission_failure(nil)
+      end
+    end
+
+    context "when 'parsed_form' is present" do
+      it 'increments StatsD and logs a failure message to sentry' do
+        allow(StatsD).to receive(:increment)
+        expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+        expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+          '1010EZR failure',
+          :error,
+          {
+            first_initial: 'F',
+            middle_initial: 'M',
+            last_initial: 'Z'
+          },
+          ezr: :failure
+        )
+
+        described_class.new(nil).log_submission_failure(form)
       end
     end
   end
@@ -234,7 +265,7 @@ RSpec.describe Form1010Ezr::Service do
             allow(JSON::Validator).to receive(:fully_validate).and_return(['veteranDateOfBirth error'])
           end
 
-          it 'adds to the PersonalInformationLog and saves the unprocessed DOB' do
+          it 'creates a PersonalInformationLog and saves the unprocessed DOB' do
             expect { submit_form(form) }.to raise_error do |e|
               personal_information_log =
                 PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
@@ -260,7 +291,7 @@ RSpec.describe Form1010Ezr::Service do
         it 'increments StatsD as well as logs and raises the error' do
           allow(StatsD).to receive(:increment)
 
-          expect(StatsD).to receive(:increment).with('api.1010ezr.failed_wont_retry')
+          expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
           expect { submit_form(form) }.to raise_error(
             StandardError, 'Uh oh. Some bad error occurred.'
           )
@@ -310,7 +341,8 @@ RSpec.describe Form1010Ezr::Service do
         end
       end
 
-      it 'logs the submission id, payload size, and individual attachment sizes in descending order (if applicable)',
+      it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
+         'order (if applicable)',
          run_at: 'Wed, 17 Jul 2024 18:17:30 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit_with_attachments',
@@ -318,7 +350,15 @@ RSpec.describe Form1010Ezr::Service do
         ) do
           submission_response = service.submit_sync(ezr_form_with_attachments)
 
-          expect(Rails.logger).to have_received(:info).with("SubmissionID=#{submission_response[:formSubmissionId]}")
+          expect(Rails.logger).to have_received(:info).with(
+            '1010EZR successfully submitted',
+            submission_id: submission_response[:formSubmissionId],
+            veteran_initials: {
+              first_initial: 'F',
+              middle_initial: 'M',
+              last_initial: 'Z'
+            }
+          )
           expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
                                                             'Body size of 362 KB with 2 attachment(s)')
           expect(Rails.logger).to have_received(:info).with(
@@ -398,7 +438,10 @@ RSpec.describe Form1010Ezr::Service do
         let(:form) { get_fixture('form1010_ezr/valid_form') }
 
         context 'with pdf attachments' do
-          it 'returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:32 GMT' do
+          it 'increments StatsD and returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:32 GMT' do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
+
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_attachments',
               { match_requests_on: %i[method uri body], erb: true }
@@ -418,7 +461,10 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         context 'with a non-pdf attachment' do
-          it 'returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:34 GMT' do
+          it 'increments StatsD and returns a success object', run_at: 'Wed, 17 Jul 2024 18:17:34 GMT' do
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with('api.1010ezr.submission_with_attachment')
+
             VCR.use_cassette(
               'form1010_ezr/authorized_submit_with_non_pdf_attachment',
               { match_requests_on: %i[method uri body], erb: true }

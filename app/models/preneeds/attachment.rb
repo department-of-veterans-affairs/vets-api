@@ -14,9 +14,7 @@ module Preneeds
   # @!attribute data_handler
   #   @return [String] auto-generated attachment id
   #
-  class Attachment
-    include Virtus.model
-
+  class Attachment < Preneeds::Base
     # string to populate #sending_source
     #
     VETS_GOV = 'vets.gov'

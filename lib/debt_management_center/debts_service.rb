@@ -6,6 +6,7 @@ require 'debt_management_center/responses/debts_response'
 
 module DebtManagementCenter
   class DebtsService < DebtManagementCenter::BaseService
+    include RedisCaching
     attr_reader :file_number
 
     class DebtNotFound < StandardError; end
@@ -98,7 +99,7 @@ module DebtManagementCenter
 
         if response.is_a?(Array) && response.empty?
           # DMC refreshes DB at 5am every morning
-          Rails.cache.write(cache_key, response, expires_in: time_until_5am_utc)
+          Rails.cache.write(cache_key, response, expires_in: self.class.time_until_5am_utc)
           StatsD.increment("#{STATSD_KEY_PREFIX}.init_cached_debts.empty_response_cached")
         end
 
@@ -115,13 +116,6 @@ module DebtManagementCenter
 
     def sort_by_date(debt_history)
       debt_history.sort_by { |d| Date.strptime(d['date'], '%m/%d/%Y') }.reverse
-    end
-
-    def time_until_5am_utc
-      now = Time.now.utc
-      five_am_utc = Time.utc(now.year, now.month, now.day, 5)
-      five_am_utc += 1.day if now >= five_am_utc
-      five_am_utc - now
     end
   end
 end

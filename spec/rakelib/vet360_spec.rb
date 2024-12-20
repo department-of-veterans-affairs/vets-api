@@ -4,17 +4,6 @@ require 'rails_helper'
 require 'rake'
 
 describe 'vet360 rake tasks' do
-  Flipper.disable(:va_v3_contact_information_service)
-  service = if Flipper.enabled?(:va_v3_contact_information_service)
-              VAProfile::V2::ContactInformation::Service
-            else
-              VAProfile::ContactInformation::Service
-            end
-  cassette_path = if Flipper.enabled?(:va_v3_contact_information_service)
-                    'va_profile/v2/contact_information'
-                  else
-                    'va_profile/contact_information'
-                  end
   before :all do
     Rake.application.rake_require '../rakelib/vet360'
     Rake::Task.define_task(:environment)
@@ -23,7 +12,11 @@ describe 'vet360 rake tasks' do
   before do
     # Prevents cross-pollination between tests
     ENV['VET360_RAKE_DATA'] = nil
+    Flipper.disable(:va_v3_contact_information_service)
   end
+
+  service = VAProfile::ContactInformation::Service
+  cassette_path = 'va_profile/contact_information'
 
   describe 'rake vet360:get_person' do
     let :run_rake_task do

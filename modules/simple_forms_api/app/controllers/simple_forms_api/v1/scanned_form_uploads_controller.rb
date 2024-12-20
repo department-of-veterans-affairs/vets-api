@@ -29,6 +29,9 @@ module SimpleFormsApi
 
       def upload_response
         file_path = find_attachment_path(params[:confirmation_code])
+        stamper = PdfStamper.new(stamped_template_path: file_path, current_loa: @current_user.loa[:current],
+                                 timestamp: Time.current)
+        stamper.stamp_pdf
         metadata = validated_metadata
         status, confirmation_number = upload_pdf(file_path, metadata)
 
@@ -70,14 +73,15 @@ module SimpleFormsApi
       end
 
       def create_form_submission_attempt(uuid)
-        form_submission = create_form_submission(uuid)
-        FormSubmissionAttempt.create(form_submission:)
+        FormSubmissionAttempt.transaction do
+          form_submission = create_form_submission
+          FormSubmissionAttempt.create(form_submission:, benefits_intake_uuid: uuid)
+        end
       end
 
-      def create_form_submission(uuid)
+      def create_form_submission
         FormSubmission.create(
           form_type: params[:form_number],
-          benefits_intake_uuid: uuid,
           user_account: @current_user&.user_account
         )
       end

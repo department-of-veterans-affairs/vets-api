@@ -2,19 +2,19 @@
 http_interactions:
 - request:
     method: put
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/addresses
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/addresses
     body:
       encoding: UTF-8
-      string: '{"bio":{"addressId":108347,"addressLine1":"1494 Martin Luther King Rd","addressLine2":"c/o foo","addressLine3":null,"addressPOU":"CORRESPONDENCE","addressType":"Domestic","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":null,"county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"1234","sourceDate":"2020-02-14T00:19:15.000Z","vet360Id":"1","effectiveStartDate":"2020-02-14T00:19:15.000Z","effectiveEndDate":null,"validationKey":713117306,"overrideIndicator":true,"badAddress":false}}'
+      string: '{"bio":{"addressId":577127,"addressLine1":"1494 Martin Luther King Rd","addressLine2":"null","addressLine3":null,"addressPOU":"CORRESPONDENCE","addressType":"Domestic","cityName":"Fulton","country":{"countryName":null,"countryCodeFIPS":null,"countryCodeISO2":null,"countryCodeISO3":"USA"},"county":{"countyCode":null,"countyName":null},"province":{"provinceName":null,"provinceCode":null},"state":{"stateName":null,"stateCode":"MS"},"intPostalCode":null,"zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-09-16T16:09:37.000Z","effectiveStartDate":"2024-09-16T16:09:37.000Z","effectiveEndDate":null,"validationKey":713117306,"overrideIndicator":true,"badAddress":false}}'
     headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
       User-Agent:
       - Vets.gov Agent
+      Content-Type:
+      - application/json
       Cufsystemname:
       - VETSGOV
+      Accept:
+      - application/json
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -22,32 +22,41 @@ http_interactions:
       code: 200
       message: ''
     headers:
-      Date:
-      - Fri, 14 Feb 2020 00:19:16 GMT
-      Expires:
-      - '0'
-      Vet360txauditid:
-      - 85e5e00f-e862-48d0-abc2-3961659ed04d
-      X-Frame-Options:
-      - DENY
-      Pragma:
-      - no-cache
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-360268705", dtSInfo;desc="0"
+      - dtRpid;desc="-5211443", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 71817ea8-fec1-42f3-87c8-4f33b7dfd5d5
       X-Content-Type-Options:
       - nosniff
-      - nosniff
       X-Xss-Protection:
-      - 1; mode=block
+      - '0'
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Fri, 06 Sep 2024 18:36:36 GMT
+      Referrer-Policy:
+      - no-referrer
       Content-Type:
-      - application/json;charset=UTF-8
-      Content-Length:
-      - '72'
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"7f01230f-56e3-4289-97ed-6168d2d23722","status":"RECEIVED"}'
-    http_version:
-  recorded_at: Fri, 14 Feb 2020 00:19:15 GMT
-recorded_with: VCR 5.0.0
+      string: '{"txAuditId":"cd7036df-630c-43e2-8911-063daa10021c","status":"RECEIVED"}'
+  recorded_at: Fri, 06 Sep 2024 18:36:37 GMT
+recorded_with: VCR 6.3.1

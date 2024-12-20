@@ -251,6 +251,10 @@ module Swagger
           response 200 do
             key :description, 'Files uploaded successfully'
           end
+
+          response 500 do
+            key :description, 'Files failed uploading'
+          end
         end
       end
     end

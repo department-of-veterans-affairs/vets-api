@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: put
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/telephones
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/telephones
     body:
       encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-06-06T15:35:55.000Z","sourceSystemUser":"64762895576664260","telephoneId":42,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true,"effectiveStartDate":"2018-06-06T15:35:55.000Z","effectiveEndDate":"2018-06-06T15:35:55.000Z"}}'
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-06-06T15:35:55.000Z","sourceSystemUser":"123498767V234859","telephoneId":42,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"voiceMailAcceptableInd":true,"effectiveStartDate":"2018-06-06T15:35:55.000Z","effectiveEndDate":"2018-06-06T15:35:55.000Z"}}'
     headers:
       Accept:
       - application/json
@@ -22,29 +22,41 @@ http_interactions:
       code: 200
       message: ''
     headers:
-      Date:
-      - Wed, 25 Apr 2018 21:32:21 GMT
-      Expires:
-      - '0'
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1100306904", dtSInfo;desc="0"
+      - dtRpid;desc="-648559351", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - a3c299cf-6ae4-4c6f-b54d-e4a4d30d06e1
       X-Content-Type-Options:
       - nosniff
       X-Xss-Protection:
-      - 1; mode=block
-      X-Frame-Options:
-      - DENY
+      - '0'
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
       Pragma:
       - no-cache
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Wed, 11 Sep 2024 21:08:24 GMT
+      Referrer-Policy:
+      - no-referrer
       Content-Type:
-      - application/json;charset=UTF-8
+      - application/json
       Transfer-Encoding:
       - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"6e1e4e54-e851-4f5e-a2bf-eec0b17738f1","status":"RECEIVED"}'
-    http_version:
-  recorded_at: Wed, 25 Apr 2018 21:32:21 GMT
-recorded_with: VCR 3.0.3
+      string: '{"txAuditId":"2c5b8109-e709-463c-a7c4-19dadfbbc2ed","status":"RECEIVED"}'
+  recorded_at: Wed, 11 Sep 2024 21:08:25 GMT
+recorded_with: VCR 6.3.1

@@ -12,7 +12,8 @@
     "full_name": {
       "first": "Veteran",
       "middle": "B",
-      "last": "Surname"
+      "last": "Surname",
+      "suffix": "Mr."
     },
     "physical_address": {
       "country": "USA",
@@ -22,6 +23,7 @@
       "state": "AL",
       "postal_code": "12345"
     },
+    "physical_address_string": "1 Physical Ln\nPlace, AL\n12345",
     "mailing_address": {
       "country": "USA",
       "street": "1 Mail Ln",
@@ -30,6 +32,7 @@
       "state": "PA",
       "postal_code": "12345"
     },
+    "mailing_address_string": "1 Mail Ln\nPlace, PA\n12345",
     "ssn": "222554444",
     "va_claim_number": "123456789",
     "phone_number": "9876543213",

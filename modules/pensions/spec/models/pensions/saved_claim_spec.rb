@@ -49,41 +49,58 @@ RSpec.describe Pensions::SavedClaim, :uploader_helpers do
       )
     end
 
-    describe '#process_attachments!' do
-      it 'sets the attachments saved_claim_id' do
-        expect(Lighthouse::SubmitBenefitsIntakeClaim).to receive(:perform_async).with(claim.id)
-        claim.process_attachments!
-        expect(claim.persistent_attachments.size).to eq(2)
+    context 'using JSON Schema' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
+      end
+
+      describe '#process_attachments!' do
+        it 'sets the attachments saved_claim_id' do
+          expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async).with(claim.id)
+          claim.process_attachments!
+          expect(claim.persistent_attachments.size).to eq(2)
+        end
+      end
+
+      describe '#destroy' do
+        it 'also destroys the persistent_attachments' do
+          claim.process_attachments!
+          expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
+        end
       end
     end
 
-    describe '#destroy' do
-      it 'also destroys the persistent_attachments' do
-        claim.process_attachments!
-        expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
+    context 'using JSON Schemer' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
       end
-    end
 
-    it '#send_confirmation_email' do
-      allow(VANotify::EmailJob).to receive(:perform_async)
+      describe '#process_attachments!' do
+        it 'sets the attachments saved_claim_id' do
+          expect(Lighthouse::SubmitBenefitsIntakeClaim).not_to receive(:perform_async).with(claim.id)
+          claim.process_attachments!
+          expect(claim.persistent_attachments.size).to eq(2)
+        end
+      end
 
-      instance.send_confirmation_email
-
-      expect(VANotify::EmailJob).to have_received(:perform_async).with(
-        'foo@foo.com',
-        'form527ez_confirmation_email_template_id',
-        {
-          'first_name' => 'TEST',
-          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-          'confirmation_number' => instance.guid
-        }
-      )
+      describe '#destroy' do
+        it 'also destroys the persistent_attachments' do
+          claim.process_attachments!
+          expect { claim.destroy }.to change(PersistentAttachment, :count).by(-2)
+        end
+      end
     end
   end
 
   describe '#email' do
     it 'returns the users email' do
       expect(instance.email).to eq('foo@foo.com')
+    end
+  end
+
+  describe '#first_name' do
+    it 'returns the users first name' do
+      expect(instance.first_name).to eq('Test')
     end
   end
 end

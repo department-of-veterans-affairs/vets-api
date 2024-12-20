@@ -19,7 +19,7 @@ require 'rails_helper'
 #
 # it_behaves_like 'a form filler', {
 #   form_id: described_class::FORM_ID,
-#   factory: :pension_claim,
+#   factory: :pensions_module_pension_claim,
 #   use_vets_json_schema: true,
 #   input_data_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures',
 #   output_pdf_fixture_dir: 'modules/pensions/spec/pdf_fill/fixtures'
@@ -42,7 +42,7 @@ RSpec.shared_examples 'a form filler' do |options|
           end
 
           let(:saved_claim) do
-            if form_id == '21P-530V2'
+            if form_id == '21P-530EZ'
               claim = create(factory)
               claim.update(form: form_data.to_json)
               claim

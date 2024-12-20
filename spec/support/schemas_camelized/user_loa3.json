@@ -43,9 +43,7 @@
                     "type": "integer"
                   }
                 },
-                "required": [
-
-                ]
+                "required": []
               }
             },
             "prefillsAvailable": {
@@ -103,10 +101,12 @@
                 "firstName",
                 "middleName",
                 "lastName",
+                "preferredName",
                 "birthDate",
                 "gender",
                 "zip",
                 "lastSignedIn",
+                "initialSignIn",
                 "loa",
                 "multifactor",
                 "verified",
@@ -136,6 +136,12 @@
                 "lastName": {
                   "type": "string"
                 },
+                "preferredName": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
                 "birthDate": {
                   "type": "string"
                 },
@@ -152,6 +158,12 @@
                   ]
                 },
                 "lastSignedIn": {
+                  "type": [
+                    "string",
+                    null
+                  ]
+                },
+                "initialSignIn": {
                   "type": [
                     "string",
                     null
@@ -396,7 +408,10 @@
             },
             "onboarding": {
               "show": {
-                "type": ["boolean", "null"]
+                "type": [
+                  "boolean",
+                  "null"
+                ]
               }
             }
           }

@@ -1,15 +1,36 @@
 type: object
+additionalProperties: false
 required:
-  - contactNeedsUpdate
-  - emergencyContactNeedsUpdate
-  - nextOfKinNeedsUpdate
+  - data
 properties:
-  contactNeedsUpdate:
-    type: boolean
-    example: false
-  emergencyContactNeedsUpdate:
-    type: boolean
-    example: false
-  nextOfKinNeedsUpdate:
-    type: boolean
-    example: false
+  data:
+    type: object
+    additionalProperties: false
+    required:
+      - type
+      - id
+      - attributes
+    properties:
+      type:
+        type: string
+        example: "demographicConfirmations"
+      id:
+        type: string
+        example: "5"
+      attributes:
+        type: object
+        additionalProperties: false
+        required:
+          - contactNeedsUpdate
+          - emergencyContactNeedsUpdate
+          - nextOfKinNeedsUpdate
+        properties:
+          contactNeedsUpdate:
+            type: boolean
+            example: false
+          emergencyContactNeedsUpdate:
+            type: boolean
+            example: false
+          nextOfKinNeedsUpdate:
+            type: boolean
+            example: false

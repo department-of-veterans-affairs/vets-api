@@ -37,7 +37,7 @@ describe ApplicationController, type: :controller do
             source: '/directDeposit/routingNumber', title: 'Unprocessable entity', status: '422' }
         ]
 
-      raise ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError, errors_array
+      raise ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError, errors_array
     end
 
     def raise_invalid_token

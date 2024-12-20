@@ -49,7 +49,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
     let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
     let(:veteran_id) { '1013062086V794840' }
 
-    context 'submit' do
+    describe 'submit', skip: 'Disabling tests for deactivated /veterans/{veteranId}/526 endpoint' do
       let(:submit_path) { "/services/claims/v2/veterans/#{veteran_id}/526" }
       let(:validate_path) { "/services/claims/v2/veterans/#{veteran_id}/526/validate" }
 
@@ -169,339 +169,12 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
         end
       end
 
-      describe 'validation of claimant certification' do
-        context 'when the cert is false' do
-          let(:claimant_certification) { false }
-
-          it 'responds with a bad request' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['claimantCertification'] = claimant_certification
-              data = json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-      end
-
       describe 'validation of claimant mailing address elements' do
-        context 'when the country is valid' do
-          let(:country) { 'USA' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
-        context 'when the state is not provided and country is not USA' do
-          let(:country) { 'Afghanistan' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '123'
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['state'] = nil
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
-        context 'when the zip is not provided and country is not USA' do
-          let(:country) { 'Afghanistan' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['zipFirstFive'] = nil
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['internationalPostalCode'] = '12345'
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
-        context 'when the country is invalid' do
-          let(:country) { 'United States of Nada' }
-
-          it 'responds with 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['mailingAddress']['country'] = country
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-
         context 'when no mailing address data is found' do
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
               json['data']['attributes']['veteranIdentification']['mailingAddress'] = {}
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-      end
-
-      describe 'validation of claimant change of address elements' do
-        context "when any values present, 'dates','typeOfAddressChange','numberAndStreet','country' are required" do
-          context 'with the required values present' do
-            let(:valid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-30'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '10 Peach St',
-                addressLine2: 'Unit 4',
-                addressLine3: 'Room 1',
-                city: 'Atlanta',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: 'OH',
-                country: 'USA'
-              }
-            end
-
-            it 'responds with a 202' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = valid_change_of_address
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:accepted)
-              end
-            end
-          end
-
-          context 'without the required numberAndStreet value present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-30',
-                  endDate: '2013-11-12'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '',
-                addressLine2: 'Unit 4',
-                addressLine3: 'Room 1',
-                city: '',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: '',
-                country: 'USA'
-              }
-            end
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'Change of address endDate cannot be included when typeOfAddressChange is PERMANENT'
-                )
-              end
-            end
-          end
-
-          context 'without the required country value present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-31',
-                  endDate: '2013-11-31'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '10 Peach St',
-                addressLine2: '',
-                addressLine3: '',
-                city: '',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: '',
-                country: ''
-              }
-            end
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to include(
-                  'is not a valid'
-                )
-              end
-            end
-          end
-
-          context 'without the required dates values present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  endDate: '2013-11-30'
-                },
-                typeOfAddressChange: 'PERMANENT',
-                addressLine1: '10 Peach St',
-                addressLine2: '22',
-                addressLine3: '',
-                city: 'Atlanta',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: 'GA',
-                country: 'USA'
-              }
-            end
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-                response_body = JSON.parse(response.body)
-                expect(response_body['errors'][0]['detail']).to eq(
-                  'The begin date is required for /changeOfAddress.'
-                )
-              end
-            end
-          end
-
-          context 'without the required typeOfAddressChange values present' do
-            let(:invalid_change_of_address) do
-              {
-                dates: {
-                  beginDate: '2012-11-31',
-                  endDate: ''
-                },
-                typeOfAddressChange: '',
-                addressLine1: '10 Peach St',
-                addressLine2: '22',
-                addressLine3: '',
-                city: 'Atlanta',
-                zipFirstFive: '42220',
-                zipLastFour: '',
-                state: 'GA',
-                country: 'USA'
-              }
-            end
-
-            it 'responds with a 422' do
-              mock_ccg(scopes) do |auth_header|
-                json = JSON.parse(data)
-                json['data']['attributes']['changeOfAddress'] = invalid_change_of_address
-                data = json.to_json
-                post submit_path, params: data, headers: auth_header
-                expect(response).to have_http_status(:unprocessable_entity)
-              end
-            end
-          end
-        end
-
-        context 'when the country is valid' do
-          let(:country) { 'USA' }
-
-          it 'responds with a 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['country'] = country
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
-        context 'when the country is invalid' do
-          let(:country) { 'United States of Nada' }
-
-          it 'responds with 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['country'] = country
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-
-        context 'when the city is valid' do
-          let(:city) { '#Base 6' }
-
-          it 'responds with 202' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['city'] = city
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:accepted)
-            end
-          end
-        end
-
-        context 'when the city is invalid' do
-          it 'responds with 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['city'] = nil
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-
-        context 'when the begin date is after the end date' do
-          let(:begin_date) { '2023-01-01' }
-          let(:end_date) { '2022-01-01' }
-
-          it 'responds with 422' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['dates']['beginDate'] = begin_date
-              json['data']['attributes']['changeOfAddress']['dates']['endDate'] = end_date
-              data = json.to_json
-              post submit_path, params: data, headers: auth_header
-              expect(response).to have_http_status(:unprocessable_entity)
-            end
-          end
-        end
-
-        context 'when the type is permanent the end date is prohibited' do
-          let(:begin_date) { '01-01-2023' }
-          let(:end_date) { '01-01-2024' }
-
-          it 'responds with bad request' do
-            mock_ccg(scopes) do |auth_header|
-              json = JSON.parse(data)
-              json['data']['attributes']['changeOfAddress']['typeOfAddressChange'] = 'PERMANENT'
-              json['data']['attributes']['changeOfAddress']['dates']['beginDate'] = begin_date
-              json['data']['attributes']['changeOfAddress']['dates']['endDate'] = end_date
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
@@ -749,30 +422,54 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
           end
         end
 
-        context 'when email exceeds max length' do
-          let(:email) { '1234567890abcdefghijklmnopqrstuvwxyz@someinordiantelylongdomain.com' }
+        context 'when email exceeds max length of 80 characters' do
+          let(:email) { '123456789011121314151617abcdefghijklmnopqrstuvwxyz@someinordiantelylongdomain.com' }
 
           it 'responds with bad request' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['emailAddress'] = email
+              json['data']['attributes']['veteranIdentification']['emailAddress']['email'] = email
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['detail']).to include(
+                'The property /veteranIdentification/emailAddress/email did not match the ' \
+                'following requirements:'
+              )
             end
           end
         end
 
-        context 'when email is not valid' do
-          let(:email) { '.invalid@somedomain.com' }
+        context 'when email TLD is over 3 characters' do
+          let(:email) { 'valid@some.extralongtld' }
 
-          it 'responds with bad request' do
+          it 'responds with accepted' do
             mock_ccg(scopes) do |auth_header|
               json = JSON.parse(data)
-              json['data']['attributes']['veteranIdentification']['emailAddress'] = email
+              json['data']['attributes']['veteranIdentification']['emailAddress']['email'] = email
+              data = json.to_json
+              post submit_path, params: data, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
+          end
+        end
+
+        context 'when email TLD is under 2 characters' do
+          let(:email) { '1234567890abcd@some.v' }
+
+          it 'responds with unprocessable entity' do
+            mock_ccg(scopes) do |auth_header|
+              json = JSON.parse(data)
+              json['data']['attributes']['veteranIdentification']['emailAddress']['email'] = email
               data = json.to_json
               post submit_path, params: data, headers: auth_header
               expect(response).to have_http_status(:unprocessable_entity)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['detail']).to include(
+                'The property /veteranIdentification/emailAddress/email did not match the ' \
+                'following requirements:'
+              )
             end
           end
         end
@@ -3434,7 +3131,7 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
                 expect(response).to have_http_status(:unprocessable_entity)
                 response_body = JSON.parse(response.body)
                 expect(response_body['errors'][0]['detail']).to eq(
-                  "The serviceRelevance is required if disabilityActionType' is NEW."
+                  "The serviceRelevance (0) is required if 'disabilityActionType' is NEW."
                 )
               end
             end
@@ -4376,93 +4073,95 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
       end
     end
 
-    context 'attachments' do
-      let(:auto_claim) { create(:auto_established_claim) }
-      let(:attachments_path) do
-        "/services/claims/v2/veterans/#{veteran_id}/526/#{auto_claim.id}/attachments"
-      end
-      let(:target_veteran) do
-        OpenStruct.new(
-          icn: veteran_id,
-          first_name: 'abraham',
-          last_name: 'lincoln',
-          loa: { current: 3, highest: 3 },
-          ssn: '796111863',
-          edipi: '8040545646',
-          participant_id: '600061742',
-          mpi: OpenStruct.new(
+    describe 'attachments', skip: 'Disabling tests for deactivated /veterans/{veteranId}/526/{id}/attachments' do
+      context 'attachments' do
+        let(:auto_claim) { create(:auto_established_claim) }
+        let(:attachments_path) do
+          "/services/claims/v2/veterans/#{veteran_id}/526/#{auto_claim.id}/attachments"
+        end
+        let(:target_veteran) do
+          OpenStruct.new(
             icn: veteran_id,
-            profile: OpenStruct.new(ssn: '796111863')
+            first_name: 'abraham',
+            last_name: 'lincoln',
+            loa: { current: 3, highest: 3 },
+            ssn: '796111863',
+            edipi: '8040545646',
+            participant_id: '600061742',
+            mpi: OpenStruct.new(
+              icn: veteran_id,
+              profile: OpenStruct.new(ssn: '796111863')
+            )
           )
-        )
-      end
-
-      describe 'with binary params' do
-        let(:binary_params) do
-          { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-                                                                         .split('/')).to_s),
-            attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-                                                                         .split('/')).to_s) }
         end
 
-        it 'responds with a 202' do
-          mock_ccg(scopes) do |auth_header|
-            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-              .to receive(:target_veteran).and_return(target_veteran)
-            post attachments_path, params: binary_params, headers: auth_header
-            expect(response).to have_http_status(:accepted)
+        describe 'with binary params' do
+          let(:binary_params) do
+            { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                          .split('/')).to_s),
+              attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+                                                                          .split('/')).to_s) }
+          end
+
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:target_veteran).and_return(target_veteran)
+              post attachments_path, params: binary_params, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
           end
         end
-      end
 
-      describe 'with base 64 params' do
-        let(:base64_params) do
-          { attachment1: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s),
-            attachment2: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
-        end
+        describe 'with base 64 params' do
+          let(:base64_params) do
+            { attachment1: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s),
+              attachment2: File.read(Rails.root.join(*'/modules/claims_api/spec/fixtures/base64pdf'.split('/')).to_s) }
+          end
 
-        it 'responds with a 202' do
-          mock_ccg(scopes) do |auth_header|
-            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-              .to receive(:target_veteran).and_return(target_veteran)
-            post attachments_path, params: base64_params, headers: auth_header
-            expect(response).to have_http_status(:accepted)
+          it 'responds with a 202' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:target_veteran).and_return(target_veteran)
+              post attachments_path, params: base64_params, headers: auth_header
+              expect(response).to have_http_status(:accepted)
+            end
           end
         end
-      end
 
-      describe 'with more then 10 attachments' do
-        let(:binary_params) do
-          { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment3: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment4: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment5: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment7: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment6: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment8: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment9: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment10: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s),
-            attachment11: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
-            .split('/')).to_s) }
-        end
+        describe 'with more then 10 attachments' do
+          let(:binary_params) do
+            { attachment1: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment2: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment3: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment4: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment5: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment7: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment6: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment8: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment9: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment10: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s),
+              attachment11: Rack::Test::UploadedFile.new(Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'
+              .split('/')).to_s) }
+          end
 
-        it 'responds with a 422' do
-          mock_ccg(scopes) do |auth_header|
-            allow_any_instance_of(ClaimsApi::V2::ApplicationController)
-              .to receive(:target_veteran).and_return(target_veteran)
-            post attachments_path, params: binary_params, headers: auth_header
-            expect(response).to have_http_status(:unprocessable_entity)
+          it 'responds with a 422' do
+            mock_ccg(scopes) do |auth_header|
+              allow_any_instance_of(ClaimsApi::V2::ApplicationController)
+                .to receive(:target_veteran).and_return(target_veteran)
+              post attachments_path, params: binary_params, headers: auth_header
+              expect(response).to have_http_status(:unprocessable_entity)
+            end
           end
         end
       end
@@ -4546,7 +4245,8 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
     end
   end
 
-  describe 'POST #submit not using md5 lookup' do
+  describe 'POST #submit not using md5 lookup',
+           skip: 'Disabling tests for deactivated /veterans/{veteranId}/526 endpoint' do
     let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
@@ -4589,9 +4289,17 @@ RSpec.describe 'ClaimsApi::V2::Veterans::526', type: :request do
   describe 'POST #synchronous' do
     let(:veteran_id) { '1012832025V743496' }
     let(:synchronous_path) { "/services/claims/v2/veterans/#{veteran_id}/526/synchronous" }
+    let(:anticipated_separation_date) { 2.days.from_now.strftime('%Y-%m-%d') }
+    let(:active_duty_end_date) { 2.days.from_now.strftime('%Y-%m-%d') }
     let(:data) do
-      Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
-                      'form_526_json_api.json').read
+      temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans', 'disability_compensation',
+                             'form_526_json_api.json').read
+      temp = JSON.parse(temp)
+      attributes = temp['data']['attributes']
+      attributes['serviceInformation']['federalActivation']['anticipatedSeparationDate'] = anticipated_separation_date
+      attributes['serviceInformation']['servicePeriods'][-1]['activeDutyEndDate'] = active_duty_end_date
+
+      temp.to_json
     end
     let(:schema) { Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v2', '526.json').read }
     let(:synchronous_scopes) { %w[system/526.override system/claim.write] }

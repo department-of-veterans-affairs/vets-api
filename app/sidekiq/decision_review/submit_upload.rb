@@ -10,10 +10,33 @@ module DecisionReview
 
     STATSD_KEY_PREFIX = 'worker.decision_review.submit_upload'
 
-    sidekiq_options retry: 13
+    # Increasing to 17 retries, approximately 3 days, for ~39 hour COLA maintenance
+    sidekiq_options retry: 17
 
-    sidekiq_retries_exhausted do |_msg, _ex|
+    sidekiq_retries_exhausted do |msg, _ex|
+      error_message = msg['error_message']
+      message = 'DecisionReview::SubmitUpload retries exhausted'
+      job_id = msg['jid']
+      appeal_submission_upload_id = msg['args'].first
+
+      upload = AppealSubmissionUpload.find(appeal_submission_upload_id)
+      submission = upload.appeal_submission
+
+      service_name = DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[submission.type_of_appeal]
+      tags = ["service:#{service_name}", 'function: evidence submission to Lighthouse']
+      StatsD.increment('silent_failure', tags:)
+
+      ::Rails.logger.error({ error_message:, message:, appeal_submission_upload_id:, job_id: })
       StatsD.increment("#{STATSD_KEY_PREFIX}.permanent_error")
+
+      begin
+        response = send_notification_email(upload, submission)
+        upload.update(failure_notification_sent_at: DateTime.now)
+
+        record_email_send_successful(upload, submission, response.id)
+      rescue => e
+        record_email_send_failure(upload, submission, e)
+      end
     end
 
     # Make a request to Lighthouse to get the URL where we can upload the file,
@@ -46,15 +69,34 @@ module DecisionReview
 
     # Get the sanitized file from S3
     #
-    # @param form_attachment [AppealSubmissionUpload]
+    # @param form_attachment [DecisionReviewEvidenceAttachment]
     # @return [CarrierWave::SanitizedFile] The sanitized file from S3
-    def get_sanitized_file!(form_attachment:) # rubocop:disable Metrics/MethodLength
+    def get_sanitized_file!(form_attachment:)
       appeal_submission_upload = form_attachment.appeal_submission_upload
       appeal_submission = appeal_submission_upload.appeal_submission
       # For now, I'm limiting our new `log_formatted` style of logging to the NOD form. In the near future, we will
       # expand this style of logging to every Decision Review form.
       form_id = appeal_submission.type_of_appeal == 'NOD' ? '10182' : '995'
-      common_log_params = {
+      log_params = sanitized_file_log_params(appeal_submission, appeal_submission_upload, form_attachment, form_id)
+
+      begin
+        sanitized_file = form_attachment.get_file
+        log_formatted(**log_params.merge(is_success: true))
+        sanitized_file
+      rescue => e
+        log_formatted(**log_params.merge(is_success: false, response_error: e))
+        raise e
+      end
+    end
+
+    # Get the sanitized file from S3
+    #
+    # @param appeal_submission [AppealSubmission]
+    # @param appeal_submission_upload [AppealSubmissionUpload]
+    # @param form_attachment [DecisionReviewEvidenceAttachment]
+    # @return [Hash] log params for get_sanitized_file! logging
+    def sanitized_file_log_params(appeal_submission, appeal_submission_upload, form_attachment, form_id)
+      {
         key: :evidence_upload_retrieval,
         form_id:,
         user_uuid: appeal_submission.user_uuid,
@@ -64,15 +106,6 @@ module DecisionReview
           form_attachment_id: form_attachment.id
         }
       }
-
-      begin
-        sanitized_file = form_attachment.get_file
-        log_formatted(**common_log_params.merge(is_success: true))
-        sanitized_file
-      rescue => e
-        log_formatted(**common_log_params.merge(is_success: false, response_error: e))
-        raise e
-      end
     end
 
     def get_dr_svc
@@ -130,5 +163,48 @@ module DecisionReview
                                                appeal_submission_upload_id:)
       upload_url_response
     end
+
+    def self.send_notification_email(upload, submission)
+      appeal_type = submission.type_of_appeal
+      reference = "#{appeal_type}-evidence-#{upload.lighthouse_upload_id}"
+
+      email_address = submission.current_email_address
+      template_id = DecisionReviewV1::EVIDENCE_TEMPLATE_IDS[appeal_type]
+      personalisation = {
+        first_name: submission.get_mpi_profile.given_names[0],
+        filename: upload.masked_attachment_filename,
+        date_submitted: upload.created_at.strftime('%B %d, %Y')
+      }
+
+      service = ::VaNotify::Service.new(Settings.vanotify.services.benefits_decision_review.api_key)
+      service.send_email({ email_address:, template_id:, personalisation:, reference: })
+    end
+    private_class_method :send_notification_email
+
+    def self.record_email_send_successful(upload, submission, notification_id)
+      appeal_type = submission.type_of_appeal
+      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
+                 appeal_submission_upload_id: upload.id,
+                 appeal_type:,
+                 notification_id: }
+      Rails.logger.info('DecisionReview::SubmitUpload retries exhausted email queued', params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted.email_queued")
+
+      tags = ["service:#{DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
+              'function: evidence submission to Lighthouse']
+      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
+    end
+    private_class_method :record_email_send_successful
+
+    def self.record_email_send_failure(upload, submission, e)
+      appeal_type = submission.type_of_appeal
+      params = { submitted_appeal_uuid: submission.submitted_appeal_uuid,
+                 appeal_submission_upload_id: upload.id,
+                 appeal_type:,
+                 message: e.message }
+      Rails.logger.error('DecisionReview::SubmitUpload retries exhausted email error', params)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted.email_error", tags: ["appeal_type:#{appeal_type}"])
+    end
+    private_class_method :record_email_send_failure
   end
 end

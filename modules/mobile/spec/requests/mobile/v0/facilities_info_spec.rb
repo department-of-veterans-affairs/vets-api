@@ -197,7 +197,6 @@ RSpec.describe 'Mobile::V0::FacilitiesInfo', type: :request do
             VCR.use_cassette('mobile/appointments/get_multiple_facilities_200', match_requests_on: %i[method uri]) do
               get('/mobile/v0/facilities-info/appointments', headers: sis_headers)
               expect(response).to have_http_status(:ok)
-
               expect(facilities[0]['name']).to eq('Cheyenne VA Medical Center')
               expect(facilities[1]['name']).to eq('American Lake VA Medical Center')
               expect(facilities[2]['name']).to eq('Ayton VA Medical Center')

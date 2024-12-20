@@ -2,19 +2,19 @@
 http_interactions:
 - request:
     method: get
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/1/emails/status/d47b3d96-9ddd-42be-ac57-8e564aa38029
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/emails/status/cb99a754-9fa9-4f3c-be93-ede12c14b68e
     body:
       encoding: US-ASCII
       string: ''
     headers:
-      Accept:
-      - application/json
-      Content-Type:
-      - application/json
       User-Agent:
       - Vets.gov Agent
+      Content-Type:
+      - application/json
       Cufsystemname:
       - VETSGOV
+      Accept:
+      - application/json
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -22,34 +22,43 @@ http_interactions:
       code: 404
       message: ''
     headers:
-      Date:
-      - Fri, 10 Jan 2020 20:54:26 GMT
-      Expires:
-      - '0'
-      Vet360txauditid:
-      - 6200e265-bad6-4f9f-a016-70e6ce393596
-      X-Frame-Options:
-      - DENY
-      Pragma:
-      - no-cache
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1340699213", dtSInfo;desc="0"
+      - dtRpid;desc="-98227255", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 402b6edc-1e0d-43d3-b907-981dd62e59d7
       X-Content-Type-Options:
       - nosniff
-      - nosniff
       X-Xss-Protection:
-      - 1; mode=block
+      - '0'
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Fri, 06 Sep 2024 18:25:50 GMT
+      Referrer-Policy:
+      - no-referrer
       Content-Type:
-      - application/json;charset=UTF-8
-      Content-Length:
-      - '236'
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","severity":"ERROR","text":"The
-        tx for id/criteria d47b3d96-9ddd-42be-ac57-8e564aa38029 could not be found.
-        Please correct your request and try again!"}],"status":"COMPLETED_FAILURE"}'
-    http_version:
-  recorded_at: Fri, 10 Jan 2020 20:54:26 GMT
-recorded_with: VCR 5.0.0
+      string: '{"messages":[{"code":"CORE103","key":"_CUF_NOT_FOUND","text":"The tx
+        for id/criteria cb99a754-9fa9-4f3c-be93-ede12c14b68e could not be found. Please
+        correct your request and try again!","severity":"ERROR"}],"status":"COMPLETED_FAILURE"}'
+  recorded_at: Fri, 06 Sep 2024 18:25:50 GMT
+recorded_with: VCR 6.3.1

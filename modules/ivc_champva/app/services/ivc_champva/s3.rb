@@ -2,12 +2,10 @@
 
 module IvcChampva
   class S3
-    attr_reader :region, :access_key_id, :secret_access_key, :bucket
+    attr_reader :region, :bucket
 
-    def initialize(region:, access_key_id:, secret_access_key:, bucket:)
+    def initialize(region:, bucket:)
       @region = region
-      @access_key_id = access_key_id
-      @secret_access_key = secret_access_key
       @bucket = bucket
     end
 
@@ -42,9 +40,7 @@ module IvcChampva
 
     def client
       @client ||= Aws::S3::Client.new(
-        region:,
-        access_key_id:,
-        secret_access_key:
+        region:
       )
     end
 

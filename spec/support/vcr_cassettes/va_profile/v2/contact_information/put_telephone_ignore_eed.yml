@@ -2,10 +2,10 @@
 http_interactions:
 - request:
     method: put
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/telephones
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/telephones
     body:
       encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2020-01-17T04:21:59.000Z","sourceSystemUser":"1234","telephoneId":17259,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true,"effectiveStartDate":"2020-01-17T04:21:59.000Z","effectiveEndDate":null}}'
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2020-01-17T04:21:59.000Z","sourceSystemUser":"123498767V234859","telephoneId":17259,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"voiceMailAcceptableInd":true,"effectiveStartDate":"2020-01-17T04:21:59.000Z","effectiveEndDate":null}}'
     headers:
       Accept:
       - application/json
@@ -47,7 +47,7 @@ http_interactions:
       - '72'
     body:
       encoding: UTF-8
-      string: '{"txAuditId":"e9f12a44-c13d-4f46-8cf3-aab80c0edd4d","status":"RECEIVED"}'
+      string: '{"txAuditId":"e4c3195f-fd2b-4e37-8644-3c50d84c4ea7","status":"RECEIVED"}'
     http_version:
   recorded_at: Fri, 17 Jan 2020 04:21:59 GMT
 recorded_with: VCR 5.0.0

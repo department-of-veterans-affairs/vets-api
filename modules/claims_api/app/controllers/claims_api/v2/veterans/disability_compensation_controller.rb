@@ -103,9 +103,9 @@ module ClaimsApi
           auto_claim = shared_submit_methods
 
           unless claims_load_testing # || sandbox_request(request)
-            pdf_generation_service.generate(auto_claim&.id, veteran_middle_initial) unless mocking
-            docker_container_service.upload(auto_claim&.id)
-            queue_flash_updater(auto_claim.flashes, auto_claim&.id)
+            generate_pdf_from_service!(auto_claim.id, veteran_middle_initial) unless mocking
+            docker_container_service.upload(auto_claim.id)
+            queue_flash_updater(auto_claim.flashes, auto_claim.id)
             start_bd_uploader_job(auto_claim) if auto_claim.status != errored_state_value
             auto_claim.reload
           end
@@ -115,7 +115,9 @@ module ClaimsApi
           ), status: :accepted, location: url_for(controller: 'claims', action: 'show', id: auto_claim.id)
         end
 
-        def shared_submit_methods
+        private
+
+        def shared_submit_methods # rubocop:disable Metrics/MethodLength
           auto_claim = ClaimsApi::AutoEstablishedClaim.create(
             status: ClaimsApi::AutoEstablishedClaim::PENDING,
             auth_headers:, form_data: form_attributes,
@@ -131,12 +133,28 @@ module ClaimsApi
             )
           end
 
+          form_attributes['disabilities'].each do |disability|
+            if disability['classificationCode'].present?
+              ClaimsApi::Logger.log('526_classification_code',
+                                    classification_code: disability['classificationCode'],
+                                    cid: token.payload['cid'], version: 'v2')
+            end
+          end
+
           track_pact_counter auto_claim
 
           auto_claim
         end
 
-        private
+        def generate_pdf_from_service!(auto_claim_id, veteran_middle_initial)
+          claim_status = pdf_generation_service.generate(auto_claim_id, veteran_middle_initial)
+
+          if claim_status == ClaimsApi::AutoEstablishedClaim::ERRORED
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::UnprocessableEntity.new(
+              detail: 'Failed to generate PDF'
+            )
+          end
+        end
 
         def generate_pdf_mapper_service(form_data, pdf_data_wrapper, auth_headers, middle_initial, created_at)
           ClaimsApi::V2::DisabilityCompensationPdfMapper.new(
@@ -187,7 +205,7 @@ module ClaimsApi
           validate_veteran_name(true)
           # if we get here there were only validations file errors
           if @claims_api_forms_validation_errors
-            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonDisabilityCompensationValidationError,
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::JsonFormValidationError,
                   @claims_api_forms_validation_errors
           end
         end

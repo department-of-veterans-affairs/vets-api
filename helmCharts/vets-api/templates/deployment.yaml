@@ -20,7 +20,7 @@ spec:
           command: [ "bash" ]
           args: [ "-c", "bundle exec rake db:migrate || bundle exec rake db:setup db:migrate" ]
           env:
-            - name: "Settings.database_url"
+            - name: "SETTINGS__DATABASE_URL"
               value: "{{ .Values.databaseUrl }}"
             - name: "BUNDLE_ENTERPRISE__CONTRIBSYS__COM"
               value: "{{ .Values.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}"
@@ -35,7 +35,7 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: "Settings.database_url"
+            - name: "SETTINGS__DATABASE_URL"
               value: "{{ .Values.databaseUrl }}"
             - name: "BUNDLE_ENTERPRISE__CONTRIBSYS__COM"
               value: "{{ .Values.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}"

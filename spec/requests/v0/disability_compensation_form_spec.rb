@@ -49,7 +49,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
       context 'error handling tests' do
         cassettes_directory = 'lighthouse/veteran_verification/disability_rating'
 
-        Lighthouse::ServiceException::ERROR_MAP.except(422).each_key do |status|
+        Lighthouse::ServiceException::ERROR_MAP.except(422, 499, 501).each_key do |status|
           cassette_path = "#{cassettes_directory}/#{status == 404 ? '404_ICN' : status}_response"
 
           it "returns #{status} response" do
@@ -301,6 +301,16 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
     context 'with invalid json body' do
       it 'returns a 422' do
         post('/v0/disability_compensation_form/submit_all_claim', params: { 'form526' => nil }.to_json, headers:)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns a 422 when no new or increase disabilities are submitted' do
+        all_claims_form = File.read 'spec/support/disability_compensation_form/all_claims_fe_submission.json'
+        json_object = JSON.parse(all_claims_form)
+        json_object['form526'].delete('newPrimaryDisabilities')
+        json_object['form526'].delete('newSecondaryDisabilities')
+        updated_form = JSON.generate(json_object)
+        post('/v0/disability_compensation_form/submit_all_claim', params: updated_form, headers:)
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end

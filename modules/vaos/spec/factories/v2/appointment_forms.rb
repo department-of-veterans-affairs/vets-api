@@ -58,7 +58,7 @@ FactoryBot.define do
       community_cares_base
       status { 'proposed' }
       reason_code do
-        { 'text': 'test request' }
+        { 'text': 'colon:in:comment' }
       end
     end
 
@@ -216,7 +216,7 @@ FactoryBot.define do
       va_base
       status { 'booked' }
       reason_code do
-        { 'text': 'reasonCode:ROUTINEVISIT|comments:test' }
+        { 'text': 'reasonCode:ROUTINEVISIT|comments:colon:in:comment' }
       end
     end
 
@@ -224,7 +224,7 @@ FactoryBot.define do
       va_base
       status { 'cancelled' }
       reason_code do
-        { 'text': 'reasonCode:ROUTINEVISIT|comments:test' }
+        { 'text': 'reasonCode:ROUTINEVISIT|comments:colon:in:comment' }
       end
     end
 
@@ -247,7 +247,7 @@ FactoryBot.define do
       va_proposed_base
       kind { 'clinic' }
       reason_code do
-        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:test' } # rubocop:disable Layout/LineLength
+        { 'text': 'station id: 983|preferred modality: FACE TO FACE|phone number: 6195551234|email: myemail72585885@unattended.com|preferred dates:06/26/2024 AM,06/26/2024 PM|reason code:ROUTINEVISIT|comments:colon:in:comment' } # rubocop:disable Layout/LineLength
       end
     end
 
@@ -322,7 +322,7 @@ FactoryBot.define do
       with_direct_scheduling_base
 
       reason_code do
-        { 'text': 'test booked' }
+        { 'text': 'colon:in:comment' }
       end
     end
 
@@ -357,6 +357,17 @@ FactoryBot.define do
     trait :with_empty_slot_hash do
       community_cares
       slot { {} }
+    end
+
+    trait :telehealth do
+      va_proposed_base
+      kind { 'telehealth' }
+
+      telehealth do
+        {
+          'vvs_kind': 'CLINIC_BASED'
+        }
+      end
     end
   end
 end

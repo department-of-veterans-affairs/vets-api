@@ -7,11 +7,12 @@ describe ClaimsApi::BD do
   subject { described_class.new }
 
   let(:ews) do
-    create(:claims_api_evidence_waiver_submission, :with_full_headers_jesse, claim_id: '60897890',
-                                                                             id: '43fc03ab-86df-4386-977b-4e5b87f0817f',
-                                                                             tracked_items: [234, 235])
+    create(:evidence_waiver_submission, :with_full_headers, claim_id: '60897890',
+                                                            id: '43fc03ab-86df-4386-977b-4e5b87f0817f',
+                                                            tracked_items: [234, 235])
   end.freeze
   let(:claim) { create(:auto_established_claim, evss_id: 600_400_688, id: '581128c6-ad08-4b1e-8b82-c3640e829fb3') }
+  let(:body) { 'test body' }
 
   before do
     allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
@@ -30,8 +31,16 @@ describe ClaimsApi::BD do
         end
       end
 
+      it 'uploads a document to BD using refactored #upload_document' do
+        VCR.use_cassette('claims_api/bd/upload') do
+          result = subject.upload_document(identifier: claim.evss_id, doc_type_name: 'claim', body:)
+          expect(result).to be_a Hash
+          expect(result[:data][:success]).to be true
+        end
+      end
+
       it 'uploads an attachment to BD for L023' do
-        result = subject.send(:generate_upload_body, claim:, doc_type: 'L023', pdf_path:,
+        result = subject.send(:generate_upload_body, claim:, doc_type: 'L023', pdf_path:, action: 'post',
                                                      original_filename: 'stuff.pdf')
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L023'
@@ -42,7 +51,7 @@ describe ClaimsApi::BD do
 
       it 'uploads an attachment to BD for L122' do
         result = subject.send(:generate_upload_body, claim:, doc_type: 'L122', original_filename: '21-526EZ.pdf',
-                                                     pdf_path:)
+                                                     pdf_path:, action: 'post')
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L122'
         expect(js['data']['claimId']).to eq claim.evss_id
@@ -83,11 +92,12 @@ describe ClaimsApi::BD do
 
     describe 'power of attorney submissions (doc_type: L075, L190)' do
       let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }
+      let(:poa_with_pctpnt_id_in_headers) { create(:power_of_attorney, :with_full_headers_tamara) }
 
       context 'when the doctype is L190' do
         let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
         let(:json_body) do
-          res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:,
+          res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, action: 'post',
                                                     doc_type: 'L190')
           temp_io = res[:parameters].instance_variable_get(:@io).path
           temp_io_contents = File.read(temp_io)
@@ -109,32 +119,84 @@ describe ClaimsApi::BD do
         it 'the claimId is not present' do
           expect(json_body['data']).not_to have_key('claimId')
         end
+
+        it 'gets the participant vet id from the headers va_eauth_pid when it is not supplied for L190' do
+          poa_with_pctpnt_id_in_headers.auth_headers['va_eauth_pid']
+          expect_any_instance_of(described_class).to receive(:build_body).with(
+            {
+              doc_type: 'L190',
+              file_name: 'Tamara_Ellis_21-22.pdf',
+              participant_id: '600043201',
+              claim_id: nil,
+              file_number: nil,
+              system_name: 'Lighthouse',
+              tracked_item_ids: nil
+            }
+          )
+
+          subject.send(:generate_upload_body, claim: poa_with_pctpnt_id_in_headers, pdf_path:, action: 'post',
+                                              doc_type: 'L190')
+        end
       end
 
       context 'when the doctype is L075' do
-        let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22A/signed_filled_final.pdf' }
-        let(:json_body) do
-          res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:,
-                                                    doc_type: 'L075')
-          temp_io = res[:parameters].instance_variable_get(:@io).path
-          temp_io_contents = File.read(temp_io)
-          JSON.parse(temp_io_contents)
+        context 'when the api version is v2' do
+          let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22A/signed_filled_final.pdf' }
+          let(:json_body) do
+            res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, action: 'post',
+                                                      doc_type: 'L075')
+            temp_io = res[:parameters].instance_variable_get(:@io).path
+            temp_io_contents = File.read(temp_io)
+            JSON.parse(temp_io_contents)
+          end
+
+          it 'the systemName is Lighthouse' do
+            expect(json_body['data']['systemName']).to eq('Lighthouse')
+          end
+
+          it 'the docType is L075' do
+            expect(json_body['data']['docType']).to eq('L075')
+          end
+
+          it 'the fileName ends in 21-22a.pdf' do
+            expect(json_body['data']['fileName']).to end_with('21-22a.pdf')
+          end
+
+          it 'the claimId is not present' do
+            expect(json_body['data']).not_to have_key('claimId')
+          end
         end
 
-        it 'the systemName is Lighthouse' do
-          expect(json_body['data']['systemName']).to eq('Lighthouse')
-        end
+        context 'when the api version is v1' do
+          context 'the doc type is 21-22a' do
+            let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22A/signed_filled_final.pdf' }
+            let(:json_body) do
+              res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, action: 'put',
+                                                        doc_type: 'L075')
+              temp_io = res[:parameters].instance_variable_get(:@io).path
+              temp_io_contents = File.read(temp_io)
+              JSON.parse(temp_io_contents)
+            end
 
-        it 'the docType is L075' do
-          expect(json_body['data']['docType']).to eq('L075')
-        end
+            it 'the fileName ends in representative.pdf' do
+              expect(json_body['data']['fileName']).to end_with('_representative.pdf')
+            end
+          end
 
-        it 'the fileName ends in 21-22a.pdf' do
-          expect(json_body['data']['fileName']).to end_with('21-22a.pdf')
-        end
+          context 'the doc type is 21-22' do
+            let(:pdf_path) { 'modules/claims_api/spec/fixtures/21-22/signed_filled_final.pdf' }
+            let(:json_body) do
+              res = subject.send(:generate_upload_body, claim: power_of_attorney, pdf_path:, action: 'put',
+                                                        doc_type: 'L190')
+              temp_io = res[:parameters].instance_variable_get(:@io).path
+              temp_io_contents = File.read(temp_io)
+              JSON.parse(temp_io_contents)
+            end
 
-        it 'the claimId is not present' do
-          expect(json_body['data']).not_to have_key('claimId')
+            it 'the fileName ends in representative.pdf' do
+              expect(json_body['data']['fileName']).to end_with('_representative.pdf')
+            end
+          end
         end
       end
     end
@@ -162,12 +224,20 @@ describe ClaimsApi::BD do
     describe '#generate_upload_body' do
       it 'uploads an attachment to BD for L705' do
         result = subject.send(:generate_upload_body, claim: ews, doc_type: 'L705', original_filename: '5103.pdf',
-                                                     pdf_path:)
+                                                     pdf_path:, action: 'post')
         js = JSON.parse(result[:parameters].read)
         expect(js['data']['docType']).to eq 'L705'
         expect(js['data']['claimId']).to eq ews.claim_id
         expect(js['data']['systemName']).to eq 'VA.gov'
         expect(js['data']['trackedItemIds']).to eq [234, 235]
+      end
+
+      it 'sends only a participant id and not a file number for 5103' do
+        result = subject.send(:generate_upload_body, claim: ews, doc_type: 'L705', original_filename: '5103.pdf',
+                                                     pdf_path:, action: 'post', pctpnt_vet_id: '123456789')
+        js = JSON.parse(result[:parameters].read)
+        expect(js['data']['fileNumber']).not_to be_truthy
+        expect(js['data']['fileNumber']).to eq(nil)
       end
     end
 

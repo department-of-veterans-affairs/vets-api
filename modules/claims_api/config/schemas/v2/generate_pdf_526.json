@@ -84,13 +84,13 @@
             "city": {
               "description": "City for the Veteran's current mailing address.",
               "type": "string",
-              "example": "Portland",
+              "example": "Schenectady",
               "maxLength": 1000
             },
             "state": {
               "description": "State for the Veteran's current mailing address.",
               "type": ["string", "null"],
-              "example": "OR",
+              "example": "NY",
               "maxLength": 1000,
               "nullable": true
             },
@@ -184,13 +184,13 @@
         "city": {
           "description": "City for the Veteran's new address.",
           "type": "string",
-          "example": "Portland",
+          "example": "Schenectady",
           "maxLength": 1000
         },
         "state": {
           "description": "State for the Veteran's new address.",
           "type": ["string", "null"],
-          "example": "OR",
+          "example": "NY",
           "maxLength": 1000,
           "nullable": true
         },
@@ -698,13 +698,13 @@
               "city": {
                 "description": "City of treatment facility.",
                 "type": ["string", "null"],
-                "example": "Portland",
+                "example": "Schenectady",
                 "nullable": true
               },
               "state": {
                 "description": "State of treatment facility.",
                 "type": ["string", "null"],
-                "example": "OR",
+                "example": "NY",
                 "nullable": true
               }
             }
@@ -1017,7 +1017,7 @@
         "accountNumber": {
           "description": "Account number for the direct deposit.",
           "type": ["string", "null"],
-          "maxLength": 14,
+          "maxLength": 1000,
           "nullable": true,
           "example": "123123123123"
         },

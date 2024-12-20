@@ -66,10 +66,6 @@ module V0
         key :description, 'Send and receive secure messages to health providers'
       end
       tag do
-        key :name, 'facilities'
-        key :description, 'VA facilities, locations, hours of operation, available services'
-      end
-      tag do
         key :name, 'gi_bill_institutions'
         key :description, 'Discover institutions at which GI Bill benefits may be used'
       end
@@ -133,7 +129,6 @@ module V0
       Swagger::Requests::Coe,
       Swagger::Requests::Debts,
       Swagger::Requests::DebtLetters,
-      Swagger::Requests::DecisionReviewEvidence,
       Swagger::Requests::DependentsApplications,
       Swagger::Requests::DependentsVerifications,
       Swagger::Requests::DisabilityCompensationForm,
@@ -165,7 +160,7 @@ module V0
       Swagger::Requests::Messages::TriageTeams,
       Swagger::Requests::MviUsers,
       Swagger::Requests::OnsiteNotifications,
-      Swagger::Requests::PensionClaims,
+      Swagger::Requests::MyVA::SubmissionStatuses,
       Swagger::Requests::IncomeAndAssetsClaims,
       Swagger::Requests::PPIU,
       Swagger::Requests::PreneedsClaims,
@@ -190,7 +185,6 @@ module V0
       Swagger::Responses::UnprocessableEntityError,
       Swagger::Schemas::Address,
       Swagger::Schemas::Appeals::Requests,
-      Swagger::Schemas::Appeals::HigherLevelReview,
       Swagger::Schemas::Appeals::NoticeOfDisagreement,
       Swagger::Schemas::ContactUs::SuccessfulInquiryCreation,
       Swagger::Schemas::ContactUs::InquiriesList,
@@ -199,7 +193,6 @@ module V0
       Swagger::Schemas::Countries,
       Swagger::Schemas::ConnectedApplications,
       Swagger::Schemas::Contacts,
-      Swagger::Schemas::DecisionReviewEvidence,
       Swagger::Schemas::Dependents,
       Swagger::Schemas::DependentsVerifications,
       Swagger::Schemas::Email,

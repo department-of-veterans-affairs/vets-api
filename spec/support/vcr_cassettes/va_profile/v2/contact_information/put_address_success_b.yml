@@ -1,0 +1,61 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri:  <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/b2fab2b5-6af0-45e1-a9e2-394347af91ef%5EPN%5E200VIDM%5EUSDVA/addresses
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"addressId":15035,"addressLine1":"1494 Martin Luther King Rd","addressLine2":null,"addressLine3":null,"addressPOU":"RESIDENCE","addressType":"Domestic","cityName":"Fulton","countryCodeISO2":null,"countryCodeISO3":"USA","countryName":"USA","county":{"countyCode":null,"countyName":null},"intPostalCode":null,"provinceName":null,"stateCode":"MS","zipCode5":"38843","zipCode4":null,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-08-27T18:51:06.012Z","effectiveStartDate":null,"effectiveEndDate":null}}'
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Cufsystemname:
+      - VETSGOV
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Date:
+      - Wed, 10 Mar 2021 23:58:10 GMT
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Vaprofiletxauditid:
+      - 422ea875-9f78-4305-8d37-6b969e4adcfe
+      Pragma:
+      - no-cache
+      Strict-Transport-Security:
+      - max-age=31536000 ; includeSubDomains
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Keep-Alive:
+      - timeout=60
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - 1; mode=block
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      X-Ua-Compatible:
+      - IE-edge,chrome=1
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '72'
+    body:
+      encoding: UTF-8
+      string: '{"txAuditId":"85b6b6a6-efa8-4e39-add8-7bf01b7b1b71","status":"RECEIVED"}'
+  recorded_at: Wed, 10 Mar 2021 23:58:10 GMT
+recorded_with: VCR 6.0.0

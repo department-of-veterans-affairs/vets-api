@@ -2,19 +2,21 @@
 http_interactions:
 - request:
     method: post
-    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v2/telephones
+    uri: <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/telephones
     body:
       encoding: UTF-8
-      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2018-04-09T11:52:03.000-06:00","sourceSystemUser":"1234","telephoneId":42,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"vet360Id":"1","voiceMailAcceptableInd":true,"effectiveStartDate":null,"effectiveEndDate":null}}'
+      string: '{"bio":{"areaCode":"303","countryCode":"1","internationalIndicator":false,"originatingSourceSystem":"VETSGOV","phoneNumber":"5551234","phoneNumberExt":null,"phoneType":"MOBILE","sourceDate":"2024-08-27T18:51:06.012Z","sourceSystemUser":"123498767V234859","telephoneId":42,"textMessageCapableInd":true,"textMessagePermInd":true,"ttyInd":true,"voiceMailAcceptableInd":true,"effectiveStartDate":null,"effectiveEndDate":null}}'
     headers:
+      User-Agent:
+      - Vets.gov Agent
       Accept:
       - application/json
       Content-Type:
       - application/json
-      User-Agent:
-      - Vets.gov Agent
       Cufsystemname:
       - VETSGOV
+      Accept:
+      - application/json
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
   response:
@@ -22,33 +24,42 @@ http_interactions:
       code: 400
       message: ''
     headers:
-      Date:
-      - Fri, 10 Jan 2020 20:54:24 GMT
-      Expires:
-      - '0'
-      Vet360txauditid:
-      - ac25b8da-5b1c-4f17-936a-1403f29c68ec
-      X-Frame-Options:
-      - DENY
-      Pragma:
-      - no-cache
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-1564143816", dtSInfo;desc="0"
+      - dtRpid;desc="-55644277", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - b6978199-1cee-4e6c-8aab-0208af799265
       X-Content-Type-Options:
       - nosniff
-      - nosniff
       X-Xss-Protection:
-      - 1; mode=block
+      - '0'
       Cache-Control:
       - no-cache, no-store, max-age=0, must-revalidate
-      X-Ua-Compatible:
-      - IE-edge,chrome=1
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Thu, 12 Sep 2024 23:43:52 GMT
+      Referrer-Policy:
+      - no-referrer
       Content-Type:
-      - application/json;charset=UTF-8
-      Content-Length:
-      - '170'
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '{"messages":[{"code":"PHON124","key":"telephoneId.Null","severity":"ERROR","text":"must
-        be null"}],"txAuditId":"83d10706-eb7f-48bc-9331-7184c326dec1","status":"REJECTED"}'
-    http_version:
-  recorded_at: Fri, 10 Jan 2020 20:54:25 GMT
-recorded_with: VCR 5.0.0
+      string: '{"messages":[{"code":"PHON124","key":"telephoneId.Null","text":"must
+        be null","severity":"ERROR"}],"txAuditId":"773085ef-a137-400f-acf2-636f97326eb6","status":"REJECTED"}'
+  recorded_at: Thu, 12 Sep 2024 23:43:52 GMT
+recorded_with: VCR 6.3.1

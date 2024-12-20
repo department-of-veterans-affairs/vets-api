@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA2010207
-    include Virtus.model(nullify_blank: true)
+  class VBA2010207 < BaseForm
     STATS_KEY = 'api.simple_forms_api.20_10207'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def facility_name(index)
       facility = @data['medical_treatments']&.[](index - 1)
@@ -71,27 +64,8 @@ module SimpleFormsApi
     end
 
     def zip_code_is_us_based
-      @data.dig('veteran_mailing_address',
-                'country') == 'USA' || @data.dig('non_veteran_mailing_address', 'country') == 'USA'
-    end
-
-    def handle_attachments(file_path)
-      attachments = get_attachments
-      if attachments.count.positive?
-        combined_pdf = CombinePDF.new
-        combined_pdf << CombinePDF.load(file_path)
-        attachments.each do |attachment|
-          combined_pdf << CombinePDF.load(attachment, allow_optional_content: true)
-        rescue => e
-          Rails.logger.error(
-            'Simple forms api - failed to load attachment for 20-10207',
-            { message: e.message, attachment: attachment.inspect }
-          )
-          raise
-        end
-
-        combined_pdf.save file_path
-      end
+      @data.dig('veteran_mailing_address', 'country') == 'USA' ||
+        @data.dig('non_veteran_mailing_address', 'country') == 'USA'
     end
 
     def desired_stamps
@@ -135,33 +109,17 @@ module SimpleFormsApi
                         living_situations:, other_reasons:)
     end
 
+    def get_attachments
+      PersistentAttachment.where(guid: attachment_guids).map(&:to_pdf)
+    end
+
     private
 
-    def get_attachments
-      attachments = []
+    def attachment_guids
+      doc_types = %w[als_documents financial_hardship_documents medal_award_documents pow_documents
+                     terminal_illness_documents vsi_documents]
 
-      financial_hardship_documents = @data['financial_hardship_documents']
-      als_documents = @data['als_documents']
-      medal_award_documents = @data['medal_award_documents']
-      pow_documents = @data['pow_documents']
-      terminal_illness_documents = @data['terminal_illness_documents']
-      vsi_documents = @data['vsi_documents']
-
-      [
-        financial_hardship_documents,
-        als_documents,
-        medal_award_documents,
-        pow_documents,
-        terminal_illness_documents,
-        vsi_documents
-      ].compact.each do |documents|
-        confirmation_codes = []
-        documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
-
-        PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
-      end
-
-      attachments
+      doc_types.flat_map { |type| @data[type]&.pluck('confirmation_code') }.compact
     end
 
     def veteran_ssn

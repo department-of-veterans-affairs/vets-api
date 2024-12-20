@@ -15,6 +15,7 @@ require 'disability_compensation/providers/claims_service/lighthouse_claims_serv
 require 'disability_compensation/providers/brd/brd_provider'
 require 'disability_compensation/providers/brd/evss_brd_provider'
 require 'disability_compensation/providers/brd/lighthouse_brd_provider'
+require 'disability_compensation/providers/brd/lighthouse_staging_brd_provider'
 require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
 require 'disability_compensation/providers/generate_pdf/evss_generate_pdf_provider'
 require 'disability_compensation/providers/generate_pdf/lighthouse_generate_pdf_provider'
@@ -28,7 +29,8 @@ class ApiProviderFactory
 
   API_PROVIDER = {
     evss: :evss,
-    lighthouse: :lighthouse
+    lighthouse: :lighthouse,
+    lighthouse_staging: :lighthouse_staging
   }.freeze
 
   FACTORIES = {
@@ -56,7 +58,9 @@ class ApiProviderFactory
   FEATURE_TOGGLE_BRD = 'disability_compensation_lighthouse_brd'
   FEATURE_TOGGLE_GENERATE_PDF = 'disability_compensation_lighthouse_generate_pdf'
 
-  FEATURE_TOGGLE_UPLOAD_SUPPLEMENTAL_DOCUMENT = 'disability_compensation_lighthouse_upload_supplemental_document'
+  FEATURE_TOGGLE_UPLOAD_BDD_INSTRUCTIONS = 'disability_compensation_upload_bdd_instructions_to_lighthouse'
+  FEATURE_TOGGLE_UPLOAD_0781 = 'disability_compensation_upload_0781_to_lighthouse'
+  FEATURE_TOGGLE_SUBMIT_VETERAN_UPLOADS = 'disability_compensation_upload_veteran_evidence_to_lighthouse'
 
   attr_reader :type
 
@@ -164,6 +168,8 @@ class ApiProviderFactory
       EvssBRDProvider.new(@current_user)
     when API_PROVIDER[:lighthouse]
       LighthouseBRDProvider.new(@current_user)
+    when API_PROVIDER[:lighthouse_staging]
+      LighthouseStagingBRDProvider.new(@current_user)
     else
       raise NotImplementedError, 'No known BRD Api Provider type provided'
     end
@@ -187,11 +193,18 @@ class ApiProviderFactory
   end
 
   def supplemental_document_upload_service_provider
+    provider_options = [
+      @options[:form526_submission],
+      @options[:document_type],
+      @options[:statsd_metric_prefix],
+      @options[:supporting_evidence_attachment]
+    ]
+
     case api_provider
     when API_PROVIDER[:evss]
-      EVSSSupplementalDocumentUploadProvider.new(@options[:form526_submission])
+      EVSSSupplementalDocumentUploadProvider.new(*provider_options)
     when API_PROVIDER[:lighthouse]
-      LighthouseSupplementalDocumentUploadProvider.new(@options[:form526_submission])
+      LighthouseSupplementalDocumentUploadProvider.new(*provider_options)
     else
       raise NotImplementedError, 'No known Supplemental Document Upload Api Provider type provided'
     end

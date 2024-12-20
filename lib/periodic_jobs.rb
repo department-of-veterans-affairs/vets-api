@@ -1,6 +1,10 @@
 # frozen_string_literal: true
 
-PERIODIC_JOBS = lambda { |mgr|
+require 'holidays'
+
+# @see https://crontab.guru/
+# @see https://en.wikipedia.org/wiki/Cron
+PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
   # Runs at midnight every Tuesday
@@ -46,14 +50,23 @@ PERIODIC_JOBS = lambda { |mgr|
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
   mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
 
+  # Update alternative Banners data every 10 minutes
+  mgr.register('*/10 * * * *', 'Banners::UpdateAllJob')
+
   # Update static data cache
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
 
-  # Update static data cache for form 526
+  # Update Optionset data cache
+  mgr.register('0 0 * * *', 'Crm::OptionsetDataJob')
+
+  # Update FormSubmissionAttempt status from Lighthouse Benefits Intake API
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
 
+  # Generate FormSubmissionAttempt rememdiation statistics from Lighthouse Benefits Intake API
+  mgr.register('0 1 * * 1', 'BenefitsIntakeRemediationStatusJob')
+
   # Update Lighthouse526DocumentUpload statuses according to Lighthouse Benefits Documents service tracking
-  mgr.register('15 * * * *', 'Form526DocumentUploadPollingJob')
+  mgr.register('15 * * * *', 'Lighthouse::Form526DocumentUploadPollingJob')
 
   # Updates status of FormSubmissions per call to Lighthouse Benefits Intake API
   mgr.register('0 3 * * *', 'Form526StatusPollingJob')
@@ -61,8 +74,11 @@ PERIODIC_JOBS = lambda { |mgr|
   # Checks all 'success' type submissions in LH to ensure they haven't changed
   mgr.register('0 2 * * 0', 'Form526ParanoidSuccessPollingJob')
 
-  # Log the state of Form 526 submissions to hydrate Datadog monitor
-  mgr.register('5 4 * * 7', 'Form526StateLoggingJob')
+  # Log a report of 526 submission processing for a given timebox
+  mgr.register('5 4 * * 7', 'Form526SubmissionProcessingReportJob')
+
+  # Log a snapshot of everything in a full failure type state
+  mgr.register('5 * * * *', 'Form526FailureStateSnapshotJob')
 
   # Clear out processed 22-1990 applications that are older than 1 month
   mgr.register('0 0 * * *', 'EducationForm::DeleteOldApplications')
@@ -106,20 +122,8 @@ PERIODIC_JOBS = lambda { |mgr|
   # Send the daily report to the call center about spool file submissions
   mgr.register('5 4 * * 1-5', 'EducationForm::CreateSpoolSubmissionsReport')
 
-  # Download and cache facility access-to-care metric data
-  mgr.register('10 4 * * *', 'Facilities::DentalServiceReloadJob')
-
-  # Download and cache facility mental health phone number data
-  mgr.register('25 4 * * *', 'Facilities::MentalHealthReloadJob')
-
   # Send the daily 10203 report to the call center about spool file submissions
   mgr.register('35 4 * * 1-5', 'EducationForm::Create10203SpoolSubmissionsReport')
-
-  # Download and cache facility access-to-care metric data
-  mgr.register('45 4 * * *', 'Facilities::AccessDataDownload')
-
-  # Download and store drive time bands
-  mgr.register('55 4 * * *', 'Facilities::PSSGDownload')
 
   # Gather account login statistics for statsd
   mgr.register('0 6 * * *', 'AccountLoginStatisticsJob')
@@ -147,6 +151,9 @@ PERIODIC_JOBS = lambda { |mgr|
 
   # Monthly report of submissions
   mgr.register('00 00 1 * *', 'ClaimsApi::ReportMonthlySubmissions')
+
+  # Daily find POAs caching
+  mgr.register('0 2 * * *', 'ClaimsApi::FindPoasJob')
 
   # TODO: Document this job
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
@@ -184,10 +191,10 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('5 */2 * * *', 'VBADocuments::RunUnsuccessfulSubmissions')
 
   # Poll upload bucket for unprocessed uploads
-  mgr.register('*/2 * * * *', 'VBADocuments::UploadScanner')
+  mgr.register('*/3 * * * *', 'VBADocuments::UploadScanner')
 
   # Clean up submitted documents from S3
-  mgr.register('*/2 * * * *', 'VBADocuments::UploadRemover')
+  mgr.register('2-59/5 * * * *', 'VBADocuments::UploadRemover')
 
   # Daily/weekly report of unsuccessful benefits intake submissions
   mgr.register('0 0 * * 1-5', 'VBADocuments::ReportUnsuccessfulSubmissions')
@@ -205,7 +212,7 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('0 2,9,16 * * 1-5', 'VBADocuments::FlipperStatusAlert')
 
   # Rotates Lockbox/KMS record keys and _ciphertext fields every October 12th (when the KMS key auto-rotate)
-  mgr.register('0 3 * * *', 'KmsKeyRotation::BatchInitiatorJob')
+  mgr.register('10 1 * * *', 'KmsKeyRotation::BatchInitiatorJob')
 
   # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
   mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
@@ -220,10 +227,32 @@ PERIODIC_JOBS = lambda { |mgr|
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
   # Hourly jobs that update DR SavedClaims with delete_date
-  mgr.register('20 * * * *', 'DecisionReview::SavedClaimHlrStatusUpdaterJob')
-  mgr.register('30 * * * *', 'DecisionReview::SavedClaimNodStatusUpdaterJob')
-  mgr.register('40 * * * *', 'DecisionReview::SavedClaimScStatusUpdaterJob')
+  mgr.register('20 * * * *', 'DecisionReview::HlrStatusUpdaterJob')
+  mgr.register('30 * * * *', 'DecisionReview::NodStatusUpdaterJob')
+  mgr.register('50 * * * *', 'DecisionReview::ScStatusUpdaterJob')
+
+  # Engine version: Hourly jobs that update DR SavedClaims with delete_date
+  mgr.register('10 * * * *', 'DecisionReviews::HlrStatusUpdaterJob')
+  mgr.register('15 * * * *', 'DecisionReviews::NodStatusUpdaterJob')
+  mgr.register('40 * * * *', 'DecisionReviews::ScStatusUpdaterJob')
 
   # Clean SavedClaim records that are past delete date
   mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
+
+  # Engine version: Clean SavedClaim records that are past delete date
+  mgr.register('0 5 * * *', 'DecisionReviews::DeleteSavedClaimRecordsJob')
+
+  # Send Decision Review emails to Veteran for failed form/evidence submissions
+  mgr.register('5 1 * * *', 'DecisionReview::FailureNotificationEmailJob')
+
+  # Engine version: Send Decision Review emails to Veteran for failed form/evidence submissions
+  mgr.register('5 0 * * *', 'DecisionReviews::FailureNotificationEmailJob')
+
+  # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
+  mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
+  mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
+  # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
+  mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
+  # Daily 1900 job for Vye: clears deactivated BDNs every evening.
+  mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 }

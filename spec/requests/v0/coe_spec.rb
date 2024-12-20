@@ -83,6 +83,26 @@ Rspec.describe 'V0::Coe', type: :request do
 
             post('/v0/coe/document_upload', params: attachments)
             expect(response).to have_http_status :ok
+            expect(response.body).to eq '201'
+          end
+        end
+      end
+
+      context 'when receiving 504 from LGY post_document' do
+        it 'adds an attachment tag to the document\'s description' do
+          VCR.use_cassette 'lgy/document_upload_504' do
+            attachments = {
+              'files' => [{
+                'file' => Base64.encode64(File.read('spec/fixtures/files/lgy_file.pdf')),
+                'document_type' => 'VA home loan documents',
+                'file_type' => 'pdf',
+                'file_name' => 'lgy_file.pdf'
+              }]
+            }
+
+            expect(Rails.logger).to receive(:info)
+            post('/v0/coe/document_upload', params: attachments)
+            expect(response).to have_http_status(:server_error)
           end
         end
       end
@@ -103,11 +123,12 @@ Rspec.describe 'V0::Coe', type: :request do
           'fileName' => 'lgy_file.pdf'
         }
 
-        expected_response = double(:fake_response, status: 200)
+        expected_response = double(:fake_response, status: 201)
         expect_any_instance_of(LGY::Service).to receive(:post_document).with(payload: expected_payload)
                                                                        .and_return(expected_response)
         post('/v0/coe/document_upload', params: attachments)
         expect(response).to have_http_status(:ok)
+        expect(response.body).to eq '201'
       end
     end
 

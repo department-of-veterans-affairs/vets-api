@@ -21,7 +21,6 @@ class SavedClaim::IncomeAndAssets < SavedClaim
   # send this Income and Assets Evidence claim to the Lighthouse Benefit Intake API
   #
   # @see https://developer.va.gov/explore/api/benefits-intake/docs
-  # @see Lighthouse::PensionBenefitIntakeJob
   #
   # @param current_user [User] the current user submitting the form
   #

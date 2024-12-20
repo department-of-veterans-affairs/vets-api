@@ -58,10 +58,17 @@ module Mobile
         end
 
         def build_record(type, params)
-          "VAProfile::Models::#{type.capitalize}"
-            .constantize
-            .new(params)
-            .set_defaults(@user)
+          if type == :address && Flipper.enabled?(:va_v3_contact_information_service, @user)
+            'VAProfile::Models::V3::Address'
+              .constantize
+              .new(params)
+              .set_defaults(@user)
+          else
+            "VAProfile::Models::#{type.capitalize}"
+              .constantize
+              .new(params)
+              .set_defaults(@user)
+          end
         end
 
         def poll_with_backoff
@@ -122,11 +129,7 @@ module Mobile
         end
 
         def contact_information_service
-          if Flipper.enabled?(:va_v3_contact_information_service, @user)
-            VAProfile::V2::ContactInformation::Service.new @user
-          else
-            VAProfile::ContactInformation::Service.new @user
-          end
+          VAProfile::ContactInformation::Service.new @user
         end
 
         def raise_timeout_error(_elapsed, _try)
