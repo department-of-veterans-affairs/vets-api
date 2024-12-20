@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs_service/org_web_service'
 
 describe Veteran::User do
   context 'initialization' do
     let(:user) { FactoryBot.create(:user, :loa3) }
 
-    let(:ows) { ClaimsApi::LocalBGS }
+    let(:ows) { ClaimsApi::OrgWebService }
 
     it 'initializes from a user' do
       VCR.use_cassette('bgs/claimant_web_service/find_poa_by_participant_id') do
