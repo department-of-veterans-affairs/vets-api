@@ -129,7 +129,7 @@ RSpec.describe 'AskVAApi StaticData', type: :request do
            'rank_order' => 1,
            'requires_authentication' => true,
            'topic_type' => 'Category',
-           'contact_preferences' => [] } }
+           'contact_preferences' => ['Email'] } }
     end
 
     context 'when successful' do
