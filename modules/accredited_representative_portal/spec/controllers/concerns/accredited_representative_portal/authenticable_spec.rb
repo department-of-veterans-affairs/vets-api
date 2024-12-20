@@ -7,6 +7,8 @@ RSpec.describe AccreditedRepresentativePortal::Authenticable do
     def index
       head :ok
     end
+
+    def verify_pundit_authorization; end
   end
 
   let(:representative_user) { create(:representative_user) }
