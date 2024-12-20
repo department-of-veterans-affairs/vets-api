@@ -1,26 +1,6 @@
 # frozen_string_literal: true
-
 require 'mpi/service'
 require 'bgs_service/local_bgs'
-require 'bgs_service/benefit_claim_service'
-require 'bgs_service/claimant_web_service'
-require 'bgs_service/claim_management_service'
-require 'bgs_service/contention_service'
-require 'bgs_service/corporate_update_web_service'
-require 'bgs_service/e_benefits_bnft_claim_status_web_service'
-require 'bgs_service/intent_to_file_web_service'
-require 'bgs_service/manage_representative_service'
-require 'bgs_service/person_web_service'
-require 'bgs_service/standard_data_service'
-require 'bgs_service/vet_record_web_service'
-require 'bgs_service/veteran_representative_service'
-require 'bgs_service/vnp_atchms_service'
-require 'bgs_service/vnp_person_service'
-require 'bgs_service/vnp_proc_form_service'
-require 'bgs_service/vnp_proc_service_v2'
-require 'bgs_service/vnp_ptcpnt_addrs_service'
-require 'bgs_service/vnp_ptcpnt_phone_service'
-require 'bgs_service/vnp_ptcpnt_service'
 
 OkComputer.mount_at = false
 OkComputer.check_in_parallel = true
@@ -142,32 +122,6 @@ class PDFGenratorCheck < BaseCheck
   end
 end
 
-class BGSServiceCheck < BaseCheck
-  def initialize(bean, service, class_name)
-    @bean = bean
-    @service = service
-    @class_name = class_name
-    @endpoint = "#{bean}/#{service}"
-  end
-
-  def check
-    faraday_service = @class_name.new(
-      external_uid: 'healthcheck_uid',
-      external_key: 'healthcheck_key'
-    )
-    status = faraday_service.send('healthcheck', @endpoint)
-    status == 200 ? process_success : process_failure
-  rescue
-    process_failure
-  end
-
-  protected
-
-  def name
-    "Faraday BGS #{@service}"
-  end
-end
-
 def faraday_client
   Faraday.new( # Disable SSL for (localhost) testing
     ssl: { verify: !Rails.env.development? }
@@ -181,82 +135,40 @@ def faraday_client
 end
 
 OkComputer::Registry.register 'mpi', MpiCheck.new
-OkComputer::Registry.register 'benefits-documents',
-                              BeneftsDocumentsCheck.new('services/benefits-documents/v1/healthcheck')
 OkComputer::Registry.register 'form-526-docker-container',
                               Form526DockerContainerCheck.new('wss-form526-services-web/tools/version.jsp')
 OkComputer::Registry.register 'pdf-generator', PDFGenratorCheck.new('form-526ez-pdf-generator/actuator/health')
 OkComputer::Registry.register 'localbgs-org',
-                              FaradayBGSCheck.new('OrgWebServiceBean/OrgWebService')
+FaradayBGSCheck.new('OrgWebServiceBean/OrgWebService')
 OkComputer::Registry.register 'localbgs-trackeditem',
-                              FaradayBGSCheck.new('TrackedItemService/TrackedItemService')
+FaradayBGSCheck.new('TrackedItemService/TrackedItemService')
 
-# new bgs services 12/2024
-OkComputer::Registry.register 'benefit-claim-web-service', BGSServiceCheck.new(
-  'BenefitClaimServiceBean', 'BenefitClaimWebService', ClaimsApi::BenefitClaimService
-)
-OkComputer::Registry.register 'claim-management-service', BGSServiceCheck.new(
-  'ClaimManagementService', 'ClaimManagementService', ClaimsApi::ClaimManagementService
-)
-OkComputer::Registry.register 'claimant-service', BGSServiceCheck.new(
-  'ClaimantServiceBean', 'ClaimantWebService', ClaimsApi::ClaimantWebService
-)
-OkComputer::Registry.register 'contention-service', BGSServiceCheck.new(
-  'ContentionService', 'ContentionService', ClaimsApi::ContentionService
-)
-OkComputer::Registry.register 'corporate-update-web-service', BGSServiceCheck.new(
-  'CorporateUpdateServiceBean', 'CorporateUpdateService', ClaimsApi::CorporateUpdateWebService
-)
-OkComputer::Registry.register 'e-benefits-bnft-claim-status-web-service', BGSServiceCheck.new(
-  'EBenefitsBnftClaimStatusWebServiceBean', 'EBenefitsBnftClaimStatusWebService',
-  ClaimsApi::EbenefitsBnftClaimStatusWebService
-)
-OkComputer::Registry.register 'intent-to-file-service', BGSServiceCheck.new(
-  'IntentToFileWebServiceBean', 'IntentToFileWebService', ClaimsApi::IntentToFileWebService
-)
-OkComputer::Registry.register 'manage-rep-service', BGSServiceCheck.new(
-  'VDC', 'ManageRepresentativeService', ClaimsApi::ManageRepresentativeService
-)
-# future service
-# OkComputer::Registry.register 'org-web-service', BGSServiceCheck.new(
-# 'OrgWebServiceBean','OrgWebService', ClaimsApi::OrgWebService)
-OkComputer::Registry.register 'person-web-service', BGSServiceCheck.new(
-  'PersonWebServiceBean', 'PersonWebService', ClaimsApi::PersonWebService
-)
-OkComputer::Registry.register 'standard-data-service', BGSServiceCheck.new(
-  'StandardDataService', 'StandardDataService', ClaimsApi::StandardDataService
-)
-# future services
-# OkComputer::Registry.register 'standard-data-web-service', BGSServiceCheck.new(
-# 'StandardDataWebServiceBean','StandardDataWebService', ClaimsApi::StandardDataWebService
-# )
-# OkComputer::Registry.register 'tracked-item-service', BGSServiceCheck.new(
-#   'TrackedItemService', 'TrackedItemService', ClaimsApi::TrackedItemService
-# )
-OkComputer::Registry.register 'vet-rep-service', BGSServiceCheck.new(
-  'VDC', 'VeteranRepresentativeService', ClaimsApi::VeteranRepresentativeService
-)
-OkComputer::Registry.register 'vet-record-service', BGSServiceCheck.new(
-  'VetRecordServiceBean', 'VetRecordWebService', ClaimsApi::VetRecordWebService
-)
-OkComputer::Registry.register 'vnp-atchms-web-service', BGSServiceCheck.new(
-  'VnpAtchmsWebServiceBean', 'VnpAtchmsService', ClaimsApi::VnpAtchmsService
-)
-OkComputer::Registry.register 'vnp-person-web-service', BGSServiceCheck.new(
-  'VnpPersonWebServiceBean', 'VnpPersonService', ClaimsApi::VnpPersonService
-)
-OkComputer::Registry.register 'vnp-proc-form-web-service', BGSServiceCheck.new(
-  'VnpProcFormWebServiceBean', 'VnpProcFormService', ClaimsApi::VnpProcFormService
-)
-OkComputer::Registry.register 'vnp-proc-service-v2', BGSServiceCheck.new(
-  'VnpProcWebServiceBeanV2', 'VnpProcServiceV2', ClaimsApi::VnpProcServiceV2
-)
-OkComputer::Registry.register 'vnp-ptcpnt-addrs-service', BGSServiceCheck.new(
-  'VnpPtcpntAddrsWebServiceBean', 'VnpPtcpntAddrsService', ClaimsApi::VnpPtcpntAddrsService
-)
-OkComputer::Registry.register 'vnp-ptcpnt-phone-service', BGSServiceCheck.new(
-  'VnpPtcpntPhoneWebServiceBean', 'VnpPtcpntPhoneService', ClaimsApi::VnpPtcpntPhoneService
-)
-OkComputer::Registry.register 'vnp-ptcpnt-service', BGSServiceCheck.new(
-  'VnpPtcpntWebServiceBean', 'VnpPtcpntService', ClaimsApi::VnpPtcpntService
-)
+services = [
+      {name: 'benefit_claim_service',
+        endpoint: 'BenefitClaimServiceBean/BenefitClaimWebService' },
+      {name: 'claimant_web_service',
+        endpoint: 'ClaimManagementService/ClaimManagementService' },
+        {name: 'claim_management_service', endpoint: 'ClaimantServiceBean/ClaimantWebService'},
+        {name: 'contention_service', endpoint: 'ContentionService/ContentionService'},
+        {name: 'corporate_update_web_service', endpoint: 'CorporateUpdateServiceBean/CorporateUpdateService'},
+        {name: 'e_benefits_bnft_claim_status_web_service', endpoint: 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService'},
+        {name: 'intent_to_file_web_service', endpoint: 'IntentToFileWebServiceBean/IntentToFileWebService'},
+        {name: 'manage_representative_service', endpoint: 'VDC/ManageRepresentativeService'},
+        {name: 'person_web_service', endpoint: 'PersonWebServiceBean/PersonWebService'},
+        {name: 'standard_data_service', endpoint: 'StandardDataService/StandardDataService'},
+        {name: 'vet_record_web_service', endpoint: 'VetRecordServiceBean/VetRecordWebService'},
+        {name: 'veteran_representative_service', endpoint: 'VDC/VeteranRepresentativeService'},
+        {name: 'vnp_atchms_service', endpoint: 'VnpAtchmsWebServiceBean/VnpAtchmsService'},
+        {name: 'vnp_person_service', endpoint: 'VnpPersonWebServiceBean/VnpPersonService'},
+        {name: 'vnp_proc_form_service', endpoint: 'VnpProcFormWebServiceBean/VnpProcFormService'},
+        {name: 'vnp_proc_service_v2', endpoint: 'VnpProcWebServiceBeanV2/VnpProcServiceV2'},
+        {name: 'vnp_ptcpnt_addrs_service', endpoint: 'VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService'},
+        {name: 'vnp_ptcpnt_phone_service', endpoint: 'VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService'},
+        {name: 'vnp_ptcpnt_service', endpoint: 'VnpPtcpntWebServiceBean/VnpPtcpntService'}
+        # {name: 'org-web-service', endpoint: 'OrgWebServiceBean/OrgWebService'},
+        # {name: 'standard-data-web-service', endpoint: 'StandardDataWebServiceBean/StandardDataWebService'},
+        # {name: 'tracked-item-service', endpoint: 'TrackedItemService/TrackedItemService'},
+    ]
+services.each do |service|
+  OkComputer::Registry.register service[:name], FaradayBGSCheck.new(service[:endpoint])
+end
