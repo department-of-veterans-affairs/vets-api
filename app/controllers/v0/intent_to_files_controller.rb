@@ -41,7 +41,7 @@ module V0
         Rails.logger.info("ITF GET call skipped for user #{@current_user.uuid}")
         response = set_success_response
       else
-        response = intent_to_file_provider.get_intent_to_file(type, nil, nil)
+        response = intent_to_file_provider.get_intent_to_file(type)
       end
       render json: IntentToFileSerializer.new(response)
     end
@@ -64,7 +64,7 @@ module V0
         Rails.logger.info("ITF submit call skipped for user #{@current_user.uuid}")
         response = set_success_response
       else
-        response = intent_to_file_provider.create_intent_to_file(type, nil, nil)
+        response = intent_to_file_provider.create_intent_to_file(type)
       end
       render json: IntentToFileSerializer.new(response)
     end
