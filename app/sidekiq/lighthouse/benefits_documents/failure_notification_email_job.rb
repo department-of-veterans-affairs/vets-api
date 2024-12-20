@@ -50,7 +50,6 @@ module BenefitsDocuments
 
     def record_email_send_success(upload, response)
       upload.update(va_notify_id: response.id, va_notify_date: DateTime.now)
-      byebug
       message = "#{upload.job_class} va notify failure email queued"
       ::Rails.logger.info(message)
       StatsD.increment('silent_failure_avoided_no_confirmation',

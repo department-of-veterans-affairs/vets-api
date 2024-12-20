@@ -89,31 +89,23 @@ RSpec.describe BenefitsDocuments::FailureNotificationEmailJob, type: :job do
   end
 
   context 'when there is 1 FAILED record without a va_notify_date' do
-    let(:evidence_submission_stub) { instance_double(EvidenceSubmission) }
     let(:tags) { ['service:claim-status', "function: #{message}"] }
     let!(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
     let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
 
     before do
-      # allow(VaNotify::Service).to receive(:new)
-      # allow(EvidenceSubmission).to receive(:va_notify_email_not_queued)
-      allow(EvidenceSubmission).to receive(:where)
-      # allow(EvidenceSubmission).to receive(:update)
-      allow(EvidenceSubmission).to receive(:new).and_return(evidence_submission_stub)
-
+      allow(EvidenceSubmission).to receive(:va_notify_email_not_queued).and_return([evidence_submission_failed])
       allow(Rails.logger).to receive(:info)
       allow(StatsD).to receive(:increment)
     end
 
     it 'successfully enqueues a failure notification mailer to send to the veteran' do
       expect(EvidenceSubmission.count).to eq(1)
-      expect(EvidenceSubmission.va_notify_email_queued.length).to eq(0)
+      expect(EvidenceSubmission.va_notify_email_not_queued.length).to eq(1)
       expect(vanotify_service).to receive(:send_email)
-      expect(evidence_submission_stub).to receive(:update)
+      expect(evidence_submission_failed).to receive(:update).and_call_original
       expect(Rails.logger).to receive(:info).with(message)
       expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags)
-      expect(EvidenceSubmission.va_notify_email_not_queued.length).to eq(1)
-
       subject.new.perform
       expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
     end
