@@ -285,11 +285,13 @@ class FormProfile
     Rails.logger.info("User Vet360 Contact Info, Address? #{opt[:address].present?}
       Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
 
-    opt[:address] ||= user_address_hash
-    opt[:email] ||= extract_pciu_data(:pciu_email)
-    if opt[:home_phone].nil?
-      opt[:home_phone] = pciu_primary_phone
-      opt[:us_phone] = pciu_us_phone
+    unless Flipper.enabled?('remove_pciu_2', user)
+      opt[:address] ||= user_address_hash
+      opt[:email] ||= extract_pciu_data(:pciu_email)
+      if opt[:home_phone].nil?
+        opt[:home_phone] = pciu_primary_phone
+        opt[:us_phone] = pciu_us_phone
+      end
     end
 
     format_for_schema_compatibility(opt)
