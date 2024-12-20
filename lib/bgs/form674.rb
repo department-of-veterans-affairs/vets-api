@@ -22,7 +22,7 @@ module BGS
       @saved_claim = saved_claim
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
-      @proc_state = 'Ready' if Flipper.enabled?(:va_dependents_submit_674)
+      @proc_state = 'Ready' if Flipper.enabled?(:va_dependents_submit674)
     end
 
     def submit(payload)
@@ -33,10 +33,8 @@ module BGS
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
-      #note - do we ever need to do manual 674? if so, set state here in a get_state_type_method
-
       # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
-      if !Flipper.enabled?(:va_dependents_submit_674) || @saved_claim.submittable_686?
+      if !Flipper.enabled?(:va_dependents_submit674) || @saved_claim.submittable_686?
         set_claim_type('MANUAL_VAGOV')
         @proc_state = 'MANUAL_VAGOV'
       end
