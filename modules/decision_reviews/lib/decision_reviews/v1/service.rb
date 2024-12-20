@@ -334,6 +334,22 @@ module DecisionReviews
 
       private
 
+      def submit_upload_job
+        if Flipper.enabled? :decision_review_new_engine_submit_upload_job
+          DecisionReviews::SubmitUpload
+        else
+          DecisionReview::SubmitUpload
+        end
+      end
+
+      def form4142_submit_job
+        if Flipper.enabled? :decision_review_new_engine_4142_job
+          DecisionReviews::Form4142Submit
+        else
+          DecisionReview::Form4142Submit
+        end
+      end
+
       def create_higher_level_review_headers(user)
         headers = {
           'X-VA-SSN' => user.ssn.to_s.strip.presence,
