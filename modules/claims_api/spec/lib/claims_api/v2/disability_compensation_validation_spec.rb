@@ -471,6 +471,8 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
   end
 
   describe 'validation for BDD_PROGRAM claim' do
+    future_date = "#{Time.current.year + 1}-12-20"
+
     let(:valid_service_info_for_bdd) do
       {
         'servicePeriods' => [
@@ -478,7 +480,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
             'serviceBranch' => 'Air Force Reserves',
             'serviceComponent' => 'Reserves',
             'activeDutyBeginDate' => '2015-11-14',
-            'activeDutyEndDate' => '2024-12-20'
+            'activeDutyEndDate' => future_date
           }
         ],
         'reservesNationalGuardService' => {
@@ -497,7 +499,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         },
         'federalActivation' => {
           'activationDate' => '2023-10-01',
-          'anticipatedSeparationDate' => '2028-12-20'
+          'anticipatedSeparationDate' => future_date
         }
       }
     end
