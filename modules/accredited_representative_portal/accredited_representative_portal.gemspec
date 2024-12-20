@@ -18,5 +18,8 @@ Gem::Specification.new do |spec|
 
   spec.files = Dir['{app,config,db,lib}/**/*', 'Rakefile', 'README.md']
   spec.test_files = Dir['spec/**/*']
+
+  spec.add_dependency 'blind_index'
+  spec.add_development_dependency 'activerecord'
   spec.add_development_dependency 'rspec-rails'
 end

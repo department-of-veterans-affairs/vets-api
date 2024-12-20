@@ -127,6 +127,38 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
     end
   end
 
+  describe '#unlock_file' do
+    before do
+      allow(Flipper).to receive(:enabled?)
+        .with(:champva_pdf_decrypt, @current_user)
+        .and_return(true)
+    end
+
+    context 'with locked PDF and no provided password' do
+      let(:locked_file) { fixture_file_upload('locked_pdf_password_is_test.pdf', 'application/pdf') }
+
+      it 'rejects locked PDFs if no password is provided' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents', params: { form_id: '10-10D', file: locked_file }
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(
+          response.parsed_body['errors'].first['title']
+        ).to eq("File #{I18n.t('errors.messages.uploads.pdf.invalid')}")
+      end
+
+      it 'accepts locked PDFs with the correct password' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: locked_file, password: 'test' }
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'rejects locked PDFs with the incorrect password' do
+        post '/ivc_champva/v1/forms/submit_supporting_documents',
+             params: { form_id: '10-10D', file: locked_file, password: 'bad' }
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+  end
+
   describe '#supporting_document_ids' do
     it 'returns the correct supporting document ids' do
       documents = [double('Document', id: 1), double('Document', id: 2)]
@@ -302,6 +334,39 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
             expect(statuses).to eq([400])
             expect(error_message).to eq('Upload failed')
+          end
+        end
+
+        context 'when file uploads fail with other errors retry once' do
+          subject(:result) { controller.send(:handle_file_uploads, form_id, parsed_form_data) }
+
+          let(:failure_response) { [[400], 'Upload failed'] }
+          let(:expected_statuses) { [400] }
+          let(:expected_error_message) { 'Upload failed' }
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, @current_user).and_return(true)
+            allow(file_uploader).to receive(:handle_uploads).and_return(failure_response)
+          end
+
+          it 'returns the error statuses and error message' do
+            expect(result).to eq([expected_statuses, expected_error_message])
+          end
+        end
+
+        context 'when a document is loaded and is missing' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, @current_user).and_return(true)
+            allow(file_uploader).to receive(:handle_uploads).and_return([['No such file '],
+                                                                         'File not found'])
+          end
+
+          it 'retries the file uploads and returns the error message' do
+            allow(file_uploader).to receive(:handle_uploads).and_return([[200], nil])
+
+            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
+            expect(statuses).to eq([200])
+            expect(error_message).to be_nil
           end
         end
       end

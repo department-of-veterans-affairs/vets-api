@@ -105,12 +105,18 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::Vitals', type: :request do
       expect(response.body).to be_a(String)
 
       body = JSON.parse(response.body)
+
       expect(body['entry']).to be_an(Array)
       expect(body['entry'].size).to be 6
 
+      # Verify that items are sorted by effectiveDateTime in descending order
+      expect(body['entry'][0]['resource']['effectiveDateTime']).to eq('2019-11-30T08:34:29Z')
+      expect(body['entry'][2]['resource']['effectiveDateTime']).to eq('2019-11-30T08:24:29Z')
+      expect(body['entry'][5]['resource']['effectiveDateTime']).to eq('2019-11-30T07:28:29Z')
+
       item = body['entry'][2]
       expect(item['resource']['resourceType']).to eq('Observation')
-      expect(item['resource']['code']['text']).to eq('Body Weight')
+      expect(item['resource']['code']['text']).to eq('Blood Pressure')
     end
   end
 end
