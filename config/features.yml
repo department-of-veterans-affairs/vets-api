@@ -510,6 +510,12 @@ features:
   decision_review_sc_new_api:
     actor_type: user
     description: Enable to switch to new Supplemental Claim modularized Decision Review endpoint
+  decision_review_new_engine_4142_job:
+    actor_type: user
+    description: Enable to switch to new modularized Decision Review Form4142Submit job
+  decision_review_new_engine_submit_upload_job:
+    actor_type: user
+    description: Enable to switch to new modularized Decision Review SubmitUpload job
   dependency_verification:
     actor_type: user
     description: Feature gates the dependency verification modal for updating the diaries service.
