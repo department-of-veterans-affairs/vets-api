@@ -1,5 +1,10 @@
 # frozen_string_literal: true
 
+# These are the castable type and
+# types that can be used by Vets::Attributes
+# Primitive types include:
+#  String, Integer, Float, Date, Time, DateTime, Bool
+
 require 'vets/type/base'
 require 'vets/type/date_time_string'
 require 'vets/type/hash'
