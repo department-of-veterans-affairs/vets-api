@@ -8,7 +8,7 @@ module Vets
       def cast(value)
         return nil if value.nil?
 
-        if value.is_a?(Hash)
+        if value.is_a?(::Hash)
           @klass.new(value)
         elsif value.is_a?(@klass)
           value

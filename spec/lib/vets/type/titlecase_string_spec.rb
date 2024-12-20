@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'vets/type/titlecase_string'
 
@@ -38,7 +40,7 @@ RSpec.describe Vets::Type::TitlecaseString do
     end
 
     context 'when value is a non-string type' do
-      let(:non_string_value) { 12345 }
+      let(:non_string_value) { 12_345 }
 
       it 'returns the string representation of the value in titlecase' do
         expect(titlecase_instance.cast(non_string_value)).to eq('12345')

@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vets/type/base'
+require 'vets/model' # this is required for Bools
 
 module Vets
   module Type
@@ -12,10 +13,12 @@ module Vets
 
         begin
           case @klass.name
-          when 'DateTime' then DateTime.parse(value.to_s)
-          when 'Date' then Date.parse(value.to_s)
-          when 'Integer' then Integer(value)
-          when 'Float' then Float(value)
+          when 'String' then ActiveModel::Type::String.new.cast(value)
+          when 'Integer' then ActiveModel::Type::Integer.new.cast(value)
+          when 'Float' then ActiveModel::Type::Float.new.cast(value)
+          when 'Date' then ActiveModel::Type::Date.new.cast(value)
+          when 'Time' then Time.zone.parse(value.to_s)
+          when 'DateTime' then ActiveModel::Type::DateTime.new.cast(value)
           when 'Bool' then ActiveModel::Type::Boolean.new.cast(value)
           else invalid_type!
           end

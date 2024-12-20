@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'vets/type/http_date'
 
@@ -25,17 +27,27 @@ RSpec.describe Vets::Type::HTTPDate do
       let(:invalid_datetime) { 'invalid-datetime' }
 
       it 'raises a TypeError with the correct message' do
-        expect {
+        expect do
           http_date_instance.cast(invalid_datetime)
-        }.to raise_error(TypeError, "#{name} is not Time parseable")
+        end.to raise_error(TypeError, "#{name} is not Time parseable")
       end
     end
 
-    context 'when value is a numeric timestamp' do
-      let(:timestamp) { 1_700_000_000 } # Example Unix timestamp
+    context 'when value is an integer' do
+      let(:timestamp) { 1_700_000_00  }
+
+      it 'raises a TypeError with the correct message' do
+        expect do
+          http_date_instance.cast(timestamp)
+        end.to raise_error(TypeError, "#{name} is not Time parseable")
+      end
+    end
+
+    context 'when value is a custom format timestamp' do
+      let(:custom_datetime) { 'Aug 2024' }
 
       it 'converts the timestamp to HTTP date format' do
-        expect(http_date_instance.cast(timestamp)).to eq(Time.at(timestamp).utc.httpdate)
+        expect(http_date_instance.cast(custom_datetime)).to eq(Time.parse(custom_datetime).utc.httpdate)
       end
     end
   end

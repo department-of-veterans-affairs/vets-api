@@ -1,10 +1,11 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'vets/type/hash'
 
 RSpec.describe Vets::Type::Hash do
   let(:name) { 'test_hash' }
-  let(:klass) { Hash }
-  let(:hash_instance) { described_class.new(name, klass) }
+  let(:hash_instance) { described_class.new(name) }
 
   describe '#cast' do
     context 'when value is nil' do
@@ -25,9 +26,9 @@ RSpec.describe Vets::Type::Hash do
       let(:invalid_value) { 'string' }
 
       it 'raises a TypeError with the correct message' do
-        expect {
+        expect do
           hash_instance.cast(invalid_value)
-        }.to raise_error(TypeError, "#{name} must be a Hash")
+        end.to raise_error(TypeError, "#{name} must be a Hash")
       end
     end
   end

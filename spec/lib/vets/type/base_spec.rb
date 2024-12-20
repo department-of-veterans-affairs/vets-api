@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe Vets::Type::Base do
@@ -14,7 +16,9 @@ RSpec.describe Vets::Type::Base do
 
   describe '#cast' do
     it 'raises NotImplementedError when called' do
-      expect { base_instance.cast('value') }.to raise_error(NotImplementedError, "#{described_class} must implement #cast")
+      expect do
+        base_instance.cast('value')
+      end.to raise_error(NotImplementedError, "#{described_class} must implement #cast")
     end
   end
 end

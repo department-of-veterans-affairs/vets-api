@@ -5,6 +5,10 @@ require 'vets/type/base'
 module Vets
   module Type
     class UTCTime < Base
+      def self.primitive
+        ::Time
+      end
+
       def cast(value)
         return nil if value.nil?
 

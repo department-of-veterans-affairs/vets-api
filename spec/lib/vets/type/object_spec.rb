@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'vets/type/object'
 
@@ -47,9 +49,9 @@ RSpec.describe Vets::Type::Object do
       let(:invalid_value) { 'invalid_value' }
 
       it 'raises a TypeError with the correct message' do
-        expect {
+        expect do
           object_instance.cast(invalid_value)
-        }.to raise_error(TypeError, "#{name} must be a Hash or an instance of #{klass}")
+        end.to raise_error(TypeError, "#{name} must be a Hash or an instance of #{klass}")
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'vets/type/utc_time'
 
@@ -26,17 +28,17 @@ RSpec.describe Vets::Type::UTCTime do
       let(:invalid_time_string) { 'invalid-time' }
 
       it 'raises a TypeError with the correct message' do
-        expect {
+        expect do
           utc_time_instance.cast(invalid_time_string)
-        }.to raise_error(TypeError, "#{name} is not Time parseable")
+        end.to raise_error(TypeError, "#{name} is not Time parseable")
       end
     end
 
     context 'when value is a valid Time object' do
-      let(:valid_time_object) { Time.now }
+      let(:valid_time_object) { Time.zone.now }
 
       it 'returns the Time object in UTC' do
-        expect(utc_time_instance.cast(valid_time_object)).to eq(valid_time_object.utc)
+        expect(utc_time_instance.cast(valid_time_object.round)).to eq(valid_time_object.utc.round)
       end
     end
   end

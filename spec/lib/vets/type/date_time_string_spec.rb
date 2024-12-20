@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'vets/type/date_time_string'
 
@@ -25,9 +27,9 @@ RSpec.describe Vets::Type::DateTimeString do
       let(:invalid_datetime) { 'invalid-datetime' }
 
       it 'raises a TypeError with the correct message' do
-        expect {
+        expect do
           datetime_instance.cast(invalid_datetime)
-        }.to raise_error(TypeError, "#{name} is not Time parseable")
+        end.to raise_error(TypeError, "#{name} is not Time parseable")
       end
     end
   end
