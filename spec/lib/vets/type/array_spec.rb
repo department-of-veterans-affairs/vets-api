@@ -155,7 +155,7 @@ RSpec.describe Vets::Type::Array do
       it 'raises a TypeError' do
         expect do
           described_class.new(name, Float).cast(invalid_element_value)
-        end.to raise_error(TypeError, "#{name} could not be coerced to Float")
+        end.to raise_error(TypeError, "#{name} could not be casted to Float")
       end
     end
   end

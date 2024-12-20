@@ -43,7 +43,7 @@ RSpec.describe Vets::Type::Primitive do
       it 'raises TypeError for invalid input' do
         expect do
           primitive_instance.cast(Object.new)
-        end.to raise_error(TypeError, "#{name} could not be coerced to Float")
+        end.to raise_error(TypeError, "#{name} could not be casted to Float")
       end
     end
 

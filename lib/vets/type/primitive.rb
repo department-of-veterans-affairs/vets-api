@@ -30,7 +30,7 @@ module Vets
       private
 
       def invalid_type!
-        raise TypeError, "#{@name} could not be coerced to #{@klass}"
+        raise TypeError, "#{@name} could not be casted to #{@klass}"
       end
     end
   end

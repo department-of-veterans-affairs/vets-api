@@ -103,7 +103,6 @@ RSpec.describe Vets::Attributes::Value do
     end
 
     context 'when casting an Array contains nil values' do
-
       let(:value) { [nil, 'test', nil] }
 
       it 'raise a TypeError' do
