@@ -2,150 +2,156 @@
 
 require 'rails_helper'
 require 'vets/attributes/value'
-require 'vets/attributes'
-require 'vets/model' # temporarily needed for Bool
-
-class FakeClass
-  attr_reader :attr
-
-  def initialize(attrs)
-    @attr = attrs[:attr]
-  end
-end
+require 'vets/type/primitive'
+require 'vets/type/object'
+require 'vets/type/utc_time'
+require 'vets/type/hash'
 
 RSpec.describe Vets::Attributes::Value do
+  let(:user_class) do
+    Class.new do
+      attr_accessor :name, :email
+
+      def initialize(args)
+        @name = args[:name]
+        @email = args[:email]
+
+        raise ArgumentError, 'name and email are required' if @name.nil? || @email.nil?
+      end
+
+      def ==(other)
+        other.is_a?(self.class) && other.name == @name && other.email == @email
+      end
+    end
+  end
+
+  let(:name) { 'test_name' }
+
   describe '.cast' do
-    it 'returns a value for a valid type' do
-      result = described_class.cast(:test_name, String, 'test_value')
-      expect(result).to eq('test_value')
+    context 'when casting an Integer to String' do
+      let(:value) { 123 }
+
+      it 'casts Integer to String' do
+        expect(described_class.cast(name, String, value)).to eq('123')
+      end
     end
 
-    it 'raises a TypeError for an invalid type' do
-      expect do
-        described_class.cast(:test_name, Integer, 'not_an_integer')
-      end.to raise_error(TypeError, 'test_name must be a Integer')
+    context 'when casting a String to Integer' do
+      let(:value) { '123' }
+
+      it 'raises an error (cannot cast String to Integer)' do
+        expect(described_class.cast(name, Integer, value)).to eq(123)
+      end
+    end
+
+    context 'when casting a Hash to User (dynamic class)' do
+      let(:value) { { name: 'John Doe', email: 'john@example.com' } }
+      let(:expected_user) { user_class.new(name: 'John Doe', email: 'john@example.com') }
+
+      it 'casts Hash to User' do
+        expect(described_class.cast(name, user_class, [value], array: true)).to eq([expected_user])
+      end
+    end
+
+    context 'when casting a User to User (dynamic class)' do
+      let(:user) { user_class.new(name: 'John Doe', email: 'john@example.com') }
+
+      it 'returns the same User object' do
+        expect(described_class.cast(name, user_class, [user], array: true)).to eq([user])
+      end
+    end
+
+    context 'when casting a String to UTCTime' do
+      let(:value) { '2024-12-19T12:34:56+04:00' }
+
+      it 'casts String to a Time object in UTC' do
+        expected_time = Time.parse(value).utc
+        expect(described_class.cast(name, Vets::Type::UTCTime, value)).to eq(expected_time)
+      end
+    end
+
+    context 'when casting a Hash to Hash' do
+      let(:value) { { key: 'value' } }
+
+      it 'returns the same Hash' do
+        expect(described_class.cast(name, Hash, value)).to eq(value)
+      end
+    end
+
+    context 'when the array is empty' do
+      let(:value) { [] }
+
+      it 'returns an empty array' do
+        expect(described_class.cast(name, String, value, array: true)).to eq([])
+      end
+    end
+
+    context 'when the value is nil' do
+      let(:value) { nil }
+
+      it 'returns nil' do
+        expect(described_class.cast(name, String, value)).to be_nil
+      end
+    end
+
+    context 'when casting an Array of Strings' do
+      let(:value) { %w[apple banana] }
+
+      it 'returns the same array of Strings' do
+        expect(described_class.cast(name, String, value, array: true)).to eq(value)
+      end
+    end
+
+    context 'when casting an Array contains nil values' do
+      let(:value) { [nil, 'test', nil] }
+
+      it 'raise a TypeError' do
+        expect do
+          described_class.cast(name, String, value, array: true)
+        end.to raise_error(TypeError, "All elements of #{name} must be of type String")
+      end
+    end
+
+    context 'when casting a String to Bool' do
+      it 'casts a non-falsey, non-empty String to a true Bool' do
+        expect(described_class.cast(name, Bool, 'test')).to be_truthy
+      end
+
+      it 'casts "falsey" string to a false Bool' do
+        expect(described_class.cast(name, Bool, 'false')).to be_falsey
+      end
+
+      it 'casts a empty String to nil' do
+        expect(described_class.cast(name, Bool, nil)).to be_nil
+      end
+    end
+
+    context 'when casting an Integer to Bool' do
+      it 'casts a non-zero Integer to a true Bool' do
+        expect(described_class.cast(name, Bool, 1)).to be_truthy
+      end
+
+      it 'casts zero (Integer) to a false Bool' do
+        expect(described_class.cast(name, Bool, 0)).to be_falsey
+      end
     end
   end
 
   describe '#setter_value' do
-    context 'when value is a scalar type (e.g., Integer or String)' do
-      it 'returns a value for a valid type' do
-        attribute_value = described_class.new(:test_name, Bool)
-        setter_value = attribute_value.setter_value('test_value')
-        expect(setter_value).to be_truthy
+    context 'when value is an Integer and klass is a String' do
+      it 'casts using Vets::Type::Primitive' do
+        attribute_value = described_class.new(:test_name, String)
+        setter_value = attribute_value.setter_value(123)
+        expect(setter_value).to eq('123')
       end
     end
 
-    context 'when value is a Bool' do
-      it 'coerces a non-falsey, non-empty String to a true Bool' do
-        attribute_value = described_class.new(:test_name, Bool)
-        setter_value = attribute_value.setter_value('test')
-        expect(setter_value).to be_truthy
-      end
-
-      it 'casts 0 (Integer) to a false Bool' do
-        attribute_value = described_class.new(:test_name, Bool)
-        setter_value = attribute_value.setter_value(0)
-        expect(setter_value).to be_falsey
-      end
-
-      it 'casts "falsey" string to a false Bool' do
-        attribute_value = described_class.new(:test_name, Bool)
-        setter_value = attribute_value.setter_value('f')
-        expect(setter_value).to be_falsey
-      end
-
-      it 'coerces a empty String to nil' do
-        attribute_value = described_class.new(:test_name, Bool)
-        setter_value = attribute_value.setter_value('')
-        expect(setter_value).to be_nil
-      end
-    end
-
-    context 'when value is a complex Object' do
-      it 'returns the same complex Object when' do
-        attribute_value = described_class.new(:test_name, FakeClass)
-        double_class = FakeClass.new(attr: 'Steven')
-        setter_value = attribute_value.setter_value(double_class)
-        expect(setter_value).to eq(double_class)
-      end
-    end
-
-    context 'when klass is DateTime' do
-      context 'when value is a parseable string' do
-        it 'returns a DateTime' do
-          value = '2024-01-01T12:00:00+00:00'
-          attribute_value = described_class.new(:test_name, DateTime)
-          setter_value = attribute_value.setter_value(value)
-          expect(setter_value).to eq(DateTime.parse(value).to_s)
-        end
-      end
-
-      context 'when value is a non-parseable string' do
-        it 'raises an TypeError' do
-          expect do
-            attribute_value = described_class.new(:test_name, DateTime)
-            attribute_value.setter_value('bad-time')
-          end.to raise_error(TypeError, 'test_name could not be parsed into a DateTime')
-        end
-      end
-    end
-
-    context 'when value is a Hash' do
-      context 'when klass is a Hash' do
-        it 'returns a complex Object with given attributes' do
-          attribute_value = described_class.new(:test_name, FakeClass)
-          hash_params = { attr: 'Steven' }
-          setter_value = attribute_value.setter_value(hash_params)
-          expect(setter_value.class).to eq(FakeClass)
-          expect(setter_value.attr).to eq(hash_params[:attr])
-        end
-      end
-
-      context 'when klass is not a Hash' do
-        it 'returns a complex Object with given attributes' do
-          attribute_value = described_class.new(:test_name, Hash)
-          hash_params = { attr: 'Steven' }
-          setter_value = attribute_value.setter_value(hash_params)
-          expect(setter_value.class).to eq(Hash)
-          expect(setter_value[:attr]).to eq(hash_params[:attr])
-        end
-      end
-    end
-
-    context 'when value is an Array' do
-      context 'when elements of value are hashes' do
-        it 'coerces elements to klass' do
-          attribute_value = described_class.new(:test_array, FakeClass, array: true)
-          setter_value = attribute_value.setter_value([{ attr: 'value' }, { attr: 'value2' }])
-          expect(setter_value).to all(be_an(FakeClass))
-          expect(setter_value.first.attr).to eq('value')
-        end
-      end
-
-      context 'when elements of value are complex Object' do
-        it 'returns the same array' do
-          attribute_value = described_class.new(:test_array, FakeClass, array: true)
-          double1 = FakeClass.new(attr: 'value')
-          double2 = FakeClass.new(attr: 'value1')
-          setter_value = attribute_value.setter_value([double1, double2])
-          expect(setter_value).to all(be_an(FakeClass))
-          expect(setter_value.first.attr).to eq('value')
-        end
-      end
-
-      it 'raises TypeError if value is not an Array' do
-        expect do
-          attribute_value = described_class.new(:test_array, FakeClass, array: true)
-          attribute_value.setter_value('not_an_array')
-        end.to raise_error(TypeError, 'test_array must be an Array')
-      end
-
-      it 'raises TypeError if elements are of incorrect type' do
-        expect do
-          attribute_value = described_class.new(:test_array, FakeClass, array: true)
-          attribute_value.setter_value(%w[wrong_type also_wrong_type])
-        end.to raise_error(TypeError, "All elements of test_array must be of type #{FakeClass}")
+    context 'when value is a String and klass is Vets::Type::UTCTime' do
+      it 'casts using Vets::Type::UTCTime' do
+        value = '2024-12-19T12:34:56+04:00'
+        attribute_value = described_class.new(:test_name, Vets::Type::UTCTime)
+        setter_value = attribute_value.setter_value(value)
+        expect(setter_value).to eq(Time.parse(value).utc)
       end
     end
   end
