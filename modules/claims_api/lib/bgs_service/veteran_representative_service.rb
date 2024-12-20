@@ -7,13 +7,12 @@ module ClaimsApi
     end
 
     def create_veteran_representative(options)
-      # error VetRep cannot be null
       injected = convert_nil_values(options)
 
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <data:VetRepresentative>
+        <data:VeteranRepresentative>
           #{injected}
-        </data:VetRepresentative>
+        </data:VeteranRepresentative>
       EOXML
 
       make_request(
@@ -37,6 +36,7 @@ module ClaimsApi
           <formTypeCode>#{type_code}</formTypeCode>
         </ns0:CorpPtcpntIdFormTypeCode>
       EOXML
+
       ret = make_request(endpoint: bean_name, namespaces: { 'data' => '/data' },
                          action: 'readAllVeteranRepresentatives', body:,
                          key: 'VeteranRepresentativeReturnList',

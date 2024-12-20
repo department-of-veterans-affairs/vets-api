@@ -497,7 +497,7 @@ describe TestDisabilityCompensationValidationClass, vcr: 'brd/countries' do
         },
         'federalActivation' => {
           'activationDate' => '2023-10-01',
-          'anticipatedSeparationDate' => '2024-12-20'
+          'anticipatedSeparationDate' => '2028-12-20'
         }
       }
     end
