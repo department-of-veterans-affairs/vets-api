@@ -68,10 +68,60 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
         )
 
       expect(poa.status).to eq(ClaimsApi::PowerOfAttorney::SUBMITTED)
-      described_class.new.perform(poa.id)
+      described_class.new.perform(poa.id, 'Rep Data')
 
       poa.reload
       expect(poa.status).to eq(ClaimsApi::PowerOfAttorney::UPDATED)
     end
+  end
+
+  context 'Sending the VA Notify email' do
+    before do
+      create_mock_lighthouse_service
+      allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return true
+    end
+
+    let(:poa) do
+      FactoryBot.create(:power_of_attorney,
+                        auth_headers: auth_headers,
+                        form_data: claimant_form_data,
+                        status: ClaimsApi::PowerOfAttorney::SUBMITTED)
+    end
+    let(:header_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY }
+
+    context 'when the header key and rep are present' do
+      it 'sends the vanotify job' do
+        poa.auth_headers.merge!({
+                                  header_key => 'this_value'
+                                })
+        poa.save!
+        allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(:assign_poa_to_dependent!)
+          .and_return(nil)
+        expect(ClaimsApi::VANotifyAcceptedJob).to receive(:perform_async)
+
+        described_class.new.perform(poa.id, 'Rep Data')
+      end
+    end
+
+    context 'when the flipper is off' do
+      it 'does not send the vanotify job' do
+        allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
+        poa.auth_headers.merge!({
+                                  header_key => 'this_value'
+                                })
+        poa.save!
+        allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(:assign_poa_to_dependent!)
+          .and_return(nil)
+        expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
+
+        described_class.new.perform(poa.id, 'Rep Data')
+      end
+    end
+  end
+
+  def create_mock_lighthouse_service
+    allow_any_instance_of(ClaimsApi::StandardDataWebService).to receive(:find_poas)
+      .and_return([{ legacy_poa_cd: '002', nm: "MAINE VETERANS' SERVICES", org_type_nm: 'POA State Organization',
+                     ptcpnt_id: '46004' }])
   end
 end

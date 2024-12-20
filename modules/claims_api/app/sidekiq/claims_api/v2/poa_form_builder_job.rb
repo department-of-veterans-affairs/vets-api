@@ -32,7 +32,7 @@ module ClaimsApi
         end
 
         if dependent_filing?(power_of_attorney)
-          ClaimsApi::PoaAssignDependentClaimantJob.perform_async(power_of_attorney.id)
+          ClaimsApi::PoaAssignDependentClaimantJob.perform_async(power_of_attorney.id, rep)
         else
           ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep)
         end
