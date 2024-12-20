@@ -6,7 +6,7 @@ require 'vets/model' # this is required for Bools
 module Vets
   module Type
     class Primitive < Base
-      PRIMITIVE_TYPES = [String, Integer, Float, Date, Time, DateTime, Bool].freeze
+      PRIMITIVE_TYPES = %w[String Integer Float Date Time DateTime Bool].freeze
 
       def cast(value)
         return value if value.is_a?(@klass) || value.nil?

@@ -24,7 +24,7 @@ module Vets
       end
 
       def type
-        @type ||= if Vets::Type::Primitive::PRIMITIVE_TYPES.include?(@klass)
+        @type ||= if Vets::Type::Primitive::PRIMITIVE_TYPES.include?(@klass.name)
                     Vets::Type::Primitive.new(@name, @klass)
                   elsif @klass.module_parents.include?(Vets::Type)
                     @klass.new(@name, @klass)

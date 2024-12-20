@@ -23,7 +23,7 @@ module Vets
       def type
         @type ||= if @array
                     Vets::Type::Array.new(@name, @klass)
-                  elsif Vets::Type::Primitive::PRIMITIVE_TYPES.include?(@klass)
+                  elsif Vets::Type::Primitive::PRIMITIVE_TYPES.include?(@klass.name)
                     Vets::Type::Primitive.new(@name, @klass)
                   elsif @klass.module_parents.include?(Vets::Type)
                     @klass.new(@name, @klass)
