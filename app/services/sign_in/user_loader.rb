@@ -31,6 +31,7 @@ module SignIn
       current_user.session_handle = access_token.session_handle
       current_user.save && user_identity.save
       current_user.invalidate_mpi_cache
+      current_user.validate_mpi_profile
       current_user.create_mhv_account_async
 
       current_user
