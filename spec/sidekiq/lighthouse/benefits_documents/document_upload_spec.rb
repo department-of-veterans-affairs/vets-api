@@ -113,7 +113,7 @@ RSpec.describe Lighthouse::BenefitsDocuments::DocumentUpload, type: :job do
       Lighthouse::BenefitsDocuments::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
         expect(EvidenceSubmission).to receive(:create).and_return(evidence_submission_failed)
       end
-      expect(EvidenceSubmission.va_notify_email_not_sent.length).to equal(1)
+      expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
     end
 
     it 'fails to create a failed evidence submission record when args malformed' do

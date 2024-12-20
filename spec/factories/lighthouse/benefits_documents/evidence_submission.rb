@@ -23,20 +23,31 @@ FactoryBot.define do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
+    job_class { 'Lighthouse::BenefitsDocuments::DocumentUpload' }
     template_metadata_ciphertext do
-      'personalisation' => { 
+      { 'personalisation' => {
         'first_name' => 'test',
-       'filename' => 'test.txt',
-       'date_submitted' => "#{DateTime.now.utc}",
-        'date_failed' => "#{DateTime.now.utc}" 
-      }
+        'filename' => 'test.txt',
+        'date_submitted' => DateTime.now.utc.to_s,
+        'date_failed' => DateTime.now.utc.to_s
+      } }
     end
   end
 
-  factory :bd_evidence_submission_failed_va_notify_email_sent, class: 'EvidenceSubmission' do
+  factory :bd_evidence_submission_failed_va_notify_email_enqueued, class: 'EvidenceSubmission' do
     association :user_account, factory: :user_account
-    created_at { DateTime.now.utc - 2 }
+    created_at { 5.days.ago }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
+    job_class { 'Lighthouse::BenefitsDocuments::DocumentUpload' }
+    va_notify_id { 123 }
+    va_notify_date { DateTime.now.utc }
+  end
+
+  factory :bd_evidence_submission_failed_va_notify_email_queued, class: 'EvidenceSubmission' do
+    association :user_account, factory: :user_account
+    created_at { 5.days.ago }
+    upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
+    job_class { 'Lighthouse::BenefitsDocuments::DocumentUpload' }
     va_notify_id { 123 }
     va_notify_date { DateTime.now.utc }
     va_notify_status { 'success' }

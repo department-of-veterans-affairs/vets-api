@@ -37,47 +37,85 @@ RSpec.describe BenefitsDocuments::FailureNotificationEmailJob, type: :job do
 
   before do
     allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
+    allow(Rails.logger).to receive(:info)
   end
 
-  # context 'when there are no FAILED records' do
-  #   it 'doesnt send anything' do
-  #     expect(EvidenceSubmission).not_to receive(:update)
-  #     expect(EvidenceSubmission.va_notify_email_sent.length).to equal(0)
-  #   end
-  # end
+  context 'when there are no FAILED records' do
+    it 'doesnt send anything' do
+      expect(EvidenceSubmission).not_to receive(:update)
+      expect(vanotify_service).not_to receive(:send_email)
+      expect(EvidenceSubmission.va_notify_email_queued.length).to equal(0)
+      subject.new.perform
+    end
+  end
 
   context 'when there is a FAILED record with a va_notify_date' do
     before do
-      allow(EvidenceSubmission).to receive(:va_notify_email_not_sent)
-      create(:bd_evidence_submission_failed_va_notify_email_sent)
+      allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
+      create(:bd_evidence_submission_failed_va_notify_email_enqueued)
     end
 
-    it 'doesnt update an evidence submission record' do
-      expect(EvidenceSubmission.va_notify_email_sent.length).to equal(1)
-
+    it 'doesnt update an evidence submission record or queue failure email' do
+      expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
       subject.new.perform
-      expect(EvidenceSubmission).not_to receive(:update)
+      expect(vanotify_service).not_to receive(:send_email)
+      # This is 1 since is has already been queued
+      expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
+    end
+  end
 
-      # This is 1 since is has already been sent
-      expect(EvidenceSubmission.va_notify_email_sent.length).to equal(1)
+  context 'when there is a FAILED record without a va_notify_date and an error occurs' do
+    before do
+      allow(VaNotify::Service).to receive(:new).and_raise(StandardError)
+      allow(EvidenceSubmission).to receive(:va_notify_email_not_queued).and_return([evidence_submission_failed])
+      allow(Rails.logger).to receive(:error)
+      allow(StatsD).to receive(:increment)
+    end
+
+    let!(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
+    let(:error_message) { "#{evidence_submission_failed.job_class} va notify failure email errored" }
+    let(:tags) { ['service:claim-status', "function: #{error_message}"] }
+
+    it 'handles the error and increments the statsd metric' do
+      expect(EvidenceSubmission.count).to eq(1)
+      expect(EvidenceSubmission.va_notify_email_queued.length).to eq(0)
+      expect(vanotify_service).not_to receive(:send_email)
+      expect(Rails.logger)
+        .to receive(:error)
+        .with(error_message, { message: 'StandardError' })
+      expect(StatsD).to receive(:increment).with('silent_failure', tags: tags)
+      subject.new.perform
     end
   end
 
   context 'when there is 1 FAILED record without a va_notify_date' do
+    let(:evidence_submission_stub) { instance_double(EvidenceSubmission) }
+    let(:tags) { ['service:claim-status', "function: #{message}"] }
+    let!(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
+    let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
+
     before do
-      allow(EvidenceSubmission).to receive(:va_notify_email_not_sent).and_return([evidence_submission_failed])
-      allow(EvidenceSubmission).to receive(:update)
+      # allow(VaNotify::Service).to receive(:new)
+      # allow(EvidenceSubmission).to receive(:va_notify_email_not_queued)
+      allow(EvidenceSubmission).to receive(:where)
+      # allow(EvidenceSubmission).to receive(:update)
+      allow(EvidenceSubmission).to receive(:new).and_return(evidence_submission_stub)
+
+      allow(Rails.logger).to receive(:info)
+      allow(StatsD).to receive(:increment)
     end
 
-    let!(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
-
     it 'successfully enqueues a failure notification mailer to send to the veteran' do
-      expect(EvidenceSubmission.va_notify_email_sent.length).to equal(0)
+      expect(EvidenceSubmission.count).to eq(1)
+      expect(EvidenceSubmission.va_notify_email_queued.length).to eq(0)
+      expect(vanotify_service).to receive(:send_email)
+      expect(evidence_submission_stub).to receive(:update)
+      expect(Rails.logger).to receive(:info).with(message)
+      expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: tags)
+      expect(EvidenceSubmission.va_notify_email_not_queued.length).to eq(1)
 
       subject.new.perform
-      # expect(EvidenceSubmission).to receive(:va_notify_email_not_sent).and_return(evidence_submission_failed)
-      expect(EvidenceSubmission).to receive(:update)
-      expect(EvidenceSubmission.va_notify_email_sent.length).to equal(1)
+      expect(EvidenceSubmission.va_notify_email_queued.length).to eq(1)
     end
   end
 end

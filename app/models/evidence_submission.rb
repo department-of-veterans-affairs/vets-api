@@ -7,10 +7,12 @@ class EvidenceSubmission < ApplicationRecord
   has_kms_key
   has_encrypted :template_metadata, key: :kms_key, **lockbox_options
 
-  scope :va_notify_email_sent, lambda {
-    where('upload_status = ? AND va_notify_date IS NOT NULL', BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+  scope :va_notify_email_queued, lambda {
+    where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+      .where.not(va_notify_date: nil)
+      .where.not(va_notify_id: nil)
   }
-  scope :va_notify_email_not_sent, lambda {
-    where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED], va_notify_date: nil)
+  scope :va_notify_email_not_queued, lambda {
+    where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED], va_notify_id: nil, va_notify_date: nil)
   }
 end

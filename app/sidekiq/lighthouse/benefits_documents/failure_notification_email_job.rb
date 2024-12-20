@@ -26,7 +26,7 @@ module BenefitsDocuments
 
     # Fetches FAILED evidence submission records for BenefitsDocuments that dont have a va_notify_date
     def failed_uploads
-      @failed_uploads ||= EvidenceSubmission.va_notify_email_not_sent
+      @failed_uploads ||= EvidenceSubmission.va_notify_email_not_queued
     end
 
     def notify_client
@@ -35,16 +35,13 @@ module BenefitsDocuments
 
     def send_failed_evidence_submissions
       failed_uploads.each do |upload|
-        byebug
         response = notify_client.send_email(
           recipient_identifier: { id_value: upload.user_account.icn, id_type: 'ICN' },
           template_id: MAILER_TEMPLATE_ID,
-          personalisation: upload.template_metadata_ciphertext.personalisation
+          personalisation: upload.template_metadata_ciphertext['personalisation']
         )
-        byebug
         record_email_send_success(upload, response)
       rescue => e
-        byebug
         record_email_send_failure(upload, e)
       end
 
@@ -52,8 +49,8 @@ module BenefitsDocuments
     end
 
     def record_email_send_success(upload, response)
+      upload.update(va_notify_id: response.id, va_notify_date: DateTime.now)
       byebug
-      EvidenceSubmission.update(id: upload.id, va_notify_id: response.id, va_notify_date: DateTime.now)
       message = "#{upload.job_class} va notify failure email queued"
       ::Rails.logger.info(message)
       StatsD.increment('silent_failure_avoided_no_confirmation',
