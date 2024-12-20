@@ -18,9 +18,6 @@ module DecisionReview
       appeal_submission_id, _encrypted_payload, submitted_appeal_uuid = msg['args']
       job_id = msg['jid']
 
-      tags = ['service:supplemental-claims', 'function: secondary form submission to Lighthouse']
-      StatsD.increment('silent_failure', tags:)
-
       ::Rails.logger.error(
         {
           error_message:,
@@ -98,10 +95,6 @@ module DecisionReview
                  notification_id: }
       Rails.logger.info('DecisionReview::Form4142Submit retries exhausted email queued', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted.email_queued")
-
-      tags = ["service:#{DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-              'function: secondary form submission to Lighthouse']
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
     end
     private_class_method :record_email_send_successful
 
@@ -112,6 +105,9 @@ module DecisionReview
                  message: e.message }
       Rails.logger.error('DecisionReview::Form4142Submit retries exhausted email error', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted.email_error", tags: ["appeal_type:#{appeal_type}"])
+
+      tags = ['service:supplemental-claims', 'function: secondary form submission to Lighthouse']
+      StatsD.increment('silent_failure', tags:)
     end
     private_class_method :record_email_send_failure
   end

@@ -22,10 +22,6 @@ module DecisionReview
       upload = AppealSubmissionUpload.find(appeal_submission_upload_id)
       submission = upload.appeal_submission
 
-      service_name = DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[submission.type_of_appeal]
-      tags = ["service:#{service_name}", 'function: evidence submission to Lighthouse']
-      StatsD.increment('silent_failure', tags:)
-
       ::Rails.logger.error({ error_message:, message:, appeal_submission_upload_id:, job_id: })
       StatsD.increment("#{STATSD_KEY_PREFIX}.permanent_error")
 
@@ -189,10 +185,6 @@ module DecisionReview
                  notification_id: }
       Rails.logger.info('DecisionReview::SubmitUpload retries exhausted email queued', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted.email_queued")
-
-      tags = ["service:#{DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-              'function: evidence submission to Lighthouse']
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
     end
     private_class_method :record_email_send_successful
 
@@ -204,6 +196,10 @@ module DecisionReview
                  message: e.message }
       Rails.logger.error('DecisionReview::SubmitUpload retries exhausted email error', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.retries_exhausted.email_error", tags: ["appeal_type:#{appeal_type}"])
+
+      service_name = DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]
+      tags = ["service:#{service_name}", 'function: evidence submission to Lighthouse']
+      StatsD.increment('silent_failure', tags:)
     end
     private_class_method :record_email_send_failure
   end
