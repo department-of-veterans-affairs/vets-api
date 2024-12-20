@@ -100,7 +100,7 @@ RSpec.describe Form1010cg::SubmissionJob do
               "#{statsd_key_prefix}failed_no_retries_left",
               tags: ["claim_id:#{claim.id}"]
             )
-            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: zsf_tags)
+            expect(StatsD).to receive(:increment).with('silent_failure', tags: zsf_tags)
             expect(VANotify::EmailJob).not_to receive(:perform_async)
           end
         end
@@ -118,7 +118,7 @@ RSpec.describe Form1010cg::SubmissionJob do
               "#{statsd_key_prefix}failed_no_retries_left",
               tags: ["claim_id:#{claim.id}"]
             )
-            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags: zsf_tags)
+            expect(StatsD).to receive(:increment).with('silent_failure', tags: zsf_tags)
             expect(VANotify::EmailJob).not_to receive(:perform_async)
           end
         end
@@ -137,7 +137,14 @@ RSpec.describe Form1010cg::SubmissionJob do
           {
             'salutation' => "Dear #{claim.parsed_form.dig('veteran', 'fullName', 'first')},"
           },
-          api_key
+          api_key,
+          {
+            callback_metadata: {
+              notification_type: 'error',
+              form_number: claim.form_id,
+              statsd_tags: zsf_tags
+            }
+          }
         ]
       end
 
@@ -229,9 +236,6 @@ RSpec.describe Form1010cg::SubmissionJob do
               "#{statsd_key_prefix}record_parse_error",
               tags: ["claim_id:#{claim.id}"]
             )
-            expect(StatsD).to receive(:increment).with(
-              'silent_failure_avoided_no_confirmation', tags: zsf_tags
-            )
 
             job.perform(claim.id)
           end
@@ -246,7 +250,7 @@ RSpec.describe Form1010cg::SubmissionJob do
             expect do
               job.perform(claim.id)
             end.to trigger_statsd_increment('api.form1010cg.async.record_parse_error', tags: ["claim_id:#{claim.id}"])
-              .and trigger_statsd_increment('silent_failure_avoided_no_confirmation', tags: zsf_tags)
+              .and trigger_statsd_increment('silent_failure', tags: zsf_tags)
 
             expect(SavedClaim.exists?(id: claim.id)).to eq(true)
             expect(VANotify::EmailJob).not_to receive(:perform_async)
@@ -267,7 +271,7 @@ RSpec.describe Form1010cg::SubmissionJob do
           expect do
             job.perform(claim.id)
           end.to trigger_statsd_increment('api.form1010cg.async.record_parse_error', tags: ["claim_id:#{claim.id}"])
-            .and trigger_statsd_increment('silent_failure_avoided_no_confirmation', tags: zsf_tags)
+            .and trigger_statsd_increment('silent_failure', tags: zsf_tags)
 
           expect(SavedClaim.exists?(id: claim.id)).to eq(true)
           expect(VANotify::EmailJob).not_to receive(:perform_async)
