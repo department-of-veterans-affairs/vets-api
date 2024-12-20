@@ -210,7 +210,7 @@ module VAOS
       end
 
       def merge_appointments(eps_appointments, appointments)
-        normalized_new = eps_appointments[:appointments].map { |appt| VAOS::Eps::EpsAppointmentSerializer.new(appt) }
+        normalized_new = eps_appointments[:appointments].map { |appt| eps_serializer.new(appt) }
         appointment_data = appointments[:data].is_a?(Array) ? appointments[:data] : [appointments[:data]]
         existing_ids = appointment_data.to_set { |a| a[:referralId] }
         merged_data = appointment_data + normalized_new.reject { |a| existing_ids.include?(a[:referralId]) }
