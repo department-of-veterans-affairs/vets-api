@@ -59,11 +59,7 @@ module EVSS
         output_form['overflowText'] = overflow_text
         output_form['bddQualified'] = bdd_qualified?
         output_form['claimSubmissionSource'] = 'VA.gov'
-        # any form that has a startedFormVersion (whether it is '2019' or '2022')
-        # will go through the Toxic Exposure flow
-        output_form['startedFormVersion'] = input_form['startedFormVersion'] || nil
         output_form.compact!
-
         output_form.update(translate_banking_info)
         output_form.update(translate_service_pay)
         output_form.update(translate_service_info)
@@ -72,7 +68,8 @@ module EVSS
         output_form.update(translate_disabilities)
         # any form that has a startedFormVersion (whether it is '2019' or '2022')
         # will go through the Toxic Exposure flow
-        output_form.update(add_toxic_exposure) if output_form['startedFormVersion']
+        output_form.update(translate_started_form_version)
+        output_form.update(add_toxic_exposure)
 
         @translated_form
       end
@@ -224,6 +221,14 @@ module EVSS
             'bankName' => bank_name
           }
         }
+      end
+
+      ###
+      # Started Form Version
+      ###
+      def translate_started_form_version
+        # fixes bug where some InProgressForms were missing startedFormVersion (necessary for Toxic Exposure flow)
+        { 'startedFormVersion' => input_form['startedFormVersion'] || '2019' }
       end
 
       ###
