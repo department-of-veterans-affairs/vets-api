@@ -37,7 +37,7 @@ module BGS
 
       # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
       if !Flipper.enabled?(:va_dependents_submit_674) || @saved_claim.submittable_686?
-        set_claim_type('MANUAL_VAGOV') 
+        set_claim_type('MANUAL_VAGOV')
         @proc_state = 'MANUAL_VAGOV'
       end
 
