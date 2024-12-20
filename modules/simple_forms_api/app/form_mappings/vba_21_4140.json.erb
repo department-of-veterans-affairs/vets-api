@@ -29,6 +29,9 @@
   <%# 6. E-mail Address %>
   "F[0].Page_1[0].E-Mail_Address[0]": "<%= form.data['email_address'] %>",
 
+  <%# 7. Primary Telephone Number %>
+  "F[0].Page_1[0].PrimaryTelephoneNumber[0]": "<%= form.phone_primary %>",
+
   "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers[0]": "<%= form.data.dig('CurrentMailingAddress_ZIPOrPostalCode_LastFourNumbers') %>",
   "F[0].Page_1[0].CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers[0]": "<%= form.data.dig('CurrentMailingAddress_ZIPOrPostalCode_FirstFiveNumbers') %>",
   "F[0].Page_1[0].CurrentMailingAddress_Country[0]": "<%= form.data.dig('CurrentMailingAddress_Country') %>",
@@ -39,7 +42,6 @@
   "F[0].Page_1[0].Type_Of_Work[0]": "<%= form.data.dig('Type_Of_Work') %>",
   "F[0].Page_1[0].Time_Lost_From_Illness[0]": "<%= form.data.dig('Time_Lost_From_Illness') %>",
   "F[0].Page_1[0].Name_And_Address_Of_Employer[0]": "<%= form.data.dig('Name_And_Address_Of_Employer') %>",
-  "F[0].Page_1[0].PrimaryTelephoneNumber[0]": "<%= form.data.dig('PrimaryTelephoneNumber') %>",
   "F[0].Page_1[0].AlternateTelephoneNumber[0]": "<%= form.data.dig('AlternateTelephoneNumber') %>",
   "F[0].Page_1[0].RadioButtonList[0]": "<%= form.data.dig('RadioButtonList') %>",
   "F[0].Page_1[0].Date_Mailed[0]": "<%= form.data.dig('Date_Mailed') %>",
@@ -47,11 +49,15 @@
   "F[0].Page_1[0].Date_Of_Employment_From[0]": "<%= form.data.dig('Date_Of_Employment_From') %>",
   "F[0].Page_1[0].Date_Of_Employment_To[0]": "<%= form.data.dig('Date_Of_Employment_To') %>",
   "F[0].Page_1[0].Gross_Earnings_Per_Month[0]": "<%= form.data.dig('Gross_Earnings_Per_Month') %>",
+
+  <%# Page 2 %>
+  <%# Veteran's Social Security No. %>
+  "F[0].#subform[1].Veterans_Social_SecurityNumber_FirstThreeNumbers[0]": "<%= form.ssn[0] %>",
+  "F[0].#subform[1].Veterans_Social_SecurityNumber_SecondTwoNumbers[0]": "<%= form.ssn[1] %>",
+  "F[0].#subform[1].Veterans_Social_SecurityNumber_LastFourNumbers[0]": "<%= form.ssn[2] %>",
+
   "F[0].#subform[1].DateSigned[0]": "<%= form.data.dig('DateSigned') %>",
   "F[0].#subform[1].SignatureField1[0]": "<%= form.data.dig('SignatureField1') %>",
-  "F[0].#subform[1].Veterans_Social_SecurityNumber_LastFourNumbers[0]": "<%= form.data.dig('Veterans_Social_SecurityNumber_LastFourNumbers') %>",
-  "F[0].#subform[1].Veterans_Social_SecurityNumber_SecondTwoNumbers[0]": "<%= form.data.dig('Veterans_Social_SecurityNumber_SecondTwoNumbers') %>",
-  "F[0].#subform[1].Veterans_Social_SecurityNumber_FirstThreeNumbers[0]": "<%= form.data.dig('Veterans_Social_SecurityNumber_FirstThreeNumbers') %>",
   "F[0].#subform[1].Gross_Earnings_Per_Month[0]": "<%= form.data.dig('Gross_Earnings_Per_Month') %>",
   "F[0].#subform[1].Type_Of_Work[0]": "<%= form.data.dig('Type_Of_Work') %>",
   "F[0].#subform[1].Time_Lost_From_Illness[0]": "<%= form.data.dig('Time_Lost_From_Illness') %>",
