@@ -230,6 +230,17 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
+  staging_excel_contents:
+    emails:
+      - alex.chan1@va.gov
+      - gregg.puhala@va.gov
+      - noah.stern@va.gov
+      - marelby.hernandez@va.gov
+      - nawar.hussein@va.gov
+      - engin.akman@va.gov
+  production_excel_contents:
+    emails:
+      - patricia.terry1@va.gov
 
 dependents:
   prefill: true

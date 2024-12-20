@@ -4,6 +4,7 @@ require 'i18n'
 require 'support/spec_builders'
 require 'support/matchers'
 require 'support/spool_helpers'
+require 'support/excel_helpers'
 require 'support/fixture_helpers'
 require 'support/silence_stream'
 require 'sidekiq-pro' if Gem.loaded_specs.key?('sidekiq-pro')
@@ -166,6 +167,7 @@ RSpec.configure do |config|
 
   config.include SpecBuilders
   config.include SpoolHelpers
+  config.include ExcelHelpers
   config.include FixtureHelpers
 
   config.around(:example, :run_at) do |example|
