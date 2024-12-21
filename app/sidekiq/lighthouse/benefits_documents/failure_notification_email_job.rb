@@ -35,10 +35,11 @@ module BenefitsDocuments
 
     def send_failed_evidence_submissions
       failed_uploads.each do |upload|
+        personalisation = JSON.parse(upload.template_metadata_ciphertext)['personalisation']
         response = notify_client.send_email(
           recipient_identifier: { id_value: upload.user_account.icn, id_type: 'ICN' },
           template_id: MAILER_TEMPLATE_ID,
-          personalisation: upload.template_metadata_ciphertext['personalisation']
+          personalisation:
         )
         record_email_send_success(upload, response)
       rescue => e
