@@ -3,20 +3,14 @@
 require 'ddtrace'
 require 'timeout'
 require 'logging/third_party_transaction'
-require 'evss/failure_notification'
+require 'lighthouse/benefits_documents/constants'
 
 class EVSS::DocumentUpload
   include Sidekiq::Job
-  extend SentryLogging
   extend Logging::ThirdPartyTransaction::MethodWrapper
 
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
   OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
-
-  DD_ZSF_TAGS = ['service:claim-status', 'function: evidence upload to EVSS'].freeze
-
-  NOTIFY_SETTINGS = Settings.vanotify.services.benefits_management_tools
-  MAILER_TEMPLATE_ID = NOTIFY_SETTINGS.template_id.evidence_submission_failure_email
 
   attr_accessor :auth_headers, :user_uuid, :document_hash
 
@@ -40,28 +34,32 @@ class EVSS::DocumentUpload
   end
 
   sidekiq_retries_exhausted do |msg, _ex|
-    # There should be 3 values in msg['args']:
-    # 1) Auth headers needed to authenticate with EVSS
-    # 2) The uuid of the record in the UserAccount table
-    # 3) Document metadata
-
-    next unless Flipper.enabled?('cst_send_evidence_failure_emails')
-
-    icn = UserAccount.find(msg['args'][1]).icn
-    first_name = msg['args'].first['va_eauth_firstName'].titleize
+    job_id = msg['jid']
+    job_class = 'EVSS::DocumentUpload'
+    first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
+    claim_id = msg['args'][2]['evss_claim_id']
+    tracked_item_id = msg['args'][2]['tracked_item_id']
     filename = obscured_filename(msg['args'][2]['file_name'])
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
     date_failed = format_issue_instant_for_mailers(msg['failed_at'])
+    upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
+    uuid = msg['args'][2]['uuid']
+    user_account = UserAccount.find_or_create_by(id: uuid)
+    personalisation = { first_name:, filename:, date_submitted:, date_failed: }
 
-    EVSS::FailureNotification.perform_async(icn, first_name, filename, date_submitted, date_failed)
-
-    ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email queued')
-    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
+    EvidenceSubmission.create(
+      job_id:,
+      job_class:,
+      claim_id:,
+      tracked_item_id:,
+      upload_status:,
+      user_account:,
+      template_metadata_ciphertext: { personalisation: }.to_json
+    )
   rescue => e
-    ::Rails.logger.error('EVSS::DocumentUpload exhaustion handler email error',
-                         { message: e.message })
-    StatsD.increment('silent_failure', tags: DD_ZSF_TAGS)
-    log_exception_to_sentry(e)
+    error_message = "#{job_class} failed to create EvidenceSubmission"
+    ::Rails.logger.info(error_message, { messsage: e.message })
+    StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
   end
 
   def perform(auth_headers, user_uuid, document_hash)
