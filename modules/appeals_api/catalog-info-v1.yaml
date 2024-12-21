@@ -7,6 +7,8 @@ metadata:
   annotations:
     datadog/production-monitor-id: '130949'
     datadog/sandbox-monitor-id: '130902'
+    code.va.gov/api-id: 'appeals'
+
   tags:
     - internal
     - lighthouse
