@@ -35,7 +35,7 @@ RSpec.describe EducationForm::CreateDailyYearToDateReport, type: :aws_helpers do
       # outside of daily range, given the timecop freeze.
       create(:education_benefits_submission, created_at: date - 26.hours, status: 'processed')
       create(:education_benefits_submission, created_at: date, status: 'submitted')
-      %w[1995 1990e 5490 1990n 5495 10203].each do |form_type|
+      %w[1995 1990e 5490 1990n 5495 10203 10282].each do |form_type|
         create(:education_benefits_submission, form_type:, created_at: date)
       end
       create(:education_benefits_submission, form_type: '0993', created_at: date, region: :western)
