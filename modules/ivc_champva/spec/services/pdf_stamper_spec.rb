@@ -98,7 +98,9 @@ describe IvcChampva::PdfStamper do
       let(:config) { nil }
 
       it 'raises an error' do
-        expect { verified_multistamp }.to raise_error('The provided stamp content was empty.')
+        expect do
+          verified_multistamp
+        end.to raise_error('An error occurred while verifying multistamp stamp: The provided stamp content was empty.')
       end
     end
   end
