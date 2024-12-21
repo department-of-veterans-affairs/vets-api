@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 require_relative 'special_issue'
 
 module EVSS
@@ -18,7 +18,8 @@ module EVSS
     #   @return [String] We map 'attrs['diagnostic_text']' to {name} in order to match the same attribute in
     #     the submit endpoint
     # @!attribute effective_date
-    #   @return [DateTime] The date the VA receives an application. Benefits start the first day of the following month.
+    #   @return [DateTime] The date the VA receives an application.
+    #     Benefits start the first day of the following month.
     # @!attribute rated_disability_id
     #   @return [String] Zero-based incremented id for a veterans disability
     # @!attribute rating_decision_id
@@ -32,8 +33,7 @@ module EVSS
     #     e.g. ['POW', 'PTSD_1']
     #
     class RatedDisability
-      include ActiveModel::Serialization
-      include Virtus.model
+      include Vets::Model
 
       attribute :decision_code, String
       attribute :decision_text, String
@@ -44,15 +44,13 @@ module EVSS
       attribute :rating_decision_id, String
       attribute :rating_percentage, Integer
       attribute :related_disability_date, DateTime
-      attribute :special_issues, Array[EVSS::DisabilityCompensationForm::SpecialIssue]
+      attribute :special_issues, EVSS::DisabilityCompensationForm::SpecialIssue, array: true
 
       def initialize(attrs)
-        super(attrs)
-        self.name = attrs['diagnostic_text']
+        attrs['name'] = attrs['diagnostic_text']
+        super
       end
 
-      # @return [String] Shorthand for rated_disability_id
-      #
       def id
         rated_disability_id
       end

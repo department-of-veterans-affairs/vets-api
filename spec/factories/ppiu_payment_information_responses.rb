@@ -3,7 +3,7 @@
 FactoryBot.define do
   factory :ppiu_payment_information_response, class: 'EVSS::PPIU::PaymentInformationResponse' do
     initialize_with {
-      new(200, OpenStruct.new(body: { responses: build_list(:payment_information, 1).map(&:attributes) }))
+      new(200, OpenStruct.new(body: { 'responses' => build_list(:payment_information, 1).map(&:attributes) }))
     }
   end
 
