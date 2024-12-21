@@ -4,18 +4,15 @@ module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestSerializer
     include JSONAPI::Serializer
 
-    attributes :id, :claimant_id
+    attributes :claimant_id, :created_at
 
-    attribute :created_at do |object|
-      object.created_at.iso8601
-    end
-
-    attribute :resolution do |object|
-      next nil if object.resolution.blank?
-
-      AccreditedRepresentativePortal::PowerOfAttorneyRequestResolutionSerializer.new(
-        object.resolution
-      ).serializable_hash[:data][:attributes]
-    end
+    has_one :resolution, if: :resolution.to_proc, serializer: proc { |resolution|
+      case resolution.resolving
+      when PowerOfAttorneyRequestDecision
+        PowerOfAttorneyRequestDecisionSerializer
+      when PowerOfAttorneyRequestExpiration
+        PowerOfAttorneyRequestExpirationSerializer
+      end
+    }
   end
 end

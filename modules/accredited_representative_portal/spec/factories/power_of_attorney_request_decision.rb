@@ -3,16 +3,14 @@
 FactoryBot.define do
   factory :power_of_attorney_request_decision,
           class: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision' do
-    id { Faker::Internet.uuid }
     association :creator, factory: :user_account
-    type { 'Approval' }
 
-    trait :declination do
-      type { 'Declination' }
+    trait :acceptance do
+      type { AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::ACCEPTANCE }
     end
 
-    trait :approval do
-      type { 'Approval' }
+    trait :declination do
+      type { AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::DECLINATION }
     end
   end
 end
