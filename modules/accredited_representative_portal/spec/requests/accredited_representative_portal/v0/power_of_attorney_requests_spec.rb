@@ -38,22 +38,25 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'type' => 'power_of_attorney_request',
             'attributes' => {
               'claimant_id' => poa_requests[0].claimant_id,
-              'created_at' => time
-            },
-            'relationships' => {}
+              'created_at' => time,
+              'resolution' => nil
+            }
           },
           {
             'id' => poa_requests[1].id,
             'type' => 'power_of_attorney_request',
             'attributes' => {
               'claimant_id' => poa_requests[1].claimant_id,
-              'created_at' => time
-            },
-            'relationships' => {
+              'created_at' => time,
               'resolution' => {
                 'data' => {
                   'id' => poa_requests[1].resolution.id,
-                  'type' => 'power_of_attorney_request_decision'
+                  'type' => 'power_of_attorney_request_decision',
+                  'attributes' => {
+                    'created_at' => time,
+                    'creator_id' => poa_requests[1].resolution.resolving.creator_id,
+                    'decision_type' => 'acceptance'
+                  }
                 }
               }
             }
@@ -63,13 +66,17 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'type' => 'power_of_attorney_request',
             'attributes' => {
               'claimant_id' => poa_requests[2].claimant_id,
-              'created_at' => time
-            },
-            'relationships' => {
+              'created_at' => time,
               'resolution' => {
                 'data' => {
                   'id' => poa_requests[2].resolution.id,
-                  'type' => 'power_of_attorney_request_decision'
+                  'type' => 'power_of_attorney_request_decision',
+                  'attributes' => {
+                    'created_at' => time,
+                    'creator_id' => poa_requests[2].resolution.resolving.creator_id,
+                    'reason' => 'Didn\'t authorize treatment record disclosure',
+                    'decision_type' => 'declination'
+                  }
                 }
               }
             }
@@ -79,43 +86,16 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'type' => 'power_of_attorney_request',
             'attributes' => {
               'claimant_id' => poa_requests[3].claimant_id,
-              'created_at' => time
-            },
-            'relationships' => {
+              'created_at' => time,
               'resolution' => {
                 'data' => {
                   'id' => poa_requests[3].resolution.id,
-                  'type' => 'power_of_attorney_request_expiration'
+                  'type' => 'power_of_attorney_request_expiration',
+                  'attributes' => {
+                    'created_at' => time
+                  }
                 }
               }
-            }
-          }
-        ],
-        'included' => [
-          {
-            'id' => poa_requests[1].resolution.id,
-            'type' => 'power_of_attorney_request_decision',
-            'attributes' => {
-              'created_at' => time,
-              'creator_id' => poa_requests[1].resolution.resolving.creator_id,
-              'decision_type' => 'acceptance'
-            }
-          },
-          {
-            'id' => poa_requests[2].resolution.id,
-            'type' => 'power_of_attorney_request_decision',
-            'attributes' => {
-              'created_at' => time,
-              'creator_id' => poa_requests[2].resolution.resolving.creator_id,
-              'reason' => 'Didn\'t authorize treatment record disclosure',
-              'decision_type' => 'declination'
-            }
-          },
-          {
-            'id' => poa_requests[3].resolution.id,
-            'type' => 'power_of_attorney_request_expiration',
-            'attributes' => {
-              'created_at' => time
             }
           }
         ]
@@ -136,29 +116,21 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           'type' => 'power_of_attorney_request',
           'attributes' => {
             'claimant_id' => poa_request.claimant_id,
-            'created_at' => time
-          },
-          'relationships' => {
+            'created_at' => time,
             'resolution' => {
               'data' => {
                 'id' => poa_request.resolution.id,
-                'type' => 'power_of_attorney_request_decision'
+                'type' => 'power_of_attorney_request_decision',
+                'attributes' => {
+                  'created_at' => time,
+                  'creator_id' => poa_request.resolution.resolving.creator_id,
+                  'reason' => 'Didn\'t authorize treatment record disclosure',
+                  'decision_type' => 'declination'
+                }
               }
             }
           }
-        },
-        'included' => [
-          {
-            'id' => poa_request.resolution.id,
-            'type' => 'power_of_attorney_request_decision',
-            'attributes' => {
-              'created_at' => time,
-              'creator_id' => poa_request.resolution.resolving.creator_id,
-              'reason' => 'Didn\'t authorize treatment record disclosure',
-              'decision_type' => 'declination'
-            }
-          }
-        ]
+        }
       )
     end
   end

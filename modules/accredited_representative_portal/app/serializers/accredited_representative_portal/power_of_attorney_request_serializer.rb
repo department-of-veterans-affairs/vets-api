@@ -6,13 +6,18 @@ module AccreditedRepresentativePortal
 
     attributes :claimant_id, :created_at
 
-    has_one :resolution, if: :resolution.to_proc, serializer: proc { |resolution|
-      case resolution.resolving
-      when PowerOfAttorneyRequestDecision
-        PowerOfAttorneyRequestDecisionSerializer
-      when PowerOfAttorneyRequestExpiration
-        PowerOfAttorneyRequestExpirationSerializer
-      end
-    }
+    attribute :resolution do |poa_request|
+      next unless poa_request.resolution
+
+      serializer =
+        case poa_request.resolution.resolving
+        when PowerOfAttorneyRequestDecision
+          PowerOfAttorneyRequestDecisionSerializer
+        when PowerOfAttorneyRequestExpiration
+          PowerOfAttorneyRequestExpirationSerializer
+        end
+
+      serializer.new(poa_request.resolution)
+    end
   end
 end
