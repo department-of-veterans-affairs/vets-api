@@ -2,19 +2,57 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyForm < ApplicationRecord
-    self.ignored_columns += %w[city_bidx state_bidx zipcode_bidx]
-
     belongs_to :power_of_attorney_request,
                class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest',
                inverse_of: :power_of_attorney_form
 
+
     has_kms_key
 
-    has_encrypted :data, key: :kms_key, **lockbox_options
+    has_encrypted(
+      :data,
+      :claimant_city,
+      :claimant_state_code,
+      :claimant_zip_code,
+      key: :kms_key,
+      **lockbox_options
+    )
 
-    blind_index :city
-    blind_index :state
-    blind_index :zipcode
+    blind_index(
+      :claimant_city,
+      :claimant_state_code,
+      :claimant_zip_code
+    )
+
+    validate :data_must_comply_with_schema
+    before_validation :set_location
+
+    # Maybe can manage interdepencies between this and the POA reqeust without
+    # exposing this.
+    def parsed_data
+      @parsed_data ||= JSON.parse(data)
+    end
+
+    private
+
+    def set_location
+      claimant = parsed_data['dependent']
+      claimant ||= parsed_data['veteran']
+
+      address = claimant.to_h['address']
+      return unless address
+
+      self.claimant_city = address['city']
+      self.claimant_state_code = address['state_code']
+      self.claimant_zip_code = address['zip_code']
+    end
+
+    def data_must_comply_with_schema
+      data_errors = JSONSchemer.schema(SCHEMA).validate(parsed_data)
+      return if data_errors.none?
+
+      errors.add :data, 'does not comply with schema'
+    end
 
     ##
     # TODO: Can couple this to the schema involved in user input during POA
