@@ -227,7 +227,6 @@ module EVSS
       # Started Form Version
       ###
       def translate_started_form_version
-        # fixes bug where some InProgressForms were missing startedFormVersion (necessary for Toxic Exposure flow)
         { 'startedFormVersion' => input_form['startedFormVersion'] || '2019' }
       end
 
