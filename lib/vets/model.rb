@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'vets/attributes'
+require 'vets/model/dirty'
 require 'vets/model/sortable'
 require 'vets/model/pagination'
 
@@ -16,6 +17,7 @@ module Vets
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
     include Vets::Attributes
+    include Vets::Model::Dirty
     include Vets::Model::Sortable
     include Vets::Model::Pagination
 
