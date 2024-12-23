@@ -19,6 +19,7 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
       AccreditedRepresentativePortal::Engine.routes.draw do
         get 'arbitrary', to: 'arbitrary#arbitrary'
       end
+      allow_any_instance_of(AccreditedRepresentativePortal::ApplicationController).to receive(:verify_pundit_authorization)
     end
 
     after do

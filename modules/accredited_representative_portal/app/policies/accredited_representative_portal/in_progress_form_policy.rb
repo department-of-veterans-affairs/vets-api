@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class InProgressFormsPolicy < ApplicationPolicy
+  class InProgressFormPolicy < ApplicationPolicy
     def update?
       authorize
     end
@@ -30,7 +30,7 @@ module AccreditedRepresentativePortal
     private
 
     def authorize
-      return false unless @current_user
+      return false unless user
 
       true
     end

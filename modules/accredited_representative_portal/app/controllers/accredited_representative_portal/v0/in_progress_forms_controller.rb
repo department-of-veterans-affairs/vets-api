@@ -5,19 +5,19 @@ module AccreditedRepresentativePortal
     class InProgressFormsController < ApplicationController
       def update
         @form = find_form || build_form
-        authorize @form
+        authorize(@form, :update?, policy_class: AccreditedRepresentativePortal::InProgressFormPolicy)
 
         @form.update!(
           form_data: params[:form_data],
           metadata: params[:metadata]
         )
 
-        render json: InProgressFormSerializer.new(form)
+        render json: InProgressFormSerializer.new(@form)
       end
 
       def show
         @form = find_form
-        authorize @form
+        authorize(@form, :show?, policy_class: AccreditedRepresentativePortal::InProgressFormPolicy)
         render json: @form&.data_and_metadata || {}
       end
 

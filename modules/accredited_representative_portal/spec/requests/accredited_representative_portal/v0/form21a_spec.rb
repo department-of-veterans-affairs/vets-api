@@ -21,6 +21,8 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
   let(:representative_user) { create(:representative_user) }
 
   before do
+    # TODO: Remove next line when Pundit authorization is added
+    allow_any_instance_of(::AccreditedRepresentativePortal::V0::Form21aController).to receive(:verify_pundit_authorization)
     Flipper.enable(:accredited_representative_portal_pilot)
     login_as(representative_user)
   end

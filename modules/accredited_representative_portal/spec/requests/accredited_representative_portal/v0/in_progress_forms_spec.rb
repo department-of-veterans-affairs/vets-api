@@ -6,6 +6,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, ty
   let(:representative_user) { create(:representative_user) }
   let(:form_id) { '21a' }
   let(:headers) { { 'Content-Type' => 'application/json' } }
+  let!(:in_progress_form) { create(:in_progress_form) }
 
   before do
     Flipper.enable(:accredited_representative_portal_pilot)
