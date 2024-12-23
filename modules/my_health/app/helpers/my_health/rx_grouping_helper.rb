@@ -30,6 +30,11 @@ module MyHealth
       grouped_prescriptions
     end
 
+    def get_single_rx_from_grouped_list(prescriptions, id)
+      grouped_list = group_prescriptions(prescriptions)
+      grouped_list.find { |rx| rx['prescription_id'] == id }
+    end
+
     private
 
     def add_solo_med_and_delete(grouped_prescriptions, prescriptions, prescription)

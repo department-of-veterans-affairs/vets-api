@@ -40,7 +40,8 @@ class AppealSubmission < ApplicationRecord
 
   scope :failure_not_sent, -> { where(failure_notification_sent_at: nil).order(id: :asc) }
 
-  def self.submit_nod(request_body_hash:, current_user:, decision_review_service: nil)
+  def self.submit_nod(request_body_hash:, current_user:, decision_review_service: nil,
+                      submit_upload_job: DecisionReview::SubmitUpload)
     ActiveRecord::Base.transaction do
       raise 'Must pass in a version of the DecisionReview Service' if decision_review_service.nil?
 
@@ -65,16 +66,16 @@ class AppealSubmission < ApplicationRecord
       # Clear in-progress form if submit was successful
       InProgressForm.form_for_user('10182', current_user)&.destroy!
 
-      appeal_submission.enqueue_uploads(uploads_arr, current_user)
+      appeal_submission.enqueue_uploads(uploads_arr, current_user, submit_upload_job)
       nod_response_body
     end
   end
 
-  def enqueue_uploads(uploads_arr, _user)
+  def enqueue_uploads(uploads_arr, _user, submit_upload_job)
     uploads_arr.each do |upload_attrs|
       asu = AppealSubmissionUpload.create!(decision_review_evidence_attachment_guid: upload_attrs['confirmationCode'],
                                            appeal_submission_id: id)
-      DecisionReview::SubmitUpload.perform_async(asu.id)
+      submit_upload_job.perform_async(asu.id)
     end
   end
 

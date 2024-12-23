@@ -9,7 +9,7 @@ module SignIn
                 :all_credential_emails,
                 :verified_icn,
                 :edipi,
-                :mhv_correlation_id,
+                :mhv_credential_uuid,
                 :request_ip,
                 :first_name,
                 :last_name
@@ -21,7 +21,7 @@ module SignIn
       @credential_email = user_attributes[:csp_email]
       @all_credential_emails = user_attributes[:all_csp_emails]
       @edipi = user_attributes[:edipi]
-      @mhv_correlation_id = user_attributes[:mhv_correlation_id]
+      @mhv_credential_uuid = user_attributes[:mhv_credential_uuid]
       @verified_icn = verified_icn
       @request_ip = request_ip
       @first_name = user_attributes[:first_name]
@@ -71,7 +71,7 @@ module SignIn
                                                  logingov_uuid:,
                                                  sign_in:,
                                                  edipi:,
-                                                 mhv_correlation_id:,
+                                                 mhv_credential_uuid:,
                                                  icn: verified_icn })
     end
 

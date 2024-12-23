@@ -38,10 +38,18 @@ module MyHealth
 
       def show
         id = params[:id].try(:to_i)
-        resource = client.get_rx_details(id)
+        resource = if Flipper.enabled?(:mhv_medications_display_grouping)
+                     get_single_rx_from_grouped_list(collection_resource.data, id)
+                   else
+                     client.get_rx_details(id)
+                   end
         raise Common::Exceptions::RecordNotFound, id if resource.blank?
 
-        options = { meta: resource.metadata }
+        options = if Flipper.enabled?(:mhv_medications_display_grouping)
+                    { meta: client.get_rx_details(id).metadata }
+                  else
+                    { meta: resource.metadata }
+                  end
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource, options)
       end
 

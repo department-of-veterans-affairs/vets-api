@@ -1,14 +1,16 @@
 # frozen_string_literal: true
 
 require 'pdf_utilities/datestamp_pdf'
+require 'fileutils'
 
 module SimpleFormsApi
   class PdfStamper
     attr_reader :stamped_template_path, :form, :loa, :timestamp
 
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
+    FORM_UPLOAD_SUBMISSION_TEXT = 'Submitted via VA.gov at '
 
-    def initialize(stamped_template_path:, form:, current_loa: nil, timestamp: nil)
+    def initialize(stamped_template_path:, form: nil, current_loa: nil, timestamp: nil)
       @stamped_template_path = stamped_template_path
       @form = form
       @loa = current_loa
@@ -45,7 +47,7 @@ module SimpleFormsApi
     end
 
     def all_form_stamps
-      form.desired_stamps + form.submission_date_stamps(timestamp)
+      form ? form.desired_stamps + form.submission_date_stamps(timestamp) : []
     end
 
     def stamp_form(desired_stamp)
@@ -63,7 +65,7 @@ module SimpleFormsApi
 
     def stamp_all_pages(desired_stamp, append_to_stamp: nil)
       current_file_path = call_datestamp_pdf(desired_stamp[:coords], desired_stamp[:text], append_to_stamp)
-      File.rename(current_file_path, stamped_template_path)
+      FileUtils.mv(current_file_path, stamped_template_path)
     end
 
     def verified_multistamp(stamp, page_configuration)
@@ -92,7 +94,7 @@ module SimpleFormsApi
 
     def multistamp_cleanup(out_path)
       Common::FileHelpers.delete_file_if_exists(stamped_template_path)
-      File.rename(out_path, stamped_template_path)
+      FileUtils.mv(out_path, stamped_template_path)
     end
 
     def verify
@@ -148,18 +150,30 @@ module SimpleFormsApi
     def get_auth_text_stamp
       current_time = "#{Time.current.in_time_zone('America/Chicago').strftime('%H:%M:%S')} "
       coords = [10, 10]
-      text = SUBMISSION_TEXT + current_time
+      submission_text = form ? SUBMISSION_TEXT : FORM_UPLOAD_SUBMISSION_TEXT
+      text = submission_text + current_time
       { coords:, text: }
     end
 
     def auth_text
-      case loa
-      when 3
-        'Signee signed with an identity-verified account.'
-      when 2
-        'Signee signed in but hasn’t verified their identity.'
+      if form
+        case loa
+        when 3
+          'Signee signed with an identity-verified account.'
+        when 2
+          'Signee signed in but hasn’t verified their identity.'
+        else
+          'Signee not signed in.'
+        end
       else
-        'Signee not signed in.'
+        case loa
+        when 3
+          'Signed in and submitted with an identity-verified account.'
+        when 2
+          'Signed in and submitted but has not verified their identity.'
+        else
+          'Signee not signed in.'
+        end
       end
     end
 

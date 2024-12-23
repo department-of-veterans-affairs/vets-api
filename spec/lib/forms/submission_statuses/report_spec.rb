@@ -84,6 +84,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
         expect(submission_status.form_type).to eq('21-0845')
         expect(submission_status.message).to eq('message')
         expect(submission_status.status).to eq('received')
+        expect(submission_status.pdf_support).to eq(true)
       end
     end
 
@@ -107,6 +108,7 @@ describe Forms::SubmissionStatuses::Report, feature: :form_submission,
         expect(submission_status.form_type).to eq('21-4142')
         expect(submission_status.message).to be_nil
         expect(submission_status.status).to be_nil
+        expect(submission_status.pdf_support).to eq(true)
       end
     end
 

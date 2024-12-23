@@ -11,7 +11,7 @@ module RepresentationManagement
         protected
 
         def next_steps_page?
-          true
+          false
         end
 
         def next_steps_part1(pdf)
@@ -259,7 +259,8 @@ module RepresentationManagement
             'HIV' => 'HIV records',
             'SICKLE_CELL' => 'Sickle cell anemia records'
           }
-          consent_limits.filter_map { |limit| limitations[limit] }.to_sentence
+          authorized_limitations = consent_limits.filter_map { |limit| limitations[limit] }.to_sentence
+          "I authorize access to: #{authorized_limitations}."
         end
 
         def normalize_country_code_to_alpha2(country_code)

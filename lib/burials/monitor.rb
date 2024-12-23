@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'va_notify/notification_email/burial'
+require 'burials/notification_email'
 require 'zero_silent_failures/monitor'
 
 module Burials

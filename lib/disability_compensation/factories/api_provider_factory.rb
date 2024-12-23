@@ -15,6 +15,7 @@ require 'disability_compensation/providers/claims_service/lighthouse_claims_serv
 require 'disability_compensation/providers/brd/brd_provider'
 require 'disability_compensation/providers/brd/evss_brd_provider'
 require 'disability_compensation/providers/brd/lighthouse_brd_provider'
+require 'disability_compensation/providers/brd/lighthouse_staging_brd_provider'
 require 'disability_compensation/providers/generate_pdf/generate_pdf_provider'
 require 'disability_compensation/providers/generate_pdf/evss_generate_pdf_provider'
 require 'disability_compensation/providers/generate_pdf/lighthouse_generate_pdf_provider'
@@ -28,7 +29,8 @@ class ApiProviderFactory
 
   API_PROVIDER = {
     evss: :evss,
-    lighthouse: :lighthouse
+    lighthouse: :lighthouse,
+    lighthouse_staging: :lighthouse_staging
   }.freeze
 
   FACTORIES = {
@@ -166,6 +168,8 @@ class ApiProviderFactory
       EvssBRDProvider.new(@current_user)
     when API_PROVIDER[:lighthouse]
       LighthouseBRDProvider.new(@current_user)
+    when API_PROVIDER[:lighthouse_staging]
+      LighthouseStagingBRDProvider.new(@current_user)
     else
       raise NotImplementedError, 'No known BRD Api Provider type provided'
     end

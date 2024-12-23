@@ -37,7 +37,7 @@ RSpec.describe 'V0::MyVA::SubmissionStatuses', feature: :form_submission,
       expect(response).to have_http_status(:ok)
 
       results = JSON.parse(response.body)['data']
-      keys = %w[id detail form_type message status created_at updated_at]
+      keys = %w[id detail form_type message status created_at updated_at pdf_support]
       expect(results.first['attributes'].keys.sort).to eq(keys.sort)
     end
 

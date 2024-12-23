@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'forms/submission_statuses/pdf_urls'
+
 module V0
   module MyVA
     class SubmissionPdfUrlsController < ApplicationController
@@ -7,7 +9,7 @@ module V0
       service_tag 'form-submission-pdf'
 
       def create
-        url = SubmissionPdfUrlService.new(
+        url = Forms::SubmissionStatuses::PdfUrls.new(
           form_id: request_params[:form_id],
           submission_guid: request_params[:submission_guid]
         ).fetch_url

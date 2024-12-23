@@ -19,9 +19,10 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
   subject(:saved_claim) { described_class.new(form: form_data) }
 
   let(:form_data) { { some_key: 'some_value' }.to_json }
-  let(:schema) { 'schema_content' }
+  let(:schema) { { some_key: 'some_value' }.to_json }
 
   before do
+    allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
     allow(VetsJsonSchema::SCHEMAS).to receive(:[]).and_return(schema)
     allow(JSON::Validator).to receive_messages(fully_validate_schema: [], fully_validate: [])
   end
@@ -34,79 +35,128 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
   describe 'validations' do
     context 'no validation errors' do
-      before do
-        allow(JSON::Validator).to receive(:fully_validate).and_return([])
+      context 'using JSON Schema' do
+        before do
+          allow(JSON::Validator).to receive(:fully_validate).and_return([])
+        end
+
+        it 'returns true' do
+          expect(saved_claim.validate).to eq true
+        end
       end
 
-      it 'returns true' do
-        expect(saved_claim.validate).to eq true
+      context 'using JSON Schemer' do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
+        end
+
+        it 'returns true' do
+          expect(saved_claim.validate).to eq(true)
+        end
       end
     end
 
     context 'validation errors' do
       let(:schema_errors) { [{ fragment: 'error' }] }
 
-      context 'when fully_validate_schema returns errors' do
-        before do
-          allow(JSON::Validator).to receive_messages(fully_validate_schema: schema_errors, fully_validate: [])
+      context 'using JSON Schema' do
+        context 'when fully_validate_schema returns errors' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
+            allow(JSON::Validator).to receive_messages(fully_validate_schema: schema_errors, fully_validate: [])
+          end
+
+          it 'logs schema failed error and calls fully_validate' do
+            expect(Rails.logger).to receive(:error)
+              .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
+
+            expect(saved_claim.validate).to eq true
+          end
         end
 
-        it 'logs schema failed error and calls fully_validate' do
-          expect(Rails.logger).to receive(:error)
-            .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
+        context 'when fully_validate returns errors' do
+          before do
+            allow(JSON::Validator).to receive(:fully_validate).and_return(schema_errors)
+          end
 
-          expect(saved_claim.validate).to eq true
+          it 'adds validation errors to the form' do
+            saved_claim.validate
+            expect(saved_claim.errors.full_messages).not_to be_empty
+          end
+        end
+
+        context 'when JSON:Validator.fully_validate_schema throws an exception' do
+          let(:exception) { StandardError.new('Some exception') }
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(true)
+            allow(JSON::Validator).to receive(:fully_validate_schema).and_raise(exception)
+            allow(JSON::Validator).to receive(:fully_validate).and_return([])
+          end
+
+          it 'logs exception and raises exception' do
+            expect(Rails.logger).to receive(:error)
+              .with('Error during schema validation!', { error: exception.message, backtrace: anything, schema: })
+
+            expect { saved_claim.validate }.to raise_error(exception.class, exception.message)
+          end
+        end
+
+        context 'when JSON:Validator.fully_validate throws an exception' do
+          let(:exception) { StandardError.new('Some exception') }
+
+          before do
+            allow(JSON::Validator).to receive(:fully_validate_schema).and_return([])
+            allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
+          end
+
+          it 'logs exception and raises exception' do
+            expect(Rails.logger).to receive(:error)
+              .with('Error during form validation!', { error: exception.message, backtrace: anything, schema:,
+                                                       clear_cache: false })
+
+            expect(PersonalInformationLog).to receive(:create).with(
+              data: { schema: schema,
+                      parsed_form: saved_claim.parsed_form,
+                      params: { errors_as_objects: true, clear_cache: false } },
+              error_class: 'SavedClaim FormValidationError'
+            )
+
+            expect { saved_claim.validate }.to raise_error(exception.class, exception.message)
+          end
         end
       end
 
-      context 'when fully_validate returns errors' do
+      context 'using JSON Schemer' do
         before do
-          allow(JSON::Validator).to receive(:fully_validate).and_return(schema_errors)
+          allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
         end
 
-        it 'adds validation errors to the form' do
-          saved_claim.validate
-          expect(saved_claim.errors.full_messages).not_to be_empty
-        end
-      end
+        context 'when validate_schema returns errors' do
+          before do
+            allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)
+            allow(JSONSchemer).to receive_messages(validate_schema: schema_errors)
+          end
 
-      context 'when JSON:Validator.fully_validate_schema throws an exception' do
-        let(:exception) { StandardError.new('Some exception') }
+          it 'logs schema faild error' do
+            expect(Rails.logger).to receive(:error)
+              .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
 
-        before do
-          allow(JSON::Validator).to receive(:fully_validate_schema).and_raise(exception)
-          allow(JSON::Validator).to receive(:fully_validate).and_return([])
-        end
-
-        it 'logs exception and raises exception' do
-          expect(Rails.logger).to receive(:error)
-            .with('Error during schema validation!', { error: exception.message, backtrace: anything, schema: })
-
-          expect { saved_claim.validate }.to raise_error(exception.class, exception.message)
-        end
-      end
-
-      context 'when JSON:Validator.fully_validate throws an exception' do
-        let(:exception) { StandardError.new('Some exception') }
-
-        before do
-          allow(JSON::Validator).to receive(:fully_validate_schema).and_return([])
-          allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
+            expect(saved_claim.validate).to eq(true)
+          end
         end
 
-        it 'logs exception and raises exception' do
-          expect(Rails.logger).to receive(:error)
-            .with('Error during form validation!', { error: exception.message, backtrace: anything, schema:,
-                                                     clear_cache: false })
+        context 'when form validation returns errors' do
+          before do
+            allow(JSONSchemer).to receive_messages(validate_schema: [])
+            allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema,
+                                                                     validate: [{ data_pointer: 'error' }]))
+          end
 
-          expect(PersonalInformationLog).to receive(:create).with(
-            data: { schema: schema,
-                    parsed_form: saved_claim.parsed_form,
-                    params: { errors_as_objects: true, clear_cache: false } },
-            error_class: 'SavedClaim FormValidationError'
-          )
-
-          expect { saved_claim.validate }.to raise_error(exception.class, exception.message)
+          it 'adds validation errors to the form' do
+            saved_claim.validate
+            expect(saved_claim.errors.full_messages).not_to be_empty
+          end
         end
       end
     end
