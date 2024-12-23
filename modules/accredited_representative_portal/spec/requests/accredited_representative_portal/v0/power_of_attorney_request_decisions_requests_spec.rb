@@ -66,7 +66,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
       # --------------
       # GET REQUEST
-      get "/accredited_representative_portal//v0/power_of_attorney_requests/#{poa_request.id}"
+      get "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}"
 
       expect(response).to have_http_status(:ok)
       response_body = JSON.parse(response.body)
@@ -87,7 +87,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       # --------------
       # GET REQUEST
       resolution = poa_request.reload.resolution
-      get "/accredited_representative_portal//v0/power_of_attorney_requests/#{poa_request.id}"
+      get "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}"
 
       expect(response).to have_http_status(:ok)
       response_body = JSON.parse(response.body)
