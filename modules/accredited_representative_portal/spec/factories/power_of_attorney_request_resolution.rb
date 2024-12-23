@@ -7,7 +7,6 @@ FactoryBot.define do
     resolving_id { SecureRandom.uuid }
     reason_ciphertext { 'Encrypted Reason' }
     created_at { Time.current }
-    encrypted_kms_key { SecureRandom.hex(16) }
 
     trait :with_expiration do
       resolving_type { 'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration' }
