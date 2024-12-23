@@ -2,6 +2,21 @@
 
 module SimpleFormsApi
   class VBA214140 < BaseForm
+    attr_reader :address
+
+    def initialize(data)
+      super
+
+      @address = SimpleFormsApi::FormEngine::Address.new(
+        address_line1: data.dig('address', 'street'),
+        address_line2: data.dig('address', 'street2'),
+        city: data.dig('address', 'city'),
+        country_code_iso3: data.dig('address', 'country'),
+        state_code: data.dig('address', 'state'),
+        zip_code: data.dig('address', 'postal_code')
+      )
+    end
+
     def desired_stamps
       []
     end
