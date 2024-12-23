@@ -3,15 +3,31 @@
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestResolution < ApplicationRecord
     belongs_to :power_of_attorney_request,
-               class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest',
+               class_name: 'PowerOfAttorneyRequest',
                inverse_of: :resolution
 
     RESOLVING_TYPES = [
-      'AccreditedRepresentativePortal::PowerOfAttorneyRequestExpiration',
-      'AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision'
+      'PowerOfAttorneyRequestExpiration',
+      'PowerOfAttorneyRequestDecision'
     ].freeze
 
-    delegated_type :resolving, types: RESOLVING_TYPES
+    delegated_type :resolving,
+      types: RESOLVING_TYPES,
+      inverse_of: :resolution,
+      validate: true
+
+    module Resolving
+      extend ActiveSupport::Concern
+
+      included do
+        has_one :resolution,
+          as: :resolving,
+          inverse_of: :resolving,
+          class_name: 'PowerOfAttorneyRequestResolution',
+          validate: true,
+          required: true
+      end
+    end
 
     has_kms_key
 
