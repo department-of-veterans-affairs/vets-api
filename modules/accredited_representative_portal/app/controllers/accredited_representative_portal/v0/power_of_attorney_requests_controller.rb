@@ -62,7 +62,7 @@ module AccreditedRepresentativePortal
 
         creator_id = @current_user.id
 
-        type = power_of_attorney_request_params[:declination_reason].present? ? "Declination" :  "Acceptance"
+        type = power_of_attorney_request_params[:declination_reason].present? ? "Rejection" :  "Approval"
         decision = PowerOfAttorneyRequestDecision.new(type:, creator_id:)
 
         ActiveRecord::Base.transaction do

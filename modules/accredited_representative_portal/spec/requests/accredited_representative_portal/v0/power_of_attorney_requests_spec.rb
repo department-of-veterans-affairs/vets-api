@@ -111,7 +111,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       expect(response).to have_http_status(:ok)
       response_body = JSON.parse(response.body)
-      expect(response_body["type"]).to eq("Acceptance")
+      expect(response_body["type"]).to eq("Approval")
       request.reload
 
       expect(response_body["id"]).to eq(request.resolution.resolving_id)
@@ -123,7 +123,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       expect(response).to have_http_status(:ok)
       response_body = JSON.parse(response.body)
-      expect(response_body["type"]).to eq("Declination")
+      expect(response_body["type"]).to eq("Rejection")
       request.reload
 
       expect(response_body["id"]).to eq(request.resolution.resolving_id)
@@ -146,6 +146,51 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       expect(response).to have_http_status(:unprocessable_entity)
       response_body = JSON.parse(response.body)
       expect(response_body['error']).to eq('Resolution already exists')
+    end
+  end
+
+  describe "full cycle for decision api" do
+    it "returns the correct results for POST GET POST GET" do
+      request = FactoryBot.create(:power_of_attorney_request)
+
+      # --------------
+      # POST REQUEST
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{request.id}/decision", params: {"decision": {"declination_reason": nil}}
+
+      expect(response).to have_http_status(:ok)
+      response_body = JSON.parse(response.body)
+      expect(response_body["type"]).to eq("Approval")
+      request.reload
+
+      expect(response_body["id"]).to eq(request.resolution.resolving_id)
+
+      # --------------
+      # GET REQUEST
+      resolution = request.resolution
+      get "/accredited_representative_portal/v0/power_of_attorney_requests/#{request.id}/decision"
+
+      expect(response).to have_http_status(:ok)
+      response_body = JSON.parse(response.body)
+      expect(response_body["type"]).to eq("Approval")
+      expect(response_body["id"]).to eq(resolution.resolving_id)
+
+
+      # --------------
+      # POST REQUEST
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{request.id}/decision"
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      response_body = JSON.parse(response.body)
+      expect(response_body['error']).to eq('Resolution already exists')
+
+      # --------------
+      # GET REQUEST
+      get "/accredited_representative_portal/v0/power_of_attorney_requests/#{request.id}/decision"
+
+      expect(response).to have_http_status(:ok)
+      response_body = JSON.parse(response.body)
+      expect(response_body["type"]).to eq("Approval")
+      expect(response_body["id"]).to eq(resolution.resolving_id)
     end
   end
 end
