@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_23_094500) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -273,12 +273,14 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.uuid "power_of_attorney_request_id", null: false
     t.text "encrypted_kms_key"
     t.text "data_ciphertext", null: false
-    t.string "city_bidx", null: false
-    t.string "state_bidx", null: false
-    t.string "zipcode_bidx", null: false
-    t.index ["city_bidx", "state_bidx", "zipcode_bidx"], name: "idx_on_city_bidx_state_bidx_zipcode_bidx_a85b76f9bc"
+    t.string "claimant_city_ciphertext", null: false
+    t.string "claimant_city_bidx", null: false
+    t.string "claimant_state_code_ciphertext", null: false
+    t.string "claimant_state_code_bidx", null: false
+    t.string "claimant_zip_code_ciphertext", null: false
+    t.string "claimant_zip_code_bidx", null: false
+    t.index ["claimant_city_bidx", "claimant_state_code_bidx", "claimant_zip_code_bidx"], name: "idx_on_claimant_city_bidx_claimant_state_code_bidx__11e9adbe25"
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fc59a0dabc", unique: true
-    t.index ["zipcode_bidx"], name: "index_ar_power_of_attorney_forms_on_zipcode_bidx"
   end
 
   create_table "ar_power_of_attorney_request_decisions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -304,6 +306,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
   create_table "ar_power_of_attorney_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "claimant_id", null: false
     t.datetime "created_at", null: false
+    t.string "claimant_type", null: false
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
   end
 
