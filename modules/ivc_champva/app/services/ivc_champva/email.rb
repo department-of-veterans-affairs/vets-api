@@ -38,7 +38,10 @@ module IvcChampva
             'date_submitted' => data[:created_at],
             'form_uuid' => data[:form_uuid]
           },
-          Settings.vanotify.services.ivc_champva.api_key
+          Settings.vanotify.services.ivc_champva.api_key,
+          # If no callback_klass is provided, should fail safely per va_notify implementation.
+          # See: https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/va_notify#how-teams-can-integrate-with-callbacks
+          { callback_klass: data[:callback_klass], callback_metadata: data[:callback_metadata] }
         )
         true
       rescue => e
