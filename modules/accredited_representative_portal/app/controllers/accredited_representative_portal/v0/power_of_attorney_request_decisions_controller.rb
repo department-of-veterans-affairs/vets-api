@@ -14,7 +14,6 @@ module AccreditedRepresentativePortal
           )
           resolution = @power_of_attorney_request.resolution
           if resolution.persisted?
-            decision = resolution.resolving
             render json: "Decision successfully created", status: :ok
           else 
             render json: { error: 'Failed to create resolution' }, status: :unprocessable_entity
