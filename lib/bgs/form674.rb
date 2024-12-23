@@ -22,6 +22,7 @@ module BGS
       @saved_claim = saved_claim
       @end_product_name = '130 - Automated School Attendance 674'
       @end_product_code = '130SCHATTEBN'
+      @proc_state = 'Ready' if Flipper.enabled?(:va_dependents_submit674)
     end
 
     def submit(payload)
@@ -32,7 +33,11 @@ module BGS
       vnp_benefit_claim = VnpBenefitClaim.new(proc_id:, veteran:, user:)
       vnp_benefit_claim_record = vnp_benefit_claim.create
 
-      set_claim_type('MANUAL_VAGOV') # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
+      # we are TEMPORARILY always setting to MANUAL_VAGOV for 674
+      if !Flipper.enabled?(:va_dependents_submit674) || @saved_claim.submittable_686?
+        set_claim_type('MANUAL_VAGOV')
+        @proc_state = 'MANUAL_VAGOV'
+      end
 
       # temporary logging to troubleshoot
       log_message_to_sentry("#{proc_id} - #{@end_product_code}", :warn, '', { team: 'vfs-ebenefits' })
@@ -45,10 +50,12 @@ module BGS
         # we only want to add a note if the claim is being set to MANUAL_VAGOV
         # but for now we are temporarily always setting to MANUAL_VAGOV for 674
         # when that changes, we need to surround this block of code in an IF statement
-        note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
-        bgs_service.create_note(benefit_claim_record[:benefit_claim_id], note_text)
+        if @proc_state == 'MANUAL_VAGOV'
+          note_text = 'Claim set to manual by VA.gov: This application needs manual review because a 674 was submitted.'
+          bgs_service.create_note(benefit_claim_record[:benefit_claim_id], note_text)
 
-        bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
+          bgs_service.update_proc(proc_id, proc_state: 'MANUAL_VAGOV')
+        end
       rescue
         log_submit_failure(error)
       end
