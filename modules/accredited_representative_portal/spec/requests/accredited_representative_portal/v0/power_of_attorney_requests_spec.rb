@@ -47,4 +47,105 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       expect(JSON.parse(response.body)).to include(poa_request_details_mock_data)
     end
   end
+
+  describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests/:id/decision' do
+    it 'returns decision if exists' do
+      request = FactoryBot.create(:power_of_attorney_request)
+      resolution = FactoryBot.create(:power_of_attorney_request_resolution, :with_decision, power_of_attorney_request: request)
+
+      get "/accredited_representative_portal/v0/power_of_attorney_requests/#{request.id}/decision"
+
+      expect(response).to have_http_status(:ok)
+      response_body = JSON.parse(response.body)
+      expect(response_body["type"]).to eq("Approval")
+      expect(response_body["id"]).to eq(resolution.resolving_id)
+    end
+
+    it 'returns request expiration if exists' do
+      request = FactoryBot.create(:power_of_attorney_request)
+      resolution = FactoryBot.create(:power_of_attorney_request_resolution, :with_expiration, power_of_attorney_request: request)
+
+      get "/accredited_representative_portal/v0/power_of_attorney_requests/#{request.id}/decision"
+
+      expect(response).to have_http_status(:ok)
+      response_body = JSON.parse(response.body)
+      expect(response_body["type"]).to be_nil
+      expect(response_body["id"]).to eq(resolution.resolving_id)
+    end
+
+    it 'returns an error if no request exists' do
+      get "/accredited_representative_portal/v0/power_of_attorney_requests/a/decision"
+
+      expect(response).to have_http_status(:not_found)
+      response_body = JSON.parse(response.body)
+      expect(response_body['error']).to eq('Not Found')
+    end
+
+    it 'returns an error if no resolution exists' do
+      request = FactoryBot.create(:power_of_attorney_request)
+      get "/accredited_representative_portal/v0/power_of_attorney_requests/#{request.id}/decision"
+
+      expect(response).to have_http_status(:not_found)
+      response_body = JSON.parse(response.body)
+      expect(response_body['error']).to eq('Resolution Not Found')
+    end
+
+    it 'returns an error if no outcome exists' do
+      request = FactoryBot.create(:power_of_attorney_request)
+      resolution = FactoryBot.create(:power_of_attorney_request_resolution, :with_decision, power_of_attorney_request: request)
+      AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision.find(resolution.resolving_id).delete
+
+      get "/accredited_representative_portal/v0/power_of_attorney_requests/#{request.id}/decision"
+
+      expect(response).to have_http_status(:not_found)
+      response_body = JSON.parse(response.body)
+      expect(response_body['error']).to eq('Outcome Not Found')
+    end
+  end
+
+  describe 'POST /accredited_representative_portal/v0/power_of_attorney_requests/:id/decision' do
+    it 'returns created accepted decision with proper proper params' do
+      request = FactoryBot.create(:power_of_attorney_request)
+
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{request.id}/decision", params: {"decision": {"declination_reason": nil}}
+
+      expect(response).to have_http_status(:ok)
+      response_body = JSON.parse(response.body)
+      expect(response_body["type"]).to eq("Acceptance")
+      request.reload
+
+      expect(response_body["id"]).to eq(request.resolution.resolving_id)
+    end
+
+    it 'returns created decline decision with proper proper params' do
+      request = FactoryBot.create(:power_of_attorney_request)
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{request.id}/decision", params: {"decision": {"declination_reason": "bad data"}}
+
+      expect(response).to have_http_status(:ok)
+      response_body = JSON.parse(response.body)
+      expect(response_body["type"]).to eq("Declination")
+      request.reload
+
+      expect(response_body["id"]).to eq(request.resolution.resolving_id)
+    end
+
+    it 'retuns an error if request does not exist' do
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/a/decision"
+
+      expect(response).to have_http_status(:not_found)
+      response_body = JSON.parse(response.body)
+      expect(response_body['error']).to eq('Not Found')
+    end
+
+    it 'returns an error if decision already exists' do
+      request = FactoryBot.create(:power_of_attorney_request)
+      resolution = FactoryBot.create(:power_of_attorney_request_resolution, :with_expiration, power_of_attorney_request: request)
+
+      post "/accredited_representative_portal/v0/power_of_attorney_requests/#{request.id}/decision"
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      response_body = JSON.parse(response.body)
+      expect(response_body['error']).to eq('Resolution already exists')
+    end
+  end
 end
