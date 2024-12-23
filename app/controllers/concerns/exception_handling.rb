@@ -32,6 +32,8 @@ module ExceptionHandling
     rescue_from 'Exception' do |exception|
       va_exception =
         case exception
+        when Pundit::AuthorizationNotPerformedError
+          Common::Exceptions::AuthorizationNotPerformedError.new(detail: 'Controller has not performed authorization')
         when Pundit::NotAuthorizedError
           Common::Exceptions::Forbidden.new(detail: 'User does not have access to the requested resource')
         when ActionController::InvalidAuthenticityToken
@@ -63,6 +65,8 @@ module ExceptionHandling
     case va_exception
     when JsonSchema::JsonApiMissingAttribute
       render json: va_exception.to_json_api, status: va_exception.code
+    when Common::Exceptions::AuthorizationNotPerformedError
+      # Pundit renders it's own error
     else
       render json: { errors: va_exception.errors }, status: va_exception.status_code
     end

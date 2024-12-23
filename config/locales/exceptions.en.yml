@@ -258,6 +258,12 @@ en:
         detail: "No query params are allowed for this route"
         code: 400
         status: 400
+      authorization_not_performed_error:
+        <<: *defaults
+        title: Authorization not performed
+        detail: "Authorization not performed by controller"
+        code: 500
+        status: 500
       detailed_schema_errors:
         <<: *validation_errors # Fallbacks for missing translations
         data_type:
@@ -2461,3 +2467,5 @@ en:
         title: 'Internal Server Error'
         code: CHIP_500
         status: 500
+
+
