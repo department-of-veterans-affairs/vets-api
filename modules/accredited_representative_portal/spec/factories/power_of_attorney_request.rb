@@ -5,6 +5,9 @@ FactoryBot.define do
     association :claimant, factory: :user_account
     association :power_of_attorney_form, strategy: :build
 
+    association :power_of_attorney_holder, factory: [:accredited_organization, :with_representatives]
+    accredited_individual { power_of_attorney_holder.accredited_individuals.first }
+
     trait :with_acceptance do
       resolution { create(:power_of_attorney_request_resolution, :acceptance) }
     end
