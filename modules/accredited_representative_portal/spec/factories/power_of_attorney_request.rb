@@ -3,6 +3,8 @@
 FactoryBot.define do
   factory :power_of_attorney_request, class: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest' do
     association :claimant, factory: :user_account
+    association :power_of_attorney_form, strategy: :build
+
     claimant_type { 'veteran' }
 
     trait :with_acceptance do

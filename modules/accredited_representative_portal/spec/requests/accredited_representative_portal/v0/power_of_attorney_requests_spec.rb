@@ -32,70 +32,250 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       expect(response).to have_http_status(:ok)
 
       expect(parsed_response).to eq(
-        'data' => [
+        [
           {
             'id' => poa_requests[0].id,
-            'type' => 'power_of_attorney_request',
-            'attributes' => {
-              'claimant_id' => poa_requests[0].claimant_id,
-              'created_at' => time,
-              'resolution' => nil
-            }
+            'claimant_id' => poa_requests[0].claimant_id,
+            'claimant_type' => 'dependent',
+            'created_at' => time,
+            'power_of_attorney_form' => {
+              'authorizations' => {
+                'record_disclosure' => true,
+                'record_disclosure_limitations' => [],
+                'address_change' => true
+              },
+              'dependent' => {
+                'name' => {
+                  'first' => 'John',
+                  'middle' => 'Middle',
+                  'last' => 'Doe'
+                },
+                'address' => {
+                  'address_line1' => '123 Main St',
+                  'address_line2' => 'Apt 1',
+                  'city' => 'Springfield',
+                  'state_code' => 'IL',
+                  'country' => 'US',
+                  'zip_code' => '62704',
+                  'zip_code_suffix' => '6789'
+                },
+                'date_of_birth' => '1980-12-31',
+                'relationship' => 'Spouse',
+                'phone' => '1234567890',
+                'email' => 'veteran@example.com'
+              },
+              'veteran' => {
+                'name' => {
+                  'first' => 'John',
+                  'middle' => 'Middle',
+                  'last' => 'Doe'
+                },
+                'address' => {
+                  'address_line1' => '123 Main St',
+                  'address_line2' => 'Apt 1',
+                  'city' => 'Springfield',
+                  'state_code' => 'IL',
+                  'country' => 'US',
+                  'zip_code' => '62704',
+                  'zip_code_suffix' => '6789'
+                },
+                'ssn' => '123456789',
+                'va_file_number' => '123456789',
+                'date_of_birth' => '1980-12-31',
+                'service_number' => '123456789',
+                'service_branch' => 'ARMY',
+                'phone' => '1234567890',
+                'email' => 'veteran@example.com'
+              }
+            },
+            'resolution' => nil
           },
           {
             'id' => poa_requests[1].id,
-            'type' => 'power_of_attorney_request',
-            'attributes' => {
-              'claimant_id' => poa_requests[1].claimant_id,
-              'created_at' => time,
-              'resolution' => {
-                'data' => {
-                  'id' => poa_requests[1].resolution.id,
-                  'type' => 'power_of_attorney_request_decision',
-                  'attributes' => {
-                    'created_at' => time,
-                    'creator_id' => poa_requests[1].resolution.resolving.creator_id,
-                    'decision_type' => 'acceptance'
-                  }
-                }
+            'claimant_id' => poa_requests[1].claimant_id,
+            'claimant_type' => 'dependent',
+            'created_at' => time,
+            'power_of_attorney_form' => {
+              'authorizations' => {
+                'record_disclosure' => true,
+                'record_disclosure_limitations' => [],
+                'address_change' => true
+              },
+              'dependent' => {
+                'name' => {
+                  'first' => 'John',
+                  'middle' => 'Middle',
+                  'last' => 'Doe'
+                },
+                'address' => {
+                  'address_line1' => '123 Main St',
+                  'address_line2' => 'Apt 1',
+                  'city' => 'Springfield',
+                  'state_code' => 'IL',
+                  'country' => 'US',
+                  'zip_code' => '62704',
+                  'zip_code_suffix' => '6789'
+                },
+                'date_of_birth' => '1980-12-31',
+                'relationship' => 'Spouse',
+                'phone' => '1234567890',
+                'email' => 'veteran@example.com'
+              },
+              'veteran' => {
+                'name' => {
+                  'first' => 'John',
+                  'middle' => 'Middle',
+                  'last' => 'Doe'
+                },
+                'address' => {
+                  'address_line1' => '123 Main St',
+                  'address_line2' => 'Apt 1',
+                  'city' => 'Springfield',
+                  'state_code' => 'IL',
+                  'country' => 'US',
+                  'zip_code' => '62704',
+                  'zip_code_suffix' => '6789'
+                },
+                'ssn' => '123456789',
+                'va_file_number' => '123456789',
+                'date_of_birth' => '1980-12-31',
+                'service_number' => '123456789',
+                'service_branch' => 'ARMY',
+                'phone' => '1234567890',
+                'email' => 'veteran@example.com'
               }
+            },
+            'resolution' => {
+              'id' => poa_requests[1].resolution.id,
+              'type' => 'decision',
+              'created_at' => time,
+              'creator_id' => poa_requests[1].resolution.resolving.creator_id,
+              'decision_type' => 'acceptance'
             }
           },
           {
             'id' => poa_requests[2].id,
-            'type' => 'power_of_attorney_request',
-            'attributes' => {
-              'claimant_id' => poa_requests[2].claimant_id,
-              'created_at' => time,
-              'resolution' => {
-                'data' => {
-                  'id' => poa_requests[2].resolution.id,
-                  'type' => 'power_of_attorney_request_decision',
-                  'attributes' => {
-                    'created_at' => time,
-                    'creator_id' => poa_requests[2].resolution.resolving.creator_id,
-                    'reason' => 'Didn\'t authorize treatment record disclosure',
-                    'decision_type' => 'declination'
-                  }
-                }
+            'claimant_id' => poa_requests[2].claimant_id,
+            'claimant_type' => 'dependent',
+            'created_at' => time,
+            'power_of_attorney_form' => {
+              'authorizations' => {
+                'record_disclosure' => true,
+                'record_disclosure_limitations' => [],
+                'address_change' => true
+              },
+              'dependent' => {
+                'name' => {
+                  'first' => 'John',
+                  'middle' => 'Middle',
+                  'last' => 'Doe'
+                },
+                'address' => {
+                  'address_line1' => '123 Main St',
+                  'address_line2' => 'Apt 1',
+                  'city' => 'Springfield',
+                  'state_code' => 'IL',
+                  'country' => 'US',
+                  'zip_code' => '62704',
+                  'zip_code_suffix' => '6789'
+                },
+                'date_of_birth' => '1980-12-31',
+                'relationship' => 'Spouse',
+                'phone' => '1234567890',
+                'email' => 'veteran@example.com'
+              },
+              'veteran' => {
+                'name' => {
+                  'first' => 'John',
+                  'middle' => 'Middle',
+                  'last' => 'Doe'
+                },
+                'address' => {
+                  'address_line1' => '123 Main St',
+                  'address_line2' => 'Apt 1',
+                  'city' => 'Springfield',
+                  'state_code' => 'IL',
+                  'country' => 'US',
+                  'zip_code' => '62704',
+                  'zip_code_suffix' => '6789'
+                },
+                'ssn' => '123456789',
+                'va_file_number' => '123456789',
+                'date_of_birth' => '1980-12-31',
+                'service_number' => '123456789',
+                'service_branch' => 'ARMY',
+                'phone' => '1234567890',
+                'email' => 'veteran@example.com'
               }
+            },
+            'resolution' => {
+              'id' => poa_requests[2].resolution.id,
+              'type' => 'decision',
+              'created_at' => time,
+              'creator_id' => poa_requests[2].resolution.resolving.creator_id,
+              'reason' => 'Didn\'t authorize treatment record disclosure',
+              'decision_type' => 'declination'
             }
           },
           {
             'id' => poa_requests[3].id,
-            'type' => 'power_of_attorney_request',
-            'attributes' => {
-              'claimant_id' => poa_requests[3].claimant_id,
-              'created_at' => time,
-              'resolution' => {
-                'data' => {
-                  'id' => poa_requests[3].resolution.id,
-                  'type' => 'power_of_attorney_request_expiration',
-                  'attributes' => {
-                    'created_at' => time
-                  }
-                }
+            'claimant_id' => poa_requests[3].claimant_id,
+            'claimant_type' => 'dependent',
+            'created_at' => time,
+            'power_of_attorney_form' => {
+              'authorizations' => {
+                'record_disclosure' => true,
+                'record_disclosure_limitations' => [],
+                'address_change' => true
+              },
+              'dependent' => {
+                'name' => {
+                  'first' => 'John',
+                  'middle' => 'Middle',
+                  'last' => 'Doe'
+                },
+                'address' => {
+                  'address_line1' => '123 Main St',
+                  'address_line2' => 'Apt 1',
+                  'city' => 'Springfield',
+                  'state_code' => 'IL',
+                  'country' => 'US',
+                  'zip_code' => '62704',
+                  'zip_code_suffix' => '6789'
+                },
+                'date_of_birth' => '1980-12-31',
+                'relationship' => 'Spouse',
+                'phone' => '1234567890',
+                'email' => 'veteran@example.com'
+              },
+              'veteran' => {
+                'name' => {
+                  'first' => 'John',
+                  'middle' => 'Middle',
+                  'last' => 'Doe'
+                },
+                'address' => {
+                  'address_line1' => '123 Main St',
+                  'address_line2' => 'Apt 1',
+                  'city' => 'Springfield',
+                  'state_code' => 'IL',
+                  'country' => 'US',
+                  'zip_code' => '62704',
+                  'zip_code_suffix' => '6789'
+                },
+                'ssn' => '123456789',
+                'va_file_number' => '123456789',
+                'date_of_birth' => '1980-12-31',
+                'service_number' => '123456789',
+                'service_branch' => 'ARMY',
+                'phone' => '1234567890',
+                'email' => 'veteran@example.com'
               }
+            },
+            'resolution' => {
+              'id' => poa_requests[3].resolution.id,
+              'type' => 'expiration',
+              'created_at' => time
             }
           }
         ]
@@ -111,24 +291,68 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       expect(response).to have_http_status(:ok)
 
       expect(parsed_response).to eq(
-        'data' => {
+        {
           'id' => poa_request.id,
-          'type' => 'power_of_attorney_request',
-          'attributes' => {
-            'claimant_id' => poa_request.claimant_id,
-            'created_at' => time,
-            'resolution' => {
-              'data' => {
-                'id' => poa_request.resolution.id,
-                'type' => 'power_of_attorney_request_decision',
-                'attributes' => {
-                  'created_at' => time,
-                  'creator_id' => poa_request.resolution.resolving.creator_id,
-                  'reason' => 'Didn\'t authorize treatment record disclosure',
-                  'decision_type' => 'declination'
-                }
-              }
+          'claimant_id' => poa_request.claimant_id,
+          'claimant_type' => 'dependent',
+          'created_at' => time,
+          "power_of_attorney_form" => {
+            "authorizations" => {
+              "record_disclosure" => true,
+              "record_disclosure_limitations" => [],
+              "address_change" => true
+            },
+            "dependent" => {
+              "name" => {
+                "first" => "John",
+                "middle" => "Middle",
+                "last" => "Doe"
+              },
+              "address" => {
+                "address_line1" => "123 Main St",
+                "address_line2" => "Apt 1",
+                "city" => "Springfield",
+                "state_code" => "IL",
+                "country" => "US",
+                "zip_code" => "62704",
+                "zip_code_suffix" => "6789"
+              },
+              "date_of_birth" => "1980-12-31",
+              "relationship" => "Spouse",
+              "phone" => "1234567890",
+              "email" => "veteran@example.com"
+            },
+            "veteran" => {
+              "name" => {
+                "first" => "John",
+                "middle" => "Middle",
+                "last" => "Doe"
+              },
+              "address" => {
+                "address_line1" => "123 Main St",
+                "address_line2" => "Apt 1",
+                "city" => "Springfield",
+                "state_code" => "IL",
+                "country" => "US",
+                "zip_code" => "62704",
+                "zip_code_suffix" => "6789"
+              },
+              "ssn" => "123456789",
+              "va_file_number" => "123456789",
+              "date_of_birth" => "1980-12-31",
+              "service_number" => "123456789",
+              "service_branch" => "ARMY",
+              "phone" => "1234567890",
+              "email" => "veteran@example.com"
             }
+          },
+          'resolution' => {
+            'id' => poa_request.resolution.id,
+            'type' => 'decision',
+            'created_at' => time,
+            'creator_id' => poa_request.resolution.resolving.creator_id,
+            'reason' => 'Didn\'t authorize treatment record disclosure',
+            'decision_type' => 'declination'
           }
         }
       )
