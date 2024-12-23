@@ -13,6 +13,7 @@ module AccreditedRepresentativePortal
       def show
         poa_request = PowerOfAttorneyRequest.includes(resolution: :resolving).find(params[:id])
         serializer = PowerOfAttorneyRequestSerializer.new(poa_request)
+
         render json: serializer.serializable_hash, status: :ok
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Record not found' }, status: :not_found
