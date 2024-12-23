@@ -23,7 +23,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   end
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
-    skip 'returns the list of power of attorney requests' do
+    it 'returns the list of power of attorney requests' do
       poa_requests
 
       get('/accredited_representative_portal/v0/power_of_attorney_requests')
@@ -88,6 +88,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
                 'email' => 'veteran@example.com'
               }
             },
+            'power_of_attorney_holder' => {
+              'id' => poa_requests[0].power_of_attorney_holder.id,
+              'type' => 'veteran_service_organization',
+              'name' => poa_requests[0].power_of_attorney_holder.name
+            },
+            'accredited_individual' => {
+              'id' => poa_requests[0].accredited_individual.id,
+              'full_name' => "#{poa_requests[0].accredited_individual.first_name} #{poa_requests[0].accredited_individual.last_name}",
+            },
             'resolution' => nil
           },
           {
@@ -144,6 +153,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
                 'phone' => '1234567890',
                 'email' => 'veteran@example.com'
               }
+            },
+            'power_of_attorney_holder' => {
+              'id' => poa_requests[1].power_of_attorney_holder.id,
+              'type' => 'veteran_service_organization',
+              'name' => poa_requests[1].power_of_attorney_holder.name
+            },
+            'accredited_individual' => {
+              'id' => poa_requests[1].accredited_individual.id,
+              'full_name' => "#{poa_requests[1].accredited_individual.first_name} #{poa_requests[1].accredited_individual.last_name}",
             },
             'resolution' => {
               'id' => poa_requests[1].resolution.id,
@@ -207,6 +225,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
                 'phone' => '1234567890',
                 'email' => 'veteran@example.com'
               }
+            },
+            'power_of_attorney_holder' => {
+              'id' => poa_requests[2].power_of_attorney_holder.id,
+              'type' => 'veteran_service_organization',
+              'name' => poa_requests[2].power_of_attorney_holder.name
+            },
+            'accredited_individual' => {
+              'id' => poa_requests[2].accredited_individual.id,
+              'full_name' => "#{poa_requests[2].accredited_individual.first_name} #{poa_requests[2].accredited_individual.last_name}",
             },
             'resolution' => {
               'id' => poa_requests[2].resolution.id,
@@ -272,6 +299,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
                 'email' => 'veteran@example.com'
               }
             },
+            'power_of_attorney_holder' => {
+              'id' => poa_requests[3].power_of_attorney_holder.id,
+              'type' => 'veteran_service_organization',
+              'name' => poa_requests[3].power_of_attorney_holder.name
+            },
+            'accredited_individual' => {
+              'id' => poa_requests[3].accredited_individual.id,
+              'full_name' => "#{poa_requests[3].accredited_individual.first_name} #{poa_requests[3].accredited_individual.last_name}",
+            },
             'resolution' => {
               'id' => poa_requests[3].resolution.id,
               'type' => 'expiration',
@@ -284,7 +320,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   end
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests/:id' do
-    skip 'returns the details of a specific power of attorney request' do
+    it 'returns the details of a specific power of attorney request' do
       get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
 
       parsed_response = JSON.parse(response.body)
@@ -353,6 +389,15 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
             'creator_id' => poa_request.resolution.resolving.creator_id,
             'reason' => 'Didn\'t authorize treatment record disclosure',
             'decision_type' => 'declination'
+          },
+          'power_of_attorney_holder' => {
+            'id' => poa_request.power_of_attorney_holder.id,
+            'type' => 'veteran_service_organization',
+            'name' => poa_request.power_of_attorney_holder.name
+          },
+          'accredited_individual' => {
+            'id' => poa_request.accredited_individual.id,
+            'full_name' => "#{poa_request.accredited_individual.first_name} #{poa_request.accredited_individual.last_name}",
           }
         }
       )
