@@ -167,9 +167,10 @@ class FormProfiles::VA526ez < FormProfile
 
   def initialize_form526_prefill
     VA526ez::Form526Prefill.new(
-      # any form that has a startedFormVersion (whether it is '2019' or '2022') will go through the Toxic Exposure flow
+      # any new form should have a '2022' startedFormVersion in order to go through the Toxic Exposure flow
+      # but we never want this field to be nil in order to catch any
       # '2022' means the Toxic Exposure 1.0 flag.
-      started_form_version: Flipper.enabled?(:disability_526_toxic_exposure, user) ? '2022' : nil,
+      started_form_version: Flipper.enabled?(:disability_526_toxic_exposure, user) ? '2022' : '2019',
       sync_modern_0781_flow: Flipper.enabled?(:disability_compensation_sync_modern_0781_flow, user)
     )
   end
