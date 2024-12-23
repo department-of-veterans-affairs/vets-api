@@ -18,7 +18,8 @@ module CovidVaccine
           password: sftp_password,
           port: sftp_port,
           kex: sftp_kex_algorithms,
-          host_key: sftp_host_key_algorithms) do |sftp|
+          host_key: sftp_host_key_algorithms
+        ) do |sftp|
           sftp.upload!(@io, file_name, name: file_name, progress: EnrollmentHandler.new)
         end
       end
