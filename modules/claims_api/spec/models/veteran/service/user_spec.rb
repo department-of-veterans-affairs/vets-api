@@ -15,7 +15,7 @@ describe Veteran::User do
       )
     end
 
-    let(:ows) { ClaimsApi::LocalBGS }
+    let(:ows) { ClaimsApi::OrgWebService }
 
     it 'initializes from a user' do
       VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do

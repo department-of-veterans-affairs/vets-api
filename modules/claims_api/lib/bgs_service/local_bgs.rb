@@ -76,32 +76,6 @@ module ClaimsApi
       wsdl.status
     end
 
-    def find_poa_by_participant_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'ClaimantServiceBean/ClaimantWebService', action: 'findPOAByPtcpntId', body:,
-                   key: 'return')
-    end
-
-    def find_poa_history_by_ptcpnt_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'OrgWebServiceBean/OrgWebService', action: 'findPoaHistoryByPtcpntId', body:,
-                   key: 'PoaHistory')
-    end
-
     def find_tracked_items(id)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <claimId />

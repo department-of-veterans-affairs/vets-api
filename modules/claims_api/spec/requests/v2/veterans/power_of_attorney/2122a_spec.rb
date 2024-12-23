@@ -3,7 +3,8 @@
 require 'rails_helper'
 require_relative '../../../../rails_helper'
 require 'token_validation/v2/client'
-require 'bgs_service/local_bgs'
+require 'bgs_service/org_web_service'
+require 'bgs_service/claimant_web_service'
 
 RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
   let(:veteran_id) { '1013062086V794840' }
@@ -14,6 +15,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
   let(:organization_poa_code) { '067' }
   let(:bgs_poa) { { person_org_name: "#{individual_poa_code} name-here" } }
   let(:local_bgs) { ClaimsApi::LocalBGS }
+  let(:org_web_service) { ClaimsApi::OrgWebService }
+  let(:claimant_web_service) { ClaimsApi::ClaimantWebService }
 
   describe 'PowerOfAttorney' do
     before do
@@ -111,9 +114,9 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
             it 'returns a 202' do
               VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                 mock_ccg(scopes) do |auth_header|
-                  expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id)
+                  expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
                     .and_return(bgs_poa)
-                  allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+                  allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                     .and_return({ person_poa_history: nil })
 
                   post appoint_individual_path, params: data.to_json, headers: auth_header
@@ -311,8 +314,10 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:representative][:address][:zipCode] = ''
                   claimant_data[:data][:attributes][:representative][:address][:countryCode] = 'AL'
-                  allow_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-                  allow_any_instance_of(local_bgs)
+                  allow_any_instance_of(claimant_web_service).to receive(
+                    :find_poa_by_participant_id
+                  ).and_return(bgs_poa)
+                  allow_any_instance_of(org_web_service)
                     .to receive(:find_poa_history_by_ptcpnt_id).and_return({ person_poa_history: nil })
                   VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                     post appoint_individual_path, params: claimant_data.to_json, headers: auth_header
@@ -326,8 +331,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
           context 'when claimant data is included' do
             shared_context 'claimant data setup' do
               before do
-                allow_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-                allow_any_instance_of(local_bgs)
+                allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+                allow_any_instance_of(org_web_service)
                   .to receive(:find_poa_history_by_ptcpnt_id).and_return({ person_poa_history: nil })
               end
             end

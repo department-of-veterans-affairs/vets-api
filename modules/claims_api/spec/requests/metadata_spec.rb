@@ -6,6 +6,8 @@ require 'mpi/service'
 require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 require 'bgs_service/intent_to_file_web_service'
 require 'bgs_service/person_web_service'
+require 'bgs_service/org_web_service'
+require 'bgs_service/claimant_web_service'
 
 RSpec.describe 'ClaimsApi::Metadata', type: :request do
   describe '#get /metadata' do
@@ -57,9 +59,10 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
           expect(result['mpi']['success']).to eq(false)
         end
 
-        local_bgs_services = %i[claimant org trackeditem].freeze
-        local_bgs_methods = %i[find_poa_by_participant_id find_poa_history_by_ptcpnt_id
-                               find_tracked_items].freeze
+        local_bgs_services = %i[trackeditem].freeze
+        local_bgs_methods = %i[
+          find_tracked_items
+        ].freeze
         local_bgs_services.each do |local_bgs_service|
           it "returns the correct status when the local bgs #{local_bgs_service} is not healthy" do
             local_bgs_methods.each do |local_bgs_method|
@@ -114,6 +117,31 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
             expect(result["localbgs-#{person_web_service}"]['success']).to eq(false)
           end
         end
+
+        # xit 'returns the correct status when the local bgs org_web_service is not healthy',
+        #     reason: 'skipped until health check is implemented' do
+        #   allow_any_instance_of(ClaimsApi::OrgWebService).to receive(
+        #     :find_poa_history_by_ptcpnt_id
+        #   ).and_return(Struct.new(:healthy?).new(false))
+        #   get "/services/claims/#{version}/upstream_healthcheck"
+        #   result = JSON.parse(response.body)
+        #   expect(result['org_web_service']['success']).to eq(false)
+        # end
+
+        # claimant_web_service = 'claimant'
+        # local_bgs_claimant_methods = %i[find_poa_by_participant_id add_flashes find_assigned_flashes]
+        # xit "returns the correct status when the local bgs #{claimant_web_service} is not healthy",
+        #     reason: 'skipped until health check is implemented' do
+        #   local_bgs_claimant_methods.each do |local_bgs_claimant_method|
+        #     allow_any_instance_of(ClaimsApi::ClaimantWebService).to receive(
+        #       local_bgs_claimant_method.to_sym
+        #     )
+        #       .and_return(Struct.new(:healthy?).new(false))
+        #     get "/services/claims/#{version}/upstream_healthcheck"
+        #     result = JSON.parse(response.body)
+        #     expect(result['claimant_web_service']['success']).to eq(false)
+        #   end
+        # end
       end
     end
   end

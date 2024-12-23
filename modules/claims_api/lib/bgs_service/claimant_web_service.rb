@@ -25,5 +25,14 @@ module ClaimsApi
       response = make_request(endpoint: bean_name, action: 'addFlash', body:)
       response&.dig(:body, :add_flash_response) || response
     end
+
+    def find_poa_by_participant_id(id)
+      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
+        <ptcpntId>#{id}</ptcpntId>
+      EOXML
+
+      make_request(endpoint: 'ClaimantServiceBean/ClaimantWebService', action: 'findPOAByPtcpntId', body:,
+                   key: 'return')
+    end
   end
 end
