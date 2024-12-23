@@ -16,14 +16,14 @@ module AccreditedRepresentativePortal
           if resolution.persisted?
             render json: "Decision successfully created", status: :ok
           else 
-            render json: { error: 'Failed to create resolution' }, status: :unprocessable_entity
+            render json: { error: 'Failed to create decision' }, status: :unprocessable_entity
           end
         rescue ActiveRecord::RecordNotUnique => e
           Rails.logger.error("ARP: Unexpected error occurred for power of attorney request #{@power_of_attorney_request.id} - #{e.message}")
-          render json: { error: 'Resolution already exists' }, status: :unprocessable_entity
+          render json: { error: 'Decision already exists' }, status: :unprocessable_entity
         rescue => e
           Rails.logger.error("ARP: Unexpected error occurred for power of attorney request #{@power_of_attorney_request.id} - #{e.message}")
-          render json: { error: 'Failed to create resolution' }, status: :unprocessable_entity
+          render json: { error: 'Failed to create decision' }, status: :unprocessable_entity
         end
       end
 
