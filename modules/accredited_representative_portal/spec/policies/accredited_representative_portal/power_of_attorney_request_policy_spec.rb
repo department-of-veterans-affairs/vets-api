@@ -6,7 +6,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestPolicy do
   let(:user) { build(:representative_user, email: 'test@va.gov') }
   let(:unassociated_user) { build(:representative_user, email: 'other@va.gov') }
   let(:poa_request) do
-    ::AccreditedRepresentativePortal::PENDING_POA_REQUEST_MOCK_DATA
+    AccreditedRepresentativePortal::PENDING_POA_REQUEST_MOCK_DATA
   end
   let(:poa_requests) { [poa_request] }
 

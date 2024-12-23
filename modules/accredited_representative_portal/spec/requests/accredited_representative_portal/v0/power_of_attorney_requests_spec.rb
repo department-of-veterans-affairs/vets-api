@@ -6,15 +6,17 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   let(:test_user) { create(:representative_user, email: 'test@va.gov') }
   let(:poa_request_details_id) { '12346' }
   let(:poa_request_details_mock_data) do
-    ::AccreditedRepresentativePortal::PENDING_POA_REQUEST_MOCK_DATA
+    AccreditedRepresentativePortal::PENDING_POA_REQUEST_MOCK_DATA
   end
 
   let(:poa_request_list_mock_data) do
-    ::AccreditedRepresentativePortal::POA_REQUEST_LIST_MOCK_DATA
+    AccreditedRepresentativePortal::POA_REQUEST_LIST_MOCK_DATA
   end
 
   before do
-    allow_any_instance_of(::AccreditedRepresentativePortal::PowerOfAttorneyRequestPolicy).to receive(:pilot_user_email_poa_codes)
+    allow_any_instance_of(
+      AccreditedRepresentativePortal::PowerOfAttorneyRequestPolicy
+    ).to receive(:pilot_user_email_poa_codes)
       .and_return({ 'test@va.gov' => ['091'] })
     Flipper.enable(:accredited_representative_portal_pilot)
     login_as(test_user)

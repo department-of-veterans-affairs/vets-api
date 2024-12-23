@@ -9,7 +9,8 @@ module AccreditedRepresentativePortal
       end
 
       def show
-        if poa_request && authorize(poa_request, :show?, policy_class: AccreditedRepresentativePortal::PowerOfAttorneyRequestPolicy)
+        if poa_request && authorize(poa_request, :show?,
+                                    policy_class: AccreditedRepresentativePortal::PowerOfAttorneyRequestPolicy)
           render json: { data: poa_request }
         else
           head :not_found

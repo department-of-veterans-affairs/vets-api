@@ -18,16 +18,17 @@ module AccreditedRepresentativePortal
     private
 
     def user_not_authorized
-      render json: { error: "You are not authorized to perform this action." }, status: :unauthorized
+      render json: { error: 'You are not authorized to perform this action.' }, status: :unauthorized
     end
 
     def verify_pundit_authorization
-      if action_name == "index"
+      if action_name == 'index'
         verify_policy_scoped
       else
         verify_authorized
       end
     end
+
     def handle_exceptions
       yield
     rescue => e
