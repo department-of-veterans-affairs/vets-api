@@ -2,5 +2,6 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestExpiration < ApplicationRecord
+    include PowerOfAttorneyRequestResolution::Resolving
   end
 end
