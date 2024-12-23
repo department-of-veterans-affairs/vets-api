@@ -942,13 +942,6 @@
   :base_uri: <%= "#{URI(Settings.gids.url).host}:#{URI(Settings.gids.url).port}" %>
   :endpoints:
     - :method: :get
-      :path: "/gids/v0/institution_programs"
-      :file_path: "gids/programs"
-      # Mock only enabled when filtering by flight programs, see: lib/gi/search_client.rb
-      :cache_multiple_responses:
-        :uid_location: query
-        :uid_locator: type
-    - :method: :get
       :path: "/gids/v1/lce"
       :file_path: "gids/lce"
       :cache_multiple_responses:
