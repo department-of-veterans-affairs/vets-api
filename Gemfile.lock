@@ -85,6 +85,7 @@ PATH
   remote: modules
   specs:
     accredited_representative_portal (0.1.0)
+      blind_index
     appeals_api (0.0.1)
       jsonapi-serializer (>= 2.2.0)
       sidekiq
@@ -240,11 +241,12 @@ GEM
       base64
       gyoku (>= 0.4.0)
       nokogiri
+    argon2-kdf (0.2.0)
     ast (2.4.2)
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.1019.0)
+    aws-partitions (1.1022.0)
     aws-sdk-core (3.214.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -253,7 +255,7 @@ GEM
     aws-sdk-kms (1.96.0)
       aws-sdk-core (~> 3, >= 3.210.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.173.0)
+    aws-sdk-s3 (1.176.1)
       aws-sdk-core (~> 3, >= 3.210.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
@@ -273,6 +275,9 @@ GEM
     bigdecimal (3.1.8)
     bigdecimal (3.1.8-java)
     bindex (0.8.1)
+    blind_index (2.6.1)
+      activesupport (>= 7)
+      argon2-kdf (>= 0.2)
     blueprinter (1.1.2)
     bootsnap (1.18.4)
       msgpack (~> 1.2)
@@ -308,7 +313,7 @@ GEM
     coercible (1.0.0)
       descendants_tracker (~> 0.0.1)
     colored2 (3.1.2)
-    combine_pdf (1.0.26)
+    combine_pdf (1.0.29)
       matrix
       ruby-rc4 (>= 0.1.5)
     committee (5.4.0)
@@ -370,6 +375,9 @@ GEM
       libddwaf (~> 1.14.0.0.0)
       msgpack
     debase-ruby_core_source (3.3.1)
+    debug (1.10.0)
+      irb (~> 1.10)
+      reline (>= 0.3.8)
     declarative (0.0.20)
     deep_merge (1.2.2)
     descendants_tracker (0.0.4)
@@ -596,11 +604,11 @@ GEM
       ruby-vips (>= 2.0.17, < 3)
     io-console (0.8.0)
     io-console (0.8.0-java)
-    irb (1.14.1)
+    irb (1.14.3)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     iso_country_codes (0.7.8)
-    jar-dependencies (0.5.0)
+    jar-dependencies (0.5.1)
     jmespath (1.6.2)
     jruby-openssl (0.15.1-java)
     json (2.9.0)
@@ -645,7 +653,7 @@ GEM
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
     lockbox (2.0.0)
-    logger (1.6.2)
+    logger (1.6.3)
     loofah (2.23.1)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -697,10 +705,8 @@ GEM
     nio4r (2.7.4-java)
     nkf (0.2.0)
     nkf (0.2.0-java)
-    nokogiri (1.16.8)
+    nokogiri (1.17.2)
       mini_portile2 (~> 2.8.2)
-      racc (~> 1.4)
-    nokogiri (1.16.8-java)
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal
@@ -758,8 +764,8 @@ GEM
       ruby-rc4
       ttfunk
     pg (1.5.9)
-    pg_query (5.1.0)
-      google-protobuf (>= 3.22.3)
+    pg_query (6.0.0)
+      google-protobuf (>= 3.25.3)
     pg_search (2.3.7)
       activerecord (>= 6.1)
       activesupport (>= 6.1)
@@ -785,10 +791,10 @@ GEM
       byebug (~> 11.0)
       pry (>= 0.13, < 0.15)
     pstore (0.1.3)
-    psych (5.2.1)
+    psych (5.2.2)
       date
       stringio
-    psych (5.2.1-java)
+    psych (5.2.2-java)
       date
       jar-dependencies (>= 0.1.7)
     public_suffix (6.0.1)
@@ -837,7 +843,7 @@ GEM
       activesupport (>= 5.0.0)
       minitest
       nokogiri (>= 1.6)
-    rails-html-sanitizer (1.6.1)
+    rails-html-sanitizer (1.6.2)
       loofah (~> 2.21)
       nokogiri (>= 1.15.7, != 1.16.7, != 1.16.6, != 1.16.5, != 1.16.4, != 1.16.3, != 1.16.2, != 1.16.1, != 1.16.0.rc1, != 1.16.0)
     rails-session_cookie (0.3.0)
@@ -860,7 +866,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     rchardet (1.8.0)
-    rdoc (6.8.1)
+    rdoc (6.10.0)
       psych (>= 4.0.0)
     redis (5.3.0)
       redis-client (>= 0.22.0)
@@ -869,7 +875,7 @@ GEM
     redis-namespace (1.11.0)
       redis (>= 4)
     regexp_parser (2.9.3)
-    reline (0.5.12)
+    reline (0.6.0)
       io-console (~> 0.5)
     representable (3.2.0)
       declarative (< 0.1.0)
@@ -915,7 +921,7 @@ GEM
     rspec-mocks (3.13.2)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-rails (7.0.1)
+    rspec-rails (7.1.0)
       actionpack (>= 7.0)
       activesupport (>= 7.0)
       railties (>= 7.0)
@@ -930,7 +936,7 @@ GEM
       rspec-expectations (~> 3.0)
       rspec-mocks (~> 3.0)
       sidekiq (>= 5, < 8)
-    rspec-support (3.13.1)
+    rspec-support (3.13.2)
     rspec_junit_formatter (0.6.0)
       rspec-core (>= 2, < 4, != 2.12.0)
     rswag-specs (2.16.0)
@@ -942,7 +948,7 @@ GEM
       actionpack (>= 5.2, < 8.1)
       railties (>= 5.2, < 8.1)
     rtesseract (3.1.3)
-    rubocop (1.69.1)
+    rubocop (1.69.2)
       json (~> 2.3)
       language_server-protocol (>= 3.17.0)
       parallel (~> 1.10)
@@ -952,7 +958,7 @@ GEM
       rubocop-ast (>= 1.36.2, < 2.0)
       ruby-progressbar (~> 1.7)
       unicode-display_width (>= 2.4.0, < 4.0)
-    rubocop-ast (1.36.2)
+    rubocop-ast (1.37.0)
       parser (>= 3.3.1.0)
     rubocop-capybara (2.21.0)
       rubocop (~> 1.41)
@@ -964,7 +970,7 @@ GEM
       rack (>= 1.1)
       rubocop (>= 1.52.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (3.2.0)
+    rubocop-rspec (3.3.0)
       rubocop (~> 1.61)
     rubocop-rspec_rails (2.30.0)
       rubocop (~> 1.61)
@@ -998,7 +1004,7 @@ GEM
       addressable (>= 2.3.5)
       faraday (>= 0.17.3, < 3)
     script_utils (0.0.4)
-    securerandom (0.4.0)
+    securerandom (0.4.1)
     seedbank (0.5.0)
       rake (>= 10.0)
     semantic_logger (4.16.0)
@@ -1150,6 +1156,7 @@ DEPENDENCIES
   banners!
   betamocks!
   bgs_ext!
+  blind_index
   blueprinter
   bootsnap
   brakeman
@@ -1175,6 +1182,7 @@ DEPENDENCIES
   date_validator
   ddtrace
   debts_api!
+  debug
   decision_reviews!
   dhp_connected_devices!
   dogstatsd-ruby (= 5.6.3)

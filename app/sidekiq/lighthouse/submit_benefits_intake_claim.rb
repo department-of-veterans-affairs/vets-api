@@ -4,11 +4,11 @@ require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pension_burial/tag_sentry'
 require 'burials/monitor'
+require 'burials/notification_email'
 require 'pcpg/monitor'
 require 'benefits_intake_service/service'
 require 'simple_forms_api_submission/metadata_validator'
 require 'pdf_info'
-require 'va_notify/notification_email/burial'
 
 module Lighthouse
   class SubmitBenefitsIntakeClaim
@@ -36,7 +36,7 @@ module Lighthouse
       rescue
         claim = nil
       end
-      if %w[21P-530V2 21P-530].include?(claim&.form_id)
+      if %w[21P-530EZ].include?(claim&.form_id)
         burial_monitor = Burials::Monitor.new
         burial_monitor.track_submission_exhaustion(msg, claim)
       end
@@ -109,7 +109,7 @@ module Lighthouse
 
       document = stamped_path2
 
-      if ['21P-530V2'].include?(record.form_id)
+      if ['21P-530EZ'].include?(record.form_id)
         # If you are doing a burial form, add the extra box that is filled out
         document = stamped_pdf_with_form(record.form_id, stamped_path2,
                                          record.created_at)
@@ -192,9 +192,7 @@ module Lighthouse
     def send_confirmation_email
       @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
 
-      if %w[21P-530V2 21P-530].include?(@claim&.form_id)
-        Burials::NotificationEmail.new(@claim.id).deliver(:confirmation)
-      end
+      Burials::NotificationEmail.new(@claim.id).deliver(:confirmation) if %w[21P-530EZ].include?(@claim&.form_id)
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
                         generate_log_details(e))
