@@ -2,6 +2,8 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestDecisionSerializer < PowerOfAttorneyRequestResolutionSerializer
+    attribute(:type) { 'decision' }
+
     attribute :decision_type do |resolution|
       case resolution.resolving.type
       when PowerOfAttorneyRequestDecision::Types::ACCEPTANCE

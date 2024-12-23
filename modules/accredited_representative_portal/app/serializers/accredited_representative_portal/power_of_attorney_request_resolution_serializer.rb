@@ -1,9 +1,7 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class PowerOfAttorneyRequestResolutionSerializer
-    include JSONAPI::Serializer
-
+  class PowerOfAttorneyRequestResolutionSerializer < ApplicationSerializer
     attributes :created_at
   end
 end

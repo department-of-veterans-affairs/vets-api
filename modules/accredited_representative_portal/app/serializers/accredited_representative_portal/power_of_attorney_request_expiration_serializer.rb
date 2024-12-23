@@ -2,5 +2,6 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestExpirationSerializer < PowerOfAttorneyRequestResolutionSerializer
+    attribute(:type) { 'expiration' }
   end
 end
