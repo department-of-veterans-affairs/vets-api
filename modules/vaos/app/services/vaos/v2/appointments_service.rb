@@ -770,11 +770,12 @@ module VAOS
           modality = telehealth_modality(appointment)
         elsif appointment[:kind] == 'phone'
           modality = 'vaPhone'
-        elsif appointment[:kind] == 'cc'
+        elsif appointment[:kind] ==
+              'cc'
           modality = 'communityCare'
         end
 
-        Rails.logger.error("VAOS appointment id #{appointment[:id]} modality cannot be determined.") if modality.nil?
+        Rails.logger.info("VAOS appointment id #{appointment[:id]} modality cannot be determined.") if modality.nil?
 
         appointment[:modality] = modality
       end
