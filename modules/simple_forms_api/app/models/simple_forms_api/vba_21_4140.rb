@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative '../form_engine/address'
+
 module SimpleFormsApi
   class VBA214140 < BaseForm
     attr_reader :address
