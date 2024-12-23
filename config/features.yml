@@ -789,6 +789,10 @@ features:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
     enable_in_development: true
+  form26_4555_confirmation_email:
+    actor_type: user
+    description: Enables form 26-4555 email submission confirmation (VaNotify)
+    enable_in_development: true
   form_526_required_identifiers_in_user_object:
     actor_type: user
     description: includes a mapping of booleans in the profile section of a serialized user indicating which ids are nil for the user
@@ -1498,6 +1502,9 @@ features:
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
+  va_dependents_submit674:
+    actor_type: user
+    description: Allows submission of 674 without MANUAL_VAGOV flag
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
@@ -1984,4 +1991,8 @@ features:
   is_updated_gi:
     actor_type: user
     description: If enabled, use updated gi design
+  show_rudisill_1995:
+    actor_type: user
+    description: If enabled, show rudisill review in 22-1995
+
   
