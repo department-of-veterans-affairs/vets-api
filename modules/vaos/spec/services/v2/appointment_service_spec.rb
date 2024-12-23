@@ -1730,12 +1730,12 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'logs failure to determine modality' do
-      allow(Rails.logger).to receive(:error).at_least(:once)
+      allow(Rails.logger).to receive(:info).at_least(:once)
       appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:kind] = 'none'
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to be_nil
-      expect(Rails.logger).to have_received(:error).at_least(:once)
+      expect(Rails.logger).to have_received(:info).at_least(:once)
     end
 
     it 'requires appointment' do

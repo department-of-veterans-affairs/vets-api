@@ -7,6 +7,5 @@ FactoryBot.define do
     city_bidx { Faker::Alphanumeric.alphanumeric(number: 44) }
     state_bidx { Faker::Alphanumeric.alphanumeric(number: 44) }
     zipcode_bidx { Faker::Alphanumeric.alphanumeric(number: 44) }
-    encrypted_kms_key { SecureRandom.hex(16) }
   end
 end
