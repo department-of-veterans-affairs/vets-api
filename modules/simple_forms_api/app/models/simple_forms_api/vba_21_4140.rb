@@ -76,7 +76,7 @@ module SimpleFormsApi
     def track_user_identity(confirmation_number); end
 
     def zip_code_is_us_based
-      data.dig('address', 'country') == 'USA'
+      address.country_code_iso3 == 'USA'
     end
   end
 end
