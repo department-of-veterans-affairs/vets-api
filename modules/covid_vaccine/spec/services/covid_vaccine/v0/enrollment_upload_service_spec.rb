@@ -24,8 +24,8 @@ describe CovidVaccine::V0::EnrollmentUploadService do
     let(:username) { 'mysftp_username' }
     let(:password) { 'mysftp_password' }
     let(:port) { 9999 }
-    let(:host_key) { 'fake_host_key_algorithms' }
-    let(:kex) { 'fake_kex_algorithms' }
+    let(:host_key) { ['fake_host_key_algorithms'] }
+    let(:kex) { ['fake_kex_algorithms'] }
     let(:sftp_connection_double) { double(:sftp_connection_double, upload!: true, download!: true) }
     let(:sftp_double) { double(:sftp, sftp: sftp_connection_double) }
     let(:handler) { CovidVaccine::V0::EnrollmentHandler }
