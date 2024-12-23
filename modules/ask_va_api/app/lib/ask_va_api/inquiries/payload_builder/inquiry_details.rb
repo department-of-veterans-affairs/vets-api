@@ -14,7 +14,8 @@ module AskVAApi
           inquiry_details = base_inquiry_details(inquiry_params[:your_role])
 
           if education_benefits?(inquiry_params[:select_category],
-                                 inquiry_params[:select_topic])
+                                 inquiry_params[:select_topic]) ||
+             inquiry_params[:who_is_your_question_about] == "It's a general question"
             return general_inquiry(inquiry_params, inquiry_details)
           end
 
