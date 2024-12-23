@@ -8,7 +8,7 @@ AccreditedRepresentativePortal::Engine.routes.draw do
 
     resources :in_progress_forms, only: %i[update show destroy]
     resources :power_of_attorney_requests, only: [:index, :show] do
-      resource :decision, only: [:show, :create]
+      resource :decision, only: :create, controller: 'power_of_attorney_request_decisions'
     end
   end
 end
