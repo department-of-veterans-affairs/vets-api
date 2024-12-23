@@ -32,13 +32,13 @@ RSpec.describe SignIn::AttributeValidator do
           service_name:,
           auto_uplevel:,
           mhv_icn:,
-          mhv_correlation_id:,
+          mhv_credential_uuid:,
           edipi:
         }
       end
       let(:logingov_uuid) { nil }
       let(:idme_uuid) { nil }
-      let(:mhv_correlation_id) { nil }
+      let(:mhv_credential_uuid) { nil }
       let(:edipi) { nil }
       let(:current_ial) { SignIn::Constants::Auth::IAL_TWO }
       let(:ssn) { nil }
@@ -131,15 +131,6 @@ RSpec.describe SignIn::AttributeValidator do
           it_behaves_like 'error response'
         end
 
-        context 'when mpi record for user has multiple mhv ids' do
-          let(:mhv_iens) { %w[some-mhv-ien some-other-mhv-ien] }
-          let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
-          let(:expected_error_message) { 'User attributes contain multiple distinct MHV_ID values' }
-          let(:expected_error_code) { SignIn::Constants::ErrorCode::MULTIPLE_MHV_IEN }
-
-          it_behaves_like 'error response'
-        end
-
         context 'when mpi record for user has multiple participant ids' do
           let(:participant_ids) { %w[some-participant-id some-other-participant-id] }
           let(:expected_error) { SignIn::Errors::MPIMalformedAccountError }
@@ -147,6 +138,29 @@ RSpec.describe SignIn::AttributeValidator do
           let(:expected_error_code) { SignIn::Constants::ErrorCode::MULTIPLE_CORP_ID }
 
           it_behaves_like 'error response'
+        end
+
+        context 'when mpi record for user has multiple mhv ids' do
+          let(:mhv_iens) { %w[some-mhv-ien some-other-mhv-ien] }
+          let(:expected_error_message) { 'User attributes contain multiple distinct MHV_ID values' }
+          let(:expected_error_log) { 'attribute validator error' }
+          let(:expected_error_log_payload) do
+            { errors: expected_error_message,
+              credential_uuid: csp_id,
+              mhv_icn:,
+              type: service_name }.compact
+          end
+          let(:auto_uplevel) { true }
+
+          it 'logs the error' do
+            subject
+            expect(Rails.logger).to have_received(:info).with(a_string_including(expected_error_log),
+                                                              expected_error_log_payload)
+          end
+
+          it 'does not raise an error' do
+            expect { subject }.not_to raise_error
+          end
         end
       end
 
@@ -368,9 +382,9 @@ RSpec.describe SignIn::AttributeValidator do
         let(:idme_uuid) { 'some-idme-uuid' }
         let(:csp_id) { idme_uuid }
         let(:address) { nil }
-        let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+        let(:mhv_credential_uuid) { 'some-mhv-correlation-id' }
         let(:email) { 'some-email' }
-        let(:identifier) { mhv_correlation_id }
+        let(:identifier) { mhv_credential_uuid }
         let(:identifier_type) { MPI::Constants::MHV_UUID }
 
         context 'and credential is missing mhv icn' do
@@ -381,7 +395,7 @@ RSpec.describe SignIn::AttributeValidator do
         end
 
         context 'and credential is missing mhv correlation id' do
-          let(:mhv_correlation_id) { nil }
+          let(:mhv_credential_uuid) { nil }
           let(:attribute) { 'mhv_uuid' }
 
           it_behaves_like 'missing credential attribute'

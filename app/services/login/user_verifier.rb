@@ -5,7 +5,7 @@ module Login
     def initialize(user)
       @login_type = user.sign_in&.dig(:service_name)
       @auth_broker = user.sign_in&.dig(:auth_broker)
-      @mhv_uuid = user.mhv_correlation_id
+      @mhv_uuid = user.mhv_credential_uuid
       @idme_uuid = user.idme_uuid
       @dslogon_uuid = user.edipi
       @logingov_uuid = user.logingov_uuid

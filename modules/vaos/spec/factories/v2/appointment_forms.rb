@@ -358,5 +358,16 @@ FactoryBot.define do
       community_cares
       slot { {} }
     end
+
+    trait :telehealth do
+      va_proposed_base
+      kind { 'telehealth' }
+
+      telehealth do
+        {
+          'vvs_kind': 'CLINIC_BASED'
+        }
+      end
+    end
   end
 end
