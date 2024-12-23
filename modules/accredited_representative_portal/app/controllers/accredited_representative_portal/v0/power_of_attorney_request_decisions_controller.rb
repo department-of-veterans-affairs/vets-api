@@ -3,8 +3,7 @@ module AccreditedRepresentativePortal
     class PowerOfAttorneyRequestDecisionsController < ApplicationController
       before_action :set_power_of_attorney_request, only: [:create]
       def create
-        creator_id = @current_user.id
-        create_params = decision_params.merge(creator: current_user)
+        create_params = decision_params.merge(creator: @current_user)
         reason = create_params.delete(:reason)
         reason = nil if create_params[:type] == PowerOfAttorneyRequestDecision::Types::ACCEPTANCE
 
