@@ -9,7 +9,7 @@ require 'va_notify/service'
 require 'lighthouse/benefits_documents/constants'
 
 RSpec.describe Lighthouse::DocumentUpload, type: :job do
-  subject(:job) do
+  let(:job) do
     described_class.perform_async(user_icn,
                                   document_data.to_serializable_hash,
                                   user_account_uuid, claim_id,
@@ -100,7 +100,7 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
     end
 
     it 'calls Lighthouse::FailureNotification' do
-      subject.within_sidekiq_retries_exhausted_block(args) do
+      described_class.within_sidekiq_retries_exhausted_block(args) do
         expect(Lighthouse::FailureNotification).to receive(:perform_async).with(
           user_account.icn,
           'Bob', # first_name
@@ -154,7 +154,7 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
     let(:issue_instant) { Time.now.to_i }
 
     it 'does not call Lighthouse::Failure Notification' do
-      subject.within_sidekiq_retries_exhausted_block(args) do
+      described_class.within_sidekiq_retries_exhausted_block(args) do
         expect(Lighthouse::FailureNotification).not_to receive(:perform_async)
       end
     end
