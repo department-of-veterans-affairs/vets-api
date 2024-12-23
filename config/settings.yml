@@ -1230,6 +1230,8 @@ covid_vaccine:
       port: ~
       username: fake_username
       password: fake_password
+      kex_algorithms: fake_kex_algorithms
+      host_key_algorithms: fake_host_key_algorithms
 
 virtual_agent:
   webchat_secret: fake_secret
