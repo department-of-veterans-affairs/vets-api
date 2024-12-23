@@ -64,46 +64,68 @@ RSpec.describe 'DecisionReviews::V1::NoticeOfDisagreements', type: :request do
                                  'valid_NOD_create_request.json').read
     end
 
-    it 'creates an NOD and logs to StatsD and logger' do
-      VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200_V1') do
-        allow(Rails.logger).to receive(:info)
-        expect(Rails.logger).to receive(:info).with({
-                                                      message: 'Overall claim submission success!',
-                                                      user_uuid: user.uuid,
-                                                      action: 'Overall claim submission',
-                                                      form_id: '10182',
-                                                      upstream_system: nil,
-                                                      downstream_system: 'Lighthouse',
-                                                      is_success: true,
-                                                      http: {
-                                                        status_code: 200,
-                                                        body: '[Redacted]'
-                                                      }
-                                                    })
-        allow(StatsD).to receive(:increment)
-        expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.success')
-        previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
-        # Create an InProgressForm
-        in_progress_form = create(:in_progress_form, user_uuid: user.uuid, form_id: '10182')
-        expect(in_progress_form).not_to be_nil
-        subject
-        expect(response).to be_successful
-        parsed_response = JSON.parse(response.body)
-        id = parsed_response['data']['id']
-        expect(previous_appeal_submission_ids).not_to include id
-        appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
-        expect(appeal_submission.type_of_appeal).to eq('NOD')
-        # AppealSubmissionUpload should be created for each form attachment
-        appeal_submission_uploads = AppealSubmissionUpload.where(appeal_submission:)
-        expect(appeal_submission_uploads.count).to eq 1
-        # Evidence upload job should have been enqueued
-        expect(DecisionReview::SubmitUpload).to have_enqueued_sidekiq_job(appeal_submission_uploads.first.id)
-        # InProgressForm should be destroyed after successful submission
-        in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '10182')
-        expect(in_progress_form).to be_nil
-        # SavedClaim should be created with request data
-        saved_claim = SavedClaim::NoticeOfDisagreement.find_by(guid: id)
-        expect(JSON.parse(saved_claim.form)).to eq(test_request_body)
+    context 'when valid data is submitted' do
+      shared_examples 'successful NOD' do |upload_job_to_use, upload_job_not_to_use|
+        it 'creates an NOD and logs to StatsD and logger' do
+          VCR.use_cassette('decision_review/NOD-CREATE-RESPONSE-200_V1') do
+            allow(Rails.logger).to receive(:info)
+            expect(Rails.logger).to receive(:info).with({
+                                                          message: 'Overall claim submission success!',
+                                                          user_uuid: user.uuid,
+                                                          action: 'Overall claim submission',
+                                                          form_id: '10182',
+                                                          upstream_system: nil,
+                                                          downstream_system: 'Lighthouse',
+                                                          is_success: true,
+                                                          http: {
+                                                            status_code: 200,
+                                                            body: '[Redacted]'
+                                                          }
+                                                        })
+
+            allow(StatsD).to receive(:increment)
+            expect(StatsD).to receive(:increment).with('decision_review.form_10182.overall_claim_submission.success')
+            previous_appeal_submission_ids = AppealSubmission.all.pluck :submitted_appeal_uuid
+            # Create an InProgressForm
+            in_progress_form = create(:in_progress_form, user_uuid: user.uuid, form_id: '10182')
+            expect(in_progress_form).not_to be_nil
+            subject
+            expect(response).to be_successful
+            parsed_response = JSON.parse(response.body)
+            id = parsed_response['data']['id']
+            expect(previous_appeal_submission_ids).not_to include id
+            appeal_submission = AppealSubmission.find_by(submitted_appeal_uuid: id)
+            expect(appeal_submission.type_of_appeal).to eq('NOD')
+            # AppealSubmissionUpload should be created for each form attachment
+            appeal_submission_uploads = AppealSubmissionUpload.where(appeal_submission:)
+            expect(appeal_submission_uploads.count).to eq 1
+            # Evidence upload job is enqueued with non-engine job
+            expect(upload_job_to_use).to have_enqueued_sidekiq_job(appeal_submission_uploads.first.id)
+            expect(upload_job_not_to_use).not_to have_enqueued_sidekiq_job(anything)
+            # InProgressForm should be destroyed after successful submission
+            in_progress_form = InProgressForm.find_by(user_uuid: user.uuid, form_id: '10182')
+            expect(in_progress_form).to be_nil
+            # SavedClaim should be created with request data
+            saved_claim = SavedClaim::NoticeOfDisagreement.find_by(guid: id)
+            expect(JSON.parse(saved_claim.form)).to eq(test_request_body)
+          end
+        end
+      end
+
+      context 'and engine job flag is disabled' do
+        before do
+          Flipper.disable :decision_review_new_engine_submit_upload_job
+        end
+
+        it_behaves_like 'successful NOD', DecisionReview::SubmitUpload, DecisionReviews::SubmitUpload
+      end
+
+      context 'and engine job flag is enabled' do
+        before do
+          Flipper.enable :decision_review_new_engine_submit_upload_job
+        end
+
+        it_behaves_like 'successful NOD', DecisionReviews::SubmitUpload, DecisionReview::SubmitUpload
       end
     end
 

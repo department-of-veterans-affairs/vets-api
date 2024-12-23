@@ -10,7 +10,7 @@ module RepresentationManagement
         protected
 
         def next_steps_page?
-          true
+          false
         end
 
         def next_steps_part1(pdf)
