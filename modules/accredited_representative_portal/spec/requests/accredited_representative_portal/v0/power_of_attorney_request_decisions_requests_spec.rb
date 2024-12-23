@@ -56,7 +56,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
       expect(response).to have_http_status(:unprocessable_entity)
       response_body = JSON.parse(response.body)
-      expect(response_body['error']).to eq('Resolution already exists')
+      expect(response_body['error']).to eq('Decision already exists')
     end
   end
 
@@ -100,7 +100,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
       expect(response).to have_http_status(:unprocessable_entity)
       response_body = JSON.parse(response.body)
-      expect(response_body['error']).to eq('Resolution already exists')
+      expect(response_body['error']).to eq('Decision already exists')
     end
   end
 end
