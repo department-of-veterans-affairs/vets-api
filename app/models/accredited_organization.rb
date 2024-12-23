@@ -19,6 +19,11 @@ class AccreditedOrganization < ApplicationRecord
   has_many :accreditations, dependent: :destroy
   has_many :accredited_individuals, through: :accreditations
 
+  has_many :power_of_attorney_requests,
+           as: :power_of_attorney_holder,
+           inverse_of: :power_of_attorney_holder,
+           class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest'
+
   validates :ogc_id, :poa_code, presence: true
   validates :poa_code, length: { is: 3 }
   validates :poa_code, uniqueness: true
