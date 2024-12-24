@@ -31,6 +31,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
       expect(address.state_code).to eq data.dig('address', 'state')
       expect(address.zip_code).to eq data.dig('address', 'postal_code')
       expect(address.country_code_iso3).to eq data.dig('address', 'country')
+      expect(address.country_code_iso2).to eq IsoCountryCodes.find(data.dig('address', 'country')).alpha2
     end
   end
 
