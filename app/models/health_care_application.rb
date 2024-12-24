@@ -67,7 +67,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_sync
-    @parsed_form = override_parsed_form(parsed_form)
+    @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)

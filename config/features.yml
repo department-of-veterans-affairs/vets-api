@@ -1401,6 +1401,10 @@ features:
     actor_type: user
     description: Use the original veteran_x models to power Appoint a Rep entity search
     enable_in_development: true
+  va1010_forms_enrollment_system_service_enabled:
+    actor_type: user
+    description: Enables the VA1010Forms enrollment system service
+    enable_in_development: true
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException

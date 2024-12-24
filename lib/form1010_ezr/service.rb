@@ -5,6 +5,7 @@ require 'hca/enrollment_system'
 require 'hca/configuration'
 require 'hca/ezr_postfill'
 require 'va1010_forms/utils'
+require 'va1010_forms/enrollment_system/service'
 
 module Form1010Ezr
   class Service < Common::Client::Base
@@ -37,7 +38,20 @@ module Form1010Ezr
 
     def submit_sync(parsed_form)
       res = with_monitoring do
-        es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
+        if Flipper.enabled?(:va1010_forms_enrollment_system_service_enabled)
+          VA1010Forms::EnrollmentSystem::Service.new(
+            HealthCareApplication.get_user_identifier(@user)
+          ).submit(
+            parsed_form,
+            FORM_ID
+          )
+        else
+          es_submit(
+            parsed_form,
+            HealthCareApplication.get_user_identifier(@user),
+            FORM_ID
+          )
+        end
       end
 
       # Log the 'formSubmissionId' for successful submissions
@@ -106,11 +120,8 @@ module Form1010Ezr
           )
         end
 
-        log_validation_errors(parsed_form)
+        log_validation_errors(validation_errors, parsed_form)
 
-        Rails.logger.error(
-          "10-10EZR form validation failed. Form does not match schema. Error list: #{validation_errors}"
-        )
         raise Common::Exceptions::SchemaValidationErrors, validation_errors
       end
     end
@@ -155,7 +166,7 @@ module Form1010Ezr
       post_fill_fields(parsed_form)
       validate_form(parsed_form)
       # Due to overriding the JSON form schema, we need to do so after the form has been validated
-      override_parsed_form(parsed_form)
+      HCA::OverridesParser.new(parsed_form).override
       add_financial_flag(parsed_form)
     end
 
@@ -167,8 +178,13 @@ module Form1010Ezr
       end
     end
 
-    def log_validation_errors(parsed_form)
+    # @param [Hash] errors
+    def log_validation_errors(errors, parsed_form)
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.validation_error")
+
+      Rails.logger.error(
+        "10-10EZR form validation failed. Form does not match schema. Error list: #{errors}"
+      )
 
       PersonalInformationLog.create(
         data: parsed_form,

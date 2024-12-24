@@ -865,18 +865,18 @@ module HCA
     end
 
     # @param [Hash] veteran data in JSON format
-    # @param [Account] current_user
+    # @param [Hash] user_identifier
     # @param [String] form_id
     def veteran_to_save_submit_form(
       veteran,
-      current_user,
+      user_identifier,
       form_id
     )
       return {} if veteran.blank?
 
       copy_spouse_address!(veteran)
 
-      request = build_form_for_user(current_user, form_id)
+      request = build_form_for_user(user_identifier, form_id)
 
       veteran['attachments']&.each_with_index do |attachment, i|
         guid = attachment['confirmationCode']
