@@ -277,7 +277,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
         end
 
         context 'when provider id is formatted incorrectly' do
-          it 'sets provider to null' do
+          it 'parses out correct id and makes successful provider call' do
             VCR.use_cassette('mobile/appointments/VAOS_v2/get_clinics_200', match_requests_on: %i[method uri]) do
               VCR.use_cassette('mobile/appointments/VAOS_v2/get_facilities_200', match_requests_on: %i[method uri]) do
                 VCR.use_cassette('mobile/appointments/VAOS_v2/get_appointments_with_mixed_provider_types_bad_id',
@@ -300,7 +300,7 @@ RSpec.describe 'Mobile::V0::Appointments::VAOSV2', type: :request do
             appointment_with_practitioner_list = appointments.find { |appt| appt['id'] == '76133' }
 
             expect(appointment_without_provider['attributes']['healthcareProvider']).to be_nil
-            expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq(nil)
+            expect(proposed_cc_appointment_with_provider['attributes']['healthcareProvider']).to eq('DEHGHAN, AMIR')
             expect(appointment_with_practitioner_list['attributes']['healthcareProvider']).to eq('MATTHEW ENGHAUSER')
           end
         end
