@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'bgs_service/local_bgs'
+require 'bgs_service/claimant_web_service'
+require 'bgs_service/org_web_service'
 
 # Veteran model
 module Veteran
