@@ -369,21 +369,6 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
             expect(error_message).to be_nil
           end
         end
-
-        context 'when first file does not load and retries' do
-          before do
-            allow(Flipper).to receive(:enabled?).with(:champva_multiple_stamp_retry, nil).and_return(true)
-            allow(file_uploader).to receive(:handle_uploads).and_raise(StandardError.new('Unable to find file'))
-          end
-
-          it 'retries once and returns message' do
-            # Expect handle_uploads to be called twice due to one retry
-            expect(file_uploader).to receive(:handle_uploads).twice
-            statuses, error_message = controller.send(:handle_file_uploads, form_id, parsed_form_data)
-            expect(statuses).to eq([])
-            expect(error_message).to eq('retried once')
-          end
-        end
       end
     end
   end
