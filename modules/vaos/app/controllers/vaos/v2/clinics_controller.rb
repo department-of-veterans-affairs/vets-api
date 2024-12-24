@@ -69,6 +69,9 @@ module VAOS
           facility.nil? ? log_no_facility_details_found(facility_id) : sorted_facilities.push(facility)
         end
 
+        # Filter facilities
+        sorted_facilities = filter_type_of_care_facilities(sorted_facilities)
+
         render json: FacilitiesSerializer.new(sorted_facilities)
       end
 
@@ -77,6 +80,28 @@ module VAOS
       def appointments_service
         @appointments_service ||=
           VAOS::V2::AppointmentsService.new(current_user)
+      end
+
+      def filter_type_of_care_facilities(facilities)
+        # Return facilities without filtering if no service id is provided
+        service_id = params[:clinical_service_id]
+        return facilities unless service_id
+
+        # Retrieve facility scheduling configurations
+        facility_ids = facilities.pluck(:id).to_csv(row_sep: nil)
+        configurations = mobile_facility_service.get_scheduling_configurations(facility_ids)[:data]
+        supported_facilities = []
+
+        facilities.each do |facility|
+          # Include facility in results if direct schedule or request is enabled for the given service
+          configuration = configurations&.find { |config| config[:facility_id] == facility[:id] }
+          service_configuration = configuration&.[](:services)&.find { |service| service[:id] == service_id }
+          if service_configuration&.dig(:direct, :enabled) || service_configuration&.dig(:request, :enabled)
+            supported_facilities.push(facility)
+          end
+        end
+
+        supported_facilities
       end
 
       def log_unable_to_lookup_clinic(appt)
@@ -113,7 +138,7 @@ module VAOS
       end
 
       def log_no_facility_details_found(location_id)
-        Rails.logger.info 'VAOS recent_facilities', "No clinic details found for location: #{location_id}"
+        Rails.logger.info 'VAOS recent_facilities', "No facility details found for location: #{location_id}"
       end
 
       def log_recent_facility_details(location_id, facility)
@@ -129,7 +154,8 @@ module VAOS
       end
 
       def mobile_facility_service
-        VAOS::V2::MobileFacilityService.new(current_user)
+        @mobile_facility_service ||=
+          VAOS::V2::MobileFacilityService.new(current_user)
       end
 
       def location_id
