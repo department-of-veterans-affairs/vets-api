@@ -32,5 +32,7 @@ module AccreditedRepresentativePortal
     has_kms_key
 
     has_encrypted :reason, key: :kms_key, **lockbox_options
+
+    validates :power_of_attorney_request, uniqueness: true
   end
 end
