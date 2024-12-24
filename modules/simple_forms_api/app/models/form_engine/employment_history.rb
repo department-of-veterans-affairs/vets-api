@@ -6,16 +6,33 @@ module SimpleFormsApi
       attr_reader :date_ended, :date_started, :hours_per_week, :lost_time, :type_of_work
 
       def initialize(data)
+        @city = data.dig('address', 'city')
+        @country = data.dig('address', 'country')
         @data = data
         @date_ended = data.dig('date_range', 'to')
         @date_started = data.dig('date_range', 'from')
         @hours_per_week = data['hours_per_week']
         @lost_time = data['lost_time']
+        @name = data['name']
+        @postal_code = data.dig('address', 'postal_code')
+        @state = data.dig('address', 'state')
+        @street = data.dig('address', 'street')
         @type_of_work = data['type_of_work']
       end
 
       def highest_income
         ActiveSupport::NumberHelper.number_to_currency(@data['highest_income'])
+      end
+
+      def name_and_address
+        output = []
+
+        output << @name
+        output << @street
+        output << "#{@city}, #{@state} #{@postal_code}"
+        output << IsoCountryCodes.find(@country).name
+
+        output.join("\n")
       end
     end
   end
