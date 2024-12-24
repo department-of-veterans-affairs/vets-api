@@ -17,6 +17,7 @@ RDoc::Task.new(:rdoc) do |rdoc|
 end
 
 load 'rails/tasks/statistics.rake'
+Dir[File.join(File.dirname(__FILE__), 'lib/tasks/**/*.rake')].each { |f| load f }
 
 require 'bundler/gem_tasks'
 

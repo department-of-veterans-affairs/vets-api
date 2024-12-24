@@ -56,5 +56,55 @@ JSON
 FactoryBot.define do
   factory :power_of_attorney_form, class: 'AccreditedRepresentativePortal::PowerOfAttorneyForm' do
     data { form_data }
+
+    factory :dynamic_power_of_attorney_form do
+      data do
+        {
+          authorizations: {
+            record_disclosure: Faker::Boolean.boolean,
+            record_disclosure_limitations: [
+              "ALCOHOLISM",
+              "DRUG_ABUSE",
+              "HIV",
+              "SICKLE_CELL"
+            ].select { rand < 0.5 },
+            address_change: Faker::Boolean.boolean
+          },
+          dependent: nil,
+          veteran: {
+            name: {
+              first: Faker::Name.first_name,
+              middle: nil,
+              last: Faker::Name.first_name
+            },
+            address: {
+              address_line1: Faker::Address.street_address,
+              address_line2: nil,
+              city: Faker::Address.city,
+              state_code: Faker::Address.state_abbr,
+              country: "US",
+              zip_code: Faker::Address.zip_code,
+              zip_code_suffix: nil
+            },
+            ssn: Faker::Number.number(digits: 9).to_s,
+            va_file_number: Faker::Number.number(digits: 9).to_s,
+            date_of_birth: Faker::Date.birthday(min_age: 21, max_age: 100).to_s,
+            service_number: Faker::Number.number(digits: 9).to_s,
+            service_branch: [
+              "ARMY",
+              "NAVY",
+              "AIR_FORCE",
+              "MARINE_CORPS",
+              "COAST_GUARD",
+              "SPACE_FORCE",
+              "NOAA",
+              "USPHS"
+            ].sample,
+            phone: Faker::PhoneNumber.phone_number,
+            email: Faker::Internet.email
+          }
+        }.to_json
+      end
+    end
   end
 end
