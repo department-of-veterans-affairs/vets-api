@@ -21,6 +21,12 @@ module SimpleFormsApi
 
       attr_reader :city, :country, :data, :name, :postal_code, :state, :street
 
+      def format_date(date)
+        date_arr = date.split('-')
+
+        "#{date_arr[1]}/#{date_arr[2]}/#{date_arr[0]}"
+      end
+
       def format_name_and_address
         output = []
 
@@ -35,8 +41,8 @@ module SimpleFormsApi
       def set_ivars
         @city = data.dig('address', 'city')
         @country = data.dig('address', 'country')
-        @date_ended = data.dig('date_range', 'to')
-        @date_started = data.dig('date_range', 'from')
+        @date_ended = format_date(data.dig('date_range', 'to'))
+        @date_started = format_date(data.dig('date_range', 'from'))
         @highest_income = ActiveSupport::NumberHelper.number_to_currency(data['highest_income'])
         @hours_per_week = data['hours_per_week']
         @lost_time = data['lost_time']
