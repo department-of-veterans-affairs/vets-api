@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'holidays'
+
 # @see https://crontab.guru/
 # @see https://en.wikipedia.org/wiki/Cron
 PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
@@ -57,6 +59,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Update Optionset data cache
   mgr.register('0 0 * * *', 'Crm::OptionsetDataJob')
 
+  # Update Facilities data cache
+  mgr.register('0 0 * * *', 'Crm::FacilitiesDataJob')
+
   # Update FormSubmissionAttempt status from Lighthouse Benefits Intake API
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
 
@@ -110,6 +115,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # TODO: Document this job
   mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailySpoolFiles')
+  mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailyExcelFiles')
 
   # Deletes old, completed AsyncTransaction records
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
@@ -249,10 +255,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
   mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
   mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
-
   # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
   mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
-
-  # Daily job for Vye: clears deactivated BDNs every evening.
+  # Daily 1900 job for Vye: clears deactivated BDNs every evening.
   mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 }
