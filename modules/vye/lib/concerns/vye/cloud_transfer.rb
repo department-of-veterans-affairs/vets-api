@@ -29,24 +29,45 @@ module Vye
     def tmp_path(filename) = tmp_dir / filename
 
     def download(filename, prefix: 'scanned')
+      Rails.logger.info("Vye::BatchTransfer::Chunk#download: starting for #{filename}")
       response_target = tmp_path filename
       key = "#{prefix}/#{filename}"
 
-      s3_client.get_object(response_target:, bucket:, key:)
+      Rails.logger.info(
+        "Vye::BatchTransfer::Chunk#download: s3_client.get_object(#{response_target}, #{bucket}, #{key})"
+      )
+
+      if Settings.vsp_environment.eql?('localhost') || Settings.vsp_environment.eql?('test')
+        FileUtils.cp(
+          Rails.root.join('modules', 'vye', 'spec', 'fixtures', 'bdn_sample', filename), response_target
+        )
+      else
+        s3_client.get_object(response_target:, bucket:, key:)
+      end
 
       yield response_target
     ensure
-      response_target.delete
+      # There's some rooted in the framework bug that will try to delete the file after it
+      # has already been deleted. Ignore the exception and move on.
+      begin
+        response_target&.delete
+      rescue Errno::ENOENT
+        nil
+      ensure
+        Rails.logger.info('Vye::BatchTransfer::Chunk#download: finished')
+      end
     end
 
     def upload(file, prefix: 'processed')
+      return if Settings.vsp_environment.eql?('localhost') || Settings.vsp_environment.eql?('test')
+
       key = "#{prefix}/#{file.basename}"
       body = file.open('rb')
       content_type = 'text/plain'
 
       s3_client.put_object(bucket:, key:, body:, content_type:)
     ensure
-      body.close
+      body&.close
     end
 
     def upload_report(filename, &)
@@ -58,6 +79,7 @@ module Vye
     end
 
     def clear_from(bucket_sym: :internal, path: 'processed')
+      Rail.logger.info "Vye::SundownSweep::DeleteProcessedS3Files#clear_from(#{bucket_sym}, #{path})"
       bucket = { internal: self.bucket, external: external_bucket }[bucket_sym]
       prefix = "#{path}/"
       check_s3_location!(bucket:, path:)
@@ -110,6 +132,10 @@ module Vye
     def remove_aws_files_from_s3_buckets
       # remove from the scanned bucket
       [Vye::BatchTransfer::TimsChunk::FEED_FILENAME, Vye::BatchTransfer::BdnChunk::FEED_FILENAME].each do |filename|
+        Rails.logger.info(
+          "Vye::SundownSweep::DeleteProcessedS3Files#remove_aws_files_from_s3_buckets deleting #{filename}"
+        )
+
         delete_file_from_bucket(:internal, "scanned/#{filename}")
       end
 

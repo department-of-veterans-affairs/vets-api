@@ -4,10 +4,10 @@ module Vye
   class MidnightRun
     class IngressBdn
       include Sidekiq::Job
-      sidekiq_options retry: 5
+      sidekiq_options retry: 0
 
       def perform
-        logger.info('Vye::MidnightRun::IngressBdn: starting')
+        Rails.logger.info('Vye::MidnightRun::IngressBdn: starting')
 
         bdn_clone = Vye::BdnClone.create!(transact_date: Time.zone.today)
         bdn_clone_id = bdn_clone.id
@@ -24,6 +24,8 @@ module Vye
             IngressBdnChunk.perform_in((index * 5).seconds, bdn_clone_id, offset, block_size, filename)
           end
         end
+
+        Rails.logger.info('Vye::MidnightRun::IngressBdn: finished')
       end
 
       def on_complete(status, options)

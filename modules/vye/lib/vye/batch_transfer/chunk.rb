@@ -16,16 +16,23 @@ module Vye
       end
 
       def self.build_chunks
+        Rails.logger.info('Vye::BatchTransfer::Chunk#build_chunks starting')
         filename = feed_filename
         chunking = Vye::BatchTransfer::Chunking.new(filename:, block_size:)
 
         chunks = chunking.split
         chunks.each(&:upload)
 
+        Rails.logger.info('Vye::BatchTransfer::Chunk#build_chunks: returning chunks')
         chunks
       end
 
       def initialize(offset:, block_size:, file: nil, filename: nil)
+        Rails.logger.info(
+          "Vye::BatchTransfer::Chunk#initialize: offset=#{offset}, block_size=#{block_size}, file=#{file}, " \
+          "filename=#{filename}"
+        )
+
         raise ArgumentError, "can't have both a file and filename" if file && filename
         raise ArgumentError, 'must have either a file or a filename' unless file || filename
 
@@ -33,6 +40,7 @@ module Vye
         @block_size = block_size
         @file = file
         @filename = filename
+        Rails.logger.info('Vye::BatchTransfer::Chunk#initialize: finished')
       end
 
       def prefix = 'chunks'

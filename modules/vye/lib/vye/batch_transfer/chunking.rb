@@ -8,6 +8,8 @@ module Vye
       include Vye::CloudTransfer
 
       def initialize(filename:, block_size:)
+        Rails.logger.info("Vye::BatchTransfer::Chunking#initialize: filename=#{filename}, block_size=#{block_size}")
+
         @filename = filename
         @block_size = block_size
         @stem, @ext =
@@ -18,9 +20,11 @@ module Vye
           end
         @chunks = []
         @flags = %i[split].index_with { |_f| false }
+        Rails.logger.info('Vye::BatchTransfer::Chunking#initialize complete')
       end
 
       def split
+        Rails.logger.info('Vye::BatchTransfer::Chunking#split starting')
         return chunks if split?
 
         download(filename) do |path|
@@ -31,6 +35,7 @@ module Vye
         chunks
       ensure
         close_current_handle
+        Rails.logger.info('Vye::BatchTransfer::Chunking#split complete')
       end
 
       private
