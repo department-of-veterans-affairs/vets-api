@@ -298,6 +298,44 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
       end
+
+      describe '#get_2122_submission' do
+        lighthouse_client_id = "abcdefgh"
+
+        context 'when there is valid power of attorney request' do
+          it "returns data" do
+            poa_request = FactoryBot.create(:power_of_attorney_request)
+            response = @service.get_2122_submission(poa_request.id, lighthouse_client_id)
+            data = JSON.parse(response.body)["data"]
+            expect(response.status).to eq(200)
+            expect(data["id"]).to eq(poa_request.id)
+            expect(data["type"]).to eq("claimsApiPowerOfAttorneys")
+            expect(data["attributes"]["status"]).to eq("pending")
+          end
+        end
+
+        context 'when you are not authorized' do
+          it "returns a 401 error" do
+            poa_request = FactoryBot.create(:power_of_attorney_request)
+            response = @service.get_2122_submission(poa_request.id)
+            errors = JSON.parse(response.body)["errors"]
+            expect(response.status).to eq(401)
+            expect(errors[0]["title"]).to eq("Not authorized")
+            expect(errors[0]["status"]).to eq("401")
+            expect(errors[0]["detail"]).to eq("Not authorized")
+          end
+        end
+
+        context 'when the resource does not exist' do
+          it "returns a 404 error" do
+            response = @service.submit2122("-1", lighthouse_client_id)
+            errors = JSON.parse(response.body)["errors"]
+            expect(response.status).to eq(404)
+            expect(errors[0]["title"]).to eq("Resource not found")
+            expect(errors[0]["status"]).to eq("404")
+            expect(errors[0]["detail"]).to eq("Could not find Power of Attorney with id: -1")
+        end
+      end
     end
   end
 end

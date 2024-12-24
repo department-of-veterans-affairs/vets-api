@@ -170,7 +170,7 @@ module BenefitsClaims
       handle_error(e, lighthouse_client_id, endpoint)
     end
 
-    def submit2122(body,lighthouse_client_id = nil, lighthouse_rsa_key_path = nil )
+    def submit2122(body,lighthouse_client_id = nil, lighthouse_rsa_key_path = nil)
       path = "#{@icn}/2122"
       endpoint = '{icn}/2122'
 
@@ -183,6 +183,30 @@ module BenefitsClaims
       response = config.post( 
         path, 
         request_body.to_json,
+        lighthouse_client_id,
+        lighthouse_rsa_key_path
+      )
+
+      if response["data"]
+        return response["data"]
+      elsif response["message"]
+        return response["message"]
+      elsif response["errors"]
+        return response["errors"]
+      else
+        return response
+      end
+
+    rescue  Faraday::ClientError, Faraday::ServerError => e
+      handle_error(e, lighthouse_client_id, endpoint)
+    end
+
+    def get_2122_submission(power_of_attorney_id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil)
+      path = "#{@icn}/power_of_attorney/#{power_of_attorney_id}"
+      endpoint = '{icn}/power_of_attorney/power_of_attorney_id'
+
+      response = config.get( 
+        path,
         lighthouse_client_id,
         lighthouse_rsa_key_path
       )
