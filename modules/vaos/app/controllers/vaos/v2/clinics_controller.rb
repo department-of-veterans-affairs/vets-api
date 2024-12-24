@@ -148,7 +148,7 @@ module VAOS
       end
 
       def log_no_supported_facilities(service_id)
-        Rails.logger.info('VAOS recent_facilities', "No facility that supports #{service_id} was found")
+        Rails.logger.info('VAOS recent_facilities', "No facility supporting #{service_id} service was found.")
       end
 
       def unable_to_lookup_facility?(appt)

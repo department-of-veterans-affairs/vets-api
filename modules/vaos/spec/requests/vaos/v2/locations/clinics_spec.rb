@@ -246,8 +246,52 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
                 get '/vaos/v2/locations/recent_facilities', headers: inflection_header
                 expect(response).to have_http_status(:ok)
                 facility_info = JSON.parse(response.body)['data']
+                expect(facility_info.length).to eq(3)
                 expect(facility_info[0]['attributes']['id']).to eq('984GA')
                 expect(facility_info[0]['attributes']['name']).to eq('Middletown VA Clinic')
+              end
+            end
+          end
+
+          it 'filters by successful facility configuration retrieved' do
+            VCR.use_cassette('vaos/v2/systems/get_recent_facilities_200',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
+              Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
+                get '/vaos/v2/locations/recent_facilities?clinical_service_id=primaryCare', headers: inflection_header
+                expect(response).to have_http_status(:ok)
+                facility_info = JSON.parse(response.body)['data']
+                expect(facility_info.length).to eq(2)
+                expect(facility_info[0]['attributes']['id']).to eq('984GA')
+                expect(facility_info[0]['attributes']['name']).to eq('Middletown VA Clinic')
+              end
+            end
+          end
+
+          it 'filters by facility by services' do
+            VCR.use_cassette('vaos/v2/systems/get_recent_facilities_200',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
+              Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
+                get '/vaos/v2/locations/recent_facilities?clinical_service_id=covid', headers: inflection_header
+                expect(response).to have_http_status(:ok)
+                facility_info = JSON.parse(response.body)['data']
+                expect(facility_info.length).to eq(1)
+                expect(facility_info[0]['attributes']['id']).to eq('983')
+                expect(facility_info[0]['attributes']['name']).to eq('Cheyenne VA Medical Center')
+              end
+            end
+          end
+
+          it 'logs no facilities supports service' do
+            VCR.use_cassette('vaos/v2/systems/get_recent_facilities_200',
+                             match_requests_on: %i[method path query], allow_playback_repeats: true) do
+              Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
+                allow(Rails.logger).to receive(:info)
+                get '/vaos/v2/locations/recent_facilities?clinical_service_id=amputation', headers: inflection_header
+                expect(response).to have_http_status(:ok)
+                facility_info = JSON.parse(response.body)['data']
+                expect(facility_info.length).to eq(0)
+                expect(Rails.logger).to have_received(:info)
+                  .with('VAOS recent_facilities', 'No facility supporting amputation service was found.')
               end
             end
           end

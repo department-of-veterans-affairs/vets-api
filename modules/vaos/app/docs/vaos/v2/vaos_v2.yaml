@@ -63,7 +63,7 @@ paths:
         - name: _include
           in: query
           description:
-            A comma delimted list list of the desired appointment statuses to fetch/filter
+            A comma delimited list list of the desired appointment statuses to fetch/filter
             by.
           schema:
             "$ref": "#/components/schemas/AppointmentIncludes"
@@ -71,7 +71,7 @@ paths:
           explode: false
       responses:
         "200":
-          description: Retrives a list of clincs for a given facility
+          description: Retrieves a list of clinics for a given facility
           content:
             application/json:
               schema:
@@ -127,7 +127,7 @@ paths:
               $ref: "#/components/schemas/CreateAppointmentRequest"
       responses:
         "201":
-          description: Retrives a list of clincs for a given facility
+          description: Retrieves a list of clinics for a given facility
           content:
             application/json:
               schema:
@@ -521,7 +521,7 @@ paths:
             type: integer
       responses:
         "200":
-          description: Retrives a list of clincs for a given facility
+          description: Retrieves a list of clinics for a given facility
           content:
             application/json:
               schema:
@@ -623,7 +623,7 @@ paths:
             type: string
       responses:
         "200":
-          description: Retrives a list of available appointment slots for a given clinic
+          description: Retrieves a list of available appointment slots for a given clinic
           content:
             application/json:
               schema:
@@ -809,7 +809,7 @@ paths:
             type: string
       responses:
         "200":
-          description: Retrives a list of clincs for a given facility
+          description: Retrieves a list of clinics for a given facility
           content:
             application/json:
               schema:
@@ -1276,7 +1276,7 @@ components:
           type: string
         practitioners:
           type: array
-          description: The practioners participating in this appointment.
+          description: The practitioners participating in this appointment.
           items:
             "$ref": "#/components/schemas/PractitionerIds"
         requestedPeriods:
@@ -1362,7 +1362,7 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/CodeableConcept'
-      description: The response for a patient scheduing eligibility request.
+      description: The response for a patient scheduling eligibility request.
     PatientProviderRelationship:
       type: object
       required:
