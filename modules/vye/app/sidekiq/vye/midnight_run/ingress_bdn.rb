@@ -4,7 +4,7 @@ module Vye
   class MidnightRun
     class IngressBdn
       include Sidekiq::Job
-      sidekiq_options retry: 0
+      sidekiq_options retry: 5
 
       def perform
         Rails.logger.info('Vye::MidnightRun::IngressBdn: starting')

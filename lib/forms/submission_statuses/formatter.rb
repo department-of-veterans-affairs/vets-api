@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'pdf_urls'
+
 module Forms
   module SubmissionStatuses
     class Formatter
@@ -46,9 +48,17 @@ module Forms
             message: nil,
             status: nil,
             created_at: submission.created_at,
-            updated_at: nil
+            updated_at: nil,
+            pdf_support: pdf_supported?(submission)
           )
         end
+      end
+
+      def pdf_supported?(submission)
+        PdfUrls.new(
+          form_id: submission.form_type,
+          submission_guid: submission.benefits_intake_uuid
+        ).supported?
       end
     end
   end
