@@ -27,6 +27,18 @@ RSpec.describe SimpleFormsApi::FormEngine::EmploymentHistory do
   end
 
   describe '#name_and_address' do
-    it 'returns a multi-line string'
+    subject(:name_and_address) { employment_history.name_and_address }
+
+    it 'returns a multi-line string' do
+      expect(name_and_address).to(
+        eq(
+          "#{data['name']}\n" \
+          "#{data.dig('address', 'street')}\n" \
+          "#{data.dig('address', 'city')}, " \
+          "#{data.dig('address', 'state')} #{data.dig('address', 'postal_code')}\n" \
+          'United States of America'
+        )
+      )
+    end
   end
 end
