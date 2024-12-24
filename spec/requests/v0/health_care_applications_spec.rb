@@ -455,7 +455,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       context 'when hca service raises an error' do
         before do
           test_veteran.delete('email')
-          allow_any_instance_of(HCA::Service).to receive(:post) do
+          allow_any_instance_of(HCA::Service).to receive(:submit_form) do
             raise error
           end
         end
