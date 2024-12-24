@@ -79,9 +79,18 @@ module IvcChampva
         end
       end
 
+      def sleep_study
+        n = 5
+        n.times do |i|
+          Rails.logger.info("Sleep study iteration #{i}")
+          sleep 1
+        end
+      end
+
       private
 
       if Flipper.enabled?(:champva_multiple_stamp_retry, @current_user)
+
         def handle_file_uploads(form_id, parsed_form_data)
           attempt = 0
           max_attempts = 1
@@ -95,13 +104,13 @@ module IvcChampva
             error_message_downcase = e.message.downcase
             Rails.logger.error "Error handling file uploads (attempt #{attempt}): #{e.message}"
 
-            if error_message_downcase.include?('failed to generate stamped file') ||
-               (error_message_downcase.include?('unable to find file') && attempt <= max_attempts)
+            if should_retry?(error_message_downcase, attempt, max_attempts)
               Rails.logger.error 'Retrying in 1 seconds...'
               sleep 1
               retry
             else
-              return [[], 'Error handling file uploads']
+              statuses = []
+              error_message = 'no retries needed'
             end
           end
 
@@ -123,6 +132,17 @@ module IvcChampva
 
           [statuses, error_message]
         end
+      end
+
+      def should_retry?(error_message_downcase, attempt, max_attempts)
+        error_conditions = [
+          'failed to generate',
+          'no such file',
+          'an error occurred while verifying stamp:',
+          'unable to find file'
+        ]
+
+        error_conditions.any? { |condition| error_message_downcase.include?(condition) } && attempt <= max_attempts
       end
 
       def get_attachment_ids_and_form(parsed_form_data)
