@@ -32,12 +32,10 @@ module EducationForm
     private
 
     def get_institution(facility_code)
-      begin
-        GI::Client.new.get_institution_details_v0({ id: facility_code }).body[:data][:attributes]
-      rescue Common::Exceptions::RecordNotFound
-        StatsD.increment("#{stats_key}.skipped.institution_not_approved")
-        nil
-      end
+      GI::Client.new.get_institution_details_v0({ id: facility_code }).body[:data][:attributes]
+    rescue Common::Exceptions::RecordNotFound
+      StatsD.increment("#{stats_key}.skipped.institution_not_approved")
+      nil
     end
 
     def school_changed?
