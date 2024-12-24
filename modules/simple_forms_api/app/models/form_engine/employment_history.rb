@@ -29,7 +29,7 @@ module SimpleFormsApi
         output << "#{city}, #{state} #{postal_code}"
         output << IsoCountryCodes.find(country).name
 
-        output.join("\n")
+        output.join('\n')
       end
 
       def set_ivars

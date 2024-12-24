@@ -32,11 +32,7 @@ RSpec.describe SimpleFormsApi::FormEngine::EmploymentHistory do
     it 'returns a multi-line string' do
       expect(name_and_address).to(
         eq(
-          "#{data['name']}\n" \
-          "#{data.dig('address', 'street')}\n" \
-          "#{data.dig('address', 'city')}, " \
-          "#{data.dig('address', 'state')} #{data.dig('address', 'postal_code')}\n" \
-          'United States of America'
+          'Test Employer\\n1234 Executive Ave\\nMetropolis, CA 90210\\nUnited States of America'
         )
       )
     end

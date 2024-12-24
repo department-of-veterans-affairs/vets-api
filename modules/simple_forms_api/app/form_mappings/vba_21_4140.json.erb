@@ -67,7 +67,7 @@
   "F[0].Page_1[0].Date_Of_Employment_To[0]": "<%= form.employment_history[0].date_ended %>",
 
   <%# 11E. Time Lost From Illness %>
-  "F[0].Page_1[0].Time_Lost_From_Illness[0]": "<%= form.employment_history[0].time_lost %>",
+  "F[0].Page_1[0].Time_Lost_From_Illness[0]": "<%= form.employment_history[0].lost_time %>",
 
   <%# 11F. Highest Gross Earnings Per Month %>
   "F[0].Page_1[0].Gross_Earnings_Per_Month[0]": "<%= form.employment_history[0].highest_income %>",
@@ -80,37 +80,37 @@
 
   <%# Section II - Employment Certification (Continued) %>
   <%# 11A. Name and Address of Employer %>
-  "F[0].#subform[1].Name_And_Address_Of_Employer[0]": "<%= form.employment_history[1].name_and_address %>",
+  "F[0].#subform[1].Name_And_Address_Of_Employer[0]": "<%= form.employment_history[3].name_and_address %>",
   "F[0].#subform[1].Name_And_Address_Of_Employer[1]": "<%= form.employment_history[2].name_and_address %>",
-  "F[0].#subform[1].Name_And_Address_Of_Employer[2]": "<%= form.employment_history[3].name_and_address %>",
+  "F[0].#subform[1].Name_And_Address_Of_Employer[2]": "<%= form.employment_history[1].name_and_address %>",
 
   <%# 11B. Type of Work %>
-  "F[0].#subform[1].Type_Of_Work[0]": "<%= form.employment_history[1].type_of_work %>",
+  "F[0].#subform[1].Type_Of_Work[0]": "<%= form.employment_history[3].type_of_work %>",
   "F[0].#subform[1].Type_Of_Work[1]": "<%= form.employment_history[2].type_of_work %>",
-  "F[0].#subform[1].Type_Of_Work[2]": "<%= form.employment_history[3].type_of_work %>",
+  "F[0].#subform[1].Type_Of_Work[2]": "<%= form.employment_history[1].type_of_work %>",
 
   <%# 11C. Hours Per Week %>
-  "F[0].#subform[1].Hours_Per_Week[0]": "<%= form.employment_history[1].hours_per_week %>",
+  "F[0].#subform[1].Hours_Per_Week[0]": "<%= form.employment_history[3].hours_per_week %>",
   "F[0].#subform[1].Hours_Per_Week[1]": "<%= form.employment_history[2].hours_per_week %>",
-  "F[0].#subform[1].Hours_Per_Week[2]": "<%= form.employment_history[3].hours_per_week %>",
+  "F[0].#subform[1].Hours_Per_Week[2]": "<%= form.employment_history[1].hours_per_week %>",
 
   <%# 11D. Dates of Employment or Self-Employment %>
-  "F[0].#subform[1].Date_Of_Employment_From[0]": "<%= form.employment_history[1].date_started %>",
-  "F[0].#subform[1].Date_Of_Employment_To[0]": "<%= form.employment_history[1].date_ended %>",
+  "F[0].#subform[1].Date_Of_Employment_From[0]": "<%= form.employment_history[3].date_started %>",
+  "F[0].#subform[1].Date_Of_Employment_To[0]": "<%= form.employment_history[3].date_ended %>",
   "F[0].#subform[1].Date_Of_Employment_From[1]": "<%= form.employment_history[2].date_started %>",
   "F[0].#subform[1].Date_Of_Employment_To[1]": "<%= form.employment_history[2].date_ended %>",
-  "F[0].#subform[1].Date_Of_Employment_From[2]": "<%= form.employment_history[3].date_started %>",
-  "F[0].#subform[1].Date_Of_Employment_To[2]": "<%= form.employment_history[3].date_ended %>",
+  "F[0].#subform[1].Date_Of_Employment_From[2]": "<%= form.employment_history[1].date_started %>",
+  "F[0].#subform[1].Date_Of_Employment_To[2]": "<%= form.employment_history[1].date_ended %>",
 
   <%# 11E. Time Lost From Illness %>
-  "F[0].#subform[1].Time_Lost_From_Illness[0]": "<%= form.employment_history[1].time_lost %>",
-  "F[0].#subform[1].Time_Lost_From_Illness[1]": "<%= form.employment_history[2].time_lost %>",
-  "F[0].#subform[1].Time_Lost_From_Illness[2]": "<%= form.employment_history[3].time_lost %>",
+  "F[0].#subform[1].Time_Lost_From_Illness[0]": "<%= form.employment_history[3].lost_time %>",
+  "F[0].#subform[1].Time_Lost_From_Illness[1]": "<%= form.employment_history[2].lost_time %>",
+  "F[0].#subform[1].Time_Lost_From_Illness[2]": "<%= form.employment_history[1].lost_time %>",
 
   <%# 11F. Highest Gross Earnings Per Month %>
-  "F[0].#subform[1].Gross_Earnings_Per_Month[0]": "<%= form.employment_history[1].highest_income %>",
-  "F[0].#subform[1].Gross_Earnings_Per_Month[1]": "<%= form.employment_history[2].highest_income %>",
-  "F[0].#subform[1].Gross_Earnings_Per_Month[2]": "<%= form.employment_history[3].highest_income %>",
+  "F[0].#subform[1].Gross_Earnings_Per_Month[0]": "<%= form.employment_history[2].highest_income %>",
+  "F[0].#subform[1].Gross_Earnings_Per_Month[1]": "<%= form.employment_history[3].highest_income %>",
+  "F[0].#subform[1].Gross_Earnings_Per_Month[2]": "<%= form.employment_history[1].highest_income %>",
 
   "F[0].#subform[1].DateSigned[0]": "<%= form.data.dig('DateSigned') %>",
   "F[0].#subform[1].SignatureField1[0]": "<%= form.data.dig('SignatureField1') %>",
