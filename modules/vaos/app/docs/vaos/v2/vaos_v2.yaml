@@ -438,6 +438,13 @@ paths:
         "504":
           $ref: "#/components/responses/GatewayTimeout"
   "/v2/locations/recent_facilities":
+    parameters:
+     - in: query
+       required: false
+       name: clinical_service_id
+       description: The clinical service (type of care) ID used to filter recent facilities. The currently supported/available VAOS clinical service IDs can be discovered from Mobile Facility Service v2.
+       schema:
+         type: string
     get:
       tags:
         - facilities

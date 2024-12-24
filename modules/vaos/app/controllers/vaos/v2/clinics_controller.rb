@@ -42,29 +42,32 @@ module VAOS
       end
 
       def recent_facilities
-        sorted_facilities = []
         sorted_appointments = appointments_service.get_recent_sorted_appointments
 
         if sorted_appointments.blank?
           render json: { message: 'No appointments found' }, status: :not_found
           return
         end
+
+        facility_ids = []
+
         sorted_appointments.each do |appt|
           # if we don't have the information to lookup the clinic, return 'unable to lookup' message
-          if unable_to_lookup_facility?(appt)
-            log_unable_to_lookup_facility(appt)
-          else
-            # get the facility details using the location id
-            location_id = appt.location_id
-            facility = mobile_facility_service.get_facility(location_id)
-            log_recent_facility_details(location_id, facility)
-
-            # if facility details are not returned, log 'not found' message
-            facility.nil? ? log_no_facility_details_found(location_id) : sorted_facilities.push(facility)
-          end
+          unable_to_lookup_facility?(appt) ? log_unable_to_lookup_facility(appt) : facility_ids.push(appt.location_id)
         end
-        # remove duplicate clinics
-        sorted_facilities = sorted_facilities.uniq
+
+        # remove duplicate facility ids
+        facility_ids = facility_ids.uniq
+        sorted_facilities = []
+
+        facility_ids.each do |facility_id|
+          # get the facility details using the location id
+          facility = mobile_facility_service.get_facility(facility_id)
+          log_recent_facility_details(facility_id, facility)
+
+          # if facility details are not returned, log 'not found' message
+          facility.nil? ? log_no_facility_details_found(facility_id) : sorted_facilities.push(facility)
+        end
 
         render json: FacilitiesSerializer.new(sorted_facilities)
       end
@@ -131,6 +134,10 @@ module VAOS
 
       def location_id
         params.require(:location_id)
+      end
+
+      def recent_facilities_params
+        params.permit(:clinical_service_id)
       end
     end
   end
