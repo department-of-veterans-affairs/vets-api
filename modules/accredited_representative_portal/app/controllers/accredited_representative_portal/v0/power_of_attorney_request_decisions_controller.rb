@@ -2,11 +2,12 @@ module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestDecisionsController < ApplicationController
       before_action :set_power_of_attorney_request, only: [:create]
+
       def create
-        create_params = decision_params.merge(creator: @current_user)
+        create_params = decision_params.merge(creator: current_user)
         reason = create_params.delete(:reason)
         reason = nil if create_params[:type] == PowerOfAttorneyRequestDecision::Types::ACCEPTANCE
-
+        
         begin
           @power_of_attorney_request.create_resolution!( 
             resolving: PowerOfAttorneyRequestDecision.new(create_params), 
@@ -18,9 +19,6 @@ module AccreditedRepresentativePortal
           else 
             render json: { error: 'Failed to create decision' }, status: :unprocessable_entity
           end
-        rescue ActiveRecord::RecordNotUnique => e
-          Rails.logger.error("ARP: Unexpected error occurred for power of attorney request #{@power_of_attorney_request.id} - #{e.message}")
-          render json: { error: 'Decision already exists' }, status: :unprocessable_entity
         rescue => e
           Rails.logger.error("ARP: Unexpected error occurred for power of attorney request #{@power_of_attorney_request.id} - #{e.message}")
           render json: { error: 'Failed to create decision' }, status: :unprocessable_entity
@@ -39,4 +37,4 @@ module AccreditedRepresentativePortal
       end
     end
   end
-end  
+end
