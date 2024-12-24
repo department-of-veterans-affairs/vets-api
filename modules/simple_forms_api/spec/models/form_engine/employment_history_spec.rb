@@ -21,7 +21,9 @@ RSpec.describe SimpleFormsApi::FormEngine::EmploymentHistory do
   end
 
   describe '#highest_income' do
-    it 'returns a currency string'
+    subject { employment_history.highest_income }
+
+    it { is_expected.to eq '$2,300.00' }
   end
 
   describe '#name_and_address' do
