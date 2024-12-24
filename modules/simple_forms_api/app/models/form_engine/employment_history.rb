@@ -3,14 +3,41 @@
 module SimpleFormsApi
   module FormEngine
     class EmploymentHistory
-      attr_reader :date_ended, :date_started, :hours_per_week, :lost_time, :type_of_work
+      attr_reader :date_ended,
+                  :date_started,
+                  :highest_income,
+                  :hours_per_week,
+                  :lost_time,
+                  :name_and_address,
+                  :type_of_work
 
       def initialize(data)
+        @data = data
+
+        set_ivars if data.present?
+      end
+
+      private
+
+      attr_reader :city, :country, :data, :name, :postal_code, :state, :street
+
+      def format_name_and_address
+        output = []
+
+        output << name
+        output << street
+        output << "#{city}, #{state} #{postal_code}"
+        output << IsoCountryCodes.find(country).name
+
+        output.join("\n")
+      end
+
+      def set_ivars
         @city = data.dig('address', 'city')
         @country = data.dig('address', 'country')
-        @data = data
         @date_ended = data.dig('date_range', 'to')
         @date_started = data.dig('date_range', 'from')
+        @highest_income = ActiveSupport::NumberHelper.number_to_currency(data['highest_income'])
         @hours_per_week = data['hours_per_week']
         @lost_time = data['lost_time']
         @name = data['name']
@@ -18,21 +45,8 @@ module SimpleFormsApi
         @state = data.dig('address', 'state')
         @street = data.dig('address', 'street')
         @type_of_work = data['type_of_work']
-      end
 
-      def highest_income
-        ActiveSupport::NumberHelper.number_to_currency(@data['highest_income'])
-      end
-
-      def name_and_address
-        output = []
-
-        output << @name
-        output << @street
-        output << "#{@city}, #{@state} #{@postal_code}"
-        output << IsoCountryCodes.find(@country).name
-
-        output.join("\n")
+        @name_and_address = format_name_and_address
       end
     end
   end
