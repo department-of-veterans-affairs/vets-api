@@ -216,6 +216,88 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
       end
+
+      describe '#submit2122' do
+        body =  {
+          "veteran": {
+            "address": {
+              "addressLine1": "123",
+              "city": "city",
+              "stateCode": "OR",
+              "countryCode": "US",
+              "zipCode": "12345"
+            }
+          },
+          "serviceOrganization": {
+            "poaCode": "083",
+            "registrationNumber": "999999999999"
+          }
+        }
+
+        lighthouse_client_id = "abcdefgh"
+
+        context 'when there is valid params' do
+          it "returns data" do
+            response = @service.submit2122(body, lighthouse_client_id)
+            data = JSON.parse(response.body)[:data]
+            expect(response.status).to eq(202)
+            expect(data[:id]).to eq("20da46c4-10d5-4985-8113-db92597ac85f")
+            expect(data[:attributes][:name]).to eq("083 - DISABLED AMERICAN VETERANS")
+            expect(data[:attributes][:phoneNumber]).to eq("555-555-5555")
+          end
+        end
+
+        context 'when you are not authorized' do
+          it "returns a 401 error" do
+            response = @service.submit2122(body)
+            errors = JSON.parse(response.body)[:errors]
+            expect(response.status).to eq(401)
+            expect(errors[0][:title]).to eq("Not authorized")
+            expect(errors[0][:status]).to eq("401")
+            expect(errors[0][:detail]).to eq("Not authorized")
+          end
+        end
+
+        context 'when the resource does not exist' do
+          it "returns a 404 error" do
+            invalid_body = body.dup
+            invalid_body[:serviceOrganization][:poaCode] = "082"
+            invalid_body[:serviceOrganization][:registrationNumber] = "999999999998"
+            response = @service.submit2122(invalid_body, lighthouse_client_id)
+            errors = JSON.parse(response.body)[:errors]
+            expect(response.status).to eq(404)
+            expect(errors[0][:title]).to eq("Resource not found")
+            expect(errors[0][:status]).to eq("404")
+            expect(errors[0][:detail]).to eq("Could not find an Accredited Representative with registration number: 999999999998 and poa code: 082")
+          end
+        end
+
+        context 'when the payload has incorrect params' do
+          it "returns a 422 error" do
+            invalid_body = body.dup
+            invalid_body[:serviceOrganization].delete(:poaCode)
+            response = @service.submit2122(invalid_body, lighthouse_client_id)
+            errors = JSON.parse(response.body)[:errors]
+            expect(response.status).to eq(422)
+            expect(errors[0][:title]).to eq("Unprocessable entity")
+            expect(errors[0][:status]).to eq("422")
+            expect(errors[0][:detail]).to eq("The property /serviceOrganization did not contain the required key poaCode")
+            expect(errors[0][:source][:pointer]).to eq("data/attributes/serviceOrganization")
+          end
+        end
+
+        context 'when the payload is too big' do
+          it "returns a 413 error" do
+            invalid_body = body.dup
+            extra_chars = "A" * 200 
+            invalid_body[:serviceOrganization][:registrationNumber] += extra_chars
+            response = @service.submit2122(invalid_body, lighthouse_client_id)
+            body = JSON.parse(response.body)
+            expect(response.status).to eq(413)
+            expect(body[:message]).to eq("Request size limit exceeded")
+          end
+        end
+      end
     end
   end
 end
