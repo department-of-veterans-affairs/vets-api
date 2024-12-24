@@ -13,7 +13,7 @@ RSpec.shared_examples 'zip_code_is_us_based' do |address_keys|
     end
 
     context 'address is present and not in US' do
-      let(:data) { { address_key => { 'country' => 'Canada' } } }
+      let(:data) { { address_key => { 'country' => 'CAN' } } }
 
       it 'returns false' do
         expect(zip_code_is_us_based).to eq(false)
