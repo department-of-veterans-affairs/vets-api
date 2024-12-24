@@ -89,7 +89,7 @@ module VAOS
 
         # Retrieve facility scheduling configurations
         facility_ids = facilities.pluck(:id).to_csv(row_sep: nil)
-        configurations = mobile_facility_service.get_scheduling_configurations(facility_ids)[:data]
+        configurations = mobile_facility_service.get_scheduling_configurations(facility_ids)&.[](:data)
         supported_facilities = []
 
         facilities.each do |facility|
@@ -100,6 +100,8 @@ module VAOS
             supported_facilities.push(facility)
           end
         end
+
+        log_no_supported_facilities(service_id) if supported_facilities.blank?
 
         supported_facilities
       end
@@ -142,7 +144,11 @@ module VAOS
       end
 
       def log_recent_facility_details(location_id, facility)
-        Rails.logger.info("VAOS recent_facilities details for location: #{location_id} - #{facility.to_json}")
+        Rails.logger.info('VAOS recent_facilities', "Details found for location: #{location_id} - #{facility.to_json}")
+      end
+
+      def log_no_supported_facilities(service_id)
+        Rails.logger.info('VAOS recent_facilities', "No facility that supports #{service_id} was found")
       end
 
       def unable_to_lookup_facility?(appt)
