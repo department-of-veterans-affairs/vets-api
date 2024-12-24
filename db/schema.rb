@@ -1440,7 +1440,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
   create_table "va_notify_notifications", force: :cascade do |t|
     t.uuid "notification_id", null: false
     t.text "reference"
-    t.text "to"
     t.text "status"
     t.datetime "completed_at"
     t.datetime "sent_at"
