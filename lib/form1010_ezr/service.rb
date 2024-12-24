@@ -41,16 +41,9 @@ module Form1010Ezr
         if Flipper.enabled?(:va1010_forms_enrollment_system_service_enabled)
           VA1010Forms::EnrollmentSystem::Service.new(
             HealthCareApplication.get_user_identifier(@user)
-          ).submit(
-            parsed_form,
-            FORM_ID
-          )
+          ).submit(parsed_form, FORM_ID)
         else
-          es_submit(
-            parsed_form,
-            HealthCareApplication.get_user_identifier(@user),
-            FORM_ID
-          )
+          es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
         end
       end
 
