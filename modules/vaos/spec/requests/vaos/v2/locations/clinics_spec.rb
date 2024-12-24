@@ -267,7 +267,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
             end
           end
 
-          it 'filters by facility by services' do
+          it 'filters facilities to those that supports service' do
             VCR.use_cassette('vaos/v2/systems/get_recent_facilities_200',
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
               Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
@@ -281,7 +281,7 @@ RSpec.describe 'VAOS::V2::Locations::Clinics', type: :request do
             end
           end
 
-          it 'logs no facilities supports service' do
+          it 'logs if no facilities supports service' do
             VCR.use_cassette('vaos/v2/systems/get_recent_facilities_200',
                              match_requests_on: %i[method path query], allow_playback_repeats: true) do
               Timecop.travel(Time.zone.local(2023, 8, 31, 13, 0, 0)) do
