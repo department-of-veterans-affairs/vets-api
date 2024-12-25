@@ -9,10 +9,6 @@ describe Eps::ProviderService do
   let(:config) { instance_double(Eps::Configuration) }
   let(:headers) { { 'Authorization' => 'Bearer token123' } }
 
-  let(:referral_id) { 'test-referral-id' }
-  # TODO: make successful_referrals_response test object,
-  # once we know what that should look like.
-
   before do
     allow(config).to receive(:base_path).and_return('api/v1')
     allow(service).to receive_messages(config: config, headers: headers)
