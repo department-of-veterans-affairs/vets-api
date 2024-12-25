@@ -32,36 +32,38 @@ namespace :vye do
     Vye.settings.scrypt.salt = '1'
 
     puts 'Creating BdnClone row that will be deleted'
-    FactoryBot.create(:vye_bdn_clone_with_user_info_children, transact_date: Date.today - 2.days)
+    FactoryBot.create(:vye_bdn_clone_with_user_info_children, transact_date: Time.Zone.today - 2.days)
 
     puts 'Creating active BdnClone row'
-    FactoryBot.create(:vye_bdn_clone_with_user_info_children, :active, transact_date: Date.today - 1.days)
+    FactoryBot.create(
+      :vye_bdn_clone_with_user_info_children, :active, transact_date: Time.Zone.today - 1.day
+    )
 
     puts 'Creating freshly imported BdnClone row'
     FactoryBot.create(:vye_bdn_clone_with_user_info_children, is_active: false)
 
     puts 'BdnClones created'
-    Vye::BdnClone.all.each { |bdn_clone| puts bdn_clone.inspect }
+    Vye::BdnClone.all.find_each { |bdn_clone| puts bdn_clone.inspect }
 
     puts "\nUserProfiles created"
-    Vye::UserProfile.all.each { |user_profile| puts user_profile.inspect }
+    Vye::UserProfile.all.find_each { |user_profile| puts user_profile.inspect }
 
     puts "\nUserInfos created"
-    Vye::UserInfo.all.each { |user_info| puts user_info.inspect }
+    Vye::UserInfo.all.find_each { |user_info| puts user_info.inspect }
 
     puts "\nPendingDocuments created"
-    Vye::PendingDocument.all.each { |pending_document| puts pending_document.inspect }
+    Vye::PendingDocument.all.find_each { |pending_document| puts pending_document.inspect }
 
     puts "\nVerifications created"
-    Vye::Verification.all.each { |verification| puts verification.inspect }
+    Vye::Verification.all.find_each { |verification| puts verification.inspect }
 
     puts "\nAddressChanges created"
-    Vye::AddressChange.all.each { |address_change| puts address_change.inspect }
+    Vye::AddressChange.all.find_each { |address_change| puts address_change.inspect }
 
     puts "\nAwards created"
-    Vye::Award.all.each { |award| puts award.inspect }
+    Vye::Award.all.find_each { |award| puts award.inspect }
 
     puts "\nDirectDepositChanges created"
-    Vye::DirectDepositChange.all.each { |direct_deposit_change| puts direct_deposit_change.inspect }
+    Vye::DirectDepositChange.all.find_each { |direct_deposit_change| puts direct_deposit_change.inspect }
   end
 end

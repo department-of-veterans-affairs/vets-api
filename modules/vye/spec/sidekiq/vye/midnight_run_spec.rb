@@ -31,7 +31,7 @@ describe Vye::MidnightRun, type: :worker do
       # In the RSpec test environment, the job isn't executed unless you explicitly call perform or
       # configure Sidekiq for inline execution during the test.
       #
-      # If you want to test perform_async directly in the future, you can configure Sidekiq to execute 
+      # If you want to test perform_async directly in the future, you can configure Sidekiq to execute
       # jobs immediately in your test setup. Add the following to your spec_helper.rb or rails_helper.rb:
       # require 'sidekiq/testing'
       # Sidekiq::Testing.inline!
