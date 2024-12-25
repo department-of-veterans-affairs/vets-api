@@ -9,30 +9,6 @@ describe Eps::ProviderService do
   let(:config) { instance_double(Eps::Configuration) }
   let(:headers) { { 'Authorization' => 'Bearer token123' } }
 
-  let(:successful_drive_time_response) do
-    double('Response', status: 200, body: {
-        'destinations' => {
-          '00eff3f3-ecfb-41ff-9ebc-78ed811e17f9' => {
-            'distanceInMiles' => '4',
-            'driveTimeInSecondsWithTraffic' => '566',
-            'driveTimeInSecondsWithoutTraffic' => '493',
-            'latitude' => '-74.12870564772521',
-            'longitude' => '-151.6240405624497'
-          },
-          '69cd9203-5e92-47a3-aa03-94b03752872a' => {
-            'distanceInMiles' => '9',
-            'driveTimeInSecondsWithTraffic' => '1314',
-            'driveTimeInSecondsWithoutTraffic' => '1039',
-            'latitude' => '-1.7437745123171688',
-            'longitude' => '-54.19187859370315'
-          }
-        },
-        'origin' => {
-          'latitude' => '4.627174468915552',
-          'longitude' => '-88.72187894562788'
-        }
-      })
-  end
   let(:referral_id) { 'test-referral-id' }
   # TODO: make successful_referrals_response test object,
   # once we know what that should look like.
@@ -155,31 +131,68 @@ describe Eps::ProviderService do
   end
 
   describe 'get_drive_times' do
-    context 'when requesting drive times for a logged in user' do
+    let(:destinations) do
+      {
+        'provider-123' => {
+          latitude: 40.7128,
+          longitude: -74.0060
+        }
+      }
+    end
+    let(:origin) do
+      {
+        latitude: 40.7589,
+        longitude: -73.9851
+      }
+    end
+
+    context 'when the request is successful' do
+      let(:response) do
+        double('Response', status: 200, body: {
+                 'destinations' => {
+                   '00eff3f3-ecfb-41ff-9ebc-78ed811e17f9' => {
+                     'distanceInMiles' => '4',
+                     'driveTimeInSecondsWithTraffic' => '566',
+                     'driveTimeInSecondsWithoutTraffic' => '493',
+                     'latitude' => '-74.12870564772521',
+                     'longitude' => '-151.6240405624497'
+                   }
+                 },
+                 'origin' => {
+                   'latitude' => '4.627174468915552',
+                   'longitude' => '-88.72187894562788'
+                 }
+               })
+      end
+
       before do
-        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_drive_time_response)
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
       end
 
       it 'returns the calculated drive times' do
-        exp_response = OpenStruct.new(successful_drive_time_response.body)
+        result = service.get_drive_times(destinations:, origin:)
 
-        expect(service.get_drive_times).to eq(exp_response)
+        expect(result).to eq(OpenStruct.new(response.body))
       end
     end
 
-    context 'when the endpoint fails to return appointments' do
-      let(:failed_drive_time_response) do
-        double('Response', status: 500, body: 'Unknown service exception')
-      end
+    context 'when the request fails' do
+      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
       let(:exception) do
-        Common::Exceptions::BackendServiceException.new(nil, {}, failed_drive_time_response.status,
-        failed_drive_time_response.body)
-
-        it 'throws exception' do
-          expect { service.get_drive_times }.to raise_error(Common::Exceptions::BackendServiceException,
-                                                            /VA900/)
-        end
+        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
       end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
+      end
+
+      it 'raises an error' do
+        expect do
+          service.get_drive_times(destinations:, origin:)
+        end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+  end
 
   describe '#get_provider_slots' do
     let(:provider_id) { '9mN718pH' }
