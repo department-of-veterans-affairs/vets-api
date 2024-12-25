@@ -7,6 +7,8 @@ module Vye
       sidekiq_options retry: 5
 
       def perform
+        return if Vye::CloudTransfer.holiday?
+
         Rails.logger.info('Vye::MidnightRun::IngressBdn: starting')
 
         bdn_clone = Vye::BdnClone.create!(transact_date: Time.zone.today)

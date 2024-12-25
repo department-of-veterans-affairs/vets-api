@@ -6,6 +6,8 @@ module Vye
       include Sidekiq::Worker
 
       def perform
+        return if Vye::CloudTransfer.holiday?
+
         logger.info('Vye::SundownSweep::ClearDeactivatedBdns: starting delete deactivated bdns')
         Vye::CloudTransfer.delete_inactive_bdns
         logger.info('Vye::SundownSweep::ClearDeactivatedBdns: finished delete deactivated bdns')
