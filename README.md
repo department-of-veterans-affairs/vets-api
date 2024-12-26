@@ -147,6 +147,3 @@ The goal is to have vets-api use supported versions of gems and Ruby, which is o
 ## Not a member of the repository and want to be added?
 - If you're on a VA.gov Platform team, contact your Program Manager.
 - If you're on a VFS team, you must complete [Platform Orientation](https://depo-platform-documentation.scrollhelp.site/getting-started/platform-orientation) to be added to this repository. This includes completing your Platform Orientation ticket(s) in GitHub.
-
-## Testing GHA
-This will be reverted after testing multiple pull requests being merged at once.
