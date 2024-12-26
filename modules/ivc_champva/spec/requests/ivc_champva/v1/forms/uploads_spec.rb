@@ -372,4 +372,37 @@ RSpec.describe 'IvcChampva::V1::Forms::Uploads', type: :request do
       end
     end
   end
+
+  describe '#should_retry?' do
+    let(:controller) { IvcChampva::V1::UploadsController.new }
+
+    it 'returns true for retryable errors within max attempts' do
+      retryable_errors = [
+        'failed to generate file',
+        'no such file or directory',
+        'an error occurred while verifying stamp: some error',
+        'unable to find file'
+      ]
+
+      retryable_errors.each do |error_message|
+        expect(controller.send(:should_retry?, error_message.downcase, 1, 3)).to be true
+      end
+    end
+
+    it 'returns false for non-retryable errors' do
+      non_retryable_errors = [
+        'some other error',
+        'random error message'
+      ]
+
+      non_retryable_errors.each do |error_message|
+        expect(controller.send(:should_retry?, error_message.downcase, 1, 3)).to be false
+      end
+    end
+
+    it 'returns false when max attempts exceeded' do
+      error_message = 'failed to generate file'
+      expect(controller.send(:should_retry?, error_message.downcase, 4, 3)).to be false
+    end
+  end
 end
