@@ -46,13 +46,11 @@ module SimpleFormsApi
 
       def validated_metadata
         raw_metadata = {
-          'veteranFirstName' => @current_user.first_name,
-          'veteranLastName' => @current_user.last_name,
-          'fileNumber' => params.dig(:options, :ssn) ||
-                          params.dig(:options, :va_file_number) ||
-                          @current_user.ssn,
-          'zipCode' => params.dig(:options, :zip_code) ||
-                       @current_user.address[:postal_code],
+          'veteranFirstName' => params.dig(:form_data, :full_name, :first),
+          'veteranLastName' => params.dig(:form_data, :full_name, :last),
+          'fileNumber' => params.dig(:form_data, :id_number, :ssn) ||
+                          params.dig(:form_data, :id_number, :va_file_number),
+          'zipCode' => params.dig(:form_data, :postal_code),
           'source' => 'VA Platform Digital Forms',
           'docType' => params[:form_number],
           'businessLine' => 'CMP'
