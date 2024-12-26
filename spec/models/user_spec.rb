@@ -495,31 +495,57 @@ RSpec.describe User, type: :model do
           end
         end
 
-        context 'MHV ids' do
-          let(:user) { build(:user, :loa3, mhv_correlation_id: nil, participant_id:) }
-          let(:participant_id) { 'some_mpi_participant_id' }
+        describe '#mhv_correlation_id' do
+          let(:user) { build(:user, :loa3, mpi_profile:) }
+          let(:mhv_user_account) { build(:mhv_user_account, user_profile_id: mhv_account_id) }
+          let(:mpi_profile) { build(:mpi_profile, active_mhv_ids:) }
+          let(:mhv_account_id) { 'some-id' }
+          let(:active_mhv_ids) { [mhv_account_id] }
 
-          context 'when mhv ids are nil' do
-            let(:participant_id) { nil }
+          context 'when mhv_user_account is present' do
+            before do
+              allow(user).to receive(:mhv_user_account).and_return(mhv_user_account)
+            end
 
-            it 'has a mhv correlation id of nil' do
-              expect(user.mhv_correlation_id).to be_nil
+            it 'returns the user_profile_id from the mhv_user_account' do
+              expect(user.mhv_correlation_id).to eq(mhv_account_id)
             end
           end
 
-          context 'when there are mhv ids' do
-            it 'fetches mhv correlation id from MPI' do
-              expect(user.mhv_correlation_id).to eq(user.send(:mpi_profile).mhv_ids.first)
-              expect(user.mhv_correlation_id).to eq(user.send(:mpi_profile).active_mhv_ids.first)
+          context 'when mhv_user_account is not present' do
+            before do
+              allow(user).to receive(:mhv_user_account).and_return(nil)
             end
 
-            it 'fetches mhv_ids from MPI' do
-              expect(user.mhv_ids).to be(user.send(:mpi_profile).mhv_ids)
+            context 'when the user has one active_mhv_ids' do
+              it 'returns the active_mhv_id' do
+                expect(user.mhv_correlation_id).to eq(active_mhv_ids.first)
+              end
             end
 
-            it 'fetches active_mhv_ids from MPI' do
-              expect(user.active_mhv_ids).to be(user.send(:mpi_profile).active_mhv_ids)
+            context 'when the user has multiple active_mhv_ids' do
+              let(:active_mhv_ids) { %w[some-id another-id] }
+
+              it 'returns nil' do
+                expect(user.mhv_correlation_id).to be_nil
+              end
             end
+          end
+        end
+
+        describe '#mhv_ids' do
+          let(:user) { build(:user, :loa3) }
+
+          it 'fetches mhv_ids from MPI' do
+            expect(user.mhv_ids).to be(user.send(:mpi_profile).mhv_ids)
+          end
+        end
+
+        describe '#active_mhv_ids' do
+          let(:user) { build(:user, :loa3) }
+
+          it 'fetches active_mhv_ids from MPI' do
+            expect(user.active_mhv_ids).to be(user.send(:mpi_profile).active_mhv_ids)
           end
         end
 
@@ -1079,18 +1105,18 @@ RSpec.describe User, type: :model do
       described_class.new(
         build(:user, :loa3,
               idme_uuid:, logingov_uuid:,
-              edipi:, mhv_correlation_id:, authn_context:)
+              edipi:, mhv_credential_uuid:, authn_context:)
       )
     end
     let(:user_verifier_object) do
       OpenStruct.new({ idme_uuid:, logingov_uuid:, sign_in: user.identity_sign_in,
-                       edipi:, mhv_correlation_id: })
+                       edipi:, mhv_credential_uuid: })
     end
     let(:authn_context) { LOA::IDME_LOA1_VETS }
     let(:logingov_uuid) { 'some-logingov-uuid' }
     let(:idme_uuid) { 'some-idme-uuid' }
     let(:edipi) { 'some-edipi' }
-    let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+    let(:mhv_credential_uuid) { 'some-mhv-credential-uuid' }
     let!(:user_verification) { Login::UserVerifier.new(user_verifier_object).perform }
     let!(:user_account) { user_verification&.user_account }
 
@@ -1102,14 +1128,14 @@ RSpec.describe User, type: :model do
       context 'when user is logged in with mhv' do
         let(:authn_context) { 'myhealthevet' }
 
-        context 'and there is an mhv_correlation_id' do
-          it 'returns user verification with a matching mhv_correlation_id' do
-            expect(user.user_verification.mhv_uuid).to eq(mhv_correlation_id)
+        context 'and there is an mhv_credential_uuid' do
+          it 'returns user verification with a matching mhv_credential_uuid' do
+            expect(user.user_verification.mhv_uuid).to eq(mhv_credential_uuid)
           end
         end
 
-        context 'and there is not an mhv_correlation_id' do
-          let(:mhv_correlation_id) { nil }
+        context 'and there is not an mhv_credential_uuid' do
+          let(:mhv_credential_uuid) { nil }
 
           context 'and user has an idme_uuid' do
             let(:idme_uuid) { 'some-idme-uuid' }
@@ -1305,8 +1331,8 @@ RSpec.describe User, type: :model do
         let(:expected_log_message) { '[User] mhv_user_account error' }
         let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
 
-        it 'logs and re-raises the error' do
-          expect { user.mhv_user_account }.to raise_error(MHV::UserAccount::Errors::UserAccountError)
+        it 'logs and returns nil' do
+          expect(user.mhv_user_account).to be_nil
           expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
         end
       end
