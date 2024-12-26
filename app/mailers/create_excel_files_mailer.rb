@@ -4,7 +4,6 @@ class CreateExcelFilesMailer < ApplicationMailer
   def build(filename)
     date = Time.zone.now.strftime('%m/%d/%Y')
     file_contents = File.read("tmp/#{filename}")
-
     headers['Content-Disposition'] = "attachment; filename=#{filename}"
 
     # rubocop:disable Layout/LineLength
