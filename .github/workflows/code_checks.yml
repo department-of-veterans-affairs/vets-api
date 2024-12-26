@@ -15,7 +15,8 @@ jobs:
       - name: Compare commit ids
         run: |
           echo "github.sha: ${{ github.sha }}"
-          echo "event.head_commit.id: ${{ github.event.head_commit.id }}"
+          echo "github.event.push.head_commit.id: ${{ github.event.push.head_commit.id }}"
+          echo "github.event.pull_request.head_commit.id: ${{ github.event.pull_request.head_commit.id }}"
   linting_and_security:
     name: Linting and Security
     env:
