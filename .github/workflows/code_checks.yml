@@ -8,6 +8,14 @@ permissions:
   contents: read
   checks: write
 jobs:
+  compare_sha:
+    runs-on: ubuntu-latest
+    name: Compare sha
+    steps:
+      - name: Compare commit ids
+        run: |
+          echo "github.sha: ${{ github.sha }}"
+          echo "event.head_commit.id: ${{ github.event.head_commit.id }}"
   linting_and_security:
     name: Linting and Security
     env:

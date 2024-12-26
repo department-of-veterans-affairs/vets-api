@@ -8,6 +8,15 @@ on:
 permissions:
   contents: read
 jobs:
+  compare_sha:
+    runs-on: ubuntu-latest
+    name: Compare sha
+    steps:
+      - name: Compare commit ids
+        run: |
+          echo "github.sha: ${{ github.sha }}"
+          echo "event.head_commit.id: ${{ github.event.head_commit.id }}"
+
   build_and_push:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Build and Push
