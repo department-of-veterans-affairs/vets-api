@@ -8,6 +8,8 @@ module SimpleFormsApi
     class ScannedFormUploadsController < ApplicationController
       def submit
         Datadog::Tracing.active_trace&.set_tag('form_id', params[:form_number])
+        check_for_changes
+
         render json: upload_response
       end
 
@@ -97,6 +99,16 @@ module SimpleFormsApi
           document: file_path,
           upload_url: location
         )
+      end
+
+      def check_for_changes
+        in_progress_form = InProgressForm.form_for_user('FORM-UPLOAD-FLOW', @current_user)
+        if in_progress_form
+          prefill_data_service = SimpleFormsApi::PrefillDataService.new(prefill_data: in_progress_form.form_data,
+                                                                        form_data: params[:form_data],
+                                                                        form_id: params[:form_number])
+          prefill_data_service.check_for_changes
+        end
       end
     end
   end

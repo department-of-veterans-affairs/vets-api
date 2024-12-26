@@ -52,6 +52,28 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
       expect(response).to have_http_status(:ok)
     end
+
+    it 'checks if the prefill data has been changed' do
+      form_number = '21-0779'
+      prefill_data = double
+      prefill_data_service = double
+      in_progress_form = double(form_data: prefill_data)
+
+      allow(SimpleFormsApi::PrefillDataService).to receive(:new).with(
+        prefill_data:,
+        form_data: hash_including(:email),
+        form_id: form_number
+      ).and_return(prefill_data_service)
+      allow(InProgressForm).to receive(:form_for_user).with('FORM-UPLOAD-FLOW',
+                                                            anything).and_return(in_progress_form)
+
+      expect(prefill_data_service).to receive(:check_for_changes)
+
+      post '/simple_forms_api/v1/submit_scanned_form',
+           params: { form_number:, confirmation_code:, form_data: { email: 'fake-email' } }
+
+      expect(response).to have_http_status(:ok)
+    end
   end
 
   describe '#upload_scanned_form' do
