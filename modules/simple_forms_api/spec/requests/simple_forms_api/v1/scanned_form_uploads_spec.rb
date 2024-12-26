@@ -10,6 +10,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
   end
 
   describe '#submit' do
+    let(:form_number) { '21-0779' }
     let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
     let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
     let(:random_string) { 'some-unique-simple-forms-file-seed' }
@@ -17,6 +18,19 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     let(:pdf_stamper) { double(stamp_pdf: nil) }
     let(:confirmation_code) { 'a-random-guid' }
     let(:attachment) { double }
+    let(:params) do
+      { form_number:, confirmation_code:, form_data: {
+        full_name: {
+          first: 'fake-first-name',
+          last: 'fake-last-name'
+        },
+        postal_code: '12345',
+        id_number: {
+          ssn: '444444444'
+        },
+        email: 'fake-email'
+      } }
+    end
 
     before do
       VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
@@ -40,7 +54,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     it 'makes the request' do
       expect(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
 
-      post '/simple_forms_api/v1/submit_scanned_form', params: { form_number: '21-0779', confirmation_code: }
+      post '/simple_forms_api/v1/submit_scanned_form', params: params
 
       expect(response).to have_http_status(:ok)
     end
@@ -48,13 +62,12 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     it 'stamps the pdf' do
       expect(pdf_stamper).to receive(:stamp_pdf)
 
-      post '/simple_forms_api/v1/submit_scanned_form', params: { form_number: '21-0779', confirmation_code: }
+      post '/simple_forms_api/v1/submit_scanned_form', params: params
 
       expect(response).to have_http_status(:ok)
     end
 
     it 'checks if the prefill data has been changed' do
-      form_number = '21-0779'
       prefill_data = double
       prefill_data_service = double
       in_progress_form = double(form_data: prefill_data)
@@ -69,8 +82,7 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
 
       expect(prefill_data_service).to receive(:check_for_changes)
 
-      post '/simple_forms_api/v1/submit_scanned_form',
-           params: { form_number:, confirmation_code:, form_data: { email: 'fake-email' } }
+      post '/simple_forms_api/v1/submit_scanned_form', params: params
 
       expect(response).to have_http_status(:ok)
     end
