@@ -3,8 +3,8 @@
 require 'ostruct'
 
 module VSPDanger
-  HEAD_SHA = `git rev-parse --abbrev-ref HEAD`.chomp.freeze
-  BASE_SHA = 'origin/master'
+  HEAD_SHA = ENV['GITHUB_HEAD_REF'] || `git rev-parse --abbrev-ref HEAD`.chomp.freeze
+  BASE_SHA = ENV['GITHUB_BASE_REF'] || 'origin/master'
 
   class Runner
     def self.run
