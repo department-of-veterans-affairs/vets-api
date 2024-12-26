@@ -16,7 +16,7 @@ jobs:
         run: |
           echo "github.sha: ${{ github.sha }}"
           echo "github.event.push.head_commit.id: ${{ github.event.push.head_commit.id }}"
-          echo "github.event.pull_request.head_commit.id: ${{ github.event.pull_request.head_commit.id }}"
+          echo "github.event.pull_request.merge_commit_sha: ${{ github.event.pull_request.merge_commit_sha }}"
   linting_and_security:
     name: Linting and Security
     env:
