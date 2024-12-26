@@ -470,7 +470,12 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
               expect(response).to have_http_status(:unprocessable_entity)
               expect(JSON.parse(response.body)).to eq(
                 'errors' => [
-                  { 'title' => 'Operation failed', 'detail' => 'Validation error', 'code' => 'HCA422', 'status' => '422' }
+                  {
+                    'title' => 'Operation failed',
+                    'detail' => 'Validation error',
+                    'code' => 'HCA422',
+                    'status' => '422'
+                  }
                 ]
               )
             end
