@@ -15,7 +15,7 @@ module AccreditedRepresentativePortal
     blind_index :zipcode
 
     ##
-    # TODO: Can couple this to the schema involved in user input during POA 
+    # TODO: Can couple this to the schema involved in user input during POA
     # request creation.
     #
     # Currently, it is a small-ish transformation of the most closely related
