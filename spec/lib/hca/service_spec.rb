@@ -61,15 +61,17 @@ describe HCA::Service do
           ) do
             result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
             expect(result[:success]).to eq(true)
-            expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
-                                                            'Body size of 5.16 KB with 0 attachment(s)')
+            expect(Rails.logger).to have_received(:info).with(
+              'Payload for submitted 1010EZ: Body size of 5.16 KB with 0 attachment(s)'
+            )
           end
         end
       end
 
       it 'increments statsd' do
-        expect(StatsD).to receive(:increment).with('api.1010ez.submit_form.fail',
-          tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
+        expect(StatsD).to receive(:increment).with(
+          'api.1010ez.submit_form.fail', tags: ['error:VCRErrorsUnhandledHTTPRequestError']
+        )
         expect(StatsD).to receive(:increment).with('api.1010ez.submit_form.total')
 
         expect do
@@ -153,8 +155,9 @@ describe HCA::Service do
         it 'increments statsd' do
           allow(StatsD).to receive(:increment)
 
-          expect(StatsD).to receive(:increment).with('api.1010ez.submit_form_short_form.fail',
-            tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
+          expect(StatsD).to receive(:increment).with(
+            'api.1010ez.submit_form_short_form.fail', tags: ['error:VCRErrorsUnhandledHTTPRequestError']
+          )
           expect(StatsD).to receive(:increment).with('api.1010ez.submit_form_short_form.total')
 
           expect do
@@ -171,8 +174,9 @@ describe HCA::Service do
           ) do
             result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
             expect(result[:success]).to eq(true)
-            expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
-                                                            'Body size of 16 KB with 2 attachment(s)')
+            expect(Rails.logger).to have_received(:info).with(
+              'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
+            )
             expect(Rails.logger).to have_received(:info).with(
               'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
             )
@@ -254,8 +258,9 @@ describe HCA::Service do
           ) do
             result = HCA::Service.new.submit_form(get_fixture('hca/short_form'))
             expect(result[:success]).to eq(true)
-            expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
-                                                            'Body size of 5.16 KB with 0 attachment(s)')
+            expect(Rails.logger).to have_received(:info).with(
+              'Payload for submitted 1010EZ: Body size of 5.16 KB with 0 attachment(s)'
+            )
           end
         end
       end

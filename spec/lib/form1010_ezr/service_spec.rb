@@ -192,9 +192,7 @@ RSpec.describe Form1010Ezr::Service do
   [1, 2].each do |i|
     describe '#submit_form' do
       before do
-        if i == 2
-          Flipper.disable(:va1010_forms_enrollment_system_service_enabled)
-        end
+        Flipper.disable(:va1010_forms_enrollment_system_service_enabled) if i == 2
       end
 
       it 'submits the ezr with a background job', run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
@@ -332,7 +330,7 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
-          run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+           run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit',
             { match_requests_on: %i[method uri body], erb: true }
@@ -351,8 +349,7 @@ RSpec.describe Form1010Ezr::Service do
         end
 
         it "logs the submission id, user's initials, payload size, and individual attachment sizes in descending " \
-         'order (if applicable)',
-          run_at: 'Wed, 17 Jul 2024 18:17:30 GMT' do
+           'order (if applicable)', run_at: 'Wed, 17 Jul 2024 18:17:30 GMT' do
           VCR.use_cassette(
             'form1010_ezr/authorized_submit_with_attachments',
             { match_requests_on: %i[method uri body], erb: true }
@@ -368,8 +365,9 @@ RSpec.describe Form1010Ezr::Service do
                 last_initial: 'Z'
               }
             )
-            expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZR: ' \
-                                                            'Body size of 362 KB with 2 attachment(s)')
+            expect(Rails.logger).to have_received(:info).with(
+              'Payload for submitted 1010EZR: Body size of 362 KB with 2 attachment(s)'
+            )
             expect(Rails.logger).to have_received(:info).with(
               'Attachment sizes in descending order: 348 KB, 1.8 KB'
             )
