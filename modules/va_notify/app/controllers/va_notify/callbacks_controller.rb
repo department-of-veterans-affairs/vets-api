@@ -17,8 +17,15 @@ module VANotify
       notification_id = params[:id]
 
       if (notification = VANotify::Notification.find_by(notification_id: notification_id))
-        Rails.logger.info("va_notify callbacks - Updating notification #{notification.id}")
         notification.update(notification_params)
+        Rails.logger.info("va_notify callbacks - Updating notification: #{notification.id}",
+                          {
+                            source_location: notification.source_location,
+                            template_id: notification.template_id,
+                            callback_metadata: notification.callback_metadata,
+                            status: notification.status
+                          })
+
         VANotify::DefaultCallback.new(notification).call
         VANotify::StatusUpdate.new.delegate(notification_params.merge(id: notification_id))
       else
