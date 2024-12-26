@@ -58,7 +58,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
 
     context 'when no error occurs' do
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
-        run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+         run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit',
           { match_requests_on: %i[method uri body], erb: true }
@@ -79,9 +79,8 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
         end
       end
 
-      it "logs the payload size, attachment count, and individual attachment sizes in descending " \
-           'order (if applicable)',
-        run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
+      it 'logs the payload size, attachment count, and individual attachment sizes in descending ' \
+         'order (if applicable)', run_at: 'Wed, 17 Jul 2024 18:04:50 GMT' do
         VCR.use_cassette(
           'hca/submit_with_attachment',
           VCR::MATCH_EVERYTHING.merge(erb: true)
@@ -112,12 +111,12 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
       end
 
       it 'raises the error' do
-        expect {
+        expect do
           described_class.new.submit(
             form_with_ves_fields,
             '10-10EZR'
           )
-        }.to raise_error(StandardError, 'Uh oh. Some bad error occurred.')
+        end.to raise_error(StandardError, 'Uh oh. Some bad error occurred.')
       end
     end
   end
@@ -131,7 +130,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
       it 'converts the JSON data into a VES-acceptable xml payload', run_at: '2016-12-12' do
         allow_any_instance_of(MPIData).to receive(:icn).and_return('1000123456V123456')
 
-        json = JSON.parse(File.open(root.join("#{form}.json")).read)
+        json = JSON.parse(File.read(root.join("#{form}.json")))
 
         expect(json).to match_vets_schema('10-10EZ')
 
