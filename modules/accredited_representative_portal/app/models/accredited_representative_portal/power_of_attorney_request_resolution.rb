@@ -12,23 +12,26 @@ module AccreditedRepresentativePortal
     ].freeze
 
     delegated_type :resolving,
-                   types: RESOLVING_TYPES,
-                   inverse_of: :resolution,
-                   validate: true
+      types: RESOLVING_TYPES,
+      inverse_of: :resolution
 
     module Resolving
       extend ActiveSupport::Concern
 
       included do
         has_one :resolution,
-                as: :resolving,
-                inverse_of: :resolving,
-                class_name: 'PowerOfAttorneyRequestResolution',
-                validate: true,
-                required: true
+          as: :resolving,
+          inverse_of: :resolving,
+          class_name: 'PowerOfAttorneyRequestResolution',
+          required: true
       end
     end
 
+    ##
+    # If we had a regular ID column, we could use `eager_encrypt` which would be
+    # more performant:
+    # https://github.com/ankane/kms_encrypted/blob/master/README.md?plain=1#L155
+    #
     has_kms_key
 
     has_encrypted :reason, key: :kms_key, **lockbox_options
