@@ -266,8 +266,9 @@ describe HCA::Service do
       end
 
       it 'increments statsd' do
-        expect(StatsD).to receive(:increment).with('api.1010ez.submit_form.fail',
-          tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
+        expect(StatsD).to receive(:increment).with(
+          'api.1010ez.submit_form.fail', tags: ['error:VCRErrorsUnhandledHTTPRequestError']
+        )
         expect(StatsD).to receive(:increment).with('api.1010ez.submit_form.total')
 
         expect do
@@ -300,7 +301,8 @@ describe HCA::Service do
             xml = File.read(root.join("#{form}.xml"))
             expect(service).to receive(:perform) do |_verb, _, body|
               submission = body
-              pretty_printed = Ox.dump(Ox.parse(submission).locate('soap:Envelope/soap:Body/ns1:submitFormRequest').first)
+              pretty_printed =
+                Ox.dump(Ox.parse(submission).locate('soap:Envelope/soap:Body/ns1:submitFormRequest').first)
               expect(pretty_printed[1..]).to eq(xml)
             end.and_return(response)
 
@@ -379,8 +381,9 @@ describe HCA::Service do
         it 'increments statsd' do
           allow(StatsD).to receive(:increment)
 
-          expect(StatsD).to receive(:increment).with('api.1010ez.submit_form_short_form.fail',
-            tags: ['error:VCRErrorsUnhandledHTTPRequestError'])
+          expect(StatsD).to receive(:increment).with(
+            'api.1010ez.submit_form_short_form.fail', tags: ['error:VCRErrorsUnhandledHTTPRequestError']
+          )
           expect(StatsD).to receive(:increment).with('api.1010ez.submit_form_short_form.total')
 
           expect do
@@ -397,8 +400,9 @@ describe HCA::Service do
           ) do
             result = HCA::Service.new.submit_form(create(:hca_app_with_attachment).parsed_form)
             expect(result[:success]).to eq(true)
-            expect(Rails.logger).to have_received(:info).with('Payload for submitted 1010EZ: ' \
-                                                            'Body size of 16 KB with 2 attachment(s)')
+            expect(Rails.logger).to have_received(:info).with(
+              'Payload for submitted 1010EZ: Body size of 16 KB with 2 attachment(s)'
+            )
             expect(Rails.logger).to have_received(:info).with(
               'Attachment sizes in descending order: 1.8 KB, 1.8 KB'
             )

@@ -491,7 +491,12 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
               expect(response).to have_http_status(:bad_request)
               expect(JSON.parse(response.body)).to eq(
                 'errors' => [
-                  { 'title' => 'Operation failed', 'detail' => 'error message', 'code' => 'VA900', 'status' => '400' }
+                  {
+                    'title' => 'Operation failed',
+                    'detail' => 'error message',
+                    'code' => 'VA900',
+                    'status' => '400'
+                  }
                 ]
               )
             end
