@@ -8,6 +8,11 @@ module VSPDanger
 
   class Runner
     def self.run
+      puts 'ENV:'
+      puts ENV.fetch('GITHUB_BASE_REF')
+      puts ENV.fetch('GITHUB_HEAD_REF')
+      puts ENV.fetch('GITHUB_REF')
+
       prepare_git
 
       [
