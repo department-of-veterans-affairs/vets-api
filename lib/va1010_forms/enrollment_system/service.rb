@@ -36,8 +36,6 @@ module VA1010Forms
           formSubmissionId: form_submission_id,
           timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
         }
-      rescue => e
-        raise e
       end
 
       private

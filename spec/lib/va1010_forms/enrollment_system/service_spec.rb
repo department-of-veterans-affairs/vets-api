@@ -108,6 +108,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
         ).to receive(:perform).and_raise(
           StandardError.new('Uh oh. Some bad error occurred.')
         )
+        allow(Rails.logger).to receive(:error)
       end
 
       it 'raises the error' do
