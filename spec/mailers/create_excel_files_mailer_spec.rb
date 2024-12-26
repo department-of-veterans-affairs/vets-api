@@ -1,16 +1,18 @@
 # frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe CreateExcelFilesMailer, type: %i[mailer aws_helpers] do
   describe '#build' do
-    let(:filename) { "22-10282_#{Time.zone.now.strftime('%m%d%Y_%H%M%S')}.csv" }
+    timestamp = Time.zone.now.strftime('%m%d%Y_%H%M%S')
+    filename = "22-10282_#{timestamp}.csv"
 
     subject do
       File.write("tmp/#{filename}", {})
       described_class.build(filename).deliver_now
     end
 
-    after(:each) do
+    after do
       FileUtils.rm_f("tmp/#{filename}")
     end
 
