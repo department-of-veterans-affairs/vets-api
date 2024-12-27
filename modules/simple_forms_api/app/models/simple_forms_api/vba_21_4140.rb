@@ -70,6 +70,10 @@ module SimpleFormsApi
       data['home_phone'].insert(-8, '-').insert(-5, '-')
     end
 
+    def signature_date_employed
+      employed? ? signature_date : nil
+    end
+
     def ssn
       trimmed_ssn = data.dig('veteran_id', 'ssn')&.tr('-', '')
 
