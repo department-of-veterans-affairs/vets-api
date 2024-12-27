@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -271,7 +271,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
 
   create_table "ar_power_of_attorney_forms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "power_of_attorney_request_id", null: false
-    t.text "encrypted_kms_key", null: false
+    t.text "encrypted_kms_key"
     t.text "data_ciphertext", null: false
     t.string "city_bidx", null: false
     t.string "state_bidx", null: false
@@ -295,7 +295,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
     t.string "resolving_type", null: false
     t.uuid "resolving_id", null: false
     t.text "reason_ciphertext"
-    t.text "encrypted_kms_key", null: false
+    t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fd7d2d11b1", unique: true
     t.index ["resolving_type", "resolving_id"], name: "unique_resolving_type_and_id", unique: true
@@ -691,6 +691,16 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
     t.index ["updated_at"], name: "index_evss_claims_on_updated_at"
     t.index ["user_account_id"], name: "index_evss_claims_on_user_account_id"
     t.index ["user_uuid"], name: "index_evss_claims_on_user_uuid"
+  end
+
+  create_table "excel_file_events", force: :cascade do |t|
+    t.integer "number_of_submissions"
+    t.string "filename"
+    t.datetime "successful_at", precision: nil
+    t.integer "retry_attempt", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["filename"], name: "index_excel_file_events_uniqueness", unique: true
   end
 
   create_table "feature_toggle_events", force: :cascade do |t|
