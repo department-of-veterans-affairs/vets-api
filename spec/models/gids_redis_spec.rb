@@ -28,11 +28,11 @@ describe GIDSRedis do
       end
     end
 
-    context 'and the method belongs to `GI::Lce::Client`' do
-      it 'delegates to `GI::Lce::Client`' do
-        allow_any_instance_of(GI::Lce::Client).to receive(:get_lce_search_results_v1).and_return(gids_response)
+    context 'and the method belongs to `GI::LCPE::Client`' do
+      it 'delegates to `GI::LCPE::Client`' do
+        allow_any_instance_of(GI::LCPE::Client).to receive(:get_licenses_and_certifications_v1).and_return(gids_response)
 
-        expect(subject.get_lce_search_results_v1(scrubbed_params)).to eq(gids_response.body)
+        expect(subject.get_licenses_and_certifications_v1(scrubbed_params)).to eq(gids_response.body)
       end
     end
   end
