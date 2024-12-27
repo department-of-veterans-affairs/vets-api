@@ -40,6 +40,19 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     it { is_expected.to match(data) }
   end
 
+  describe '#desired_stamps' do
+    subject(:desired_stamps) { form.desired_stamps }
+
+    it 'only adds one stamp' do
+      expect(desired_stamps.size).to eq 1
+    end
+
+    it 'contains the correct properties' do
+      expect(desired_stamps[0][:text]).to eq form.signature_employed
+      expect(desired_stamps[0][:page]).to eq 1
+    end
+  end
+
   describe '#dob' do
     subject(:dob) { form.dob }
 
