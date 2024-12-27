@@ -501,34 +501,59 @@ RSpec.describe User, type: :model do
           let(:mpi_profile) { build(:mpi_profile, active_mhv_ids:) }
           let(:mhv_account_id) { 'some-id' }
           let(:active_mhv_ids) { [mhv_account_id] }
+          let(:needs_accepted_terms_of_use) { false }
 
-          context 'when mhv_user_account is present' do
-            before do
-              allow(user).to receive(:mhv_user_account).and_return(mhv_user_account)
-            end
+          context 'when the user is loa3' do
+            let(:user) { build(:user, :loa3, needs_accepted_terms_of_use:, mpi_profile:) }
 
-            it 'returns the user_profile_id from the mhv_user_account' do
-              expect(user.mhv_correlation_id).to eq(mhv_account_id)
-            end
-          end
+            context 'and the user has accepted the terms of use' do
+              let(:needs_accepted_terms_of_use) { false }
 
-          context 'when mhv_user_account is not present' do
-            before do
-              allow(user).to receive(:mhv_user_account).and_return(nil)
-            end
+              context 'and mhv_user_account is present' do
+                before do
+                  allow(user).to receive(:mhv_user_account).and_return(mhv_user_account)
+                end
 
-            context 'when the user has one active_mhv_ids' do
-              it 'returns the active_mhv_id' do
-                expect(user.mhv_correlation_id).to eq(active_mhv_ids.first)
+                it 'returns the user_profile_id from the mhv_user_account' do
+                  expect(user.mhv_correlation_id).to eq(mhv_account_id)
+                end
+              end
+
+              context 'and mhv_user_account is not present' do
+                before do
+                  allow(user).to receive(:mhv_user_account).and_return(nil)
+                end
+
+                context 'and the user has one active_mhv_ids' do
+                  it 'returns the active_mhv_id' do
+                    expect(user.mhv_correlation_id).to eq(active_mhv_ids.first)
+                  end
+                end
+
+                context 'and the user has multiple active_mhv_ids' do
+                  let(:active_mhv_ids) { %w[some-id another-id] }
+
+                  it 'returns nil' do
+                    expect(user.mhv_correlation_id).to be_nil
+                  end
+                end
               end
             end
 
-            context 'when the user has multiple active_mhv_ids' do
-              let(:active_mhv_ids) { %w[some-id another-id] }
+            context 'and the user has not accepted the terms of use' do
+              let(:needs_accepted_terms_of_use) { true }
 
               it 'returns nil' do
                 expect(user.mhv_correlation_id).to be_nil
               end
+            end
+          end
+
+          context 'when the user is not loa3' do
+            let(:user) { build(:user, needs_accepted_terms_of_use:) }
+
+            it 'returns nil' do
+              expect(user.mhv_correlation_id).to be_nil
             end
           end
         end
@@ -1367,63 +1392,39 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#can_create_mhv_account?' do
+  describe '#create_mhv_account_async' do
     let(:user) { build(:user, :loa3, needs_accepted_terms_of_use:) }
     let(:needs_accepted_terms_of_use) { false }
+    let!(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+
+    before { allow(MHV::AccountCreatorJob).to receive(:perform_async) }
 
     context 'when the user is loa3' do
-      context 'when the user is a va_patient' do
-        context 'when the user has accepted the terms of use' do
-          it 'returns true' do
-            expect(user.can_create_mhv_account?).to be true
-          end
+      let(:user) { build(:user, :loa3, needs_accepted_terms_of_use:) }
+
+      context 'and the user has accepted the terms of use' do
+        let(:needs_accepted_terms_of_use) { false }
+
+        it 'enqueues a job to create the MHV account' do
+          user.create_mhv_account_async
+
+          expect(MHV::AccountCreatorJob).to have_received(:perform_async).with(user_verification.id)
         end
+      end
 
-        context 'when the user has not accepted the terms of use' do
-          let(:needs_accepted_terms_of_use) { true }
+      context 'and the user has not accepted the terms of use' do
+        let(:needs_accepted_terms_of_use) { true }
 
-          it 'returns false' do
-            expect(user.can_create_mhv_account?).to be false
-          end
+        it 'does not enqueue a job to create the MHV account' do
+          user.create_mhv_account_async
+
+          expect(MHV::AccountCreatorJob).not_to have_received(:perform_async)
         end
       end
     end
 
     context 'when the user is not loa3' do
       let(:user) { build(:user, needs_accepted_terms_of_use:) }
-
-      it 'returns false' do
-        expect(user.can_create_mhv_account?).to be false
-      end
-    end
-  end
-
-  describe '#create_mhv_account_async' do
-    let(:user) { build(:user) }
-    let!(:user_verification) do
-      create(:idme_user_verification, idme_uuid: user.idme_uuid)
-    end
-
-    before do
-      allow(MHV::AccountCreatorJob).to receive(:perform_async)
-    end
-
-    context 'when the user can create an MHV account' do
-      before do
-        allow(user).to receive(:can_create_mhv_account?).and_return(true)
-      end
-
-      it 'enqueues a job to create the MHV account' do
-        user.create_mhv_account_async
-
-        expect(MHV::AccountCreatorJob).to have_received(:perform_async).with(user_verification.id)
-      end
-    end
-
-    context 'when the user cannot create an MHV account' do
-      before do
-        allow(user).to receive(:can_create_mhv_account?).and_return(false)
-      end
 
       it 'does not enqueue a job to create the MHV account' do
         user.create_mhv_account_async
