@@ -8,7 +8,6 @@ module AccreditedRepresentativePortal
                class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest',
                inverse_of: :power_of_attorney_form
 
-
     has_kms_key
 
     has_encrypted(
