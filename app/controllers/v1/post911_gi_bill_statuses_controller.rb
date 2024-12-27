@@ -9,8 +9,7 @@ module V1
     include SentryLogging
     service_tag 'gibill-statement'
 
-    STATSD_GI_BILL_TOTAL_KEY = 'api.lighthouse.gi_bill_status.total'
-    STATSD_GI_BILL_FAIL_KEY = 'api.lighthouse.gi_bill_status.fail'
+    STATSD_KEY_PREFIX = 'api.post911_gi_bill_status'
 
     def show
       response = service.get_gi_bill_status
@@ -20,7 +19,7 @@ module V1
     rescue => e
       handle_error(e)
     ensure
-      StatsD.increment(STATSD_GI_BILL_TOTAL_KEY)
+      StatsD.increment("#{STATSD_KEY_PREFIX}.total")
     end
 
     private
@@ -28,7 +27,7 @@ module V1
     def handle_error(e)
       status = e.errors.first[:status].to_i
       log_vet_not_found(@current_user, Time.now.in_time_zone('Eastern Time (US & Canada)')) if status == 404
-      StatsD.increment(STATSD_GI_BILL_FAIL_KEY, tags: ["error:#{status}"])
+      StatsD.increment("#{STATSD_KEY_PREFIX}.fail", tags: ["error:#{status}"])
       render json: { errors: e.errors }, status: status || :internal_server_error
     end
 

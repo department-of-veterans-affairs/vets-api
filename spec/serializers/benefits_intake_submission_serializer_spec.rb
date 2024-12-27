@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe CentralMailSubmissionSerializer, type: :serializer do
+describe BenefitsIntakeSubmissionSerializer, type: :serializer do
   subject { serialize(submission, serializer_class: described_class) }
 
   let(:submission) { build_stubbed(:central_mail_submission) }

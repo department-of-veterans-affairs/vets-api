@@ -20,7 +20,7 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
       sign_in_as(valid_user)
 
       VCR.use_cassette('lighthouse/benefits_education/gi_bill_status/200_response') do
-        expect(StatsD).to receive(:increment).with(V1::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY)
+        expect(StatsD).to receive(:increment).with("#{V1::Post911GIBillStatusesController::STATSD_KEY_PREFIX}.total")
         expect(StatsD).to receive(:increment).with(
           "api.external_http_request.#{BenefitsEducation::Configuration.instance.service_name}.success", 1, anything
         )
@@ -42,9 +42,9 @@ RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
 
     it 'returns a 404 when vet isn\'t found' do
       VCR.use_cassette('lighthouse/benefits_education/gi_bill_status/404_response') do
-        expect(StatsD).to receive(:increment).with(V1::Post911GIBillStatusesController::STATSD_GI_BILL_FAIL_KEY,
+        expect(StatsD).to receive(:increment).with("#{V1::Post911GIBillStatusesController::STATSD_KEY_PREFIX}.fail",
                                                    tags: ['error:404'])
-        expect(StatsD).to receive(:increment).with(V1::Post911GIBillStatusesController::STATSD_GI_BILL_TOTAL_KEY)
+        expect(StatsD).to receive(:increment).with("#{V1::Post911GIBillStatusesController::STATSD_KEY_PREFIX}.total")
         expect do
           get :show
         end.to change(PersonalInformationLog, :count)

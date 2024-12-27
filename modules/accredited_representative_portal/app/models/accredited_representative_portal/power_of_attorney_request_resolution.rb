@@ -16,13 +16,5 @@ module AccreditedRepresentativePortal
     has_kms_key
 
     has_encrypted :reason, key: :kms_key, **lockbox_options
-
-    module Resolving
-      extend ActiveSupport::Concern
-
-      included do
-        has_one :power_of_attorney_request_resolution, as: :resolving
-      end
-    end
   end
 end
