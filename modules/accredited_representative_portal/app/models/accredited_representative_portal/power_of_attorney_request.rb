@@ -41,7 +41,7 @@ module AccreditedRepresentativePortal
 
       if power_of_attorney_form.parsed_data['veteran']
         self.claimant_type = ClaimantTypes::VETERAN
-        return
+        nil
       end
     end
   end
