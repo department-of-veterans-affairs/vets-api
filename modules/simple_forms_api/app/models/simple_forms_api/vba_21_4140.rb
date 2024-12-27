@@ -99,8 +99,21 @@ module SimpleFormsApi
       [trimmed_ssn&.[](0..2), trimmed_ssn&.[](3..4), trimmed_ssn&.[](5..8)]
     end
 
-    def submission_date_stamps(_timestamp)
-      []
+    def submission_date_stamps(timestamp = Time.current)
+      [
+        {
+          coords: [450, 670],
+          text: 'Application Submitted:',
+          page: 0,
+          font_size: 12
+        },
+        {
+          coords: [450, 650],
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 0,
+          font_size: 12
+        }
+      ]
     end
 
     # At the moment, we only allow veterans to submit Form Engine forms.
