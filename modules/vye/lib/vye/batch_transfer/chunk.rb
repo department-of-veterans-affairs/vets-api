@@ -16,7 +16,7 @@ module Vye
       end
 
       def self.build_chunks
-        Rails.logger.info('Vye::BatchTransfer::Chunk#build_chunks starting')
+        Rails.logger.info('Vye::BatchTransfer::Chunk#build_chunks: starting')
         filename = feed_filename
         chunking = Vye::BatchTransfer::Chunking.new(filename:, block_size:)
 
@@ -49,6 +49,7 @@ module Vye
         @filename || file.basename
       end
 
+      # Upload is in Vye::CloudTransfer
       def upload
         raise ArgumentError, 'must have a file to upload' unless file
 
@@ -67,11 +68,16 @@ module Vye
         raise NotImplementedError
       end
 
+      # Download is in Vye::CloudTransfer
       def load
+        Rails.logger.info('Vye::BatchTransfer::Chunk#load: starting')
+
         download do |file|
           @file = file
           import
         end
+
+        Rails.logger.info('Vye::BatchTransfer::Chunk#load: finished')
       end
     end
   end

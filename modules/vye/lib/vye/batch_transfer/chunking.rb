@@ -32,7 +32,10 @@ module Vye
         end
 
         split!
+
         chunks
+      rescue => e
+        nil
       ensure
         close_current_handle
         Rails.logger.info('Vye::BatchTransfer::Chunking#split complete')

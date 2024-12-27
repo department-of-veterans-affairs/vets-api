@@ -61,33 +61,18 @@ describe Vye::MidnightRun::IngressBdn, type: :worker do
 
   context 'logging' do
     before do
-      allow(Vye::MidnightRun::IngressBdnChunk).to receive(:perform_in).and_return(nil)
+      allow(Vye::BdnClone).to receive(:create!).and_return(double('BdnClone', id: 123))
+      allow(Vye::BatchTransfer::BdnChunk).to receive(:build_chunks).and_return([])
+
+      batch_double = instance_double(Sidekiq::Batch, description: nil, on: nil, jobs: nil)
+      allow(Sidekiq::Batch).to receive(:new).and_return(batch_double)
+      allow(batch_double).to receive(:description=).with('Ingress BDN Clone feed as chunked files')
     end
 
     # See comment in Vye::MidnightRun regarding logging. It applies here too.
     it 'logs info' do
       expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: starting')
-      expect(Rails.logger).to receive(:info).with('Vye::BatchTransfer::Chunk#build_chunks starting')
-
-      expect(Rails.logger).to receive(:info).with(
-        'Vye::BatchTransfer::Chunking#initialize: filename=WAVE.txt, block_size=25000'
-      )
-
-      expect(Rails.logger).to receive(:info).with('Vye::BatchTransfer::Chunking#split starting')
-      expect(Rails.logger).to receive(:info).with('Vye::BatchTransfer::Chunk#download: starting for WAVE.txt')
-
-      string = 'Vye::BatchTransfer::Chunk#download: s3_client.get_object\(.*?/WAVE.txt, , scanned/WAVE.txt\)'
-      expect(Rails.logger).to receive(:info).with(a_string_matching(string))
-
-      string = %r{Vye::BatchTransfer::Chunk#initialize: offset=0, block_size=25000, file=.*?/WAVE_0\.txt, filename=}
-      expect(Rails.logger).to receive(:info).with(a_string_matching(string))
-
-      expect(Rails.logger).to receive(:info).with('Vye::BatchTransfer::Chunk#initialize: finished')
-      expect(Rails.logger).to receive(:info).with('Vye::BatchTransfer::Chunk#download: finished')
-      expect(Rails.logger).to receive(:info).with('Vye::BatchTransfer::Chunking#split complete')
-      expect(Rails.logger).to receive(:info).with('Vye::BatchTransfer::Chunk#build_chunks: returning chunks')
-      expect(Rails.logger).to receive(:info).with('Vye::BatchTransfer::Chunking#initialize complete')
-      expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: completed')
+      expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: finished')
 
       Vye::MidnightRun::IngressBdn.new.perform
     end

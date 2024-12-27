@@ -41,7 +41,7 @@ module Vye
         "Vye::BatchTransfer::Chunk#download: s3_client.get_object(#{response_target}, #{bucket}, #{key})"
       )
 
-      if Settings.vsp_environment.eql?('localhost') || Settings.vsp_environment.eql?('test')
+      if Settings.vsp_environment.eql?('localhost')
         FileUtils.cp(
           Rails.root.join('modules', 'vye', 'spec', 'fixtures', 'bdn_sample', filename), response_target
         )
@@ -63,7 +63,9 @@ module Vye
     end
 
     def upload(file, prefix: 'processed')
-      return if Settings.vsp_environment.eql?('localhost') || Settings.vsp_environment.eql?('test')
+      return if Settings.vsp_environment.eql?('localhost')
+
+      Rails.logger.info("Vye::BatchTransfer::Chunk#upload: starting for #{file}, #{prefix}")
 
       key = "#{prefix}/#{file.basename}"
       body = file.open('rb')
@@ -71,7 +73,13 @@ module Vye
 
       s3_client.put_object(bucket:, key:, body:, content_type:)
     ensure
-      body&.close
+      begin
+        body&.close
+      rescue Errno::ENOENT
+        nil
+      ensure
+        Rails.logger.info('Vye::BatchTransfer::Chunk#upload: finished')
+      end
     end
 
     def upload_report(filename, &)
