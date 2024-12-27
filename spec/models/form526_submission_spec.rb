@@ -1026,8 +1026,6 @@ RSpec.describe Form526Submission do
           before do
             allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
             allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:disability_526_toxic_exposure_document_upload_polling,
-                                                      anything).and_return(false)
             allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
                                                       anything).and_return(false)
           end
@@ -1072,28 +1070,14 @@ RSpec.describe Form526Submission do
             File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
           end
 
-          context 'when feature enabled' do
-            before { Flipper.enable(:disability_526_toxic_exposure_document_upload_polling) }
-
-            it 'queues polling job' do
-              expect do
-                form = subject.saved_claim.parsed_form
-                form['startedFormVersion'] = '2022'
-                subject.update(submitted_claim_id: 1)
-                subject.saved_claim.update(form: form.to_json)
-                subject.perform_ancillary_jobs(first_name)
-              end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
-            end
-          end
-
-          context 'when feature disabled' do
-            before { Flipper.disable(:disability_526_toxic_exposure_document_upload_polling) }
-
-            it 'does not queue polling job' do
-              expect do
-                subject.perform_ancillary_jobs(first_name)
-              end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(0)
-            end
+          it 'queues polling job' do
+            expect do
+              form = subject.saved_claim.parsed_form
+              form['startedFormVersion'] = '2022'
+              subject.update(submitted_claim_id: 1)
+              subject.saved_claim.update(form: form.to_json)
+              subject.perform_ancillary_jobs(first_name)
+            end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
           end
         end
       end

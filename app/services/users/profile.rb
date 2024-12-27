@@ -46,6 +46,7 @@ module Users
 
     def fetch_and_serialize_profile
       scaffold.account = account
+      throw :halt, [500, 'Bad Request']
       scaffold.profile = profile
       scaffold.vet360_contact_information = vet360_contact_information
       scaffold.va_profile = mpi_profile

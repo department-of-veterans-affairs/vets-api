@@ -558,18 +558,9 @@ features:
     actor_type: user
     description: enables adding applicable flashes to disability_526 prior to submission.
     enable_in_development: true
-  disability_526_toxic_exposure:
-    actor_type: user
-    description: enables new pages, processing, and submission of toxic exposure claims
-  disability_526_toxic_exposure_ipf:
-    actor_type: user
-    description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
   disability_526_new_confirmation_page:
     actor_type: user
     description: enables new confirmation page for form 526 submission confirmation page
-  disability_526_toxic_exposure_document_upload_polling:
-    actor_type: user
-    description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
   disability_526_call_received_email_from_polling:
     actor_type: user
     description: enables received email in poll_form526_pdf job and disables calling from form526_submission

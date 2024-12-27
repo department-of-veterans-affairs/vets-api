@@ -7,7 +7,12 @@ module V0
     service_tag 'identity'
 
     def show
+      # debugger
       pre_serialized_profile = Users::Profile.new(current_user, @session_object).pre_serialize
+
+      # pre_serialized_profile.profile[:first_name] = nil
+      # pre_serialized_profile.profile[:last_name] = nil
+      # pre_serialized_profile.profile[:middle_name] = nil
 
       options = {  meta: { errors: pre_serialized_profile.errors } }
       render json: UserSerializer.new(pre_serialized_profile, options), status: pre_serialized_profile.status
