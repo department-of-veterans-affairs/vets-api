@@ -19,8 +19,8 @@ class Form526ConfirmationEmailJob
       template_id: @template_id,
       personalisation: {
         'claim_id' => personalization_parameters['submitted_claim_id'],
-        'date_submitted' => Time.now.utc.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
-        'date_received' => Time.now.utc.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.'),
+        'date_submitted' => personalization_parameters['date_submitted'],
+        'date_received' => personalization_parameters['date_received'],
         'first_name' => personalization_parameters['first_name']
       }
     )
