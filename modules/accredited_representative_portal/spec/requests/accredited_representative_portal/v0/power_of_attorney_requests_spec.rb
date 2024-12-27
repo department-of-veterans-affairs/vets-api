@@ -21,10 +21,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     login_as(test_user)
     travel_to(time)
 
-    allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequestsPolicy).to receive(:pilot_user_email_poa_codes)
+    allow_any_instance_of(
+      AccreditedRepresentativePortal::PowerOfAttorneyRequestsPolicy
+    ).to receive(:pilot_user_email_poa_codes)
       .and_return({ 'test@va.gov' => ['123'] })
   end
-
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
     it 'returns the list of power of attorney requests' do
