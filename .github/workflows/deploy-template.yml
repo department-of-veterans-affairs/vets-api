@@ -12,7 +12,7 @@ on:
       auto_deploy_envs:
         required: true
         type: string
-      commit_sha:  # #${{ github.sha }}
+      commit_sha:  # #${{ github.event.workflow_run.head_commit.id }}
         required: true
         type: string
     secrets:
@@ -31,11 +31,16 @@ jobs:
         run: |
           echo "triggered via schedule"
           echo "environments=${{inputs.auto_deploy_envs}}" >> $GITHUB_ENV
-
       - name: Set output
         id: set-environments
         run: |
           echo "environments=${{ env.environments }}" >> $GITHUB_OUTPUT
+  release:
+    needs: [prepare-values]
+    if: github.ref == 'refs/heads/master'
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v4
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4.0.2
@@ -44,28 +49,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.aws_secret_access_key }}
           aws-region: "us-gov-west-1"
 
-      - name: Install jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Verify commit status
-        run: |
-          TOKEN=$(aws ssm get-parameter --name /devops/VA_VSP_BOT_GITHUB_TOKEN --with-decryption --query Parameter.Value --output text)
-
-          STATUS=$(curl -s -H "Authorization: token $TOKEN" \
-            "https://api.github.com/repos/department-of-veterans-affairs/vets-api/commits/${{ inputs.commit_sha }}/status" \
-            | jq -r '.state')
-
-          if [ "$STATUS" != "success" ]; then
-            echo "Error: Commit ${{ inputs.commit_sha }} has not passed all required checks (status: $STATUS)"
-            exit 1
-          fi
-
-  release:
-    needs: [prepare-values]
-    if: github.ref == 'refs/heads/master'
-    runs-on: ubuntu-20.04
-    steps:
-      - uses: actions/checkout@v4
       - name: Log into ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2

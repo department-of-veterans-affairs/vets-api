@@ -39,7 +39,7 @@ jobs:
           file: ./postman/Dockerfile
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/dsva/vets-api-postman:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/dsva/vets-api-postman:${{ github.event.workflow_run.head_commit.id }}
       - name: Build vets-api Docker Image
         uses: docker/build-push-action@v6
         env:
@@ -52,7 +52,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.event.workflow_run.head_commit.id }}
           cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
           cache-to: type=inline
   deploy:
