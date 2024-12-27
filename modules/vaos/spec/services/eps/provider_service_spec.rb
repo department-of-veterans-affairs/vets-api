@@ -126,6 +126,70 @@ describe Eps::ProviderService do
     end
   end
 
+  describe 'get_drive_times' do
+    let(:destinations) do
+      {
+        'provider-123' => {
+          latitude: 40.7128,
+          longitude: -74.0060
+        }
+      }
+    end
+    let(:origin) do
+      {
+        latitude: 40.7589,
+        longitude: -73.9851
+      }
+    end
+
+    context 'when the request is successful' do
+      let(:response) do
+        double('Response', status: 200, body: {
+                 'destinations' => {
+                   '00eff3f3-ecfb-41ff-9ebc-78ed811e17f9' => {
+                     'distanceInMiles' => '4',
+                     'driveTimeInSecondsWithTraffic' => '566',
+                     'driveTimeInSecondsWithoutTraffic' => '493',
+                     'latitude' => '-74.12870564772521',
+                     'longitude' => '-151.6240405624497'
+                   }
+                 },
+                 'origin' => {
+                   'latitude' => '4.627174468915552',
+                   'longitude' => '-88.72187894562788'
+                 }
+               })
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(response)
+      end
+
+      it 'returns the calculated drive times' do
+        result = service.get_drive_times(destinations:, origin:)
+
+        expect(result).to eq(OpenStruct.new(response.body))
+      end
+    end
+
+    context 'when the request fails' do
+      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
+      let(:exception) do
+        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
+      end
+
+      it 'raises an error' do
+        expect do
+          service.get_drive_times(destinations:, origin:)
+        end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
+      end
+    end
+  end
+
   describe '#get_provider_slots' do
     let(:provider_id) { '9mN718pH' }
     let(:required_params) do
