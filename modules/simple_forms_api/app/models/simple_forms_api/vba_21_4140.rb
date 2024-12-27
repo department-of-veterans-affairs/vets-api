@@ -22,7 +22,8 @@ module SimpleFormsApi
     end
 
     def desired_stamps
-      []
+      coords = employed? ? [[50, 410]] : [[50, 275]]
+      [{ coords:, text: signature, page: 1 }]
     end
 
     def dob
