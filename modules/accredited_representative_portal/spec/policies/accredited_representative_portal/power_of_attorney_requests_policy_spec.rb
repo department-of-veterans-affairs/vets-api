@@ -5,9 +5,7 @@ require 'rails_helper'
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestsPolicy do
   let(:user) { build(:representative_user, email: 'test@va.gov') }
   let(:unassociated_user) { build(:representative_user, email: 'other@va.gov') }
-  let(:poa_request) do
-    Struct.new(:poa_code).new('123')
-  end
+  let(:poa_request) { create(:power_of_attorney_request) }
   let(:poa_requests) { [poa_request] }
 
   before do
