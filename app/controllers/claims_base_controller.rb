@@ -41,7 +41,7 @@ class ClaimsBaseController < ApplicationController
 
   def show
     submission = CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
-    render json: CentralMailSubmissionSerializer.new(submission)
+    render json: BenefitsIntakeSubmissionSerializer.new(submission)
   end
 
   private

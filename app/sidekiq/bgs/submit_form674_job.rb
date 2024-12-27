@@ -85,13 +85,22 @@ module BGS
 
     def self.send_backup_submission(encrypted_user_struct_hash, vet_info, saved_claim_id, user_uuid)
       user = generate_user_struct(encrypted_user_struct_hash, vet_info)
-      CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
-                                                          KmsEncrypted::Box.new.encrypt(vet_info.to_json),
-                                                          KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.perform_async(
+        saved_claim_id,
+        KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+        KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
+      )
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
-      Rails.logger.warn('BGS::SubmitForm674Job backup submission failed...',
-                        { user_uuid:, saved_claim_id:, error: e.message, nested_error: e.cause&.message })
+      Rails.logger.warn(
+        'BGS::SubmitForm674Job backup submission failed...',
+        {
+          user_uuid: user_uuid,
+          saved_claim_id: saved_claim_id,
+          error: e.message,
+          nested_error: e.cause&.message
+        }
+      )
       InProgressForm.find_by(form_id: FORM_ID, user_uuid:)&.submission_pending!
     end
 
