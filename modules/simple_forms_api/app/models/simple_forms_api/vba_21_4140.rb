@@ -119,6 +119,10 @@ module SimpleFormsApi
     # At the moment, we only allow veterans to submit Form Engine forms.
     def track_user_identity(confirmation_number); end
 
+    def words_to_remove
+      ssn + dob + address_to_remove + contact_info
+    end
+
     def zip_code_is_us_based
       address.country_code_iso3 == 'USA'
     end
@@ -126,5 +130,13 @@ module SimpleFormsApi
     private
 
     attr_reader :signature, :signature_date_formatted
+
+    def address_to_remove
+      [address.address_line1, address.address_line2, address.zip_code]
+    end
+
+    def contact_info
+      [phone_primary, phone_alternate, data['email_address']]
+    end
   end
 end
