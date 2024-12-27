@@ -74,6 +74,10 @@ module SimpleFormsApi
       employed? ? signature_date : nil
     end
 
+    def signature_date_unemployed
+      employed? ? nil : signature_date
+    end
+
     def ssn
       trimmed_ssn = data.dig('veteran_id', 'ssn')&.tr('-', '')
 

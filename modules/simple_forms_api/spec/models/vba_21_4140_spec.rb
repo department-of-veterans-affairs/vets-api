@@ -176,12 +176,16 @@ RSpec.describe SimpleFormsApi::VBA214140 do
   end
 
   describe '#signature_date_unemployed' do
+    subject { form.signature_date_unemployed }
+
     context 'when employed' do
-      it 'returns nil'
+      it { is_expected.to eq nil }
     end
 
     context 'when unemployed' do
-      it 'returns #signature_date'
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it { is_expected.to eq form.signature_date }
     end
   end
 
