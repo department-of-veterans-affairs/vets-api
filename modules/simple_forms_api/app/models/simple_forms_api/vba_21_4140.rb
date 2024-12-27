@@ -17,6 +17,7 @@ module SimpleFormsApi
         state_code: data.dig('address', 'state'),
         zip_code: data.dig('address', 'postal_code')
       )
+      @signature = data['statement_of_truth_signature']
     end
 
     def desired_stamps
@@ -78,6 +79,14 @@ module SimpleFormsApi
       employed? ? nil : signature_date
     end
 
+    def signature_employed
+      employed? ? signature : nil
+    end
+
+    def signature_unemployed
+      employed? ? nil : signature
+    end
+
     def ssn
       trimmed_ssn = data.dig('veteran_id', 'ssn')&.tr('-', '')
 
@@ -94,5 +103,9 @@ module SimpleFormsApi
     def zip_code_is_us_based
       address.country_code_iso3 == 'USA'
     end
+
+    private
+
+    attr_reader :signature
   end
 end

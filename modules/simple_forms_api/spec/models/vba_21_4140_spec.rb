@@ -190,22 +190,30 @@ RSpec.describe SimpleFormsApi::VBA214140 do
   end
 
   describe '#signature_employed' do
+    subject { form.signature_employed }
+
     context 'when employed' do
-      it 'returns the signature'
+      it { is_expected.to eq data['statement_of_truth_signature'] }
     end
 
     context 'when unemployed' do
-      it 'returns nil'
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it { is_expected.to eq nil }
     end
   end
 
   describe '#signature_unemployed' do
+    subject { form.signature_unemployed }
+
     context 'when employed' do
-      it 'returns nil'
+      it { is_expected.to eq nil }
     end
 
     context 'when unemployed' do
-      it 'returns the signature'
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it { is_expected.to eq data['statement_of_truth_signature'] }
     end
   end
 
