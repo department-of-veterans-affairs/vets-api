@@ -486,8 +486,6 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
-  search:
-    use_mocks: false
 
 mvi_hca:
   url: http://example.com
