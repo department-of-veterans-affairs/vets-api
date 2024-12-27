@@ -105,6 +105,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests/:id' do
     it 'returns the details of a specific power of attorney request', skip: 'temp skip' do
+
       get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
 
       parsed_response = JSON.parse(response.body)

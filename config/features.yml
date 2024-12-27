@@ -788,6 +788,13 @@ features:
   form21_4142_confirmation_email:
     actor_type: user
     description: Enables form 21-4142 email submission confirmation (VaNotify)
+  form22_10282_confirmation_email:
+    actor_type: user
+    description: Enables form 22-10282 email submission confirmation (VaNotify)
+    enable_in_development: true
+  form26_4555_confirmation_email:
+    actor_type: user
+    description: Enables form 26-4555 email submission confirmation (VaNotify)
     enable_in_development: true
   form_526_required_identifiers_in_user_object:
     actor_type: user
@@ -861,6 +868,9 @@ features:
   form1010d:
     actor_type: cookie_id
     description: If enabled shows the digital form experience for form 10-10d (IVC CHAMPVA)
+  form1010d_browser_monitoring_enabled:
+    actor_type: user
+    description: Datadog RUM monitoring for form 10-10d (IVC CHAMPVA)
   form107959c:
     actor_type: user
     description: If enabled shows the digital form experience for form 10-7959c (IVC CHAMPVA other health insurance)
@@ -1498,6 +1508,9 @@ features:
   va_dependents_new_fields_for_pdf:
     actor_typer: user
     description: Allows us to toggle the new fields on the front end for 686C-674
+  va_dependents_submit674:
+    actor_type: user
+    description: Allows submission of 674 without MANUAL_VAGOV flag
   va_online_scheduling_enable_OH_cancellations:
     actor_type: user
     enable_in_development: true
