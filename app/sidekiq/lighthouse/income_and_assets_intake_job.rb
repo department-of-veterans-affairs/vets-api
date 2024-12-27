@@ -73,7 +73,7 @@ module Lighthouse
       @claim = SavedClaim::IncomeAndAssets.find(saved_claim_id)
       raise IncomeAndAssetsIntakeError, "Unable to find SavedClaim::IncomeAndAssets #{saved_claim_id}" unless @claim
 
-      @intake_service = BenefitsIntake::Service.new
+      @intake_service = ::BenefitsIntake::Service.new
     end
 
     ##
@@ -108,7 +108,7 @@ module Lighthouse
       form = @claim.parsed_form
 
       # also validates/maniuplates the metadata
-      BenefitsIntake::Metadata.generate(
+      ::BenefitsIntake::Metadata.generate(
         form['veteranFullName']['first'],
         form['veteranFullName']['last'],
         form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
