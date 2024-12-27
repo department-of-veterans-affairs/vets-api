@@ -4,7 +4,7 @@ module ClaimsApi
   class VANotifyAcceptedJob < ClaimsApi::ServiceBase
     LOG_TAG = 'va_notify_accepted_job'
 
-    def perform(poa_id, rep)
+    def perform(poa_id, rep_id)
       return if skip_notification_email?
 
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
@@ -14,10 +14,12 @@ module ClaimsApi
           detail: "Could not find Power of Attorney with id: #{poa_id}"
         )
       end
+
       if organization_filing?(poa.form_data)
         org = find_org(poa, '2122')
         res = send_organization_notification(poa, org)
       else
+        rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
         poa_code_from_form('2122a', poa)
         res = send_representative_notification(poa, rep)
       end

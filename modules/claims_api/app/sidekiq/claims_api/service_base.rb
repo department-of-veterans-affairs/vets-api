@@ -227,12 +227,10 @@ module ClaimsApi
       end
     end
 
-    def vanotify?(auth_headers, rep)
-      if Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify)
+    def vanotify?(auth_headers, rep_id)
+      rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
+      Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify) &&
         auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?
-      else
-        false
-      end
     end
 
     def evss_mapper_service(auto_claim)

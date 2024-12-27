@@ -4,7 +4,7 @@ module ClaimsApi
   class PoaAssignDependentClaimantJob < ClaimsApi::ServiceBase
     LOG_TAG = 'poa_assign_dependent_claimant_job'
 
-    def perform(poa_id, rep)
+    def perform(poa_id, rep_id)
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
 
       service = dependent_claimant_poa_assignment_service(
@@ -30,7 +30,7 @@ module ClaimsApi
         'POA assigned for dependent'
       )
 
-      ClaimsApi::VANotifyAcceptedJob.perform_async(poa.id, rep) if vanotify?(poa.auth_headers, rep)
+      ClaimsApi::VANotifyAcceptedJob.perform_async(poa.id, rep_id) if vanotify?(poa.auth_headers, rep_id)
     end
 
     private
