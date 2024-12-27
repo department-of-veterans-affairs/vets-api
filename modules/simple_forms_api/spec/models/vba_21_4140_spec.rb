@@ -165,7 +165,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     subject { form.signature_date_employed }
 
     context 'when employed' do
-      it { is_expected.to eq form.signature_date }
+      it { is_expected.to match(%r{\d{2}/\d{2}/\d{4}}) }
     end
 
     context 'when unemployed' do
@@ -185,7 +185,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     context 'when unemployed' do
       let(:fixture_file) { 'vba_21_4140-min.json' }
 
-      it { is_expected.to eq form.signature_date }
+      it { is_expected.to match(%r{\d{2}/\d{2}/\d{4}}) }
     end
   end
 

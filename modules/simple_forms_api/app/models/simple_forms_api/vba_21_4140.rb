@@ -18,6 +18,7 @@ module SimpleFormsApi
         zip_code: data.dig('address', 'postal_code')
       )
       @signature = data['statement_of_truth_signature']
+      @signature_date_formatted = signature_date.strftime('%m/%d/%Y')
     end
 
     def desired_stamps
@@ -32,11 +33,15 @@ module SimpleFormsApi
     end
 
     def employed?
-      data['employers'] ? data['employers'].size.positive? : false
+      employers.any?
+    end
+
+    def employers
+      data['employers']&.delete_if(&:empty?) || []
     end
 
     def employment_history
-      [*0..3].map { |i| FormEngine::EmploymentHistory.new(data['employers'][i]) }
+      [*0..3].map { |i| SimpleFormsApi::FormEngine::EmploymentHistory.new(employers[i]) }
     end
 
     def first_name
@@ -72,11 +77,11 @@ module SimpleFormsApi
     end
 
     def signature_date_employed
-      employed? ? signature_date : nil
+      employed? ? signature_date_formatted : nil
     end
 
     def signature_date_unemployed
-      employed? ? nil : signature_date
+      employed? ? nil : signature_date_formatted
     end
 
     def signature_employed
@@ -106,6 +111,6 @@ module SimpleFormsApi
 
     private
 
-    attr_reader :signature
+    attr_reader :signature, :signature_date_formatted
   end
 end
