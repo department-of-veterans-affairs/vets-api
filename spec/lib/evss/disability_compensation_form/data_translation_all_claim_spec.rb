@@ -1535,19 +1535,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           }
         ]
       end
-
-      it 'adds the cause field if the TE flag is ON' do
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'new condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
-            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description",
-            'cause' => 'NEW'
-          }
-        ]
-      end
     end
 
     context 'when there is a WORSENED disability' do
@@ -1569,20 +1556,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'translates only the WORSENED disabilities' do
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'worsened condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
-            'serviceRelevance' =>
-              "Worsened because of military service\nworsened condition description: worsened effects",
-            'cause' => 'WORSENED'
-          }
-        ]
-      end
-
-      it 'adds the cause field if the TE flag is ON' do
         expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
           {
             'disabilityActionType' => 'NEW',
@@ -1617,21 +1590,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'translates only the VA disabilities' do
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'va condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
-            'serviceRelevance' =>
-              "Caused by VA care\nEvent: va condition description\n"\
-              "Location: va location\nTimeFrame: the third of october",
-            'cause' => 'VA'
-          }
-        ]
-      end
-
-      it 'adds the cause field if the TE flag is ON' do
         expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
           {
             'disabilityActionType' => 'NEW',
