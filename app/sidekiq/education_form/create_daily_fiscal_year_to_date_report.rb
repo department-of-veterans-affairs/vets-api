@@ -13,7 +13,7 @@ module EducationForm
       daily_processed: 0
     }.freeze
 
-    FORM_TYPES = EducationBenefitsClaim::FORM_TYPES
+    FORM_TYPES = EducationBenefitsClaim::FORM_TYPES.reject { |form_type| form_type == '10282' }
 
     FORM_TYPE_HEADERS = EducationBenefitsClaim.form_headers(FORM_TYPES).map do |form_header|
       [form_header, '', '']
