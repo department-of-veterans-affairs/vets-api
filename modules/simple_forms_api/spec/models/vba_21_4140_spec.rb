@@ -161,6 +161,46 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     end
   end
 
+  describe '#signature_date_employed' do
+    context 'when employed' do
+      it 'returns #signature_date'
+    end
+
+    context 'when unemployed' do
+      it 'returns nil'
+    end
+  end
+
+  describe '#signature_date_unemployed' do
+    context 'when employed' do
+      it 'returns nil'
+    end
+
+    context 'when unemployed' do
+      it 'returns #signature_date'
+    end
+  end
+
+  describe '#signature_employed' do
+    context 'when employed' do
+      it 'returns the signature'
+    end
+
+    context 'when unemployed' do
+      it 'returns nil'
+    end
+  end
+
+  describe '#signature_unemployed' do
+    context 'when employed' do
+      it 'returns nil'
+    end
+
+    context 'when unemployed' do
+      it 'returns the signature'
+    end
+  end
+
   describe '#ssn' do
     subject(:ssn) { form.ssn }
 
