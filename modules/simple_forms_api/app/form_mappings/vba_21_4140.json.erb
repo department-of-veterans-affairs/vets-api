@@ -112,8 +112,17 @@
   "F[0].#subform[1].Gross_Earnings_Per_Month[1]": "<%= form.employment_history[3].highest_income %>",
   "F[0].#subform[1].Gross_Earnings_Per_Month[2]": "<%= form.employment_history[1].highest_income %>",
 
-  "F[0].#subform[1].DateSigned[0]": "<%= form.data.dig('DateSigned') %>",
+  <%# 12A. Signature of Veteran %>
   "F[0].#subform[1].SignatureField1[0]": "<%= form.data.dig('SignatureField1') %>",
+
+  <%# 12B. Date Signed %>
+  "F[0].#subform[1].DateSigned[0]": "<%= form.data.dig('DateSigned') %>",
+
+  <%# Section III - Unemployment Certification %>
+
+  <%# 13A. Signature of Veteran %>
   "F[0].#subform[1].SignatureField1[1]": "<%= form.data.dig('SignatureField1') %>",
+
+  <%# 13B. Date Signed %>
   "F[0].#subform[1].DateSigned[1]": "<%= form.data.dig('DateSigned') %>"
 }
