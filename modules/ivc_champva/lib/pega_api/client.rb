@@ -60,17 +60,22 @@ module IvcChampva
       # @param record [IvcChampvaForm] the form record to check against the PEGA reporting API
       # @return [Hash|boolean] Either a single PEGA report or `false` (if no report was found)
       def record_has_matching_report(record)
-        # A report looks like: {"Creation Date"=>"2024-12-17T07:42:28.307000", "PEGA Case ID"=>"D-XXXXX", "Status"=>"Processed"}
+        # A report looks like: 
+        # {
+        #   "Creation Date"=>"2024-12-17T07:42:28.307000", 
+        #   "PEGA Case ID"=>"D-XXXXX",
+        #   "Status"=>"Processed"
+        # }
 
         # Querying by date requires a window of at least 1 day:
-        date_start = record.created_at.strftime("%m/%d/%Y")
-        date_end = (record.created_at + 1.days).strftime("%m/%d/%Y")
+        date_start = record.created_at.strftime('%m/%d/%Y')
+        date_end = (record.created_at + 1.day).strftime('%m/%d/%Y')
         # There should only be one match per case ID, so query reports and grab 0th item:
         # TODO:
-        #  In practice this won't actually work, cause any report with a `nil`
+        #  In practice this won't actually work, because any report with a `nil`
         #  `pega_status` on our side won't actually have a `case_id` to filter by...
         #  what we REALLY need is to add the `form_uuid` property into the PEGA reports
-        report = get_report(date_start, date_end).select { |report| report["PEGA Case ID"] === record.case_id}[0]
+        report = get_report(date_start, date_end).select { |rep| rep['PEGA Case ID'] == record.case_id }[0]
         # If a report exists, return the IVC record and the corresponding report
         # otherwise, return false
         record && report ? report : false
