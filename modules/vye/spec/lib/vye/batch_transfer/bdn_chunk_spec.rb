@@ -56,9 +56,9 @@ RSpec.describe Vye::BatchTransfer::BdnChunk do
       expect do
         chunk.import
       end.to(
-        change(Vye::UserProfile, :count).by(1).and(
-          change(Vye::UserInfo, :count).by(1).and(
-            change(Vye::Award, :count).by(1)
+        change(Vye::UserProfile, :count).by(10).and(
+          change(Vye::UserInfo, :count).by(10).and(
+            change(Vye::Award, :count).by(16)
           )
         )
       )
