@@ -2,6 +2,8 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyForm < ApplicationRecord
+    self.ignored_columns += %w[city_bidx state_bidx zipcode_bidx]
+
     belongs_to :power_of_attorney_request,
                class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest',
                inverse_of: :power_of_attorney_form
