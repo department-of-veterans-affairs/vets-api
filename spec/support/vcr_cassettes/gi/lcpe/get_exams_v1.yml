@@ -1,0 +1,147 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<GIDS_URL>/v1/lcpe/exams"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Frame-Options:
+      - SAMEORIGIN
+      X-Content-Type-Options:
+      - nosniff
+      Cache-Control:
+      - no-store
+      Pragma:
+      - no-cache
+      Expires:
+      - 2023-12-28 12:54:15 UTC
+      Content-Type:
+      - application/json; charset=utf-8
+      Etag:
+      - W/"3744d8ee36a48c7c29b9c5704bbf5461"
+      X-Request-Id:
+      - a05fbab7-8f66-42d4-82bb-ff84f805805e
+      X-Runtime:
+      - '0.185178'
+      Server-Timing:
+      - start_processing.action_controller;dur=0.01, sql.active_record;dur=27.35,
+        instantiation.active_record;dur=8.32, render.active_model_serializers;dur=167.38,
+        process_action.action_controller;dur=177.02
+      Content-Length:
+      - '12808'
+    body:
+      encoding: UTF-8
+      string: '{"exams":[{"enriched_id":"1@acce9","name":"AP-ADVANCED PLACEMENT EXAMS","tests":[{"name":"AP
+        Exam Fee International","fee":"127","begin_date":"01-NOV-16","end_date":"30-NOV-23"},{"name":"AP
+        Registration Fee","fee":"97","begin_date":"01-NOV-16","end_date":"30-NOV-23"}],"institution":{"name":"COLLEGE
+        BOARD","physical_address":{"address_1":"PO BOX 6671","address_2":null,"address_3":null,"city":"PRINCETON","state":"NJ","zip":"08541","country":"USA"},"mailing_address":{"address_1":"PO
+        BOX 6671","address_2":null,"address_3":null,"city":"PRINCETON","state":"NJ","zip":"08541","country":"USA"}}},{"enriched_id":"2@5bf2b","name":"CLEP-COLLEGE
+        LEVEL EXAMINATION PROGRAM","tests":[{"name":"CLEP EXAM","fee":"93","begin_date":"01-JAN-15","end_date":"30-NOV-23"},{"name":"CLEP
+        Paper and Pencil Exam is Discontinued As of Dec 31 2011","fee":"0","begin_date":"01-JUL-12","end_date":"02-JUL-12"},{"name":"Test
+        Center Admin Fee-no set fee-varies by location- contact testing location to
+        obtain fee","fee":"0","begin_date":"01-JUL-12","end_date":"31-JUL-20"}],"institution":{"name":"COLLEGE
+        BOARD","physical_address":{"address_1":"PO BOX 6600","address_2":null,"address_3":null,"city":"PRINCETON","state":"NJ","zip":"08541","country":"USA"},"mailing_address":{"address_1":"PO
+        BOX 6600","address_2":null,"address_3":null,"city":"PRINCETON","state":"NJ","zip":"08541","country":"USA"}}},{"enriched_id":"3@48003","name":"DANTES
+        SPONSORED CLEP EXAMS","tests":[{"name":"DANTES SPONSORED CLEP EXAM IS FREE
+        FOR 1ST ATTEMPT FOR ACTIVE DUTY, SPOUSES OF COAST GUARD AND DOD CIV EMPLOYEES
+        OF THE AIR FORCE. RETESTS MUST BE SELF-FUNDED.","fee":"89","begin_date":"10-DEC-04","end_date":"15-DEC-15"}],"institution":{"name":"COLLEGE
+        BOARD","physical_address":{"address_1":"PO BOX 6600","address_2":null,"address_3":null,"city":"PRINCETON","state":"NJ","zip":"08541","country":"USA"},"mailing_address":{"address_1":"PO
+        BOX 6600","address_2":null,"address_3":null,"city":"PRINCETON","state":"NJ","zip":"08541","country":"USA"}}},{"enriched_id":"4@a359f","name":"DAT-DENTAL
+        ADMISSION TEST","tests":[{"name":"DENTAL ADMISSION TEST","fee":"525","begin_date":"01-JAN-15","end_date":"30-NOV-23"}],"institution":{"name":"AMERICAN
+        DENTAL ASSOCIATION","physical_address":{"address_1":"211 EAST CHICAGO AVE","address_2":null,"address_3":null,"city":"CHICAGO","state":"IL","zip":"60611","country":"USA"},"mailing_address":{"address_1":"211
+        EAST CHICAGO AVE","address_2":null,"address_3":null,"city":"CHICAGO","state":"IL","zip":"60611","country":"USA"}}},{"enriched_id":"5@8527d","name":"GMAT-GRADUATE
+        MGMT ADMISSION TEST","tests":[{"name":"GMAT FEE WORLDWIDE- DEEMED APPROVED","fee":"275","begin_date":"01-JAN-16","end_date":"30-NOV-34"}],"institution":{"name":"GRADUATE
+        MANAGEMENT ADMISSION COUNCIL","physical_address":{"address_1":"1600 TYSONS
+        BLVD","address_2":"SUITE 1400","address_3":null,"city":"MCLEAN","state":"VA","zip":"22102","country":"USA"},"mailing_address":{"address_1":"1600
+        TYSONS BLVD","address_2":"SUITE 1400","address_3":null,"city":"MCLEAN","state":"VA","zip":"22102","country":"USA"}}},{"enriched_id":"6@a4d71","name":"GRE-GRADUATE
+        RECORD EXAM","tests":[{"name":"Blank","fee":"0","begin_date":"01-JAN-10","end_date":"01-JAN-10"},{"name":"GRE
+        GENERAL TEST - ALL OTHER AREAS OF THE WORLD","fee":"220","begin_date":"02-SEP-19","end_date":"31-JUL-24"},{"name":"GRE
+        GENERAL TEST - AUSTRALIA","fee":"230","begin_date":"01-JUL-12","end_date":"31-JUL-24"},{"name":"GRE
+        GENERAL TEST - CHINA","fee":"231.3","begin_date":"02-SEP-19","end_date":"31-JUL-24"},{"name":"GRE
+        GENERAL TEST - INDIA","fee":"213","begin_date":"02-SEP-19","end_date":"02-SEP-22"},{"name":"GRE
+        GENERAL TEST - NIGERIA","fee":"226","begin_date":"01-JUL-13","end_date":"31-JUL-24"},{"name":"GRE
+        GENERAL TEST - TURKEY","fee":"255","begin_date":"01-JUL-11","end_date":"31-JUL-24"},{"name":"GRE
+        SUBJECT TEST - WORLDWIDE","fee":"150","begin_date":"02-SEP-19","end_date":"31-JUL-24"}],"institution":{"name":"EDUCATIONAL
+        TESTING SERVICE","physical_address":{"address_1":"660 Rosedale Road","address_2":null,"address_3":null,"city":"PRINCETON","state":"NJ","zip":"08541","country":"USA"},"mailing_address":{"address_1":"660
+        Rosedale Road","address_2":null,"address_3":null,"city":"PRINCETON","state":"NJ","zip":"08541","country":"USA"}}},{"enriched_id":"7@5073b","name":"TOEFL","tests":[{"name":"TOEFL
+        PBT - USA PAPER BASED TRAINING - HAS BEEN PHASED OUT FOR USA.","fee":"0","begin_date":"01-JAN-15","end_date":"30-JUN-18"},{"name":"TOEFL
+        iBT - INTERNATIONAL INTERNET BASED TRNG. FEES VARY BY COUNTRY 180 dollars
+        to 300 dollars","fee":"300","begin_date":"01-JAN-15","end_date":"30-NOV-21"},{"name":"TOEFL
+        iBT - USA BASED INTERNET TRAINING","fee":"205","begin_date":"01-JAN-15","end_date":"30-NOV-21"},{"name":"TOEFL
+        pDT - INTERNATIONAL PAPER DELIVERY TEST","fee":"180","begin_date":"01-JAN-15","end_date":"30-NOV-21"}],"institution":{"name":"EDUCATIONAL
+        TESTING SERVICE","physical_address":{"address_1":"660 Rosedale Road","address_2":null,"address_3":null,"city":"PRINCETON","state":"NJ","zip":"08541","country":"USA"},"mailing_address":{"address_1":"660
+        Rosedale Road","address_2":null,"address_3":null,"city":"PRINCETON","state":"NJ","zip":"08541","country":"USA"}}},{"enriched_id":"8@2eef3","name":"MCAT","tests":[{"name":"MCAT
+        EXAM FEE","fee":"335","begin_date":"01-JAN-15","end_date":"30-NOV-24"}],"institution":{"name":"ASSOCIATION
+        OF AMERICAN MEDICAL COLLEGES","physical_address":{"address_1":"2450 N Street
+        NW","address_2":null,"address_3":null,"city":"WASHINGTON","state":"DC","zip":"20037","country":"USA"},"mailing_address":{"address_1":"2450
+        N Street NW","address_2":null,"address_3":null,"city":"WASHINGTON","state":"DC","zip":"20037","country":"USA"}}},{"enriched_id":"9@f683b","name":"OAT-OPTOMETRY
+        ADMISSION TEST","tests":[{"name":"Optometry Admission Test National Exam Fee","fee":"505","begin_date":"01-JAN-15","end_date":"30-NOV-23"}],"institution":{"name":"ASSOCIATION
+        OF SCHOOL AND COLLEGE OF OPTOMETRY","physical_address":{"address_1":"211 EAST
+        CHICAGO AVE","address_2":"SUITE 600","address_3":null,"city":"CHICAGO","state":"IL","zip":"60611","country":"USA"},"mailing_address":{"address_1":"211
+        EAST CHICAGO AVE","address_2":"SUITE 600","address_3":null,"city":"CHICAGO","state":"IL","zip":"60611","country":"USA"}}},{"enriched_id":"10@b4bfb","name":"SAT-SCHOLASTIC
+        ASSESSMENT TEST","tests":[{"name":"SAT International Language With Listening","fee":"74","begin_date":"01-JAN-15","end_date":"30-NOV-23"},{"name":"SAT
+        Language Test with Listening","fee":"74","begin_date":"01-JAN-15","end_date":"30-NOV-23"},{"name":"SAT
+        SUBJECT TEST","fee":"60","begin_date":"01-JAN-15","end_date":"30-NOV-23"},{"name":"SAT
+        USA","fee":"60","begin_date":"01-JAN-10","end_date":"30-NOV-23"},{"name":"SAT
+        WITH ESSAY","fee":"68","begin_date":"01-JAN-15","end_date":"30-NOV-23"}],"institution":{"name":"COLLEGE
+        BOARD","physical_address":{"address_1":"PO BOX 025505","address_2":null,"address_3":null,"city":"MIAMI","state":"FL","zip":"33102","country":"USA"},"mailing_address":{"address_1":"PO
+        BOX 025505","address_2":null,"address_3":null,"city":"MIAMI","state":"FL","zip":"33102","country":"USA"}}},{"enriched_id":"11@fc1dd","name":"CAS","tests":[{"name":"CAS-One-time
+        valid fee for 5 years.","fee":"207","begin_date":"01-JAN-24","end_date":"31-DEC-29"}],"institution":{"name":"LAW
+        SCHOOL ADMISSION COUNCIL","physical_address":{"address_1":"661 Penn St","address_2":null,"address_3":null,"city":"NEWTOWN","state":"PA","zip":"18940","country":"USA"},"mailing_address":{"address_1":"661
+        Penn St","address_2":null,"address_3":null,"city":"NEWTOWN","state":"PA","zip":"18940","country":"USA"}}},{"enriched_id":"12@53d2a","name":"LSAT-LAW
+        SCHOOL ADMISSION TEST","tests":[{"name":"LAW SCHOOL ADMISSION TEST LSAT","fee":"238","begin_date":"01-JAN-24","end_date":"31-DEC-25"},{"name":"Law
+        School Report","fee":"45","begin_date":"01-JAN-24","end_date":"31-DEC-25"}],"institution":{"name":"LAW
+        SCHOOL ADMISSION COUNCIL","physical_address":{"address_1":"661 Penn St","address_2":null,"address_3":null,"city":"NEWTOWN","state":"PA","zip":"18940","country":"USA"},"mailing_address":{"address_1":"661
+        Penn St","address_2":null,"address_3":null,"city":"NEWTOWN","state":"PA","zip":"18940","country":"USA"}}},{"enriched_id":"13@8eca8","name":"ACT","tests":[{"name":"ACT
+        NO Writing International","fee":"170","begin_date":"01-JAN-15","end_date":"30-NOV-24"},{"name":"ACT
+        No Writing Basic Registration Fee USA","fee":"68","begin_date":"01-JAN-15","end_date":"30-NOV-24"},{"name":"ACT
+        PLUS Writing Test","fee":"93","begin_date":"01-JAN-15","end_date":"30-NOV-24"},{"name":"ACT
+        WITH Writing International","fee":"195","begin_date":"01-JAN-15","end_date":"30-NOV-24"}],"institution":{"name":"AMERICAN
+        COLLEGE TESTING","physical_address":{"address_1":"2100 ACT Circle","address_2":null,"address_3":null,"city":"IOWA
+        CITY","state":"IA","zip":"52245","country":"USA"},"mailing_address":{"address_1":"2100
+        ACT Circle","address_2":null,"address_3":null,"city":"IOWA CITY","state":"IA","zip":"52245","country":"USA"}}},{"enriched_id":"14@2db24","name":"DSST-DANTES","tests":[{"name":"DANTES
+        SPONSORED DSST EXAM IS FREE FOR 1ST ATTEMPT FOR ACTIVE DUTY, SPOUSES OF COAST
+        GUARD AND DOD CIV EMPLOYEES OF THE AIR FORCE. RETESTS MUST BE SELF-FUNDED.","fee":"100","begin_date":"01-JAN-15","end_date":"30-NOV-23"},{"name":"DSST
+        ADMIN FEE VARIES BY LOCATION. CONTACT TESTING FACILITY FOR FEE AMOUNT.","fee":"0","begin_date":"01-JAN-14","end_date":"30-NOV-20"}],"institution":{"name":"THOMSON
+        PROMETRIC","physical_address":{"address_1":"1501 South Clinton Street","address_2":null,"address_3":null,"city":"BALTIMORE","state":"MD","zip":"21224","country":"USA"},"mailing_address":{"address_1":"1501
+        South Clinton Street","address_2":null,"address_3":null,"city":"BALTIMORE","state":"MD","zip":"21224","country":"USA"}}},{"enriched_id":"15@8fd2a","name":"MAT-MILLER
+        ANALOGIES TEST","tests":[{"name":"MAT Fee Varies from location to location,
+        no set Fee for MAT, contact testing location to obtain fee","fee":"0","begin_date":"01-JAN-13","end_date":"31-JUL-20"},{"name":"MAT
+        MILLER ANALOGIES TEST","fee":"175","begin_date":"01-JAN-15","end_date":"30-NOV-23"}],"institution":{"name":"HARCOURT
+        ASSESSMENTS","physical_address":{"address_1":"19500 Bulverde Road","address_2":null,"address_3":null,"city":"SAN
+        ANTONIO","state":"TX","zip":"78259","country":"USA"},"mailing_address":{"address_1":"19500
+        Bulverde Road","address_2":null,"address_3":null,"city":"SAN ANTONIO","state":"TX","zip":"78259","country":"USA"}}},{"enriched_id":"16@e477d","name":"PCAT-PHARMACY
+        COLLEGE ADMISSON TEST","tests":[{"name":"Pharmacy College Admission Test -
+        PCAT - Exam Fee","fee":"395","begin_date":"01-JAN-15","end_date":"30-NOV-23"}],"institution":{"name":"HARCOURT
+        ASSESSMENTS","physical_address":{"address_1":"19500 Bulverde Road","address_2":null,"address_3":null,"city":"SAN
+        ANTONIO","state":"TX","zip":"78259","country":"USA"},"mailing_address":{"address_1":"19500
+        Bulverde Road","address_2":null,"address_3":null,"city":"SAN ANTONIO","state":"TX","zip":"78259","country":"USA"}}},{"enriched_id":"17@8479c","name":"ECE
+        (4 hours)","tests":[{"name":"3 CREDIT EXAM UEXCEL","fee":"355","begin_date":"01-JAN-15","end_date":"31-AUG-20"},{"name":"4
+        CREDIT HOUR EXAM","fee":"460","begin_date":"01-JAN-15","end_date":"31-AUG-20"},{"name":"6
+        CREDIT HOUR EXAM","fee":"550","begin_date":"01-JAN-15","end_date":"30-NOV-21"}],"institution":{"name":"EXCELSIOR
+        COLLEGE EXAMS","physical_address":{"address_1":"7 COLUMBIA CIRCLE","address_2":null,"address_3":null,"city":"ALBANY","state":"NY","zip":"12203","country":"USA"},"mailing_address":{"address_1":"7
+        COLUMBIA CIRCLE","address_2":null,"address_3":null,"city":"ALBANY","state":"NY","zip":"12203","country":"USA"}}},{"enriched_id":"18@07aaf","name":"ECE
+        (6 hours)","tests":[{"name":"ECE 6 hours","fee":"470","begin_date":"01-JAN-15","end_date":"30-NOV-23"},{"name":"ECE
+        UExceL 4 hours","fee":"460","begin_date":"01-JAN-15","end_date":"31-AUG-20"}],"institution":{"name":"EXCELSIOR
+        COLLEGE EXAMS","physical_address":{"address_1":"7 COLUMBIA CIRCLE","address_2":null,"address_3":null,"city":"ALBANY","state":"NY","zip":"12203","country":"USA"},"mailing_address":{"address_1":"7
+        COLUMBIA CIRCLE","address_2":null,"address_3":null,"city":"ALBANY","state":"NY","zip":"12203","country":"USA"}}},{"enriched_id":"19@a36f3","name":"ECE
+        8 HOURS NURSING","tests":[{"name":"ECE 8 HOURS NURSING","fee":"380","begin_date":"01-JAN-15","end_date":"30-NOV-23"}],"institution":{"name":"EXCELSIOR
+        COLLEGE EXAMS","physical_address":{"address_1":"7 COLUMBIA CIRCLE","address_2":null,"address_3":null,"city":"ALBANY","state":"NY","zip":"12203","country":"USA"},"mailing_address":{"address_1":"7
+        COLUMBIA CIRCLE","address_2":null,"address_3":null,"city":"ALBANY","state":"NY","zip":"12203","country":"USA"}}}]}'
+  recorded_at: Sat, 28 Dec 2024 12:54:16 GMT
+recorded_with: VCR 6.3.1
