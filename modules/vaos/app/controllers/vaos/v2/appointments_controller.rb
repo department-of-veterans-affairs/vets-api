@@ -62,6 +62,43 @@ module VAOS
         render json: { data: serialized }, status: :created
       end
 
+      def create_draft
+        draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
+
+        provider_response = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
+
+        slots = eps_provider_service.get_provider_slots(
+          draft_params[:provider_id],
+          {
+            appointmentTypeId: draft_params[:appointment_type_id],
+            startOnOrAfter: draft_params[:start_date],
+            startBefore: draft_params[:end_date]
+          }
+        )
+
+        drive_time = eps_provider_service.get_drive_times(
+          destinations: {
+            provider_response.id => {
+              latitude: provider_response.location.latitude,
+              longitude: provider_response.location.longitude
+            }
+          },
+          origin: current_user.address
+        )
+
+        response_data = {
+          appointment: draft_appointment,
+          provider: provider_response,
+          slots: slots,
+          drive_time: drive_time
+        }
+
+        # (@randomsync) TODO: create and use a new serializer
+        serializer = VAOS::V2::VAOSSerializer.new
+        serialized = serializer.serialize(response_data, 'draft_appointments')
+        render json: { data: serialized }, status: :created
+      end
+
       def update
         updated_appointment
         set_facility_error_msg(updated_appointment)
@@ -85,6 +122,16 @@ module VAOS
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(current_user)
+      end
+
+      def eps_appointment_service
+        @eps_appointment_service ||=
+          Eps::V2::AppointmentsService.new(current_user)
+      end
+
+      def eps_provider_service
+        @eps_provider_service ||=
+          Eps::V2::ProviderService.new(current_user)
       end
 
       def appointments
@@ -186,6 +233,21 @@ module VAOS
 
       def appointment_show_params
         params.permit(:_include)
+      end
+
+      def draft_params
+        params.require(:referral_id)
+        params.require(:provider_id)
+        params.require(:appointment_type_id)
+        params.require(:start_date)
+        params.require(:end_date)
+        params.permit(
+          :referral_id,
+          :provider_id,
+          :appointment_type_id,
+          :start_date,
+          :end_date
+        )
       end
 
       # rubocop:disable Metrics/MethodLength
