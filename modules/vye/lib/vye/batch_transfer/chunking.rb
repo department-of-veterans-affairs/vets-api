@@ -35,6 +35,7 @@ module Vye
 
         chunks
       rescue => e
+        Rails.logger.error("Error splitting chunks: #{e.message}")
         nil
       ensure
         close_current_handle

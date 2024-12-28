@@ -8,7 +8,7 @@ RSpec.describe Vye::BatchTransfer::BdnChunk do
     let(:bdn_clone_id) { bdn_clone.id }
     let(:offset) { 0 }
     let(:block_size) { 1000 }
-    let (:file) { nil }
+    let(:file) { nil }
     let(:filename) { 'test.txt' }
 
     it 'can be instantiated' do
