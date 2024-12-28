@@ -61,6 +61,6 @@ class GIDSRedis < Common::RedisStore
   end
 
   def gi_lcpe_service
-    @lcpe_service ||= ::GI::LCPE::Client.new
+    @lcpe_client ||= ::GI::LCPE::Client.new
   end
 end

@@ -5,7 +5,7 @@ module V1
     module LCPE
       class LacsController < GIDS::LCPEController
         def index
-          render json: service.get_licences_and_certs_v1(scrubbed_params)
+          render json: service.get_licenses_and_certs_v1(scrubbed_params)
         end
 
         def show
