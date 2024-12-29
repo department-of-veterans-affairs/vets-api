@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: "<GIDS_URL>/v1/lcpe/lacs/"
+    uri: "<GIDS_URL>/v1/lcpe/lacs"
     body:
       encoding: US-ASCII
       string: ''
