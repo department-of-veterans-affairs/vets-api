@@ -50,7 +50,7 @@ RSpec.describe BenefitsDocuments::Service do
         Flipper.disable(:cst_synchronous_evidence_uploads)
         expect do
           service.queue_document_upload(params)
-        end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+        end.to change(Lighthouse::BenefitsDocuments::DocumentUpload.jobs, :size).by(1)
       end
 
       it 'does not enqueue a job when cst_synchronous_evidence_uploads is true' do
@@ -58,7 +58,7 @@ RSpec.describe BenefitsDocuments::Service do
           Flipper.enable(:cst_synchronous_evidence_uploads)
           expect do
             service.queue_document_upload(params)
-          end.not_to change(Lighthouse::DocumentUpload.jobs, :size)
+          end.not_to change(Lighthouse::BenefitsDocuments::DocumentUpload.jobs, :size)
         end
       end
     end
