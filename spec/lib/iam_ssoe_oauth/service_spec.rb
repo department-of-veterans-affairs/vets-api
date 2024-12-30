@@ -7,9 +7,9 @@ describe 'IAMSSOeOAuth::Service' do
   let(:service) { IAMSSOeOAuth::Service.new }
 
   before do
-    allow(IAMSSOeOAuth::Configuration.instance).to receive_messages(
-      ssl_cert: instance_double('OpenSSL::X509::Certificate'), ssl_key: instance_double('OpenSSL::PKey::RSA')
-    )
+    config = IAMSSOeOAuth::Configuration.instance
+    allow(config).to receive_messages(ssl_cert: OpenStruct.new(to_der: 'dummy_cert_data'),
+                                      ssl_key: OpenStruct.new(to_der: 'dummy_key_data'))
   end
 
   describe '#post_introspect' do
