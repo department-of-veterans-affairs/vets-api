@@ -1,18 +1,25 @@
 # frozen_string_literal: true
 
 require 'vets/attributes'
+require 'vets/model/dirty'
+require 'vets/model/sortable'
+require 'vets/model/pagination'
 
 # This will be moved after virtus is removed
 module Bool; end
 class TrueClass; include Bool; end
 class FalseClass; include Bool; end
 
+# This will be a replacement for Common::Base
 module Vets
   module Model
     extend ActiveSupport::Concern
     include ActiveModel::Model
     include ActiveModel::Serializers::JSON
     include Vets::Attributes
+    include Vets::Model::Dirty
+    include Vets::Model::Sortable
+    include Vets::Model::Pagination
 
     included do
       extend ActiveModel::Naming

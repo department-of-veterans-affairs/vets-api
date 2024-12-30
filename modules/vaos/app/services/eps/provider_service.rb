@@ -35,6 +35,24 @@ module Eps
       OpenStruct.new(response.body)
     end
 
+    ##
+    # Get drive times from EPS
+    #
+    # @param destinations [Hash] Hash of UUIDs mapped to lat/long coordinates
+    # @param origin [Hash] Hash containing origin lat/long coordinates
+    # @return OpenStruct response from EPS drive times endpoint
+    #
+    def get_drive_times(destinations:, origin:)
+      payload = {
+        destinations: destinations,
+        origin: origin
+      }
+
+      response = perform(:post, "/#{config.base_path}/drive-times", payload, headers)
+      OpenStruct.new(response.body)
+    end
+
+    ##
     # Retrieves available slots for a specific provider.
     #
     # @param provider_id [String] The unique identifier of the provider
