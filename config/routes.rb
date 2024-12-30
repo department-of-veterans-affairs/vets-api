@@ -414,7 +414,7 @@ Rails.application.routes.draw do
 
       namespace :lcpe do
         resources :lacs, only: %i[index show], defaults: { format: :json }
-        resources :exams, only: %i[index], defaults: { format: :json }
+        resources :exams, only: %i[index show], defaults: { format: :json }
       end
     end
 

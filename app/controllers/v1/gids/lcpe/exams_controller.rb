@@ -7,6 +7,10 @@ module V1
         def index
           render json: service.get_exams_v1(scrubbed_params)
         end
+
+        def show
+          render json: service.get_exam_details_v1(scrubbed_params)
+        end
       end
     end
   end

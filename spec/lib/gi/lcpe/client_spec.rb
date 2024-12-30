@@ -32,15 +32,25 @@ describe GI::LCPE::Client do
   end
 
   describe '#get_exams_v1' do
-    it 'gets exams with nested exam details' do
+    it 'gets list of exams' do
       VCR.use_cassette('gi/lcpe/get_exams_v1') do
         response = service.get_exams_v1({})
         exams = response.body[:exams]
         expect(exams.class).to be(Array)
-        expect(exams.first.class).to be(Hash)
-        expect(exams.first.keys).to eq(%i[enriched_id name tests institution])
-        expect(exams.first[:tests].class).to be(Array)
-        expect(exams.first[:institution].class).to be(Hash)
+        expect(exams.first.keys).to eq(%i[enriched_id name])
+      end
+    end
+  end
+
+  describe '#get_exam_details_v1' do
+    it 'gets list of exams' do
+      VCR.use_cassette('gi/lcpe/get_exam_details_v1') do
+        response = service.get_exam_details_v1({ id: '1@acce9' })
+        exam = response.body[:exam]
+        expect(exam.class).to be(Hash)
+        expect(exam.keys).to eq(%i[enriched_id name tests institution])
+        expect(exam[:tests].class).to be(Array)
+        expect(exam[:institution].class).to be(Hash)
       end
     end
   end
