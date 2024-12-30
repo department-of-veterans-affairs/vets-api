@@ -25,9 +25,9 @@ module IAMSessionHelper
   end
 
   def stub_iam_certs
-    allow(IAMSSOeOAuth::Configuration.instance).to receive_messages(
-      ssl_cert: instance_double(OPENSSL_X509_CERTIFICATE), ssl_key: instance_double(OPENSSL_PKEY_RSA)
-    )
+    config = IAMSSOeOAuth::Configuration.instance
+    allow(config).to receive_messages(ssl_cert: OpenStruct.new(to_der: 'dummy_cert_data'),
+                                      ssl_key: OpenStruct.new(to_der: 'dummy_key_data'))
   end
 
   def iam_sign_in(iam_user = FactoryBot.build(:iam_user), access_token = nil)
