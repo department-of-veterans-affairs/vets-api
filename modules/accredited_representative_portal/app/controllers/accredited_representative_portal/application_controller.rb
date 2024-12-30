@@ -17,6 +17,12 @@ module AccreditedRepresentativePortal
 
     private
 
+    def render_errors(va_exception)
+      return if va_exception.exception.is_a? Pundit::AuthorizationNotPerformedError
+
+      super
+    end
+
     def user_not_authorized
       render json: { error: 'You are not authorized to perform this action.' }, status: :unauthorized
     end
