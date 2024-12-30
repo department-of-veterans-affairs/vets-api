@@ -51,7 +51,8 @@ RSpec.describe Dependents::Monitor do
     it 'logs sidekiq job exhaustion' do
       msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
 
-      log = "Failed all retries on CentralMail::SubmitCentralForm686cJob, last error: #{msg['error_message']}"
+      log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
+            "last error: #{msg['error_message']}"
       payload = {
         message: msg
       }
@@ -66,7 +67,8 @@ RSpec.describe Dependents::Monitor do
     it 'logs sidekiq job exhaustion with failure avoided' do
       msg = { 'args' => [claim.id, encrypted_vet_info, encrypted_user], error_message: 'Error!' }
 
-      log = "Failed all retries on CentralMail::SubmitCentralForm686cJob, last error: #{msg['error_message']}"
+      log = 'Failed all retries on Lighthouse::BenefitsIntake::SubmitCentralForm686cJob, ' \
+            "last error: #{msg['error_message']}"
       payload = {
         message: msg
       }

@@ -8,6 +8,18 @@ on:
 permissions:
   contents: read
 jobs:
+  compare_sha:
+    runs-on: ubuntu-latest
+    name: Compare sha
+    steps:
+      - name: Compare commit ids
+        run: |
+          echo "github.sha: ${{ github.sha }}"
+          echo "github.event.push.head_commit.id: ${{ github.event.push.head_commit.id }}"
+          echo "github.event.pull_request.merge_commit_sha: ${{ github.event.pull_request.merge_commit_sha }}"
+          echo "github.event.head_commit.id: ${{ github.event.head_commit.id }}"
+          echo "github.event.workflow_run.head_commit.id: ${{ github.event.workflow_run.head_commit.id }}"
+
   build_and_push:
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Build and Push
@@ -39,7 +51,7 @@ jobs:
           file: ./postman/Dockerfile
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/dsva/vets-api-postman:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/dsva/vets-api-postman:${{ github.event.workflow_run.head_commit.id }}
       - name: Build vets-api Docker Image
         uses: docker/build-push-action@v6
         env:
@@ -52,7 +64,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.sha }}
+            ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:${{ github.event.workflow_run.head_commit.id }}
           cache-from: type=registry,ref=$ECR_REGISTRY/$ECR_REPOSITORY
           cache-to: type=inline
   deploy:
@@ -63,7 +75,7 @@ jobs:
       ecr_repository: "vets-api"
       manifests_directory: "vets-api"
       auto_deploy_envs: "dev staging prod sandbox"
-      commit_sha: ${{ github.sha }}
+      commit_sha: ${{ github.event.workflow_run.head_commit.id }}
     secrets:
       aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
       aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
