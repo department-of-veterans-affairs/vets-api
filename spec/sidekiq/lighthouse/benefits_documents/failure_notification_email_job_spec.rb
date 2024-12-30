@@ -1,11 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-
-require 'lighthouse/benefits_documents/failure_notification_email_job'
 require 'va_notify/service'
 
-RSpec.describe BenefitsDocuments::FailureNotificationEmailJob, type: :job do
+RSpec.describe Lighthouse::BenefitsDocuments::FailureNotificationEmailJob, type: :job do
   subject { described_class }
 
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
