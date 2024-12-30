@@ -6,14 +6,14 @@ require 'gi/gids_response'
 
 describe GI::LCPE::Client do
   let(:service) { GI::LCPE::Client.new }
- 
+
   describe '#get_licenses_and_certs_v1' do
     it 'gets list of licenses and certifications' do
       VCR.use_cassette('gi/lcpe/get_licenses_and_certs_v1') do
         response = service.get_license_and_cert_details_v1({}).response
         lacs = response.body[:lacs]
         expect(lacs.class).to be(Array)
-        expect(lacs.first.keys).to match_array([:enriched_id, :name, :type])
+        expect(lacs.first.keys).to contain_exactly(%i[enriched_id name type])
       end
     end
   end
@@ -24,7 +24,7 @@ describe GI::LCPE::Client do
         response = service.get_license_and_cert_details_v1({ id: '1@f9822' }).response
         lac = response.body[:lac]
         expect(lac.class).to be(Hash)
-        expect(lac.keys).to match_array([:enriched_id, :name, :type, :tests, :institution])
+        expect(lac.keys).to contain_exactly(%i[enriched_id name type tests institution])
         expect(lac[:tests].class).to be(Array)
         expect(lac[:institution].class).to be(Hash)
       end
@@ -38,7 +38,7 @@ describe GI::LCPE::Client do
         exams = response.body[:exams]
         expect(exams.class).to be(Array)
         expect(exams.first.class).to be(Hash)
-        expect(exams.first.keys).to match_array([:enriched_id, :name, :tests, :institution])
+        expect(exams.first.keys).to contain_exactly(%i[enriched_id name tests institution])
         expect(exams.first[:tests].class).to be(Array)
         expect(exams.first[:institution].class).to be(Hash)
       end

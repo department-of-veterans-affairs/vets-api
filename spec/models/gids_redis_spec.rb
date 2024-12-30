@@ -30,8 +30,9 @@ describe GIDSRedis do
 
     context 'and the method belongs to `GI::LCPE::Client`' do
       it 'delegates to `GI::LCPE::Client`' do
-        allow_any_instance_of(GI::LCPE::Client).to receive(:get_licenses_and_certifications_v1).and_return(gids_response)
-
+        allow_any_instance_of(GI::LCPE::Client).to(
+          receive(:get_licenses_and_certifications_v1).and_return(gids_response)
+        )
         expect(subject.get_licenses_and_certifications_v1(scrubbed_params)).to eq(gids_response.body)
       end
     end
