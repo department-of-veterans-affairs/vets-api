@@ -111,14 +111,6 @@ class Vye::UserProfile < ApplicationRecord
     nil
   end
 
-  def check_for_match
-    user_profile = self
-    attribute_name = %w[ssn_digest file_number_digest icn].find { |a| attribute_changed? a }
-    conflict = attribute_name.present?
-
-    { user_profile:, conflict:, attribute_name: }
-  end
-
   def self.produce(attributes)
     ssn, file_number, icn = attributes.values_at(:ssn, :file_number, :icn).map(&:presence)
     ssn_digest, file_number_digest = [ssn, file_number].map { |value| gen_digest(value) }
@@ -126,7 +118,8 @@ class Vye::UserProfile < ApplicationRecord
 
     user_profile = find_or_build(ssn_digest:, file_number_digest:)
     user_profile&.assign_attributes(**assignment)
-    user_profile&.check_for_match
+
+    user_profile
   end
 
   def self.find_or_build(ssn_digest:, file_number_digest:)
