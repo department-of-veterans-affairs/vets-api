@@ -12,7 +12,7 @@ on:
       auto_deploy_envs:
         required: true
         type: string
-      commit_sha:  # #${{ github.sha }}
+      commit_sha:  # #${{ github.event.workflow_run.head_commit.id }}
         required: true
         type: string
     secrets:
