@@ -28,34 +28,42 @@ RSpec.describe VRE::Monitor do
   let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
 
   describe '#track_submission_exhaustion' do
-    it 'logs sidekiq job exhaustion failure avoided' do
-      msg = { 'args' => [claim.id, encrypted_user], error_message: 'Error!' }
+    [true, false].each do |flipper_value|
+      context "when json_schemer flipper is #{flipper_value}" do
+        before do
+          allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(flipper_value)
+        end
 
-      log = "Failed all retries on VRE::Submit1900Job, last error: #{msg['error_message']}"
-      payload = {
-        message: msg
-      }
+        it 'logs sidekiq job exhaustion failure avoided' do
+          msg = { 'args' => [claim.id, encrypted_user], error_message: 'Error!' }
 
-      expect(monitor).to receive(:log_silent_failure_avoided).with(payload, nil, anything)
-      expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
-      expect(Rails.logger).to receive(:error).with(log)
+          log = "Failed all retries on VRE::Submit1900Job, last error: #{msg['error_message']}"
+          payload = {
+            message: msg
+          }
 
-      monitor.track_submission_exhaustion(msg, user_struct.va_profile_email)
-    end
+          expect(monitor).to receive(:log_silent_failure_avoided).with(payload, nil, anything)
+          expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
+          expect(Rails.logger).to receive(:error).with(log)
 
-    it 'logs sidekiq job exhaustion failure' do
-      msg = { 'args' => [claim.id, encrypted_user], error_message: 'Error!' }
+          monitor.track_submission_exhaustion(msg, user_struct.va_profile_email)
+        end
 
-      log = "Failed all retries on VRE::Submit1900Job, last error: #{msg['error_message']}"
-      payload = {
-        message: msg
-      }
+        it 'logs sidekiq job exhaustion failure' do
+          msg = { 'args' => [claim.id, encrypted_user], error_message: 'Error!' }
 
-      expect(monitor).to receive(:log_silent_failure).with(payload, nil, anything)
-      expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
-      expect(Rails.logger).to receive(:error).with(log)
+          log = "Failed all retries on VRE::Submit1900Job, last error: #{msg['error_message']}"
+          payload = {
+            message: msg
+          }
 
-      monitor.track_submission_exhaustion(msg, nil)
+          expect(monitor).to receive(:log_silent_failure).with(payload, nil, anything)
+          expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
+          expect(Rails.logger).to receive(:error).with(log)
+
+          monitor.track_submission_exhaustion(msg, nil)
+        end
+      end
     end
   end
 end

@@ -98,6 +98,7 @@ class User < Common::RedisStore
   delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :loa3?, to: :identity, allow_nil: true
   delegate :logingov_uuid, to: :identity, allow_nil: true
+  delegate :mhv_credential_uuid, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :sign_in, to: :identity, allow_nil: true, prefix: true
@@ -152,20 +153,16 @@ class User < Common::RedisStore
   end
 
   def mhv_correlation_id
-    identity.mhv_correlation_id || mpi_mhv_correlation_id
+    return mhv_user_account.id if mhv_user_account.present?
+
+    mpi_mhv_correlation_id if active_mhv_ids&.one?
   end
 
   def mhv_user_account
-    @mhv_user_account ||= if va_patient?
-                            MHV::UserAccount::Creator.new(user_verification:).perform
-                          else
-                            log_mhv_user_account_error('User has no va_treatment_facility_ids')
-
-                            nil
-                          end
-  rescue MHV::UserAccount::Errors::UserAccountError => e
+    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:).perform
+  rescue => e
     log_mhv_user_account_error(e.message)
-    raise
+    nil
   end
 
   def middle_name
@@ -473,9 +470,7 @@ class User < Common::RedisStore
   end
 
   def can_create_mhv_account?
-    return false unless Flipper.enabled?(:mhv_account_creation_after_login, user_account)
-
-    loa3? && va_patient? && !needs_accepted_terms_of_use
+    loa3? && !needs_accepted_terms_of_use
   end
 
   private
@@ -496,7 +491,7 @@ class User < Common::RedisStore
   def get_user_verification
     case identity_sign_in&.dig(:service_name)
     when SAML::User::MHV_ORIGINAL_CSID
-      return UserVerification.find_by(mhv_uuid: mhv_correlation_id) if mhv_correlation_id
+      return UserVerification.find_by(mhv_uuid: mhv_credential_uuid) if mhv_credential_uuid
     when SAML::User::DSLOGON_CSID
       return UserVerification.find_by(dslogon_uuid: identity.edipi) if identity.edipi
     when SAML::User::LOGINGOV_CSID
