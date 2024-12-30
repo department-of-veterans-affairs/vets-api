@@ -344,9 +344,9 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
     end
   end
 
-  describe 'GET /v0/caregivers_assistance_claims/facilities' do
+  describe 'POST /v0/caregivers_assistance_claims/facilities' do
     subject do
-      get('/v0/caregivers_assistance_claims/facilities', params:, headers:)
+      post('/v0/caregivers_assistance_claims/facilities', params: params.to_json, headers:)
     end
 
     let(:headers) do
@@ -358,19 +358,19 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
     let(:params) do
       {
-        'zip' => '90210',
-        'state' => 'CA',
-        'lat' => '34.0522',
-        'long' => '-118.2437',
-        'radius' => '50',
-        'visn' => '1',
-        'type' => '1',
-        'mobile' => '1',
-        'page' => '1',
-        'per_page' => '10',
-        'facilityIds' => 'vha_123,vha_456',
-        'services' => ['1'],
-        'bbox' => ['2']
+        zip: '90210',
+        state: 'CA',
+        lat: 34.0522,
+        long: -118.2437,
+        radius: 50,
+        visn: '1',
+        type: '1',
+        mobile: true,
+        page: 1,
+        per_page: 10,
+        facilityIds: 'vha_123,vha_456',
+        services: ['1'],
+        bbox: [2]
       }
     end
 
