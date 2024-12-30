@@ -103,7 +103,8 @@ module SimpleFormsApi
         form.track_user_identity(confirmation_number)
 
         if confirmation_number && Flipper.enabled?(:simple_forms_email_confirmations)
-          send_notification_email('vba_21_0966_intent_api', parsed_form_data, confirmation_number, :received)
+          send_notification_email('vba_21_0966_intent_api', parsed_form_data, :received, confirmation_number,
+                                  expiration_date)
         end
 
         json_for210966(confirmation_number, expiration_date, existing_intents)
@@ -128,19 +129,19 @@ module SimpleFormsApi
         )
 
         if Flipper.enabled?(:simple_forms_email_confirmations)
-          send_status_notification('vba_26_4555', parsed_form_data, status)
+          send_status_notification('vba_26_4555', parsed_form_data, reference_number, status)
         end
 
         { json: { reference_number:, status: }, status: lgy_response.status }
       end
 
-      def send_status_notification(form_num, form_data, status)
+      def send_status_notification(form_num, form_data, reference_number, status)
         notification_type = case status
                             when 'VALIDATED', 'ACCEPTED' then :confirmation
                             when 'REJECTED' then :rejected
                             when 'DUPLICATE' then :duplicate
                             end
-        send_notification_email(form_num, form_data, nil, notification_type) if notification_type
+        send_notification_email(form_num, form_data, notification_type, reference_number) if notification_type
       end
 
       def submit_form_to_benefits_intake
@@ -158,7 +159,7 @@ module SimpleFormsApi
 
         if status == 200
           if Flipper.enabled?(:simple_forms_email_confirmations)
-            send_notification_email(form_id, parsed_form_data, confirmation_number, :confirmation)
+            send_notification_email(form_id, parsed_form_data, :confirmation, confirmation_number)
           end
 
           presigned_s3_url = if Flipper.enabled?(:submission_pdf_s3_upload)
@@ -311,12 +312,14 @@ module SimpleFormsApi
         } }
       end
 
-      def send_notification_email(form_number, parsed_form_data, notification_type, confirmation_number)
+      def send_notification_email(form_number, parsed_form_data, notification_type, confirmation_number,
+                                  expiration_date = nil)
         config = {
           form_data: parsed_form_data,
           form_number:,
           confirmation_number:,
-          date_submitted: Time.zone.today.strftime('%B %d, %Y')
+          date_submitted: Time.zone.today.strftime('%B %d, %Y'),
+          expiration_date:
         }
         notification_email = SimpleFormsApi::NotificationEmail.new(
           config,
