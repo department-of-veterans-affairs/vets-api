@@ -58,15 +58,18 @@ module IvcChampva
     #
     # @param form [IvcChampvaForm] form object in question
     # @param template_id [string] key for template to use in `IvcChampva::Email::EMAIL_TEMPLATE_MAP`
-    # @param additional_context [hash] contains properties form_id and form_uuid (e.g.: {form_id: '10-10d', form_uuid: '12345678-1234-5678-1234-567812345678'})
+    # @param additional_context [hash] contains properties form_id and form_uuid
+    #   (e.g.: {form_id: '10-10d', form_uuid: '12345678-1234-5678-1234-567812345678'})
     def send_failure_email(form, template_id, additional_context)
-      form_data = construct_email_payload(form, template_id).merge({
-        callback_klass: 'IvcChampva::ZsfEmailNotificationCallback', 
-        callback_metadata: {
-          statsd_tag: 'veteran-ivc-champva-forms',
-          additional_context:
+      form_data = construct_email_payload(form, template_id).merge(
+        {
+          callback_klass: 'IvcChampva::ZsfEmailNotificationCallback',
+          callback_metadata: {
+            statsd_tag: 'veteran-ivc-champva-forms',
+            additional_context:
+          }
         }
-      })
+      )
       ActiveRecord::Base.transaction do
         if IvcChampva::Email.new(form_data).send_email
           fetch_forms_by_uuid(form[:form_uuid]).update_all(email_sent: true) # rubocop:disable Rails/SkipsModelValidations

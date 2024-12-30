@@ -23,7 +23,7 @@ module IvcChampva
       @data = data
     end
 
-    def send_email
+    def send_email # rubocop:disable Metrics/MethodLength
       Datadog::Tracing.trace('Send PEGA Status Update Email') do
         return false unless valid_environment?
 
