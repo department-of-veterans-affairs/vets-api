@@ -88,13 +88,13 @@ RSpec.describe IvcChampva::PegaApi::Client do
     end
   end
 
-  # temporary, delete me
-  describe 'hit the production endpoint' do
+  # Temporary, delete me
+  # This test is used to hit the production endpoint when running locally.
+  # It can be removed once we have some real code that uses the Pega API client.
+  describe 'hit the production endpoint', skip: 'this is useful as a way to hit the API during local development' do
     let(:forced_headers) do
       {
         :content_type => 'application/json',
-        # use the following line when running in the pipelie to pull the key from the parameter store
-        # 'x-api-key' => Settings.ivc_champva.pega_api.api_key.to_s,
         # use the following line when running locally tp pull the key from an environment variable
         'x-api-key' => ENV.fetch('PEGA_API_KEY'), # to set: export PEGA_API_KEY=insert1the2api3key4here
         'date_start' => '', # '2024-11-01', # '11/01/2024',
@@ -114,7 +114,7 @@ RSpec.describe IvcChampva::PegaApi::Client do
       end
 
       result = subject.get_report(Date.new(2024, 11, 1), Date.new(2024, 12, 31))
-      expect(result.count).to be.positive?
+      expect(result.count).to be_positive
 
       # byebug # in byebug, type 'p result' to view the response
     end
