@@ -16,7 +16,7 @@ RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
       end
     end
   end
-  
+
   describe 'GET v1/gi/lcpe/exams/:id' do
     context 'Retrieves exam details for GI Bill Comparison Tool' do
       it 'returns 200 response' do
