@@ -80,11 +80,21 @@ module V0
         context = 'An error occurred while attempting to retrieve the claim(s).'
         log_exception_to_sentry(exception, 'context' => context)
         render nothing: true, status: :service_unavailable
+        # also log to datadog
+        ::Rails.logger.error(
+          message: context + ": #{exception.message}",
+          backtrace: exception.backtrace
+        )
       end
 
       def report_exception_handler(exception)
         context = 'An error occurred while attempting to report the claim(s).'
         log_exception_to_sentry(exception, 'context' => context)
+        # also log to datadog
+        ::Rails.logger.error(
+          message: context + ": #{exception.message}",
+          backtrace: exception.backtrace
+        )
       end
 
       class ServiceException < RuntimeError; end

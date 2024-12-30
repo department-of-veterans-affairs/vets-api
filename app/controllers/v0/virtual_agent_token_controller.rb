@@ -63,6 +63,11 @@ module V0
       context = 'An error occurred with the Microsoft service that issues chatbot tokens'
       log_exception_to_sentry(exception, 'context' => context)
       render nothing: true, status: :service_unavailable
+      # also log to datadog
+      ::Rails.logger.error(
+        message: context + ": #{exception.message}",
+        backtrace: exception.backtrace
+      )
     end
 
     class ServiceException < RuntimeError; end

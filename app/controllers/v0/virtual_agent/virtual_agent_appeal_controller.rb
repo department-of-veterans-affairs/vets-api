@@ -165,6 +165,10 @@ module V0
           appeal_status_description = 'Unknown Status'
           unknown_status_error = StandardError.new("Unknown status: #{appeal_status} with AOJ: #{aoj}")
           log_exception_to_sentry(unknown_status_error, { appeal_status => appeal_status, aoj => aoj })
+          # also log to datadog
+          ::Rails.logger.error(
+            message: unknown_status_error.message
+          )
         end
 
         if appeal_status_description.include? '{aoj_desc}'
@@ -191,8 +195,12 @@ module V0
 
       def service_exception_handler(exception)
         context = 'An error occurred while attempting to retrieve the appeal(s)'
+        # also log to datadog
+        datadog_message = { message: "#{context}: #{exception.message}" }
+        datadog_message[:backtrace] = exception.backtrace if exception.backtrace
+        ::Rails.logger.error(datadog_message)
         log_exception_to_sentry(exception, 'context' => context)
-        render nothing: true, status: :internal_server_error
+        head :internal_server_error
       end
     end
   end
