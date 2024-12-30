@@ -11,23 +11,24 @@ module AccreditedRepresentativePortal
       end
 
       def show
-        poa_request = poa_requests_rel.find(params[:id])
-        serializer = PowerOfAttorneyRequestSerializer.new(poa_request)
-
-        render json: serializer.serializable_hash, status: :ok
+        if poa_request && authorize(poa_request, :show?, policy_class: PowerOfAttorneyRequestsPolicy)
+          serializer = PowerOfAttorneyRequestSerializer.new(poa_request)
+          render json: serializer.serializable_hash, status: :ok
+        else
+          render json: { error: 'Record not found' }, status: :not_found
+        end
       rescue ActiveRecord::RecordNotFound
         render json: { error: 'Record not found' }, status: :not_found
       end
 
       private
 
+      def poa_request
+        poa_requests_rel.find(params[:id])
+      end
+
       def poa_requests_rel
-        PowerOfAttorneyRequest.includes(
-          :power_of_attorney_form,
-          :power_of_attorney_holder,
-          :accredited_individual,
-          resolution: :resolving
-        )
+        policy_scope(PowerOfAttorneyRequest, policy_scope_class: PowerOfAttorneyRequestsPolicy::Scope)
       end
     end
   end

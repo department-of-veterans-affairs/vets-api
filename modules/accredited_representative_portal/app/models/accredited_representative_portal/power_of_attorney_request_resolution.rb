@@ -6,24 +6,24 @@ module AccreditedRepresentativePortal
                class_name: 'PowerOfAttorneyRequest',
                inverse_of: :resolution
 
-    RESOLVING_TYPES = [
-      'PowerOfAttorneyRequestExpiration',
-      'PowerOfAttorneyRequestDecision'
+    RESOLVING_TYPES = %w[
+      PowerOfAttorneyRequestExpiration
+      PowerOfAttorneyRequestDecision
     ].freeze
 
     delegated_type :resolving,
-      types: RESOLVING_TYPES,
-      inverse_of: :resolution
+                   types: RESOLVING_TYPES,
+                   inverse_of: :resolution
 
     module Resolving
       extend ActiveSupport::Concern
 
       included do
         has_one :resolution,
-          as: :resolving,
-          inverse_of: :resolving,
-          class_name: 'PowerOfAttorneyRequestResolution',
-          required: true
+                as: :resolving,
+                inverse_of: :resolving,
+                class_name: 'PowerOfAttorneyRequestResolution',
+                required: true
       end
     end
 

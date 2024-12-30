@@ -29,6 +29,8 @@ module AccreditedRepresentativePortal
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
 
+    delegate :poa_code, to: :accredited_individual
+
     private
 
     def set_claimant_type
@@ -39,7 +41,7 @@ module AccreditedRepresentativePortal
 
       if power_of_attorney_form.parsed_data['veteran']
         self.claimant_type = ClaimantTypes::VETERAN
-        return
+        nil
       end
     end
   end

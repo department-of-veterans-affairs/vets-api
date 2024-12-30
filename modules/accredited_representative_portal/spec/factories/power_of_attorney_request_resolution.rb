@@ -24,6 +24,10 @@ FactoryBot.define do
           )
       end
 
+      after(:create) do |resolution|
+        resolution.power_of_attorney_request.accredited_individual.update(poa_code: '123')
+      end
+
       reason { "Didn't authorize treatment record disclosure" }
     end
 
