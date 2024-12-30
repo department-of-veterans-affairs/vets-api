@@ -1040,6 +1040,40 @@ describe VAOS::V2::AppointmentsService do
     end
   end
 
+  describe '#get_appointments' do
+    context 'when include eps is true' do
+      let(:eps_appointments) do
+        {
+          appointments: [
+            { referralId: 'eps1', start: '2022-12-01T10:00:00Z' },
+            { referralId: 'eps2', start: '2022-12-02T10:00:00Z' }
+          ]
+        }
+      end
+
+      let(:vaos_appointments) do
+        {
+          data: [
+            { id: 'vaos1', start: '2022-12-03T10:00:00Z' },
+            { id: 'vaos2', start: '2022-12-04T10:00:00Z' }
+          ]
+        }
+      end
+
+      before do
+        allow(subject).to receive(:eps_appointments).and_return(eps_appointments)
+        allow(subject).to receive(:perform).and_return(double(body: vaos_appointments))
+        allow(subject).to receive(:validate_response_schema)
+      end
+
+      it 'merges eps appointments with vaos appointments' do
+        result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+        expect(result[:data].map(&:referralId)).to include('eps1', 'eps2')
+        expect(result[:data].map(&:id)).to include('vaos1', 'vaos2')
+      end
+    end
+  end
+
   describe '#convert_appointment_time' do
     let(:manila_appt) do
       {
