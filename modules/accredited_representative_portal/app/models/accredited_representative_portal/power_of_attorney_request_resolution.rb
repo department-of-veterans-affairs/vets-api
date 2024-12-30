@@ -13,6 +13,8 @@ module AccreditedRepresentativePortal
 
     delegated_type :resolving, types: RESOLVING_TYPES
 
+    validates :power_of_attorney_request, uniqueness: true
+
     has_kms_key
 
     has_encrypted :reason, key: :kms_key, **lockbox_options
