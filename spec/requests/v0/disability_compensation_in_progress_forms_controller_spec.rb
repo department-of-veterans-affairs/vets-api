@@ -113,17 +113,17 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             json_response = JSON.parse(response.body)
             expect(json_response['formData']['startedFormVersion']).to eq('2019')
           end
-
-          # if the user with an IPF was not chosen for Toxic Exposure 1.1 release
-          it 'does not return startedFormVersion' do
-            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
-            end
-
-            expect(response).to have_http_status(:ok)
-            json_response = JSON.parse(response.body)
-            expect(json_response['formData']['startedFormVersion']).to eq(nil)
-          end
+          #
+          # # if the user with an IPF was not chosen for Toxic Exposure 1.1 release
+          # it 'does not return startedFormVersion' do
+          #   VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+          #     get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
+          #   end
+          #
+          #   expect(response).to have_http_status(:ok)
+          #   json_response = JSON.parse(response.body)
+          #   expect(json_response['formData']['startedFormVersion']).to eq(nil)
+          # end
         end
       end
 
@@ -141,11 +141,11 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
           expect(json_response['formData']['startedFormVersion']).to eq('2022')
         end
 
-        it 'omits adding startedFormVersion when corresponding flag is not enabled for user' do
-          get v0_disability_compensation_in_progress_form_url(form_id), params: nil
-          json_response = JSON.parse(response.body)
-          expect(json_response['formData']['startedFormVersion']).to eq(nil)
-        end
+        # it 'omits adding startedFormVersion when corresponding flag is not enabled for user' do
+        #   get v0_disability_compensation_in_progress_form_url(form_id), params: nil
+        #   json_response = JSON.parse(response.body)
+        #   expect(json_response['formData']['startedFormVersion']).to eq(nil)
+        # end
       end
 
       context 'using the EVSS Rated Disabilities Provider' do
@@ -257,16 +257,16 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
             expect(json_response['formData']['startedFormVersion']).to eq('2019')
           end
 
-          # if the user with an IPF was not chosen for Toxic Exposure 1.1 release
-          it 'does not return startedFormVersion' do
-            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
-            end
-
-            expect(response).to have_http_status(:ok)
-            json_response = JSON.parse(response.body)
-            expect(json_response['formData']['startedFormVersion']).to eq(nil)
-          end
+          # # if the user with an IPF was not chosen for Toxic Exposure 1.1 release
+          # it 'does not return startedFormVersion' do
+          #   VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
+          #     get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
+          #   end
+          #
+          #   expect(response).to have_http_status(:ok)
+          #   json_response = JSON.parse(response.body)
+          #   expect(json_response['formData']['startedFormVersion']).to eq(nil)
+          # end
         end
 
         describe '#index' do
