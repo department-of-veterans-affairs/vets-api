@@ -210,13 +210,12 @@ module VAOS
       end
 
       def merge_appointments(eps_appointments, appointments)
-        normalized_new = eps_appointments[:appointments].map { |appt| eps_serializer.new(appt) }
-        appointment_data = appointments[:data].is_a?(Array) ? appointments[:data] : [appointments[:data]]
-        existing_ids = appointment_data.to_set { |a| a[:referralId] }
-        merged_data = appointment_data + normalized_new.reject { |a| existing_ids.include?(a[:referralId]) }
-        sorted_data = merged_data.sort_by { |appt| appt.dig(:requestedPeriods, 0, :start) || '' }
-
-        { data: sorted_data }
+        normalized_new = eps_appointments.map { |appt| eps_serializer.serialize(appt) }
+        existing_ids = appointments.to_set { |a| a.dig(:referral, :referralNumber) }
+        merged_data = appointments + normalized_new.reject do |a|
+          existing_ids.include?(a.dig(:referral, :referralNumber))
+        end
+        merged_data.sort_by { |appt| appt[:start] || '' }
       end
 
       memoize :get_facility_timezone_memoized
@@ -855,7 +854,7 @@ module VAOS
       end
 
       def eps_serializer
-        @eps_serializer ||= VAOS::Eps::EpsAppointmentSerializer
+        @eps_serializer ||= VAOS::V2::EpsAppointmentSerializer.new
       end
     end
   end
