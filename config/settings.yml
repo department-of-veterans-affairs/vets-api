@@ -400,6 +400,7 @@ intent_to_file:
   prefill: true
 
 ivc_champva:
+  prefill: true
   pega_api:
     api_key: fake_api_key
 
