@@ -30,7 +30,7 @@ FactoryBot.define do
         'filename' => 'test.txt',
         'date_submitted' => DateTime.now.utc.to_s,
         'date_failed' => DateTime.now.utc.to_s
-      } }
+      } }.to_json
     end
   end
 
