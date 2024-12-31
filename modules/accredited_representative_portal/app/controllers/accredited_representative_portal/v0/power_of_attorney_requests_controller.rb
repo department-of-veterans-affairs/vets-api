@@ -4,10 +4,19 @@ module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
       def index
-        poa_requests = poa_requests_rel.limit(100)
-        serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
+        normalized_filtered_params = normalize_params(filter_params)
 
-        render json: serializer.serializable_hash, status: :ok
+        poa_requests, errors = FilterService.handle_filter(normalized_filtered_params)
+
+        if errors.present?
+          logger.error("Invalid search parameters: #{errors}")
+
+          render json: { errors: errors }, status: :bad_request
+        else
+          serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
+
+          render json: serializer.serializable_hash, status: :ok
+        end
       end
 
       def show
@@ -28,6 +37,14 @@ module AccreditedRepresentativePortal
           :accredited_individual,
           resolution: :resolving
         )
+      end
+
+      def filter_params
+        params.permit(:status, :sort_direction, :sort_field, :page_number, :page_size).to_h
+      end
+
+      def normalize_params(params)
+        params.transform_keys { |key| key.to_s.camelize(:lower).to_sym }
       end
     end
   end
