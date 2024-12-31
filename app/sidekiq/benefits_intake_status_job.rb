@@ -100,6 +100,11 @@ class BenefitsIntakeStatusJob
         # submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.update(lighthouse_updated_at:)
         form_submission_attempt.vbms!
+
+        # Remove this logic after SubmissionStatusJob replaces this one
+        if Flipper.enabled?(:burial_received_email_notification) && form_id == ('21P-530EZ')
+          send_burial_received_notification(form_id, saved_claim_id, uuid)
+        end
         log_result('success', form_id, uuid, time_to_transition)
       elsif time_to_transition > STALE_SLA.days
         # exceeds SLA (service level agreement) days for submission completion
@@ -126,6 +131,23 @@ class BenefitsIntakeStatusJob
       Rails.logger.error('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:, error_message:)
     else
       Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:)
+    end
+  end
+
+  def send_burial_received_notification(form_id, saved_claim_id, bi_uuid)
+    context = {
+      form_id: form_id,
+      claim_id: saved_claim_id,
+      benefits_intake_uuid: bi_uuid
+    }
+    call_location = caller_locations.first
+
+    claim = SavedClaim::Burial.find(saved_claim_id)
+    if claim
+      Burials::NotificationEmail.new(claim.id).deliver(:received)
+      Burials::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
+    else
+      Burials::Monitor.new.log_silent_failure(context, nil, call_location:)
     end
   end
 

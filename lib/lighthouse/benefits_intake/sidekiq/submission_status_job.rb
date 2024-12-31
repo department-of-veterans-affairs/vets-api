@@ -19,12 +19,13 @@ module BenefitsIntake
 
     # any status not listed will result in 'pending'
     STATUS_RESULT_MAP = {
-      expired: 'failure', # Indicates that documents were not successfully uploaded within the 15-minute window
-      error: 'failure',   # Indicates that there was an error. Refer to the code and detail for further information
-      vbms: 'success',    # Submission was successfully uploaded into a Veteran's eFolder within VBMS
-      success: 'pending', # Submission was successfully received into Lighthouse systems
-      pending: 'pending', # Submission is being processed
-      stale: 'stale'      # Exceeds SLA (service level agreement) days for submission completion; non-lighthouse status
+      expired: 'failure',  # Indicates that documents were not successfully uploaded within the 15-minute window
+      error: 'failure',    # Indicates that there was an error. Refer to the code and detail for further information
+      vbms: 'success',     # Submission was successfully uploaded into a Veteran's eFolder within VBMS
+      success: 'pending',  # Submission was successfully received into Lighthouse systems
+      pending: 'pending',  # Submission is being processed
+      stale: 'stale',      # Exceeds SLA (service level agreement) days for submission completion; non-lighthouse status
+      received: 'received' # Submission (Burial) was received by VBMS
     }.freeze
 
     # A hash mapping form IDs to their corresponding handlers.
@@ -121,6 +122,8 @@ module BenefitsIntake
 
     def update_attempt_record(uuid, status, submission)
       form_submission_attempt = pending_attempts_hash[uuid]
+      form_id = form_submission_attempt.form_submission.form_type
+      saved_claim_id = form_submission_attempt.form_submission.saved_claim_id
       lighthouse_updated_at = submission.dig('attributes', 'updated_at')
 
       case status
@@ -137,6 +140,9 @@ module BenefitsIntake
       when 'vbms'
         # Submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.vbms!
+        if Flipper.enabled?(:burial_received_email_notification) && form_id == ('21P-530EZ')
+          send_burial_received_notification(form_id, saved_claim_id, uuid)
+        end
       end
 
       form_submission_attempt.update(lighthouse_updated_at:, error_message:)
@@ -182,6 +188,24 @@ module BenefitsIntake
       result = 'stale' if queue_time > STALE_SLA.days && result == 'pending'
 
       [form_submission_attempt, result]
+    end
+
+    def send_burial_received_notification(form_id, saved_claim_id, bi_uuid)
+      context = {
+        uuid: bi_uuid,
+        form_id: form_id,
+        claim_id: saved_claim_id,
+        benefits_intake_uuid: bi_uuid
+      }
+      call_location = caller_locations.first
+
+      claim = SavedClaim::Burial.find(saved_claim_id)
+      if claim
+        Burials::NotificationEmail.new(claim.id).deliver(:received)
+        Burials::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
+      else
+        Burials::Monitor.new.log_silent_failure(context, nil, call_location:)
+      end
     end
 
     # end class SubmissionStatusJob
