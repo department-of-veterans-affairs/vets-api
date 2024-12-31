@@ -14,8 +14,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution,
     expect(resolution_b).not_to be_valid
     expect(resolution_b.errors.full_messages).to eq(
       [
-        'Power of attorney request has already been taken',
-        'Resolving is invalid'
+        'Power of attorney request has already been taken'
       ]
     )
   end

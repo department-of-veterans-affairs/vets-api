@@ -62,11 +62,11 @@ FactoryBot.define do
         {
           authorizations: {
             record_disclosure: Faker::Boolean.boolean,
-            record_disclosure_limitations: [
-              "ALCOHOLISM",
-              "DRUG_ABUSE",
-              "HIV",
-              "SICKLE_CELL"
+            record_disclosure_limitations: %w[
+              ALCOHOLISM
+              DRUG_ABUSE
+              HIV
+              SICKLE_CELL
             ].select { rand < 0.5 },
             address_change: Faker::Boolean.boolean
           },
@@ -82,7 +82,7 @@ FactoryBot.define do
               address_line2: nil,
               city: Faker::Address.city,
               state_code: Faker::Address.state_abbr,
-              country: "US",
+              country: 'US',
               zip_code: Faker::Address.zip_code,
               zip_code_suffix: nil
             },
@@ -90,15 +90,15 @@ FactoryBot.define do
             va_file_number: Faker::Number.number(digits: 9).to_s,
             date_of_birth: Faker::Date.birthday(min_age: 21, max_age: 100).to_s,
             service_number: Faker::Number.number(digits: 9).to_s,
-            service_branch: [
-              "ARMY",
-              "NAVY",
-              "AIR_FORCE",
-              "MARINE_CORPS",
-              "COAST_GUARD",
-              "SPACE_FORCE",
-              "NOAA",
-              "USPHS"
+            service_branch: %w[
+              ARMY
+              NAVY
+              AIR_FORCE
+              MARINE_CORPS
+              COAST_GUARD
+              SPACE_FORCE
+              NOAA
+              USPHS
             ].sample,
             phone: Faker::PhoneNumber.phone_number,
             email: Faker::Internet.email
