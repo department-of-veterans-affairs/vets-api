@@ -76,7 +76,7 @@ module BenefitsDocuments
       if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
         Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_hash)
       else
-        Lighthouse::BenefitsDocuments::DocumentUpload.perform_async(user_icn, document_hash, user_account_uuid,
+        Lighthouse::EvidenceSubmissions::DocumentUpload.perform_async(user_icn, document_hash, user_account_uuid,
                                                                     claim_id, tracked_item_id)
       end
     end

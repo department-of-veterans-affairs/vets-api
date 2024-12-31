@@ -23,7 +23,7 @@ FactoryBot.define do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
-    job_class { 'Lighthouse::BenefitsDocuments::DocumentUpload' }
+    job_class { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
     template_metadata_ciphertext do
       { 'personalisation' => {
         'first_name' => 'test',
@@ -38,7 +38,7 @@ FactoryBot.define do
     association :user_account, factory: :user_account
     created_at { 5.days.ago }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
-    job_class { 'Lighthouse::BenefitsDocuments::DocumentUpload' }
+    job_class { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
     va_notify_id { 123 }
     va_notify_date { DateTime.now.utc }
   end
@@ -47,7 +47,7 @@ FactoryBot.define do
     association :user_account, factory: :user_account
     created_at { 5.days.ago }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED] }
-    job_class { 'Lighthouse::BenefitsDocuments::DocumentUpload' }
+    job_class { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
     va_notify_id { 123 }
     va_notify_date { DateTime.now.utc }
     va_notify_status { 'success' }

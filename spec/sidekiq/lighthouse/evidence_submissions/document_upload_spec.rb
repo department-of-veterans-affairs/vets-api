@@ -4,11 +4,11 @@ require 'rails_helper'
 require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
-require 'lighthouse/benefits_documents/document_upload'
+require 'lighthouse/evidence_submissions/document_upload'
 require 'va_notify/service'
 require 'lighthouse/benefits_documents/constants'
 
-RSpec.describe Lighthouse::BenefitsDocuments::DocumentUpload, type: :job do
+RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   subject(:job) do
     described_class.perform_async(user_icn,
                                   document_data.to_serializable_hash,
@@ -39,7 +39,7 @@ RSpec.describe Lighthouse::BenefitsDocuments::DocumentUpload, type: :job do
   let(:job_id) { job }
 
   let(:client_stub) { instance_double(BenefitsDocuments::WorkerService) }
-  let(:job_class) { 'Lighthouse::BenefitsDocuments::DocumentUpload' }
+  let(:job_class) { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
   let(:msg) do
     {
       'args' => [user_account.icn, { 'file_name' => filename, 'first_name' => 'Bob' }],
@@ -110,14 +110,14 @@ RSpec.describe Lighthouse::BenefitsDocuments::DocumentUpload, type: :job do
     let(:tags) { ['service:claim-status', "function: #{error_message}"] }
 
     it 'creates a failed evidence submission record' do
-      Lighthouse::BenefitsDocuments::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
+      Lighthouse::EvidenceSubmissions::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
         expect(EvidenceSubmission).to receive(:create).and_return(evidence_submission_failed)
       end
       expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
     end
 
     it 'fails to create a failed evidence submission record when args malformed' do
-      Lighthouse::BenefitsDocuments::DocumentUpload.within_sidekiq_retries_exhausted_block(msg_with_errors) do
+      Lighthouse::EvidenceSubmissions::DocumentUpload.within_sidekiq_retries_exhausted_block(msg_with_errors) do
         expect(EvidenceSubmission).not_to receive(:create)
         expect(Rails.logger)
           .to receive(:info)
