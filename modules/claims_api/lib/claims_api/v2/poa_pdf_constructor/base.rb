@@ -130,6 +130,12 @@ module ClaimsApi
           @page2_path = temp_path
         end
 
+        def set_limitation_of_consent_check_box(consent_limits, item)
+          return 1 if consent_limits.blank?
+
+          consent_limits.include?(item) ? 0 : 1
+        end
+
         def insert_text_signatures(page_template, signatures)
           return if signatures.nil?
 
