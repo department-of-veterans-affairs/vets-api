@@ -95,6 +95,13 @@ module TravelPay
               message: 'You must provide a BTSSS claim ID to submit a claim.'
       end
 
+      # ensure claim ID is the right format, allowing any version
+      uuid_all_version_format = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[89ABCD][0-9A-F]{3}-[0-9A-F]{12}$/i
+      unless uuid_all_version_format.match?(claim_id)
+        raise ArgumentError,
+              message: "Expected BTSSS claim id to be a valid UUID"
+      end
+
       @auth_manager.authorize => { veis_token:, btsss_token: }
       submitted_claim_response = client.submit_claim(veis_token, btsss_token, claim_id)
 
