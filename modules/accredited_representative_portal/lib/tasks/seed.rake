@@ -20,6 +20,7 @@ namespace :accredited_representative_portal do
   end
 end
 
+# rubocop:disable Metrics/MethodLength, Metrics/ModuleLength, Rails/SkipsModelValidations
 module AccreditedRepresentativePortal
   ##
   # Representative records derived from here:
@@ -31,17 +32,17 @@ module AccreditedRepresentativePortal
         ActiveRecord::Base.transaction do
           insert_all(
             Records::ATTORNEYS,
-            factory: [
-              :accredited_individual,
-              :attorney
+            factory: %i[
+              accredited_individual
+              attorney
             ]
           )
 
           insert_all(
             Records::CLAIMS_AGENTS,
-            factory: [
-              :accredited_individual,
-              :claims_agent
+            factory: %i[
+              accredited_individual
+              claims_agent
             ]
           )
 
@@ -56,9 +57,9 @@ module AccreditedRepresentativePortal
 
           insert_all(
             Records::REPRESENTATIVES,
-            factory: [
-              :accredited_individual,
-              :representative
+            factory: %i[
+              accredited_individual
+              representative
             ]
           ) do |representative|
             representative
@@ -76,9 +77,9 @@ module AccreditedRepresentativePortal
             factory: [
               :accreditation
             ],
-            unique_by: [
-              :accredited_organization_id,
-              :accredited_individual_id
+            unique_by: %i[
+              accredited_organization_id
+              accredited_individual_id
             ]
           )
 
@@ -186,7 +187,7 @@ module AccreditedRepresentativePortal
 
       def insert_all(records, factory:, unique_by: nil)
         records =
-          records.map.with_index do |record, i|
+          records.map.with_index do |record, _i|
             yield(record) if block_given?
 
             FactoryBot
@@ -206,9 +207,9 @@ module AccreditedRepresentativePortal
       end
 
       RESOLUTION_HISTORY_CYCLE =
-        [:expiration, :declination, :acceptance]
-          .permutation
-          .cycle
+        %i[expiration declination acceptance]
+        .permutation
+        .cycle
 
       RESOLVED_TIME_TRAVELER =
         Enumerator.new do |yielder|
@@ -219,9 +220,9 @@ module AccreditedRepresentativePortal
             # These 3 entries spread are here because we are making 3 POA
             # requests per claimant in a row.
             #
-            yielder << time + 0.days
-            yielder << time + 10.days
-            yielder << time + 20.days
+            yielder << (time + 0.days)
+            yielder << (time + 10.days)
+            yielder << (time + 20.days)
             time += 6.hours
           end
         end
@@ -238,3 +239,4 @@ module AccreditedRepresentativePortal
     end
   end
 end
+# rubocop:enable Metrics/MethodLength, Metrics/ModuleLength, Rails/SkipsModelValidations

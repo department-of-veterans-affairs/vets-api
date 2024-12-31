@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# rubocop:disable Metrics/ModuleLength
 module AccreditedRepresentativePortal
   module Seed
     module Records
@@ -113,9 +114,9 @@ module AccreditedRepresentativePortal
           last_name: 'Representative',
           id: 'd9d7e941-7156-4eca-827c-bcabe731d7ea',
           registration_number: '10000',
-          organization_ids: [
-            '23563963-e31c-4797-a259-e26b727072e1',
-            '41d36596-67d1-4b23-ab58-927447e88d07'
+          organization_ids: %w[
+            23563963-e31c-4797-a259-e26b727072e1
+            41d36596-67d1-4b23-ab58-927447e88d07
           ]
         },
         {
@@ -123,10 +124,10 @@ module AccreditedRepresentativePortal
           last_name: 'Lowe',
           id: '3f47a6c7-ce14-4ab5-9567-6e3803336fe1',
           registration_number: '10001',
-          organization_ids: [
-            '23563963-e31c-4797-a259-e26b727072e1',
-            '83b7de4d-a2cd-4b15-9e32-af48804c3e31',
-            '31f61e0f-8993-4c57-86f2-7f22e9ca9e68'
+          organization_ids: %w[
+            23563963-e31c-4797-a259-e26b727072e1
+            83b7de4d-a2cd-4b15-9e32-af48804c3e31
+            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
           ]
         },
         {
@@ -134,11 +135,11 @@ module AccreditedRepresentativePortal
           last_name: 'Lowe',
           id: '90e83d10-8ce1-482b-8f06-45bea0cc7f3c',
           registration_number: '10002',
-          organization_ids: [
-            '41d36596-67d1-4b23-ab58-927447e88d07',
-            '83b7de4d-a2cd-4b15-9e32-af48804c3e31',
-            '31f61e0f-8993-4c57-86f2-7f22e9ca9e68',
-            '4e21e4b2-02e5-4a96-ace3-8b56b97a275c'
+          organization_ids: %w[
+            41d36596-67d1-4b23-ab58-927447e88d07
+            83b7de4d-a2cd-4b15-9e32-af48804c3e31
+            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
+            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
           ]
         },
         {
@@ -146,12 +147,12 @@ module AccreditedRepresentativePortal
           last_name: 'Armstrong',
           id: 'a1e66cea-bd2d-4997-8b08-42770fc0ebce',
           registration_number: '10003',
-          organization_ids: [
-            '23563963-e31c-4797-a259-e26b727072e1',
-            '41d36596-67d1-4b23-ab58-927447e88d07',
-            '83b7de4d-a2cd-4b15-9e32-af48804c3e31',
-            '31f61e0f-8993-4c57-86f2-7f22e9ca9e68',
-            '4e21e4b2-02e5-4a96-ace3-8b56b97a275c'
+          organization_ids: %w[
+            23563963-e31c-4797-a259-e26b727072e1
+            41d36596-67d1-4b23-ab58-927447e88d07
+            83b7de4d-a2cd-4b15-9e32-af48804c3e31
+            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
+            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
           ]
         },
         {
@@ -159,9 +160,9 @@ module AccreditedRepresentativePortal
           last_name: 'Cruickshank',
           id: '96dc6994-1949-4f83-a6ad-a3bd9fd728e0',
           registration_number: '10004',
-          organization_ids: [
-            '23563963-e31c-4797-a259-e26b727072e1',
-            '83b7de4d-a2cd-4b15-9e32-af48804c3e31'
+          organization_ids: %w[
+            23563963-e31c-4797-a259-e26b727072e1
+            83b7de4d-a2cd-4b15-9e32-af48804c3e31
           ]
         },
         {
@@ -178,9 +179,9 @@ module AccreditedRepresentativePortal
           last_name: 'Representative',
           id: 'c50410bb-7341-4d95-9a2f-aed22178ff08',
           registration_number: '10006',
-          organization_ids: [
-            '31f61e0f-8993-4c57-86f2-7f22e9ca9e68',
-            '4e21e4b2-02e5-4a96-ace3-8b56b97a275c'
+          organization_ids: %w[
+            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
+            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
           ]
         },
         {
@@ -188,11 +189,11 @@ module AccreditedRepresentativePortal
           last_name: 'Trust',
           id: '595e4651-4bd0-4094-8007-f3711001efe5',
           registration_number: '10007',
-          organization_ids: [
-            '23563963-e31c-4797-a259-e26b727072e1',
-            '83b7de4d-a2cd-4b15-9e32-af48804c3e31',
-            '31f61e0f-8993-4c57-86f2-7f22e9ca9e68',
-            '4e21e4b2-02e5-4a96-ace3-8b56b97a275c'
+          organization_ids: %w[
+            23563963-e31c-4797-a259-e26b727072e1
+            83b7de4d-a2cd-4b15-9e32-af48804c3e31
+            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
+            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
           ]
         },
         {
@@ -200,9 +201,9 @@ module AccreditedRepresentativePortal
           last_name: 'Good',
           id: 'c3063f49-f751-4b94-9d18-4a98f08c2926',
           registration_number: '10008',
-          organization_ids: [
-            '83b7de4d-a2cd-4b15-9e32-af48804c3e31',
-            '31f61e0f-8993-4c57-86f2-7f22e9ca9e68'
+          organization_ids: %w[
+            83b7de4d-a2cd-4b15-9e32-af48804c3e31
+            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
           ]
         },
         {
@@ -210,12 +211,12 @@ module AccreditedRepresentativePortal
           last_name: 'Kertzmann',
           id: '9e68bca2-10e1-48cc-be75-b1ce64d07ef4',
           registration_number: '10009',
-          organization_ids: [
-            '23563963-e31c-4797-a259-e26b727072e1',
-            '41d36596-67d1-4b23-ab58-927447e88d07',
-            '83b7de4d-a2cd-4b15-9e32-af48804c3e31',
-            '31f61e0f-8993-4c57-86f2-7f22e9ca9e68',
-            '4e21e4b2-02e5-4a96-ace3-8b56b97a275c'
+          organization_ids: %w[
+            23563963-e31c-4797-a259-e26b727072e1
+            41d36596-67d1-4b23-ab58-927447e88d07
+            83b7de4d-a2cd-4b15-9e32-af48804c3e31
+            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
+            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
           ]
         },
         {
@@ -223,12 +224,12 @@ module AccreditedRepresentativePortal
           last_name: 'Roob',
           id: 'c6999376-28ca-45b9-a840-40c6c7c4edef',
           registration_number: '10010',
-          organization_ids: [
-            '23563963-e31c-4797-a259-e26b727072e1',
-            '41d36596-67d1-4b23-ab58-927447e88d07',
-            '83b7de4d-a2cd-4b15-9e32-af48804c3e31',
-            '31f61e0f-8993-4c57-86f2-7f22e9ca9e68',
-            '4e21e4b2-02e5-4a96-ace3-8b56b97a275c'
+          organization_ids: %w[
+            23563963-e31c-4797-a259-e26b727072e1
+            41d36596-67d1-4b23-ab58-927447e88d07
+            83b7de4d-a2cd-4b15-9e32-af48804c3e31
+            31f61e0f-8993-4c57-86f2-7f22e9ca9e68
+            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
           ]
         },
         {
@@ -236,11 +237,11 @@ module AccreditedRepresentativePortal
           last_name: 'Schultz',
           id: '0ea9df23-a0b9-42bc-9629-b6ad66704825',
           registration_number: '10011',
-          organization_ids: [
-            '41d36596-67d1-4b23-ab58-927447e88d07',
-            '4e21e4b2-02e5-4a96-ace3-8b56b97a275c'
+          organization_ids: %w[
+            41d36596-67d1-4b23-ab58-927447e88d07
+            4e21e4b2-02e5-4a96-ace3-8b56b97a275c
           ]
-        },
+        }
       ].freeze
 
       CLAIMANTS = [
@@ -412,3 +413,4 @@ module AccreditedRepresentativePortal
     end
   end
 end
+# rubocop:enable Metrics/ModuleLength
