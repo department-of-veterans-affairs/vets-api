@@ -273,6 +273,7 @@ GEM
       i18n
     benchmark (0.4.0)
     bigdecimal (3.1.9)
+    bigdecimal (3.1.9-java)
     bindex (0.8.1)
     blind_index (2.6.1)
       activesupport (>= 7)
@@ -873,7 +874,7 @@ GEM
       connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)
-    regexp_parser (2.9.3)
+    regexp_parser (2.10.0)
     reline (0.6.0)
       io-console (~> 0.5)
     representable (3.2.0)
@@ -964,7 +965,7 @@ GEM
     rubocop-factory_bot (2.26.1)
       rubocop (~> 1.61)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.27.0)
+    rubocop-rails (2.28.0)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.52.0, < 2.0)
