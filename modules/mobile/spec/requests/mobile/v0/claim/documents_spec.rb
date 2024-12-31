@@ -40,7 +40,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     expect(response.parsed_body.dig('data',
                                     'jobId')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
     expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1,
-                                                                        'tracked_item_id')).to eq([tracked_item_id])
+                                                                          'tracked_item_id')).to eq([tracked_item_id])
   end
 
   it 'uploads multiple jpeg files' do
@@ -56,7 +56,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     expect(response.parsed_body.dig('data',
                                     'jobId')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
     expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1,
-                                                                        'tracked_item_id')).to eq([tracked_item_id])
+                                                                          'tracked_item_id')).to eq([tracked_item_id])
   end
 
   context 'when camel case is used for parameters and camel case header is disabled' do
@@ -69,7 +69,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       expect(response.parsed_body.dig('data',
                                       'job_id')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
       expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1,
-                                                                          'tracked_item_id')).to eq([tracked_item_id])
+                                                                            'tracked_item_id')).to eq([tracked_item_id])
     end
 
     it 'uploads multiple jpeg files' do
@@ -86,7 +86,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       expect(response.parsed_body.dig('data',
                                       'job_id')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
       expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1,
-                                                                          'tracked_item_id')).to eq([tracked_item_id])
+                                                                            'tracked_item_id')).to eq([tracked_item_id])
     end
   end
 

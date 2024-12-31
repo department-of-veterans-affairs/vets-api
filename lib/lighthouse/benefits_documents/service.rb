@@ -77,7 +77,7 @@ module BenefitsDocuments
         Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_hash)
       else
         Lighthouse::EvidenceSubmissions::DocumentUpload.perform_async(user_icn, document_hash, user_account_uuid,
-                                                                    claim_id, tracked_item_id)
+                                                                      claim_id, tracked_item_id)
       end
     end
 
