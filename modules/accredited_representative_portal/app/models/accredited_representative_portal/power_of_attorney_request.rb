@@ -29,6 +29,38 @@ module AccreditedRepresentativePortal
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
 
+    scope :with_status, lambda { |status|
+      case status
+      when 'Pending'
+        where.missing(:resolution)
+
+      when 'Accepted'
+        # rubocop:disable Layout/LineLength
+        left_joins(:resolution)
+          .joins("LEFT OUTER JOIN ar_power_of_attorney_request_decisions AS decision ON decision.id = resolution.resolving_id AND resolution.resolving_type = 'AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision'")
+          .where(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision' })
+          .where(decision: { type: 'PowerOfAttorneyRequestAcceptance' })
+        # rubocop:enable Layout/LineLength
+      when 'Declined'
+        # rubocop:disable Layout/LineLength
+        left_joins(:resolution)
+          .joins("LEFT OUTER JOIN ar_power_of_attorney_request_decisions AS decision ON decision.id = resolution.resolving_id AND resolution.resolving_type = 'AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision'")
+          .where(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision' })
+          .where(decision: { type: 'PowerOfAttorneyRequestDeclination' })
+        # rubocop:enable Layout/LineLength
+      else
+        all
+      end
+    }
+
+    scope :sorted_by, lambda { |field, direction|
+      order(field => (direction == 'asc' ? :asc : :desc))
+    }
+
+    scope :paginated, lambda { |page, page_size|
+      offset(page * page_size).limit(page_size)
+    }
+
     private
 
     def set_claimant_type
