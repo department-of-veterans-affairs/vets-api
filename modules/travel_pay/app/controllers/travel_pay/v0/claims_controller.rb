@@ -62,7 +62,6 @@ module TravelPay
         rescue ArgumentError => e
           raise Common::Exceptions::BadRequest, detail: e.message
         rescue Faraday::ClientError, Faraday::ServerError => e
-          byebug
           raise Common::Exceptions::InternalServerError.new(e)
         end
 
