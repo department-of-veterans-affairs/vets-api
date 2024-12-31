@@ -412,6 +412,8 @@ intent_to_file:
 
 ivc_champva:
   prefill: true
+  pega_api:
+    api_key: fake_api_key
 
 form_upload_flow:
   prefill: true
