@@ -111,11 +111,9 @@ module ClaimsApi
         def set_auth_headers
           headers = auth_headers.merge!({ VA_NOTIFY_KEY => icn_for_vanotify })
 
-          if allow_dependent_claimant?
-            add_dependent_to_auth_headers(headers)
-          else
-            headers
-          end
+          add_dependent_to_auth_headers(headers) if allow_dependent_claimant?
+
+          headers
         end
 
         def add_dependent_to_auth_headers(headers)
