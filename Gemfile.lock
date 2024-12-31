@@ -652,7 +652,7 @@ GEM
     llhttp-ffi (0.5.0)
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
-    lockbox (2.0.0)
+    lockbox (2.0.1)
     logger (1.6.4)
     loofah (2.23.1)
       crass (~> 1.0.2)
