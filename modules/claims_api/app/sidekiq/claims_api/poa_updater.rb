@@ -6,7 +6,7 @@ require 'bgs_service/vet_record_web_service'
 
 module ClaimsApi
   class PoaUpdater < ClaimsApi::ServiceBase
-    def perform(power_of_attorney_id, rep = nil)
+    def perform(power_of_attorney_id, rep_id = nil)
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
 
       ssn = poa_form.auth_headers['va_eauth_pnid']
@@ -23,7 +23,7 @@ module ClaimsApi
 
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
 
-        ClaimsApi::VANotifyAcceptedJob.perform_async(poa_form.id, rep) if vanotify?(poa_form.auth_headers, rep)
+        ClaimsApi::VANotifyAcceptedJob.perform_async(poa_form.id, rep_id) if vanotify?(poa_form.auth_headers, rep_id)
 
         ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id)
       else

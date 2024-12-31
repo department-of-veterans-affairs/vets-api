@@ -34,7 +34,7 @@ module ClaimsApi
         if dependent_filing?(power_of_attorney)
           ClaimsApi::PoaAssignDependentClaimantJob.perform_async(power_of_attorney.id, rep_id)
         else
-          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep)
+          ClaimsApi::PoaUpdater.perform_async(power_of_attorney.id, rep_id)
         end
       rescue VBMS::Unknown
         rescue_vbms_error(power_of_attorney)
