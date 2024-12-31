@@ -162,9 +162,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # TODO: Document this job
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
 
-  # Fetches latest VA forms from Drupal database and updates vets-api forms database
-  mgr.register('0 2 * * *', 'VAForms::FormReloader')
-
   # TODO: Document these jobs
   mgr.register('0 16 * * *', 'VANotify::InProgressForms')
   mgr.register('0 1 * * *', 'VANotify::ClearStaleInProgressRemindersSent')
