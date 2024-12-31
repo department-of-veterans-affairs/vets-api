@@ -125,10 +125,6 @@ PATH
     test_user_dashboard (0.1.0)
       rails
     travel_pay (0.1.0)
-    va_forms (0.0.1)
-      faraday
-      nokogiri
-      sidekiq
     va_notify (0.1.0)
     vaos (0.1.0)
       sidekiq
@@ -1331,7 +1327,6 @@ DEPENDENCIES
   travel_pay!
   tzinfo-data
   utf8-cleaner
-  va_forms!
   va_notify!
   vaos!
   vba_documents!
