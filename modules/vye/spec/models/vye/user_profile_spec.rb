@@ -311,7 +311,6 @@ RSpec.describe Vye::UserProfile, type: :model do
 
         user_profile = described_class.produce(ssn: ssn_clear_req, file_number: file_number_clear_req)
 
-
         expect(user_profile.attributes['ssn_digest']).to eq(ssn_digest_req)
         expect(user_profile.attributes['file_number_digest']).to eq(file_number_digest_req)
       end

@@ -112,7 +112,6 @@ module Vye
         @user_profile = user_profile
         return true
       end
-    
 
       if user_profile.changed?
         # this shouldn't be happening
