@@ -1941,7 +1941,6 @@ spec/support/schemas_camelized/all_triage_teams.json @department-of-veterans-aff
 spec/support/schemas_camelized/user_loa1.json @department-of-veterans-affairs/octo-identity
 spec/support/schemas_camelized/user_loa3.json @department-of-veterans-affairs/octo-identity
 spec/support/schemas_camelized/user_preferences.json @department-of-veterans-affairs/octo-identity
-spec/support/schemas_camelized/va_forms @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/veteran_verification @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -2020,7 +2019,6 @@ spec/support/schemas/all_triage_teams.json @department-of-veterans-affairs/vfs-m
 spec/support/schemas/upload_supporting_evidence.json @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/user_loa1.json @department-of-veterans-affairs/octo-identity
 spec/support/schemas/user_loa3.json @department-of-veterans-affairs/octo-identity
-spec/support/schemas/va_forms @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/veteran_verification @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
