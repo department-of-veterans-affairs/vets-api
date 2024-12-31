@@ -97,9 +97,10 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
         poa.save!
         allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService).to receive(:assign_poa_to_dependent!)
           .and_return(nil)
+        allow_any_instance_of(ClaimsApi::ServiceBase).to receive(:vanotify?).and_return true
         expect(ClaimsApi::VANotifyAcceptedJob).to receive(:perform_async)
 
-        described_class.new.perform(poa.id, 'Rep Data')
+        described_class.new.perform(poa.id, '12345678')
       end
     end
 
@@ -114,7 +115,7 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
           .and_return(nil)
         expect(ClaimsApi::VANotifyAcceptedJob).not_to receive(:perform_async)
 
-        described_class.new.perform(poa.id, 'Rep Data')
+        described_class.new.perform(poa.id, '12345678')
       end
     end
   end
