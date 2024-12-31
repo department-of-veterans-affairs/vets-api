@@ -63,12 +63,8 @@ module SAML
     end
 
     def terms_of_use_redirect_url
-      if terms_of_use_enabled_application
-        Rails.logger.info('Redirecting to /terms-of-use', type: :ssoe)
-        add_query(terms_of_use_url, { redirect_url: login_redirect_url })
-      else
-        login_redirect_url
-      end
+      Rails.logger.info('Redirecting to /terms-of-use', type: :ssoe)
+      add_query(terms_of_use_url, { redirect_url: login_redirect_url })
     end
 
     # logout URL for SSOe
@@ -77,32 +73,6 @@ module SAML
     end
 
     private
-
-    def terms_of_use_enabled_application
-      cache_key = "terms_of_use_redirect_user_#{user.uuid}"
-      cached_application = retrieve_and_delete_terms_of_use_redirect_user(cache_key)
-      current_application = @tracker&.payload_attr(:application)
-      write_terms_of_use_redirect_user(cache_key, current_application) if should_cache_application?(current_application)
-      terms_of_use_redirect_enabled?(cached_application, current_application)
-    end
-
-    def terms_of_use_redirect_enabled?(cached_application, current_application)
-      enabled_tou_clients.include?(cached_application || current_application || 'vaweb')
-    end
-
-    def should_cache_application?(application)
-      enabled_tou_clients.include?(application)
-    end
-
-    def retrieve_and_delete_terms_of_use_redirect_user(cache_key)
-      application = Rails.cache.read(cache_key)
-      Rails.cache.delete(cache_key)
-      application
-    end
-
-    def write_terms_of_use_redirect_user(cache_key, application)
-      Rails.cache.write(cache_key, application, expires_in: 5.minutes)
-    end
 
     def terms_of_use_url
       current_application = @tracker&.payload_attr(:application)
@@ -144,10 +114,6 @@ module SAML
       post_params = saml_auth_request.create_params(new_url_settings, 'RelayState' => relay_state_params)
       login_url = new_url_settings.idp_sso_service_url
       [login_url, post_params]
-    end
-
-    def enabled_tou_clients
-      Settings.terms_of_use.enabled_clients.split(',').collect(&:strip)
     end
   end
 end
