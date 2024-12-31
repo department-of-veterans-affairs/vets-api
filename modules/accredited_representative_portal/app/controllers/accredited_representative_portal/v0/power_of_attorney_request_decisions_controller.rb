@@ -3,43 +3,78 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestDecisionsController < ApplicationController
-      before_action :set_power_of_attorney_request, only: [:create]
+      before_action :set_poa_request, only: :create
+
+      ##
+      # TODO: We ought to centralize our exception rendering. Starting here for
+      # now.
+      #
+      concerning :ExceptionRendering do
+        included do
+          rescue_from ActiveRecord::RecordNotFound do |e|
+            render(
+              json: { errors: [e.message] },
+              status: :not_found
+            )
+          end
+
+          rescue_from ActiveRecord::RecordInvalid do |e|
+            render(
+              json: { errors: e.record.errors.full_messages },
+              status: :unprocessable_entity
+            )
+          end
+        end
+      end
 
       def create
-        create_params = decision_params.merge(creator: current_user)
-        reason = create_params.delete(:reason)
-        reason = nil if create_params[:type] == PowerOfAttorneyRequestDecision::Types::ACCEPTANCE
+        type = deserialize_type
+        reason = decision_params[:reason]
 
-        begin
-          @power_of_attorney_request.create_resolution!(
-            resolving: PowerOfAttorneyRequestDecision.new(create_params),
+        ApplicationRecord.transaction do
+          resolving = PowerOfAttorneyRequestDecision.create!(type:, creator:)
+
+          ##
+          # This form triggers the uniqueness validation, while the
+          # `@poa_request.create_resolution!` form triggers a more obscure
+          # `RecordNotSaved` error that is less functional for getting
+          # validation errors.
+          #
+          PowerOfAttorneyRequestResolution.create!(
+            power_of_attorney_request: @poa_request,
+            resolving:,
             reason:
           )
-          resolution = @power_of_attorney_request.resolution
-          if resolution.persisted?
-            render json: 'Decision successfully created', status: :ok
-          else
-            render json: { error: 'Failed to create decision' }, status: :unprocessable_entity
-          end
-        rescue => e
-          Rails.logger.error(<<~MSG).squish
-            ARP: Unexpected error occurred for power of attorney request
-            #{@power_of_attorney_request.id} - #{e.message}
-          MSG
-
-          render json: { error: 'Failed to create decision' }, status: :unprocessable_entity
         end
+
+        render json: {}, status: :ok
       end
 
       private
 
-      def set_power_of_attorney_request
-        @power_of_attorney_request = PowerOfAttorneyRequest.find_by(id: params[:power_of_attorney_request_id])
-        render json: { error: 'Not Found' }, status: :not_found unless @power_of_attorney_request
+      def deserialize_type
+        case decision_params[:type]
+        when 'acceptance'
+          PowerOfAttorneyRequestDecision::Types::ACCEPTANCE
+        when 'declination'
+          PowerOfAttorneyRequestDecision::Types::DECLINATION
+        else
+          # So that validations will get their chance to complain.
+          decision_params[:type]
+        end
       end
 
       def decision_params
         params.require(:decision).permit(:type, :reason)
+      end
+
+      def creator
+        current_user.user_account
+      end
+
+      def set_poa_request
+        id = params[:power_of_attorney_request_id]
+        @poa_request = PowerOfAttorneyRequest.find(id)
       end
     end
   end
