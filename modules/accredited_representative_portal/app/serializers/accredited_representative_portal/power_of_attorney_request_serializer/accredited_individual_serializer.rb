@@ -10,7 +10,7 @@ module AccreditedRepresentativePortal
           poa_holder.last_name
         ]
 
-        parts.reject(&:blank?).join(' ')
+        parts.compact_blank.join(' ')
       end
     end
   end
