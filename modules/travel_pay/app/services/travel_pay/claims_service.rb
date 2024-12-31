@@ -86,7 +86,7 @@ module TravelPay
       @auth_manager.authorize => { veis_token:, btsss_token: }
       new_claim_response = client.create_claim(veis_token, btsss_token, params)
 
-      new_claim_response.body
+      new_claim_response.body['data']
     end
 
     def submit_claim(claim_id)
@@ -98,7 +98,7 @@ module TravelPay
       @auth_manager.authorize => { veis_token:, btsss_token: }
       submitted_claim_response = client.submit_claim(veis_token, btsss_token, claim_id)
 
-      submitted_claim_response.body
+      submitted_claim_response.body['data']
     end
 
     private

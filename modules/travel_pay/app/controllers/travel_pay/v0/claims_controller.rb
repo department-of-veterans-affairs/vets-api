@@ -49,23 +49,24 @@ module TravelPay
           raise Common::Exceptions::ServiceUnavailable, message:
         end
         
+        begin
+          appt = appts_service.get_appointment_by_date_time({'appt_datetime' => params['appointmentDatetime']})
 
-        # tp api requests
-        #  get appt
-        appt = appts_service.get_appointment_by_date_time({'appt_datetime' => params['appointmentDatetime']})
-          
-        #  make new claim
-        claim = claims_service.create_new_claim({ 'btsss_appt_id' => appt[:data]['id'] })
+          claim = claims_service.create_new_claim({ 'btsss_appt_id' => appt[:data]['id'] })
 
-        claim_id = claim['data']['claimId']
+          claim_id = claim['claimId']
 
-        #  attach expense
-        expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointmentDatetime'] })
+          expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointmentDatetime'] })
 
-        #  submit claim
-        submitted_claim = claims_service.submit_claim(claim_id)
+          submitted_claim = claims_service.submit_claim(claim_id)
+        rescue ArgumentError => e
+          raise Common::Exceptions::BadRequest, detail: e.message
+        rescue Faraday::ClientError, Faraday::ServerError => e
+          byebug
+          raise Common::Exceptions::InternalServerError.new(e)
+        end
 
-        render json: submitted_claim['data'], status: :accepted
+        render json: submitted_claim, status: :created
       end
 
       private
