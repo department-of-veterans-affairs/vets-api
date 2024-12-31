@@ -66,8 +66,8 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
         post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers(camelize: false)
       end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
       expect(response).to have_http_status(:accepted)
-      expect(response.parsed_body.dig('data',
-                                      'job_id')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
+      expect(response.parsed_body.dig('data', 'job_id'))
+        .to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
       expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1,
                                                                             'tracked_item_id')).to eq([tracked_item_id])
     end
@@ -83,8 +83,8 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
 
       expect(response).to have_http_status(:accepted)
-      expect(response.parsed_body.dig('data',
-                                      'job_id')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
+      expect(response.parsed_body.dig('data', 'job_id'))
+        .to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
       expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1,
                                                                             'tracked_item_id')).to eq([tracked_item_id])
     end
