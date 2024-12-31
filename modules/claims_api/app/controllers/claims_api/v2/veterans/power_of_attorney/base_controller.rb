@@ -229,7 +229,7 @@ module ClaimsApi
 
         def icn_for_vanotify
           dependent_claimant_icn = claimant_icn
-          dependent_claimant_icn || params[:veteranId]
+          dependent_claimant_icn.presence || params[:veteranId]
         end
 
         def fetch_claimant
