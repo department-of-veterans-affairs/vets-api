@@ -9,9 +9,4 @@ VAForms::Engine.routes.draw do
   namespace :v0, defaults: { format: 'json' } do
     resources :forms, only: %i[index show]
   end
-  namespace :docs do
-    namespace :v0 do
-      get 'api', to: 'api#index'
-    end
-  end
 end
