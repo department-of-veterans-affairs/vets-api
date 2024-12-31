@@ -833,7 +833,6 @@ docs/setup/running_docker.md @department-of-veterans-affairs/backend-review-grou
 docs/setup/running_natively.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/setup_with_binstubs.md  @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/codespaces.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
-docs/setup/va_forms.md @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/virtual_machine_access.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 .github @department-of-veterans-affairs/backend-review-group
 lib @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1060,7 +1059,6 @@ modules/my_health/spec/request/v1/prescriptions_request_spec.rb @department-of-v
 modules/representation_management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/accredited-representation-management
 modules/simple_forms_api @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/test_user_dashboard @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
-modules/va_forms @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/va_notify @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/vaos/app/services/vaos/v2 @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
