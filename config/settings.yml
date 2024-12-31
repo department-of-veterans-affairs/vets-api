@@ -1439,19 +1439,6 @@ vanotify:
   status_callback:
     bearer_token: fake_bearer_token
 
-# Settings to connect to the drupal forms graphql api
-va_forms:
-  drupal_username: ~
-  drupal_password: ~
-  drupal_url: https://fake-url.com
-  form_reloader:
-    enabled: false
-  # A notification for when a forms url has changed
-  slack:
-    enabled: false
-    api_key: ""
-    channel_id: ""
-
 # Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
 genisis:
   base_url: https://vaausapprne60.aac.dva.va.gov
