@@ -46,4 +46,3 @@ class FilterService
     return poa_requests, errors
   end
 end
-  
