@@ -13,7 +13,7 @@ describe GI::LCPE::Client do
         response = service.get_licenses_and_certs_v1({})
         lacs = response.body[:lacs]
         expect(lacs.class).to be(Array)
-        expect(lacs.first.keys).to eq(%i[enriched_id name type])
+        expect(lacs.first.keys).to eq(%i[enriched_id lac_nm edu_lac_type_nm state])
       end
     end
   end
@@ -24,7 +24,7 @@ describe GI::LCPE::Client do
         response = service.get_license_and_cert_details_v1({ id: '1@f9822' })
         lac = response.body[:lac]
         expect(lac.class).to be(Hash)
-        expect(lac.keys).to eq(%i[enriched_id name type tests institution])
+        expect(lac.keys).to eq(%i[enriched_id lac_nm edu_lac_type_nm state tests institution])
         expect(lac[:tests].class).to be(Array)
         expect(lac[:institution].class).to be(Hash)
       end

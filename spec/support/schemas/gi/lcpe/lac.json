@@ -9,10 +9,13 @@
           "enriched_id": { 
             "type": "string"
           },
-          "name": { 
+          "lac_nm": { 
             "type": "string"
           },
-          "type": { 
+          "edu_lac_type_nm": { 
+            "type": "string"
+          },
+          "state": { 
             "type": "string"
           },
           "tests": {
