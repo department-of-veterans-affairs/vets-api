@@ -13,7 +13,6 @@ module AccreditedRepresentativePortal
 
     has_one :power_of_attorney_form,
             inverse_of: :power_of_attorney_request,
-            validate: true,
             required: true
 
     has_one :resolution,
