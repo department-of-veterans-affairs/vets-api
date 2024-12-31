@@ -16,5 +16,9 @@ module AccreditedRepresentativePortal
     belongs_to :creator, class_name: 'UserAccount'
 
     validates :type, inclusion: { in: Types::ALL }
+
+    def accepts_reasons?
+      type == Types::DECLINATION
+    end
   end
 end

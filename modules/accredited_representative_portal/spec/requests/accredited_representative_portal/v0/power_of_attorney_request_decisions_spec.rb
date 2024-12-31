@@ -13,6 +13,32 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   end
 
   describe 'POST /accredited_representative_portal/v0/power_of_attorney_requests/:id/decision' do
+    context 'with invalid params' do
+      it 'complains about an invalid type param' do
+        poa_request = FactoryBot.create(:power_of_attorney_request)
+
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+             params: { decision: { type: 'invalid_type', reason: nil } }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed_response['errors']).to eq(
+          ['Type is not included in the list']
+        )
+      end
+
+      it 'complains about an invalid reason param' do
+        poa_request = FactoryBot.create(:power_of_attorney_request)
+
+        post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
+             params: { decision: { type: 'acceptance', reason: 'not allowed to give reasons for these' } }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(parsed_response['errors']).to eq(
+          ['Reason must be blank']
+        )
+      end
+    end
+
     it 'creates acceptance decision with proper params' do
       poa_request = FactoryBot.create(:power_of_attorney_request)
 
@@ -20,12 +46,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
            params: { decision: { type: 'acceptance', reason: nil } }
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to eq('Decision successfully created')
+      expect(parsed_response).to eq({})
       poa_request.reload
 
       expect(poa_request.resolution.present?).to eq(true)
       expect(poa_request.resolution.resolving.present?).to eq(true)
-      expect(poa_request.resolution.resolving.type).to eq('acceptance')
+      expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestAcceptance')
     end
 
     it 'creates declination decision with proper params' do
@@ -34,20 +60,21 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
            params: { decision: { type: 'declination', reason: 'bad data' } }
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to eq('Decision successfully created')
+      expect(parsed_response).to eq({})
       poa_request.reload
 
       expect(poa_request.resolution.present?).to eq(true)
       expect(poa_request.resolution.resolving.present?).to eq(true)
-      expect(poa_request.resolution.resolving.type).to eq('declination')
+      expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestDeclination')
     end
 
     it 'returns an error if request does not exist' do
       post '/accredited_representative_portal/v0/power_of_attorney_requests/a/decision'
 
       expect(response).to have_http_status(:not_found)
-      response_body = JSON.parse(response.body)
-      expect(response_body['error']).to eq('Not Found')
+      expect(parsed_response['errors']).to eq(
+        ["Couldn't find AccreditedRepresentativePortal::PowerOfAttorneyRequest with 'id'=a"]
+      )
     end
 
     it 'returns an error if decision already exists' do
@@ -59,8 +86,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
            params: { decision: { type: 'declination', reason: 'bad data' } }
 
       expect(response).to have_http_status(:unprocessable_entity)
-      response_body = JSON.parse(response.body)
-      expect(response_body['error']).to eq('Failed to create decision')
+      expect(parsed_response['errors']).to eq(
+        ['Power of attorney request has already been taken']
+      )
     end
   end
 
@@ -73,8 +101,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       get "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}"
 
       expect(response).to have_http_status(:ok)
-      response_body = JSON.parse(response.body)
-      expect(response_body['resolution']).to be_nil
+      expect(parsed_response['resolution']).to be_nil
 
       # --------------
       # POST REQUEST
@@ -82,12 +109,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
            params: { decision: { type: 'acceptance', reason: nil } }
 
       expect(response).to have_http_status(:ok)
-      expect(response.body).to eq('Decision successfully created')
+      expect(parsed_response).to eq({})
       poa_request.reload
 
       expect(poa_request.resolution.present?).to eq(true)
       expect(poa_request.resolution.resolving.present?).to eq(true)
-      expect(poa_request.resolution.resolving.type).to eq('acceptance')
+      expect(poa_request.resolution.resolving.type).to eq('PowerOfAttorneyRequestAcceptance')
 
       # --------------
       # GET REQUEST
@@ -95,8 +122,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       get "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}"
 
       expect(response).to have_http_status(:ok)
-      response_body = JSON.parse(response.body)
-      expect(response_body['resolution']['id']).to eq(resolution.id)
+      expect(parsed_response['resolution']['id']).to eq(resolution.id)
 
       # --------------
       # POST REQUEST
@@ -104,8 +130,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
            params: { decision: { type: 'acceptance', reason: nil } }
 
       expect(response).to have_http_status(:unprocessable_entity)
-      response_body = JSON.parse(response.body)
-      expect(response_body['error']).to eq('Failed to create decision')
+      expect(parsed_response['errors']).to eq(
+        ['Power of attorney request has already been taken']
+      )
     end
   end
 end
