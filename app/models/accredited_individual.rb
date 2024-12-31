@@ -26,7 +26,8 @@ class AccreditedIndividual < ApplicationRecord
   has_many :power_of_attorney_requests,
            as: :power_of_attorney_holder,
            inverse_of: :power_of_attorney_holder,
-           class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest'
+           class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest',
+           dependent: :restrict_with_exception
 
   validates :ogc_id, :registration_number, :individual_type, presence: true
   validates :poa_code, length: { is: 3 }, allow_blank: true
