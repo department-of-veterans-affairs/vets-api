@@ -102,6 +102,7 @@ class BenefitsIntakeStatusJob
         form_submission_attempt.vbms!
         monitor_success(form_id, saved_claim_id, uuid)
         log_result('success', form_id, uuid, time_to_transition)
+        monitor_success(form_id, saved_claim_id, uuid)
       elsif time_to_transition > STALE_SLA.days
         # exceeds SLA (service level agreement) days for submission completion
         log_result('stale', form_id, uuid, time_to_transition)
@@ -218,6 +219,12 @@ class BenefitsIntakeStatusJob
     end
   end
   # rubocop:enable Metrics/MethodLength
+
+  def monitor_success(form_id, saved_claim_id)
+    if %w[21P-527EZ].include?(form_id) && Flipper.enabled?(:pension_received_email_notification)
+      Pensions::NotificationEmail.new(saved_claim_id).deliver(:received)
+    end
+  end
 
   def form_submission_attempts_hash
     @_form_submission_attempts_hash ||= FormSubmissionAttempt
