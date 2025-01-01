@@ -1372,6 +1372,14 @@ features:
     actor_type: user
     description: enables exclusion period checks
     enable_in_development: false
+  meb_dpo_address_option_enabled:
+    actor_type: user
+    description: enables DPO option on address field
+    enable_in_development: false
+  meb_kicker_notification_enabled:
+    actor_type: user
+    description: enables kicker notification on additional consideration questions
+    enable_in_development: false
   meb_auto_populate_relinquishment_date:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
