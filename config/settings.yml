@@ -230,6 +230,17 @@ edu:
       - marelby.hernandez@va.gov
       - nawar.hussein@va.gov
       - engin.akman@va.gov
+  staging_excel_contents:
+    emails:
+      - alex.chan1@va.gov
+      - gregg.puhala@va.gov
+      - noah.stern@va.gov
+      - marelby.hernandez@va.gov
+      - nawar.hussein@va.gov
+      - engin.akman@va.gov
+  production_excel_contents:
+    emails:
+      - patricia.terry1@va.gov
 
 dependents:
   prefill: true
@@ -1230,6 +1241,8 @@ covid_vaccine:
       port: ~
       username: fake_username
       password: fake_password
+      kex_algorithms: fake_kex_algorithms
+      host_key_algorithms: fake_host_key_algorithms
 
 virtual_agent:
   webchat_secret: fake_secret
@@ -1301,6 +1314,9 @@ vanotify:
         form21_4142_confirmation_email: form21_4142_confirmation_email_template_id
         form21_4142_error_email: form21_4142_error_email_template_id
         form21_4142_received_email: form21_4142_received_email_template_id
+        form26_4555_confirmation_email: form26_4555_confirmation_email_template_id
+        form26_4555_rejected_email: form26_4555_rejected_email_template_id
+        form26_4555_duplicate_email: form26_4555_duplicate_email_template_id
         form27_8832_action_needed_email: form27_8832_action_needed_email_template_id
         form40_0247_confirmation_email: form40_0247_confirmation_email_template_id
         form40_0247_error_email: form40_0247_error_email_template_id
@@ -1855,6 +1871,11 @@ vaos:
     api_url: "https://api.wellhive.com"
     base_path: "care-navigation/v1"
     scopes: "care-nav"
+
+ogc:
+  form21a_service_url:
+    url: http://localhost:5000/api/v1/accreditation/applications/form21a
+    api_key: fake_key
 
 accredited_representative_portal:
   pilot_users_email_poa_codes: ~

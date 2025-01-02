@@ -40,6 +40,9 @@ module CheckIn
                                                          Constants::CIE_FAILURE_TEMPLATE_ID]
     )
 
+    FAILED_CLAIM_TEMPLATE_IDS = [Constants::CIE_TIMEOUT_TEMPLATE_ID, Constants::CIE_FAILURE_TEMPLATE_ID,
+                                 Constants::CIE_ERROR_TEMPLATE_ID, Constants::OH_ERROR_TEMPLATE_ID,
+                                 Constants::OH_FAILURE_TEMPLATE_ID, Constants::OH_TIMEOUT_TEMPLATE_ID].freeze
     def send_notification(opts = {})
       notify_client = VaNotify::Service.new(Settings.vanotify.services.check_in.api_key)
       phone_last_four = opts[:mobile_phone].delete('^0-9').last(4)
@@ -66,12 +69,21 @@ module CheckIn
     end
 
     def handle_error(ex, opts = {})
+      template_id = opts[:template_id]
       log_exception_to_sentry(
         ex,
-        { phone_number: opts[:mobile_phone].delete('^0-9').last(4), template_id: opts[:template_id],
+        { phone_number: opts[:mobile_phone].delete('^0-9').last(4), template_id:,
           claim_number: opts[:claim_number] },
         { error: :check_in_va_notify_job, team: 'check-in' }
       )
+      if FAILED_CLAIM_TEMPLATE_IDS.include?(template_id)
+        tags = if 'oh'.casecmp?(opts[:facility_type])
+                 Constants::STATSD_OH_SILENT_FAILURE_TAGS
+               else
+                 Constants::STATSD_CIE_SILENT_FAILURE_TAGS
+               end
+        StatsD.increment(Constants::STATSD_NOTIFY_SILENT_FAILURE, tags:)
+      end
       StatsD.increment(Constants::STATSD_NOTIFY_ERROR)
     end
   end

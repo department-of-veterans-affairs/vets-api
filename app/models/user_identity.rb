@@ -29,7 +29,7 @@ class UserIdentity < Common::RedisStore
   attribute :verified_at # Login.gov IAL2 verification timestamp
   attribute :sec_id
   attribute :mhv_icn # only needed by B/E not serialized in user_serializer
-  attribute :mhv_correlation_id # this is the cannonical version of MHV Correlation ID, provided by MHV sign-in users
+  attribute :mhv_credential_uuid
   attribute :mhv_account_type # this is only available for MHV sign-in users
   attribute :edipi # this is only available for dslogon users
   attribute :sign_in, Hash # original sign_in (see sso_service#mergable_identity_attributes)

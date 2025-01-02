@@ -4,7 +4,7 @@ require 'burials/monitor'
 require 'lighthouse/benefits_intake/service'
 require 'pensions/monitor'
 require 'pensions/notification_email'
-require 'va_notify/notification_email/burial'
+require 'burials/notification_email'
 require 'pcpg/monitor'
 require 'dependents/monitor'
 require 'vre/monitor'
@@ -139,7 +139,7 @@ class BenefitsIntakeStatusJob
     }
     call_location = caller_locations.first
 
-    if %w[21P-530EZ].include?(form_id)
+    if %w[21P-530EZ 21P-530V2].include?(form_id)
       claim = SavedClaim::Burial.find(saved_claim_id)
       if claim
         Burials::NotificationEmail.new(claim.id).deliver(:error)
