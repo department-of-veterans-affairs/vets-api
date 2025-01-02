@@ -227,5 +227,25 @@ RSpec.describe Burials::Monitor do
         end
       end
     end
+
+    describe '#track_notification_email_failure' do
+      it 'log email notification failure' do
+        log = '21P-530EZ notification email failure'
+        payload = {
+          claim_id: claim.id,
+          message: monitor_error.message,
+          tags: monitor.tags
+        }
+
+        expect(monitor).to receive(:track_request).with(
+          'error',
+          log,
+          "#{claim_stats_key}.notification_email_failure",
+          call_location: anything,
+          **payload
+        )
+        monitor.track_notification_email_failure(claim.id, monitor_error)
+      end
+    end
   end
 end

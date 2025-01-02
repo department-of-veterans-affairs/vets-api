@@ -189,5 +189,22 @@ module Burials
       track_request('error', 'Lighthouse::SubmitBenefitsIntakeClaim Burial 21P-530EZ submission to LH exhausted!',
                     "#{SUBMISSION_STATS_KEY}.exhausted", call_location:, **additional_context)
     end
+
+    ##
+    # log email notification failure
+    # @see BenefitsIntakeStatusJob/SubmissionStatusJob
+    #
+    # @param claim [SavedClaim::Burial]
+    # @param e [ActiveRecord::RecordNotFound]
+    #
+    def track_notification_email_failure(claim_id, e)
+      additional_context = {
+        claim_id:,
+        message: e&.message,
+        tags:
+      }
+      track_request('error', '21P-530EZ notification email failure', "#{CLAIM_STATS_KEY}.notification_email_failure",
+                    call_location: caller_locations.first, **additional_context)
+    end
   end
 end

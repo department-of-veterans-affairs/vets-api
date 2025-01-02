@@ -191,20 +191,22 @@ module BenefitsIntake
     end
 
     def send_burial_received_notification(form_id, saved_claim_id, bi_uuid)
-      context = {
-        uuid: bi_uuid,
-        form_id: form_id,
-        claim_id: saved_claim_id,
-        benefits_intake_uuid: bi_uuid
-      }
-      call_location = caller_locations.first
+      claim = SavedClaim::Burial.find_by(id: saved_claim_id)
 
-      claim = SavedClaim::Burial.find(saved_claim_id)
-      if claim
+      unless claim
+        context = {
+          form_id: form_id,
+          claim_id: saved_claim_id,
+          benefits_intake_uuid: bi_uuid
+        }
+        Burials::Monitor.new.log_silent_failure(context, nil, call_location: caller_locations.first)
+        return
+      end
+
+      begin
         Burials::NotificationEmail.new(claim.id).deliver(:received)
-        Burials::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
-      else
-        Burials::Monitor.new.log_silent_failure(context, nil, call_location:)
+      rescue => e
+        Burials::Monitor.new.track_notification_email_failure(saved_claim_id, e)
       end
     end
 
