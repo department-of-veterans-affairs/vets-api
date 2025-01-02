@@ -315,8 +315,16 @@ class HealthCareApplication < ApplicationRecord
 
   def form_matches_schema
     if form.present?
-      JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form).each do |v|
-        errors.add(:form, v.to_s)
+      begin
+        JSON::Validator.fully_validate(VetsJsonSchema::SCHEMAS[self.class::FORM_ID], parsed_form).each do |v|
+          errors.add(:form, v.to_s)
+        end
+      rescue => e
+        Rails.logger.error("[#{FORM_ID}] Error during schema validation!",
+                           { error: e.message,
+                             backtrace: e.backtrace,
+                             schema: VetsJsonSchema::SCHEMAS[self.class::FORM_ID] })
+        raise
       end
     end
   end

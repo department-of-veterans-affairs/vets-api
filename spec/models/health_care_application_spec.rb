@@ -363,6 +363,25 @@ RSpec.describe HealthCareApplication, type: :model do
         expect_attr_valid(health_care_application, attr)
       end
     end
+
+    context 'schema validation raises an exception' do
+      let(:health_care_application) { build(:health_care_application) }
+      let(:exception) { StandardError.new('Some exception') }
+
+      before do
+        allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
+      end
+
+      it 'logs exception and raises exception' do
+        expect(Rails.logger).to receive(:error)
+          .with("[#{form_id}] Error during schema validation!", {
+                  error: exception.message,
+                  backtrace: anything,
+                  schema: VetsJsonSchema::SCHEMAS[form_id]
+                })
+        expect { health_care_application.valid? }.to raise_error(exception.class, exception.message)
+      end
+    end
   end
 
   describe '#process!' do
