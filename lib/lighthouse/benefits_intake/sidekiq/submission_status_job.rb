@@ -19,12 +19,12 @@ module BenefitsIntake
 
     # any status not listed will result in 'pending'
     STATUS_RESULT_MAP = {
-      expired: 'failure',  # Indicates that documents were not successfully uploaded within the 15-minute window
-      error: 'failure',    # Indicates that there was an error. Refer to the code and detail for further information
-      vbms: 'success',     # Submission was successfully uploaded into a Veteran's eFolder within VBMS
-      success: 'pending',  # Submission was successfully received into Lighthouse systems
-      pending: 'pending',  # Submission is being processed
-      stale: 'stale'       # Exceeds SLA (service level agreement) days for submission completion; non-lighthouse status
+      expired: 'failure', # Indicates that documents were not successfully uploaded within the 15-minute window
+      error: 'failure',   # Indicates that there was an error. Refer to the code and detail for further information
+      vbms: 'success',    # Submission was successfully uploaded into a Veteran's eFolder within VBMS
+      success: 'pending', # Submission was successfully received into Lighthouse systems
+      pending: 'pending', # Submission is being processed
+      stale: 'stale'      # Exceeds SLA (service level agreement) days for submission completion; non-lighthouse status
     }.freeze
 
     # A hash mapping form IDs to their corresponding handlers.
@@ -183,6 +183,7 @@ module BenefitsIntake
 
       [form_submission_attempt, result]
     end
+
     # end class SubmissionStatusJob
   end
 
