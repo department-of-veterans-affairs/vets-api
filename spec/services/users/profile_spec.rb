@@ -114,7 +114,7 @@ RSpec.describe Users::Profile do
 
       context 'mhv user' do
         let(:user) { create(:user, :mhv) }
-        let!(:user_verification) { create(:mhv_user_verification, mhv_uuid: user.mhv_correlation_id) }
+        let!(:user_verification) { create(:mhv_user_verification, mhv_uuid: user.mhv_credential_uuid) }
 
         it 'includes sign_in' do
           expect(profile[:sign_in]).to eq(service_name: SAML::User::MHV_ORIGINAL_CSID,

@@ -113,7 +113,7 @@ module SAML
                    "#{base_redirect_url}/terms-of-use"
                  end
 
-      if current_application.in?(SKIP_MHV_ACCOUNT_CREATION_CLIENTS)
+      if current_application.in?(SKIP_MHV_ACCOUNT_CREATION_CLIENTS) || @tracker&.payload_attr(:type) == 'custom'
         base_url = add_query(base_url, { skip_mhv_account_creation: true })
       end
 

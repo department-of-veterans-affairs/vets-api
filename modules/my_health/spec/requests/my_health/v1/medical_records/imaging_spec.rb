@@ -32,12 +32,32 @@ RSpec.describe 'MyHealth::V1::MedicalRecords::ImagingController', type: :request
                         match_requests_on: %i[method sm_user_ignoring_path_param])
   end
 
+  RSpec.shared_context 'redis setup' do
+    let(:redis) { instance_double(Redis::Namespace) }
+    # let(:study_id) { '453-2487450' }
+    let(:uuid) { 'c9396040-23b7-44bc-a505-9127ed968b0d' }
+    let(:cached_data) do
+      {
+        uuid => study_id
+      }.to_json
+    end
+    let(:namespace) { REDIS_CONFIG[:bb_internal_store][:namespace] }
+    let(:study_data_key) { 'study_data-11382904' }
+
+    before do
+      allow(Redis::Namespace).to receive(:new).with(namespace, redis: $redis).and_return(redis)
+      allow(redis).to receive(:get).with(study_data_key).and_return(cached_data)
+    end
+  end
+
   context 'Premium User' do
+    include_context 'redis setup'
+
     let(:mhv_account_type) { 'Premium' }
 
     it 'streams DICOM data' do
       VCR.use_cassette('bb_client/get_dicom') do
-        get "/my_health/v1/medical_records/imaging/#{study_id}/dicom"
+        get "/my_health/v1/medical_records/imaging/#{uuid}/dicom"
       end
 
       expect(response).to be_successful

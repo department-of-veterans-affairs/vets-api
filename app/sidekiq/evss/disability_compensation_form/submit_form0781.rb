@@ -30,10 +30,12 @@ module EVSS
 
       FORM_ID_0781 = '21-0781' # form id for PTSD
       FORM_ID_0781A = '21-0781a' # form id for PTSD Secondary to Personal Assault
+      FORM_ID_0781V2 = '21-0781V2' # form id for Mental Health Disorder(s) Due to In-Service Traumatic Event(s)
 
       FORMS_METADATA = {
         FORM_ID_0781 => { docType: 'L228' },
-        FORM_ID_0781A => { docType: 'L229' }
+        FORM_ID_0781A => { docType: 'L229' },
+        FORM_ID_0781V2 => { docType: 'L228' }
       }.freeze
 
       STATSD_KEY_PREFIX = 'worker.evss.submit_form0781'
@@ -145,12 +147,17 @@ module EVSS
         @submission = Form526Submission.find_by(id: submission_id)
 
         file_type_and_file_objs = []
-        { 'form0781' => FORM_ID_0781, 'form0781a' => FORM_ID_0781A }.each do |form_type_key, actual_form_types|
-          if parsed_forms[form_type_key].present?
+        {
+          'form0781' => FORM_ID_0781,
+          'form0781a' => FORM_ID_0781A,
+          'form0781v2' => FORM_ID_0781V2
+        }.each do |form_type_key, actual_form_types|
+          form_content = parsed_forms[form_type_key]
+
+          if form_content.present?
             file_type_and_file_objs << {
               type: actual_form_types,
-              file: process_0781(uuid, actual_form_types, parsed_forms[form_type_key],
-                                 upload: false)
+              file: process_0781(uuid, actual_form_types, form_content, upload: false)
             }
           end
         end
@@ -172,12 +179,14 @@ module EVSS
         super(submission_id)
 
         with_tracking('Form0781 Submission', submission.saved_claim_id, submission.id) do
-          # process 0781 and 0781a
-          if parsed_forms['form0781'].present?
-            process_0781(submission.submitted_claim_id, FORM_ID_0781, parsed_forms['form0781'])
-          end
-          if parsed_forms['form0781a'].present?
-            process_0781(submission.submitted_claim_id, FORM_ID_0781A, parsed_forms['form0781a'])
+          # process 0781, 0781a and 0781v2
+          {
+            'form0781' => FORM_ID_0781,
+            'form0781a' => FORM_ID_0781A,
+            'form0781v2' => FORM_ID_0781V2
+          }.each do |form_key, form_id|
+            form_content = parsed_forms[form_key]
+            process_0781(submission.submitted_claim_id, form_id, form_content) if form_content.present?
           end
         end
       rescue => e
