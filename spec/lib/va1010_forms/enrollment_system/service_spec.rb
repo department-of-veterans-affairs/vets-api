@@ -58,7 +58,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
 
     context 'when no error occurs' do
       it "returns an object that includes 'success', 'formSubmissionId', and 'timestamp'",
-        run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
+         run_at: 'Tue, 21 Nov 2023 20:42:44 GMT' do
         VCR.use_cassette(
           'form1010_ezr/authorized_submit',
           { match_requests_on: %i[method uri body], erb: true }
