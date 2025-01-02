@@ -435,9 +435,7 @@ module SimpleFormsApi
     end
 
     def needs_confirmation_number?(config)
-      config[:form_number] != 'vba_26_4555' &&
-        (config[:notification_type] != 'REJECTED' ||
-        config[:notification_type] != 'DUPLICATE')
+      config[:form_number] != 'vba_26_4555' && %w[REJECTED DUPLICATE].exclude(config[:notification_type])
     end
   end
 end

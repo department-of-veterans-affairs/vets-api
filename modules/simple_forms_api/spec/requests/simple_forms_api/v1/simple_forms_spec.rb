@@ -1038,8 +1038,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'form26_4555_rejected_email_template_id',
             {
               'first_name' => 'Veteran',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => reference_number
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
             }
           )
         end
@@ -1068,8 +1067,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'form26_4555_duplicate_email_template_id',
             {
               'first_name' => 'Veteran',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => reference_number
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
             }
           )
         end
