@@ -9,7 +9,7 @@ require 'va_notify/service'
 require 'lighthouse/benefits_documents/constants'
 
 RSpec.describe Lighthouse::DocumentUpload, type: :job do
-  subject(:job) do
+  let(:job) do
     described_class.perform_async(user_icn,
                                   document_data.to_serializable_hash,
                                   user_account_uuid, claim_id,
@@ -90,18 +90,6 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
       evidence_submission
     end
 
-    let(:job_id) { job }
-    let(:evidence_submission_stub) do
-      evidence_submission = EvidenceSubmission.new(claim_id: '4567',
-                                                   tracked_item_id: tracked_item_ids,
-                                                   job_id: job_id,
-                                                   job_class: described_class,
-                                                   upload_status: 'pending')
-      evidence_submission.user_account = user_account
-      evidence_submission.save!
-      evidence_submission
-    end
-
     let(:formatted_submit_date) do
       # We want to return all times in EDT
       timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
@@ -110,21 +98,14 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
       timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
     end
 
-    it 'enqueues a failure notification mailer to send to the veteran' do
-      allow(VaNotify::Service).to receive(:new) { notify_client_stub }
-
+    it 'calls Lighthouse::FailureNotification' do
       described_class.within_sidekiq_retries_exhausted_block(args) do
-        expect(notify_client_stub).to receive(:send_email).with(
-          {
-            recipient_identifier: { id_value: user_account.icn, id_type: 'ICN' },
-            template_id: 'fake_template_id',
-            personalisation: {
-              first_name: 'Bob',
-              filename: 'docXXXX-XXte.pdf',
-              date_submitted: formatted_submit_date,
-              date_failed: formatted_submit_date
-            }
-          }
+        expect(Lighthouse::FailureNotification).to receive(:perform_async).with(
+          user_account.icn,
+          'Bob', # first_name
+          'docXXXX-XXte.pdf', # filename
+          formatted_submit_date, # date_submitted
+          formatted_submit_date # date_failed
         )
 
         expect(Rails.logger)
@@ -171,11 +152,9 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
 
     let(:issue_instant) { Time.now.to_i }
 
-    it 'does not enqueue a failure notification mailer to send to the veteran' do
-      allow(VaNotify::Service).to receive(:new) { notify_client_stub }
-
+    it 'does not call Lighthouse::Failure Notification' do
       described_class.within_sidekiq_retries_exhausted_block(args) do
-        expect(notify_client_stub).not_to receive(:send_email)
+        expect(Lighthouse::FailureNotification).not_to receive(:perform_async)
       end
     end
   end

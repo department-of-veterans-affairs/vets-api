@@ -683,16 +683,20 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.string "job_class"
     t.string "request_id"
     t.string "claim_id"
-    t.string "user_account_id"
+    t.uuid "user_account_id", null: false
     t.json "template_metadata_ciphertext"
     t.text "encrypted_kms_key"
     t.string "upload_status"
     t.string "va_notify_id"
     t.string "va_notify_status"
-    t.date "delete_date"
+    t.datetime "delete_date"
+    t.datetime "acknowledgement_date"
+    t.datetime "failed_date"
+    t.string "error_message"
     t.string "tracked_item_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_evidence_submissions_on_user_account_id"
   end
 
   create_table "evss_claims", id: :serial, force: :cascade do |t|
@@ -1792,6 +1796,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
+  add_foreign_key "evidence_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "form526_submission_remediations", "form526_submissions"
   add_foreign_key "form526_submissions", "user_accounts"
