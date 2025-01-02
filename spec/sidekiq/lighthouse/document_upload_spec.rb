@@ -76,7 +76,18 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
   context 'when cst_send_evidence_failure_emails is enabled' do
     before do
       Flipper.enable(:cst_send_evidence_failure_emails)
-      allow(Lighthouse::FailureNotification).to receive(:perform_async)
+    end
+
+    let(:job_id) { job }
+    let(:evidence_submission_stub) do
+      evidence_submission = EvidenceSubmission.new(claim_id: '4567',
+                                                   tracked_item_id: tracked_item_ids,
+                                                   job_id: job_id,
+                                                   job_class: described_class,
+                                                   upload_status: 'pending')
+      evidence_submission.user_account = user_account
+      evidence_submission.save!
+      evidence_submission
     end
 
     let(:job_id) { job }
