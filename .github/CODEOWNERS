@@ -2211,4 +2211,3 @@ postman/vets-api.pm-collection.json @department-of-veterans-affairs/backend-revi
 postman/Dockerfile @department-of-veterans-affairs/backend-review-group
 spec/uploaders/simple_forms_api/ @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 # Place your entry above this comment in alphabetical order.
-app/models/evidence_submission.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
