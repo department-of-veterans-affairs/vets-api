@@ -11,6 +11,7 @@ RSpec.describe FormProfile, type: :model do
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mpi_profile_address)) }
 
   before do
+    Flipper.disable(:remove_pciu)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
     Flipper.disable(:disability_526_toxic_exposure)

@@ -11,7 +11,7 @@ RSpec.describe Login::UserVerifier do
         {
           edipi: edipi_identifier,
           sign_in: { service_name: login_value, auth_broker: },
-          mhv_correlation_id: mhv_correlation_id_identifier,
+          mhv_credential_uuid: mhv_credential_uuid_identifier,
           idme_uuid: idme_uuid_identifier,
           logingov_uuid: logingov_uuid_identifier,
           icn:,
@@ -22,7 +22,7 @@ RSpec.describe Login::UserVerifier do
     end
     let(:auth_broker) { 'some-auth-broker' }
     let(:edipi_identifier) { 'some-edipi' }
-    let(:mhv_correlation_id_identifier) { 'some-correlation-id' }
+    let(:mhv_credential_uuid_identifier) { 'some-credential=uuid' }
     let(:idme_uuid_identifier) { 'some-idme-uuid' }
     let(:logingov_uuid_identifier) { 'some-logingov-uuid' }
     let(:locked) { false }
@@ -42,7 +42,7 @@ RSpec.describe Login::UserVerifier do
     shared_examples 'user_verification with nil credential identifier' do
       let(:authn_identifier) { nil }
       let(:edipi_identifier) { authn_identifier }
-      let(:mhv_correlation_id_identifier) { authn_identifier }
+      let(:mhv_credential_uuid_identifier) { authn_identifier }
       let(:idme_uuid_identifier) { authn_identifier }
       let(:logingov_uuid_identifier) { authn_identifier }
       let(:expected_log) { "[Login::UserVerifier] Nil identifier for type=#{authn_identifier_type}" }
@@ -391,7 +391,7 @@ RSpec.describe Login::UserVerifier do
 
     context 'when user credential is mhv' do
       let(:login_value) { SignIn::Constants::Auth::MHV }
-      let(:authn_identifier) { user_identity.mhv_correlation_id }
+      let(:authn_identifier) { user_identity.mhv_credential_uuid }
       let(:authn_identifier_type) { :mhv_uuid }
       let(:backing_idme_uuid) { idme_uuid_identifier }
       let(:linked_user_verification_type) { :mhv_user_verification }
@@ -410,7 +410,7 @@ RSpec.describe Login::UserVerifier do
       context 'when credential identifier is nil' do
         let(:authn_identifier) { nil }
         let(:edipi_identifier) { authn_identifier }
-        let(:mhv_correlation_id_identifier) { authn_identifier }
+        let(:mhv_credential_uuid_identifier) { authn_identifier }
         let(:idme_uuid_identifier) { authn_identifier }
         let(:logingov_uuid_identifier) { authn_identifier }
         let(:expected_log) { "[Login::UserVerifier] Nil identifier for type=#{authn_identifier_type}" }
