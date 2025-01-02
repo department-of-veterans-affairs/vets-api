@@ -147,11 +147,7 @@ class BenefitsIntakeStatusJob
       return
     end
 
-    begin
-      Burials::NotificationEmail.new(claim.id).deliver(:received)
-    rescue => e
-      Burials::Monitor.new.track_notification_email_failure(saved_claim_id, e)
-    end
+    Burials::NotificationEmail.new(claim.id).deliver(:received)
   end
 
   # TODO: refactor - avoid require of module code, near duplication of process

@@ -203,11 +203,7 @@ module BenefitsIntake
         return
       end
 
-      begin
-        Burials::NotificationEmail.new(claim.id).deliver(:received)
-      rescue => e
-        Burials::Monitor.new.track_notification_email_failure(saved_claim_id, e)
-      end
+      Burials::NotificationEmail.new(claim.id).deliver(:received)
     end
 
     # end class SubmissionStatusJob
