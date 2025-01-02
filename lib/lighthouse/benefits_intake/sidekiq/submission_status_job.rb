@@ -122,8 +122,6 @@ module BenefitsIntake
 
     def update_attempt_record(uuid, status, submission)
       form_submission_attempt = pending_attempts_hash[uuid]
-      form_id = form_submission_attempt.form_submission.form_type
-      saved_claim_id = form_submission_attempt.form_submission.saved_claim_id
       lighthouse_updated_at = submission.dig('attributes', 'updated_at')
 
       case status
@@ -140,29 +138,9 @@ module BenefitsIntake
       when 'vbms'
         # Submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.vbms!
-        monitor_success(form_id, saved_claim_id, uuid)
       end
 
       form_submission_attempt.update(lighthouse_updated_at:, error_message:)
-    end
-
-    def monitor_success(form_id, saved_claim_id, bi_uuid)
-      # Remove this logic after SubmissionStatusJob replaces this one
-      if form_id == '21P-530EZ' && Flipper.enabled?(:burial_received_email_notification)
-        claim = SavedClaim::Burial.find_by(id: saved_claim_id)
-
-        unless claim
-          context = {
-            form_id: form_id,
-            claim_id: saved_claim_id,
-            benefits_intake_uuid: bi_uuid
-          }
-          Burials::Monitor.new.log_silent_failure(context, nil, call_location: caller_locations.first)
-          return
-        end
-
-        Burials::NotificationEmail.new(claim.id).deliver(:received)
-      end
     end
 
     def monitor_attempt_status(uuid, status)
@@ -206,23 +184,6 @@ module BenefitsIntake
 
       [form_submission_attempt, result]
     end
-
-    def send_burial_received_notification(form_id, saved_claim_id, bi_uuid)
-      claim = SavedClaim::Burial.find_by(id: saved_claim_id)
-
-      unless claim
-        context = {
-          form_id: form_id,
-          claim_id: saved_claim_id,
-          benefits_intake_uuid: bi_uuid
-        }
-        Burials::Monitor.new.log_silent_failure(context, nil, call_location: caller_locations.first)
-        return
-      end
-
-      Burials::NotificationEmail.new(claim.id).deliver(:received)
-    end
-
     # end class SubmissionStatusJob
   end
 
