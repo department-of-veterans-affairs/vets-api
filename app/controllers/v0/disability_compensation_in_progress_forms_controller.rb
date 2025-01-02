@@ -44,6 +44,7 @@ module V0
       # moving forward, we don't want to change the version if it is already there
       if Flipper.enabled?(:disability_526_toxic_exposure_ipf,
                           @current_user) && parsed_form_data['startedFormVersion'].blank?
+        log_started_form_version(parsed_form_data, 'existing IPF missing startedFormVersion')
         parsed_form_data['startedFormVersion'] = '2019'
       end
 
