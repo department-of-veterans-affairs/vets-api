@@ -24,7 +24,7 @@ module AccreditedRepresentativePortal
           { resolution: :resolving }
         ]
 
-        poa_requests = poa_request_scope.includes(includes).limit(100)
+        poa_requests = filtered_poa_requests.includes(includes).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
 
         render json: serializer.serializable_hash, status: :ok
@@ -33,6 +33,15 @@ module AccreditedRepresentativePortal
       def show
         serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
         render json: serializer.serializable_hash, status: :ok
+      end
+
+      private
+
+      def filtered_poa_requests
+        return poa_request_scope if params[:status].blank?
+        return poa_request_scope.none unless %w[pending completed].include?(params[:status]&.downcase)
+
+        poa_request_scope.send(params[:status].downcase)
       end
     end
   end
