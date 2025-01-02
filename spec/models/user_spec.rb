@@ -853,40 +853,6 @@ RSpec.describe User, type: :model do
     end
   end
 
-  describe '#pciu' do
-    context 'when user is LOA3 and has an edipi' do
-      before { stub_evss_pciu(user) }
-
-      it 'returns pciu_email' do
-        expect(user.pciu_email).to eq 'test2@test1.net'
-      end
-
-      it 'returns pciu_primary_phone' do
-        expect(user.pciu_primary_phone).to eq '14445551212'
-      end
-
-      it 'returns pciu_alternate_phone' do
-        expect(user.pciu_alternate_phone).to eq '1'
-      end
-    end
-
-    context 'when user is LOA1' do
-      let(:user) { build(:user, :loa1) }
-
-      it 'returns blank pciu_email' do
-        expect(user.pciu_email).to eq nil
-      end
-
-      it 'returns blank pciu_primary_phone' do
-        expect(user.pciu_primary_phone).to eq nil
-      end
-
-      it 'returns blank pciu_alternate_phone' do
-        expect(user.pciu_alternate_phone).to eq nil
-      end
-    end
-  end
-
   describe '#account' do
     context 'when user has an existing Account record' do
       let(:user) { create :user, :accountable }

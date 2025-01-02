@@ -270,7 +270,6 @@ class FormProfile
     return_val[:email] = vet360_contact_info&.email&.email_address
 
     return_val[:address] = vet360_mailing_address_hash if vet360_mailing_address.present?
-
     phone = vet360_contact_info&.home_phone&.formatted_phone
     return_val[:us_phone] = phone
     return_val[:home_phone] = phone
@@ -286,11 +285,6 @@ class FormProfile
       Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
 
     opt[:address] ||= user_address_hash
-    opt[:email] ||= extract_pciu_data(:pciu_email)
-    if opt[:home_phone].nil?
-      opt[:home_phone] = pciu_primary_phone
-      opt[:us_phone] = pciu_us_phone
-    end
 
     format_for_schema_compatibility(opt)
 
@@ -302,12 +296,7 @@ class FormProfile
     return @vet360_contact_info if @vet360_contact_info_retrieved
 
     @vet360_contact_info_retrieved = true
-    if VAProfile::Configuration::SETTINGS.prefill && user.vet360_id.present?
-      @vet360_contact_info = VAProfileRedis::ContactInformation.for_user(user)
-    else
-      Rails.logger.info('Vet360 Contact Info Null')
-    end
-    @vet360_contact_info
+    return @vet360_contact_info = VAProfileRedis::V2::ContactInformation.for_user(user)
   end
 
   def vet360_mailing_address
@@ -338,21 +327,6 @@ class FormProfile
     opt[:address][:postal_code] = opt[:address][:postal_code][0..4] if opt.dig(:address, :postal_code)
   end
 
-  def extract_pciu_data(method)
-    user&.send(method)
-  rescue Common::Exceptions::Forbidden, Common::Exceptions::BackendServiceException, EVSS::ErrorMiddleware::EVSSError
-    ''
-  end
-
-  def pciu_us_phone
-    return '' if pciu_primary_phone.blank?
-    return pciu_primary_phone if pciu_primary_phone.size == 10
-
-    return pciu_primary_phone[1..] if pciu_primary_phone.size == 11 && pciu_primary_phone[0] == '1'
-
-    ''
-  end
-
   # returns the veteran's phone number as an object
   # preference: vet360 mobile -> vet360 home -> pciu
   def phone_object
@@ -361,16 +335,6 @@ class FormProfile
 
     home = vet360_contact_info&.home_phone
     return home if home&.area_code && home.phone_number
-
-    phone_struct = Struct.new(:area_code, :phone_number)
-
-    return phone_struct.new(pciu_us_phone.first(3), pciu_us_phone.last(7)) if pciu_us_phone&.length == 10
-
-    phone_struct.new
-  end
-
-  def pciu_primary_phone
-    @pciu_primary_phone ||= extract_pciu_data(:pciu_primary_phone)
   end
 
   def convert_mapping(hash)
@@ -424,7 +388,7 @@ class FormProfile
   end
 
   def clean_hash!(hash)
-    hash.deep_transform_keys! { |k| k.camelize(:lower) }
+    hash.deep_transform_keys! { |k| k.to_s.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
     hash.delete_if { |_k, v| v.blank? }
   end
