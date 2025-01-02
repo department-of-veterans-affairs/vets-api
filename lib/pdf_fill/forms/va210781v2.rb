@@ -675,7 +675,7 @@ module PdfFill
       end
 
       def format_other_behavior_details
-        other_behavior = @form_data['behaviors']&.[]('otherBehavior')
+        other_behavior = @form_data['otherBehaviors']
         return if other_behavior.blank?
 
         details = @form_data['behaviorsDetails']['otherBehavior']

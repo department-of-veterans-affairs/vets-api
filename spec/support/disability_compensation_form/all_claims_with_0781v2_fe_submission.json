@@ -192,9 +192,9 @@
           "substances": true,
           "appetite": true,
           "screenings": true,
-          "relationships": true,
-          "otherBehavior": "Withdrawal"
+          "relationships": true
         },
+        "otherBehaviors": "Withdrawal",
         "behaviorsDetails": {
           "reassignment": "Lorem ipsum dolor sit amet.",
           "performance": "Lorem ipsum dolor sit amet.",
