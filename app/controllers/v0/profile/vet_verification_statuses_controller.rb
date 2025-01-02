@@ -7,8 +7,7 @@ module V0
       before_action { authorize :lighthouse, :access? }
 
       def show
-        access_token = settings.access_token
-        response = service.get_vet_verification_status(@current_user.icn, access_token.client_id, access_token.rsa_key)
+        response = service.get_vet_verification_status(@current_user.icn)
         response['data']['id'] = ''
 
         render json: response
@@ -18,10 +17,6 @@ module V0
 
       def service
         @service ||= VeteranVerification::Service.new
-      end
-
-      def settings
-        Settings.lighthouse.veteran_verification['status']
       end
     end
   end

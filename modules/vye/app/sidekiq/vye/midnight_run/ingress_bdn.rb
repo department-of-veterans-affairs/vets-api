@@ -7,6 +7,8 @@ module Vye
       sidekiq_options retry: 5
 
       def perform
+        return if Vye::CloudTransfer.holiday?
+
         bdn_clone = Vye::BdnClone.create!(transact_date: Time.zone.today)
         bdn_clone_id = bdn_clone.id
 

@@ -5,27 +5,31 @@ require 'rails_helper'
 describe Eps::AppointmentService do
   subject(:service) { described_class.new(user) }
 
-  let(:icn) { '123ICN' }
   let(:user) { double('User', account_uuid: '1234', icn:) }
-  let(:successful_appt_response) do
-    double('Response', status: 200, body: { 'count' => 1,
-                                            'appointments' => [
-                                              {
-                                                'id' => 'test-id',
-                                                'state' => 'booked',
-                                                'patientId' => icn
-                                              }
-                                            ] })
+  let(:config) { instance_double(Eps::Configuration) }
+  let(:headers) { { 'Authorization' => 'Bearer token123' } }
+
+  let(:appointment_id) { 'appointment-123' }
+  let(:icn) { '123ICN' }
+
+  before do
+    allow(config).to receive(:base_path).and_return('api/v1')
+    allow_any_instance_of(Eps::BaseService).to receive_messages(config: config, headers: headers)
   end
-  let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 
   describe 'get_appointments' do
-    before do
-      allow(Rails.cache).to receive(:fetch).and_return(memory_store)
-      Rails.cache.clear
-    end
+    context 'when requesting appointments for a logged in user' do
+      let(:successful_appt_response) do
+        double('Response', status: 200, body: { 'count' => 1,
+                                                'appointments' => [
+                                                  {
+                                                    'id' => appointment_id,
+                                                    'state' => 'booked',
+                                                    'patientId' => icn
+                                                  }
+                                                ] })
+      end
 
-    context 'when requesting appointments for a given patient_id' do
       before do
         allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_appt_response)
       end
@@ -53,6 +57,155 @@ describe Eps::AppointmentService do
       it 'throws exception' do
         expect { service.get_appointments }.to raise_error(Common::Exceptions::BackendServiceException,
                                                            /VA900/)
+      end
+    end
+  end
+
+  describe 'create_draft_appointment' do
+    let(:referral_id) { 'test-referral-id' }
+    let(:successful_draft_appt_response) do
+      double('Response', status: 200, body: { 'id' => appointment_id,
+                                              'state' => 'draft',
+                                              'patientId' => icn })
+    end
+
+    context 'when creating draft appointment for a given referral_id' do
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_return(successful_draft_appt_response)
+      end
+
+      it 'returns the appointments scheduled' do
+        exp_response = OpenStruct.new(successful_draft_appt_response.body)
+
+        expect(service.create_draft_appointment(referral_id:)).to eq(exp_response)
+      end
+    end
+
+    context 'when the endpoint fails' do
+      let(:failed_response) do
+        double('Response', status: 500, body: 'Unknown service exception')
+      end
+      let(:exception) do
+        Common::Exceptions::BackendServiceException.new(nil, {}, failed_response.status,
+                                                        failed_response.body)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
+      end
+
+      it 'throws exception' do
+        expect do
+          service.create_draft_appointment(referral_id:)
+        end.to raise_error(Common::Exceptions::BackendServiceException,
+                           /VA900/)
+      end
+    end
+  end
+
+  describe '#submit_appointment' do
+    let(:valid_params) do
+      {
+        network_id: 'network-123',
+        provider_service_id: 'provider-456',
+        slot_ids: ['slot-789'],
+        referral_number: 'REF-001'
+      }
+    end
+
+    context 'with valid parameters' do
+      let(:successful_response) do
+        double('Response', status: 200, body: { 'id' => appointment_id,
+                                                'state' => 'draft',
+                                                'patientId' => icn })
+      end
+
+      it 'submits the appointment successfully' do
+        expected_payload = {
+          networkId: valid_params[:network_id],
+          providerServiceId: valid_params[:provider_service_id],
+          slotIds: valid_params[:slot_ids],
+          referral: {
+            referralNumber: valid_params[:referral_number]
+          }
+        }
+
+        expect_any_instance_of(VAOS::SessionService).to receive(:perform)
+          .with(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", expected_payload, kind_of(Hash))
+          .and_return(successful_response)
+
+        exp_response = OpenStruct.new(successful_response.body)
+
+        expect(service.submit_appointment(appointment_id, valid_params)).to eq(exp_response)
+      end
+
+      it 'includes additional patient attributes when provided' do
+        patient_attributes = { name: 'John Doe', email: 'john@example.com' }
+        params_with_attributes = valid_params.merge(additional_patient_attributes: patient_attributes)
+
+        expected_payload = {
+          networkId: valid_params[:network_id],
+          providerServiceId: valid_params[:provider_service_id],
+          slotIds: valid_params[:slot_ids],
+          referral: {
+            referralNumber: valid_params[:referral_number]
+          },
+          additionalPatientAttributes: patient_attributes
+        }
+
+        expect_any_instance_of(VAOS::SessionService).to receive(:perform)
+          .with(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", expected_payload, kind_of(Hash))
+          .and_return(successful_response)
+
+        service.submit_appointment(appointment_id, params_with_attributes)
+      end
+    end
+
+    context 'with invalid parameters' do
+      it 'raises ArgumentError when appointment_id is nil' do
+        expect { service.submit_appointment(nil, valid_params) }
+          .to raise_error(ArgumentError, 'appointment_id is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when appointment_id is empty' do
+        expect { service.submit_appointment('', valid_params) }
+          .to raise_error(ArgumentError, 'appointment_id is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when appointment_id is blank' do
+        expect { service.submit_appointment('   ', valid_params) }
+          .to raise_error(ArgumentError, 'appointment_id is required and cannot be blank')
+      end
+
+      it 'raises ArgumentError when required parameters are missing' do
+        invalid_params = valid_params.except(:network_id)
+
+        expect { service.submit_appointment(appointment_id, invalid_params) }
+          .to raise_error(ArgumentError, /Missing required parameters: network_id/)
+      end
+
+      it 'raises ArgumentError when multiple required parameters are missing' do
+        invalid_params = valid_params.except(:network_id, :provider_service_id)
+
+        expect { service.submit_appointment(appointment_id, invalid_params) }
+          .to raise_error(ArgumentError, /Missing required parameters: network_id, provider_service_id/)
+      end
+    end
+
+    context 'when API returns an error' do
+      let(:response) { double('Response', status: 500, body: 'Unknown service exception') }
+      let(:exception) do
+        Common::Exceptions::BackendServiceException.new(nil, {}, response.status, response.body)
+      end
+
+      before do
+        allow_any_instance_of(VAOS::SessionService).to receive(:perform).and_raise(exception)
+      end
+
+      it 'returns the error response' do
+        expect do
+          service.submit_appointment(appointment_id, valid_params)
+        end.to raise_error(Common::Exceptions::BackendServiceException, /VA900/)
       end
     end
   end

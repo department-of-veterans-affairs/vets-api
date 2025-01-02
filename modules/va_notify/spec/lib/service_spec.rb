@@ -144,6 +144,33 @@ describe VaNotify::Service do
           end
         end
 
+        it 'with string callback data' do
+          VCR.use_cassette('va_notify/success_email') do
+            subject = described_class.new(test_api_key,
+                                          { 'callback_klass' => 'TestCallback',
+                                            'callback_metadata' => 'optional_metadata' })
+            allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(true)
+            allow(Rails.logger).to receive(:info)
+
+            subject.send_email(send_email_parameters)
+            expect(VANotify::Notification.count).to eq(1)
+            notification = VANotify::Notification.first
+
+            expect(Rails.logger).to have_received(:info).with(
+              "VANotify notification: #{notification.id} saved",
+              {
+                callback_klass: 'TestCallback',
+                callback_metadata: 'optional_metadata',
+                source_location: anything,
+                template_id: '1234'
+              }
+            )
+            expect(notification.source_location).to include('modules/va_notify/spec/lib/service_spec.rb')
+            expect(notification.callback_klass).to eq('TestCallback')
+            expect(notification.callback_metadata).to eq('optional_metadata')
+          end
+        end
+
         it 'with callback data' do
           VCR.use_cassette('va_notify/success_email') do
             subject = described_class.new(test_api_key,

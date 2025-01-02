@@ -17,7 +17,20 @@ module AskVAApi
             api_result.tmp_covid_online_scheduling = mobile_api_get_by_id(api_result.id)
           end
         end
-        render_json(serializer, lighthouse_params, api_results)
+
+        patsr_approved_codes = retrieve_patsr_approved_facilities[:Data].pluck(:FacilityCode)
+
+        filtered_results = WillPaginate::Collection.create(
+          api_results.current_page,
+          api_results.per_page,
+          api_results.total_entries
+        ) do |pager|
+          filtered_items = api_results.select { |object| patsr_approved_codes.include?(object.unique_id) }
+          pager.replace(filtered_items)
+          pager.total_entries = filtered_items.size
+        end
+
+        render_json(serializer, lighthouse_params, filtered_results)
       end
 
       def show
@@ -27,6 +40,10 @@ module AskVAApi
       end
 
       private
+
+      def retrieve_patsr_approved_facilities
+        Crm::CacheData.new.fetch_and_cache_data(endpoint: 'Facilities', cache_key: 'Facilities', payload: {})
+      end
 
       def api
         FacilitiesApi::V2::Lighthouse::Client.new

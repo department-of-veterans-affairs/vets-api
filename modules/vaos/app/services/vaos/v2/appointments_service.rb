@@ -115,6 +115,7 @@ module VAOS
           extract_appointment_fields(new_appointment)
           merge_clinic(new_appointment)
           merge_facility(new_appointment)
+          set_modality(new_appointment)
           OpenStruct.new(new_appointment)
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
@@ -168,7 +169,7 @@ module VAOS
         nil
       end
 
-      def get_recent_sorted_clinic_appointments
+      def get_recent_sorted_appointments
         end_time = Date.current.end_of_day.yesterday
         start_time = 1.year.ago
         statuses = 'booked,fulfilled,arrived'
@@ -185,7 +186,7 @@ module VAOS
             Rails.logger.info("VAOS appointment sorting filtered out id #{rem_appt.id} due to missing start time.")
           end
         end
-        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }
+        filtered_appts.sort_by { |appointment| DateTime.parse(appointment.start) }.reverse
       end
 
       # Returns the facility timezone id (eg. 'America/New_York') associated with facility id (location_id)
@@ -336,6 +337,8 @@ module VAOS
         merge_facility(appointment) if include[:facilities]
 
         set_type(appointment)
+
+        set_modality(appointment)
       end
 
       def find_and_merge_provider_name(appointment)
@@ -486,7 +489,7 @@ module VAOS
       # @param appt [Hash] the appointment to check
       # @return [Boolean] true if the appointment cannot be cancelled
       def cannot_be_cancelled?(appointment)
-        cnp?(appointment) || covid?(appointment) ||
+        cnp?(appointment) || covid?(appointment) || appointment[:start]&.to_datetime&.past? ||
           (cc?(appointment) && booked?(appointment)) || telehealth?(appointment)
       end
 
@@ -512,6 +515,20 @@ module VAOS
       def filter_reason_code_text(request_object_body)
         text = request_object_body&.dig(:reason_code, :text)
         VAOS::Strings.filter_ascii_characters(text) if text.present?
+      end
+
+      # Determines if the appointment is a Cerner (Oracle Health) appointment.
+      # This is determined by the presence of a 'CERN' prefix in the appointment's id.
+      #
+      # @param appt [Hash] the appointment to check
+      # @return [Boolean] true if the appointment is a Cerner appointment, false otherwise
+      #
+      # @raise [ArgumentError] if the appointment is nil
+      #
+      def cerner?(appt)
+        raise ArgumentError, 'Appointment cannot be nil' if appt.nil?
+
+        appt[:id].start_with?('CERN')
       end
 
       # Checks if the appointment is booked.
@@ -691,20 +708,45 @@ module VAOS
       end
 
       def set_type(appointment)
-        type = APPOINTMENT_TYPES[:request] if appointment[:kind] != 'cc' && appointment[:request_periods].present?
-
-        type ||= case appointment[:kind]
-                 when 'cc'
-                   if appointment[:start]
-                     APPOINTMENT_TYPES[:cc_appointment]
-                   else
-                     APPOINTMENT_TYPES[:cc_request]
-                   end
-                 else
-                   APPOINTMENT_TYPES[:va]
-                 end
+        type = if cerner?(appointment)
+                 cerner_type(appointment)
+               else
+                 non_cerner_type(appointment)
+               end
 
         appointment[:type] = type
+      end
+
+      # Determines the type of appointment for Cerner appointments.
+      # @param appointment [Hash] the appointment to determine the type for
+      #
+      # @return [String] the type of appointment
+      #
+      def cerner_type(appointment)
+        if appointment[:end].present?
+          appointment[:kind] == 'cc' ? APPOINTMENT_TYPES[:cc_appointment] : APPOINTMENT_TYPES[:va]
+        else
+          appointment[:kind] == 'cc' ? APPOINTMENT_TYPES[:cc_request] : APPOINTMENT_TYPES[:request]
+        end
+      end
+
+      # Determines the type of appointment for non-Cerner appointments.
+      # @param appointment [Hash] the appointment to determine the type for
+      #
+      # @return [String] the type of appointment
+      #
+      def non_cerner_type(appointment)
+        if appointment[:kind] == 'cc'
+          if appointment[:requested_periods].present?
+            APPOINTMENT_TYPES[:cc_request]
+          else
+            APPOINTMENT_TYPES[:cc_appointment]
+          end
+        elsif appointment[:requested_periods].present?
+          APPOINTMENT_TYPES[:request]
+        else
+          APPOINTMENT_TYPES[:va]
+        end
       end
 
       # Modifies the appointment, setting the cancellable flag to false
@@ -712,6 +754,39 @@ module VAOS
       # @param appointment [Hash] the appointment to modify
       def set_cancellable_false(appointment)
         appointment[:cancellable] = false
+      end
+
+      def set_modality(appointment)
+        raise ArgumentError, 'Appointment cannot be nil' if appointment.nil?
+
+        modality = nil
+        if appointment[:service_type] == 'covid'
+          modality = 'vaInPersonVaccine'
+        elsif appointment.dig(:service_category, 0, :text) == 'COMPENSATION & PENSION'
+          modality = 'claimExamAppointment'
+        elsif appointment[:kind] == 'clinic'
+          modality = 'vaInPerson'
+        elsif appointment[:kind] == 'telehealth'
+          modality = telehealth_modality(appointment)
+        elsif appointment[:kind] == 'phone'
+          modality = 'vaPhone'
+        elsif appointment[:kind] == 'cc'
+          modality = 'communityCare'
+        end
+
+        Rails.logger.info("VAOS appointment id #{appointment[:id]} modality cannot be determined.") if modality.nil?
+
+        appointment[:modality] = modality
+      end
+
+      def telehealth_modality(appointment)
+        if !appointment.dig(:telehealth, :atlas).nil?
+          'vaVideoCareAtAnAtlasLocation'
+        elsif %w[CLINIC_BASED STORE_FORWARD].include?(appointment.dig(:telehealth, :vvs_kind))
+          'vaVideoCareAtAVaLocation'
+        elsif appointment.dig(:telehealth, :vvs_kind) == 'MOBILE_ANY/ADHOC'
+          appointment.dig(:extension, :patient_has_mobile_gfe) ? 'vaVideoCareOnGfe' : 'vaVideoCareAtHome'
+        end
       end
 
       def ds_error_details(e)
