@@ -5,6 +5,7 @@ require 'hca/enrollment_system'
 require 'hca/configuration'
 require 'hca/ezr_postfill'
 require 'va1010_forms/utils'
+require 'hca/overrides_parser'
 
 module Form1010Ezr
   class Service < Common::Client::Base

@@ -6,6 +6,7 @@ require 'hca/user_attributes'
 require 'hca/enrollment_eligibility/service'
 require 'hca/enrollment_eligibility/status_matcher'
 require 'mpi/service'
+require 'hca/overrides_parser'
 
 class HealthCareApplication < ApplicationRecord
   include SentryLogging
