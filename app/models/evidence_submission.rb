@@ -12,8 +12,8 @@ class EvidenceSubmission < ApplicationRecord
   # SUCCESS: the workflow has completed all steps successfully.
   # FAILED: the workflow could not complete because a step encountered a non-recoverable error.
   scope :completed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]) }
-  scope :pending, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]) }
   scope :failed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]) }
+  scope :pending, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]) }
 
   def completed?
     upload_status == BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]

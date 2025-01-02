@@ -90,18 +90,6 @@ RSpec.describe Lighthouse::DocumentUpload, type: :job do
       evidence_submission
     end
 
-    let(:job_id) { job }
-    let(:evidence_submission_stub) do
-      evidence_submission = EvidenceSubmission.new(claim_id: '4567',
-                                                   tracked_item_id: tracked_item_ids,
-                                                   job_id: job_id,
-                                                   job_class: described_class,
-                                                   upload_status: 'pending')
-      evidence_submission.user_account = user_account
-      evidence_submission.save!
-      evidence_submission
-    end
-
     let(:formatted_submit_date) do
       # We want to return all times in EDT
       timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
