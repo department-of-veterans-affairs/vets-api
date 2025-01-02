@@ -130,6 +130,7 @@ module ClaimsApi
           @page2_path = temp_path
         end
 
+        # With how the PDF reads, we leave blank if included in the form data, all other scenarios they are checked
         def set_limitation_of_consent_check_box(consent_limits, item)
           return 1 if consent_limits.blank?
 
