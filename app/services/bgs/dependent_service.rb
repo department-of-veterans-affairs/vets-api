@@ -99,9 +99,11 @@ module BGS
       vet_info = JSON.parse(claim.form)['dependents_application']
 
       user = BGS::SubmitForm686cJob.generate_user_struct(vet_info)
-      CentralMail::SubmitCentralForm686cJob.perform_async(claim.id,
-                                                          KmsEncrypted::Box.new.encrypt(vet_info.to_json),
-                                                          KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.perform_async(
+        claim.id,
+        KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+        KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
+      )
     end
 
     def external_key

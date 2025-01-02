@@ -18,7 +18,7 @@ module AskVAApi
           end
         end
 
-        patsr_approved_codes = retrieve_patsr_approved_facilities.pluck(:FacilityCode)
+        patsr_approved_codes = retrieve_patsr_approved_facilities[:Data].pluck(:FacilityCode)
 
         filtered_results = WillPaginate::Collection.create(
           api_results.current_page,
@@ -42,8 +42,7 @@ module AskVAApi
       private
 
       def retrieve_patsr_approved_facilities
-        data = Crm::CacheData.new.fetch_and_cache_data(endpoint: 'Facilities', cache_key: 'Facilities', payload: {})
-        JSON.parse(data, symbolize_names: true)[:Data]
+        Crm::CacheData.new.fetch_and_cache_data(endpoint: 'Facilities', cache_key: 'Facilities', payload: {})
       end
 
       def api
