@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CentralMailSubmissionSerializer
+class BenefitsIntakeSubmissionSerializer
   include JSONAPI::Serializer
 
   attribute :state
