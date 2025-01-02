@@ -96,4 +96,60 @@ RSpec.describe Vets::Collection do
         .to raise_error(ArgumentError, 'Order must have at least one sort clause')
     end
   end
+
+  describe '#paginate' do
+    context 'when page and per_page are provided' do
+      it 'returns a paginated collection with correct metadata' do
+        paginated = collection.paginate(page: 2, per_page: 10)
+
+        expect(paginated).to be_a(Collection)
+        expect(paginated.metadata[:page]).to eq(2)
+        expect(paginated.metadata[:per_page]).to eq(10)
+        expect(paginated.metadata[:total_entries]).to eq(100)
+        expect(paginated.metadata[:total_pages]).to eq(10)
+        expect(paginated.records).to eq(records[10..19])
+      end
+    end
+
+    context 'when page is not provided or invalid' do
+      it 'defaults to the first page' do
+        paginated = collection.paginate(page: nil, per_page: 10)
+        expect(paginated.metadata[:page]).to eq(1)
+        expect(paginated.records).to eq(records[0..9])
+
+        paginated = collection.paginate(page: -1, per_page: 10)
+        expect(paginated.metadata[:page]).to eq(1)
+        expect(paginated.records).to eq(records[0..9])
+      end
+    end
+
+    context 'when per_page is not provided or invalid' do
+      it 'defaults to DEFAULT_PER_PAGE and respects max_per_page' do
+        stub_const('Collection::DEFAULT_PER_PAGE', 20)
+        stub_const('Collection::DEFAULT_MAX_PER_PAGE', 50)
+
+        paginated = collection.paginate(page: 1, per_page: nil)
+        expect(paginated.metadata[:per_page]).to eq(20)
+        expect(paginated.records.size).to eq(20)
+
+        paginated = collection.paginate(page: 1, per_page: 100)
+        expect(paginated.metadata[:per_page]).to eq(50) # respects max_per_page
+        expect(paginated.records.size).to eq(50)
+      end
+    end
+
+    context 'when no records exist' do
+      let(:records) { [] }
+
+      it 'returns an empty collection with correct metadata' do
+        paginated = collection.paginate(page: 1, per_page: 10)
+
+        expect(paginated.metadata[:page]).to eq(1)
+        expect(paginated.metadata[:per_page]).to eq(10)
+        expect(paginated.metadata[:total_entries]).to eq(0)
+        expect(paginated.metadata[:total_pages]).to eq(0)
+        expect(paginated.records).to be_empty
+      end
+    end
+  end
 end

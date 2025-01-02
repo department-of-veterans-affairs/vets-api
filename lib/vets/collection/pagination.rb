@@ -16,12 +16,6 @@ module Vets
         end
       end
 
-      private
-
-      def total_pages
-        (total_entries / per_page.to_f).ceil
-      end
-
       def metadata
         {
           pagination: {
@@ -31,6 +25,12 @@ module Vets
             total_entries:
           }
         }
+      end
+
+      private
+
+      def total_pages
+        (total_entries / per_page.to_f).ceil
       end
 
       def will_paginate_collection(records)
