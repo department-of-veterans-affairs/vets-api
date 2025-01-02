@@ -100,11 +100,7 @@ class BenefitsIntakeStatusJob
         # submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.update(lighthouse_updated_at:)
         form_submission_attempt.vbms!
-
-        # Remove this logic after SubmissionStatusJob replaces this one
-        if Flipper.enabled?(:burial_received_email_notification) && form_id == ('21P-530EZ')
-          send_burial_received_notification(form_id, saved_claim_id, uuid)
-        end
+        monitor_success(form_id, saved_claim_id, uuid)
         log_result('success', form_id, uuid, time_to_transition)
       elsif time_to_transition > STALE_SLA.days
         # exceeds SLA (service level agreement) days for submission completion
@@ -134,20 +130,23 @@ class BenefitsIntakeStatusJob
     end
   end
 
-  def send_burial_received_notification(form_id, saved_claim_id, bi_uuid)
-    claim = SavedClaim::Burial.find_by(id: saved_claim_id)
+  def monitor_success(form_id, saved_claim_id, bi_uuid)
+    # Remove this logic after SubmissionStatusJob replaces this one
+    if form_id == '21P-530EZ' && Flipper.enabled?(:burial_received_email_notification)
+      claim = SavedClaim::Burial.find_by(id: saved_claim_id)
 
-    unless claim
-      context = {
-        form_id: form_id,
-        claim_id: saved_claim_id,
-        benefits_intake_uuid: bi_uuid
-      }
-      Burials::Monitor.new.log_silent_failure(context, nil, call_location: caller_locations.first)
-      return
+      unless claim
+        context = {
+          form_id: form_id,
+          claim_id: saved_claim_id,
+          benefits_intake_uuid: bi_uuid
+        }
+        Burials::Monitor.new.log_silent_failure(context, nil, call_location: caller_locations.first)
+        return
+      end
+
+      Burials::NotificationEmail.new(claim.id).deliver(:received)
     end
-
-    Burials::NotificationEmail.new(claim.id).deliver(:received)
   end
 
   # TODO: refactor - avoid require of module code, near duplication of process
