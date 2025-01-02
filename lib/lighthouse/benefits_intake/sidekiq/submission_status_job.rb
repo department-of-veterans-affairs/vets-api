@@ -24,7 +24,7 @@ module BenefitsIntake
       vbms: 'success',     # Submission was successfully uploaded into a Veteran's eFolder within VBMS
       success: 'pending',  # Submission was successfully received into Lighthouse systems
       pending: 'pending',  # Submission is being processed
-      stale: 'stale' # Exceeds SLA (service level agreement) days for submission completion; non-lighthouse status
+      stale: 'stale'       # Exceeds SLA (service level agreement) days for submission completion; non-lighthouse status
     }.freeze
 
     # A hash mapping form IDs to their corresponding handlers.
