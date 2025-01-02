@@ -29,13 +29,19 @@ RSpec.describe DatadogLoggingModule do
         allow(Flipper).to receive(:enabled?).with(:virtual_agent_enable_datadog_logging, current_user).and_return(true)
       end
 
-      it 'logs that the Datadog flipper is enabled' do
+      it 'logs the error to Datadog when all params are set' do
         error_details = { message: message, backtrace: stack_trace }
 
         expect(Rails.logger).to receive(:error).with(context, error_details)
         dummy_class.datadog_Logging_Module(context, message, stack_trace)
       end
 
+      it 'logs the error to Datadog when the backtrace is nil' do
+        error_details = { message: message, backtrace: nil }
+
+        expect(Rails.logger).to receive(:error).with(context, error_details)
+        dummy_class.datadog_Logging_Module(context, message, nil)
+      end
     end
 
     context 'when the feature toggle is disabled' do
