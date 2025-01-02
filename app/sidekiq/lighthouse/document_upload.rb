@@ -4,9 +4,11 @@ require 'ddtrace'
 require 'timeout'
 require 'lighthouse/benefits_documents/worker_service'
 require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/failure_notification'
 
 class Lighthouse::DocumentUpload
   include Sidekiq::Job
+  extend SentryLogging
 
   attr_accessor :user_icn, :document_hash
 
