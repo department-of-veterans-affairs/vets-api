@@ -282,6 +282,7 @@ module SimpleFormsApi
                           default_personalization(first_name)
                         end
       personalization.except!('lighthouse_updated_at') unless lighthouse_updated_at
+      personalization.except!('confirmation_number') unless confirmation_number
       personalization
     end
 
