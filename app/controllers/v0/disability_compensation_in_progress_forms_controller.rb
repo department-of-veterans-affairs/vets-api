@@ -51,7 +51,7 @@ module V0
 
     def set_started_form_version(data)
       if Flipper.enabled?(:disability_526_toxic_exposure_ipf,
-                            @current_user) && data['startedFormVersion'].blank?
+                          @current_user) && data['startedFormVersion'].blank?
         log_started_form_version(data, 'existing IPF missing startedFormVersion')
         data['startedFormVersion'] = '2019'
       end
