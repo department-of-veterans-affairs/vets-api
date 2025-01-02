@@ -100,10 +100,12 @@ module SimpleFormsApi
     private
 
     def check_missing_keys(config)
-      missing_keys = %i[form_data form_number confirmation_number date_submitted].select { |key| config[key].nil? }
-      if config[:form_number] == 'vba_21_0966_intent_api' && config[:expiration_date].nil?
-        missing_keys << :expiration_date
-      end
+      all_keys = %i[form_data form_number date_submitted]
+      all_keys << :confirmation_number if needs_confirmation_number?(config)
+      all_keys << :expiration_date if config[:form_number] == 'vba_21_0966_intent_api'
+
+      missing_keys = all_keys.select { |key| config[key].nil? }
+
       if missing_keys.any?
         StatsD.increment('silent_failure', tags: statsd_tags) if error_notification?
         raise ArgumentError, "Missing keys: #{missing_keys.join(', ')}"
@@ -430,6 +432,12 @@ module SimpleFormsApi
 
     def error_notification?
       notification_type == :error
+    end
+
+    def needs_confirmation_number?(config)
+      config[:form_number] != 'vba_26_4555' &&
+        (config[:notification_type] != 'REJECTED' ||
+        config[:notification_type] != 'DUPLICATE')
     end
   end
 end
