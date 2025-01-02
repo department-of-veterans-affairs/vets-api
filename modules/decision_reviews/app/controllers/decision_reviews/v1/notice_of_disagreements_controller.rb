@@ -18,7 +18,8 @@ module DecisionReviews
         nod_response_body = AppealSubmission.submit_nod(
           current_user: @current_user,
           request_body_hash:,
-          decision_review_service:
+          decision_review_service:,
+          submit_upload_job:
         )
 
         render json: nod_response_body
@@ -47,6 +48,14 @@ module DecisionReviews
           e, error_class: error_class(method: 'create', exception_class: e.class), request:
         )
         raise
+      end
+
+      def submit_upload_job
+        if Flipper.enabled? :decision_review_new_engine_submit_upload_job
+          DecisionReviews::SubmitUpload
+        else
+          DecisionReview::SubmitUpload
+        end
       end
     end
   end

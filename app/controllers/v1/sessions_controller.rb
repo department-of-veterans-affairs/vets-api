@@ -30,7 +30,8 @@ module V1
     FIM_INVALID_MESSAGE_TIMESTAMP = 'invalid_message_timestamp'
     OPERATION_TYPES = [AUTHORIZE = 'authorize',
                        INTERSTITIAL_VERIFY = 'interstitial_verify',
-                       INTERSTITIAL_SIGNUP = 'interstitial_signup'].freeze
+                       INTERSTITIAL_SIGNUP = 'interstitial_signup',
+                       MYHEALTHEVET_TEST_ACCOUNT = 'myhealthevet_test_account'].freeze
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
