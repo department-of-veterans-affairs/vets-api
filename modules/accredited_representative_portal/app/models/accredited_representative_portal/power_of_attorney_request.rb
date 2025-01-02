@@ -57,10 +57,6 @@ module AccreditedRepresentativePortal
       order(field => (direction == 'asc' ? :asc : :desc))
     }
 
-    scope :paginated, lambda { |page, page_size|
-      offset(page * page_size).limit(page_size)
-    }
-
     private
 
     def set_claimant_type

@@ -6,7 +6,7 @@ module AccreditedRepresentativePortal
       def index
         normalized_filtered_params = normalize_params(filter_params)
 
-        poa_requests, errors = PoaRequestSearchFilterService.handle_filter(normalized_filtered_params)
+        poa_requests, errors = PoaRequestSearchFilterService.new(normalized_filtered_params).handle_filter
 
         if errors.present?
           logger.error("Invalid search parameters: #{errors}")
