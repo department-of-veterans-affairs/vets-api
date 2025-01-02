@@ -102,8 +102,6 @@ PATH
     covid_research (0.1.0)
       rails
       sidekiq
-    covid_vaccine (0.1.0)
-      sidekiq
     debts_api (0.1.0)
     decision_reviews (0.1.0)
       rails (>= 7.1.4.1)
@@ -138,18 +136,6 @@ PATH
     veteran (0.0.1)
     veteran_confirmation (0.0.1)
     vye (0.1.0)
-
-GEM
-  remote: https://enterprise.contribsys.com/
-  specs:
-    sidekiq-ent (7.2.4)
-      einhorn (~> 1.0)
-      gserver
-      sidekiq (>= 7.2.0, < 8)
-      sidekiq-pro (>= 7.2.0, < 8)
-    sidekiq-pro (7.2.1)
-      base64
-      sidekiq (>= 7.2.0, < 8)
 
 GEM
   remote: https://rubygems.org/
@@ -427,7 +413,6 @@ GEM
       dry-initializer (~> 3.0)
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
-    einhorn (1.0.0)
     erubi (1.13.0)
     et-orbi (1.2.11)
       tzinfo
@@ -551,7 +536,6 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
-    gserver (0.0.1)
     guard (2.18.1)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -1175,7 +1159,6 @@ DEPENDENCIES
   connect_vbms!
   coverband
   covid_research!
-  covid_vaccine!
   csv
   danger
   database_cleaner
@@ -1314,8 +1297,6 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq (~> 7.2.0)
-  sidekiq-ent!
-  sidekiq-pro!
   sign_in_service
   simple_forms_api!
   simplecov

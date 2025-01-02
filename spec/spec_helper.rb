@@ -61,7 +61,6 @@ unless ENV['NOCOVERAGE']
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidResearch', 'modules/covid_research/'
-    add_group 'CovidVaccine', 'modules/covid_vaccine/'
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
