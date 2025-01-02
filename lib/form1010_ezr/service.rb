@@ -155,7 +155,7 @@ module Form1010Ezr
       post_fill_fields(parsed_form)
       validate_form(parsed_form)
       # Due to overriding the JSON form schema, we need to do so after the form has been validated
-      override_parsed_form(parsed_form)
+      HCA::OverridesParser.new(parsed_form).override
       add_financial_flag(parsed_form)
     end
 
