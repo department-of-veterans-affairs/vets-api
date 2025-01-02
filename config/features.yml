@@ -355,9 +355,6 @@ features:
   communication_preferences:
     actor_type: user
     description: Allow user to access backend communication_preferences API
-  contact_info_change_email:
-    actor_type: user
-    description: Send user a notification email when their contact info changes.
   covid_vaccine_registration:
     actor_type: user
     description: Toggles availability of covid vaccine form API.
