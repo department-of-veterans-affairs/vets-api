@@ -180,6 +180,34 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         ]
       )
     end
+
+    context 'when providing a status param' do
+      let!(:declined_request) { create(:power_of_attorney_request_resolution, :declination).power_of_attorney_request }
+      let!(:pending_request) { create(:power_of_attorney_request) }
+
+      it 'returns the list of pending power of attorney requests' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests?status=Pending')
+        parsed_response = JSON.parse(response.body)
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response.length).to eq 1
+        expect(parsed_response[0]['id']).to eq pending_request.id
+      end
+
+      it 'returns the list of completed power of attorney requests' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests?status=Completed')
+        parsed_response = JSON.parse(response.body)
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response.length).to eq 1
+        expect(parsed_response[0]['id']).to eq declined_request.id
+      end
+
+      it 'returns empty if any other status filter provided' do
+        get('/accredited_representative_portal/v0/power_of_attorney_requests?status=delete_all')
+        parsed_response = JSON.parse(response.body)
+        expect(response).to have_http_status(:ok)
+        expect(parsed_response).to be_empty
+      end
+    end
   end
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests/:id' do
