@@ -82,9 +82,10 @@ RSpec.describe User, type: :model do
   describe 'vet360_contact_info' do
     let(:user) { build(:user, :loa3) }
 
-    context 'when Flipper remove_pciu is enabled' do
+    context 'when Flipper remove_pciu is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+                                                  instance_of(User)).and_return(false)
         allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       end
 
@@ -99,7 +100,8 @@ RSpec.describe User, type: :model do
 
     context 'when Flipper remove_pciu is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+                                                  instance_of(User)).and_return(true)
         allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
       end
 
@@ -107,7 +109,7 @@ RSpec.describe User, type: :model do
         contact_info = user.vet360_contact_info
         expect(contact_info.class).to eq(VAProfileRedis::V2::ContactInformation)
         expect(contact_info.response.class).to eq(VAProfile::V2::ContactInformation::PersonResponse)
-        expect(contact_info.mailing_address.class).to eq (VAProfile::Models::V3::Address)
+        expect(contact_info.mailing_address.class).to eq(VAProfile::Models::V3::Address)
         expect(contact_info.email.email_address).to eq(user.va_profile_email)
       end
     end
