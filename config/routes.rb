@@ -105,6 +105,8 @@ Rails.application.routes.draw do
       resource :mhv_user_account, only: [:show], controller: 'user/mhv_user_accounts'
     end
 
+    resource :test_account_user_email, only: [:create]
+
     resource :veteran_onboarding, only: %i[show update]
 
     resource :education_benefits_claims, only: %i[create show] do
@@ -486,6 +488,7 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
+  mount DecisionReviews::Engine, at: '/decision_reviews'
   # End Modules
 
   require 'sidekiq/web'

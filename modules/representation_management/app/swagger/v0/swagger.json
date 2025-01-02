@@ -1248,6 +1248,89 @@
           }
         }
       }
+    },
+    "/representation_management/v0/next_steps_email": {
+      "post": {
+        "summary": "Enqueue the Next Steps Email from VA Notify",
+        "tags": [
+          "Next Steps Email"
+        ],
+        "operationId": "nextStepsEmail",
+        "parameters": [
+
+        ],
+        "responses": {
+          "200": {
+            "description": "Email enqueued",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Email enqueued"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "unprocessable entity response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/errors"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email_address": {
+                    "type": "string",
+                    "example": "veteran@example.com"
+                  },
+                  "first_name": {
+                    "type": "string",
+                    "example": "John"
+                  },
+                  "form_name": {
+                    "type": "string",
+                    "example": "Form 21-22"
+                  },
+                  "form_number": {
+                    "type": "string",
+                    "example": "21-22"
+                  },
+                  "entity_type": {
+                    "type": "string",
+                    "example": "individual"
+                  },
+                  "entity_id": {
+                    "type": "string",
+                    "example": "8c3b3b53-02a1-4dbd-bd23-2b556f5ef635"
+                  }
+                },
+                "required": [
+                  "email_address",
+                  "first_name",
+                  "form_name",
+                  "form_number",
+                  "entity_type",
+                  "entity_id"
+                ]
+              }
+            }
+          }
+        }
+      }
     }
   },
   "servers": [

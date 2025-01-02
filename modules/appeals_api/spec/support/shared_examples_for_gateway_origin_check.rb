@@ -7,16 +7,18 @@ shared_examples 'an endpoint requiring gateway origin headers' do |headers:|
   end
 
   describe '#require_gateway_origin' do
-    it 'does nothing by default' do
-      make_request(headers)
+    context 'with benefits_require_gateway_origin flag off' do
+      before { Flipper.disable(:benefits_require_gateway_origin) }
 
-      expect(response).to have_http_status(:ok)
+      it 'does nothing' do
+        make_request(headers)
+
+        expect(response).to have_http_status(:ok)
+      end
     end
 
     context 'with benefits_require_gateway_origin flag on' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:benefits_require_gateway_origin).and_return(true)
-      end
+      before { Flipper.enable(:benefits_require_gateway_origin) }
 
       it 'does nothing when rails is not running in production mode' do
         make_request(headers)

@@ -12,6 +12,7 @@ module EVSS
         @user = user
         @phone_email = form_content.dig('form526', 'phoneAndEmail')
         @form_content = form_content.dig('form526', 'form0781')
+        @sync_modern_0781_flow = form_content.dig('form526', 'syncModern0781Flow')
         @translated_forms = {}
       end
 
@@ -22,16 +23,20 @@ module EVSS
       def translate
         return nil unless @form_content
 
-        # The pdf creation functionality is looking for a single street address
-        # instead of a hash
-        @form_content['incidents'].each do |incident|
-          incident['incidentLocation'] = join_location(incident['incidentLocation']) if incident['incidentLocation']
+        if @sync_modern_0781_flow
+          @translated_forms['form0781v2'] = create_form_v2
+        else
+          # The pdf creation functionality is looking for a single street address
+          # instead of a hash
+          @form_content['incidents'].each do |incident|
+            incident['incidentLocation'] = join_location(incident['incidentLocation']) if incident['incidentLocation']
+          end
+
+          incs0781a, incs0781 = split_incidents(@form_content['incidents'])
+
+          @translated_forms['form0781'] = create_form(incs0781) if incs0781.present?
+          @translated_forms['form0781a'] = create_form(incs0781a) if incs0781a.present?
         end
-
-        incs0781a, incs0781 = split_incidents(@form_content['incidents'])
-
-        @translated_forms['form0781'] = create_form(incs0781) if incs0781.present?
-        @translated_forms['form0781a'] = create_form(incs0781a) if incs0781a.present?
 
         @translated_forms
       end
@@ -39,6 +44,31 @@ module EVSS
       private
 
       def create_form(incidents)
+        prepare_veteran_info.merge({
+                                     'incidents' => incidents,
+                                     'remarks' => @form_content['remarks'],
+                                     'additionalIncidentText' => @form_content['additionalIncidentText'],
+                                     'otherInformation' => @form_content['otherInformation']
+                                   })
+      end
+
+      def create_form_v2
+        prepare_veteran_info.merge({
+                                     'eventsDetails' => @form_content['eventsDetails'],
+                                     'reports' => @form_content['reports'],
+                                     'reportsDetails' => @form_content['reportsDetails'],
+                                     'behaviors' => @form_content['behaviors'],
+                                     'behaviorsDetails' => @form_content['behaviorsDetails'],
+                                     'evidence' => @form_content['evidence'],
+                                     'traumaTreatment' => @form_content['traumaTreatment'],
+                                     'treatmentProviders' => @form_content['treatmentProviders'],
+                                     'treatmentProvidersDetails' => @form_content['treatmentProvidersDetails'],
+                                     'optionIndicator' => @form_content['optionIndicator'],
+                                     'additionalInformation' => @form_content['additionalInformation']
+                                   })
+      end
+
+      def prepare_veteran_info
         {
           'vaFileNumber' => @user.ssn,
           'veteranSocialSecurityNumber' => @user.ssn,
@@ -47,11 +77,7 @@ module EVSS
           'email' => @phone_email['emailAddress'],
           'veteranPhone' => @phone_email['primaryPhone'],
           'veteranSecondaryPhone' => '', # No secondary phone available in 526 PreFill
-          'veteranServiceNumber' => '', # No veteran service number available in 526 PreFill
-          'incidents' => incidents,
-          'remarks' => @form_content['remarks'],
-          'additionalIncidentText' => @form_content['additionalIncidentText'],
-          'otherInformation' => @form_content['otherInformation']
+          'veteranServiceNumber' => '' # No veteran service number available in 526 PreFill
         }
       end
 

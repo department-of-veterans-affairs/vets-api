@@ -29,9 +29,17 @@ module SimpleFormsApi
 
       def upload_response
         file_path = find_attachment_path(params[:confirmation_code])
+        stamper = PdfStamper.new(stamped_template_path: file_path, current_loa: @current_user.loa[:current],
+                                 timestamp: Time.current)
+        stamper.stamp_pdf
         metadata = validated_metadata
         status, confirmation_number = upload_pdf(file_path, metadata)
+        file_size = File.size(file_path).to_f / (2**20)
 
+        Rails.logger.info(
+          'Simple forms api - scanned form uploaded',
+          { form_number: params[:form_number], status:, confirmation_number:, file_size: }
+        )
         { confirmation_number:, status: }
       end
 

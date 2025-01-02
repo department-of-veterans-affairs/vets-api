@@ -2,28 +2,38 @@
 
 require 'pension_burial/tag_sentry'
 require 'lgy/tag_sentry'
+require 'claim_documents/monitor'
+require 'lighthouse/benefits_intake/service'
+require 'pdf_utilities/datestamp_pdf'
 
 module V0
   class ClaimDocumentsController < ApplicationController
     service_tag 'claims-shared'
     skip_before_action(:authenticate)
+    before_action :load_user
 
     def create
-      Rails.logger.info "Creating PersistentAttachment FormID=#{form_id}"
+      uploads_monitor.track_document_upload_attempt(form_id, current_user)
 
-      attachment = klass.new(form_id:)
+      @attachment = klass&.new(form_id:)
       # add the file after so that we have a form_id and guid for the uploader to use
-      attachment.file = unlock_file(params['file'], params['password'])
+      @attachment.file = unlock_file(params['file'], params['password'])
 
-      raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
+      if %w[21P-527EZ 21P-530 21P-530V2].include?(form_id) &&
+         Flipper.enabled?(:document_upload_validation_enabled) && !stamped_pdf_valid?
 
-      attachment.save
+        raise Common::Exceptions::ValidationErrors, @attachment
+      end
 
-      Rails.logger.info "Success creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment.id}"
+      raise Common::Exceptions::ValidationErrors, @attachment unless @attachment.valid?
 
-      render json: PersistentAttachmentSerializer.new(attachment)
+      @attachment.save
+
+      uploads_monitor.track_document_upload_success(form_id, @attachment.id, current_user)
+
+      render json: PersistentAttachmentSerializer.new(@attachment)
     rescue => e
-      Rails.logger.error "Error creating PersistentAttachment FormID=#{form_id} AttachmentID=#{attachment.id} #{e}"
+      uploads_monitor.track_document_upload_failed(form_id, @attachment&.id, current_user, e)
       raise e
     end
 
@@ -31,7 +41,7 @@ module V0
 
     def klass
       case form_id
-      when '21P-527EZ', '21P-530', '21P-530V2'
+      when '21P-527EZ', '21P-530EZ', '21P-530V2'
         PensionBurial::TagSentry.tag_sentry
         PersistentAttachments::PensionBurial
       when '21-686C', '686C-674'
@@ -47,7 +57,7 @@ module V0
     end
 
     def unlock_file(file, file_password)
-      return file unless File.extname(file) == '.pdf' && file_password
+      return file unless File.extname(file) == '.pdf' && file_password.present?
 
       pdftk = PdfForms.new(Settings.binaries.pdftk)
       tmpf = Tempfile.new(['decrypted_form_attachment', '.pdf'])
@@ -68,6 +78,42 @@ module V0
       file.tempfile.unlink
       file.tempfile = tmpf
       file
+    end
+
+    # rubocop:disable Metrics/MethodLength
+    def stamped_pdf_valid?
+      extension = File.extname(@attachment&.file&.id)
+      allowed_types = PersistentAttachment::ALLOWED_DOCUMENT_TYPES
+
+      if allowed_types.exclude?(extension)
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: I18n.t('errors.messages.extension_allowlist_error', extension:, allowed_types:),
+          source: 'PersistentAttachment.stamped_pdf_valid?'
+        )
+      elsif @attachment&.file&.size&.< PersistentAttachment::MINIMUM_FILE_SIZE
+        raise Common::Exceptions::UnprocessableEntity.new(
+          detail: 'File size must not be less than 1.0 KB',
+          source: 'PersistentAttachment.stamped_pdf_valid?'
+        )
+      end
+
+      document = PDFUtilities::DatestampPdf.new(@attachment.to_pdf).run(text: 'VA.GOV', x: 5, y: 5)
+      intake_service.valid_document?(document:)
+    rescue BenefitsIntake::Service::InvalidDocumentError => e
+      @attachment.errors.add(:attachment, e.message)
+      false
+    rescue PdfForms::PdftkError
+      @attachment.errors.add(:attachment, 'File is corrupt and cannot be uploaded')
+      false
+    end
+    # rubocop:enable Metrics/MethodLength
+
+    def intake_service
+      @intake_service ||= BenefitsIntake::Service.new
+    end
+
+    def uploads_monitor
+      @uploads_monitor ||= ClaimDocuments::Monitor.new
     end
   end
 end

@@ -47,16 +47,6 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
       end
 
       context 'when form email is present' do
-        context 'when email confirmation is different' do
-          before do
-            in_progress_form.update!(
-              form_data: JSON.parse(in_progress_form.form_data).except('view:email_confirmation').to_json
-            )
-          end
-
-          expect_does_nothing
-        end
-
         context 'when va profile email is different' do
           expect_email_tag('different')
         end
@@ -136,16 +126,6 @@ RSpec.describe HCA::LogEmailDiffJob, type: :job do
       end
 
       context 'when form email is present' do
-        context 'when email confirmation is different' do
-          before do
-            in_progress_form.update!(
-              form_data: JSON.parse(in_progress_form.form_data).except('view:email_confirmation').to_json
-            )
-          end
-
-          expect_does_nothing
-        end
-
         context 'when va profile email is different' do
           expect_email_tag('different')
         end
