@@ -4,7 +4,7 @@ module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
       def index
-        poa_requests = poa_requests_rel.limit(100)
+        poa_requests = filtered_poa_requests.limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
 
         render json: serializer.serializable_hash, status: :ok
@@ -20,6 +20,13 @@ module AccreditedRepresentativePortal
       end
 
       private
+
+      def filtered_poa_requests
+        return poa_requests_rel if params[:status].blank?
+        return poa_requests_rel.none unless %w[pending completed].include?(params[:status]&.downcase)
+
+        poa_requests_rel.send(params[:status].downcase)
+      end
 
       def poa_requests_rel
         PowerOfAttorneyRequest.includes(
