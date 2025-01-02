@@ -27,6 +27,10 @@ module IvcChampva
         if elapsed_days >= threshold && !form.email_sent
           template_id = "#{form[:form_number]}-FAILURE"
           additional_context = { form_id: form[:form_number], form_uuid: form[:form_uuid] }
+          unless Flipper.enabled?(:champva_vanotify_custom_callback, @current_user)
+            monitor.log_silent_failure_avoided(additional_context)
+            monitor.track_missing_status_email_sent(form[:form_number])
+          end
           send_failure_email(form, template_id, additional_context)
           send_zsf_notification_to_pega(form, 'PEGA-TEAM-ZSF')
         elsif elapsed_days >= (threshold - 2) && !form.email_sent
