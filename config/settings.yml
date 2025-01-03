@@ -1427,7 +1427,7 @@ vanotify:
           template_id: burial_claim_error_email_template_id
           flipper_id: burial_error_email_notification
         received:
-          template_id: null
+          template_id: burial_received_email_template_id
           flipper_id: burial_received_email_notification
     burials: *vanotify_services_burial
     21p_530: *vanotify_services_burial
