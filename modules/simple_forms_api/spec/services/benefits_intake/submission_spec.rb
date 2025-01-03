@@ -8,21 +8,17 @@ require 'lighthouse/benefits_intake/service'
 require 'persistent_attachments/military_records'
 
 RSpec.describe SimpleFormsApi::BenefitsIntake::Submission do
-  forms = [
-    'vba_20_10206',
-    # 'vba_20_10207-non-veteran',
-    # 'vba_20_10207-veteran',
-    'vba_20_10207',
-    'vba_21_0845',
-    'vba_21_0966',
-    'vba_21_0972',
-    'vba_21_10210',
-    'vba_21_4138',
-    'vba_21_4142',
-    'vba_21p_0847',
-    # 'vba_26_4555', # TODO: Restore this test when we release 26-4555 to production.
-    'vba_40_0247',
-    'vba_40_10007'
+  authenticated_forms = %w[
+    vba_20_10206
+    vba_20_10207
+    vba_20_10207-non-veteran
+    vba_20_10207-veteran
+    vba_21_0845
+    vba_21_0966
+    vba_21_0972
+    vba_21_4138
+    vba_21_4142
+    vba_26_4555
   ]
 
   unauthenticated_forms = %w[
@@ -31,7 +27,6 @@ RSpec.describe SimpleFormsApi::BenefitsIntake::Submission do
     vba_40_0247
     vba_40_10007
   ]
-  authenticated_forms = forms - unauthenticated_forms
 
   let(:mock_s3_client) { instance_double(SimpleFormsApi::FormRemediation::S3Client) }
   let(:mock_lighthouse_service) { instance_double(BenefitsIntake::Service) }
@@ -81,8 +76,11 @@ RSpec.describe SimpleFormsApi::BenefitsIntake::Submission do
       let(:created_at) { 1.minute.ago }
 
       context "for #{form}" do
-        let(:form_class) { "SimpleFormsApi::#{form.titleize.gsub(' ', '')}".constantize }
+        let(:form_name) { form.split('-').first.titleize.delete(' ') }
+        let(:form_class) { "SimpleFormsApi::#{form_name}".constantize }
         let(:mock_form_instance) { instance_double(form_class) }
+        let(:mock_vba4010007) { instance_double(SimpleFormsApi::VBA4010007) }
+        let(:mock_vba400247) { instance_double(SimpleFormsApi::VBA400247) }
         let(:mock_submission) do
           create(:form_submission, :pending, form_type: params['form_number'], form_data: params.to_s, created_at:)
         end
@@ -92,6 +90,15 @@ RSpec.describe SimpleFormsApi::BenefitsIntake::Submission do
 
           create(:in_progress_form, user_uuid: current_user.uuid, form_id: params['form_number'])
         end
+        let(:attachments_functionality_included) do
+          {
+            track_user_identity: true,
+            metadata: in_progress_form&.metadata || {},
+            zip_code_is_us_based: true,
+            get_attachments: ['attachment1.pdf', 'attachment2.png'],
+            handle_attachments: ['attachment1.pdf', 'attachment2.png']
+          }
+        end
 
         before do
           allow(form_class).to receive(:new).and_return(mock_form_instance)
@@ -100,17 +107,12 @@ RSpec.describe SimpleFormsApi::BenefitsIntake::Submission do
               track_user_identity: true,
               metadata: in_progress_form&.metadata || {},
               zip_code_is_us_based: true
-            }.tap do |messages|
-              if %w[vba_40_0247 vba_40_10007].include?(form)
-                messages.merge(
-                  {
-                    get_attachments: ['attachment1.pdf', 'attachment2.png'],
-                    handle_attachments: ['attachment1.pdf', 'attachment2.png']
-                  }
-                )
-              end
-            end
+            }
           )
+          allow(SimpleFormsApi::VBA4010007).to receive(:new).and_return(mock_vba4010007)
+          allow(mock_vba4010007).to receive_messages(attachments_functionality_included)
+          allow(SimpleFormsApi::VBA400247).to receive(:new).and_return(mock_vba400247)
+          allow(mock_vba400247).to receive_messages(attachments_functionality_included)
           allow(FormSubmission).to receive(:create).and_return(mock_submission)
           allow(FormSubmissionAttempt).to receive(:create).and_return(mock_submission_attempt)
           submit
