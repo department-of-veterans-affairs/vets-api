@@ -53,7 +53,7 @@ module IvcChampva
         form_number: form.form_number,
         file_count: nil,
         pega_status: form.pega_status,
-        created_at: form.created_at.strftime('%B %d, %Y'),
+        date_submitted: form.created_at.strftime('%B %d, %Y'),
         template_id: template_id,
         form_uuid: form.form_uuid }
     end

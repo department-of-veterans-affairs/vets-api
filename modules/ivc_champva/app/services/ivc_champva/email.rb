@@ -23,21 +23,14 @@ module IvcChampva
       @data = data
     end
 
-    def send_email # rubocop:disable Metrics/MethodLength
+    def send_email
       Datadog::Tracing.trace('Send PEGA Status Update Email') do
         return false unless valid_environment?
 
         VANotify::EmailJob.perform_async(
           data[:email],
           (data[:template_id] ? EMAIL_TEMPLATE_MAP[data[:template_id]] : EMAIL_TEMPLATE_MAP[data[:form_number]]),
-          {
-            'first_name' => data[:first_name],
-            'last_name' => data[:last_name],
-            'file_count' => data[:file_count],
-            'pega_status' => data[:pega_status],
-            'date_submitted' => data[:created_at],
-            'form_uuid' => data[:form_uuid]
-          },
+          data.slice(:first_name, :last_name, :file_count, :pega_status, :date_submitted, :form_uuid),
           Settings.vanotify.services.ivc_champva.api_key,
           # If no callback_klass is provided, should fail safely per va_notify implementation.
           # See: https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/va_notify#how-teams-can-integrate-with-callbacks
