@@ -328,8 +328,7 @@ class Form526Submission < ApplicationRecord
       submit_form_8940 if form[FORM_8940].present?
       upload_bdd_instructions if bdd?
       submit_flashes if form[FLASHES].present?
-      poll_form526_pdf if Flipper.enabled?(:disability_526_toxic_exposure_document_upload_polling,
-                                           OpenStruct.new({ flipper_id: user_uuid }))
+      poll_form526_pdf
       cleanup
     end
   end
