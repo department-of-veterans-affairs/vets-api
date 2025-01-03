@@ -42,7 +42,7 @@ module MAP
         30.minutes
       end
 
-      def provider_jwks_path
+      def public_jwks_path
         '/sts/oauth/v1/jwks'
       end
 
@@ -78,7 +78,7 @@ module MAP
         'icn'
       end
 
-      def logging_prefix
+      def log_prefix
         '[MAP][SecurityToken][Service]'
       end
 
