@@ -84,5 +84,28 @@ module TravelPay
         }.to_json
       end
     end
+
+    ##
+    # HTTP POST call to the BTSSS 'claims/:id/submit' endpoint
+    # API responds with confirmation of claim submission
+    #
+    # @params {
+    #  "claimId": "string",
+    # }
+    #
+    # @return Faraday::Response claim submission payload
+    #
+    def submit_claim(veis_token, btsss_token, claim_id)
+      btsss_url = Settings.travel_pay.base_url
+      correlation_id = SecureRandom.uuid
+      Rails.logger.debug(message: 'Correlation ID', correlation_id:)
+
+      connection(server_url: btsss_url).patch("api/v1.1/claims/#{claim_id}/submit") do |req|
+        req.headers['Authorization'] = "Bearer #{veis_token}"
+        req.headers['BTSSS-Access-Token'] = btsss_token
+        req.headers['X-Correlation-ID'] = correlation_id
+        req.headers.merge!(claim_headers)
+      end
+    end
   end
 end

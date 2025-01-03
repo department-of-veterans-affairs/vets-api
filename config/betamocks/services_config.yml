@@ -9,6 +9,11 @@
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/ping" %>
       :file_path: "/ask_va/dynamics_api"
       :response_delay: 15
+    - :method: :post
+      :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
+      :file_path: "/ask_va/crm_api/post_inquiries/default"
+      :response_delay: 0.3
+    ## Travel Pay
     - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v1/Sample/ping"
       :file_path: "/travel_pay/ping/default"
@@ -23,11 +28,26 @@
       :response_delay: 0.3
     - :method: :get
       :path: "/veis/api/btsss/travelclaim/api/v1/claims"
-      :file_path: "/travel_pay/claims/default"
+      :file_path: "/travel_pay/claims/index/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1.1/appointments"
+      :file_path: "/travel_pay/appointments/default"
+      :response_delay: 0.3
+    - :method: :patch
+      :path: "/veis/api/btsss/travelclaim/api/v1.1/claims/*/submit"
+      :file_path: "/travel_pay/claims/submit"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v1\.1\/claims\/(.+)\/submit'
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1.1/claims"
+      :file_path: "/travel_pay/claims/create/default"
       :response_delay: 0.3
     - :method: :post
-      :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
-      :file_path: "/ask_va/crm_api/post_inquiries/default"
+      :path: "/veis/api/btsss/travelclaim/api/v1.1/expenses/mileage"
+      :file_path: "/travel_pay/expenses/default"
       :response_delay: 0.3
 
 #CRM Token post
