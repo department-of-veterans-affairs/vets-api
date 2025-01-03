@@ -121,8 +121,7 @@ class RepresentationManagement::RswagConfig
             type: {
               type: :string,
               description: 'Specifies the category of Power of Attorney (POA) representation.',
-              enum: %w[representative organization],
-              example: 'representative'
+              enum: %w[representative organization]
             },
             attributes: power_of_attorney_attributes
           }
