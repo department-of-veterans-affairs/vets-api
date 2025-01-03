@@ -58,6 +58,11 @@ module SimpleFormsApi
         confirmation: nil,
         error: Settings.vanotify.services.va_gov.template_id.form40_10007_error_email,
         received: nil
+      },
+      'vba_26_4555' => {
+        confirmation: Settings.vanotify.services.va_gov.template_id.form26_4555_confirmation_email,
+        rejected: Settings.vanotify.services.va_gov.template_id.form26_4555_rejected_email,
+        duplicate: Settings.vanotify.services.va_gov.template_id.form26_4555_duplicate_email
       }
     }.freeze
     SUPPORTED_FORMS = TEMPLATE_IDS.keys
@@ -206,7 +211,7 @@ module SimpleFormsApi
         form_data['preparer_email']
       when 'vba_21_0966', 'vba_21_0966_intent_api'
         form21_0966_email_address
-      when 'vba_21_4142'
+      when 'vba_21_4142', 'vba_26_4555'
         form_data.dig('veteran', 'email')
       when 'vba_21_10210'
         form21_10210_contact_info[0]
@@ -232,7 +237,7 @@ module SimpleFormsApi
         form21_0966_first_name
       when 'vba_21_0972'
         form_data.dig('preparer_full_name', 'first')
-      when 'vba_21_4142'
+      when 'vba_21_4142', 'vba_26_4555'
         form_data.dig('veteran', 'full_name', 'first')
       when 'vba_21_10210'
         form21_10210_contact_info[1]
@@ -269,13 +274,13 @@ module SimpleFormsApi
     end
 
     def get_personalization(first_name)
-      if @form_number.start_with? 'vba_21_0966'
-        personalization = default_personalization(first_name).merge(form21_0966_personalization)
-        personalization.except!('lighthouse_updated_at') unless lighthouse_updated_at
-        personalization
-      else
-        default_personalization(first_name)
-      end
+      personalization = if @form_number.start_with? 'vba_21_0966'
+                          default_personalization(first_name).merge(form21_0966_personalization)
+                        else
+                          default_personalization(first_name)
+                        end
+      personalization.except!('lighthouse_updated_at') unless lighthouse_updated_at
+      personalization
     end
 
     # personalization hash shared by all simple form confirmation emails
