@@ -39,8 +39,8 @@ module Vets
       def will_paginate_collection(records)
         WillPaginate::Collection.create(@page, @per_page, @total_entries) do |pager|
           if pager.out_of_bounds?
-            raise Common::Exceptions::InvalidPaginationParams.new({ page: @page,
-                                                                    per_page: @per_page })
+            error_params = { page: @page, per_page: @per_page }
+            raise Common::Exceptions::InvalidPaginationParams.new(error_params)
           end
 
           pager.replace records[pager.offset, pager.per_page]
