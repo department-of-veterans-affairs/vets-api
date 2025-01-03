@@ -12,6 +12,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
   end
   let(:ezr_service) { double }
   let(:tags) { described_class::DD_ZSF_TAGS }
+  let(:form_id) { described_class::FORM_ID }
   let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
   let(:failure_email_template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ezr_failure_email }
   let(:failure_email_template_params) do
@@ -21,7 +22,14 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
       {
         'salutation' => "Dear #{form.dig('veteranFullName', 'first')},"
       },
-      api_key
+      api_key,
+      {
+        callback_metadata: {
+          notification_type: 'error',
+          form_number: form_id,
+          statsd_tags: tags
+        }
+      }
     ]
   end
 
