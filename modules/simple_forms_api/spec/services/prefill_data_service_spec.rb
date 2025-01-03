@@ -53,7 +53,8 @@ describe SimpleFormsApi::PrefillDataService do
       end
 
       it 'logs the first_name change' do
-        expect(rails_logger).to receive(:info).with(anything, { field: 'first_name', form_id: })
+        expect(rails_logger).to receive(:info).with('Simple forms api - Form Upload Flow changed data',
+                                                    { field: :first_name, form_id: })
 
         prefill_data_service.check_for_changes
       end
@@ -68,7 +69,8 @@ describe SimpleFormsApi::PrefillDataService do
       end
 
       it 'logs the last_name change' do
-        expect(rails_logger).to receive(:info).with(anything, { field: 'last_name', form_id: })
+        expect(rails_logger).to receive(:info).with('Simple forms api - Form Upload Flow changed data',
+                                                    { field: :last_name, form_id: })
 
         prefill_data_service.check_for_changes
       end
@@ -80,7 +82,8 @@ describe SimpleFormsApi::PrefillDataService do
       end
 
       it 'logs the postal_code change' do
-        expect(rails_logger).to receive(:info).with(anything, { field: 'postal_code', form_id: })
+        expect(rails_logger).to receive(:info).with('Simple forms api - Form Upload Flow changed data',
+                                                    { field: :postal_code, form_id: })
 
         prefill_data_service.check_for_changes
       end
@@ -92,7 +95,8 @@ describe SimpleFormsApi::PrefillDataService do
       end
 
       it 'logs the ssn change' do
-        expect(rails_logger).to receive(:info).with(anything, { field: 'ssn', form_id: })
+        expect(rails_logger).to receive(:info).with('Simple forms api - Form Upload Flow changed data',
+                                                    { field: :ssn, form_id: })
 
         prefill_data_service.check_for_changes
       end
@@ -104,7 +108,8 @@ describe SimpleFormsApi::PrefillDataService do
       end
 
       it 'logs the email change' do
-        expect(rails_logger).to receive(:info).with(anything, { field: 'email', form_id: })
+        expect(rails_logger).to receive(:info).with('Simple forms api - Form Upload Flow changed data',
+                                                    { field: :email, form_id: })
 
         prefill_data_service.check_for_changes
       end
