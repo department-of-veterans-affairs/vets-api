@@ -115,11 +115,6 @@
       "noDates": true
     }
   ],
-  "optionIndicator": {
-    "yes": false,
-    "no": false,
-    "revoke": false,
-    "notEnrolled": true
-  },
+  "optionIndicator": "notEnrolled",
   "signatureDate": "2016-01-31"
 }

@@ -619,6 +619,7 @@ module PdfFill
 
         set_treatment_selection
         set_reports_selection
+        set_option_indicator
 
         format_other_behavior_details
         format_police_report_location
@@ -672,6 +673,16 @@ module PdfFill
         @form_data['neitherReport'] = reports['neither'] ? 2 : nil
         @form_data['policeReport'] = reports['police'] ? 3 : nil
         @form_data['otherReport'] = reports['other'] ? 4 : nil
+      end
+
+      def set_option_indicator
+        selected_option = @form_data['optionIndicator']
+        valid_options = %w[yes no revoke notEnrolled]
+
+        return if selected_option.nil? || valid_options.exclude?(selected_option)
+
+        @form_data['optionIndicator'] = valid_options.index_with { |_option| false }
+        @form_data['optionIndicator'][selected_option] = true
       end
 
       def format_other_behavior_details
