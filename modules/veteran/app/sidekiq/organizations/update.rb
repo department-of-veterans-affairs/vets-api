@@ -10,8 +10,7 @@ require 'va_profile/v3/address_validation/service'
 module Organizations
   # Processes updates for organization records based on provided JSON data.
   # This class is designed to parse organization data, validate addresses using an external service,
-  # and update records in the database accordingly. It also handles updating flagging records when a organization's
-  # address, email, or phone number is updated.
+  # and update records in the database accordingly.
   class Update
     include Sidekiq::Job
     include SentryLogging
@@ -32,9 +31,7 @@ module Organizations
     # If the address validation fails or an error occurs during the update, the error is logged and the process
     # is halted for the current organization.
     # @param org_data [Hash] The organization data including id and address.
-    def process_org_data(org_data) # rubocop:disable Metrics/MethodLength
-      return unless record_can_be_updated?(org_data)
-
+    def process_org_data(org_data)
       address_validation_api_response = nil
 
       api_response = if Flipper.enabled?(:va_v3_contact_information_service)
@@ -51,20 +48,14 @@ module Organizations
       end
 
       begin
-        update_rep_record(org_data, address_validation_api_response)
+        update_org_record(org_data, address_validation_api_response)
       rescue Common::Exceptions::BackendServiceException => e
-        log_error("Address validation failed for Rep id: #{org_data['id']}: #{e.message}")
-        return
+        log_error("Address validation failed for Org id: #{org_data['id']}: #{e.message}")
+        nil
       rescue => e
-        log_error("Update failed for Rep id: #{org_data['id']}: #{e.message}")
-        return
+        log_error("Update failed for Org id: #{org_data['id']}: #{e.message}")
+        nil
       end
-
-      update_flagged_records(org_data)
-    end
-
-    def record_can_be_updated?(org_data)
-      org_data['address_exists'] || org_data['address_changed']
     end
 
     # Constructs a validation address object from the provided address data.
@@ -117,7 +108,7 @@ module Organizations
     # If the record cannot be found, logs an error to Sentry.
     # @param org_data [Hash] Original org_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
-    def update_rep_record(org_data, api_response)
+    def update_org_record(org_data, api_response)
       record =
         Veteran::Service::Organization.find_by(poa: org_data['id'])
       if record.nil?
@@ -126,27 +117,6 @@ module Organizations
         address_attributes = org_data['address_changed'] ? build_address_attributes(org_data, api_response) : {}
         record.update(address_attributes)
       end
-    end
-
-    # Updates flags for the organization's records based on changes in address, email, or phone number.
-    # @param org_data [Hash] The organization data including the id and flags for changes.
-    def update_flagged_records(org_data)
-      poa = org_data['id']
-      update_flags(poa, 'address') if org_data['address_changed']
-      update_flags(poa, 'email') if org_data['email_changed']
-      update_flags(poa, 'phone_number') if org_data['phone_number_changed']
-    end
-
-    # Updates the flags for a organization's contact data indicating a change.
-    # @param poa [String] The ID of the organization.
-    # @param flag_type [String] The type of change (address, email, or phone number).
-    def update_flags(poa, flag_type)
-      RepresentationManagement::FlaggedVeteranRepresentativeContactData
-        .where(poa:, flag_type:,
-               flagged_value_updated_at: nil)
-        .update_all(flagged_value_updated_at: Time.zone.now) # rubocop:disable Rails/SkipsModelValidations
-    rescue => e
-      log_error("Error updating flagged records. Organization id: #{poa}. Flag type: #{flag_type}. Error message: #{e.message}") # rubocop:disable Layout/LineLength
     end
 
     # Updates the given record with the new address and other relevant attributes.
@@ -161,18 +131,6 @@ module Organizations
         meta = api_response['candidate_addresses'].first['address_meta_data']
         build_address(address, geocode, meta).merge({ raw_address: org_data['address'].to_json })
       end
-    end
-
-    def build_email_attributes(org_data)
-      { email: org_data['email'] }
-    end
-
-    def build_phone_attributes(org_data)
-      { phone_number: org_data['phone_number'] }
-    end
-
-    def merge_attributes(address, email, phone)
-      address.merge(email).merge(phone)
     end
 
     # Builds the attributes for the record update from the address, geocode, and metadata.
@@ -225,7 +183,7 @@ module Organizations
     # Logs an error to Sentry.
     # @param error [Exception] The error string to be logged.
     def log_error(error)
-      log_message_to_sentry("Representatives::Update: #{error}", :error)
+      log_message_to_sentry("Organizations::Update: #{error}", :error)
     end
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
@@ -272,36 +230,36 @@ module Organizations
     end
 
     # Retry address validation
-    # @param rep_address [Hash] the address provided by OGC
+    # @param org_address [Hash] the address provided by OGC
     # @return [Hash, Nil] the response from the address validation service
-    def retry_validation(rep_address)
+    def retry_validation(org_address)
       # the address validation service requires at least one of address_line1, address_line2, and address_line3 to
       #   exist. No need to run the retry if we know it will fail before attempting the api call.
-      api_response = modified_validation(rep_address, 1) if rep_address['address_line1'].present?
+      api_response = modified_validation(org_address, 1) if org_address['address_line1'].present?
 
-      if retriable?(api_response) && rep_address['address_line2'].present?
-        api_response = modified_validation(rep_address, 2)
+      if retriable?(api_response) && org_address['address_line2'].present?
+        api_response = modified_validation(org_address, 2)
       end
 
-      if retriable?(api_response) && rep_address['address_line3'].present?
-        api_response = modified_validation(rep_address, 3)
+      if retriable?(api_response) && org_address['address_line3'].present?
+        api_response = modified_validation(org_address, 3)
       end
 
       api_response
     end
 
     # Get the best address that the address validation api can provide with some retry logic added in
-    # @param rep_address [Hash] the address provided by OGC
+    # @param org_address [Hash] the address provided by OGC
     # @return [Hash, Nil] the response from the address validation service
-    def get_best_address_candidate(rep_address)
-      candidate_address = build_validation_address(rep_address)
+    def get_best_address_candidate(org_address)
+      candidate_address = build_validation_address(org_address)
       original_response = validate_address(candidate_address)
       return nil unless address_valid?(original_response)
 
       # retry validation if we get zero as the coordinates - this should indicate some warning with validation that
       #   is typically seen with addresses that mix street addresses with P.O. Boxes
       if lat_long_zero?(original_response)
-        retry_response = retry_validation(rep_address)
+        retry_response = retry_validation(org_address)
 
         if retriable?(retry_response)
           nil
