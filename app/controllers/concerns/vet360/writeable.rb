@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'common/exceptions/validation_errors'
-require 'va_profile/contact_information/service'
 require 'va_profile/v2/contact_information/service'
 
 module Vet360
@@ -27,18 +26,14 @@ module Vet360
     end
 
     def invalidate_cache
-      if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
-        VAProfileRedis::V2::Cache.invalidate(@current_user)
-      else
-        VAProfileRedis::Cache.invalidate(@current_user)
-      end
+      VAProfileRedis::V2::Cache.invalidate(@current_user)
     end
 
     private
 
     def build_record(type, params)
       # This needs to be refactored after V2 upgrade is complete
-      if type == 'address' && Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+      if type == 'address'
         model = 'VAProfile::Models::V3::Address'
         # Ensures the address_pou is valid
         params[:address_pou] = 'RESIDENCE' if params[:address_pou] == 'RESIDENCE/CHOICE'
@@ -61,11 +56,7 @@ module Vet360
     end
 
     def service
-      if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
-        VAProfile::V2::ContactInformation::Service.new @current_user
-      else
-        VAProfile::ContactInformation::Service.new @current_user
-      end
+      VAProfile::V2::ContactInformation::Service.new @current_user
     end
 
     def write_valid_record!(http_verb, type, record)

@@ -4,9 +4,6 @@ require 'rails_helper'
 require 'va_profile/v2/contact_information/transaction_response'
 
 describe VAProfile::V2::ContactInformation::TransactionResponse do
-  before do
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
-  end
 
   describe '.from' do
     subject { described_class.from(raw_response) }

@@ -282,11 +282,6 @@ class FormProfile
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
-    if Flipper.enabled?(:remove_pciu, user)
-      # Monitor logs to validate the presence of Contact Information V2 user data
-      Rails.logger.info("VAProfile Contact Info: Address? #{opt[:address].present?},
-        Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
-    end
     opt[:address] ||= user_address_hash
 
     format_for_schema_compatibility(opt)
@@ -389,7 +384,6 @@ class FormProfile
   end
 
   def clean_hash!(hash)
-    hash.deep_transform_keys! { |k| k.to_s.camelize(:lower) }
     hash.deep_transform_keys! { |k| k.to_s.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
     hash.delete_if { |_k, v| v.blank? }

@@ -389,22 +389,12 @@ class User < Common::RedisStore
   delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
 
   def vet360_contact_info
-
-    @vet360_contact_info ||= vaprofile_contact_info
+    return nil unless icn.present?
+    @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
   def va_profile_email
     vet360_contact_info&.email&.email_address
-  end
-
-  def vaprofile_contact_info
-    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && icn.present?
-
-    @vaprofile_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
-  end
-
-  def va_profile_v2_email
-    vaprofile_contact_info&.email&.email_address
   end
 
   def all_emails

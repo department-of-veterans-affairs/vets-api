@@ -13,10 +13,6 @@ describe VAProfile::V2::Person::Service, :skip_vet360 do
 
     let(:user) { build(:user, :loa3) }
 
-    before do
-      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
-    end
-
     context 'with a user present, that has a icn_with_aaid' do
       it 'returns a status of 200', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/person/init_vet360_id_success', VCR::MATCH_EVERYTHING) do

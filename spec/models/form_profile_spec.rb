@@ -13,7 +13,6 @@ RSpec.describe FormProfile, type: :model do
   before do
     stub_va_profile_user(user)
     described_class.instance_variable_set(:@mappings, nil)
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     allow(Flipper).to receive(:enabled?).with(:profile_show_military_academy_attendance, nil).and_return(false)
     allow(Flipper).to receive(:enabled?).with(:disability_526_toxic_exposure, nil).and_return(false)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)

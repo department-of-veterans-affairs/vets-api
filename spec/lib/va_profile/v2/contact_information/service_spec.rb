@@ -8,10 +8,6 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
   let(:user) { build(:user, :loa3) }
 
-  before do
-    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
-  end
-
   describe '#get_person' do
     context 'when successful' do
       it 'returns a status of 200' do
@@ -91,7 +87,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/v2/contact_information/put_email_success', VCR::MATCH_EVERYTHING) do
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-            old_email = user.vaprofile_contact_info.email.email_address
+            old_email = user.vet360_contact_info.email.email_address
             expect_any_instance_of(VAProfile::Models::Transaction).to receive(:received?).and_return(true)
 
             response = subject.put_email(email)
@@ -417,7 +413,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       context 'transaction notification doesnt exist' do
         context 'users email is blank' do
           it 'doesnt send an email' do
-            expect(user).to receive(:va_profile_v2_email).and_return(nil)
+            expect(user).to receive(:va_profile_email).and_return(nil)
 
             expect(VANotifyEmailJob).not_to receive(:perform_async)
             subject.send(:send_contact_change_notification, transaction_status, :email)
@@ -430,7 +426,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
               allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
 
               expect(VANotifyEmailJob).to receive(:perform_async).with(
-                user.va_profile_v2_email,
+                user.va_profile_email,
                 described_class::CONTACT_INFO_CHANGE_TEMPLATE,
                 { 'contact_info' => 'Email address' }
               )

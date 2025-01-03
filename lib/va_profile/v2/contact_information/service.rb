@@ -137,7 +137,7 @@ module VAProfile
         def put_email(email)
           old_email =
             begin
-              @user.va_profile_v2_email
+              @user.va_profile_email
             rescue
               nil
             end
@@ -239,7 +239,7 @@ module VAProfile
             transaction_id = transaction.id
             return if TransactionNotification.find(transaction_id).present?
 
-            email = @user.va_profile_v2_email
+            email = @user.va_profile_email
             return if email.blank?
 
             VANotifyEmailJob.perform_async(

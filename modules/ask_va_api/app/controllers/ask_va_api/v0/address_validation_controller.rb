@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'va_profile/models/validation_address'
-require 'va_profile/address_validation/service'
 require 'va_profile/models/v3/validation_address'
 require 'va_profile/v3/address_validation/service'
 
@@ -13,11 +11,7 @@ module AskVAApi
       service_tag 'profile'
 
       def create
-        validation_model = if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
-                             VAProfile::Models::V3::ValidationAddress
-                           else
-                             VAProfile::Models::ValidationAddress
-                           end
+        validation_model = VAProfile::Models::V3::ValidationAddress
         address = validation_model.new(address_params)
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
@@ -46,11 +40,7 @@ module AskVAApi
       end
 
       def service
-        @service ||= if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
-                       VAProfile::V3::AddressValidation::Service.new
-                     else
-                       VAProfile::AddressValidation::Service.new
-                     end
+        @service ||= VAProfile::V3::AddressValidation::Service.new
       end
     end
   end
