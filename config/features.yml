@@ -1997,5 +1997,6 @@ features:
   show_rudisill_1995:
     actor_type: user
     description: If enabled, show rudisill review in 22-1995
-
-  
+  enable_lighthouse:
+    actor_type: user
+    description: If enabled, user will connect to lighthouse api in sob instead of evss
