@@ -144,7 +144,7 @@ module ClaimsApi
       ##
       # OrgWebServiceBean
       #
-      module OrgWebService
+      module OrgWebServiceBean
         DEFINITION =
           Bean.new(
             path: 'OrgWebServiceBean',
@@ -152,6 +152,14 @@ module ClaimsApi
               target: 'http://org.services.vetsnet.vba.va.gov/',
               data: nil
             )
+          )
+      end
+
+      module OrgWebService
+        DEFINITION =
+          Service.new(
+            bean: OrgWebServiceBean::DEFINITION,
+            path: 'OrgWebService'
           )
       end
 
