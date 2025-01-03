@@ -88,9 +88,9 @@
     "screenings": true,
     "socialEconomic": false,
     "relationships": true,
-    "misconduct": false,
-    "otherBehavior": "Lorem"
+    "misconduct": false
   },
+  "otherBehaviors": "Lorem",
   "behaviorsDetails": {
     "reassignment": "requested duty assignment",
     "performance": "poor evaluations",
