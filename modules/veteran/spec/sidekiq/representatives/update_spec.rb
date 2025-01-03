@@ -77,26 +77,26 @@ RSpec.describe Representatives::Update do
   # rubocop:disable Metrics/MethodLength
   def create_representative
     create(:representative,
-            representative_id: '123abc',
-            first_name: 'Bob',
-            last_name: 'Law',
-            address_line1: '123 East Main St',
-            address_line2: 'Suite 1',
-            address_line3: 'Address Line 3',
-            address_type: 'DOMESTIC',
-            city: 'My City',
-            country_name: 'United States of America',
-            country_code_iso3: 'USA',
-            province: 'A Province',
-            international_postal_code: '12345',
-            state_code: 'ZZ',
-            zip_code: '12345',
-            zip_suffix: '6789',
-            lat: '39',
-            long: '-75',
-            email: 'email@example.com',
-            location: 'POINT(-75 39)',
-            phone_number: '111-111-1111')
+           representative_id: '123abc',
+           first_name: 'Bob',
+           last_name: 'Law',
+           address_line1: '123 East Main St',
+           address_line2: 'Suite 1',
+           address_line3: 'Address Line 3',
+           address_type: 'DOMESTIC',
+           city: 'My City',
+           country_name: 'United States of America',
+           country_code_iso3: 'USA',
+           province: 'A Province',
+           international_postal_code: '12345',
+           state_code: 'ZZ',
+           zip_code: '12345',
+           zip_suffix: '6789',
+           lat: '39',
+           long: '-75',
+           email: 'email@example.com',
+           location: 'POINT(-75 39)',
+           phone_number: '111-111-1111')
   end
   # rubocop:enable Metrics/MethodLength
 
@@ -488,7 +488,7 @@ RSpec.describe Representatives::Update do
         before do
           allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
-                                                                    api_response2)
+                                                                   api_response2)
         end
 
         it 'does not update the representative address' do
@@ -509,7 +509,7 @@ RSpec.describe Representatives::Update do
         before do
           allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
-                                                                    api_response_with_zero, api_response3)
+                                                                   api_response_with_zero, api_response3)
         end
 
         it 'updates the representative address' do
@@ -530,7 +530,7 @@ RSpec.describe Representatives::Update do
         before do
           allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
           allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero, api_response_with_zero,
-                                                                    api_response_with_zero, api_response_with_zero)
+                                                                   api_response_with_zero, api_response_with_zero)
         end
 
         it 'does not update the representative address' do

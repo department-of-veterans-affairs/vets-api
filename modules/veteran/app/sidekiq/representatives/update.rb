@@ -30,7 +30,7 @@ module Representatives
     # If the address validation fails or an error occurs during the update, the error is logged and the process
     # is halted for the current representative.
     # @param rep_data [Hash] The representative data including id and address.
-    def process_rep_data(rep_data) # rubocop:disable Metrics/MethodLength
+    def process_rep_data(rep_data)
       return unless record_can_be_updated?(rep_data)
 
       address_validation_api_response = nil
@@ -141,7 +141,7 @@ module Representatives
     # Updates the given record with the new address and other relevant attributes.
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
-    def build_address_attributes(rep_data, api_response)
+    def build_address_attributes(_rep_data, api_response)
       build_v3_address(api_response['candidate_addresses'].first)
     end
 

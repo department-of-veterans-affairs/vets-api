@@ -7,15 +7,15 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:address_transaction,
-              transaction_id: '0ea91332-4713-4008-bd57-40541ee8d4d4',
-              user_uuid: user.uuid,
-              transaction_status: 'RECEIVED')
+             transaction_id: '0ea91332-4713-4008-bd57-40541ee8d4d4',
+             user_uuid: user.uuid,
+             transaction_status: 'RECEIVED')
     end
     let(:transaction2) do
       create(:email_transaction,
-              transaction_id: '5b4550b3-2bcb-4fef-8906-35d0b4b310a8',
-              user_uuid: user.uuid,
-              transaction_status: 'RECEIVED')
+             transaction_id: '5b4550b3-2bcb-4fef-8906-35d0b4b310a8',
+             user_uuid: user.uuid,
+             transaction_status: 'RECEIVED')
     end
     let(:service) { VAProfile::V2::ContactInformation::Service.new(user) }
 
@@ -120,9 +120,9 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
     let(:user) { build(:user, :loa3) }
     let(:transaction1) do
       create(:address_transaction,
-              transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
-              user_uuid: user.uuid,
-              status: AsyncTransaction::Vet360::Base::COMPLETED)
+             transaction_id: '0faf342f-5966-4d3f-8b10-5e9f911d07d2',
+             user_uuid: user.uuid,
+             status: AsyncTransaction::Vet360::Base::COMPLETED)
     end
     let(:service) { VAProfile::V2::ContactInformation::Service.new(user) }
 
@@ -140,16 +140,16 @@ RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
 
     it 'returns only the most recent transaction address/telephone/email transaction' do
       create(:email_transaction,
-              transaction_id: 'foo',
-              user_uuid: user.uuid,
-              transaction_status: 'RECEIVED',
-              status: AsyncTransaction::Vet360::Base::REQUESTED,
-              created_at: Time.zone.now - 1)
+             transaction_id: 'foo',
+             user_uuid: user.uuid,
+             transaction_status: 'RECEIVED',
+             status: AsyncTransaction::Vet360::Base::REQUESTED,
+             created_at: Time.zone.now - 1)
       transaction = create(:email_transaction,
-                            transaction_id: '5b4550b3-2bcb-4fef-8906-35d0b4b310a8',
-                            user_uuid: user.uuid,
-                            transaction_status: 'RECEIVED',
-                            status: AsyncTransaction::Vet360::Base::REQUESTED)
+                           transaction_id: '5b4550b3-2bcb-4fef-8906-35d0b4b310a8',
+                           user_uuid: user.uuid,
+                           transaction_status: 'RECEIVED',
+                           status: AsyncTransaction::Vet360::Base::REQUESTED)
       VCR.use_cassette('va_profile/v2/contact_information/email_transaction_status', VCR::MATCH_EVERYTHING) do
         transactions = AsyncTransaction::Vet360::Base.refresh_transaction_statuses(user, service)
         expect(transactions.size).to eq(1)

@@ -24,7 +24,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
     it 'calls update_address' do
       expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:update_address).and_call_original
-      VCR.use_cassette("va_profile/v2/contact_information/put_address_success") do
+      VCR.use_cassette('va_profile/v2/contact_information/put_address_success') do
         post('/v0/profile/addresses/create_or_update', params: address.to_json, headers:)
       end
 

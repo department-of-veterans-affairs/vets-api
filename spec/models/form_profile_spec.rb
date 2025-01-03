@@ -1815,7 +1815,8 @@ RSpec.describe FormProfile, type: :model do
 
             it 'returns prefilled 21-526EZ' do
               Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
-              allow(Flipper).to receive(:enabled?).with(:disability_526_toxic_exposure, instance_of(User)).and_return(true)
+              allow(Flipper).to receive(:enabled?).with(:disability_526_toxic_exposure,
+                                                        instance_of(User)).and_return(true)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do
@@ -1847,7 +1848,8 @@ RSpec.describe FormProfile, type: :model do
 
             it 'returns prefilled 21-526EZ' do
               Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
-              allow(Flipper).to receive(:enabled?).with(:disability_526_toxic_exposure, instance_of(User)).and_return(true)
+              allow(Flipper).to receive(:enabled?).with(:disability_526_toxic_exposure,
+                                                        instance_of(User)).and_return(true)
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
               VCR.use_cassette('evss/pciu_address/address_domestic') do

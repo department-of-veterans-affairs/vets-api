@@ -198,7 +198,7 @@ RSpec.describe 'V0::Profile::Telephones', type: :request do
 
     it 'calls update_telephone' do
       expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:update_telephone).and_call_original
-      VCR.use_cassette("va_profile/v2/contact_information/put_telephone_success") do
+      VCR.use_cassette('va_profile/v2/contact_information/put_telephone_success') do
         post('/v0/profile/telephones/create_or_update', params: telephone.to_json, headers:)
       end
 

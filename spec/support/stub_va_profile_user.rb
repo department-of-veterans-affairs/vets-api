@@ -8,9 +8,9 @@ require 'va_profile/models/email'
 
 def stub_va_profile_user(person)
   person_response =
-  person_response = VCR.use_cassette('va_profile/v2/contact_information/person') do
-    VAProfile::V2::ContactInformation::Service.new(person).get_person
-  end
+    VCR.use_cassette('va_profile/v2/contact_information/person') do
+      VAProfile::V2::ContactInformation::Service.new(person).get_person
+    end
   # person ||= build(
   #   :person_v2,
   #   addresses: [

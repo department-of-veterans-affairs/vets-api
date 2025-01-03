@@ -42,8 +42,8 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
       it 'matches the email address camel-inflected schema', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/contact_information/post_email_success') do
           post('/v0/profile/email_addresses',
-                params: { email_address: 'test@example.com' }.to_json,
-                headers: headers_with_camel)
+               params: { email_address: 'test@example.com' }.to_json,
+               headers: headers_with_camel)
 
           expect(response).to have_http_status(:ok)
           expect(response).to match_camelized_response_schema('va_profile/transaction_response')
@@ -67,11 +67,11 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
       end
     end
 
-    context 'with a 400 response' do
+    context 'with a 400 invalid id response' do
       it 'matches the errors schema', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/contact_information/post_email_w_id_error') do
           post('/v0/profile/email_addresses',
-                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
+               params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_response_schema('errors')
@@ -81,8 +81,8 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
       it 'matches the errors camel-inflected schema', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/contact_information/post_email_w_id_error') do
           post('/v0/profile/email_addresses',
-                params: { id: 42, email_address: 'person42@example.com' }.to_json,
-                headers: headers_with_camel)
+               params: { id: 42, email_address: 'person42@example.com' }.to_json,
+               headers: headers_with_camel)
 
           expect(response).to have_http_status(:bad_request)
           expect(response).to match_camelized_response_schema('errors')
@@ -94,7 +94,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
           expect_any_instance_of(Common::RedisStore).not_to receive(:destroy)
 
           post('/v0/profile/email_addresses',
-                params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
+               params: { id: 42, email_address: 'person42@example.com' }.to_json, headers:)
         end
       end
     end
