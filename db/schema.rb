@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_03_152522) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -689,6 +689,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.string "upload_status"
     t.string "va_notify_id"
     t.string "va_notify_status"
+    t.datetime "va_notify_date"
     t.datetime "delete_date"
     t.datetime "acknowledgement_date"
     t.datetime "failed_date"

@@ -14,6 +14,16 @@ class EvidenceSubmission < ApplicationRecord
   scope :completed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]) }
   scope :failed, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]) }
   scope :pending, -> { where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]) }
+  # used for sending failure notification emails
+  scope :va_notify_email_queued, lambda {
+    where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED])
+      .where.not(va_notify_date: nil)
+      .where.not(va_notify_id: nil)
+  }
+  # used for sending failure notification emails
+  scope :va_notify_email_not_queued, lambda {
+    where(upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED], va_notify_id: nil, va_notify_date: nil)
+  }
 
   def completed?
     upload_status == BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]
