@@ -34,11 +34,13 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     params = { file:, claim_id:, tracked_item_id:, document_type: }
     expect do
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-    end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+    end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
 
     expect(response).to have_http_status(:accepted)
-    expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
-    expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])
+    expect(response.parsed_body.dig('data',
+                                    'jobId')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
+    expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1,
+                                                                          'tracked_item_id')).to eq([tracked_item_id])
   end
 
   it 'uploads multiple jpeg files' do
@@ -49,10 +51,12 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: sis_headers(json: true)
-    end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+    end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
-    expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
-    expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])
+    expect(response.parsed_body.dig('data',
+                                    'jobId')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
+    expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1,
+                                                                          'tracked_item_id')).to eq([tracked_item_id])
   end
 
   context 'when camel case is used for parameters and camel case header is disabled' do
@@ -60,10 +64,12 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       params = { file:, claimId: claim_id, trackedItemId: tracked_item_id, documentType: document_type }
       expect do
         post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers(camelize: false)
-      end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+      end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
       expect(response).to have_http_status(:accepted)
-      expect(response.parsed_body.dig('data', 'job_id')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
-      expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])
+      expect(response.parsed_body.dig('data', 'job_id'))
+        .to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
+      expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1,
+                                                                            'tracked_item_id')).to eq([tracked_item_id])
     end
 
     it 'uploads multiple jpeg files' do
@@ -74,11 +80,13 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       expect do
         post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                  headers: sis_headers(camelize: false, json: true)
-      end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+      end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
 
       expect(response).to have_http_status(:accepted)
-      expect(response.parsed_body.dig('data', 'job_id')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
-      expect(Lighthouse::DocumentUpload.jobs.first.dig('args', 1, 'tracked_item_id')).to eq([tracked_item_id])
+      expect(response.parsed_body.dig('data', 'job_id'))
+        .to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
+      expect(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first.dig('args', 1,
+                                                                            'tracked_item_id')).to eq([tracked_item_id])
     end
   end
 
@@ -91,9 +99,10 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: sis_headers(json: true)
-    end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+    end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
-    expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
+    expect(response.parsed_body.dig('data',
+                                    'jobId')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
   end
 
   it 'uploads multiple mixed img files' do
@@ -104,9 +113,10 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     expect do
       post '/mobile/v0/claim/600117255/documents/multi-image', params: params.to_json,
                                                                headers: sis_headers(json: true)
-    end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+    end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
     expect(response).to have_http_status(:accepted)
-    expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
+    expect(response.parsed_body.dig('data',
+                                    'jobId')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
   end
 
   it 'rejects files with invalid document_types' do
@@ -121,9 +131,10 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
   it 'normalizes requests with a null tracked_item_id' do
     params = { file:, claim_id:, tracked_item_id: nil, document_type: }
     post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-    args = Lighthouse::DocumentUpload.jobs.first['args'][1]
+    args = Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['args'][1]
     expect(response).to have_http_status(:accepted)
-    expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
+    expect(response.parsed_body.dig('data',
+                                    'jobId')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
     expect(args.key?('tracked_item_id')).to eq(true)
     expect(args['tracked_item_id']).to be_nil
   end
@@ -137,10 +148,11 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       params = { file:, claim_id:, tracked_item_id:, document_type: }
       expect do
         post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
-      end.to change(Lighthouse::DocumentUpload.jobs, :size).by(1)
+      end.to change(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs, :size).by(1)
 
       expect(response).to have_http_status(:accepted)
-      expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
+      expect(response.parsed_body.dig('data',
+                                      'jobId')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
     end
   end
 
@@ -170,7 +182,8 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
                  password: 'test' }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response).to have_http_status(:accepted)
-      expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
+      expect(response.parsed_body.dig('data',
+                                      'jobId')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
     end
 
     it 'rejects locked PDFs with the incorrect password' do
@@ -243,7 +256,8 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
       params = { file: tempfile, claim_id:, tracked_item_id:, document_type: }
       post '/mobile/v0/claim/600117255/documents', params:, headers: sis_headers
       expect(response).to have_http_status(:accepted)
-      expect(response.parsed_body.dig('data', 'jobId')).to eq(Lighthouse::DocumentUpload.jobs.first['jid'])
+      expect(response.parsed_body.dig('data',
+                                      'jobId')).to eq(Lighthouse::EvidenceSubmissions::DocumentUpload.jobs.first['jid'])
     end
   end
 
