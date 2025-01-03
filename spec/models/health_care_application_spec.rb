@@ -384,7 +384,6 @@ RSpec.describe HealthCareApplication, type: :model do
         expect(Rails.logger).to receive(:error)
           .with("[#{form_id}] Error during schema validation!", {
                   error: exception.message,
-                  backtrace: anything,
                   schema: VetsJsonSchema::SCHEMAS[form_id]
                 })
         expect { health_care_application.valid? }.to raise_error(exception.class, exception.message)

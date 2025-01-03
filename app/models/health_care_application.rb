@@ -323,10 +323,7 @@ class HealthCareApplication < ApplicationRecord
       rescue => e
         PersonalInformationLog.create(data: { schema:, parsed_form: },
                                       error_class: 'HealthCareApplication FormValidationError')
-        Rails.logger.error("[#{FORM_ID}] Error during schema validation!",
-                           { error: e.message,
-                             backtrace: e.backtrace,
-                             schema: })
+        Rails.logger.error("[#{FORM_ID}] Error during schema validation!", { error: e.message, schema: })
         raise
       end
     end
