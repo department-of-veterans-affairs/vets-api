@@ -1,9 +1,10 @@
+# frozen_string_literal: true
+
 require 'common/exceptions/invalid_pagination_params'
 
 module Vets
   module Collections
     class Pagination
-
       attr_reader :data
 
       def initialize(page:, per_page:, total_entries:, data:, use_will_paginate: false)
@@ -11,11 +12,11 @@ module Vets
         @per_page = per_page
         @total_entries = total_entries
 
-        if use_will_paginate && defined?(::WillPaginate::Collection)
-          @data = will_paginate_collection(data)
-        else
-          @data = data[((page - 1) * per_page)...(page * per_page)]
-        end
+        @data = if use_will_paginate && defined?(::WillPaginate::Collection)
+                  will_paginate_collection(data)
+                else
+                  data[((page - 1) * per_page)...(page * per_page)]
+                end
       end
 
       def metadata
@@ -37,7 +38,10 @@ module Vets
 
       def will_paginate_collection(records)
         WillPaginate::Collection.create(@page, @per_page, @total_entries) do |pager|
-          raise Common::Exceptions::InvalidPaginationParams.new({ page: @page, per_page: @per_page}) if pager.out_of_bounds?
+          if pager.out_of_bounds?
+            raise Common::Exceptions::InvalidPaginationParams.new({ page: @page,
+                                                                    per_page: @per_page })
+          end
 
           pager.replace records[pager.offset, pager.per_page]
         end

@@ -117,7 +117,6 @@ RSpec.describe Vets::Collection do
 
     context 'when page is not provided or invalid' do
       it 'defaults to the first page' do
-
         record1 = dummy_class.new(name: 'Bob', age: 25)
         record2 = dummy_class.new(name: 'Alice', age: 30)
         records = [record1, record2]
@@ -148,6 +147,7 @@ RSpec.describe Vets::Collection do
           expect(metadata[:per_page]).to eq(21)
         end
       end
+
       context 'when the model class does not have a per_page default' do
         let(:dummy_class) do
           Class.new do
@@ -184,6 +184,7 @@ RSpec.describe Vets::Collection do
           expect(metadata[:per_page]).to eq(41)
         end
       end
+
       context 'when the model class does not have a per_page default' do
         let(:dummy_class) do
           Class.new do

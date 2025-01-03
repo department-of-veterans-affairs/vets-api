@@ -11,7 +11,6 @@ require 'vets/collections/pagination'
 # This will be a replacement for Common::Collection
 module Vets
   class Collection
-
     DEFAULT_PER_PAGE = 10
     DEFAULT_MAX_PER_PAGE = 100
 

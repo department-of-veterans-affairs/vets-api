@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'vets/collections/pagination'
 require 'common/exceptions/invalid_pagination_params'
 
@@ -23,16 +25,17 @@ RSpec.describe Vets::Collections::Pagination do
       end
 
       it 'uses WillPaginate::Collection for pagination' do
-        pagination = described_class.new(page: 1, per_page: 10, total_entries: data.size, data: data, use_will_paginate: true)
+        described_class.new(page: 1, per_page: 10, total_entries: data.size, data: data,
+                            use_will_paginate: true)
         expect(WillPaginate::Collection).to have_received(:create).with(1, 10, data.size)
       end
 
       it 'raises an exception for invalid pagination params' do
         allow_any_instance_of(WillPaginate::Collection).to receive(:out_of_bounds?).and_return(true)
 
-        expect {
+        expect do
           described_class.new(page: 10, per_page: 10, total_entries: data.size, data: data, use_will_paginate: true)
-        }.to raise_error(Common::Exceptions::InvalidPaginationParams)
+        end.to raise_error(Common::Exceptions::InvalidPaginationParams)
       end
     end
   end
