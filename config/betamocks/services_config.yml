@@ -896,6 +896,9 @@
     - :method: :post
       :path: "/sts/oauth/v1/token"
       :file_path: "map/secure_token_service/token"
+    - :method: :get
+      :path: "/sts/oauth/v1/jwks"
+      :file_path: "map/secure_token_service/jwks"
 
 # Sign Up Service Terms API
 - :name: "MAP SUS"
