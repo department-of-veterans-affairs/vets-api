@@ -434,7 +434,7 @@ GEM
       dry-schema (>= 1.12, < 2)
       zeitwerk (~> 2.6)
     einhorn (1.0.0)
-    erubi (1.13.0)
+    erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
     ethon (0.16.0)
@@ -660,7 +660,7 @@ GEM
       rake (~> 13.0)
     lockbox (2.0.1)
     logger (1.6.4)
-    loofah (2.23.1)
+    loofah (2.24.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     lumberjack (1.2.10)
@@ -695,7 +695,7 @@ GEM
     nenv (0.3.0)
     net-http (0.6.0)
       uri
-    net-imap (0.5.2)
+    net-imap (0.5.4)
       date
       net-protocol
     net-pop (0.1.2)
@@ -711,8 +711,14 @@ GEM
     nio4r (2.7.4-java)
     nkf (0.2.0)
     nkf (0.2.0-java)
-    nokogiri (1.17.2)
+    nokogiri (1.18.1)
       mini_portile2 (~> 2.8.2)
+      racc (~> 1.4)
+    nokogiri (1.18.1-aarch64-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.1-java)
+      racc (~> 1.4)
+    nokogiri (1.18.1-x86_64-linux-gnu)
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal
