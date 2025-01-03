@@ -7,12 +7,15 @@
 
 require 'common/models/comparable/ascending'
 require 'common/models/comparable/descending'
-require 'vets/pagination'
+require 'vets/collections/pagination'
 # This will be a replacement for Common::Collection
 module Vets
   class Collection
 
-    # attr_accessor :records, :metadata
+    DEFAULT_PER_PAGE = 10
+    DEFAULT_MAX_PER_PAGE = 100
+
+    attr_accessor :records, :metadata
 
     def initialize(records, metadata: {})
       records = Array.wrap(records)
@@ -28,7 +31,7 @@ module Vets
 
     def self.from_will_paginate(records)
       if defined?(::WillPaginate::Collection)
-        records_will_paginate_collection = records.is_a?(WillPaginate::Collection
+        records_will_paginate_collection = records.is_a?(WillPaginate::Collection)
         error_message = 'Expected records to be instance of WillPaginate'
         raise ArgumentError, error_message if records_will_paginate_collection
       end
@@ -55,14 +58,13 @@ module Vets
     end
 
     def paginate(page: nil, per_page: nil)
-      pagination = Pagination.new(
+      pagination = Vets::Collections::Pagination.new(
         page: normalize_page(page),
         per_page: normalize_per_page(per_page),
         total_entries: @records.size,
         data: @records
       )
-
-      Collection.new(pagination.data, metadata: pagination.metadata)
+      Vets::Collection.new(pagination.data, metadata: pagination.metadata)
     end
 
     private
@@ -87,13 +89,11 @@ module Vets
     end
 
     def normalize_per_page(per_page)
-      per_page = per_page.to_i
-      [[per_page, DEFAULT_PER_PAGE].max, max_per_page].min
+      [per_page || @model_class.try(:per_page) || DEFAULT_PER_PAGE, max_per_page].min
     end
 
     def max_per_page
-      @model_class&.max_per_page || DEFAULT_MAX_PER_PAGE
+      @model_class.try(:max_per_page) || DEFAULT_MAX_PER_PAGE
     end
-
   end
 end

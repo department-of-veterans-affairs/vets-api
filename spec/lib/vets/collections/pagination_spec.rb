@@ -1,7 +1,7 @@
-require 'vets/collection/pagination'
+require 'vets/collections/pagination'
 require 'common/exceptions/invalid_pagination_params'
 
-RSpec.describe Vets::Collection::Pagination do
+RSpec.describe Vets::Collections::Pagination do
   let(:data) { (1..50).to_a } # Example data
 
   describe '#initialize' do
@@ -19,7 +19,6 @@ RSpec.describe Vets::Collection::Pagination do
 
     context 'with WillPaginate' do
       before do
-        stub_const('WillPaginate::Collection', Class.new)
         allow(WillPaginate::Collection).to receive(:create).and_call_original
       end
 

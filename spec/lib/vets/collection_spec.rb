@@ -2,20 +2,17 @@
 
 require 'rails_helper'
 require 'vets/collection'
+require 'vets/model'
 
 RSpec.describe Vets::Collection do
   let(:dummy_class) do
     Class.new do
-      attr_accessor :name, :age
+      include Vets::Model
 
-      def initialize(name:, age:)
-        @name = name
-        @age = age
-      end
+      attribute :name, String
+      attribute :age, Integer
 
-      def <=>(other)
-        name <=> other.name
-      end
+      set_pagination per_page: 21, max_per_page: 41
     end
   end
 
@@ -41,8 +38,7 @@ RSpec.describe Vets::Collection do
     it 'creates a collection from an array of hashes' do
       hashes = [{ name: 'Alice', age: 30 }, { name: 'Bob', age: 25 }]
       collection = Vets::Collection.from_hashes(dummy_class, hashes)
-
-      expect(collection.instance_variable_get(:@records).map(&:name)).to eq(%w[Alice Bob])
+      expect(collection.records.map(&:name)).to eq(%w[Alice Bob])
     end
 
     it 'raises an error if any element is not a hash' do
@@ -100,41 +96,114 @@ RSpec.describe Vets::Collection do
   describe '#paginate' do
     context 'when page and per_page are provided' do
       it 'returns a paginated collection with correct metadata' do
-        paginated = collection.paginate(page: 2, per_page: 10)
+        record1 = dummy_class.new(name: 'Bob', age: 25)
+        record2 = dummy_class.new(name: 'Alice', age: 30)
+        record3 = dummy_class.new(name: 'Steven', age: 30)
+        records = [record1, record2, record3]
 
-        expect(paginated).to be_a(Collection)
-        expect(paginated.metadata[:page]).to eq(2)
-        expect(paginated.metadata[:per_page]).to eq(10)
-        expect(paginated.metadata[:total_entries]).to eq(100)
-        expect(paginated.metadata[:total_pages]).to eq(10)
-        expect(paginated.records).to eq(records[10..19])
+        collection = Vets::Collection.new(records)
+
+        paginated = collection.paginate(page: 2, per_page: 2)
+        metadata = paginated.metadata[:pagination]
+
+        expect(paginated).to be_a(Vets::Collection)
+        expect(metadata[:current_page]).to eq(2)
+        expect(metadata[:per_page]).to eq(2)
+        expect(metadata[:total_entries]).to eq(3)
+        expect(metadata[:total_pages]).to eq(2)
+        expect(paginated.records).to eq([record3])
       end
     end
 
     context 'when page is not provided or invalid' do
       it 'defaults to the first page' do
+
+        record1 = dummy_class.new(name: 'Bob', age: 25)
+        record2 = dummy_class.new(name: 'Alice', age: 30)
+        records = [record1, record2]
+
+        collection = Vets::Collection.new(records)
+
         paginated = collection.paginate(page: nil, per_page: 10)
-        expect(paginated.metadata[:page]).to eq(1)
-        expect(paginated.records).to eq(records[0..9])
+        metadata = paginated.metadata[:pagination]
+        expect(metadata[:current_page]).to eq(1)
+        expect(paginated.records).to eq(records[0..1])
 
         paginated = collection.paginate(page: -1, per_page: 10)
-        expect(paginated.metadata[:page]).to eq(1)
-        expect(paginated.records).to eq(records[0..9])
+        expect(metadata[:current_page]).to eq(1)
+        expect(paginated.records).to eq(records[0..1])
       end
     end
 
-    context 'when per_page is not provided or invalid' do
-      it 'defaults to DEFAULT_PER_PAGE and respects max_per_page' do
-        stub_const('Collection::DEFAULT_PER_PAGE', 20)
-        stub_const('Collection::DEFAULT_MAX_PER_PAGE', 50)
+    context 'when per_page is invalid' do
+      context 'when the model class has a per_page default' do
+        it 'defaults to the model per_page value' do
+          record1 = dummy_class.new(name: 'Bob', age: 25)
+          record2 = dummy_class.new(name: 'Alice', age: 30)
 
-        paginated = collection.paginate(page: 1, per_page: nil)
-        expect(paginated.metadata[:per_page]).to eq(20)
-        expect(paginated.records.size).to eq(20)
+          collection = Vets::Collection.new([record1, record2])
 
-        paginated = collection.paginate(page: 1, per_page: 100)
-        expect(paginated.metadata[:per_page]).to eq(50) # respects max_per_page
-        expect(paginated.records.size).to eq(50)
+          paginated = collection.paginate(page: 1, per_page: nil)
+          metadata = paginated.metadata[:pagination]
+          expect(metadata[:per_page]).to eq(21)
+        end
+      end
+      context 'when the model class does not have a per_page default' do
+        let(:dummy_class) do
+          Class.new do
+            include Vets::Model
+
+            attribute :name, String
+            attribute :age, Integer
+          end
+        end
+
+        it 'defaults to the collection default per page' do
+          record1 = dummy_class.new(name: 'Bob', age: 25)
+          record2 = dummy_class.new(name: 'Alice', age: 30)
+
+          collection = Vets::Collection.new([record1, record2])
+          paginated = collection.paginate(page: 1, per_page: nil)
+          metadata = paginated.metadata[:pagination]
+
+          expect(metadata[:per_page]).to eq(10) # respects model max_per_page
+        end
+      end
+    end
+
+    context 'when per_page is higher than max' do
+      context 'when the model class has a max_per_page default' do
+        it 'defaults to the model max_per_page value' do
+          record1 = dummy_class.new(name: 'Bob', age: 25)
+          record2 = dummy_class.new(name: 'Alice', age: 30)
+
+          collection = Vets::Collection.new([record1, record2])
+
+          paginated = collection.paginate(page: 1, per_page: 1000)
+          metadata = paginated.metadata[:pagination]
+          expect(metadata[:per_page]).to eq(41)
+        end
+      end
+      context 'when the model class does not have a per_page default' do
+        let(:dummy_class) do
+          Class.new do
+            include Vets::Model
+
+            attribute :name, String
+            attribute :age, Integer
+          end
+        end
+
+        it 'defaults to the collection default per page' do
+          record1 = dummy_class.new(name: 'Bob', age: 25)
+          record2 = dummy_class.new(name: 'Alice', age: 30)
+
+          collection = Vets::Collection.new([record1, record2])
+          paginated = collection.paginate(page: 1, per_page: 1000)
+          metadata = paginated.metadata[:pagination]
+
+          expect(metadata[:per_page]).to eq(100)
+        end
       end
     end
 
@@ -142,12 +211,14 @@ RSpec.describe Vets::Collection do
       let(:records) { [] }
 
       it 'returns an empty collection with correct metadata' do
+        collection = Vets::Collection.new(records)
         paginated = collection.paginate(page: 1, per_page: 10)
+        metadata = paginated.metadata[:pagination]
 
-        expect(paginated.metadata[:page]).to eq(1)
-        expect(paginated.metadata[:per_page]).to eq(10)
-        expect(paginated.metadata[:total_entries]).to eq(0)
-        expect(paginated.metadata[:total_pages]).to eq(0)
+        expect(metadata[:current_page]).to eq(1)
+        expect(metadata[:per_page]).to eq(10)
+        expect(metadata[:total_entries]).to eq(0)
+        expect(metadata[:total_pages]).to eq(0)
         expect(paginated.records).to be_empty
       end
     end
