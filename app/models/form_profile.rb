@@ -205,6 +205,7 @@ class FormProfile
     @contact_information = initialize_contact_information
     @military_information = initialize_military_information
     form = form_id == '1010EZ' ? '1010ez' : form_id
+
     if FormProfile.prefill_enabled_forms.include?(form)
       mappings = self.class.mappings_for_form(form_id)
 
@@ -281,13 +282,14 @@ class FormProfile
   def initialize_contact_information
     opt = {}
     opt.merge!(vets360_contact_info_hash) if vet360_contact_info
-    Rails.logger.info("User Vet360 Contact Info, Address? #{opt[:address].present?}
-      Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
-
+    if Flipper.enabled?(:remove_pciu, user)
+      # Monitor logs to validate the presence of Contact Information V2 user data
+      Rails.logger.info("VAProfile Contact Info: Address? #{opt[:address].present?},
+        Email? #{opt[:email].present?}, Phone? #{opt[:home_phone].present?}")
+    end
     opt[:address] ||= user_address_hash
 
     format_for_schema_compatibility(opt)
-
     FormContactInformation.new(opt)
   end
 
@@ -319,7 +321,6 @@ class FormProfile
       opt[:address][:street2] = apt[1]
       opt[:address][:street] = opt[:address][:street].gsub(/\W?\s+#{apt[1]}/, '').strip
     end
-
     %i[home_phone us_phone mobile_phone].each do |phone|
       opt[phone] = opt[phone].gsub(/\D/, '') if opt[phone]
     end
@@ -388,6 +389,7 @@ class FormProfile
   end
 
   def clean_hash!(hash)
+    hash.deep_transform_keys! { |k| k.to_s.camelize(:lower) }
     hash.deep_transform_keys! { |k| k.to_s.camelize(:lower) }
     hash.each { |k, v| hash[k] = clean!(v) }
     hash.delete_if { |_k, v| v.blank? }
