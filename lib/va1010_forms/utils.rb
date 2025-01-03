@@ -36,10 +36,6 @@ module VA1010Forms
       )
     end
 
-    def override_parsed_form(parsed_form)
-      HCA::OverridesParser.new(parsed_form).override
-    end
-
     private
 
     def submission_body(formatted_form)

@@ -6,6 +6,7 @@ require 'hca/user_attributes'
 require 'hca/enrollment_eligibility/service'
 require 'hca/enrollment_eligibility/status_matcher'
 require 'mpi/service'
+require 'hca/overrides_parser'
 
 class HealthCareApplication < ApplicationRecord
   include SentryLogging
@@ -71,7 +72,7 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def submit_sync
-    @parsed_form = override_parsed_form(parsed_form)
+    @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     result = begin
       HCA::Service.new(user).submit_form(parsed_form)
@@ -240,7 +241,7 @@ class HealthCareApplication < ApplicationRecord
 
   def submit_async
     submission_job = email.present? ? 'SubmissionJob' : 'AnonSubmissionJob'
-    @parsed_form = override_parsed_form(parsed_form)
+    @parsed_form = HCA::OverridesParser.new(parsed_form).override
 
     "HCA::#{submission_job}".constantize.perform_async(
       self.class.get_user_identifier(user),
