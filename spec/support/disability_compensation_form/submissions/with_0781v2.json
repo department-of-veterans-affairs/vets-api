@@ -421,9 +421,7 @@
           "noDates": true
         }
       ],
-      "optionIndicator": {
-        "notEnrolled": true
-      },
+      "optionIndicator": "notEnrolled",
       "additionalInformation": "Lorem ipsum dolor sit amet."
     }
   },
