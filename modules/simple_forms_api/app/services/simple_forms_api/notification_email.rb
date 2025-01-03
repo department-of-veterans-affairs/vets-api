@@ -104,7 +104,7 @@ module SimpleFormsApi
       all_keys << :confirmation_number if needs_confirmation_number?(config)
       all_keys << :expiration_date if config[:form_number] == 'vba_21_0966_intent_api'
 
-      missing_keys = all_keys.select { |key| config[key].nil? }
+      missing_keys = all_keys.select { |key| config[key].nil? || config[key].to_s.strip.empty? }
 
       if missing_keys.any?
         StatsD.increment('silent_failure', tags: statsd_tags) if error_notification?
