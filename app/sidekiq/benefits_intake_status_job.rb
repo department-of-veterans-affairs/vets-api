@@ -220,8 +220,20 @@ class BenefitsIntakeStatusJob
   end
   # rubocop:enable Metrics/MethodLength
 
-  def monitor_success(form_id, saved_claim_id)
+  def monitor_success(form_id, saved_claim_id, bi_uuid)
     if %w[21P-527EZ].include?(form_id) && Flipper.enabled?(:pension_received_email_notification)
+      claim = SavedClaim::Pension.find_by(id: saved_claim_id)
+
+      unless claim
+        context = {
+          form_id: form_id,
+          claim_id: saved_claim_id,
+          benefits_intake_uuid: bi_uuid
+        }
+        Pensions::Monitor.new.log_silent_failure(context, nil, call_location: caller_locations.first)
+        return
+      end
+
       Pensions::NotificationEmail.new(saved_claim_id).deliver(:received)
     end
   end
