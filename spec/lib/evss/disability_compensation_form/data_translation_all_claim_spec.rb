@@ -1831,6 +1831,54 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     end
   end
 
+  describe '#translateStartedFormVersion' do
+    context 'no startedFormVersion on input form' do
+      let(:form_content) do
+        {
+          'form526' => {}
+        }
+      end
+
+      it 'adds in startedFormVersion when it was missing' do
+        expect(subject.send(:translate_started_form_version)).to eq({
+                                                                      'startedFormVersion' => '2019'
+                                                                    })
+      end
+    end
+
+    context 'startedFormVersion is 2022' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'startedFormVersion' => '2022'
+          }
+        }
+      end
+
+      it 'adds in startedFormVersion when it was missing' do
+        expect(subject.send(:translate_started_form_version)).to eq({
+                                                                      'startedFormVersion' => '2022'
+                                                                    })
+      end
+    end
+
+    context 'startedFormVersion is 2019' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'startedFormVersion' => '2019'
+          }
+        }
+      end
+
+      it 'fills in 2019 startedFormVersion' do
+        expect(subject.send(:translate_started_form_version)).to eq({
+                                                                      'startedFormVersion' => '2019'
+                                                                    })
+      end
+    end
+  end
+
   describe '#add_toxic_exposure' do
     let(:form_content) do
       {
