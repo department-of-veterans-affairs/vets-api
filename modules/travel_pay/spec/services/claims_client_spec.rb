@@ -13,7 +13,6 @@ describe TravelPay::ClaimsClient do
       c.response :json
       c.request :json
     end
-
   end
 
   context 'prod settings' do
@@ -127,7 +126,7 @@ describe TravelPay::ClaimsClient do
       expect(actual_ids).to eq(expected)
     end
 
-    # POST create_claim
+    # PATCH submit_claim
     it 'returns a claim ID from the claims endpoint' do
       allow_any_instance_of(TravelPay::ClaimsClient).to receive(:connection).and_return(@conn)
       claim_id = '3fa85f64-5717-4562-b3fc-2c963f66afa6'

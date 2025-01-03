@@ -3,15 +3,6 @@
 module TravelPay
   module V0
     class ClaimsController < ApplicationController
-      ### HEY
-      #### KEVIN
-      ##### REMOVE THIS!!!
-      skip_before_action :verify_authenticity_token, only: [:create]
-      ##### REMOVE THIS!!!
-      #### KEVIN
-      ### HEY
-
-
       def index
         begin
           claims = claims_service.get_claims(params)
@@ -48,9 +39,9 @@ module TravelPay
           message = 'Travel Pay mileage expense submission unavailable per feature toggle'
           raise Common::Exceptions::ServiceUnavailable, message:
         end
-        
+
         begin
-          appt = appts_service.get_appointment_by_date_time({'appt_datetime' => params['appointmentDatetime']})
+          appt = appts_service.get_appointment_by_date_time({ 'appt_datetime' => params['appointmentDatetime'] })
 
           claim = claims_service.create_new_claim({ 'btsss_appt_id' => appt[:data]['id'] })
 
@@ -62,7 +53,7 @@ module TravelPay
         rescue ArgumentError => e
           raise Common::Exceptions::BadRequest, detail: e.message
         rescue Faraday::ClientError, Faraday::ServerError => e
-          raise Common::Exceptions::InternalServerError.new(e)
+          raise Common::Exceptions::InternalServerError, exception: e
         end
 
         render json: submitted_claim, status: :created

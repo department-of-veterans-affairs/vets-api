@@ -365,12 +365,8 @@ describe TravelPay::ClaimsService do
     let(:user) { build(:user) }
     let(:response) do
       Faraday::Response.new(
-        body: {
-            'data' => {
-              'claimId' => "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-              'status' => "InProcess"
-            }
-        }
+        body: { 'data' => { 'claimId' => '3fa85f64-5717-4562-b3fc-2c963f66afa6',
+                            'status' => 'InProcess' } }
       )
     end
 
@@ -390,21 +386,15 @@ describe TravelPay::ClaimsService do
     end
 
     it 'raises an error if claim_id is missing' do
-      expect {
-        @service.submit_claim()
-      }.to raise_error(ArgumentError)
+      expect { @service.submit_claim }.to raise_error(ArgumentError)
     end
 
     it 'raises an error if invalid claim_id provided' do
       # present, wrong format
-      expect {
-        @service.submit_claim('claim_numero_uno')
-      }.to raise_error(ArgumentError)
+      expect { @service.submit_claim('claim_numero_uno') }.to raise_error(ArgumentError)
 
       # empty
-      expect {
-        @service.submit_claim('')
-      }.to raise_error(ArgumentError)
+      expect { @service.submit_claim('') }.to raise_error(ArgumentError)
     end
   end
 end

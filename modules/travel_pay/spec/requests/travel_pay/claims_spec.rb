@@ -106,7 +106,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
     before do
       Flipper.enable(:travel_pay_submit_mileage_expense)
     end
-    
+
     it 'returns a ServiceUnavailable response if feature flag turned off' do
       Flipper.disable(:travel_pay_submit_mileage_expense)
 
@@ -119,26 +119,28 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
     end
 
     it 'returns a successfully submitted claim response' do
-      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({veis_token: 'vt', btsss_token: 'bt'})
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
 
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointmentDatetime' => '2024-01-01T16:45:34.465Z' }
 
-        post "/travel_pay/v0/claims", headers: headers, params: params
+        post '/travel_pay/v0/claims', headers: headers, params: params
 
         expect(response).to have_http_status(:created)
       end
     end
 
     it 'returns a BadRequest response if an invalid appointment date time is given' do
-      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({veis_token: 'vt', btsss_token: 'bt'})
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
 
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointmentDatetime' => 'My birthday, 4 years ago' }
 
-        post "/travel_pay/v0/claims", headers: headers, params: params
+        post '/travel_pay/v0/claims', headers: headers, params: params
 
         error_detail = JSON.parse(response.body)['errors'][0]['detail']
         expect(response).to have_http_status(:bad_request)
@@ -147,15 +149,17 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
     end
 
     it 'returns a server error response if a request to the Travel Pay API fails' do
-      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize).and_return({veis_token: 'vt', btsss_token: 'bt'})
-      allow_any_instance_of(TravelPay::ClaimsService).to receive(:submit_claim).and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
+      allow_any_instance_of(TravelPay::AuthManager).to receive(:authorize)
+        .and_return({ veis_token: 'vt', btsss_token: 'bt' })
+      allow_any_instance_of(TravelPay::ClaimsService).to receive(:submit_claim)
+        .and_raise(Common::Exceptions::InternalServerError.new(Faraday::ServerError.new))
 
       # The cassette doesn't matter here as I'm mocking the submit_claim method
       VCR.use_cassette('travel_pay/submit/success', match_requests_on: %i[method path]) do
         headers = { 'Authorization' => 'Bearer vagov_token' }
         params = { 'appointmentDatetime' => '2024-01-01T16:45:34.465Z' }
 
-        post "/travel_pay/v0/claims", headers: headers, params: params
+        post '/travel_pay/v0/claims', headers: headers, params: params
 
         expect(response).to have_http_status(:internal_server_error)
       end
