@@ -11,9 +11,9 @@ class LighthouseClaimsServiceProvider
     @service = BenefitsClaims::Service.new(icn)
   end
 
-  def all_claims(lighthouse_client_id = nil, lighthouse_rsa_key_path = nil)
+  def all_claims
     # the below call to get_claims only gets potential OPEN claims
-    data = @service.get_claims(lighthouse_client_id, lighthouse_rsa_key_path)['data']
+    data = @service.get_claims['data']
     transform(data)
   end
 
