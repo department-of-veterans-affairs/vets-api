@@ -864,7 +864,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
   describe '#get_docs' do
     let(:submission_id) { 1 }
     let(:uuid) { 'some-uuid' }
-    let(:submission) { create(:form526_submission, id: submission_id) }
+    let(:submission) { build(:form526_submission, id: submission_id) }
     let(:parsed_forms) do
       {
         'form0781' => { 'content_0781' => 'value_0781' },
