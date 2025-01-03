@@ -148,10 +148,10 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
           expect(json_response['formData']['startedFormVersion']).to eq('2022')
         end
 
-        it 'omits adding startedFormVersion when corresponding flag is not enabled for user' do
+        it 'adds default startedFormVersion when corresponding flag is not enabled for user' do
           get v0_disability_compensation_in_progress_form_url(form_id), params: nil
           json_response = JSON.parse(response.body)
-          expect(json_response['formData']['startedFormVersion']).to eq(nil)
+          expect(json_response['formData']['startedFormVersion']).to eq('2019')
         end
       end
 
