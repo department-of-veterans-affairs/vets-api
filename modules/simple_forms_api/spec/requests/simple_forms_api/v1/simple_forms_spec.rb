@@ -1016,9 +1016,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       context 'rejected' do
-        let(:reference_number) { 'some-reference-number' }
         let(:body_status) { 'REJECTED' }
-        let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }
+        let(:body) { { 'status' => body_status } }
         let(:status) { 200 }
         let(:lgy_response) { double(body:, status:) }
 
@@ -1039,17 +1038,15 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'form26_4555_rejected_email_template_id',
             {
               'first_name' => 'Veteran',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => reference_number
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
             }
           )
         end
       end
 
       context 'duplicate' do
-        let(:reference_number) { 'some-reference-number' }
         let(:body_status) { 'DUPLICATE' }
-        let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }
+        let(:body) { { 'status' => body_status } }
         let(:status) { 200 }
         let(:lgy_response) { double(body:, status:) }
 
@@ -1070,8 +1067,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'form26_4555_duplicate_email_template_id',
             {
               'first_name' => 'Veteran',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => reference_number
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
             }
           )
         end

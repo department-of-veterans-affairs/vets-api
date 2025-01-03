@@ -28,6 +28,28 @@ describe SimpleFormsApi::NotificationEmail do
         end
       end
 
+      context '26-4555' do
+        let(:config) do
+          { form_data: {}, form_number: 'vba_26_4555', date_submitted: Time.zone.today.strftime('%B %d, %Y') }
+        end
+
+        context 'notification_type is duplicate' do
+          let(:notification_type) { :duplicate }
+
+          it 'does not require the confirmation_number' do
+            expect { described_class.new(config, notification_type:) }.not_to raise_error(ArgumentError)
+          end
+        end
+
+        context 'notification_type is rejeceted' do
+          let(:notification_type) { :rejected }
+
+          it 'does not require the confirmation_number' do
+            expect { described_class.new(config, notification_type:) }.not_to raise_error(ArgumentError)
+          end
+        end
+      end
+
       context 'missing form_data' do
         let(:config) do
           { form_number: 'vba_21_10210', confirmation_number: 'confirmation_number',
