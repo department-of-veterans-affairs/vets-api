@@ -54,6 +54,7 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
   describe '#submit' do
     before do
       allow(Rails.logger).to receive(:info)
+      allow(Rails.logger).to receive(:error)
     end
 
     context 'when no error occurs' do
@@ -110,13 +111,16 @@ RSpec.describe VA1010Forms::EnrollmentSystem::Service do
         allow(Rails.logger).to receive(:error)
       end
 
-      it 'raises the error' do
+      it 'logs and raises the error' do
         expect do
           described_class.new.submit(
             form_with_ves_fields,
             '10-10EZR'
           )
         end.to raise_error(StandardError, 'Uh oh. Some bad error occurred.')
+        expect(Rails.logger).to have_received(:error).with(
+          '10-10EZR form submission failed: Uh oh. Some bad error occurred.'
+        )
       end
     end
   end
