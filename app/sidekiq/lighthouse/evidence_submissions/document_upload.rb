@@ -46,6 +46,11 @@ module Lighthouse
           user_account:,
           template_metadata_ciphertext: { personalisation: }.to_json
         )
+
+        message = "#{job_class} EvidenceSubmission created"
+        ::Rails.logger.info(message)
+        StatsD.increment('silent_failure_avoided_no_confirmation',
+                         tags: ['service:claim-status', "function: #{message}"])
       rescue => e
         error_message = "#{job_class} failed to create EvidenceSubmission"
         ::Rails.logger.info(error_message, { messsage: e.message })

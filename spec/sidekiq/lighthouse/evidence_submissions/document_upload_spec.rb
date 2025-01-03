@@ -40,8 +40,10 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
 
   let(:client_stub) { instance_double(BenefitsDocuments::WorkerService) }
   let(:job_class) { 'Lighthouse::EvidenceSubmissions::DocumentUpload' }
+  let(:issue_instant) { Time.now.to_i }
   let(:msg) do
     {
+      'jid' => job_id,
       'args' => [user_account.icn, { 'file_name' => filename, 'first_name' => 'Bob' }],
       'created_at' => issue_instant,
       'failed_at' => issue_instant
@@ -66,6 +68,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         }
       }
     end
+    let(:message) { "#{job_class} EvidenceSubmission created" }
 
     it 'retrieves the file and uploads to Lighthouse' do
       allow(LighthouseDocumentUploader).to receive(:new) { uploader_stub }
@@ -90,7 +93,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   end
 
   context 'when upload fails' do
-    let(:issue_instant) { Time.now.to_i }
     let(:msg_with_errors) do
       {
         'args' => ['test', user_account.icn, { 'file_name' => filename, 'first_name' => 'Bob' }],
@@ -107,11 +109,17 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
     end
     let(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
     let(:error_message) { "#{job_class} failed to create EvidenceSubmission" }
+    let(:message) { "#{job_class} EvidenceSubmission created" }
     let(:tags) { ['service:claim-status', "function: #{error_message}"] }
 
     it 'creates a failed evidence submission record' do
       Lighthouse::EvidenceSubmissions::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
         expect(EvidenceSubmission).to receive(:create).and_return(evidence_submission_failed)
+        expect(Rails.logger)
+          .to receive(:info)
+          .with(message)
+        expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation',
+                                                   tags: ['service:claim-status', "function: #{message}"])
       end
       expect(EvidenceSubmission.va_notify_email_not_queued.length).to equal(1)
     end
