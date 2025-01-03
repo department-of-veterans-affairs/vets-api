@@ -369,10 +369,18 @@ RSpec.describe HealthCareApplication, type: :model do
       let(:exception) { StandardError.new('Some exception') }
 
       before do
+        allow(PersonalInformationLog).to receive(:create)
         allow(JSON::Validator).to receive(:fully_validate).and_raise(exception)
       end
 
       it 'logs exception and raises exception' do
+        expect(PersonalInformationLog).to receive(:create).with(
+          data: {
+            schema: VetsJsonSchema::SCHEMAS[form_id],
+            parsed_form: health_care_application.parsed_form
+          },
+          error_class: 'HealthCareApplication FormValidationError'
+        )
         expect(Rails.logger).to receive(:error)
           .with("[#{form_id}] Error during schema validation!", {
                   error: exception.message,
