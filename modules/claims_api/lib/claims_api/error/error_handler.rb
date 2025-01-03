@@ -1,5 +1,11 @@
 # frozen_string_literal: true
 
+require 'common/exceptions/token_validation_error'
+require 'common/exceptions/resource_not_found'
+require 'common/exceptions/forbidden'
+require 'common/exceptions/unauthorized'
+require 'common/exceptions/validation_errors_bad_request'
+require 'common/exceptions/unprocessable_entity'
 require 'claims_api/common/exceptions/token_validation_error'
 
 module ClaimsApi

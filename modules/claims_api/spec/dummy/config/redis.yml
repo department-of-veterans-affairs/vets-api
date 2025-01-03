@@ -1,0 +1,19 @@
+development: &defaults
+  redis:
+    url: <%= Settings.redis.app_data.url %>
+  sidekiq:
+    url: <%= Settings.redis.sidekiq.url %>
+  lighthouse_ccg:
+    namespace: lighthouse-ccg
+    each_ttl: 300
+  mpi_profile_response:
+    namespace: mpi-profile-response
+    each_ttl: 86400
+    failure_ttl: 1800
+test:
+  <<: *defaults
+  redis:
+    inherit_socket: true
+    url: <%= Settings.redis.app_data.url %>
+  sidekiq:
+    url: <%= Settings.redis.sidekiq.url %>

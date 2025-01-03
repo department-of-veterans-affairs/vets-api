@@ -1,0 +1,19 @@
+bgs:
+  application: ~
+  client_station_id: ~
+  client_username: ~
+  env: ~
+  mock_response_location: ~
+  mock_responses: ~
+  ssl_verify_mode: "peer"
+  url: "https://something.fake.va.gov"
+  external_uid: xUid
+  external_key: xKey
+
+redis:
+  host: localhost
+  port: 6379
+  app_data:
+    url: redis://localhost:6379
+  sidekiq:
+    url: redis://localhost:6379

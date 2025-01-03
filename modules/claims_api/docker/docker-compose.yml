@@ -1,0 +1,28 @@
+services:
+  db:
+    image: postgis/postgis:14-3.3-alpine
+    environment:
+      POSTGRES_DB: claims_api
+      POSTGRES_USER: claims_api
+      POSTGRES_PASSWORD: claims_api
+    ports:
+      - "5433:5432"
+
+  api:
+    build:
+      context: ../../..
+      dockerfile: modules/claims_api/docker/Dockerfile
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_DB: claims_api
+      POSTGRES_USER: claims_api
+      POSTGRES_PASSWORD: claims_api
+      POSTGRES_PORT: 5432
+      RAILS_ENV: development
+      PORT: 3000
+    ports:
+      - "3001:3000"
+    depends_on:
+      - db
+    stdin_open: true
+    tty: true

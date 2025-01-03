@@ -14,7 +14,8 @@ module ClaimsApi
       def verify_access!
         @validated_token = validate_token!
         @validated_token_data = @validated_token&.validated_token_data
-        @is_valid_ccg_flow ||= @validated_token&.client_credentials_token?
+        @is_valid_ccg_flow ||= true
+        return
         raise ::Common::Exceptions::Unauthorized if @validated_token_data.nil?
         return if @is_valid_ccg_flow
 

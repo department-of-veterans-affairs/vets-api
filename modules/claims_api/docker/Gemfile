@@ -1,0 +1,26 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+
+# Dependencies needed for standalone operation
+gem 'rails', '~> 7.2.2'
+
+gem 'activerecord-postgis-adapter'
+gem 'blueprinter'
+gem 'breakers'
+gem 'byebug', platforms: :ruby
+gem 'config'
+gem 'ddtrace'
+gem 'dry-struct'
+gem 'dry-types'
+gem 'faraday', '~> 2.10'
+gem 'okcomputer'
+gem 'pg'
+gem 'puma'
+gem 'rack-cors', require: 'rack/cors'
+gem 'redis'
+gem 'redis-namespace'
+gem 'rswag-ui'
+gem 'virtus'
+
+gem 'claims_api', path: '..'
