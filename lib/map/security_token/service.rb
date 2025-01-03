@@ -76,8 +76,23 @@ module MAP
       end
 
       def validate_map_token(encoded_token)
-        jwk = config.public_jwks.first
-        JWT.decode(encoded_token, jwk.public_key, true, algorithm: 'RS512')
+        public_keys = public_jwks.keys.map(&:public_key)
+        JWT.decode(encoded_token, public_keys, true, { algorithms: ['RS512'] })
+      end
+
+      def public_jwks
+        @public_jwks ||= Rails.cache.fetch(config.jwks_cache_key, expires_in: config.jwks_cache_expiration) do
+          response = perform(:get, config.provider_jwks_path, {})
+          Rails.logger.info("#{config.logging_prefix} Get Public JWKs Success")
+
+          parse_public_jwks(response:)
+        end
+      end
+
+      def parse_public_jwks(response:)
+        jwks = JWT::JWK::Set.new(response.body)
+        jwks.select! { |key| key[:use] == 'sig' }
+        jwks
       end
 
       def client_id_from_application(application)

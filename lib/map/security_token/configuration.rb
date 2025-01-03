@@ -90,21 +90,6 @@ module MAP
         OpenSSL::X509::Certificate.new(File.read(client_cert_path))
       end
 
-      def public_jwks
-        @public_jwks ||= Rails.cache.fetch(jwks_cache_key, expires_in: jwks_cache_expiration) do
-          response = connection.get(provider_jwks_path)
-          Rails.logger.info("#{logging_prefix} Get Public JWKs Success")
-
-          parse_public_jwks(response:)
-        end
-      end
-
-      def parse_public_jwks(response:)
-        keys_array = response.body['keys']
-        filtered_keys = keys_array.select { |key| key['use'] == 'sig' }
-        JWT::JWK::Set.new(filtered_keys)
-      end
-
       def connection
         @connection ||= Faraday.new(
           base_path,
