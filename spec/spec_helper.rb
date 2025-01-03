@@ -16,7 +16,6 @@ require 'rspec/its'
 require 'rspec/retry'
 require 'aasm/rspec'
 require 'mock_redis'
-require 'timecop'
 
 # By default run SimpleCov, but allow an environment variable to disable.
 unless ENV['NOCOVERAGE']

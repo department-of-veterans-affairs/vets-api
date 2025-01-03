@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'virtus'
-require 'active_model'
 
 module Common
   module Exceptions
