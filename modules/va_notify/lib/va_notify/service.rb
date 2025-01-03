@@ -25,7 +25,6 @@ module VaNotify
     end
 
     def send_email(args)
-      byebug
       if Flipper.enabled?(:va_notify_notification_creation)
         response = with_monitoring do
           notify_client.send_email(args)
