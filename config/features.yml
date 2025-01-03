@@ -177,6 +177,9 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
+  champva_vanotify_custom_callback:
+    actor_type: user
+    description: Enables the custom callback_klass when sending IVC CHAMPVA failure emails with VA Notify
   champva_multiple_stamp_retry:
     actor_type: user
     description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
