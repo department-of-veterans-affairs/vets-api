@@ -143,6 +143,9 @@ http_interactions:
           ]
         },
         "type": "allergy",
+        "category": [
+          "environment"
+        ],
         "code": {
           "coding": [
             {
