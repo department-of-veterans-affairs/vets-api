@@ -6,6 +6,7 @@ require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 require 'bgs_service/person_web_service'
 require 'bgs_service/e_benefits_bnft_claim_status_web_service'
+require 'bgs_service/tracked_item_service'
 require 'concerns/claims_api/v2/claims_requests/supporting_documents'
 
 RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
