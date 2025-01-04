@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/shared_examples_for_base_form'
 
 RSpec.describe SimpleFormsApi::VBA214140 do
   subject(:form) { described_class.new(data) }
@@ -9,6 +10,8 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_21_4140.json')
   end
   let(:data) { JSON.parse(fixture_path.read) }
+
+  it_behaves_like 'zip_code_is_us_based', %w[address]
 
   describe '#data' do
     subject { form.data }
