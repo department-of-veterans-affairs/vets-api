@@ -9,15 +9,14 @@ module IvcChampva
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
     def self.stamp_pdf(stamped_template_path, form, current_loa)
-      if File.exist? stamped_template_path
-        stamp_signature(stamped_template_path, form)
+      return unless File.exist?(stamped_template_path)
 
-        stamp_auth_text(stamped_template_path, current_loa)
-
-        stamp_submission_date(stamped_template_path, form.submission_date_stamps)
-      else
-        raise "stamped template file does not exist: #{stamped_template_path}"
-      end
+      stamp_signature(stamped_template_path, form)
+      stamp_auth_text(stamped_template_path, current_loa)
+      stamp_submission_date(stamped_template_path, form.submission_date_stamps)
+    rescue => e
+      Rails.logger.error "Error stamping PDF: #{e.message}"
+      raise "Error stamping PDF: #{stamped_template_path}"
     end
 
     def self.stamp_signature(stamped_template_path, form)
@@ -62,7 +61,7 @@ module IvcChampva
 
       perform_multistamp(stamped_template_path, stamp_path)
     rescue => e
-      Rails.logger.error 'Simple forms api - Failed to generate stamped file', message: e.message
+      Rails.logger.error 'IVC CHAMPVA forms api - Failed to generate stamped file', message: e.message
       raise
     ensure
       Common::FileHelpers.delete_file_if_exists(stamp_path) if defined?(stamp_path)
@@ -117,10 +116,12 @@ module IvcChampva
       raise StandardError, "An error occurred while verifying stamp: #{e}"
     end
 
-    def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration, *)
+    def self.verified_multistamp(stamped_template_path, stamp_text, page_configuration, *args)
       raise StandardError, 'The provided stamp content was empty.' if stamp_text.blank?
 
-      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration, *) }
+      verify(stamped_template_path) { multistamp(stamped_template_path, stamp_text, page_configuration, *args) }
+    rescue => e
+      raise StandardError, "An error occurred while verifying multistamp stamp: #{e.message}"
     end
 
     def self.get_page_configuration(page, position)
