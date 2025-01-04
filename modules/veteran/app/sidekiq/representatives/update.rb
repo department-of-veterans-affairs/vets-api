@@ -2,8 +2,6 @@
 
 require 'sidekiq'
 require 'sentry_logging'
-require 'va_profile/models/validation_address'
-require 'va_profile/address_validation/service'
 require 'va_profile/models/v3/validation_address'
 require 'va_profile/v3/address_validation/service'
 
@@ -32,18 +30,14 @@ module Representatives
     # If the address validation fails or an error occurs during the update, the error is logged and the process
     # is halted for the current representative.
     # @param rep_data [Hash] The representative data including id and address.
-    def process_rep_data(rep_data) # rubocop:disable Metrics/MethodLength
+    def process_rep_data(rep_data)
       return unless record_can_be_updated?(rep_data)
 
       address_validation_api_response = nil
 
       if rep_data['address_changed']
 
-        api_response = if Flipper.enabled?(:va_v3_contact_information_service)
-                         get_best_address_candidate(rep_data)
-                       else
-                         get_best_address_candidate(rep_data['address'])
-                       end
+        api_response = get_best_address_candidate(rep_data)
 
         # don't update the record if there is not a valid address with non-zero lat and long at this point
         if api_response.nil?
@@ -74,15 +68,9 @@ module Representatives
     # @param address [Hash] A hash containing the details of the representative's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
     def build_validation_address(address)
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        validation_model = VAProfile::Models::V3::ValidationAddress
-        state_code = address['state']['state_code']
-        city = address['city_name']
-      else
-        validation_model = VAProfile::Models::ValidationAddress
-        state_code = address['state_province']['code']
-        city = address['city']
-      end
+      validation_model = VAProfile::Models::V3::ValidationAddress
+      state_code = address['state']['state_code']
+      city = address['city_name']
 
       validation_model.new(
         address_pou: address['address_pou'],
@@ -101,11 +89,7 @@ module Representatives
     # @param candidate_address [VAProfile::Models::ValidationAddress] The address to be validated.
     # @return [Hash] The response from the address validation service.
     def validate_address(candidate_address)
-      validation_service = if Flipper.enabled?(:va_v3_contact_information_service)
-                             VAProfile::V3::AddressValidation::Service.new
-                           else
-                             VAProfile::AddressValidation::Service.new
-                           end
+      validation_service = VAProfile::V3::AddressValidation::Service.new
       validation_service.candidate(candidate_address)
     end
 
@@ -157,15 +141,8 @@ module Representatives
     # Updates the given record with the new address and other relevant attributes.
     # @param rep_data [Hash] Original rep_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
-    def build_address_attributes(rep_data, api_response)
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        build_v3_address(api_response['candidate_addresses'].first)
-      else
-        address = api_response['candidate_addresses'].first['address']
-        geocode = api_response['candidate_addresses'].first['geocode']
-        meta = api_response['candidate_addresses'].first['address_meta_data']
-        build_address(address, geocode, meta).merge({ raw_address: rep_data['address'].to_json })
-      end
+    def build_address_attributes(_rep_data, api_response)
+      build_v3_address(api_response['candidate_addresses'].first)
     end
 
     def build_email_attributes(rep_data)

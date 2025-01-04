@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'va_profile/models/validation_address'
-require 'va_profile/address_validation/service'
 require 'va_profile/models/v3/validation_address'
 require 'va_profile/v3/address_validation/service'
 
@@ -13,11 +11,7 @@ module V0
       skip_before_action :authenticate, only: [:create]
 
       def create
-        address = if Flipper.enabled?(:va_v3_contact_information_service)
-                    VAProfile::Models::V3::ValidationAddress.new(address_params)
-                  else
-                    VAProfile::Models::ValidationAddress.new(address_params)
-                  end
+        address = VAProfile::Models::V3::ValidationAddress.new(address_params)
 
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
@@ -47,11 +41,7 @@ module V0
       end
 
       def service
-        @service ||= if Flipper.enabled?(:va_v3_contact_information_service)
-                       VAProfile::V3::AddressValidation::Service.new
-                     else
-                       VAProfile::AddressValidation::Service.new
-                     end
+        @service ||= VAProfile::V3::AddressValidation::Service.new
       end
     end
   end

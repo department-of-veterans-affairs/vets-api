@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require 'evss/disability_compensation_form/service'
-require 'evss/pciu_address/service'
-require 'evss/ppiu/service'
 require 'disability_compensation/factories/api_provider_factory'
 
 module VA526ez
@@ -190,95 +188,13 @@ class FormProfiles::VA526ez < FormProfile
   def initialize_veteran_contact_information
     return {} unless user.authorize :evss, :access?
 
-    contact_info = if Flipper.enabled?(:disability_compensation_remove_pciu, user)
-                     initialize_vets360_contact_info
-                   else
-                     # fill in blank values with PCIU data
-                     initialize_vets360_contact_info.merge(
-                       mailing_address: get_common_address,
-                       email_address: extract_pciu_data(:pciu_email),
-                       primary_phone: pciu_us_phone
-                     ) { |_, old_val, new_val| old_val.presence || new_val }
-                   end
-    # Logging was added below to contrast/compare completeness of contact information returned
-    # from VA Profile alone versus VA Profile + PCIU. This logging will be removed when the Flipper flag is.
-    Rails.logger.info("disability_compensation_remove_pciu=#{Flipper.enabled?(:disability_compensation_remove_pciu,
-                                                                              user)}," \
-                        "mailing_address=#{contact_info[:mailing_address].present?}," \
-                        "email_address=#{contact_info[:email_address].present?}," \
-                        "primary_phone=#{contact_info[:primary_phone].present?}")
+    contact_info = initialize_vets360_contact_info
 
     contact_info = VA526ez::FormContactInformation.new(contact_info)
 
     VA526ez::FormVeteranContactInformation.new(
       veteran: contact_info
     )
-  end
-
-  def convert_vets360_address(address)
-    return if address.blank?
-
-    {
-      address_line_1: address.address_line1,
-      address_line_2: address.address_line2,
-      address_line_3: address.address_line3,
-      city: address.city,
-      country: address.country_code_iso3,
-      state: address.state_code || address.province,
-      zip_code: address.zip_plus_four || address.international_postal_code
-    }.compact
-  end
-
-  # Convert PCIU address to a Common address type
-  def get_common_address
-    service = EVSS::PCIUAddress::Service.new(user)
-    response = service.get_address
-    case response.address
-    when EVSS::PCIUAddress::DomesticAddress
-      prefill_domestic_address(response.address)
-    when EVSS::PCIUAddress::InternationalAddress
-      prefill_international_address(response.address)
-    when EVSS::PCIUAddress::MilitaryAddress
-      prefill_military_address(response.address)
-    else
-      {}
-    end
-  rescue
-    {}
-  end
-
-  def prefill_domestic_address(address)
-    {
-      country: address&.country_name,
-      city: address&.city,
-      state: address&.state_code,
-      zip_code: address&.zip_code,
-      address_line_1: address&.address_one,
-      address_line_2: address&.address_two,
-      address_line_3: address&.address_three
-    }.compact
-  end
-
-  def prefill_international_address(address)
-    {
-      country: address&.country_name,
-      city: address&.city,
-      address_line_1: address&.address_one,
-      address_line_2: address&.address_two,
-      address_line_3: address&.address_three
-    }.compact
-  end
-
-  def prefill_military_address(address)
-    {
-      country: 'USA',
-      city: address&.military_post_office_type_code,
-      state: address&.military_state_code,
-      zip_code: address&.zip_code,
-      address_line_1: address&.address_one,
-      address_line_2: address&.address_two,
-      address_line_3: address&.address_three
-    }.compact
   end
 
   def initialize_payment_information
