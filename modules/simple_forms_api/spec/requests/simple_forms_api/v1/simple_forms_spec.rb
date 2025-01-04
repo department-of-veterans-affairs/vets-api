@@ -17,6 +17,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     'vba_21_0972.json',
     'vba_21_10210.json',
     'vba_21_4138.json',
+    'vba_21_4140.json',
     'vba_21_4142.json',
     'vba_21p_0847.json',
     'vba_40_0247.json',
@@ -117,13 +118,13 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       describe 'unauthenticated forms' do
         unauthenticated_forms.each do |form|
-          include_examples 'form submission', form, false
+          it_behaves_like 'form submission', form, false
         end
       end
 
       describe 'authenticated forms' do
         authenticated_forms.each do |form|
-          include_examples 'form submission', form, true
+          it_behaves_like 'form submission', form, true
         end
       end
 
@@ -383,18 +384,20 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     end
 
     describe 'failed requests scrub PII from error messages' do
+      let(:data) { JSON.parse(fixture_path.read) }
+      let(:fixture_path) do
+        Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', form)
+      end
+
       before do
         sign_in
+        post '/simple_forms_api/v1/simple_forms', params: data
       end
 
       describe 'unhandled form' do
+        let(:form) { 'form_with_dangerous_characters_unhandled.json' }
+
         it 'makes the request and expects a failure' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_unhandled.json')
-          data = JSON.parse(fixture_path.read)
-
-          post '/simple_forms_api/v1/simple_forms', params: data
-
           expect(response).to have_http_status(:error)
           expect(response.body).to include('something has gone wrong with your form')
 
@@ -406,14 +409,29 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         end
       end
 
-      describe '21-4142' do
+      describe '21-4140' do
+        let(:form) { 'form_with_dangerous_characters_21_4140.json' }
+
         it 'makes the request and expects a failure' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_21_4142.json')
-          data = JSON.parse(fixture_path.read)
+          expect(response).to have_http_status(:error)
+          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
+          expect(response.body).to include('unexpected token at')
 
-          post '/simple_forms_api/v1/simple_forms', params: data
+          exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
+          expect(exception).not_to include(data.dig('veteran_id', 'ssn')&.[](0..2))
+          expect(exception).not_to include(data.dig('veteran_id', 'ssn')&.[](3..4))
+          expect(exception).not_to include(data.dig('veteran_id', 'ssn')&.[](5..8))
+          expect(exception).not_to include(data.dig('address', 'street'))
+          expect(exception).not_to include(data.dig('address', 'street2'))
+          expect(exception).not_to include(data.dig('address', 'street3'))
+          expect(exception).not_to include(data.dig('address', 'postal_code'))
+        end
+      end
 
+      describe '21-4142' do
+        let(:form) { 'form_with_dangerous_characters_21_4142.json' }
+
+        it 'makes the request and expects a failure' do
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected ken at')
@@ -429,13 +447,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       describe '21-10210' do
+        let(:form) { 'form_with_dangerous_characters_21_10210.json' }
+
         it 'makes the request and expects a failure' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_21_10210.json')
-          data = JSON.parse(fixture_path.read)
-
-          post '/simple_forms_api/v1/simple_forms', params: data
-
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected token t')
@@ -451,14 +465,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       describe '26-4555' do
+        let(:form) { 'form_with_dangerous_characters_26_4555.json' }
+
         it 'makes the request and expects a failure' do
           skip 'restore this test when we release the form to production'
-
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_26_4555.json')
-          data = JSON.parse(fixture_path.read)
-
-          post '/simple_forms_api/v1/simple_forms', params: data
 
           expect(response).to have_http_status(:error)
           expect(response.body).to include('unexpected token at')
@@ -472,13 +482,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       describe '21P-0847' do
+        let(:form) { 'form_with_dangerous_characters_21P_0847.json' }
+
         it 'makes the request and expects a failure' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_21P_0847.json')
-          data = JSON.parse(fixture_path.read)
-
-          post '/simple_forms_api/v1/simple_forms', params: data
-
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected token t')
@@ -495,13 +501,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       describe '21-0845' do
+        let(:form) { 'form_with_dangerous_characters_21_0845.json' }
+
         it 'makes the request and expects a failure' do
-          fixture_path = Rails.root.join('modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json',
-                                         'form_with_dangerous_characters_21_0845.json')
-          data = JSON.parse(fixture_path.read)
-
-          post '/simple_forms_api/v1/simple_forms', params: data
-
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected token t')
