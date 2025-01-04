@@ -231,7 +231,7 @@ group :development, :test do
   gem 'rubocop-rspec'
   gem 'rubocop-rspec_rails'
   gem 'rubocop-thread_safety'
-  gem 'sidekiq', '~> 7.2.0'
+  gem 'sidekiq', '~> 7.3.0'
   gem 'timecop'
   gem 'webmock'
   gem 'yard'
