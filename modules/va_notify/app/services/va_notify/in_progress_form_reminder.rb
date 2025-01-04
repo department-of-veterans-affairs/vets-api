@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+# vets-api
+require 'va_notify/notification_callback'
+
+# module
 require 'va_notify/in_progress_form_helper'
 
 module VANotify
@@ -48,24 +52,24 @@ module VANotify
       form_number = in_progress_form.form_id
       statsd_tags = { 'service' => 'va-notify',
                       'function' => "#{form_number} in progress reminder" }
+      callback_metadata = { notification_type: 'in_progress_reminder', form_number:, statsd_tags: }
       UserAccountJob.perform_async(in_progress_form.user_account_id,
                                    template_id,
                                    personalisation_details_single,
                                    Settings.vanotify.services.va_gov.api_key,
-                                   { callback_metadata: { notification_type: 'in_progress_reminder', form_number:,
-                                                          statsd_tags: } })
+                                   { callback_klass: VANotify::NotificationCallback::Default.to_s, callback_metadata: })
     end
 
     def send_with_callback_metadata_multiple(in_progress_form, template_id)
       form_number = 'multiple'
       statsd_tags = { 'service' => 'va-notify',
                       'function' => "#{form_number} in progress reminder" }
+      callback_metadata = { notification_type: 'in_progress_reminder', form_number:, statsd_tags: }
       UserAccountJob.perform_async(in_progress_form.user_account_id,
                                    template_id,
                                    personalisation_details_multiple,
                                    Settings.vanotify.services.va_gov.api_key,
-                                   { callback_metadata: { notification_type: 'in_progress_reminder', form_number:,
-                                                          statsd_tags: } })
+                                   { callback_klass: VANotify::NotificationCallback::Default.to_s, callback_metadata: })
     end
 
     def enabled?
