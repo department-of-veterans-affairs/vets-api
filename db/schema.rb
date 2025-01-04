@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_31_213045) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1396,35 +1396,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.index ["mhv_uuid"], name: "index_user_verifications_on_mhv_uuid", unique: true
     t.index ["user_account_id"], name: "index_user_verifications_on_user_account_id"
     t.index ["verified_at"], name: "index_user_verifications_on_verified_at"
-  end
-
-  create_table "va_forms_forms", force: :cascade do |t|
-    t.string "form_name"
-    t.string "url"
-    t.string "title"
-    t.date "first_issued_on"
-    t.date "last_revision_on"
-    t.integer "pages"
-    t.string "sha256"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "valid_pdf", default: false
-    t.text "form_usage"
-    t.text "form_tool_intro"
-    t.string "form_tool_url"
-    t.string "form_type"
-    t.string "language"
-    t.datetime "deleted_at"
-    t.string "related_forms", array: true
-    t.jsonb "benefit_categories"
-    t.string "form_details_url"
-    t.jsonb "va_form_administration"
-    t.integer "row_id"
-    t.float "ranking"
-    t.string "tags"
-    t.date "last_sha256_change"
-    t.jsonb "change_history"
-    t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
   end
 
   create_table "va_notify_in_progress_reminders_sent", force: :cascade do |t|
