@@ -3036,7 +3036,8 @@ RSpec.describe V0::SignInController, type: :controller do
     context 'when successfully authenticated' do
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
       let(:authorization) { "Bearer #{access_token}" }
-      let!(:user_account) { Login::UserVerifier.new(user.identity).perform.user_account }
+      let(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+      let(:user_account) { user_verification.user_account }
       let(:user) { create(:user, :loa3) }
       let(:user_uuid) { user.uuid }
       let(:oauth_session) { create(:oauth_session, user_account:) }
