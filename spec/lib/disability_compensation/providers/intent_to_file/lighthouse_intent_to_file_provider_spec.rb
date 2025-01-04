@@ -24,7 +24,7 @@ RSpec.describe LighthouseIntentToFileProvider do
   it 'retrieves intent to file from the Lighthouse API' do
     VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/200_response') do
       response = provider.get_intent_to_file('compensation', '', '')
-      expect(response['intent_to_file'].length).to eq(1)
+      expect(response.intent_to_file.length).to eq(1)
     end
   end
 
@@ -32,8 +32,8 @@ RSpec.describe LighthouseIntentToFileProvider do
     VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_compensation_200_response') do
       response = provider.create_intent_to_file('compensation', '', '')
       expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFilesResponse)
-      expect(response['intent_to_file'][0]['type']).to eq('compensation')
-      expect(response['intent_to_file'][0]['id']).to be_present
+      expect(response.intent_to_file[0].type).to eq('compensation')
+      expect(response.intent_to_file[0].id).to be_present
     end
   end
 
@@ -41,8 +41,8 @@ RSpec.describe LighthouseIntentToFileProvider do
     VCR.use_cassette('lighthouse/benefits_claims/intent_to_file/create_survivor_200_response') do
       response = provider.create_intent_to_file('survivor', '', '')
       expect(response).to be_an_instance_of(DisabilityCompensation::ApiProvider::IntentToFilesResponse)
-      expect(response['intent_to_file'][0]['type']).to eq('survivor')
-      expect(response['intent_to_file'][0]['id']).to be_present
+      expect(response.intent_to_file[0].type).to eq('survivor')
+      expect(response.intent_to_file[0].id).to be_present
     end
   end
 

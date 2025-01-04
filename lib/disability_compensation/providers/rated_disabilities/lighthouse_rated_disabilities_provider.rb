@@ -48,7 +48,7 @@ class LighthouseRatedDisabilitiesProvider
           hyphenated_diagnostic_code: rated_disability['hyph_diagnostic_type_code'].presence&.to_i,
           effective_date: rated_disability['effective_date'],
           rated_disability_id: rated_disability['disability_rating_id'],
-          rating_decision_id: 0,
+          rating_decision_id: 0.to_s,
           rating_percentage: rated_disability['rating_percentage'],
           # TODO: figure out if this is important
           related_disability_date: DateTime.now
