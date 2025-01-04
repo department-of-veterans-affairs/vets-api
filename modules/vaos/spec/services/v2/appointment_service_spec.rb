@@ -44,6 +44,65 @@ describe VAOS::V2::AppointmentsService do
 
   let(:provider_name) { 'TEST PROVIDER NAME' }
 
+  let(:eps_appointments) do
+    [
+      {
+        id: 123,
+        state: 'submitted',
+        patientId: '456',
+        start: '2024-12-01T10:00:00Z',
+        appointmentDetails: {
+          lastRetrieved: '2024-12-01T10:00:00Z',
+          start: '2024-12-01T10:00:00Z'
+        },
+        locationId: '789',
+        clinic: 'Clinic A',
+        contact: '123-456-7890',
+        referral: {
+          referralNumber: 'ref123'
+        },
+        status: 'booked',
+        created: '2024-11-01T10:00:00Z'
+      },
+      {
+        id: 124,
+        state: 'proposed',
+        patientId: '457',
+        start: '2024-12-02T10:00:00Z',
+        appointmentDetails: {
+          lastRetrieved: '2024-12-02T10:00:00Z',
+          start: '2024-12-02T10:00:00Z'
+        },
+        locationId: '790',
+        clinic: 'Clinic B',
+        contact: '123-456-7891',
+        referral: {
+          referralNumber: 'ref124'
+        },
+        status: 'booked',
+        created: '2024-12-01T10:00:00Z'
+      },
+      {
+        id: 125,
+        state: 'submitted',
+        patientId: '458',
+        start: '2024-12-03T10:00:00Z',
+        appointmentDetails: {
+          lastRetrieved: '2024-12-03T10:00:00Z',
+          start: '2024-12-03T10:00:00Z'
+        },
+        locationId: '791',
+        clinic: 'Clinic C',
+        contact: '123-456-7892',
+        referral: {
+          referralNumber: 'ref125'
+        },
+        status: 'booked',
+        created: '2024-11-01T10:00:00Z'
+      }
+    ]
+  end
+
   mock_facility = {
     test: 'test',
     timezone: {
@@ -1048,6 +1107,20 @@ describe VAOS::V2::AppointmentsService do
           .and_raise(Common::Exceptions::BackendServiceException)
         timezone = subject.send(:get_facility_timezone, facility_location_id)
         expect(timezone).to eq(nil)
+      end
+    end
+  end
+
+  describe '#get_appointments merge' do
+    context 'when include eps is true' do
+      it 'merges eps appointments with vaos appointments' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt.dig(:referral, :referralNumber) }).to include('ref124', 'ref125')
+          expect(result[:data].map { |appt| appt[:id].to_s }).to include('101', '102')
+        end
       end
     end
   end
