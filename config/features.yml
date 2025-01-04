@@ -1387,8 +1387,11 @@ features:
     enable_in_development: true
   sign_in_modal_v2:
     actor_type: user
-    description: Enables new page design of Sign In modal and USiP
+    description: Enables new page design of Sign In modal and USiP (Identity)
     enable_in_development: false
+  remove_mhv_credential_content:
+    actor_type: user
+    description: Enables the content removal of the My HealtheVet credential (Identity)
   medical_copays_zero_debt:
     actor_type: user
     description: Enables zero debt balances feature on the medical copays application
