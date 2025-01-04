@@ -3,6 +3,7 @@
 require 'common/client/base'
 require 'post911_sob/dgib/configuration'
 require 'post911_sob/dgib/authentication_token_service'
+require 'post911_sob/dgib/response'
 
 module Post911SOB
   module DGIB
@@ -21,9 +22,9 @@ module Post911SOB
 
       def get_entitlement_transferred_out
         # TO-DO add monitoring and serialized response
-        # TO-DO Filter response by chapter33 benefit type
         options = { timeout: 60 }
-        perform(:get, end_point, {}, request_headers, options)
+        raw_response = perform(:get, end_point, {}, request_headers, options)
+        Post911SOB::DGIB::Response.new(raw_response)
       end
 
       private

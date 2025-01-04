@@ -2,6 +2,9 @@
 
 require 'formatters/date_formatter'
 require 'lighthouse/benefits_education/service'
+require 'post911_sob/dgib/client'
+require 'dgi/claimant/service'
+require 'post911_sob/gi_bill_status'
 
 module V1
   class Post911GIBillStatusesController < ApplicationController
@@ -11,9 +14,17 @@ module V1
 
     STATSD_KEY_PREFIX = 'api.post911_gi_bill_status'
 
+    BENEFIT_TYPE = 'Chapter33'
+
     def show
-      response = service.get_gi_bill_status
-      render json: Post911GIBillStatusSerializer.new(response)
+      lighthouse_response = lighthouse_service.get_gi_bill_status
+      gi_bill_status = if Flipper.enabled?(:sob_updated_design)
+                         dgib_response = dgib_service.get_entitlement_transferred_out
+                         Post911SOB::GIBillStatus.new(lighthouse_response:, dgib_response:)
+                       else
+                         lighthouse_response
+                       end
+      render json: Post911GIBillStatusSerializer.new(gi_bill_status)
     rescue Breakers::OutageException => e
       raise e
     rescue => e
@@ -25,6 +36,7 @@ module V1
     private
 
     def handle_error(e)
+      # TO-DO: Update error handling for DGIB claimant service
       status = e.errors.first[:status].to_i
       log_vet_not_found(@current_user, Time.now.in_time_zone('Eastern Time (US & Canada)')) if status == 404
       StatsD.increment("#{STATSD_KEY_PREFIX}.fail", tags: ["error:#{status}"])
@@ -54,8 +66,26 @@ module V1
       }.to_json
     end
 
-    def service
+    def lighthouse_service
       BenefitsEducation::Service.new(@current_user&.icn)
+    end
+
+    def dgib_service
+      Post911SOB::DGIB::Client.new(claimant_id)
+    end
+
+    def claimant_id
+      meb_api_service.get_claimant_info(BENEFIT_TYPE)
+    end
+
+    def meb_api_service
+      MebApi::DGI::Claimant::Service.new(@current_user)
+    end
+
+    def calculate_status(lighthouse_status, dgib_status = nil)
+      return lighthouse_status unless dgib_status
+
+      200
     end
   end
 end

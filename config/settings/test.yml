@@ -346,6 +346,9 @@ dgi:
     jwt:
       public_key_path: spec/fixtures/post911_sob/dgib/public_test.pem
       private_key_path: spec/fixtures/post911_sob/dgib/private_test.pem
+    claimants:
+      url: ~
+      mock: false
 
 bid:
   awards:
