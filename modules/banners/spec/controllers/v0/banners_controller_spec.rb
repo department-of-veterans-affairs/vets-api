@@ -9,10 +9,10 @@ RSpec.describe V0::BannersController, type: :controller do
 
     # Create banners that should match the query
     let!(:matching_banner) do
-      create(:banner, entity_bundle: banner_type, context: [{ entity: { entityUrl: { path: path } } }])
+      create(:banner, entity_bundle: banner_type, path: path)
     end
     let!(:non_matching_banner) do
-      create(:banner, entity_bundle: 'different_type', context: [{ entity: { entityUrl: { path: '/other/path' } } }])
+      create(:banner, entity_bundle: 'different_type', path: '/other/path')
     end
 
     it 'returns banners matching the specified path and banner type' do
