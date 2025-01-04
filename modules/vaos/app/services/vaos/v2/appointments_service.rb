@@ -17,7 +17,8 @@ module VAOS
 
       ORACLE_HEALTH_CANCELLATIONS = :va_online_scheduling_enable_OH_cancellations
       APPOINTMENTS_USE_VPG = :va_online_scheduling_use_vpg
-      APPOINTMENTS_ENABLE_OH_REQUESTS = :va_online_scheduling_enable_OH_requests
+      APPOINTMENTS_OH_REQUESTS = :va_online_scheduling_OH_request
+      APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS = :va_online_scheduling_OH_direct_schedule
       APPOINTMENT_TYPES = {
         va: 'VA',
         cc_appointment: 'COMMUNITY_CARE_APPOINTMENT',
@@ -97,11 +98,10 @@ module VAOS
         params = VAOS::V2::AppointmentForm.new(user, request_object_body).params.with_indifferent_access
         params.compact_blank!
         with_monitoring do
-          response = if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
-                        Flipper.enabled?(APPOINTMENTS_ENABLE_OH_REQUESTS)
-                       perform(:post, appointments_base_path_vpg, params, headers)
+          response = if params[:status] == 'proposed'
+                       create_appointment_request(params)
                      else
-                       perform(:post, appointments_base_path_vaos, params, headers)
+                       create_direct_scheduling_appointment(params)
                      end
 
           if request_object_body[:kind] == 'clinic' &&
@@ -120,6 +120,23 @@ module VAOS
         rescue Common::Exceptions::BackendServiceException => e
           log_direct_schedule_submission_errors(e) if booked?(params)
           raise e
+        end
+      end
+
+      def create_direct_scheduling_appointment(params)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) &&
+           Flipper.enabled?(APPOINTMENTS_OH_DIRECT_SCHEDULE_REQUESTS, user)
+          perform(:post, appointments_base_path_vpg, params, headers)
+        else
+          perform(:post, appointments_base_path_vaos, params, headers)
+        end
+      end
+
+      def create_appointment_request(params)
+        if Flipper.enabled?(APPOINTMENTS_USE_VPG, user) && Flipper.enabled?(APPOINTMENTS_OH_REQUESTS, user)
+          perform(:post, appointments_base_path_vpg, params, headers)
+        else
+          perform(:post, appointments_base_path_vaos, params, headers)
         end
       end
 
