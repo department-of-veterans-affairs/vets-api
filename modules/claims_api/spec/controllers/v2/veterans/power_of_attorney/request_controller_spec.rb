@@ -384,8 +384,8 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         create_request_with(veteran_id:, form_attributes:, auth_header:)
 
         expect(response).to have_http_status(:created)
-        expect(JSON.parse(response.body)['data']['attributes']['id']).not_to be_nil
-        expect(JSON.parse(response.body)['data']['attributes']['type']).to eq('power-of-attorney-request')
+        expect(JSON.parse(response.body)['data']['id']).not_to be_nil
+        expect(JSON.parse(response.body)['data']['type']).to eq('power-of-attorney-request')
       end
     end
   end

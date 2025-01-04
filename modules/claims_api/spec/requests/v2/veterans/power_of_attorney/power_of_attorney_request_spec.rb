@@ -162,9 +162,13 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               post request_path, params: request_body, headers: auth_header
 
               response_body = JSON.parse(response.body)
+              request_body_with_type_and_id = JSON.parse(request_body)
+
+              request_body_with_type_and_id['data']['type'] = 'power-of-attorney-request'
+              request_body_with_type_and_id['data']['id'] = response_body['data']['id']
 
               expect(response).to have_http_status(:created)
-              expect(response_body).to eq(JSON.parse(request_body))
+              expect(response_body).to eq(request_body_with_type_and_id)
             end
           end
         end
