@@ -1145,11 +1145,13 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.datetime "delete_date"
     t.text "metadata"
     t.datetime "metadata_updated_at"
+    t.bigint "user_account_id"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
     t.index ["delete_date"], name: "index_saved_claims_on_delete_date"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
     t.index ["id"], name: "index_partial_saved_claims_on_id_metadata_like_error", where: "(metadata ~~ '%error%'::text)"
+    t.index ["user_account_id"], name: "index_saved_claims_on_user_account_id"
   end
 
   create_table "schema_contract_validations", force: :cascade do |t|
