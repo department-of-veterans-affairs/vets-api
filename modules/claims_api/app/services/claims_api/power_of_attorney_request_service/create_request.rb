@@ -51,12 +51,10 @@ module ClaimsApi
 
         create_vonapp_data(@form_data[:veteran], @veteran_vnp_ptcpnt_id, trace_digest)
 
-        if @has_claimant
-          @claimant_vnp_ptcpnt_id = create_vnp_ptcpnt(@claimant_participant_id)[:vnp_ptcpnt_id]
-          create_vonapp_data(@form_data[:claimant], @claimant_vnp_ptcpnt_id, trace_digest)
-        end
+        create_claimant(trace_digest) if @has_claimant
 
-        create_veteran_representative
+        veteran_rep_obj = create_veteran_representative
+        add_meta_ids(veteran_rep_obj)
       end
 
       private
@@ -72,14 +70,14 @@ module ClaimsApi
 
         promises << Concurrent::Promise.execute do
           Datadog::Tracing.continue_trace!(trace_digest) do
-            create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
+            @vnp_address_obj = create_vnp_mailing_address(person[:address], vnp_ptcpnt_id)
           end
         end
 
         if person[:email]
           promises << Concurrent::Promise.execute do
             Datadog::Tracing.continue_trace!(trace_digest) do
-              create_vnp_email_address(person[:email], vnp_ptcpnt_id)
+              @vnp_email_obj = create_vnp_email_address(person[:email], vnp_ptcpnt_id)
             end
           end
         end
@@ -87,13 +85,18 @@ module ClaimsApi
         if person[:phone]
           promises << Concurrent::Promise.execute do
             Datadog::Tracing.continue_trace!(trace_digest) do
-              create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
+              @vnp_phone_obj = create_vnp_phone(person[:phone][:areaCode], person[:phone][:phoneNumber], vnp_ptcpnt_id)
             end
           end
         end
 
         # Wait for all promises to complete and raise any errors that occurred
         promises.each(&:value!)
+      end
+
+      def create_claimant(trace_digest)
+        @claimant_vnp_ptcpnt_id = create_vnp_ptcpnt(@claimant_participant_id)[:vnp_ptcpnt_id]
+        create_vonapp_data(@form_data[:claimant], @claimant_vnp_ptcpnt_id, trace_digest)
       end
 
       def create_vnp_proc
@@ -319,6 +322,29 @@ module ClaimsApi
 
       def format_phone(phone)
         "#{phone[:areaCode]}#{phone[:phoneNumber]}"
+      end
+
+      def add_meta_ids(vet_obj)
+        vet_obj['meta'] ||= {}
+
+        if @vnp_phone_obj && @vnp_phone_obj[:vnp_ptcpnt_phone_id].present?
+          vet_obj['meta']['vnp_phone_id'] =
+            @vnp_phone_obj[:vnp_ptcpnt_phone_id]
+        end
+
+        if @vnp_address_obj && @vnp_address_obj[:vnp_ptcpnt_addrs_id].present?
+          vet_obj['meta']['vnp_mailing_addr_id'] =
+            @vnp_address_obj[:vnp_ptcpnt_addrs_id]
+        end
+
+        if @vnp_email_obj && @vnp_email_obj[:vnp_ptcpnt_addrs_id].present?
+          vet_obj['meta']['vnp_email_addr_id'] =
+            @vnp_email_obj[:vnp_ptcpnt_addrs_id]
+        end
+
+        vet_obj.delete('meta') if vet_obj['meta'].empty?
+
+        vet_obj
       end
     end
   end

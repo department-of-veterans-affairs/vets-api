@@ -122,7 +122,12 @@ describe ClaimsApi::PowerOfAttorneyRequestService::Orchestrator do
           'veteranLastName' => 'WAGNER',
           'veteranMiddleName' => nil,
           'veteranSSN' => '796140369',
-          'veteranVAFileNumber' => nil
+          'veteranVAFileNumber' => nil,
+          'meta' => {
+            'vnp_phone_id' => '102327',
+            'vnp_mailing_addr_id' => '144766',
+            'vnp_email_addr_id' => '144767'
+          }
         }
 
         expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::CreateRequest)
