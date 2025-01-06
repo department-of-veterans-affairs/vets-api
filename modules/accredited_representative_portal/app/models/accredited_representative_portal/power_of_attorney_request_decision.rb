@@ -2,9 +2,12 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestDecision < ApplicationRecord
-    include PowerOfAttorneyRequestResolution::Resolving
-
     self.inheritance_column = nil
+
+    module Types
+      ACCEPTANCE = 'AccreditedRepresentativePortal::PowerOfAttorneyRequestAcceptance'
+      DECLINATION = 'AccreditedRepresentativePortal::PowerOfAttorneyRequestDeclination'
+    end
 
     belongs_to :creator,
                class_name: 'UserAccount'
