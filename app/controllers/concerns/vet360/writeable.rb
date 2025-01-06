@@ -24,6 +24,7 @@ module Vet360
       validate!(record)
       response = write_valid_record!(http_verb, type, record)
       render_new_transaction!(type, response)
+      binding.pry
     end
 
     def invalidate_cache
