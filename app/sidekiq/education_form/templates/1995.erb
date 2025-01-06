@@ -5,7 +5,7 @@
 <%= form_benefit %>
 <% end -%>
 *START*
-VA Form 22-1995
+VA Form 22-1995<%= @applicant.rudisillReview == "Yes" ? "R" : "" %>
 OMB Control #: 2900-0074
 
 
@@ -56,6 +56,8 @@ VA File Number: <%= value_or_na(@applicant.vaFileNumber) %>
                   -----------------------------------------
 
 Benefit Most Recently Received: <%= form_benefit %>
+
+Do you wish to request a 'Rudisill' review?: <%= @applicant.rudisillReview %>
 
 Select Another Benefit: <%= @applicant.changeAnotherBenefit %>
 
