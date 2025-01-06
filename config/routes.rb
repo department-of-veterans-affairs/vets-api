@@ -105,6 +105,8 @@ Rails.application.routes.draw do
       resource :mhv_user_account, only: [:show], controller: 'user/mhv_user_accounts'
     end
 
+    resource :test_account_user_email, only: [:create]
+
     resource :veteran_onboarding, only: %i[show update]
 
     resource :education_benefits_claims, only: %i[create show] do
@@ -128,7 +130,7 @@ Rails.application.routes.draw do
 
     resources :caregivers_assistance_claims, only: :create do
       collection do
-        get(:facilities)
+        post(:facilities)
         post(:download_pdf)
       end
     end
