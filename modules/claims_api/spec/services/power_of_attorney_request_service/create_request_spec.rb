@@ -124,9 +124,16 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
             'veteranSSN' => '796140369',
             'veteranVAFileNumber' => nil,
             'meta' => {
-              'vnp_phone_id' => '102314',
-              'vnp_mailing_addr_id' => '144759',
-              'vnp_email_addr_id' => '144744'
+              'veteran' => {
+                'vnp_mail_id' => '144757',
+                'vnp_email_id' => '144758',
+                'vnp_phone_id' => '102313'
+              },
+              'claimant' => {
+                'vnp_mail_id' => '144759',
+                'vnp_email_id' => '144744',
+                'vnp_phone_id' => '102314'
+              }
             }
           }
 
@@ -235,9 +242,11 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
             'veteranSSN' => '796140369',
             'veteranVAFileNumber' => nil,
             'meta' => {
-              'vnp_phone_id' => '102315',
-              'vnp_mailing_addr_id' => '144745',
-              'vnp_email_addr_id' => '144761'
+              'veteran' => {
+                'vnp_phone_id' => '102315',
+                'vnp_mail_id' => '144745',
+                'vnp_email_id' => '144761'
+              }
             }
           }
 
@@ -365,8 +374,8 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
           'addressLine3' => nil,
           'changeAddressAuth' => 'true',
           'city' => 'Los Angeles',
-          'claimantPtcpntId' => '182791',
-          'claimantRelationship' => nil,
+          'claimantPtcpntId' => '182767',
+          'claimantRelationship' => 'Spouse',
           'formTypeCode' => '21-22 ',
           'insuranceNumbers' => nil,
           'limitationAlcohol' => 'false',
@@ -378,7 +387,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
           'phoneNumber' => '5555551234',
           'poaCode' => '074',
           'postalCode' => '92264',
-          'procId' => '3855195',
+          'procId' => '3855183',
           'representativeFirstName' => 'Bob',
           'representativeLastName' => 'GoodRep',
           'representativeLawFirmOrAgencyName' => nil,
@@ -389,10 +398,10 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
           'serviceNumber' => nil,
           'state' => 'CA',
           'vdcStatus' => 'Submitted',
-          'veteranPtcpntId' => '182791',
+          'veteranPtcpntId' => '182766',
           'acceptedBy' => nil,
-          'claimantFirstName' => 'VERNON',
-          'claimantLastName' => 'WAGNER',
+          'claimantFirstName' => 'LILLIAN',
+          'claimantLastName' => 'DISNEY',
           'claimantMiddleName' => nil,
           'declinedBy' => nil,
           'declinedReason' => nil,
@@ -449,34 +458,77 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
 
       let(:expected_res) do
         {
-          'vnp_phone_id' => '111213',
-          'vnp_mailing_addr_id' => '12345',
-          'vnp_email_addr_id' => '678910'
+          'meta' => {
+            'veteran' => {
+              'vnp_mail_id' => '144757',
+              'vnp_email_id' => '144758',
+              'vnp_phone_id' => '102313'
+            },
+            'claimant' => {
+              'vnp_mail_id' => '144759',
+              'vnp_email_id' => '144744',
+              'vnp_phone_id' => '102314'
+            }
+          }
+        }
+      end
+
+      let(:vet_res_with_nil) do
+        {
+          'meta' => {
+            'veteran' => {
+              'vnp_mail_id' => '144757',
+              'vnp_email_id' => nil,
+              'vnp_phone_id' => '102313'
+            }
+          }
+        }
+      end
+
+      let(:claimant_res_with_nil) do
+        {
+          'meta' => {
+            'veteran' => {
+              'vnp_mail_id' => '144757',
+              'vnp_email_id' => '144758',
+              'vnp_phone_id' => nil
+            },
+            'claimant' => {
+              'vnp_mail_id' => nil,
+              'vnp_email_id' => '144744',
+              'vnp_phone_id' => nil
+            }
+          }
         }
       end
 
       it 'adds the ids to the meta' do
-        subject.instance_variable_set(:@vnp_address_obj, { vnp_ptcpnt_addrs_id: '12345' })
-        subject.instance_variable_set(:@vnp_email_obj, { vnp_ptcpnt_addrs_id: '678910' })
-        subject.instance_variable_set(:@vnp_phone_obj, { vnp_ptcpnt_phone_id: '111213' })
+        subject.instance_variable_set(:@vnp_res_object, expected_res)
 
         res = subject.send(:add_meta_ids, response_obj)
-        expect(res['meta']).to eq(expected_res)
+        expect(res['meta']).to eq(expected_res['meta'])
       end
 
-      it 'does not add a key that is nil' do
-        subject.instance_variable_set(:@vnp_address_obj, { vnp_ptcpnt_addrs_id: '12345' })
-        subject.instance_variable_set(:@vnp_email_obj, {})
-        subject.instance_variable_set(:@vnp_phone_obj, { vnp_ptcpnt_phone_id: '111213' })
+      context 'does not add a key that is nil' do
+        it 'veteran object is present' do
+          subject.instance_variable_set(:@vnp_res_object, vet_res_with_nil)
 
-        res = subject.send(:add_meta_ids, response_obj)
-        expect(res['meta']).not_to have_key('vnp_email_addr_id')
+          res = subject.send(:add_meta_ids, response_obj)
+          expect(res['meta']['veteran']).not_to have_key('vnp_email_id')
+        end
+
+        it 'veteran and claimant objects are present' do
+          subject.instance_variable_set(:@vnp_res_object, claimant_res_with_nil)
+
+          res = subject.send(:add_meta_ids, response_obj)
+          expect(res['meta']['veteran']).not_to have_key('vnp_phone_id')
+          expect(res['meta']['claimant']).not_to have_key('vnp_mail_id')
+          expect(res['meta']['claimant']).not_to have_key('vnp_phone_id')
+        end
       end
 
       it 'does not add a meta key if no IDs are present' do
-        subject.instance_variable_set(:@vnp_address_obj, {})
-        subject.instance_variable_set(:@vnp_email_obj, {})
-        subject.instance_variable_set(:@vnp_phone_obj, {})
+        subject.instance_variable_set(:@vnp_res_object, { 'meta' => {} })
 
         res = subject.send(:add_meta_ids, response_obj)
         expect(res).not_to have_key('meta')
