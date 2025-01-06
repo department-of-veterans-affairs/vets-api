@@ -40,7 +40,8 @@ RSpec.describe IvcChampva::Email, type: :service do
             'date_submitted' => data[:created_at],
             'form_uuid' => data[:form_uuid]
           },
-          Settings.vanotify.services.ivc_champva.api_key
+          Settings.vanotify.services.ivc_champva.api_key,
+          { 'callback_klass' => nil, 'callback_metadata' => nil }
         )
         subject.send_email
       end
