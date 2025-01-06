@@ -1144,16 +1144,20 @@ RSpec.describe User, type: :model do
               edipi:, mhv_credential_uuid:, authn_context:)
       )
     end
-    let(:user_verifier_object) do
-      OpenStruct.new({ idme_uuid:, logingov_uuid:, sign_in: user.identity_sign_in,
-                       edipi:, mhv_credential_uuid: })
-    end
     let(:authn_context) { LOA::IDME_LOA1_VETS }
     let(:logingov_uuid) { 'some-logingov-uuid' }
     let(:idme_uuid) { 'some-idme-uuid' }
     let(:edipi) { 'some-edipi' }
     let(:mhv_credential_uuid) { 'some-mhv-credential-uuid' }
-    let!(:user_verification) { Login::UserVerifier.new(user_verifier_object).perform }
+    let!(:user_verification) do
+      Login::UserVerifier.new(login_type: user.identity_sign_in[:service_name],
+                              auth_broker: user.identity_sign_in[:auth_broker],
+                              mhv_uuid: mhv_credential_uuid,
+                              idme_uuid:,
+                              dslogon_uuid: edipi,
+                              logingov_uuid:,
+                              icn: user.icn).perform
+    end
     let!(:user_account) { user_verification&.user_account }
 
     describe '#user_verification' do
