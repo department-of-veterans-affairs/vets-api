@@ -14,7 +14,7 @@ class FormUpload::Uploader < VetsShrine
 
   Attacher.validate do
     validate_virus_free
-    validate_max_size 20.megabytes
+    validate_max_size 25.megabytes
     validate_min_size 1.kilobyte
     validate_mime_type_inclusion %w[image/jpg image/jpeg image/png application/pdf]
     validate_max_width 5000 if get.width

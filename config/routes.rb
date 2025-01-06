@@ -130,7 +130,7 @@ Rails.application.routes.draw do
 
     resources :caregivers_assistance_claims, only: :create do
       collection do
-        get(:facilities)
+        post(:facilities)
         post(:download_pdf)
       end
     end
