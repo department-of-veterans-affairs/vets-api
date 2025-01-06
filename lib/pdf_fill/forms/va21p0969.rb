@@ -256,7 +256,7 @@ module PdfFill
             question_num: 4,
             question_suffix: '(6)',
             question_text: 'VALUE OF ACCOUNT'
-          },
+          }
         }
       }.freeze
 
