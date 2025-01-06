@@ -28,8 +28,8 @@ describe ClaimsApi::LocalBGS do
       end
 
       it 'falls back to WSDL' do
-        allow(ClaimsApi::LocalBGSRefactored::FindDefinition).to receive(:for_service).and_raise(
-          ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+        allow(ClaimsApi::FindDefinition).to receive(:for_service).and_raise(
+          ClaimsApi::FindDefinition::NotDefinedError
         )
 
         VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
@@ -51,7 +51,7 @@ describe ClaimsApi::LocalBGS do
             ),
             path: 'PersonWebService'
           )
-          allow(ClaimsApi::LocalBGSRefactored::FindDefinition).to receive(:for_service).and_return(service)
+          allow(ClaimsApi::FindDefinition).to receive(:for_service).and_return(service)
 
           VCR.use_cassette('claims_api/bgs/bad_namespace') do
             expect do

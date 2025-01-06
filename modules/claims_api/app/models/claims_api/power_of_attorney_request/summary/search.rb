@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'claims_api/bgs_client'
+
 module ClaimsApi
   class PowerOfAttorneyRequest
     class Summary
