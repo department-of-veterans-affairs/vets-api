@@ -31,10 +31,10 @@ module ClaimsApi
       validate! type_code, ptcpnt_id
 
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ns0:CorpPtcpntIdFormTypeCode>
+        <data:CorpPtcpntIdFormTypeCode>
           <veteranCorpPtcpntId>#{ptcpnt_id}</veteranCorpPtcpntId>
           <formTypeCode>#{type_code}</formTypeCode>
-        </ns0:CorpPtcpntIdFormTypeCode>
+        </data:CorpPtcpntIdFormTypeCode>
       EOXML
 
       ret = make_request(endpoint: bean_name, namespaces: { 'data' => '/data' },
