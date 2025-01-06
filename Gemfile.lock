@@ -614,7 +614,6 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     iso_country_codes (0.7.8)
-    jar-dependencies (0.5.1)
     jmespath (1.6.2)
     jruby-openssl (0.15.1-java)
     json (2.9.1)
@@ -695,7 +694,7 @@ GEM
     nenv (0.3.0)
     net-http (0.6.0)
       uri
-    net-imap (0.5.4)
+    net-imap (0.5.5)
       date
       net-protocol
     net-pop (0.1.2)
@@ -806,9 +805,6 @@ GEM
     psych (5.2.2)
       date
       stringio
-    psych (5.2.2-java)
-      date
-      jar-dependencies (>= 0.1.7)
     public_suffix (6.0.1)
     puma (6.5.0)
       nio4r (~> 2.0)
@@ -1064,6 +1060,7 @@ GEM
     staccato (0.5.3)
     statsd-instrument (3.9.8)
     stringio (3.1.2)
+    stringio (3.1.2-java)
     strong_migrations (2.1.0)
       activerecord (>= 6.1)
     super_diff (0.14.0)
@@ -1121,9 +1118,11 @@ GEM
       crack (>= 0.3.2)
       hashdiff (>= 0.4.0, < 2.0.0)
     webrick (1.9.1)
-    websocket-driver (0.7.6)
+    websocket-driver (0.7.7)
+      base64
       websocket-extensions (>= 0.1.0)
-    websocket-driver (0.7.6-java)
+    websocket-driver (0.7.7-java)
+      base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     will_paginate (4.0.1)
