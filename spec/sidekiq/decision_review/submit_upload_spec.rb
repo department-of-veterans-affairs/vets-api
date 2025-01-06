@@ -296,8 +296,6 @@ RSpec.describe DecisionReview::SubmitUpload, type: :job do
         it 'increments statsd correctly when email is sent' do
           expect { described_class.new.sidekiq_retries_exhausted_block.call(msg) }
             .to trigger_statsd_increment('worker.decision_review.submit_upload.permanent_error')
-            .and trigger_statsd_increment('silent_failure', tags:)
-            .and trigger_statsd_increment('silent_failure_avoided_no_confirmation', tags:)
             .and trigger_statsd_increment('worker.decision_review.submit_upload.retries_exhausted.email_queued')
         end
 

@@ -14,6 +14,12 @@ class TestClass
 end
 
 RSpec.describe IvcChampva::Attachments do
+  before do
+    allow(Flipper).to receive(:enabled?)
+      .with(:champva_pdf_decrypt, @current_user)
+      .and_return(false)
+  end
+
   # Mocking a class to include the Attachments module
   let(:form_id) { 'vha_10_7959c' }
   let(:uuid) { 'f4ae6102-7f05-485a-948c-c0d9ef028983' }

@@ -57,6 +57,8 @@ VA File Number: <%= value_or_na(@applicant.vaFileNumber) %>
 
 Benefit Most Recently Received: <%= form_benefit %>
 
+Do you wish to request a 'Rudisill' review?: <%= @applicant.rudisillReview %>
+
 Select Another Benefit: <%= @applicant.changeAnotherBenefit %>
 
 Benefit Being Applied For: <%= @applicant.benefitAppliedFor&.titleize %>

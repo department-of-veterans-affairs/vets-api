@@ -43,16 +43,20 @@ module IvcChampva
         ivc_forms = forms_query(form_uuid, file_names)
 
         if ivc_forms.any?
-          ivc_forms.each do |form|
-            form.update!(
-              pega_status: status,
-              case_id:
-            )
-          end
+          ivc_forms.each { |form| form.update!(pega_status: status, case_id:) }
 
           # We only need the first form, outside of the file_names field, the data is the same.
           form = ivc_forms.first
-          send_email(form_uuid, ivc_forms.first) if form.email.present?
+
+          # rubocop:disable Style/IfInsideElse
+          # Temporarily disabling rubocop because of flipper
+          if Flipper.enabled?(:champva_confirmation_email_bugfix, @user)
+            send_email(form_uuid, ivc_forms.first) if form.email.present? && status == 'Processed'
+            # Possible values for form.pega_status are 'Processed', 'Not Processed'
+          else
+            send_email(form_uuid, ivc_forms.first) if form.email.present?
+          end
+          # rubocop:enable Style/IfInsideElse
 
           if Flipper.enabled?(:champva_enhanced_monitor_logging, @current_user)
             monitor.track_update_status(form_uuid, status)
@@ -77,7 +81,8 @@ module IvcChampva
             form_number: form.form_number,
             file_count: fetch_forms_by_uuid(form_uuid).where('file_name LIKE ?', '%supporting_doc%').count,
             pega_status: form.pega_status,
-            created_at: form.created_at.strftime('%B %d, %Y')
+            created_at: form.created_at.strftime('%B %d, %Y'),
+            form_uuid: form.form_uuid
           }
 
         ActiveRecord::Base.transaction do

@@ -78,11 +78,11 @@ module SimpleFormsApi
         File.write(File.join(dir_path, file_name), content)
       end
 
-      def unique_file_name(form_number, id, date = Time.zone.today)
+      def unique_file_name(form_number, id, date = Time.now.utc.to_date)
         "#{date.strftime('%-m.%d.%y')}_form_#{form_number}_vagov_#{id}"
       end
 
-      def dated_directory_name(form_number, date = Time.zone.today)
+      def dated_directory_name(form_number, date = Time.now.utc.to_date)
         "#{date.strftime('%-m.%d.%y')}-Form#{form_number}"
       end
 

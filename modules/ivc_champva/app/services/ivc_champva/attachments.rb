@@ -4,7 +4,7 @@ module IvcChampva
   module Attachments
     attr_accessor :form_id, :uuid, :data
 
-    def handle_attachments(file_path)
+    def handle_attachments(file_path) # rubocop:disable Metrics/MethodLength
       file_paths = [file_path]
       attachments = get_attachments
 
@@ -15,8 +15,21 @@ module IvcChampva
                         else
                           "#{uuid}_#{form_id}_supporting_doc-#{index}.pdf"
                         end
-        new_file_path = File.join(File.dirname(attachment), new_file_name)
-        File.rename(attachment, new_file_path)
+
+        new_file_path = if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
+                          File.join('tmp', new_file_name)
+                        else
+                          File.join(File.dirname(attachment), new_file_name)
+                        end
+
+        if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
+          # Use FileUtils.mv to handle `Errno::EXDEV` error since encrypted PDFs
+          # get stashed in the clamav_tmp dir which is a different device on staging, apparently
+          FileUtils.mv(attachment, new_file_path) # Performs a copy automatically if mv fails
+        else
+          File.rename(attachment, new_file_path)
+        end
+
         file_paths << new_file_path
       end
 

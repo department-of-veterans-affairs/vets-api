@@ -20,8 +20,19 @@
           "required": [
             "numberAndStreet",
             "city",
-            "country",
-            "zipFirstFive"
+            "country"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "country": { "const": "US" }
+                }
+              },
+              "then": {
+                "required": ["zipFirstFive"]
+              }
+            }
           ],
           "properties" : {
             "numberAndStreet": {
@@ -52,13 +63,13 @@
               "example": "US"
             },
             "zipFirstFive": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zip code (First 5 digits) of the address. Required if country is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
             "zipLastFour": {
-              "description": "Zipcode (Last 4 digits) of the address.",
+              "description": "Zip code (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
               "example": "6789"
@@ -148,8 +159,19 @@
           "required": [
             "numberAndStreet",
             "city",
-            "country",
-            "zipFirstFive"
+            "country"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "country": { "const": "US" }
+                }
+              },
+              "then": {
+                "required": ["zipFirstFive"]
+              }
+            }
           ],
           "properties" : {
             "numberAndStreet": {
@@ -180,13 +202,13 @@
               "example": "US"
             },
             "zipFirstFive": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zip code (First 5 digits) of the address. Required if country is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
             "zipLastFour": {
-              "description": "Zipcode (Last 4 digits) of the address.",
+              "description": "Zip code (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
               "example": "6789"
@@ -270,8 +292,19 @@
           "required": [
             "numberAndStreet",
             "city",
-            "country",
-            "zipFirstFive"
+            "country"
+          ],
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "country": { "const": "US" }
+                }
+              },
+              "then": {
+                "required": ["zipFirstFive"]
+              }
+            }
           ],
           "properties" : {
             "numberAndStreet": {
@@ -302,13 +335,13 @@
               "example": "US"
             },
             "zipFirstFive": {
-              "description": "Zipcode (First 5 digits) of the address.",
+              "description": "Zip code (First 5 digits) of the address. Required if country is 'US'.",
               "type": "string",
               "pattern": "^\\d{5}?$",
               "example": "12345"
             },
             "zipLastFour": {
-              "description": "Zipcode (Last 4 digits) of the address.",
+              "description": "Zip code (Last 4 digits) of the address.",
               "type": "string",
               "pattern": "^\\d{4}?$",
               "example": "6789"

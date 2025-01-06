@@ -34,5 +34,20 @@ FactoryBot.define do
     trait :with_location do
       location { 'POINT(-73.77623285 42.65140884)' }
     end
+
+    trait :for_2122_2122a_pdf_fixture do
+      id { 'bd22d501-b3df-4a52-9229-5c25b4d2036a' }
+      first_name { 'John' }
+      middle_initial { 'M' }
+      last_name { 'Representative' }
+      address_line1 { '123 Fake Representative St' }
+      city { 'Portland' }
+      state_code { 'OR' }
+      zip_code { '12345' }
+      country_code_iso3 { 'USA' }
+      phone { '555-555-5555' }
+      email { 'representative@example.com' }
+      individual_type { 'attorney' }
+    end
   end
 end

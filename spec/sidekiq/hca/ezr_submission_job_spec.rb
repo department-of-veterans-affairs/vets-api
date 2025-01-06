@@ -12,6 +12,24 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
   end
   let(:ezr_service) { double }
   let(:tags) { described_class::DD_ZSF_TAGS }
+  let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
+  let(:failure_email_template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ezr_failure_email }
+  let(:failure_email_template_params) do
+    [
+      form['email'],
+      failure_email_template_id,
+      {
+        'salutation' => "Dear #{form.dig('veteranFullName', 'first')},"
+      },
+      api_key
+    ]
+  end
+
+  def expect_submission_failure_email_and_statsd_increments
+    expect(VANotify::EmailJob).to receive(:perform_async).with(*failure_email_template_params)
+    expect(StatsD).to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
+    expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
+  end
 
   describe 'when retries are exhausted' do
     before do
@@ -37,20 +55,6 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
     end
 
     context 'when the parsed form is present' do
-      let(:email_address) { form['email'] }
-      let(:api_key) { Settings.vanotify.services.health_apps_1010.api_key }
-      let(:template_id) { Settings.vanotify.services.health_apps_1010.template_id.form1010_ezr_failure_email }
-      let(:template_params) do
-        [
-          email_address,
-          template_id,
-          {
-            'salutation' => "Dear #{form.dig('veteranFullName', 'first')},"
-          },
-          api_key
-        ]
-      end
-
       context 'the send failure email flipper is enabled' do
         it 'logs and tracks the errors and sends the failure email' do
           msg = {
@@ -70,9 +74,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
               },
               ezr: :total_failure
             )
-            expect(VANotify::EmailJob).to receive(:perform_async).with(*template_params)
-            expect(StatsD).to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
-            expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
+            expect_submission_failure_email_and_statsd_increments
           end
 
           pii_log = PersonalInformationLog.last
@@ -113,7 +115,7 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
               },
               ezr: :total_failure
             )
-            expect(VANotify::EmailJob).not_to receive(:perform_async).with(*template_params)
+            expect(VANotify::EmailJob).not_to receive(:perform_async).with(*failure_email_template_params)
             expect(StatsD).not_to receive(:increment).with('api.1010ezr.submission_failure_email_sent')
           end
 
@@ -136,21 +138,29 @@ RSpec.describe HCA::EzrSubmissionJob, type: :job do
     end
 
     context 'when submission has an error' do
-      context 'with a validation error' do
+      context 'with an enrollment system validation error' do
         let(:error) { HCA::SOAPParser::ValidationError }
 
-        it 'logs the submission failure and logs exception to sentry' do
+        it "increments StatsD, creates a 'PersonalInformationLog', logs the submission failure, " \
+           'logs exception to sentry, and sends a failure email' do
           allow(ezr_service).to receive(:submit_sync).with(form).once.and_raise(error)
+          allow(StatsD).to receive(:increment)
           # Because we're calling the 'log_submission_failure' method from a new instance
           # of the 'Form1010Ezr::Service', we need to stub out a new instance of the service
           allow(Form1010Ezr::Service).to receive(:new).with(nil).once.and_return(ezr_service)
 
+          expect(StatsD).to receive(:increment).with('api.1010ezr.enrollment_system_validation_error')
           expect(HCA::EzrSubmissionJob).to receive(:log_exception_to_sentry).with(error)
           expect(ezr_service).to receive(:log_submission_failure).with(
             form
           )
+          expect_submission_failure_email_and_statsd_increments
 
           subject
+
+          personal_information_log = PersonalInformationLog.last
+          expect(personal_information_log.error_class).to eq('Form1010Ezr EnrollmentSystemValidationFailure')
+          expect(personal_information_log.data).to eq(form)
         end
       end
 

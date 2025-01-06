@@ -101,7 +101,7 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122a', type: :request
 
     context 'When submitting a legacy representative' do
       before do
-        legacy_representative = create(:representative)
+        legacy_representative = create(:representative, zip_code: '12345')
         params[:pdf_generator2122a][:representative][:id] = legacy_representative.representative_id
         post(base_path, params:)
       end

@@ -37,7 +37,8 @@ RSpec.describe IvcChampva::Email, type: :service do
             'last_name' => data[:last_name],
             'file_count' => data[:file_count],
             'pega_status' => data[:pega_status],
-            'date_submitted' => data[:created_at]
+            'date_submitted' => data[:created_at],
+            'form_uuid' => data[:form_uuid]
           },
           Settings.vanotify.services.ivc_champva.api_key
         )

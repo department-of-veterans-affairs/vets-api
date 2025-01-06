@@ -23,7 +23,7 @@ module VAProfile
               cityName: @city,
               zipCode5: @zip_code,
               zipCode4: @zip_code_suffix,
-              country: { countryCodeISO2: @country_code_iso2, countryCodeISO3: @country_code_iso3,
+              country: { countryCodeISO3: @country_code_iso3,
                          countryName: @country_name, countryCodeFIPS: @country_code_fips },
               state: { stateCode: @state_code, stateName: @state_name },
               province: { provinceName: @province_name, provinceCode: @province_code },
@@ -58,6 +58,7 @@ module VAProfile
           else
             {
               state_code: address_hash.dig('state', 'state_code'),
+              state_name: address_hash.dig('state', 'state_name'),
               county_code: address_hash.dig('county', 'county_code'),
               county_name: address_hash.dig('county', 'county_name'),
               zip_code: address_hash['zip_code5'],

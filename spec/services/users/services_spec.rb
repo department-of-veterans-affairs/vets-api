@@ -71,9 +71,6 @@ RSpec.describe Users::Services do
       end
 
       it 'returns an array including the MHV services' do
-        puts 'VAPAT'
-        puts user.va_patient?
-        puts 'VAPAT'
         %w[health-records medical-records messaging rx].each do |service|
           expect(subject).to include(service)
         end

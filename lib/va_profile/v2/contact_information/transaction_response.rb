@@ -3,7 +3,7 @@
 require 'va_profile/models/transaction'
 require 'va_profile/response'
 
-# rubocop:disable ThreadSafety/InstanceVariableInClassMethod
+# rubocop:disable ThreadSafety/ClassInstanceVariable
 module VAProfile
   module V2
     module ContactInformation
@@ -172,4 +172,4 @@ module VAProfile
     end
   end
 end
-# rubocop:enable ThreadSafety/InstanceVariableInClassMethod
+# rubocop:enable ThreadSafety/ClassInstanceVariable

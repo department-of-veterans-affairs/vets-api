@@ -57,7 +57,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
 
     it 'object defaults' do
       after_visit_summary = Avs::V0::AfterVisitSummary.new(attributes)
-      expect(after_visit_summary.attributes).to match(
+      expect(after_visit_summary.attributes.deep_symbolize_keys).to match(
         {
           id: 'abc_123',
           icn: '1234567890V123456',
@@ -124,7 +124,7 @@ describe Avs::V0::AfterVisitSummary, type: :model do
 
     it 'missing data' do
       after_visit_summary = Avs::V0::AfterVisitSummary.new(attributes_missing_data)
-      expect(after_visit_summary.attributes).to match(
+      expect(after_visit_summary.attributes.deep_symbolize_keys).to match(
         {
           id: 'abc_123',
           icn: '1234567890V123456',

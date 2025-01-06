@@ -16,7 +16,7 @@ module Banners
           operating_status_cta: graphql_banner_response['fieldAlertOperatingStatusCta'],
           email_updates_button: graphql_banner_response['fieldAlertEmailUpdatesButton'],
           find_facilities_cta: graphql_banner_response['fieldAlertFindFacilitiesCta'],
-          limit_subpage_inheritance: graphql_banner_response['fieldAlertLimitSubpageInheritance'] || false
+          limit_subpage_inheritance: graphql_banner_response['fieldAlertInheritanceSubpages'] || false
         }
       end
     end

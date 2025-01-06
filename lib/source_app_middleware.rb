@@ -123,6 +123,7 @@ class SourceAppMiddleware
     search-representative
     secure-messaging
     secure-messaging-pilot
+    sign-in-changes
     survivor-dependent-education-benefit-22-5490
     static-pages
     submitted-appeal

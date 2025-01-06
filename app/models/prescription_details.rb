@@ -31,6 +31,7 @@ class PrescriptionDetails < Prescription
   attribute :color, String
   attribute :back_imprint, String
   attribute :front_imprint, String
+  attribute :grouped_medications, Array[String]
 
   def sorted_dispensed_date
     has_refills = try(:rx_rf_records).present?

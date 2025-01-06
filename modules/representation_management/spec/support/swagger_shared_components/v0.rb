@@ -6,6 +6,8 @@ module SwaggerSharedComponents
       {
         accredited_entities_for_appoint:,
         accredited_entities_for_appoint_parameter:,
+        next_steps_email:,
+        next_steps_email_parameter:,
         pdf_generator2122:,
         pdf_generator2122_parameter:,
         pdf_generator2122a:,
@@ -16,6 +18,17 @@ module SwaggerSharedComponents
     def self.accredited_entities_for_appoint
       {
         query: 'Bob'
+      }
+    end
+
+    def self.next_steps_email
+      {
+        email_address: 'veteran@example.com',
+        first_name: 'John',
+        form_name: 'Form 21-22',
+        form_number: '21-22',
+        entity_type: 'individual',
+        entity_id: '8c3b3b53-02a1-4dbd-bd23-2b556f5ef635'
       }
     end
 
@@ -86,6 +99,25 @@ module SwaggerSharedComponents
             query: { type: :string, example: 'Bob' }
           },
           required: %w[query]
+        }
+      }
+    end
+
+    def self.next_steps_email_parameter
+      {
+        name: :next_steps_email,
+        in: :body,
+        schema: {
+          type: :object,
+          properties: {
+            email_address: { type: :string, example: 'veteran@example.com' },
+            first_name: { type: :string, example: 'John' },
+            form_name: { type: :string, example: 'Form 21-22' },
+            form_number: { type: :string, example: '21-22' },
+            entity_type: { type: :string, example: 'individual' },
+            entity_id: { type: :string, example: '8c3b3b53-02a1-4dbd-bd23-2b556f5ef635' }
+          },
+          required: %w[email_address first_name form_name form_number entity_type entity_id]
         }
       }
     end

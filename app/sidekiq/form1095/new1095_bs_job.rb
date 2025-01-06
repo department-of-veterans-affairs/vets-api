@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+require 'sentry_logging'
+
 module Form1095
   class New1095BsJob
     include Sidekiq::Job
+    include SentryLogging
 
     sidekiq_options(unique_for: 4.hours)
 
@@ -74,7 +77,7 @@ module Form1095
     def produce_1095_hash(form_fields, unique_id, coverage_arr)
       {
         unique_id:,
-        veteran_icn: form_fields[:A15].gsub(/\A0{6}|0{6}\z/, ''),
+        veteran_icn: form_fields[:A15]&.gsub(/\A0{6}|0{6}\z/, ''),
         form_data: {
           last_name: form_fields[:A01] || '',
           first_name: form_fields[:A02] || '',

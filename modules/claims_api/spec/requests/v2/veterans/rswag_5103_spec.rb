@@ -80,7 +80,7 @@ describe 'EvidenceWaiver5103',
               .to receive(:find_benefit_claim_details_by_benefit_claim_id).and_return(bgs_claim_response)
 
             mock_ccg(scopes) do
-              allow_any_instance_of(ClaimsApi::LocalBGS)
+              allow_any_instance_of(ClaimsApi::PersonWebService)
                 .to receive(:find_by_ssn).and_return({ file_nbr: '123456780' })
               submit_request(example.metadata)
             end

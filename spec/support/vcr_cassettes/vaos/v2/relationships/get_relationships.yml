@@ -119,7 +119,8 @@ http_interactions:
                   "lastSeen": "2024-08-22T21:20:52.661Z"
                 }
               ]
-            }
+            },
+            "failures": []
           }
     recorded_at: Fri, 23 Aug 2024 14:46:55 GMT
 recorded_with: VCR 6.2.0

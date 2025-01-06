@@ -13,6 +13,10 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
     let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
     let(:random_string) { 'some-unique-simple-forms-file-seed' }
+    let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
+    let(:pdf_stamper) { double(stamp_pdf: nil) }
+    let(:confirmation_code) { 'a-random-guid' }
+    let(:attachment) { double }
 
     before do
       VCR.insert_cassette('lighthouse/benefits_intake/200_lighthouse_intake_upload_location')
@@ -21,6 +25,10 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
       allow(Common::FileHelpers).to receive(:generate_clamav_temp_file).and_wrap_original do |original_method, *args|
         original_method.call(args[0], random_string)
       end
+      allow(SimpleFormsApi::PdfStamper).to receive(:new).with(stamped_template_path: pdf_path.to_s, current_loa: 3,
+                                                              timestamp: anything).and_return(pdf_stamper)
+      allow(attachment).to receive(:to_pdf).and_return(pdf_path)
+      allow(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
     end
 
     after do
@@ -30,11 +38,15 @@ RSpec.describe 'SimpleFormsApi::V1::ScannedFormsUploader', type: :request do
     end
 
     it 'makes the request' do
-      pdf_path = Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf')
-      confirmation_code = 'a-random-guid'
-      attachment = double
-      allow(attachment).to receive(:to_pdf).and_return(pdf_path)
       expect(PersistentAttachment).to receive(:find_by).with(guid: confirmation_code).and_return(attachment)
+
+      post '/simple_forms_api/v1/submit_scanned_form', params: { form_number: '21-0779', confirmation_code: }
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'stamps the pdf' do
+      expect(pdf_stamper).to receive(:stamp_pdf)
 
       post '/simple_forms_api/v1/submit_scanned_form', params: { form_number: '21-0779', confirmation_code: }
 

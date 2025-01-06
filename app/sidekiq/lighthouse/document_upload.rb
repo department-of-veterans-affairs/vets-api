@@ -3,6 +3,7 @@
 require 'ddtrace'
 require 'timeout'
 require 'lighthouse/benefits_documents/worker_service'
+require 'lighthouse/failure_notification'
 
 class Lighthouse::DocumentUpload
   include Sidekiq::Job
@@ -37,13 +38,9 @@ class Lighthouse::DocumentUpload
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
     date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
-    notify_client.send_email(
-      recipient_identifier: { id_value: icn, id_type: 'ICN' },
-      template_id: MAILER_TEMPLATE_ID,
-      personalisation: { first_name:, filename:, date_submitted:, date_failed: }
-    )
+    Lighthouse::FailureNotification.perform_async(icn, first_name, filename, date_submitted, date_failed)
 
-    ::Rails.logger.info('Lighthouse::DocumentUpload exhaustion handler email sent')
+    ::Rails.logger.info('Lighthouse::DocumentUpload exhaustion handler email queued')
     StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   rescue => e
     ::Rails.logger.error('Lighthouse::DocumentUpload exhaustion handler email error',
@@ -73,10 +70,6 @@ class Lighthouse::DocumentUpload
 
     # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
     timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-  end
-
-  def self.notify_client
-    VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
   end
 
   def perform(user_icn, document_hash)

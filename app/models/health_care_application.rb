@@ -14,6 +14,10 @@ class HealthCareApplication < ApplicationRecord
   FORM_ID = '10-10EZ'
   ACTIVEDUTY_ELIGIBILITY = 'TRICARE'
   DISABILITY_THRESHOLD = 50
+  DD_ZSF_TAGS = [
+    'service:healthcare-application',
+    'function: 10-10EZ async form submission'
+  ].freeze
   LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
 
   attr_accessor :user, :async_compatible, :google_analytics_client_id, :form
@@ -255,15 +259,14 @@ class HealthCareApplication < ApplicationRecord
   end
 
   def log_async_submission_failure
-    log_zero_silent_failures
+    log_zero_silent_failures unless Flipper.enabled?(:hca_zero_silent_failures)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry")
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.failed_wont_retry_short_form") if short_form?
     log_submission_failure_details
   end
 
   def log_zero_silent_failures
-    tags = ['service:healthcare-application', 'function: 10-10EZ async form submission']
-    StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
+    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
   end
 
   def log_submission_failure_details
@@ -292,13 +295,19 @@ class HealthCareApplication < ApplicationRecord
     api_key = Settings.vanotify.services.health_apps_1010.api_key
 
     salutation = first_name ? "Dear #{first_name}," : ''
+    metadata =
+      {
+        callback_metadata: {
+          notification_type: 'error',
+          form_number: FORM_ID,
+          statsd_tags: DD_ZSF_TAGS
+        }
+      }
 
-    VANotify::EmailJob.perform_async(
-      email,
-      template_id,
-      { 'salutation' => salutation },
-      api_key
-    )
+    params = [email, template_id, { 'salutation' => salutation }, api_key]
+    params << metadata if Flipper.enabled?(:hca_zero_silent_failures)
+
+    VANotify::EmailJob.perform_async(*params)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
   rescue => e
     log_exception_to_sentry(e)

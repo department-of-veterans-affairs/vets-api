@@ -37,7 +37,6 @@ ClaimsApi::Engine.routes.draw do
   namespace :v2, defaults: { format: 'json' } do
     mount OkComputer::Engine, at: '/healthcheck'
 
-    post '/veteran-id:find', to: 'veteran_identifier#find', constraints: { find: /:find/ }
     namespace :veterans do
       get '/:veteranId/claims', to: 'claims#index'
       get '/:veteranId/claims/:id', to: 'claims#show'
@@ -60,9 +59,7 @@ ClaimsApi::Engine.routes.draw do
       post '/:veteranId/intent-to-file', to: 'intent_to_file#submit'
       post '/:veteranId/intent-to-file/validate', to: 'intent_to_file#validate'
       ## 526 Forms
-      post '/:veteranId/526', to: 'disability_compensation#submit'
       post '/:veteranId/526/validate', to: 'disability_compensation#validate'
-      post '/:veteranId/526/:id/attachments', to: 'disability_compensation#attachments'
       post '/:veteranId/526/generatePDF/minimum-validations', to: 'disability_compensation#generate_pdf'
       post '/:veteranId/526/synchronous', to: 'disability_compensation#synchronous'
     end

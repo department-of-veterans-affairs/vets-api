@@ -21,5 +21,10 @@ FactoryBot.define do
     trait :with_location do
       location { 'POINT(-73.77623285 42.65140884)' }
     end
+
+    trait :for_2122_2122a_pdf_fixture do
+      id { '8f4242b6-6f17-4f60-b91c-cfe4d7e01d91' }
+      name { 'Best VSO' }
+    end
   end
 end

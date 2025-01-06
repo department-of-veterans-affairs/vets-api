@@ -5,7 +5,7 @@ require_relative '../../../lib/burials/monitor'
 
 RSpec.describe Burials::Monitor do
   let(:monitor) { described_class.new }
-  let(:claim) { create(:burial_claim_v2) }
+  let(:claim) { create(:burial_claim) }
   let(:ipf) { create(:in_progress_form) }
   let(:claim_stats_key) { described_class::CLAIM_STATS_KEY }
   let(:submission_stats_key) { described_class::SUBMISSION_STATS_KEY }

@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-# This will be removed after ContactInformation has been updated
 FactoryBot.define do
   factory :va_profile_v3_address, class: 'VAProfile::Models::V3::Address' do
     address_line1 { '140 Rock Creek Rd' }

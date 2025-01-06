@@ -7,10 +7,6 @@ require 'lib/pdf_fill/fill_form_examples'
 describe PdfFill::Filler, type: :model do
   include SchemaMatchers
 
-  before do
-    Flipper.enable(:va_burial_v2)
-  end
-
   describe '#combine_extras' do
     subject do
       described_class.combine_extras(old_file_path, extras_generator)
@@ -52,8 +48,8 @@ describe PdfFill::Filler, type: :model do
   describe '#fill_form' do
     [
       {
-        form_id: '21P-530V2',
-        factory: :burial_claim_v2
+        form_id: '21P-530EZ',
+        factory: :burial_claim
       },
       {
         form_id: '21P-0969',
@@ -79,7 +75,7 @@ describe PdfFill::Filler, type: :model do
   end
 
   describe '#fill_ancillary_form', run_at: '2017-07-25 00:00:00 -0400' do
-    %w[21-4142 21-0781a 21-0781 21-8940 28-8832 28-1900 21-674 21-0538 26-1880 5655].each do |form_id|
+    %w[21-4142 21-0781a 21-0781 21-0781V2 21-8940 28-8832 28-1900 21-674 21-0538 26-1880 5655].each do |form_id|
       context "form #{form_id}" do
         %w[simple kitchen_sink overflow].each do |type|
           context "with #{type} test data" do

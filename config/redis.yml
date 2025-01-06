@@ -66,9 +66,6 @@ development: &defaults
     namespace: mpi-profile-response
     each_ttl: 86400
     failure_ttl: 1800
-  okta_response:
-    namespace: okta-response
-    each_ttl: 3600
   profile:
     namespace: profile
     each_ttl: 3600
@@ -78,9 +75,6 @@ development: &defaults
   charon_response:
     namespace: charon-response
     each_ttl: 3600
-  okta_response_app:
-    namespace: okta-response
-    each_ttl: 86400
   saml_store:
     namespace: single-logout-request
     each_ttl: 43200

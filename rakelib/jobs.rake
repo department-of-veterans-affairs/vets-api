@@ -22,4 +22,16 @@ namespace :jobs do
 
     SpoolFileEvent.where('DATE(successful_at) = ?', Date.current).delete_all
   end
+
+  desc 'Create daily excel files'
+  task create_daily_excel_files: :environment do
+    EducationForm::CreateDailyExcelFiles.perform_async
+  end
+
+  desc 'Remove ExcelFileEvent rows for today so the create_daily_excel_files rake task can rerun'
+  task reset_daily_excel_files_for_today: :environment do
+    raise Common::Exceptions::Unauthorized if Settings.vsp_environment.eql?('production') # only allowed for test envs
+
+    ExcelFileEvent.where('DATE(successful_at) = ?', Date.current).delete_all
+  end
 end

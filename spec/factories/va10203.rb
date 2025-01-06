@@ -18,7 +18,7 @@ FactoryBot.define do
         schoolCity: 'Test',
         schoolState: 'TN',
         schoolCountry: 'USA',
-        schoolEmailAddress: 'test@edu_sample.com',
+        schoolEmailAddress: 'user@school.edu',
         schoolStudentId: '01010101',
         isActiveDuty: true,
         veteranAddress: {
@@ -58,7 +58,7 @@ FactoryBot.define do
         schoolCity: 'Test 2',
         schoolState: 'SC',
         schoolCountry: 'USA',
-        schoolEmailAddress: 'test@edu_sample.com',
+        schoolEmailAddress: 'user@school.edu',
         schoolStudentId: '01010101',
         isActiveDuty: true,
         veteranAddress: {
@@ -98,7 +98,7 @@ FactoryBot.define do
         schoolCity: 'Test 2',
         schoolState: 'SC',
         schoolCountry: 'USA',
-        schoolEmailAddress: 'test@edu_sample.com',
+        schoolEmailAddress: 'user@school.edu',
         schoolStudentId: '01010101',
         isActiveDuty: true,
         veteranAddress: {

@@ -8,6 +8,17 @@ permissions:
   contents: read
   checks: write
 jobs:
+  compare_sha:
+    runs-on: ubuntu-latest
+    name: Compare sha
+    steps:
+      - name: Compare commit ids
+        run: |
+          echo "github.sha: ${{ github.sha }}"
+          echo "github.event.push.head_commit.id: ${{ github.event.push.head_commit.id }}"
+          echo "github.event.pull_request.merge_commit_sha: ${{ github.event.pull_request.merge_commit_sha }}"
+          echo "github.event.head_commit.id: ${{ github.event.head_commit.id }}"
+
   linting_and_security:
     name: Linting and Security
     env:
@@ -17,7 +28,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ruby/setup-ruby@1d0e911f615a112e322369596f10ee0b95b010ae # v1.183.0
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 

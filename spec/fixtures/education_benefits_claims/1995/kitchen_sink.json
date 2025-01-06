@@ -45,6 +45,7 @@
   "email": "test@sample.com",
   "benefit": "transferOfEntitlement",
   "benefitUpdate": "transferOfEntitlement",
+  "rudisillReview": "No",
   "changeAnotherBenefit": "Yes",
   "benefitAppliedFor": "chapter30",
   "educationType": "tuitionTopUp",

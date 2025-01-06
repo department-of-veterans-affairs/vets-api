@@ -322,7 +322,7 @@ describe MockedAuthentication::Credential::Service do
             credential_aal_highest: 2,
             credential_ial_highest: 'classic_loa3',
             email:,
-            mhv_uuid: mhv_correlation_id,
+            mhv_uuid: mhv_credential_uuid,
             mhv_icn:,
             mhv_assurance:,
             level_of_assurance: 3,
@@ -333,7 +333,7 @@ describe MockedAuthentication::Credential::Service do
           }
         )
       end
-      let(:mhv_correlation_id) { 'some-mhv-correlation-id' }
+      let(:mhv_credential_uuid) { 'some-mhv-credential-uuid' }
       let(:mhv_icn) { 'some-mhv-icn' }
       let(:mhv_assurance) { 'some-mhv-assurance' }
       let(:aud) { 'some-aud' }
@@ -351,7 +351,7 @@ describe MockedAuthentication::Credential::Service do
           authn_context:,
           auto_uplevel:,
           mhv_icn:,
-          mhv_correlation_id:,
+          mhv_credential_uuid:,
           mhv_assurance:
         }
       end

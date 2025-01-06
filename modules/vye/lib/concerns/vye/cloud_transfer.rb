@@ -20,6 +20,10 @@ module Vye
       Aws::S3::Client.new(**credentials)
     end
 
+    def holiday?
+      Holidays.on(Time.zone.today, :us, :observed).any?
+    end
+
     def tmp_dir
       result = Rails.root / "tmp/vye/#{SecureRandom.uuid}"
       result.mkpath

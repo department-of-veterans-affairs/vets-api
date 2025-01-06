@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :bgs_response, class: OpenStruct do
-    bnft_claim_dto { (association :benefit_claim_details_dto).to_h }
+    benefit_claim_details_dto { (association :benefit_claim_details_dto).to_h }
   end
 
   factory :benefit_claim_details_dto, class: OpenStruct do

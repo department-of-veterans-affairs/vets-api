@@ -40,7 +40,7 @@ module VAProfileRedis
       # @return [VAProfile::Models::Email] The user's one email address model
       #
       def email
-        return unless @user.loa3?
+        return unless verified_user?
 
         value_for('emails')&.first
       end
@@ -51,7 +51,7 @@ module VAProfileRedis
       # @return [VAProfile::Models::Address] The user's one residential address model
       #
       def residential_address
-        return unless @user.loa3?
+        return unless verified_user?
 
         dig_out('addresses', 'address_pou', VAProfile::Models::V3::Address::RESIDENCE)
       end
@@ -62,7 +62,7 @@ module VAProfileRedis
       # @return [VAProfile::Models::Address] The user's one mailing address model
       #
       def mailing_address
-        return unless @user.loa3?
+        return unless verified_user?
 
         dig_out('addresses', 'address_pou', VAProfile::Models::V3::Address::CORRESPONDENCE)
       end
@@ -73,7 +73,7 @@ module VAProfileRedis
       # @return [VAProfile::Models::Telephone] The user's one home phone model
       #
       def home_phone
-        return unless @user.loa3?
+        return unless verified_user?
 
         dig_out('telephones', 'phone_type', VAProfile::Models::Telephone::HOME)
       end
@@ -84,7 +84,7 @@ module VAProfileRedis
       # @return [VAProfile::Models::Telephone] The user's one mobile phone model
       #
       def mobile_phone
-        return unless @user.loa3?
+        return unless verified_user?
 
         dig_out('telephones', 'phone_type', VAProfile::Models::Telephone::MOBILE)
       end
@@ -95,7 +95,7 @@ module VAProfileRedis
       # @return [VAProfile::Models::Telephone] The user's one work phone model
       #
       def work_phone
-        return unless @user.loa3?
+        return unless verified_user?
 
         dig_out('telephones', 'phone_type', VAProfile::Models::Telephone::WORK)
       end
@@ -106,7 +106,7 @@ module VAProfileRedis
       # @return [VAProfile::Models::Telephone] The user's one temporary phone model
       #
       def temporary_phone
-        return unless @user.loa3?
+        return unless verified_user?
 
         dig_out('telephones', 'phone_type', VAProfile::Models::Telephone::TEMPORARY)
       end
@@ -117,7 +117,7 @@ module VAProfileRedis
       # @return [VAProfile::Models::Telephone] The user's one fax number model
       #
       def fax_number
-        return unless @user.loa3?
+        return unless verified_user?
 
         dig_out('telephones', 'phone_type', VAProfile::Models::Telephone::FAX)
       end
@@ -128,7 +128,7 @@ module VAProfileRedis
       # @return [Integer <> String] the status of the last VAProfile::V2::ContactInformation::Service response
       #
       def status
-        return VAProfile::V2::ContactInformation::PersonResponse::RESPONSE_STATUS[:not_authorized] unless @user.loa3?
+        return VAProfile::V2::ContactInformation::PersonResponse::RESPONSE_STATUS[:not_authorized] unless verified_user?
 
         response.status
       end
@@ -178,6 +178,10 @@ module VAProfileRedis
 
       def contact_info_service
         @service ||= VAProfile::V2::ContactInformation::Service.new @user
+      end
+
+      def verified_user?
+        @user.icn.present?
       end
     end
   end
