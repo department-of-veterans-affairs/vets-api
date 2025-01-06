@@ -41,11 +41,19 @@ module ClaimsApi
           render json: Array.wrap(poa_list), status: :ok
         end
 
-        def decide
-          proc_id = form_attributes['procId']
-          ptcpnt_id = form_attributes['participantId']
+        def decide # rubocop:disable Metrics/MethodLength
+          lighthouse_id = params[:id]
           decision = normalize(form_attributes['decision'])
           representative_id = form_attributes['representativeId']
+
+          request = ClaimsApi::PowerOfAttorneyRequest.find_by(id: lighthouse_id)
+          unless request
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find Power of Attorney request with id: #{lighthouse_id}"
+            )
+          end
+          proc_id = request.proc_id
+          vet_icn = request.veteran_icn
 
           validate_decide_params!(proc_id:, decision:)
 
@@ -53,6 +61,7 @@ module ClaimsApi
                                                     external_key: 'power_of_attorney_request_key')
 
           if decision == 'declined'
+            ptcpnt_id = fetch_ptcnpnt_id(vet_icn)
             poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
           end
 

@@ -241,6 +241,12 @@ module ClaimsApi
           mpi_profile
         end
 
+        def fetch_ptcnpnt_id(vet_icn)
+          mpi_profile = mpi_service.find_profile_by_identifier(identifier: vet_icn,
+                                                               identifier_type: MPI::Constants::ICN)
+          mpi_profile.profile.participant_id
+        end
+
         def disable_jobs?
           Settings.claims_api&.poa_v2&.disable_jobs
         end
