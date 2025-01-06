@@ -1376,6 +1376,10 @@ features:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
     enable_in_development: true
+  meb_poa_retrieval:
+    actor_type: user
+    description: Flag to autofill datepicker for reliinquishment date
+    enable_in_development: false
   dgi_rudisill_hide_benefits_selection_step:
     actor_type: user
     description: Hides benefit selection page on original claims application.

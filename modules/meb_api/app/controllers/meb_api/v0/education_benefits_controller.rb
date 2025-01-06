@@ -6,6 +6,7 @@ require 'dgi/submission/service'
 require 'dgi/enrollment/service'
 require 'dgi/contact_info/service'
 require 'dgi/exclusion_period/service'
+require 'lighthouse/benefits_claims/service'
 
 module MebApi
   module V0
@@ -61,6 +62,10 @@ module MebApi
 
       def submit_claim
         response_data = nil
+        poa_code = ''
+        if Flipper.enabled?(:meb_poa_retrieval, @current_user) && !Rails.env.development?
+          poa_code = lighthouse_service.get_power_of_attorney
+        end
 
         if Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user) && !Rails.env.development?
           begin
@@ -72,7 +77,7 @@ module MebApi
           end
         end
 
-        response = submission_service.submit_claim(params[:education_benefit].except(:form_id), response_data)
+        response = submission_service.submit_claim(params[:education_benefit].except(:form_id),  poa_code, response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 
@@ -167,6 +172,10 @@ module MebApi
 
       def exclusion_period_service
         MebApi::DGI::ExclusionPeriod::Service.new(@current_user)
+      end
+
+      def lighthouse_service
+        BenefitsClaims::Service.new(@current_user&.icn)
       end
     end
   end

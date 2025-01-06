@@ -13,8 +13,12 @@ module MebApi
         configuration MebApi::DGI::Submission::Configuration
         STATSD_KEY_PREFIX = 'api.dgi.submission'
 
-        def submit_claim(params, response_data = nil)
+        def submit_claim(params, poa_code, response_data = nil)
           response_data.present? ? update_dd_params(params, response_data) : params
+          unless poa_code.blank? && Flipper.enabled?(:meb_poa_retrieval, @current_user)
+            merge_poa_into_claimant(poa_code, params)
+          end
+
           with_monitoring do
             headers = request_headers
             options = { timeout: 60 }
@@ -62,13 +66,23 @@ module MebApi
         def update_dd_params(params, dd_params)
           account_number = params.dig(:direct_deposit, :direct_deposit_account_number)
           check_masking = account_number&.include?('*')
-          Rails.logger.warn("check_masking: #{check_masking}")
           if check_masking && Flipper.enabled?(:show_dgi_direct_deposit_1990EZ, @current_user)
-            Rails.logger.warn('INSIDE CHECK MASKING IF!!!!')
             params[:direct_deposit][:direct_deposit_account_number] =
               dd_params&.payment_account ? dd_params.payment_account[:account_number] : nil
             params[:direct_deposit][:direct_deposit_routing_number] =
               dd_params&.payment_account ? dd_params.payment_account[:routing_number] : nil
+          end
+
+          params
+        end
+
+        def merge_poa_into_claimant(poa_code, params)
+          code = poa_code.with_indifferent_access
+          
+          if code.dig('data', 'attributes', 'code')
+            modified_params = params['claimant'].merge({poa: poa_code})
+            params['claimant'] = modified_params
+            modified_params
           end
 
           params
