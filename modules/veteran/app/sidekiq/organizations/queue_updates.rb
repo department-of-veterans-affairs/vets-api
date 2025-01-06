@@ -11,10 +11,12 @@ module Organizations
     SLICE_SIZE = 30
 
     def perform
-      file_content = fetch_file_content
-      return unless file_content
+      # TODO: Remove comments and dummy file_content
+      # file_content = fetch_file_content
+      # return unless file_content
+      file_content = 'dummy file content'
 
-      processed_data = Representatives::XlsxFileProcessor.new(file_content).process
+      processed_data = Organizations::XlsxFileProcessor.new(file_content).process
       queue_address_updates(processed_data)
     rescue => e
       log_error("Error in file fetching process: #{e.message}")
@@ -29,8 +31,7 @@ module Organizations
     def queue_address_updates(data)
       delay = 0
 
-      Representatives::XlsxFileProcessor::SHEETS_TO_PROCESS.each do |sheet|
-        # This will probably be just the org sheet on the xlsx file
+      Organizations::XlsxFileProcessor::SHEETS_TO_PROCESS.each do |sheet|
         next if data[sheet].blank?
 
         batch = Sidekiq::Batch.new
@@ -52,7 +53,7 @@ module Organizations
 
     def rows_to_process(rows)
       rows.map do |row|
-        rep = Veteran::Service::Representative.find(row[:id])
+        rep = Veteran::Service::Organization.find_by(poa: row[:poa])
         diff = rep.diff(row)
         row.merge(diff.merge({ address_exists: rep.location.present? })) if diff.values.any?
       rescue ActiveRecord::RecordNotFound => e

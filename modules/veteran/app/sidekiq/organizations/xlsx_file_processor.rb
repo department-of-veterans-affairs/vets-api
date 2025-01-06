@@ -86,7 +86,9 @@ module Organizations
     private
 
     def open_spreadsheet
-      xlsx = Roo::Spreadsheet.open(StringIO.new(@file_content), extension: :xlsx)
+      # xlsx = Roo::Spreadsheet.open(StringIO.new(@file_content), extension: :xlsx)
+      # TODO Remove test file
+      xlsx = Roo::Spreadsheet.open('trexler.xlsx')
       yield(xlsx)
     rescue Roo::Error => e
       log_error("Error opening spreadsheet: #{e.message}")
@@ -129,13 +131,13 @@ module Organizations
       zip_code5, zip_code4 = get_value(row, column_map, 'OrganizationZipCode')
 
       {
-        id: row[column_map['Number']],
+        poa: row[column_map['POA']],
         phone_number: get_value(row, column_map, 'OrganizationPhoneNumber'),
         address: {
-          address_pou: 'RESIDENCE/CHOICE', # What are the other possible choices here?
-          address_line1: get_value(row, column_map, 'OrganizationAddress1'),
-          address_line2: get_value(row, column_map, 'OrganizationAddress2'),
-          address_line3: get_value(row, column_map, 'OrganizationAddress3'),
+          address_pou: 'CORRESPONDENCE',
+          address_line1: get_value(row, column_map, 'OrganizationAddressLine1'),
+          address_line2: get_value(row, column_map, 'OrganizationAddressLine2'),
+          address_line3: get_value(row, column_map, 'OrganizationAddressLine3'),
           city: get_value(row, column_map, 'OrganizationCity'),
           state_province: { code: get_value(row, column_map, 'OrganizationState') },
           zip_code5:,
@@ -175,19 +177,6 @@ module Organizations
 
     def format_zip4(zip4)
       zip4.length < 4 ? zip4.rjust(4, '0') : zip4
-    end
-
-    def email_address_column_name(sheet_name)
-      sheet_name == 'Attorneys' ? 'EmailAddress' : 'WorkEmailAddress'
-    end
-
-    def get_email_address(value)
-      email_address?(value) ? value : nil
-    end
-
-    def email_address?(email_address)
-      email_regex = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
-      email_regex.match?(email_address)
     end
 
     def get_value_or_nil(value)
