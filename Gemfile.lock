@@ -384,7 +384,7 @@ GEM
       thread_safe (~> 0.3, >= 0.3.1)
     diff-lcs (1.5.1)
     docile (1.4.0)
-    dogstatsd-ruby (5.6.3)
+    dogstatsd-ruby (5.6.4)
     domain_name (0.6.20240107)
     down (5.4.2)
       addressable (~> 2.8)
@@ -1192,7 +1192,7 @@ DEPENDENCIES
   debug
   decision_reviews!
   dhp_connected_devices!
-  dogstatsd-ruby (= 5.6.3)
+  dogstatsd-ruby (= 5.6.4)
   dry-struct
   dry-types
   ethon (>= 0.13.0)
