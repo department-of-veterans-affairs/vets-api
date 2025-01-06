@@ -76,7 +76,7 @@ describe PdfFill::Forms::Va210781v2 do
       let(:details) { 'Always feeling tired' }
       let :data do
         {
-          'behaviors' => { 'otherBehavior' => other_behavior },
+          'otherBehaviors' => other_behavior,
           'behaviorsDetails' => { 'otherBehavior' => details }
         }
       end
