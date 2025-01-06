@@ -50,8 +50,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
   mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
 
-  # Update alternative Banners data every 10 minutes
-  mgr.register('*/10 * * * *', 'Banners::UpdateAllJob')
+  # Update alternative Banners data every 5 minutes
+  mgr.register('*/5 * * * *', 'Banners::UpdateAllJob')
 
   # Update static data cache
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
