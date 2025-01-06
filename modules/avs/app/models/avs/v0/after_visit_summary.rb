@@ -8,8 +8,8 @@ module Avs
 
     attribute :id, String
     attribute :icn, String
-    attribute :meta, Object
-    attribute :patient_info, Object
+    attribute :meta, Hash
+    attribute :patient_info, Hash
     attribute :appointment_iens, Array, default: []
     attribute :clinics_visited, Array, default: []
     attribute :providers, Array, default: []
@@ -29,14 +29,14 @@ module Avs
     attribute :problems, Array, default: []
     attribute :clinical_reminders, Array, default: []
     attribute :clinical_services, Array, default: []
-    attribute :allergies_reactions, Object
+    attribute :allergies_reactions, Hash
     attribute :clinic_medications, Array, default: []
     attribute :va_medications, Array, default: []
     attribute :nonva_medications, Array, default: []
-    attribute :med_changes_summary, Object
+    attribute :med_changes_summary, Hash
     attribute :lab_results, Array, default: []
     attribute :radiology_reports1_yr, String
-    attribute :discrete_data, Object
+    attribute :discrete_data, Hash
     attribute :more_help_and_information, String
 
     def initialize(data)

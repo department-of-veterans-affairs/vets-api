@@ -861,4 +861,52 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
     end
   end
+  describe '#get_docs' do
+    let(:submission_id) { 1 }
+    let(:uuid) { 'some-uuid' }
+    let(:submission) { build(:form526_submission, id: submission_id) }
+    let(:parsed_forms) do
+      {
+        'form0781' => { 'content_0781' => 'value_0781' },
+        'form0781a' => { 'content_0781a' => 'value_0781a' },
+        'form0781v2' => nil
+      }
+    end
+
+    before do
+      allow(Form526Submission).to receive(:find_by).with(id: submission_id).and_return(submission)
+      allow_any_instance_of(described_class).to receive(:parsed_forms).and_return(parsed_forms)
+      allow_any_instance_of(described_class).to receive(:process_0781).and_return('file_path') # rubocop:disable Naming/VariableNumber
+    end
+
+    it 'returns the correct file type and file objects' do
+      result = subject.new.get_docs(submission_id, uuid)
+
+      expect(result).to eq([
+                             { type: described_class::FORM_ID_0781,
+                               file: 'file_path' },
+                             { type: described_class::FORM_ID_0781A,
+                               file: 'file_path' }
+                           ])
+    end
+
+    it 'does not include forms with no content' do
+      result = subject.new.get_docs(submission_id, uuid)
+
+      expect(result).not_to include({ type: described_class::FORM_ID_0781V2,
+                                      file: 'file_path' })
+    end
+
+    it 'correctly discerns whether to process a 0781 or 0781a' do
+      expect_any_instance_of(described_class).to receive(:process_0781).with(uuid, described_class::FORM_ID_0781, # rubocop:disable Naming/VariableNumber
+                                                                             parsed_forms['form0781'], upload: false)
+      expect_any_instance_of(described_class).to receive(:process_0781).with(uuid, described_class::FORM_ID_0781A, # rubocop:disable Naming/VariableNumber
+                                                                             parsed_forms['form0781a'], upload: false)
+      expect_any_instance_of(described_class).not_to receive(:process_0781).with(uuid, # rubocop:disable Naming/VariableNumber
+                                                                                 described_class::FORM_ID_0781V2,
+                                                                                 parsed_forms['form0781v2'],
+                                                                                 upload: false)
+      subject.new.get_docs(submission_id, uuid)
+    end
+  end
 end
