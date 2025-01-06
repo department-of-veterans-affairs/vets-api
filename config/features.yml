@@ -1953,7 +1953,10 @@ features:
     enabled_in_development: true
   remove_pciu:
     actor_type: user
-    description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
+    description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
+  remove_pciu_2:
+    actor_type: user
+    description: If enabled, removes all PCIU requests in form pre-fill.
   show_yellow_ribbon_table:
     actor_type: user
     description: Used to show yellow ribbon table in Comparison Tool
@@ -1997,5 +2000,6 @@ features:
   show_rudisill_1995:
     actor_type: user
     description: If enabled, show rudisill review in 22-1995
-
-  
+  enable_lighthouse:
+    actor_type: user
+    description: If enabled, user will connect to lighthouse api in sob instead of evss
