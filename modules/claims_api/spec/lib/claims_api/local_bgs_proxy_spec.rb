@@ -15,7 +15,6 @@ describe ClaimsApi::LocalBGSProxy do
     convert_nil_values: %i[options],
     find_poa_by_participant_id: %i[id],
     find_poa_history_by_ptcpnt_id: %i[id],
-    find_tracked_items: %i[id],
     healthcheck: %i[endpoint],
     jrn: %i[],
     make_request: [endpoint: nil, action: nil, body: nil],
