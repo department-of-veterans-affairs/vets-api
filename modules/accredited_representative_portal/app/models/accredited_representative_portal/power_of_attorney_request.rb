@@ -57,6 +57,10 @@ module AccreditedRepresentativePortal
       order(field => (direction == 'asc' ? :asc : :desc))
     }
 
+    def expires_at
+      self.created_at + 60.day
+    end
+
     private
 
     def set_claimant_type
