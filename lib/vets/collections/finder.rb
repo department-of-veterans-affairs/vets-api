@@ -57,12 +57,12 @@ module Vets
       # operator means ==, <=
       def compare(object, conditions)
         conditions.to_hash.all? do |attribute, predicates|
-          predicates.all? do |operation, value|
+          predicates.all? do |operation, operand|
             object_value = object.send(attribute)
             operator = OPERATIONS_MAP.fetch(operation)
 
-            parsed_values = value.try(:split, ',') || [value]
-            results = parsed_values.map do |_item|
+            parsed_values = operand.try(:split, ',') || [operand]
+            results = parsed_values.map do |value|
               if operator == 'match'
                 object_value.downcase.include?(value.downcase)
               else
