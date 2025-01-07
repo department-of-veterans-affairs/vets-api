@@ -21,14 +21,22 @@ module MedicalRecords
       @icn = icn
     end
 
+    def lighthouse_client
+      @lighthouse_client ||= Lighthouse::VeteransHealth::Client.new(@icn)
+    end
+
     def authenticate
       # FIXME: Explore doing this in a less janky way.
       # This is called by the MHV Controller Concern, but is not needed for this client
       # because it is handled in Lighthouse::VeteransHealth::Client::retrieve_bearer_token
     end
 
-    def lighthouse_client
-      @lighthouse_client ||= Lighthouse::VeteransHealth::Client.new(@icn)
+    def list_vitals(from_date = nil, to_date = nil)
+      params = { category: 'vital-signs' }
+      params[:date] = ["ge#{from_date}", "le#{to_date}"] if from_date && to_date
+      bundle = lighthouse_client.list_observations(params)
+      bundle = Oj.load(bundle[:body].to_json, symbol_keys: true)
+      sort_bundle(bundle, :effectiveDateTime, :desc)
     end
 
     def list_allergies
@@ -110,53 +118,19 @@ module MedicalRecords
     end
 
     ##
-    # Sort the FHIR::Bundle entries on a given field and sort order. If a field is not present, that entry
-    # is sorted to the end.
+    # Sort FHIR entries on a given field and sort order. If a field is not present,
+    # that entry is sorted to the end.
     #
-    # @param bundle [FHIR::Bundle] the bundle to sort
-    # @param field [Symbol, String] the field to sort on (supports nested fields with dot notation)
+    # @param bundle [Hash] the bundle to sort
+    # @param field [Symbol] the field to sort on
     # @param order [Symbol] the sort order, :asc (default) or :desc
     #
     def sort_bundle(bundle, field, order = :asc)
-      field = field.to_s
-      sort_bundle_with_criteria(bundle, order) do |resource|
-        fetch_nested_value(resource, field)
-      end
-    end
-
-    ##
-    # Sort the FHIR::Bundle entries based on a provided block. The block should handle different resource types
-    # and define how to extract the sorting value from each.
-    #
-    # @param bundle [FHIR::Bundle] the bundle to sort
-    # @param order [Symbol] the sort order, :asc (default) or :desc
-    #
-    def sort_bundle_with_criteria(bundle, order = :asc)
-      sorted_entries = bundle[:entry].sort do |entry1, entry2|
-        value1 = yield(entry1[:resource])
-        value2 = yield(entry2[:resource])
-        if value2.nil?
-          -1
-        elsif value1.nil?
-          1
-        else
-          order == :asc ? value1 <=> value2 : value2 <=> value1
-        end
-      end
-      bundle[:entry] = sorted_entries
+      # Sort bundle[:entry] based on the field
+      bundle[:entry].sort_by! { |entry| entry[:resource][field] }
+      # reverse the order if descending
+      bundle[:entry].reverse! if order == :desc
       bundle
-    end
-
-    ##
-    # Fetches the value of a potentially nested field from a given object.
-    #
-    # @param object [Object] the object to fetch the value from
-    # @param field_path [String] the dot-separated path to the field
-    #
-    def fetch_nested_value(object, field_path)
-      field_path.split('.').reduce(object) do |obj, method|
-        obj.respond_to?(method) ? obj.send(method) : nil
-      end
     end
 
     def measure_duration(event: 'default', tags: [])

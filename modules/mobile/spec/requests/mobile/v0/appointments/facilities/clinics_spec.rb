@@ -9,6 +9,7 @@ RSpec.describe 'Mobile::V0::Appointments::Facilities::Clinics', type: :request d
 
   before do
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')
+    Flipper.disable(:va_online_scheduling_vaos_alternate_route)
   end
 
   describe 'GET /mobile/v0/appointments/facilities/:facility_id/clinics', :aggregate_failures do

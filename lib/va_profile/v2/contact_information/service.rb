@@ -34,7 +34,7 @@ module VAProfile
         # @return [VAProfile::V2::ContactInformation::PersonResponse] wrapper around an person object
         def get_person
           with_monitoring do
-            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(uuid_with_aaid)}")
+            raw_response = perform(:get, "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}")
             PersonResponse.from(raw_response)
           end
         rescue Common::Client::Errors::ClientError => e
@@ -194,7 +194,7 @@ module VAProfile
         end
 
         # GET's the status of a person transaction from the VAProfile api. Does not validate the presence of
-        # a vet360_id before making the service call, as POSTing a person initializes a vet360_id.
+        # user's icn before making the service call, as POSTing a person initializes a icn.
         #
         # @param transaction_id [String] the transaction_id to check
         # @return [VAProfile::V2::ContactInformation::PersonTransactionResponse] wrapper around a transaction object
@@ -202,7 +202,7 @@ module VAProfile
         def get_person_transaction_status(transaction_id)
           with_monitoring do
             raw_response = perform(:get, "status/#{transaction_id}")
-            VAProfile::Stats.increment_transaction_results(raw_response, 'init_vet360_id')
+            VAProfile::Stats.increment_transaction_results(raw_response, 'init_va_profile')
 
             VAProfile::V2::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
           end
@@ -212,11 +212,8 @@ module VAProfile
 
         private
 
-        def uuid_with_aaid
-          return "#{@user.idme_uuid}^PN^200VIDM^USDVA" if @user.idme_uuid
-          return "#{@user.logingov_uuid}^PN^200VLGN^USDVA" if @user.logingov_uuid
-
-          "#{vet360_id}^PI^200VETS^USDVA"
+        def icn_with_aaid
+          "#{@user.icn}^NI^200M^USVHA"
         end
 
         def vet360_id
@@ -279,8 +276,9 @@ module VAProfile
 
         def post_or_put_data(method, model, path, response_class)
           with_monitoring do
-            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(uuid_with_aaid)}" + "/#{path}"
-            raw_response = perform(method, request_path, model.in_json)
+            request_path = "#{MPI::Constants::VA_ROOT_OID}/#{ERB::Util.url_encode(icn_with_aaid)}" + "/#{path}"
+            # in_json method should replace in_json_v2 after Contact Information V1 has depreciated
+            raw_response = perform(method, request_path, model.in_json_v2)
             response_class.from(raw_response)
           end
         rescue => e

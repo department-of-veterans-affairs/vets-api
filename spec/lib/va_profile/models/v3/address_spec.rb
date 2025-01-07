@@ -239,7 +239,7 @@ describe VAProfile::Models::V3::Address do
 
       it 'bad address is false' do
         address.address_pou = VAProfile::Models::V3::Address::CORRESPONDENCE
-        json = JSON.parse(address.in_json)
+        json = JSON.parse(address.in_json_v2)
         expect(json['bio']['badAddress']).to eq(false)
       end
     end
@@ -252,7 +252,7 @@ describe VAProfile::Models::V3::Address do
 
       it 'bad address is nil' do
         address.address_pou = VAProfile::Models::V3::Address::RESIDENCE
-        json = JSON.parse(address.in_json)
+        json = JSON.parse(address.in_json_v2)
         expect(json['bio']['badAddress']).to eq(nil)
       end
     end

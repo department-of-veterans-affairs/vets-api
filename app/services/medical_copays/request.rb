@@ -44,11 +44,30 @@ module MedicalCopays
     # @return [Faraday::Response]
     #
     def post(path, params)
-      with_monitoring do
-        connection.post(path) do |req|
-          req.body = Oj.dump(params)
+      if Flipper.enabled?(:debts_copay_logging) && !Rails.env.development?
+        with_monitoring_and_error_handling do
+          connection.post(path) do |req|
+            req.body = Oj.dump(params)
+          end
+        end
+      else
+        with_monitoring do
+          connection.post(path) do |req|
+            req.body = Oj.dump(params)
+          end
         end
       end
+    end
+
+    def with_monitoring_and_error_handling(&)
+      with_monitoring(2, &)
+    rescue => e
+      handle_error(e)
+    end
+
+    def handle_error(error)
+      Rails.logger.error("MedicalCopays::Request error: #{error.message}")
+      raise error
     end
 
     ##

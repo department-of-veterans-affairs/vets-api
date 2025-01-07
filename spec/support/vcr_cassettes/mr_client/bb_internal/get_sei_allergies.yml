@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/healthhistory/allergy/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 21 Nov 2024 00:08:13 GMT
+      Content-Type:
+      - application/json
+      Content-Length:
+      - '717'
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"success":true,"failure":false,"failureMessage":null,"pojoObject":[{"allergiesId":16660767,"comments":null,"allergy":"assure
+        VA Regression Test","eventDate":"2020-01-26","reaction":"automation assure
+        reaction","diagnosed":"Y","severity":"M","userprofileId":11375034,"source":"Self"},{"allergiesId":16660768,"comments":null,"allergy":"assure
+        VA Regression Test","eventDate":"2020-01-26","reaction":"automation assure
+        reaction","diagnosed":"Y","severity":"M","userprofileId":11375034,"source":"Self"},{"allergiesId":14142745,"comments":null,"allergy":"hay","eventDate":"2017-03-28","reaction":"Test","diagnosed":"Y","severity":"M","userprofileId":11375034,"source":"Self"}],"validationErrors":null,"infoMessages":null}'
+  recorded_at: Thu, 21 Nov 2024 00:08:13 GMT
+recorded_with: VCR 6.3.1

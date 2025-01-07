@@ -1,11 +1,13 @@
 = SimpleFormsApi
-This module allows you to generate form_mappings based on a PDF file. 
-With this in place, you can submit a form payload from the vets-website 
-and have this module map that payload to the associated PDF and submit it 
+This module allows you to generate form_mappings based on a PDF file.
+With this in place, you can submit a form payload from the vets-website
+and have this module map that payload to the associated PDF and submit it
 to the Benefits Intake API in Lighthouse.
 
+Note: The following command can currently only be run locally after following the [Native setup](https://github.com/department-of-veterans-affairs/vets-api/blob/master/docs/setup/native.md) instructions.
+
 To generate files:
-rails simple_forms_api:generate\['path to PDF file'\]
+  rails simple_forms_api:generate['modules/simple_forms_api/templates/YOUR_PDF_FILE.pdf']
 
 Submission endpoint:
 /simple_forms_api/v1/simple_forms

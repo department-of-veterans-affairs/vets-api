@@ -5,6 +5,7 @@ require 'simple_forms_api_submission/metadata_validator'
 require 'common/file_helpers'
 require 'lighthouse/benefits_intake/service'
 require 'lgy/service'
+require 'benefits_intake_service/service'
 
 RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   forms = [
@@ -18,7 +19,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     'vba_21_4138.json',
     'vba_21_4142.json',
     'vba_21p_0847.json',
-    # 'vba_26_4555.json', # TODO: Restore this test when we release 26-4555 to production.
     'vba_40_0247.json',
     'vba_40_10007.json'
   ]
@@ -33,6 +33,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
   let(:pdf_url) { 'https://s3.com/presigned-goodness' }
   let(:mock_s3_client) { instance_double(SimpleFormsApi::FormRemediation::S3Client) }
+  let(:lighthouse_service) { instance_double(BenefitsIntake::Service) }
 
   before do
     allow(SimpleFormsApi::FormRemediation::S3Client).to receive(:new).and_return(mock_s3_client)
@@ -41,7 +42,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
   end
 
   describe '#submit' do
-    context 'going to Lighthouse Benefits Intake API' do
+    context 'submitting to Lighthouse Benefits Intake API' do
       let(:metadata_file) { "#{file_seed}.SimpleFormsApi.metadata.json" }
       let(:file_seed) { 'tmp/some-unique-simple-forms-file-seed' }
       let(:random_string) { 'some-unique-simple-forms-file-seed' }
@@ -171,7 +172,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             end
           end
 
-          context 'fails to go to Lighthouse Benefits Claims API because of UnprocessableEntity error' do
+          context 'fails to submit to Lighthouse Benefits Claims API because of UnprocessableEntity error' do
             before do
               VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/422_response')
             end
@@ -205,7 +206,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       context 'request with attached documents' do
         let(:pdf_path) { Rails.root.join('spec', 'fixtures', 'files', 'doctors-note.pdf') }
-        let(:lighthouse_service) { double }
         let(:confirmation_number) { 'some_confirmation_number' }
 
         before do
@@ -315,7 +315,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
     end
 
-    context 'going to Lighthouse Benefits Claims API' do
+    context 'submitting to Lighthouse Benefits Claims API' do
       before do
         allow(Common::VirusScan).to receive(:scan).and_return(true)
         VCR.insert_cassette('lighthouse/benefits_claims/intent_to_file/404_response')
@@ -356,7 +356,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
     end
 
-    context 'going to SAHSHA API' do
+    context 'submitting to SAHSHA API (vba_26_4555)' do
       let(:reference_number) { 'some-reference-number' }
       let(:body_status) { 'ACCEPTED' }
       let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }
@@ -521,15 +521,20 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       sign_in
     end
 
-    it 'renders the attachment as json' do
+    let(:valid_file) { fixture_file_upload('doctors-note.gif') }
+    let(:invalid_file) { fixture_file_upload('too_large.pdf') }
+
+    it 'renders the attachment as json when the document is valid' do
       clamscan = double(safe?: true)
       allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
-      file = fixture_file_upload('doctors-note.gif')
 
-      # Define data for both form IDs
+      # Stub the BenefitsIntakeService for validation
+      valid_service = double(valid_document?: true)
+      allow(BenefitsIntakeService::Service).to receive(:new).and_return(valid_service)
+
       data_sets = [
-        { form_id: '40-0247', file: },
-        { form_id: '40-10007', file: }
+        { form_id: '40-0247', file: valid_file },
+        { form_id: '40-10007', file: valid_file }
       ]
 
       data_sets.each do |data|
@@ -542,6 +547,42 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
         expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
       end
+    end
+
+    it 'returns an error when the document validation fails' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      invalid_service = double
+      error = BenefitsIntakeService::Service::InvalidDocumentError.new('Invalid file format')
+      allow(invalid_service).to receive(:valid_document?).and_raise(error)
+
+      allow(BenefitsIntakeService::Service).to receive(:new).and_return(invalid_service)
+
+      data = { form_id: '40-0247', file: invalid_file }
+
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.not_to change(PersistentAttachment, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      resp = JSON.parse(response.body)
+      expect(resp['error']).to eq('Document validation failed: Invalid file format')
+    end
+
+    it 'returns an error when the attachment is invalid' do
+      clamscan = double(safe?: true)
+      allow(Common::VirusScan).to receive(:scan).and_return(clamscan)
+
+      allow_any_instance_of(PersistentAttachments::MilitaryRecords).to receive(:valid?).and_return(false)
+
+      data = { form_id: '40-0247', file: valid_file }
+
+      expect do
+        post '/simple_forms_api/v1/simple_forms/submit_supporting_documents', params: data
+      end.not_to change(PersistentAttachment, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 
@@ -682,8 +723,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'Veteran',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
@@ -724,8 +764,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'Jack',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
@@ -772,8 +811,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'Arthur',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
@@ -815,8 +853,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
           {
             'first_name' => 'Prepare',
             'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-            'confirmation_number' => confirmation_number,
-            'lighthouse_updated_at' => nil
+            'confirmation_number' => confirmation_number
           }
         )
       end
@@ -852,9 +889,11 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         end
 
         context 'veteran preparer' do
-          it 'successful submission' do
+          let(:expiration_date) { Time.zone.now }
+
+          it 'sends the received email' do
             allow_any_instance_of(SimpleFormsApi::IntentToFile)
-              .to receive(:submit).and_return([confirmation_number, Time.zone.now])
+              .to receive(:submit).and_return([confirmation_number, expiration_date])
             allow_any_instance_of(SimpleFormsApi::IntentToFile)
               .to receive(:existing_intents)
               .and_return({ 'compensation' => 'false', 'pension' => 'false', 'survivor' => 'false' })
@@ -867,14 +906,15 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
             expect(VANotify::EmailJob).to have_received(:perform_async).with(
               'abraham.lincoln@vets.gov',
-              'form21_0966_confirmation_email_template_id',
+              'form21_0966_itf_api_received_email_template_id',
               {
                 'first_name' => 'Veteran',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
-                'lighthouse_updated_at' => nil,
-                'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                             ' (VA Form 21P-534 or VA Form 21P-534EZ)'
+                'intent_to_file_benefits' => 'survivors pension benefits',
+                'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                                   '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+                'itf_api_expiration_date' => expiration_date
               }
             )
           end
@@ -896,9 +936,10 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'first_name' => 'Veteran',
                 'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
                 'confirmation_number' => confirmation_number,
-                'lighthouse_updated_at' => nil,
-                'intent_to_file_benefits' => 'Survivors Pension and/or Dependency and Indemnity Compensation (DIC)' \
-                                             ' (VA Form 21P-534 or VA Form 21P-534EZ)'
+                'intent_to_file_benefits' => 'survivors pension benefits',
+                'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
+                                                   '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
+                'itf_api_expiration_date' => nil
               }
             )
           end
@@ -931,6 +972,104 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             expect(response).to have_http_status(:ok)
             expect(VANotify::EmailJob).not_to have_received(:perform_async)
           end
+        end
+      end
+    end
+
+    describe '26_4555' do
+      let(:data) do
+        fixture_path = Rails.root.join(
+          'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_26_4555.json'
+        )
+        JSON.parse(fixture_path.read)
+      end
+
+      context 'validated or accepted' do
+        let(:reference_number) { 'some-reference-number' }
+        let(:body_status) { 'VALIDATED' }
+        let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }
+        let(:status) { 200 }
+        let(:lgy_response) { double(body:, status:) }
+
+        before do
+          sign_in
+          allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+        end
+
+        it 'sends a confirmation email' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:ok)
+
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            'veteran.surname@address.com',
+            'form26_4555_confirmation_email_template_id',
+            {
+              'first_name' => 'Veteran',
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+              'confirmation_number' => reference_number
+            }
+          )
+        end
+      end
+
+      context 'rejected' do
+        let(:body_status) { 'REJECTED' }
+        let(:body) { { 'status' => body_status } }
+        let(:status) { 200 }
+        let(:lgy_response) { double(body:, status:) }
+
+        before do
+          sign_in
+          allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+        end
+
+        it 'sends a rejected email' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:ok)
+
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            'veteran.surname@address.com',
+            'form26_4555_rejected_email_template_id',
+            {
+              'first_name' => 'Veteran',
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
+            }
+          )
+        end
+      end
+
+      context 'duplicate' do
+        let(:body_status) { 'DUPLICATE' }
+        let(:body) { { 'status' => body_status } }
+        let(:status) { 200 }
+        let(:lgy_response) { double(body:, status:) }
+
+        before do
+          sign_in
+          allow_any_instance_of(LGY::Service).to receive(:post_grant_application).and_return(lgy_response)
+        end
+
+        it 'sends a duplicate email' do
+          allow(VANotify::EmailJob).to receive(:perform_async)
+
+          post '/simple_forms_api/v1/simple_forms', params: data
+
+          expect(response).to have_http_status(:ok)
+
+          expect(VANotify::EmailJob).to have_received(:perform_async).with(
+            'veteran.surname@address.com',
+            'form26_4555_duplicate_email_template_id',
+            {
+              'first_name' => 'Veteran',
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
+            }
+          )
         end
       end
     end

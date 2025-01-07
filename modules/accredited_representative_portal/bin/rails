@@ -1,11 +1,14 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-ENGINE_ROOT = File.expand_path('../..', __dir__)
-ENGINE_PATH = File.expand_path('../../lib/accredited_representative_portal/engine', __dir__)
+require 'pathname'
+
+ENGINE_ROOT = Pathname(__dir__).parent
+ENGINE_PATH = ENGINE_ROOT / 'lib/accredited_representative_portal/engine'
+BUNDLE_GEMFILE = ENGINE_ROOT / 'Gemfile'
 
 # Set up gems listed in the Gemfile.
-ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', __dir__)
+ENV['BUNDLE_GEMFILE'] ||= BUNDLE_GEMFILE.to_path
 require 'bundler/setup' if File.exist?(ENV['BUNDLE_GEMFILE'])
 
 require 'rails/all'

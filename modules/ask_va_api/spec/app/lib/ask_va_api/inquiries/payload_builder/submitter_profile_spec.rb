@@ -21,7 +21,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
       }
     end
     let(:pronouns) do
-      { he_him_his: true }
+      { he_him_his: 'true' }
     end
     let(:params) do
       {
@@ -69,7 +69,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
         LastName: 'User',
         PreferredName: 'Test User',
         Suffix: 722_310_000,
-        Gender: nil,
         Pronouns: 'he/him/his',
         Country: {
           Name: 'United States',

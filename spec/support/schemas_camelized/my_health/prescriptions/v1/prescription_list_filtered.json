@@ -33,6 +33,16 @@
         },
         "filter": {
           "type": "object"
+        },
+        "filterCount": { 
+          "type": "object",
+          "properties": {
+            "active": { "type":"integer"},
+            "allMedications": { "type":"integer"},
+            "recentlyRequested": { "type":"integer"},
+            "nonActive": { "type":"integer"},
+            "renewal": { "type":"integer"}
+          }
         }
       }
     }

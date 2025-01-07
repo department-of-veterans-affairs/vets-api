@@ -22,6 +22,23 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
       }
     }
   end
+  let(:user_struct) do
+    OpenStruct.new(
+      edipi: user_object.edipi,
+      participant_id: user_object.participant_id,
+      pid: user_object.participant_id,
+      birth_date: user_object.birth_date,
+      ssn: user_object.ssn,
+      vet360_id: user_object.vet360_id,
+      loa3?: true,
+      icn: user_object.icn,
+      uuid: user_object.uuid,
+      first_name: user_object.first_name,
+      va_profile_email: user_object.va_profile_email
+    )
+  end
+  let(:encrypted_user) { KmsEncrypted::Box.new.encrypt(user_struct.to_h.to_json) }
+  let(:user) { OpenStruct.new(JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_user))) }
 
   before do
     allow_any_instance_of(RES::Ch31Form).to receive(:submit).and_return(true)
@@ -147,15 +164,15 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   describe '#send_vbms_confirmation_email' do
-    subject { claim.send_vbms_confirmation_email(user_object) }
+    subject { claim.send_vbms_confirmation_email(user) }
 
     it 'calls the VA notify email job' do
       expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user_object.va_profile_email,
+        user.va_profile_email,
         'ch31_vbms_fake_template_id',
         {
           'date' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => 'WESLEY'
+          'first_name' => user.first_name.upcase.presence
         }
       )
 
@@ -164,15 +181,15 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   end
 
   describe '#send_lighthouse_confirmation_email' do
-    subject { claim.send_lighthouse_confirmation_email(user_object) }
+    subject { claim.send_lighthouse_confirmation_email(user) }
 
     it 'calls the VA notify email job' do
       expect(VANotify::EmailJob).to receive(:perform_async).with(
-        user_object.va_profile_email,
+        user.va_profile_email,
         'ch31_central_mail_fake_template_id',
         {
           'date' => Time.zone.today.strftime('%B %d, %Y'),
-          'first_name' => 'WESLEY'
+          'first_name' => user.first_name.upcase.presence
         }
       )
 

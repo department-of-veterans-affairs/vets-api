@@ -10,4 +10,6 @@ class SecondaryAppealForm < ApplicationRecord
   scope :needs_failure_notification, lambda {
     where(delete_date: nil, failure_notification_sent_at: nil).where('status LIKE ?', '%error%')
   }
+
+  scope :incomplete, -> { where(delete_date: nil) }
 end

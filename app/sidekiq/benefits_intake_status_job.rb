@@ -4,7 +4,10 @@ require 'burials/monitor'
 require 'lighthouse/benefits_intake/service'
 require 'pensions/monitor'
 require 'pensions/notification_email'
-require 'va_notify/notification_email/burial'
+require 'burials/notification_email'
+require 'pcpg/monitor'
+require 'dependents/monitor'
+require 'vre/monitor'
 
 # Datadog Dashboard:
 # https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking?fromUser=false&refresh_mode=sliding&view=spans&from_ts=1717772535566&to_ts=1718377335566&live=true
@@ -25,28 +28,19 @@ class BenefitsIntakeStatusJob
 
   def perform
     Rails.logger.info('BenefitsIntakeStatusJob started')
-    form_submissions_and_attempts = FormSubmission.joins(:form_submission_attempts)
-    resolved_form_submission_ids = form_submissions_and_attempts
-                                   .where(form_submission_attempts: { aasm_state: %w[vbms failure] })
-                                   .pluck(:id)
-    pending_form_submissions = form_submissions_and_attempts
-                               .where(form_submission_attempts: { aasm_state: 'pending' })
-                               .where.not(id: resolved_form_submission_ids)
-    # We're calculating the resolved_form_submissions and removing them because it is possible for a FormSubmission
-    # to have two (or more) attempts, one 'pending' and the other 'vbms'. In such cases we don't want to include
-    # that FormSubmission because it has been resolved.
-    total_handled, result = batch_process(pending_form_submissions)
+    pending_form_submission_attempts = FormSubmissionAttempt.where(aasm_state: 'pending')
+    total_handled, result = batch_process(pending_form_submission_attempts)
     Rails.logger.info('BenefitsIntakeStatusJob ended', total_handled:) if result
   end
 
   private
 
-  def batch_process(pending_form_submissions)
+  def batch_process(pending_form_submission_attempts)
     total_handled = 0
     intake_service = BenefitsIntake::Service.new
 
-    pending_form_submissions.each_slice(batch_size) do |batch|
-      batch_uuids = batch.map { |submission| submission.latest_attempt&.benefits_intake_uuid }
+    pending_form_submission_attempts.each_slice(batch_size) do |batch|
+      batch_uuids = batch.map(&:benefits_intake_uuid)
       response = intake_service.bulk_status(uuids: batch_uuids)
 
       # Log the entire response for debugging purposes
@@ -54,7 +48,7 @@ class BenefitsIntakeStatusJob
 
       raise response.body unless response.success?
 
-      total_handled += handle_response(response, batch)
+      total_handled += handle_response(response)
     end
 
     [total_handled, true]
@@ -64,7 +58,7 @@ class BenefitsIntakeStatusJob
   end
 
   # rubocop:disable Metrics/MethodLength
-  def handle_response(response, pending_form_submissions)
+  def handle_response(response)
     total_handled = 0
 
     # Ensure response body contains data, and log the data for debugging
@@ -75,13 +69,10 @@ class BenefitsIntakeStatusJob
 
     response.body['data']&.each do |submission|
       uuid = submission['id']
-      form_submission = pending_form_submissions.find do |submission_from_db|
-        submission_from_db.latest_attempt&.benefits_intake_uuid == uuid
-      end
-      form_id = form_submission.form_type
-      saved_claim_id = form_submission.saved_claim_id
-
-      form_submission_attempt = form_submission.latest_pending_attempt
+      form_submission_attempt = form_submission_attempts_hash[uuid]
+      form_submission = form_submission_attempt&.form_submission
+      form_id = form_submission&.form_type
+      saved_claim_id = form_submission&.saved_claim_id
       time_to_transition = (Time.zone.now - form_submission_attempt.created_at).truncate
 
       # https://developer.va.gov/explore/api/benefits-intake/docs
@@ -109,6 +100,7 @@ class BenefitsIntakeStatusJob
         # submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.update(lighthouse_updated_at:)
         form_submission_attempt.vbms!
+        monitor_success(form_id, saved_claim_id, uuid)
         log_result('success', form_id, uuid, time_to_transition)
       elsif time_to_transition > STALE_SLA.days
         # exceeds SLA (service level agreement) days for submission completion
@@ -133,9 +125,27 @@ class BenefitsIntakeStatusJob
     StatsD.increment("#{STATS_KEY}.all_forms.#{result}")
     if result == 'failure'
       Rails.logger.error('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:, error_message:)
-      monitor_failure(form_id, uuid)
     else
       Rails.logger.info('BenefitsIntakeStatusJob', result:, form_id:, uuid:, time_to_transition:)
+    end
+  end
+
+  def monitor_success(form_id, saved_claim_id, bi_uuid)
+    # Remove this logic after SubmissionStatusJob replaces this one
+    if form_id == '21P-530EZ' && Flipper.enabled?(:burial_received_email_notification)
+      claim = SavedClaim::Burial.find_by(id: saved_claim_id)
+
+      unless claim
+        context = {
+          form_id: form_id,
+          claim_id: saved_claim_id,
+          benefits_intake_uuid: bi_uuid
+        }
+        Burials::Monitor.new.log_silent_failure(context, nil, call_location: caller_locations.first)
+        return
+      end
+
+      Burials::NotificationEmail.new(claim.id).deliver(:received)
     end
   end
 
@@ -149,10 +159,10 @@ class BenefitsIntakeStatusJob
     }
     call_location = caller_locations.first
 
-    if %w[21P-530V2 21P-530].include?(form_id)
+    if %w[21P-530EZ 21P-530V2].include?(form_id)
       claim = SavedClaim::Burial.find(saved_claim_id)
       if claim
-        Burials::NotificationEmail.new(claim).deliver(:error)
+        Burials::NotificationEmail.new(claim.id).deliver(:error)
         Burials::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         Burials::Monitor.new.log_silent_failure(context, nil, call_location:)
@@ -162,12 +172,56 @@ class BenefitsIntakeStatusJob
     if %w[21P-527EZ].include?(form_id)
       claim = Pensions::SavedClaim.find(saved_claim_id)
       if claim
-        Pensions::NotificationEmail.new(claim).deliver(:error)
+        Pensions::NotificationEmail.new(claim.id).deliver(:error)
         Pensions::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
       else
         Pensions::Monitor.new.log_silent_failure(context, nil, call_location:)
       end
     end
+
+    # Dependents
+    if %w[686C-674].include?(form_id)
+      claim = SavedClaim::DependencyClaim.find(saved_claim_id)
+      email = if claim.present?
+                claim.parsed_form.dig('dependents_application', 'veteran_contact_information', 'email_address')
+              end
+      if claim.present? && email.present?
+        claim.send_failure_email(email)
+        Dependents::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
+      else
+        Dependents::Monitor.new.log_silent_failure(context, nil, call_location:)
+      end
+    end
+
+    # PCPG
+    if %w[28-8832].include?(form_id)
+      claim = SavedClaim::EducationCareerCounselingClaim.find(saved_claim_id)
+      email = claim.parsed_form.dig('claimantInformation', 'emailAddress') if claim.present?
+      if claim.present? && email.present?
+        claim.send_failure_email(email)
+        PCPG::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
+      else
+        PCPG::Monitor.new.log_silent_failure(ocntext, nil, call_location:)
+      end
+    end
+
+    # VRE
+    if %w[28-1900].include?(form_id)
+      claim = SavedClaim::VeteranReadinessEmploymentClaim.find(saved_claim_id)
+      email = claim.parsed_form['email'] if claim.present?
+      if claim.present? && email.present?
+        claim.send_failure_email(email)
+        VRE::Monitor.new.log_silent_failure_avoided(context, nil, call_location:)
+      else
+        VRE::Monitor.new.log_silent_failure(context, nil, call_location:)
+      end
+    end
   end
   # rubocop:enable Metrics/MethodLength
+
+  def form_submission_attempts_hash
+    @_form_submission_attempts_hash ||= FormSubmissionAttempt
+                                        .where(aasm_state: 'pending')
+                                        .index_by(&:benefits_intake_uuid)
+  end
 end

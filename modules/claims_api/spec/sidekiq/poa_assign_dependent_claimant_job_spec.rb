@@ -52,10 +52,11 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
     let(:poa) do
       FactoryBot.create(:power_of_attorney,
                         auth_headers: auth_headers,
-                        form_data: claimant_form_data)
+                        form_data: claimant_form_data,
+                        status: ClaimsApi::PowerOfAttorney::SUBMITTED)
     end
 
-    it 'calls the PoaVBMSUpdater when successful' do
+    it "marks the POA status as 'updated'" do
       allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
         .to receive(:assign_poa_to_dependent!).and_return(
           true
@@ -66,8 +67,11 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
           true
         )
 
-      expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
+      expect(poa.status).to eq(ClaimsApi::PowerOfAttorney::SUBMITTED)
       described_class.new.perform(poa.id)
+
+      poa.reload
+      expect(poa.status).to eq(ClaimsApi::PowerOfAttorney::UPDATED)
     end
   end
 end

@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../../../../support/helpers/rails_helper'
+require_relative '../../../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::Appointments::CheckIn::Demographics', type: :request do
+  include CommitteeHelper
+
   let(:location_id) { '516' }
   let(:patient_dfn) { '12345' }
   let!(:user) do
@@ -28,7 +31,7 @@ RSpec.describe 'Mobile::V0::Appointments::CheckIn::Demographics', type: :request
                                                                  params: { 'location_id' => location_id }
           end
         end
-        expect(response).to have_http_status(:ok)
+        assert_schema_conform(200)
         expect(response.parsed_body).to eq(
           { 'data' =>
              { 'id' => user.uuid,
@@ -104,7 +107,7 @@ RSpec.describe 'Mobile::V0::Appointments::CheckIn::Demographics', type: :request
                                                                  params: { 'location_id' => location_id }
           end
         end
-        expect(response).to have_http_status(:bad_gateway)
+        assert_schema_conform(502)
         expect(response.parsed_body).to eq({ 'errors' =>
                                   [{ 'title' => 'Bad Gateway',
                                      'detail' =>
@@ -128,7 +131,7 @@ RSpec.describe 'Mobile::V0::Appointments::CheckIn::Demographics', type: :request
                                                              'next_of_kin_needs_update' => false } }
           end
         end
-        expect(response).to have_http_status(:ok)
+        assert_schema_conform(200)
         expect(response.parsed_body).to eq(
           { 'data' =>
               { 'id' => '5',
@@ -153,7 +156,7 @@ RSpec.describe 'Mobile::V0::Appointments::CheckIn::Demographics', type: :request
                                                              'next_of_kin_needs_update' => false } }
           end
         end
-        expect(response).to have_http_status(:internal_server_error)
+        assert_schema_conform(500)
         expect(response.parsed_body).to eq(
           { 'errors' =>
               [

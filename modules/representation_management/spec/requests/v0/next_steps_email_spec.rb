@@ -5,6 +5,11 @@ require 'rails_helper'
 RSpec.describe 'NextStepsEmailController', type: :request do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/next_steps_email' }
+    let(:accredited_individual) do
+      create(:accredited_individual, individual_type: 'attorney', first_name: 'Bob', last_name: 'Law',
+                                     address_line1: '123 Fake St', address_line2: 'Bldg 2', address_line3: 'Suite 3',
+                                     city: 'Portland', state_code: 'OR', zip_code: '97214', country_code_iso3: 'USA')
+    end
     let(:params) do
       {
         next_steps_email: {
@@ -12,9 +17,8 @@ RSpec.describe 'NextStepsEmailController', type: :request do
           first_name: 'First',
           form_name: 'Form Name',
           form_number: 'Form Number',
-          representative_type: 'attorney',
-          representative_name: 'Name',
-          representative_address: 'Address'
+          entity_type: 'individual',
+          entity_id: accredited_individual.id
         }
       }
     end
@@ -41,9 +45,9 @@ RSpec.describe 'NextStepsEmailController', type: :request do
             'first_name' => 'First',
             'form name' => 'Form Name',
             'form number' => 'Form Number',
-            'representative type' => 'Attorney', # We enqueue this as a humanized and titleized string
-            'representative name' => 'Name',
-            'representative address' => 'Address'
+            'representative type' => 'attorney',
+            'representative name' => 'Bob Law',
+            'representative address' => '123 Fake St Bldg 2 Suite 3 Portland, OR 97214 USA'
           }
         )
         post(base_path, params:)
@@ -70,8 +74,6 @@ RSpec.describe 'NextStepsEmailController', type: :request do
         before do
           params[:next_steps_email][:email_address] = nil
           params[:next_steps_email][:first_name] = nil
-          params[:next_steps_email][:representative_type] = nil
-          params[:next_steps_email][:representative_name] = nil
           post(base_path, params:)
         end
 
@@ -82,8 +84,6 @@ RSpec.describe 'NextStepsEmailController', type: :request do
         it 'responds with the expected body' do
           expect(response.body).to include("Email address can't be blank")
           expect(response.body).to include("First name can't be blank")
-          expect(response.body).to include("Representative type can't be blank")
-          expect(response.body).to include("Representative name can't be blank")
         end
       end
     end

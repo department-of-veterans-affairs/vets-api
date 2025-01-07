@@ -47,6 +47,10 @@ module Form1010Ezr
         veteran_initials: veteran_initials(parsed_form)
       )
 
+      if parsed_form['attachments'].present?
+        StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.submission_with_attachment")
+      end
+
       res
     rescue => e
       log_and_raise_error(e, parsed_form)
@@ -68,11 +72,6 @@ module Form1010Ezr
       StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.failed")
 
       if parsed_form.present?
-        PersonalInformationLog.create!(
-          data: parsed_form,
-          error_class: 'Form1010Ezr Failed'
-        )
-
         log_message_to_sentry(
           '1010EZR failure',
           :error,

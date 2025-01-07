@@ -3,7 +3,9 @@
 require 'rails_helper'
 require 'va_profile/models/gender_identity'
 
-RSpec.describe 'V0::Profile::GenderIdentities', type: :request do
+RSpec.describe 'V0::Profile::GenderIdentities', feature: :personal_info,
+                                                team_owner: :vfs_authenticated_experience_backend,
+                                                type: :request do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3) }

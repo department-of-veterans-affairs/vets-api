@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :banner do
-    entity_id { 1 }
+    sequence(:entity_id) { |n| n }
     entity_bundle { 'full_width_banner_alert' }
     headline { 'Important Alert!' }
     alert_type { 'warning' }

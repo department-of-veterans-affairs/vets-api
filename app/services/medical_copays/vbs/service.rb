@@ -117,6 +117,10 @@ module MedicalCopays
       end
 
       def get_copay_response
+        if Flipper.enabled?(:debts_copay_logging)
+          Rails.logger.info("MedicalCopays::VBS::Service#get_copay_response request data: #{@user.uuid}")
+        end
+
         request.post("#{settings.base_path}/GetStatementsByEDIPIAndVistaAccountNumber", request_data.to_hash)
       end
 

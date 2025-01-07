@@ -25,6 +25,38 @@
                 "type": "string",
                 "minLength": 1
               }
+            },
+            "pageSize": {
+              "type": "string"
+            },
+            "pageIndex": {
+              "type": "string"
+            },
+            "filter": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "status": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "NEW",
+                      "ACCEPTED",
+                      "DECLINED"
+                    ]
+                  }
+                },
+                "state": {
+                  "type": "string"
+                },
+                "city": {
+                  "type": "string"
+                },
+                "country": {
+                  "type": "string"
+                }
+              }
             }
           }
         }

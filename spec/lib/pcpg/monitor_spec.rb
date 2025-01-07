@@ -28,11 +28,11 @@ RSpec.describe PCPG::Monitor do
           message: msg
         }
 
-        expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
+        expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
         expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
         expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
 
-        monitor.track_submission_exhaustion(msg, claim)
+        monitor.track_submission_exhaustion(msg, claim, claim.parsed_form.dig('claimantInformation', 'emailAddress'))
       end
 
       it 'logs with no claim information if claim is passed in as nil' do
@@ -50,7 +50,7 @@ RSpec.describe PCPG::Monitor do
         expect(StatsD).to receive(:increment).with("#{submission_stats_key}.exhausted")
         expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
 
-        monitor.track_submission_exhaustion(msg, nil)
+        monitor.track_submission_exhaustion(msg, nil, nil)
       end
     end
 
@@ -66,11 +66,29 @@ RSpec.describe PCPG::Monitor do
           message: msg
         }
 
+        expect(monitor).to receive(:log_silent_failure_avoided).with(payload, current_user.uuid, anything)
+        expect(StatsD).to receive(:increment).with("#{benefits_intake_submission_stats_key}.exhausted")
+        expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
+        email_address = claim.parsed_form.dig('claimantInformation', 'emailAddress')
+        monitor.track_benefits_intake_submission_exhaustion(msg, claim, email_address)
+      end
+
+      it 'logs sidekiq job exhaustion without email' do
+        msg = { 'args' => [claim.id, current_user.uuid] }
+
+        log = 'Lighthouse::SubmitBenefitsIntakeClaim PCPG 28-8832 submission to LH exhausted!'
+        payload = {
+          form_id: claim.form_id,
+          claim_id: claim.id,
+          confirmation_number: claim.confirmation_number,
+          message: msg
+        }
+
         expect(monitor).to receive(:log_silent_failure).with(payload, current_user.uuid, anything)
         expect(StatsD).to receive(:increment).with("#{benefits_intake_submission_stats_key}.exhausted")
         expect(Rails.logger).to receive(:error).with(log, user_uuid: current_user.uuid, **payload)
 
-        monitor.track_benefits_intake_submission_exhaustion(msg, claim)
+        monitor.track_benefits_intake_submission_exhaustion(msg, claim, nil)
       end
     end
   end

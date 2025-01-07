@@ -15,6 +15,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
     let(:current_user) { build(:ch33_dd_user) }
 
     before do
+      allow(Flipper).to receive(:enabled?).with(:hca_disable_bgs_service).and_return(false)
       sign_in_as(current_user)
     end
 
@@ -26,6 +27,22 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       expect(JSON.parse(response.body)['data']['attributes']).to eq(
         { 'user_percent_of_disability' => 100 }
       )
+    end
+
+    context 'hca_disable_bgs_service enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:hca_disable_bgs_service).and_return(true)
+      end
+
+      it 'does not call the BGS Service and returns the rating info as 0' do
+        expect_any_instance_of(BGS::Service).not_to receive(:find_rating_data)
+
+        get(rating_info_v0_health_care_applications_path)
+
+        expect(JSON.parse(response.body)['data']['attributes']).to eq(
+          { 'user_percent_of_disability' => 0 }
+        )
+      end
     end
 
     context 'User not found' do

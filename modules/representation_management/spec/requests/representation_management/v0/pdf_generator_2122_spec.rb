@@ -41,7 +41,6 @@ RSpec.describe 'RepresentationManagement::V0::PdfGenerator2122', type: :request 
             service_branch: 'ARMY',
             phone: '5555555555',
             email: 'veteran@example.com',
-            insurance_numbers: [],
             name: {
               first: 'John',
               middle: 'Middle', # This is a middle name as submitted by the frontend

@@ -10,6 +10,10 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
   end
   let(:line_break) { EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK }
 
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+  end
+
   after(:all) do
     FileUtils.rm_rf('tmp/spool_files')
   end

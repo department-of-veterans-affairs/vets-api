@@ -104,25 +104,26 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
                                                                                  transaction_id: 'transaction_3',
                                                                                  id: '4')
 
-        FactoryBot.create(:auto_established_claim_va_gov,
-                          :errored,
-                          created_at: 30.seconds.ago,
-                          evss_response: "[{'status'=>'422', " \
-                                         "'title'=>'Backend Service Exception', " \
-                                         "'detail'=>'The Maximum number of EP codes have been " \
-                                         "reached for this benefit type claim code'}]",
-                          transaction_id: 'transaction_4')
+        claim_five = FactoryBot.create(:auto_established_claim_va_gov,
+                                       :errored,
+                                       created_at: 30.seconds.ago,
+                                       evss_response: [{ 'status' => '422',
+                                                         'title' => 'Backend Service Exception',
+                                                         'detail' => 'The Maximum number of EP codes have been ' \
+                                                                     'reached for this benefit type claim code' }],
+                                       transaction_id: 'transaction_4')
 
-        FactoryBot.create(:auto_established_claim_va_gov,
-                          :errored,
-                          created_at: 120.seconds.ago,
-                          evss_response: "[{'status'=>'422', " \
-                                         "'title'=>'Backend Service Exception', " \
-                                         "'detail'=>'Claim could not be established. Retries will fail.'}]",
-                          transaction_id: 'transaction_5')
+        claim_six = FactoryBot.create(:auto_established_claim_va_gov,
+                                      :errored,
+                                      created_at: 120.seconds.ago,
+                                      evss_response: [{ 'status' => '422',
+                                                        'title' => 'Backend Service Exception',
+                                                        'detail' => 'Claim could not be established. ' \
+                                                                    'Retries will fail.' }],
+                                      transaction_id: 'transaction_5')
 
         expected_vagov_claims = [claim_three.id, claim_four.id]
-        expected_absent_values = [claim_one.id, claim_two.id]
+        expected_absent_values = [claim_one.id, claim_two.id, claim_five.id, claim_six.id]
 
         expected_present_values = [
           [],

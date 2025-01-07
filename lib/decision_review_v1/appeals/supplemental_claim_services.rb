@@ -230,12 +230,12 @@ module DecisionReviewV1
       ##
       # Returns all of the data associated with a specific Supplemental Claim Evidence Submission.
       #
-      # @param uuid [uuid] supplemental Claim UUID Evidence Submission
+      # @param guid [guid] supplemental Claim UUID Evidence Submission
       # @return [Faraday::Response]
       #
-      def get_supplemental_claim_upload(uuid:)
+      def get_supplemental_claim_upload(guid:)
         with_monitoring_and_error_handling do
-          perform :get, "supplemental_claims/evidence_submissions/#{uuid}", nil
+          perform :get, "supplemental_claims/evidence_submissions/#{guid}", nil
         end
       end
 
@@ -251,7 +251,7 @@ module DecisionReviewV1
           asu = AppealSubmissionUpload.create!(decision_review_evidence_attachment_guid: upload['confirmationCode'],
                                                appeal_submission_id:)
 
-          DecisionReview::SubmitUpload.perform_async(asu.id)
+          submit_upload_job.perform_async(asu.id)
         end
       end
 
@@ -265,7 +265,7 @@ module DecisionReviewV1
       # @return String
       #
       def queue_form4142(appeal_submission_id:, rejiggered_payload:, submitted_appeal_uuid:)
-        DecisionReview::Form4142Submit.perform_async(
+        form4142_submit_job.perform_async(
           appeal_submission_id,
           payload_encrypted_string(rejiggered_payload),
           submitted_appeal_uuid

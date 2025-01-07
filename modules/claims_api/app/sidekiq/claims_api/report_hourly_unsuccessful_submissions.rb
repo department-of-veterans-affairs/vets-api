@@ -77,7 +77,7 @@ module ClaimsApi
 
       unique_errors.each do |ue|
         filtered_error_ids << ue[:id] unless NO_INVESTIGATION_ERROR_TEXT.any? do |text|
-          ue[:evss_response]&.include?(text)
+          ue[:evss_response].to_s&.include?(text)
         end
       end
 

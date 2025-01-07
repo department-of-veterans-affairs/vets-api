@@ -1,0 +1,44 @@
+type: object
+additionalProperties: false
+required:
+  - data
+  - meta
+properties:
+  data:
+    type: array
+  meta:
+    properties:
+      errors:
+        type: array
+        items:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            $ref: "./ClaimsAndAppealsOverviewErrors.yml"
+            description: Array info about failing upstream services
+      pagination:
+        type: object
+        additionalProperties: false
+        required:
+          - currentPage
+          - perPage
+          - totalPages
+          - totalEntries
+        properties:
+          currentPage:
+            type: number
+            example: 1
+          perPage:
+            type: number
+            example: 10
+          totalPages:
+            type: number
+            example: 2
+          totalEntries:
+            type: number
+            example: 15
+      activeClaimsCount:
+        type: number
+        example: 3
+        description: Count of claims with `completed` set to false

@@ -52,6 +52,7 @@ module VAProfile
         attribute :updated_at, Common::ISO8601Time
         attribute :validation_key, Integer
         attribute :vet360_id, String
+        attribute :va_profile_id, String
         attribute :zip_code, String
         attribute :zip_code_suffix, String
 

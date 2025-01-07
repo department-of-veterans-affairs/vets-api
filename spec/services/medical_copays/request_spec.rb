@@ -64,6 +64,49 @@ RSpec.describe MedicalCopays::Request do
 
       subject.post(path, params)
     end
+
+    context 'with debt_copay_logging Flipper enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:debts_copay_logging).and_return(true)
+        allow(Rails.env).to receive(:development?).and_return(false)
+      end
+
+      it 'calls the with_monitoring_and_error_handling method' do
+        # rubocop:disable RSpec/SubjectStub
+        expect(subject).to receive(:with_monitoring_and_error_handling)
+        # rubocop:enable RSpec/SubjectStub
+        subject.post(path, params)
+      end
+
+      it 'logs the error message' do
+        allow_any_instance_of(Faraday::Connection)
+          .to receive(:post).with(path).and_raise(StandardError.new('Something went wrong'))
+        expect(Rails.logger).to receive(:error).with(
+          'MedicalCopays::Request error: Something went wrong'
+        )
+
+        expect do
+          subject.post(path, params)
+        end.to raise_error(StandardError, 'Something went wrong')
+      end
+    end
+
+    context 'with debt_copay_logging Flipper not enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:medical_copays_api_key_change).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:debts_copay_logging).and_return(false)
+        allow(Rails.env).to receive(:development?).and_return(false)
+      end
+
+      it 'calls the with_monitoring_and_error_handling method' do
+        # rubocop:disable RSpec/SubjectStub
+        expect(subject).to receive(:with_monitoring)
+        # rubocop:enable RSpec/SubjectStub
+        allow_any_instance_of(Faraday::Connection).to receive(:post).with(path).and_return(response)
+        subject.post(path, params)
+      end
+    end
   end
 
   describe '#get' do

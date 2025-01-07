@@ -44,6 +44,12 @@ FactoryBot.define do
     end
   end
 
+  trait :with_0781v2 do
+    form_json do
+      File.read("#{submissions_path}/with_0781v2.json")
+    end
+  end
+
   trait :with_everything_toxic_exposure do
     form_json do
       File.read("#{submissions_path}/with_everything_toxic_exposure.json")
@@ -81,12 +87,24 @@ FactoryBot.define do
     end
   end
 
+  trait :als_claim_for_increase do
+    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    form_json do
+      File.read("#{submissions_path}/only_526_als.json")
+    end
+  end
+
+  trait :als_claim_for_increase_terminally_ill do
+    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    form_json do
+      File.read("#{submissions_path}/only_526_als_terminally_ill.json")
+    end
+  end
+
   trait :asthma_claim_for_increase do
     user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
-      File.read(::Rails.root.join(
-        *'/spec/support/disability_compensation_form/submissions/only_526_asthma.json'.split('/')
-      ).to_s)
+      File.read("#{submissions_path}/only_526_asthma.json")
     end
   end
 

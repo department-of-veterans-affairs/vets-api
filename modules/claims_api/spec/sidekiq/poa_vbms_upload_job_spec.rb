@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../support/fake_vbms'
 
-RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
+RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job, vcr: 'bgs/person_web_service/find_by_ssn' do
   subject { described_class }
 
   before do
@@ -12,6 +12,7 @@ RSpec.describe ClaimsApi::PoaVBMSUploadJob, type: :job do
     allow(VBMS::Client).to receive(:from_env_vars).and_return(@vbms_client)
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_poa_use_bd).and_return false
+    allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
     allow_any_instance_of(ClaimsApi::V2::BenefitsDocuments::Service)
       .to receive(:get_auth_token).and_return('some-value-here')
   end

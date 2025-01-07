@@ -1,0 +1,36 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/pharmacy/medications/11375034"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 21 Nov 2024 00:33:28 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '[{"medicationId":14221543,"comments":null,"reason":"stomach pain","startDate":1494302400000,"strength":null,"pharmacyPhone":null,"dosage":"1","frequency":null,"category":"OTC","prescriptionNumber":null,"endDate":null,"medicationName":"TUMS","pharmacyName":null,"userId":11375034,"userProfile":null,"dispStartDate":"05/09/2017","dispEndDate":"","dispCategory":"Over-the-Counter"}]'
+  recorded_at: Thu, 21 Nov 2024 00:33:28 GMT
+recorded_with: VCR 6.3.1

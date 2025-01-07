@@ -121,7 +121,10 @@ en:
             - :first
             - :last
             - :middle
-            - :social_or_service_num
+            - :social_num
+            - :social_or_service_num:
+              - :service_number
+              - :ssn
             - :suffix
           about_the_veteran:
             - :date_of_birth
@@ -129,16 +132,19 @@ en:
             - :last
             - :middle
             - :social_or_service_num:
-                - :service_number
-                - :ssn
+              - :service_number
+              - :ssn
             - :suffix
             - :branch_of_service
           about_the_family_member:
-            - :date_of_birth
             - :first
             - :last
             - :middle
             - :suffix
+            - :social_or_service_num:
+              - :service_number
+              - :ssn
+            - :date_of_birth
             - :branch_of_service
           state_or_residency:
             - :residency_state
