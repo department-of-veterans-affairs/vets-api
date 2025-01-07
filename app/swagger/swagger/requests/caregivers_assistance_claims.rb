@@ -46,6 +46,195 @@ module Swagger
               end
             end
           end
+
+          response 400 do
+            key :description, 'Validation Error (Bad Request)'
+
+            schema do
+              key :required, [:errors]
+
+              property :errors do
+                key :type, :array
+                items do
+                  key :type, :string
+                end
+              end
+            end
+          end
+
+          response 500 do
+            key :description, 'Internal Server Error'
+
+            schema do
+              key :required, [:error]
+
+              property :error do
+                key :type, :string
+                key :example, 'Backend Service Outage'
+              end
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/caregivers_assistance_claims/facilities' do
+        operation :post do
+          key :description, 'Get a list of medical facilities based on search criteria.'
+
+          key :tags, %w[benefits_forms]
+
+          parameter do
+            key :name, :zip
+            key :in, :query
+            key :description, 'The zip code for facility search.'
+            key :type, :string
+          end
+
+          parameter do
+            key :name, :state
+            key :in, :query
+            key :description, 'The state for facility search.'
+            key :type, :string
+          end
+
+          parameter do
+            key :name, :lat
+            key :in, :query
+            key :description, 'The latitude for facility search.'
+            key :type, :number
+          end
+
+          parameter do
+            key :name, :long
+            key :in, :query
+            key :description, 'The longitude for facility search.'
+            key :type, :number
+          end
+
+          parameter do
+            key :name, :radius
+            key :in, :query
+            key :description, 'The radius around the location for facility search.'
+            key :type, :number
+          end
+
+          parameter do
+            key :name, :page
+            key :in, :query
+            key :description, 'The page of results to retrieve.'
+            key :type, :integer
+          end
+
+          parameter do
+            key :name, :per_page
+            key :in, :query
+            key :description, 'The number of facilities per page.'
+            key :type, :integer
+          end
+
+          parameter do
+            key :name, :facilityIds
+            key :in, :query
+            key :description, 'Comma-separated list of facility IDs to filter by.'
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'List of facilities retrieved successfully'
+
+            schema do
+              key :type, :array
+              items do
+                key :type, :object
+                property :id do
+                  key :type, :string
+                end
+                property :name do
+                  key :type, :string
+                end
+                property :address do
+                  key :type, :string
+                end
+              end
+            end
+          end
+
+          response 400 do
+            key :description, 'Invalid query parameters'
+
+            schema do
+              key :required, [:error]
+
+              property :error do
+                key :type, :string
+                key :example, 'Invalid facility query parameters'
+              end
+            end
+          end
+
+          response 500 do
+            key :description, 'Internal Server Error'
+
+            schema do
+              key :required, [:error]
+
+              property :error do
+                key :type, :string
+                key :example, 'Backend Service Outage'
+              end
+            end
+          end
+        end
+      end
+
+      swagger_path '/v0/caregivers_assistance_claims/download_pdf' do
+        operation :post do
+          key :description, 'Download a pre-filled 10-10CG PDF form.'
+
+          key :tags, %w[benefits_forms]
+
+          parameter do
+            key :name, :claim_id
+            key :in, :query
+            key :description, 'The ID of the claim to download the PDF for.'
+            key :required, true
+            key :type, :string
+          end
+
+          response 200 do
+            key :description, 'PDF form download'
+
+            schema do
+              key :type, :string
+              key :example, 'application/pdf'
+            end
+          end
+
+          response 400 do
+            key :description, 'Invalid request for PDF download'
+
+            schema do
+              key :required, [:error]
+
+              property :error do
+                key :type, :string
+                key :example, 'Invalid claim ID'
+              end
+            end
+          end
+
+          response 500 do
+            key :description, 'Internal Server Error'
+
+            schema do
+              key :required, [:error]
+
+              property :error do
+                key :type, :string
+                key :example, 'Backend Service Outage'
+              end
+            end
+          end
         end
       end
     end
