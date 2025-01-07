@@ -18,10 +18,10 @@ module AccreditedRepresentativePortal
 
     EMAIL_POA_CODES =
       Settings
-        .accredited_representative_portal
-        .pilot_user_email_poa_codes.to_h
-        .stringify_keys!
-        .freeze
+      .accredited_representative_portal
+      .pilot_user_email_poa_codes.to_h
+      .stringify_keys!
+      .freeze
   end
 
   class PowerOfAttorneyRequestPolicy < ApplicationPolicy
@@ -66,8 +66,8 @@ module AccreditedRepresentativePortal
         PowerOfAttorneyRequest
           .preload(:power_of_attorney_holder)
           .where(power_of_attorney_holder: {
-            poa_code: user_poa_codes
-          })
+                   poa_code: user_poa_codes
+                 })
       end
 
       private
