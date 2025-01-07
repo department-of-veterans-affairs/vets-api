@@ -29,7 +29,11 @@ module SimpleFormsApi
         return unless SupportingDocuments::Submission::FORMS_WITH_SUPPORTING_DOCUMENTS.include?(params[:form_id])
 
         submission = SupportingDocuments::Submission.new(@current_user, params)
-        submission.submit
+        response = submission.submit
+
+        render json: response, status: :unprocessable_entity if response[:error]
+
+        render json: response
       end
 
       def get_intents_to_file

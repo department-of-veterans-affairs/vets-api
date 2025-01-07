@@ -30,6 +30,8 @@ module SimpleFormsApi
 
       private
 
+      attr_accessor :current_user, :params
+
       def handle_emails(status, parsed_form_data, reference_number)
         case status
         when 'VALIDATED', 'ACCEPTED'
