@@ -6,6 +6,7 @@ require 'hca/configuration'
 require 'hca/ezr_postfill'
 require 'va1010_forms/utils'
 require 'hca/overrides_parser'
+require 'va1010_forms/enrollment_system/service'
 
 module Form1010Ezr
   class Service < Common::Client::Base
@@ -48,8 +49,7 @@ module Form1010Ezr
       end
 
       # Log the 'formSubmissionId' for successful submissions
-      Rails.logger.info(
-        '1010EZR successfully submitted',
+      Rails.logger.info('1010EZR successfully submitted',
         submission_id: res[:formSubmissionId],
         veteran_initials: veteran_initials(parsed_form)
       )
