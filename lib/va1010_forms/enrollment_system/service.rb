@@ -36,6 +36,9 @@ module VA1010Forms
           formSubmissionId: form_submission_id,
           timestamp: root.locate('timeStamp').first&.text || Time.now.getlocal.to_s
         }
+      rescue => e
+        Rails.logger.error "#{form_id} form submission failed: #{e.message}"
+        raise e
       end
 
       private

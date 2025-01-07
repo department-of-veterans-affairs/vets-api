@@ -5,7 +5,7 @@ require 'hca/enrollment_system'
 require 'hca/configuration'
 require 'hca/ezr_postfill'
 require 'va1010_forms/utils'
-require 'va1010_forms/enrollment_system/service'
+require 'hca/overrides_parser'
 
 module Form1010Ezr
   class Service < Common::Client::Base
@@ -60,7 +60,8 @@ module Form1010Ezr
 
       res
     rescue => e
-      log_and_raise_error(e, parsed_form)
+      log_submission_failure(parsed_form)
+      raise e
     end
 
     # @param [HashWithIndifferentAccess] parsed_form JSON form data
@@ -72,7 +73,8 @@ module Form1010Ezr
 
       submit_async(parsed_form)
     rescue => e
-      log_and_raise_error(e, parsed_form)
+      log_submission_failure(parsed_form)
+      raise e
     end
 
     def log_submission_failure(parsed_form)
@@ -183,12 +185,6 @@ module Form1010Ezr
         data: parsed_form,
         error_class: 'Form1010Ezr ValidationError'
       )
-    end
-
-    def log_and_raise_error(error, form)
-      log_submission_failure(form)
-      Rails.logger.error "10-10EZR form submission failed: #{error.message}"
-      raise error
     end
   end
 end
