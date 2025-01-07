@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'holidays'
+
 # @see https://crontab.guru/
 # @see https://en.wikipedia.org/wiki/Cron
 PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
@@ -48,14 +50,17 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
   mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
 
-  # Update alternative Banners data every 10 minutes
-  mgr.register('*/10 * * * *', 'Banners::UpdateAllJob')
+  # Update alternative Banners data every 5 minutes
+  mgr.register('*/5 * * * *', 'Banners::UpdateAllJob')
 
   # Update static data cache
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
 
   # Update Optionset data cache
   mgr.register('0 0 * * *', 'Crm::OptionsetDataJob')
+
+  # Update Facilities data cache
+  mgr.register('0 0 * * *', 'Crm::FacilitiesDataJob')
 
   # Update FormSubmissionAttempt status from Lighthouse Benefits Intake API
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
@@ -110,6 +115,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # TODO: Document this job
   mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailySpoolFiles')
+  mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailyExcelFiles')
 
   # Deletes old, completed AsyncTransaction records
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
@@ -155,12 +161,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # TODO: Document this job
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
-
-  # Fetches latest VA forms from Drupal database and updates vets-api forms database
-  mgr.register('0 2 * * *', 'VAForms::FormReloader')
-
-  # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
-  mgr.register('0 2,9,16 * * 1-5', 'VAForms::FlipperStatusAlert')
 
   # TODO: Document these jobs
   mgr.register('0 16 * * *', 'VANotify::InProgressForms')
@@ -224,24 +224,13 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
-  # Hourly jobs that update DR SavedClaims with delete_date
-  mgr.register('20 * * * *', 'DecisionReview::HlrStatusUpdaterJob')
-  mgr.register('30 * * * *', 'DecisionReview::NodStatusUpdaterJob')
-  mgr.register('50 * * * *', 'DecisionReview::ScStatusUpdaterJob')
-
   # Engine version: Hourly jobs that update DR SavedClaims with delete_date
   mgr.register('10 * * * *', 'DecisionReviews::HlrStatusUpdaterJob')
   mgr.register('15 * * * *', 'DecisionReviews::NodStatusUpdaterJob')
   mgr.register('40 * * * *', 'DecisionReviews::ScStatusUpdaterJob')
 
-  # Clean SavedClaim records that are past delete date
-  mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
-
   # Engine version: Clean SavedClaim records that are past delete date
   mgr.register('0 5 * * *', 'DecisionReviews::DeleteSavedClaimRecordsJob')
-
-  # Send Decision Review emails to Veteran for failed form/evidence submissions
-  mgr.register('5 1 * * *', 'DecisionReview::FailureNotificationEmailJob')
 
   # Engine version: Send Decision Review emails to Veteran for failed form/evidence submissions
   mgr.register('5 0 * * *', 'DecisionReviews::FailureNotificationEmailJob')
@@ -249,10 +238,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
   mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
   mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
-
   # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
   mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
-
-  # Daily job for Vye: clears deactivated BDNs every evening.
+  # Daily 1900 job for Vye: clears deactivated BDNs every evening.
   mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 }

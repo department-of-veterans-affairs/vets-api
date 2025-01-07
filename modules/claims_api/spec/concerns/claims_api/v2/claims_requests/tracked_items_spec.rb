@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs_service/tracked_item_service'
 
 class FakeController
   include ClaimsApi::V2::ClaimsRequests::TrackedItems
   include ClaimsApi::V2::ClaimsRequests::TrackedItemsAssistance
 
-  def local_bgs_service
-    @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+  def tracked_item_service
+    @tracked_item_service ||= ClaimsApi::TrackedItemService.new(
       external_uid: target_veteran.participant_id,
       external_key: target_veteran.participant_id
     )

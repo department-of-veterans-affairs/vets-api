@@ -146,10 +146,6 @@ module DecisionReviews
       params = { submitted_appeal_uuid: submission.submitted_appeal_uuid, appeal_type:, notification_id: }
       Rails.logger.info('DecisionReviews::FailureNotificationEmailJob form email queued', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.form.email_queued", tags: ["appeal_type:#{appeal_type}"])
-
-      tags = ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-              'function: form submission to Lighthouse']
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
     end
 
     def record_form_email_send_failure(submission, e)
@@ -172,10 +168,6 @@ module DecisionReviews
                  notification_id: }
       Rails.logger.info('DecisionReviews::FailureNotificationEmailJob secondary form email queued', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_form.email_queued", tags: ["appeal_type:#{appeal_type}"])
-
-      tags = ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-              'function: secondary form submission to Lighthouse']
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
     end
 
     def record_secondary_form_email_send_failure(secondary_form, e)
@@ -204,10 +196,6 @@ module DecisionReviews
       }
       Rails.logger.info('DecisionReviews::FailureNotificationEmailJob evidence email queued', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.email_queued", tags: ["appeal_type:#{appeal_type}"])
-
-      tags = ["service:#{DecisionReviews::V1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-              'function: evidence submission to Lighthouse']
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
     end
 
     def record_evidence_email_send_failure(upload, e)

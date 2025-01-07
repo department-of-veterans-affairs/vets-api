@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require './modules/decision_reviews/spec/dr_spec_helper'
+require './modules/decision_reviews/spec/support/sidekiq_helper'
+require './modules/decision_reviews/spec/support/vcr_helper'
 
 RSpec.describe DecisionReviews::SubmitUpload, type: :job do
   subject { described_class }
@@ -296,8 +298,6 @@ RSpec.describe DecisionReviews::SubmitUpload, type: :job do
         it 'increments statsd correctly when email is sent' do
           expect { described_class.new.sidekiq_retries_exhausted_block.call(msg) }
             .to trigger_statsd_increment('worker.decision_review.submit_upload.permanent_error')
-            .and trigger_statsd_increment('silent_failure', tags:)
-            .and trigger_statsd_increment('silent_failure_avoided_no_confirmation', tags:)
             .and trigger_statsd_increment('worker.decision_review.submit_upload.retries_exhausted.email_queued')
         end
 

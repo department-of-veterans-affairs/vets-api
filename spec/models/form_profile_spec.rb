@@ -11,8 +11,12 @@ RSpec.describe FormProfile, type: :model do
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mpi_profile_address)) }
 
   before do
+    Flipper.disable(:remove_pciu)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
+    Flipper.disable(:va_v3_contact_information_service)
+    Flipper.disable(:remove_pciu)
+    Flipper.disable('remove_pciu_2')
     Flipper.disable(:disability_526_toxic_exposure)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
   end
@@ -696,7 +700,7 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
-  let(:v21_p_530_v2_expected) do
+  let(:v21_p_530_ez_expected) do
     {
       'claimantFullName' => {
         'first' => user.first_name&.capitalize,
@@ -1906,11 +1910,11 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
-        expect_prefilled('21P-530V2')
+        expect_prefilled('21P-530EZ')
       end
 
       context 'without address' do
-        let(:v21_p_530_v2_expected) do
+        let(:v21_p_530_ez_expected) do
           {
             'claimantFullName' => {
               'first' => user.first_name&.capitalize,
@@ -1922,12 +1926,12 @@ RSpec.describe FormProfile, type: :model do
         end
 
         before do
-          allow_any_instance_of(FormProfiles::VA21p530v2)
+          allow_any_instance_of(FormProfiles::VA21p530ez)
             .to receive(:initialize_contact_information).and_return(FormContactInformation.new)
         end
 
         it "doesn't throw an exception" do
-          expect_prefilled('21P-530V2')
+          expect_prefilled('21P-530EZ')
         end
       end
     end

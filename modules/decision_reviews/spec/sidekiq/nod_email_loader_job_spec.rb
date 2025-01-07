@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
+require './modules/decision_reviews/spec/dr_spec_helper'
+require './modules/decision_reviews/spec/support/sidekiq_helper'
 
 RSpec.describe DecisionReviews::NodEmailLoaderJob, type: :job do
   subject { described_class }

@@ -127,11 +127,6 @@ flipper:
   github_oauth_key: xxx000
   github_oauth_secret: 000xxx
 
-va_forms:
-  drupal_username: ~
-  drupal_password: ~
-  drupal_url: https://fake-url.com
-
 vanotify:
   client_url: http://fakeapi.com
   services:
@@ -245,12 +240,6 @@ lighthouse:
       access_token:
         client_id: abc123456
         rsa_key: path/to/key
-      use_mocks: false
-    status:
-      host: https://sandbox-api.va.gov
-      access_token:
-        client_id: ~
-        rsa_key: ~
       use_mocks: false
   benefits_claims:
     host: https://sandbox-api.va.gov
