@@ -28,8 +28,8 @@ describe Common::Client::Middleware::Response do
   end
 
   it 'raises client response error' do
-    message = 'BackendServiceException: {:status=>404, :detail=>"Veteran not found", ' \
-              ':code=>"CASEFLOWSTATUS404", :source=>"A veteran with that SSN was not found in our systems."}'
+    message = 'BackendServiceException: {status: 404, detail: "Veteran not found", ' \
+              'code: "CASEFLOWSTATUS404", source: "A veteran with that SSN was not found in our systems."}'
     expect { appeals_client.get('not-found') }
       .to raise_error do |error|
         expect(error).to be_a(Common::Exceptions::BackendServiceException)
