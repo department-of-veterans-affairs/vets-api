@@ -110,7 +110,7 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
             .and_return(Struct.new(:healthy?).new(false))
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
-          expect(result['localbgs-org']['success']).to eq(false)
+          expect(result['org_web_service']['success']).to eq(false)
         end
 
         it 'returns the correct status when the person_web_service is not healthy' do
@@ -122,18 +122,16 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
         it 'returns the correct status when the bgs standard_data_service is not healthy' do
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
-          expect(result['standard_data_service']['success']).to eq(false)
+          expect(result['standard_data_web_service']['success']).to eq(false)
         end
 
         it 'returns the correct status when the bgs trackeditem is not healthy' do
-          allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:find_tracked_items)
-            .and_return(Struct.new(:healthy?).new(false))
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
-          expect(result['localbgs-trackeditem']['success']).to eq(false)
+          expect(result['tracked_item_service']['success']).to eq(false)
         end
 
-        it 'returns the correct status when the bgs vet-record service is not healthy' do
+        it 'returns the correct status when the bgs vet_record service is not healthy' do
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
           expect(result['vet_record_web_service']['success']).to eq(false)

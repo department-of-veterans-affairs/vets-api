@@ -164,10 +164,10 @@ services = [
   { name: 'vnp_proc_service_v2', endpoint: 'VnpProcWebServiceBeanV2/VnpProcServiceV2' },
   { name: 'vnp_ptcpnt_addrs_service', endpoint: 'VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService' },
   { name: 'vnp_ptcpnt_phone_service', endpoint: 'VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService' },
-  { name: 'vnp_ptcpnt_service', endpoint: 'VnpPtcpntWebServiceBean/VnpPtcpntService' }
-  # {name: 'org-web-service', endpoint: 'OrgWebServiceBean/OrgWebService'},
-  # {name: 'standard-data-web-service', endpoint: 'StandardDataWebServiceBean/StandardDataWebService'},
-  # {name: 'tracked-item-service', endpoint: 'TrackedItemService/TrackedItemService'}
+  { name: 'vnp_ptcpnt_service', endpoint: 'VnpPtcpntWebServiceBean/VnpPtcpntService' },
+  { name: 'org_web_service', endpoint: 'OrgWebServiceBean/OrgWebService' },
+  { name: 'standard_data_web_service', endpoint: 'StandardDataWebServiceBean/StandardDataWebService' },
+  { name: 'tracked_item_service', endpoint: 'TrackedItemService/TrackedItemService' }
 ]
 services.each do |service|
   OkComputer::Registry.register service[:name], FaradayBGSCheck.new(service[:endpoint])
