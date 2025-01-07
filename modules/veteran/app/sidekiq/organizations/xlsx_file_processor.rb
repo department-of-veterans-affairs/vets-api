@@ -86,9 +86,7 @@ module Organizations
     private
 
     def open_spreadsheet
-      # xlsx = Roo::Spreadsheet.open(StringIO.new(@file_content), extension: :xlsx)
-      # TODO Remove test file
-      xlsx = Roo::Spreadsheet.open('trexler.xlsx')
+      xlsx = Roo::Spreadsheet.open(StringIO.new(@file_content), extension: :xlsx)
       yield(xlsx)
     rescue Roo::Error => e
       log_error("Error opening spreadsheet: #{e.message}")

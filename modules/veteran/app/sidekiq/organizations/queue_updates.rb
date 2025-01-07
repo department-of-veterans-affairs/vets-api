@@ -11,10 +11,8 @@ module Organizations
     SLICE_SIZE = 30
 
     def perform
-      # TODO: Remove comments and dummy file_content
-      # file_content = fetch_file_content
-      # return unless file_content
-      file_content = 'dummy file content'
+      file_content = fetch_file_content
+      return unless file_content
 
       processed_data = Organizations::XlsxFileProcessor.new(file_content).process
       queue_address_updates(processed_data)

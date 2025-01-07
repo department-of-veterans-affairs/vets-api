@@ -24,9 +24,9 @@ RSpec.describe Organizations::QueueUpdates, type: :job do
     end
 
     before do
-      Veteran::Service::Organization.create(poa: '123')
+      Veteran::Service::Organization.create!(poa: '123', address_line1: '123 Main St')
       allow(Representatives::XlsxFileFetcher).to receive(:new).and_return(double(fetch: file_content))
-      allow_any_instance_of(Representatives::XlsxFileProcessor).to receive(:process).and_return(processed_data)
+      allow_any_instance_of(Organizations::XlsxFileProcessor).to receive(:process).and_return(processed_data)
     end
 
     context 'when file processing is successful' do
@@ -51,8 +51,8 @@ RSpec.describe Organizations::QueueUpdates, type: :job do
 
     context 'when an exception is raised' do
       before do
-        allow_any_instance_of(Representatives::XlsxFileProcessor).to receive(:process).and_raise(StandardError,
-                                                                                                 'test error')
+        allow_any_instance_of(Organizations::XlsxFileProcessor).to receive(:process).and_raise(StandardError,
+                                                                                               'test error')
         allow_any_instance_of(described_class).to receive(:log_error)
       end
 

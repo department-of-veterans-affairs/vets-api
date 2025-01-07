@@ -9,12 +9,12 @@ module Veteran
       validates :poa, presence: true
 
       #
-      # Compares org's current info with new data to detect changes in address, email, or phone number.
-      # @param org_data [Hash] New data with :email, :phone_number, and :address keys for comparison.
+      # Compares org's current info with new data to detect changes in address.
+      # @param org_data [Hash] New data with :address keys for comparison.
       #
       # @return [Hash] Hash with "email_changed", "phone_number_changed", "address_changed" keys as booleans.
       def diff(org_data)
-        %i[address phone_number].each_with_object({}) do |field, diff|
+        %i[address].each_with_object({}) do |field, diff|
           diff["#{field}_changed"] = field == :address ? address_changed?(org_data) : send(field) != org_data[field]
         end
       end
