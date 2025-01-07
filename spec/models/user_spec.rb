@@ -266,6 +266,50 @@ RSpec.describe User, type: :model do
       end
     end
 
+    describe 'validate_mpi_profile' do
+      let(:loa) { loa_three }
+      let(:id_theft_flag) { false }
+      let(:deceased_date) { nil }
+
+      before { stub_mpi(build(:mpi_profile, icn: user.icn, deceased_date:, id_theft_flag:)) }
+
+      context 'when the user is not loa3' do
+        let(:loa) { loa_one }
+
+        it 'does not attempt to validate the user mpi profile' do
+          expect(subject.validate_mpi_profile).to be_nil
+        end
+      end
+
+      context 'when the MPI profile has a deceased date' do
+        let(:deceased_date) { '20020202' }
+        let(:expected_error_message) { 'Death Flag Detected' }
+
+        it 'raises an MPI Account Locked error' do
+          expect { subject.validate_mpi_profile }
+            .to raise_error(MPI::Errors::AccountLockedError)
+            .with_message(expected_error_message)
+        end
+      end
+
+      context 'when the MPI profile has an identity theft flag' do
+        let(:id_theft_flag) { true }
+        let(:expected_error_message) { 'Theft Flag Detected' }
+
+        it 'raises an MPI Account Locked error' do
+          expect { subject.validate_mpi_profile }
+            .to raise_error(MPI::Errors::AccountLockedError)
+            .with_message(expected_error_message)
+        end
+      end
+
+      context 'when the MPI profile has no issues' do
+        it 'returns a nil value' do
+          expect(subject.validate_mpi_profile).to be_nil
+        end
+      end
+    end
+
     describe 'invalidate_mpi_cache' do
       let(:cache_exists) { true }
 
