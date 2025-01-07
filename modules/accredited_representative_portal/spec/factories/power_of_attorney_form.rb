@@ -107,7 +107,7 @@ FactoryBot.define do
       end
     end
 
-    factory :static_power_of_attorney_form do
+    factory :veteran_type_form do
       data do
         {
           authorizations: {
@@ -138,7 +138,7 @@ FactoryBot.define do
             va_file_number: '123456789',
             date_of_birth: '1980-12-31',
             service_number: '123456789',
-            service_branch: "ARMY",
+            service_branch: 'ARMY',
             phone: '1234567890',
             email: 'veteran@example.com'
           }

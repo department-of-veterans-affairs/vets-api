@@ -13,25 +13,47 @@ FactoryBot.define do
     end
 
     after(:build) do |power_of_attorney_request, evaluator|
-      unless evaluator.skip_resolution
-        power_of_attorney_request.resolution ||= build(:power_of_attorney_request_resolution, :acceptance, skip_poa_request: true)
+      unless evaluator.skip_resolution || power_of_attorney_request.resolution.present?
+        power_of_attorney_request.resolution ||= build(
+          :power_of_attorney_request_resolution,
+          :acceptance,
+          power_of_attorney_request: power_of_attorney_request
+        )
       end
     end
 
     trait :with_acceptance do
-      resolution { create(:power_of_attorney_request_resolution, :acceptance) }
+      resolution do
+        create(
+          :power_of_attorney_request_resolution,
+          :acceptance,
+          power_of_attorney_request: instance
+        )
+      end
     end
 
-    trait :with_static_power_of_attorney_form do
-      power_of_attorney_form { FactoryBot.build(:static_power_of_attorney_form) }
+    trait :with_veteran_type_form do
+      power_of_attorney_form { FactoryBot.build(:veteran_type_form) }
     end
 
     trait :with_declination do
-      resolution { create(:power_of_attorney_request_resolution, :declination) }
+      resolution do
+        create(
+          :power_of_attorney_request_resolution,
+          :declination,
+          power_of_attorney_request: instance
+        )
+      end
     end
 
     trait :with_expiration do
-      resolution { create(:power_of_attorney_request_resolution, :expiration) }
+      resolution do
+        create(
+          :power_of_attorney_request_resolution,
+          :expiration,
+          power_of_attorney_request: instance
+        )
+      end
     end
   end
 end

@@ -31,17 +31,17 @@ module AccreditedRepresentativePortal
 
     scope :with_status, lambda { |status|
       case status
-      when 'Pending'
+      when 'pending'
         where.missing(:resolution)
 
-      when 'Accepted'
+      when 'accepted'
         # rubocop:disable Layout/LineLength
         left_joins(:resolution)
           .joins("LEFT OUTER JOIN ar_power_of_attorney_request_decisions AS decision ON decision.id = resolution.resolving_id AND resolution.resolving_type = 'AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision'")
           .where(resolution: { resolving_type: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision' })
           .where(decision: { type: 'PowerOfAttorneyRequestAcceptance' })
         # rubocop:enable Layout/LineLength
-      when 'Declined'
+      when 'declined'
         # rubocop:disable Layout/LineLength
         left_joins(:resolution)
           .joins("LEFT OUTER JOIN ar_power_of_attorney_request_decisions AS decision ON decision.id = resolution.resolving_id AND resolution.resolving_type = 'AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision'")
@@ -58,7 +58,7 @@ module AccreditedRepresentativePortal
     }
 
     def expires_at
-      self.created_at + 60.day
+      created_at + 60.days
     end
 
     private
