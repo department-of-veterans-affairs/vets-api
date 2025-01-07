@@ -7,12 +7,6 @@ describe 'IAMSSOeOAuth::SessionManager' do
   let(:access_token) { 'ypXeAwQedpmAy5xFD2u5' }
   let(:session_manager) { IAMSSOeOAuth::SessionManager.new(access_token) }
 
-  before do
-    config = IAMSSOeOAuth::Configuration.instance
-    allow(config).to receive_messages(ssl_cert: OpenStruct.new(to_der: 'dummy_cert_data'),
-                                      ssl_key: OpenStruct.new(to_der: 'dummy_key_data'))
-  end
-
   describe '#find_or_create_user' do
     context 'with a valid access token' do
       before do

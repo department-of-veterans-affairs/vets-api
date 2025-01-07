@@ -24,12 +24,6 @@ module IAMSessionHelper
     headers
   end
 
-  def stub_iam_certs
-    config = IAMSSOeOAuth::Configuration.instance
-    allow(config).to receive_messages(ssl_cert: OpenStruct.new(to_der: 'dummy_cert_data'),
-                                      ssl_key: OpenStruct.new(to_der: 'dummy_key_data'))
-  end
-
   def iam_sign_in(iam_user = FactoryBot.build(:iam_user), access_token = nil)
     token = access_token || DEFAULT_ACCESS_TOKEN
     IAMUser.create(iam_user)
@@ -42,11 +36,9 @@ RSpec.configure do |config|
 
   config.before :each, type: :request do
     Flipper.enable('va_online_scheduling')
-    stub_iam_certs
   end
 
   config.before :each, type: :controller do
     Flipper.enable('va_online_scheduling')
-    stub_iam_certs
   end
 end

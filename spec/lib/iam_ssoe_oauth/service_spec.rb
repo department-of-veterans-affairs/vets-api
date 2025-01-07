@@ -6,12 +6,6 @@ require 'iam_ssoe_oauth/service'
 describe 'IAMSSOeOAuth::Service' do
   let(:service) { IAMSSOeOAuth::Service.new }
 
-  before do
-    config = IAMSSOeOAuth::Configuration.instance
-    allow(config).to receive_messages(ssl_cert: OpenStruct.new(to_der: 'dummy_cert_data'),
-                                      ssl_key: OpenStruct.new(to_der: 'dummy_key_data'))
-  end
-
   describe '#post_introspect' do
     context 'with an active user response' do
       let(:response) do
