@@ -10,8 +10,12 @@ module Vye
       def self.feed_filename = FEED_FILENAME
 
       def initialize(bdn_clone_id:, offset:, block_size:, filename:)
+        Rails.logger.info('Vye::BatchTransfer::BdnChunk#initialize: starting')
+
         @bdn_clone = Vye::BdnClone.find(bdn_clone_id)
         super(offset:, block_size:, filename:)
+
+        Rails.logger.info('Vye::BatchTransfer::BdnChunk#initialize: finished')
       end
 
       def import

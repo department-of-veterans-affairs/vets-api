@@ -67,7 +67,7 @@ features:
     enable_in_development: true
   benefits_require_gateway_origin:
     actor_type: user
-    description: Requires that all requests made to endpoints in appeals_api, va_forms, and vba_documents be made through the gateway
+    description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
@@ -1368,6 +1368,14 @@ features:
   meb_exclusion_period_enabled:
     actor_type: user
     description: enables exclusion period checks
+    enable_in_development: false
+  meb_dpo_address_option_enabled:
+    actor_type: user
+    description: enables DPO option on address field
+    enable_in_development: false
+  meb_kicker_notification_enabled:
+    actor_type: user
+    description: enables kicker notification on additional consideration questions
     enable_in_development: false
   meb_auto_populate_relinquishment_date:
     actor_type: user
