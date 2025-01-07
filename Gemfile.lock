@@ -601,8 +601,9 @@ GEM
     jruby-openssl (0.15.2-java)
     json (2.9.1)
     json (2.9.1-java)
-    json-schema (5.1.0)
+    json-schema (5.1.1)
       addressable (~> 2.8)
+      bigdecimal (~> 3.1)
     json_schema (0.21.0)
     json_schemer (2.3.0)
       bigdecimal
