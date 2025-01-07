@@ -834,7 +834,6 @@ docs/setup/running_docker.md @department-of-veterans-affairs/backend-review-grou
 docs/setup/running_natively.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/setup_with_binstubs.md  @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/codespaces.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/cto-engineers
-docs/setup/va_forms.md @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 docs/setup/virtual_machine_access.md @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 .github @department-of-veterans-affairs/backend-review-group
 lib @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1064,7 +1063,6 @@ modules/my_health/spec/request/v1/prescriptions_request_spec.rb @department-of-v
 modules/representation_management @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/accredited-representation-management
 modules/simple_forms_api @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/test_user_dashboard @department-of-veterans-affairs/qa-standards @department-of-veterans-affairs/backend-review-group
-modules/va_forms @department-of-veterans-affairs/lighthouse-banana-peels @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/va_notify @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 modules/vaos/app/services/vaos/v2 @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1618,6 +1616,7 @@ spec/models/form526_submission_spec.rb @department-of-veterans-affairs/Disabilit
 spec/models/form526_submission_remediation_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/form_attachment_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/form_profile_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+spec/models/form_profile_v2_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/form_submission_spec.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/form_submission_attempt_spec.rb @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/models/gi_bill_feedback_spec.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1953,7 +1952,6 @@ spec/support/schemas_camelized/all_triage_teams.json @department-of-veterans-aff
 spec/support/schemas_camelized/user_loa1.json @department-of-veterans-affairs/octo-identity
 spec/support/schemas_camelized/user_loa3.json @department-of-veterans-affairs/octo-identity
 spec/support/schemas_camelized/user_preferences.json @department-of-veterans-affairs/octo-identity
-spec/support/schemas_camelized/va_forms @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas_camelized/veteran_verification @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -2032,7 +2030,6 @@ spec/support/schemas/all_triage_teams.json @department-of-veterans-affairs/vfs-m
 spec/support/schemas/upload_supporting_evidence.json @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/user_loa1.json @department-of-veterans-affairs/octo-identity
 spec/support/schemas/user_loa3.json @department-of-veterans-affairs/octo-identity
-spec/support/schemas/va_forms @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/schemas/veteran_verification @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -2154,7 +2151,6 @@ spec/support/vcr_cassettes/token_validation @department-of-veterans-affairs/ligh
 spec/support/vcr_cassettes/travel_pay @department-of-veterans-affairs/travel-pay-integration @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/uploads/validate_document.yml @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/backend-review-group
 spec/spupport/vcr_cassettes/user/get_facilities_empty.yml @department-of-veterans-affairs/vfs-facilities-frontend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/va_forms @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/va_notify @department-of-veterans-affairs/va-notify-write @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/vaos @department-of-veterans-affairs/vfs-vaos @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/va_profile @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group

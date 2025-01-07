@@ -33,15 +33,6 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
 
-  Flipper.disable(:va_v3_contact_information_service)
-  let(:cassette_path) do
-    if Flipper.enabled?(:va_v3_contact_information_service)
-      'va_profile/v2/contact_information'
-    else
-      'va_profile/contact_information'
-    end
-  end
-
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
@@ -2239,8 +2230,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profiles' do
-      Flipper.disable(:va_v3_contact_information_service)
+    describe 'profiles', :skip_va_profile_user do
       let(:mhv_user) { create(:user, :loa3) }
 
       it 'supports getting service history data' do
@@ -2646,8 +2636,12 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profile/status' do
+    describe 'profile/status', :skip_va_profile_user do
       before do
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+                                                  instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+
         # vet360_id appears in the API request URI so we need it to match the cassette
         allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
           create(:find_profile_response, profile: build(:mpi_profile, vet360_id: '1'))
@@ -2698,7 +2692,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profile/person/status/:transaction_id' do
+    describe 'profile/person/status/:transaction_id', :skip_va_profile_user do
       let(:user_without_vet360_id) { build(:user, :loa3) }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user_without_vet360_id, nil, true) } } }
 
@@ -2733,14 +2727,16 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'contact infromation v2' do
+    describe 'contact infromation v2', :skip_vet360 do
       before do
         Flipper.enable(:va_v3_contact_information_service)
+        Flipper.enable(:remove_pciu)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       end
 
       after do
         Flipper.disable(:va_v3_contact_information_service)
+        Flipper.disable(:remove_pciu)
       end
 
       describe 'profiles v2', :skip_vet360, :initiate_vaprofile do

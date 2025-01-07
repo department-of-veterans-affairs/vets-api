@@ -9,6 +9,10 @@ module RepresentationManagement
         'representative'
       end
 
+      attribute :individual_type do |object|
+        object.user_types.first
+      end
+
       attribute :email
       attribute :name, &:full_name
       attribute :phone, &:phone_number
