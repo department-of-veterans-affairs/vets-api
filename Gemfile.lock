@@ -532,13 +532,8 @@ GEM
     google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.1.0)
-    google-protobuf (4.28.3)
+    google-protobuf (4.29.2)
       bigdecimal
-      rake (>= 13)
-    google-protobuf (4.28.3-java)
-      bigdecimal
-      ffi (~> 1)
-      ffi-compiler (~> 1)
       rake (>= 13)
     googleauth (1.12.2)
       faraday (>= 1.0, < 3.a)
