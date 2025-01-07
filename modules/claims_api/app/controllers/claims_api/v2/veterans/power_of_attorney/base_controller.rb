@@ -111,11 +111,9 @@ module ClaimsApi
         def set_auth_headers
           headers = auth_headers.merge!({ VA_NOTIFY_KEY => icn_for_vanotify })
 
-          if allow_dependent_claimant?
-            add_dependent_to_auth_headers(headers)
-          else
-            auth_headers
-          end
+          add_dependent_to_auth_headers(headers) if allow_dependent_claimant?
+
+          headers
         end
 
         def add_dependent_to_auth_headers(headers)
@@ -228,11 +226,11 @@ module ClaimsApi
         end
 
         def icn_for_vanotify
-          params[:veteranId]
+          dependent_claimant_icn = claimant_icn
+          dependent_claimant_icn.presence || params[:veteranId]
         end
 
         def fetch_claimant
-          claimant_icn = form_attributes.dig('claimant', 'claimantId')
           if claimant_icn.present?
             mpi_profile = mpi_service.find_profile_by_identifier(identifier: claimant_icn,
                                                                  identifier_type: MPI::Constants::ICN)
@@ -245,6 +243,10 @@ module ClaimsApi
           mpi_profile = mpi_service.find_profile_by_identifier(identifier: vet_icn,
                                                                identifier_type: MPI::Constants::ICN)
           mpi_profile.profile.participant_id
+        end
+
+        def claimant_icn
+          @claimant_icn ||= form_attributes.dig('claimant', 'claimantId')
         end
 
         def disable_jobs?
