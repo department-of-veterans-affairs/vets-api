@@ -2,7 +2,7 @@
 
 class PoaRequestSearchFilterService
   DEFAULT_PARAMS = {
-    status: 'Pending',
+    status: 'pending',
     sortField: 'ar_power_of_attorney_requests.created_at',
     sortDirection: 'desc',
     pageNumber: 1,

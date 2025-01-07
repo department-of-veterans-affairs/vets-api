@@ -115,7 +115,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       poa_requests[1].created_at = time_plus_one_day
       poa_requests[1].save
 
-      get '/accredited_representative_portal/v0/power_of_attorney_requests', params: { status: 'Accepted' }
+      get '/accredited_representative_portal/v0/power_of_attorney_requests', params: { status: 'accepted' }
 
       parsed_response = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
@@ -280,7 +280,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       poa_requests
 
       get '/accredited_representative_portal/v0/power_of_attorney_requests',
-          params: { status: 'Accepted', sort_field: 'resolution.created_at', sort_direction: 'asc' }
+          params: { status: 'accepted', sort_field: 'resolution.created_at', sort_direction: 'asc' }
 
       parsed_response = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
@@ -445,7 +445,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       poa_requests
 
       get '/accredited_representative_portal/v0/power_of_attorney_requests',
-          params: { status: 'Accepted', sort_field: 'resolution.created_at' }
+          params: { status: 'accepted', sort_field: 'resolution.created_at' }
 
       parsed_response = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
@@ -610,7 +610,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       poa_requests
 
       get '/accredited_representative_portal/v0/power_of_attorney_requests',
-          params: { status: 'Accepted', sort_field: 'resolution.created_at', page_size: 1 }
+          params: { status: 'accepted', sort_field: 'resolution.created_at', page_size: 1 }
 
       parsed_response = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
@@ -705,7 +705,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
           'errors' => [
             {
               'field' => 'status',
-              'message' => 'must be one of: Pending, Accepted, Declined'
+              'message' => 'must be one of: pending, accepted, declined'
             }
           ]
         }
