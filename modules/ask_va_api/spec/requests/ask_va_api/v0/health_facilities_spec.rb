@@ -79,7 +79,8 @@ RSpec.describe AskVAApi::V0::HealthFacilitiesController, team: :facilities, type
 
   let(:cache_data_instance) { Crm::CacheData.new }
   let(:patsr_facilities) do
-    File.read('modules/ask_va_api/config/locales/get_facilities_mock_data.json')
+    data = File.read('modules/ask_va_api/config/locales/get_facilities_mock_data.json')
+    JSON.parse(data, symbolize_names: true)
   end
 
   before do
