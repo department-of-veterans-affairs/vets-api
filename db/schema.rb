@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_27_213059) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -271,14 +271,16 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
 
   create_table "ar_power_of_attorney_forms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "power_of_attorney_request_id", null: false
-    t.text "encrypted_kms_key", null: false
+    t.text "encrypted_kms_key"
     t.text "data_ciphertext", null: false
-    t.string "city_bidx", null: false
-    t.string "state_bidx", null: false
-    t.string "zipcode_bidx", null: false
-    t.index ["city_bidx", "state_bidx", "zipcode_bidx"], name: "idx_on_city_bidx_state_bidx_zipcode_bidx_a85b76f9bc"
+    t.string "claimant_city_ciphertext", null: false
+    t.string "claimant_city_bidx", null: false
+    t.string "claimant_state_code_ciphertext", null: false
+    t.string "claimant_state_code_bidx", null: false
+    t.string "claimant_zip_code_ciphertext", null: false
+    t.string "claimant_zip_code_bidx", null: false
+    t.index ["claimant_city_bidx", "claimant_state_code_bidx", "claimant_zip_code_bidx"], name: "idx_on_claimant_city_bidx_claimant_state_code_bidx__11e9adbe25"
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fc59a0dabc", unique: true
-    t.index ["zipcode_bidx"], name: "index_ar_power_of_attorney_forms_on_zipcode_bidx"
   end
 
   create_table "ar_power_of_attorney_request_decisions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -295,7 +297,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
     t.string "resolving_type", null: false
     t.uuid "resolving_id", null: false
     t.text "reason_ciphertext"
-    t.text "encrypted_kms_key", null: false
+    t.text "encrypted_kms_key"
     t.datetime "created_at", null: false
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fd7d2d11b1", unique: true
     t.index ["resolving_type", "resolving_id"], name: "unique_resolving_type_and_id", unique: true
@@ -304,6 +306,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
   create_table "ar_power_of_attorney_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "claimant_id", null: false
     t.datetime "created_at", null: false
+    t.string "claimant_type", null: false
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
   end
 
@@ -691,6 +694,16 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
     t.index ["updated_at"], name: "index_evss_claims_on_updated_at"
     t.index ["user_account_id"], name: "index_evss_claims_on_user_account_id"
     t.index ["user_uuid"], name: "index_evss_claims_on_user_uuid"
+  end
+
+  create_table "excel_file_events", force: :cascade do |t|
+    t.integer "number_of_submissions"
+    t.string "filename"
+    t.datetime "successful_at", precision: nil
+    t.integer "retry_attempt", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["filename"], name: "index_excel_file_events_uniqueness", unique: true
   end
 
   create_table "feature_toggle_events", force: :cascade do |t|

@@ -267,7 +267,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
 
-        context "when 'treatments[].center.country' is too long'" do
+        context "when 'treatments[].center.country' is too long" do
           let(:treated_disability_names) { ['PTSD (post traumatic stress disorder)'] }
 
           it 'returns a bad request' do
@@ -1286,7 +1286,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
 
       context 'when consumer is representative' do
-        it 'returns an unprocessible entity status' do
+        it 'returns an unprocessable entity status' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
@@ -1391,7 +1391,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           stub_mpi(build(:mpi_profile, birls_id: nil, birth_date: '19560506'))
         end
 
-        it 'returns an unprocessible entity status' do
+        it 'returns an unprocessable entity status' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
               post path, params: data, headers: headers.merge(auth_header)
@@ -1407,7 +1407,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         stub_mpi(build(:mpi_profile, birls_id: nil, birth_date: '19560506'))
       end
 
-      it 'returns an unprocessible entity status' do
+      it 'returns an unprocessable entity status' do
         mock_acg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/brd/countries') do
             VCR.use_cassette('claims_api/bgs/claims/claims') do
@@ -1992,7 +1992,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when 'amount' is below the minimum" do
             let(:military_retired_payment_amount) { 0 }
 
-            it 'responds with an unprocessible entity' do
+            it 'responds with an unprocessable entity' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
@@ -2008,7 +2008,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when 'amount' is above the maximum" do
             let(:military_retired_payment_amount) { 1_000_000 }
 
-            it 'responds with an unprocessible entity' do
+            it 'responds with an unprocessable entity' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
@@ -2059,7 +2059,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                 }
               end
 
-              it 'responds with an unprocessible entity' do
+              it 'responds with an unprocessable entity' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/brd/countries') do
                     json_data = JSON.parse data
@@ -2122,7 +2122,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when 'amount' is below the minimum" do
             let(:separation_payment_amount) { 0 }
 
-            it 'responds with an unprocessible entity' do
+            it 'responds with an unprocessable entity' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
@@ -2138,7 +2138,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           context "when 'amount' is above the maximum" do
             let(:separation_payment_amount) { 1_000_000 }
 
-            it 'responds with an unprocessible entity' do
+            it 'responds with an unprocessable entity' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
@@ -2272,7 +2272,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
-      context "when 'disabilites.secondaryDisabilities.classificationCode' is invalid" do
+      context "when 'disabilities.secondaryDisabilities.classificationCode' is invalid" do
         let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
 
         [true, false].each do |flipped|
@@ -2318,7 +2318,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
-      context "when 'disabilites.secondaryDisabilities.classificationCode' does not match name" do
+      context "when 'disabilities.secondaryDisabilities.classificationCode' does not match name" do
         let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
 
         [true, false].each do |flipped|
@@ -2364,7 +2364,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
-      context "when 'disabilites.secondaryDisabilities.approximateBeginDate' is present" do
+      context "when 'disabilities.secondaryDisabilities.approximateBeginDate' is present" do
         it 'raises an exception if date is invalid' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
@@ -2420,7 +2420,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
-      context "when 'disabilites.secondaryDisabilities.classificationCode' is not present" do
+      context "when 'disabilities.secondaryDisabilities.classificationCode' is not present" do
         it 'raises an exception if name is not valid structure' do
           mock_acg(scopes) do |auth_header|
             VCR.use_cassette('claims_api/brd/countries') do
@@ -2477,24 +2477,24 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
     end
 
-    describe "'disabilites' validations" do
+    describe "'disabilities' validations" do
       describe "'disabilities.classificationCode' validations" do
         [true, false].each do |flipped|
           context "when feature flag is #{flipped}" do
             before do
               allow(Flipper).to receive(:enabled?).with(:claims_api_526_validations_v1_local_bgs).and_return(flipped)
               if flipped
-                expect_any_instance_of(ClaimsApi::StandardDataService)
+                allow_any_instance_of(ClaimsApi::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
               else
-                expect_any_instance_of(BGS::StandardDataService)
+                allow_any_instance_of(BGS::StandardDataService)
                   .to receive(:get_contention_classification_type_code_list).and_return(classification_type_codes)
               end
             end
 
-            let(:classification_type_codes) { [{ clsfcn_id: '1111' }] }
+            let(:classification_type_codes) { [{ clsfcn_id: '1111', end_dt: 1.year.from_now.iso8601 }] }
 
-            context "when 'disabilites.classificationCode' is valid" do
+            context "when 'disabilities.classificationCode' is valid and expires in the future" do
               it 'returns a successful response' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/claims/claims') do
@@ -2517,11 +2517,52 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
               end
             end
 
-            context "when 'disabilites.classificationCode' is invalid" do
+            context "when 'disabilities.classificationCode' is valid but expires in the past" do
+              before do
+                if Flipper.enabled?(:claims_api_526_validations_v1_local_bgs)
+                  allow_any_instance_of(ClaimsApi::StandardDataService)
+                    .to receive(:get_contention_classification_type_code_list)
+                    .and_return([{
+                                  clsfcn_id: '1111',
+                                  end_dt: 1.year.ago.iso8601
+                                }])
+                else
+                  allow_any_instance_of(BGS::StandardDataService)
+                    .to receive(:get_contention_classification_type_code_list)
+                    .and_return([{
+                                  clsfcn_id: '1111',
+                                  end_dt: 1.year.ago.iso8601
+                                }])
+                end
+              end
+
+              it 'responds with a bad request' do
+                mock_acg(scopes) do |auth_header|
+                  VCR.use_cassette('claims_api_bgs/claims/claims') do
+                    VCR.use_cassette('claims_api/brd/countries') do
+                      json_data = JSON.parse data
+                      params = json_data
+                      disabilities = [
+                        {
+                          disabilityActionType: 'NEW',
+                          name: 'PTSD (post traumatic stress disorder)',
+                          classificationCode: '1111'
+                        }
+                      ]
+                      params['data']['attributes']['disabilities'] = disabilities
+                      post path, params: params.to_json, headers: headers.merge(auth_header)
+                      expect(response).to have_http_status(:bad_request)
+                    end
+                  end
+                end
+              end
+            end
+
+            context "when 'disabilities.classificationCode' is invalid" do
               it 'responds with a bad request' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/brd/countries') do
-                    VCR.use_cassette('claims_api/bgs/stadard_service_data') do
+                    VCR.use_cassette('claims_api/bgs/standard_service_data') do
                       json_data = JSON.parse data
                       params = json_data
                       disabilities = [
@@ -2544,9 +2585,9 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
       end
 
       describe "'disabilities.ratedDisabilityId' validations" do
-        context "when 'disabilites.disabilityActionType' equals 'INCREASE'" do
+        context "when 'disabilities.disabilityActionType' equals 'INCREASE'" do
           context "and 'disabilities.ratedDisabilityId' is not provided" do
-            it 'returns an unprocessible entity status' do
+            it 'returns an unprocessable entity status' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/bgs/claims/claims') do
                   VCR.use_cassette('claims_api/brd/countries') do
@@ -2593,7 +2634,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
 
           context "and 'disabilities.diagnosticCode' is not provided" do
-            it 'returns an unprocessible entity status' do
+            it 'returns an unprocessable entity status' do
               mock_acg(scopes) do |auth_header|
                 VCR.use_cassette('claims_api/brd/countries') do
                   json_data = JSON.parse data
@@ -2614,10 +2655,10 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
 
-        context "when 'disabilites.disabilityActionType' equals 'NONE'" do
-          context "and 'disabilites.secondaryDisabilities' is defined" do
-            context "and 'disabilites.diagnosticCode is not provided" do
-              it 'returns an unprocessible entity status' do
+        context "when 'disabilities.disabilityActionType' equals 'NONE'" do
+          context "and 'disabilities.secondaryDisabilities' is defined" do
+            context "and 'disabilities.diagnosticCode is not provided" do
+              it 'returns an unprocessable entity status' do
                 mock_acg(scopes) do |auth_header|
                   VCR.use_cassette('claims_api/bgs/claims/claims') do
                     VCR.use_cassette('claims_api/brd/countries') do
@@ -2648,7 +2689,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
 
-        context "when 'disabilites.disabilityActionType' equals value other than 'INCREASE'" do
+        context "when 'disabilities.disabilityActionType' equals value other than 'INCREASE'" do
           context "and 'disabilities.ratedDisabilityId' is not provided" do
             it 'responds with a 200' do
               mock_acg(scopes) do |auth_header|
@@ -2674,7 +2715,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
-      describe "'disabilites.approximateBeginDate' validations" do
+      describe "'disabilities.approximateBeginDate' validations" do
         let(:disabilities) do
           [
             {
@@ -2727,7 +2768,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         end
       end
 
-      describe "'disabilites.specialIssues' validations" do
+      describe "'disabilities.specialIssues' validations" do
         let(:disabilities) do
           [
             {
@@ -2882,7 +2923,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
           end
         end
 
-        context "when 'specialIssues' are provided for some 'disabilites'" do
+        context "when 'specialIssues' are provided for some 'disabilities'" do
           let(:disabilities) do
             [
               {
