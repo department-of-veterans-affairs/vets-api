@@ -1830,7 +1830,8 @@ features:
     description: Enable the burial form
   burial_module_enabled:
     actor_type: user
-    description: Enable the burial module
+    description: Enables new Burial module
+    enable_in_development: true
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
