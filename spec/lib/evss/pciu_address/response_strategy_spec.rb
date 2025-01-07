@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'evss/pciu_address/response_strategy'
+require 'evss/pciu_address/service'
 
 describe EVSS::PCIUAddress::ResponseStrategy do
   let(:user) { build(:user, :loa3) }
