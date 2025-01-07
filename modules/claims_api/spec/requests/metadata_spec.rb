@@ -5,6 +5,7 @@ require 'bgs/services'
 require 'mpi/service'
 require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 require 'bgs_service/intent_to_file_web_service'
+require 'bgs_service/tracked_item_service'
 require 'bgs_service/person_web_service'
 
 RSpec.describe 'ClaimsApi::Metadata', type: :request do
@@ -57,9 +58,8 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
           expect(result['mpi']['success']).to eq(false)
         end
 
-        local_bgs_services = %i[claimant org trackeditem].freeze
-        local_bgs_methods = %i[find_poa_by_participant_id find_poa_history_by_ptcpnt_id
-                               find_tracked_items].freeze
+        local_bgs_services = %i[claimant org].freeze
+        local_bgs_methods = %i[find_poa_by_participant_id find_poa_history_by_ptcpnt_id].freeze
         local_bgs_services.each do |local_bgs_service|
           it "returns the correct status when the local bgs #{local_bgs_service} is not healthy" do
             local_bgs_methods.each do |local_bgs_method|
@@ -70,6 +70,16 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
               expect(result["localbgs-#{local_bgs_service}"]['success']).to eq(false)
             end
           end
+        end
+
+        local_tracked_item_service = %i[trackeditem].freeze
+        local_tracked_item_method = %i[find_tracked_items].freeze
+        it "returns the correct status when the tracked item service #{local_tracked_item_service} is not healthy" do
+          allow_any_instance_of(ClaimsApi::TrackedItemService).to receive(local_tracked_item_method.first.to_sym)
+            .and_return(Struct.new(:healthy?).new(false))
+          get "/services/claims/#{version}/upstream_healthcheck"
+          result = JSON.parse(response.body)
+          expect(result['localbgs-trackeditem']['success']).to eq(false)
         end
 
         local_bgs_claims_status_services = %i[ebenefitsbenftclaim]
