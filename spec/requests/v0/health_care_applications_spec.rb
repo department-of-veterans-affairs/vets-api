@@ -237,53 +237,55 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
       end
       expect(response).to have_http_status(:ok)
-      expect(response.parsed_body[0]).to eq({
-        'access' => nil,
-        'active_status' => nil,
-        'address' => {
-          'mailing' => {
-            'zip' => '66713',
-            'city' => 'Leavenworth',
-            'state' => 'KS',
-            'address1' => '150 Muncie Rd'
+      expect(response.parsed_body[0]).to eq(
+        {
+          'access' => nil,
+          'active_status' => nil,
+          'address' => {
+            'mailing' => {
+              'zip' => '66713',
+              'city' => 'Leavenworth',
+              'state' => 'KS',
+              'address1' => '150 Muncie Rd'
+            },
+            'physical' => {
+              'zip' => '66713',
+              'city' => 'Baxter Springs',
+              'state' => 'KS',
+              'address1' => 'Baxter Springs City Cemetery'
+            }
           },
-          'physical' => {
-            'zip' => '66713',
-            'city' => 'Baxter Springs',
-            'state' => 'KS',
-            'address1' => 'Baxter Springs City Cemetery'
-          }
-        },
-        'classification' => 'Soldiers Lot',
-        'detailed_services' => nil,
-        'distance' => nil,
-        'facility_type' => 'va_cemetery',
-        'facility_type_prefix' => 'nca',
-        'feedback' => nil,
-        'hours' => {
-          'monday' => 'Sunrise - Sundown',
-          'tuesday' => 'Sunrise - Sundown',
-          'wednesday' => 'Sunrise - Sundown',
-          'thursday' => 'Sunrise - Sundown',
-          'friday' => 'Sunrise - Sundown',
-          'saturday' => 'Sunrise - Sundown',
-          'sunday' => 'Sunrise - Sundown'
-        },
-        'id' => 'nca_042',
-        'lat' => 37.0320575,
-        'long' => -94.7706605,
-        'mobile' => nil,
-        'name' => "Baxter Springs City Soldiers' Lot",
-        'operating_status' => { 'code' => 'NORMAL' },
-        'operational_hours_special_instructions' => nil,
-        'parent' => nil,
-        'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
-        'services' => nil,
-        'type' => 'va_facilities',
-        'unique_id' => '042',
-        'visn' => nil,
-        'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp'
-      })
+          'classification' => 'Soldiers Lot',
+          'detailed_services' => nil,
+          'distance' => nil,
+          'facility_type' => 'va_cemetery',
+          'facility_type_prefix' => 'nca',
+          'feedback' => nil,
+          'hours' => {
+            'monday' => 'Sunrise - Sundown',
+            'tuesday' => 'Sunrise - Sundown',
+            'wednesday' => 'Sunrise - Sundown',
+            'thursday' => 'Sunrise - Sundown',
+            'friday' => 'Sunrise - Sundown',
+            'saturday' => 'Sunrise - Sundown',
+            'sunday' => 'Sunrise - Sundown'
+          },
+          'id' => 'nca_042',
+          'lat' => 37.0320575,
+          'long' => -94.7706605,
+          'mobile' => nil,
+          'name' => "Baxter Springs City Soldiers' Lot",
+          'operating_status' => { 'code' => 'NORMAL' },
+          'operational_hours_special_instructions' => nil,
+          'parent' => nil,
+          'phone' => { 'fax' => '9137584136', 'main' => '9137584105' },
+          'services' => nil,
+          'type' => 'va_facilities',
+          'unique_id' => '042',
+          'visn' => nil,
+          'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp'
+        }
+      )
     end
 
     context 'with hca_retrieve_facilities_without_repopulating disabled' do
@@ -315,9 +317,11 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
 
   describe 'POST create' do
     subject do
-      post(v0_health_care_applications_path,
+      post(
+        v0_health_care_applications_path,
         params: params.to_json,
-        headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' })
+        headers: { 'CONTENT_TYPE' => 'application/json', 'HTTP_X_KEY_INFLECTION' => 'camel' }
+      )
     end
 
     context 'with invalid params' do
@@ -355,20 +359,26 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           subject
           body = JSON.parse(response.body)
           expect(body).to eq(
-            'data' =>
-              { 'id' => HealthCareApplication.last.id.to_s,
-                'type' => 'health_care_applications',
-                'attributes' =>
-                  { 'state' => 'pending', 'formSubmissionId' => nil, 'timestamp' => nil } }
+            'data' => {
+              'id' => HealthCareApplication.last.id.to_s,
+              'type' => 'health_care_applications',
+              'attributes' => {
+                'state' => 'pending',
+                'formSubmissionId' => nil,
+                'timestamp' => nil
+              }
+            }
           )
         end
       end
 
       context 'anonymously' do
         let(:body) do
-          { 'formSubmissionId' => 436_426_165,
+          {
+            'formSubmissionId' => 436_426_165,
             'timestamp' => '2024-08-20T12:08:06.729-05:00',
-            'success' => true }
+            'success' => true
+          }
         end
 
         context 'with an email set' do
@@ -414,9 +424,11 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
       context 'while authenticated', :skip_mvi do
         let(:current_user) { build(:user, :mhv) }
         let(:body) do
-          { 'formSubmissionId' => 436_426_340,
+          {
+            'formSubmissionId' => 436_426_340,
             'timestamp' => '2024-08-20T12:26:48.275-05:00',
-            'success' => true }
+            'success' => true
+          }
         end
 
         before do
