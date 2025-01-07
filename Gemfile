@@ -18,6 +18,7 @@ path 'modules' do
   gem 'covid_research'
   gem 'covid_vaccine'
   gem 'debts_api'
+  gem 'decision_reviews'
   gem 'dhp_connected_devices'
   gem 'facilities_api'
   gem 'health_quest'
@@ -32,7 +33,6 @@ path 'modules' do
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
   gem 'travel_pay'
-  gem 'va_forms'
   gem 'va_notify'
   gem 'vaos'
   gem 'vba_documents'
@@ -41,7 +41,7 @@ path 'modules' do
   gem 'vye'
 end
 
-gem 'rails', '~> 7.1.3'
+gem 'rails', '~> 7.2.2'
 
 gem 'aasm'
 gem 'activerecord-import'
@@ -52,6 +52,7 @@ gem 'aws-sdk-s3', '~> 1'
 gem 'aws-sdk-sns', '~> 1'
 gem 'betamocks', git: 'https://github.com/department-of-veterans-affairs/betamocks', branch: 'master'
 gem 'bgs_ext', git: 'https://github.com/department-of-veterans-affairs/bgs-ext.git', require: 'bgs', ref: '350e45ae69'
+gem 'blind_index'
 gem 'blueprinter'
 gem 'bootsnap', require: false
 gem 'breakers'
@@ -64,7 +65,7 @@ gem 'connect_vbms', git: 'https://github.com/adhocteam/connect_vbms', tag: 'v2.1
 gem 'csv'
 gem 'date_validator'
 gem 'ddtrace'
-gem 'dogstatsd-ruby', '5.6.3'
+gem 'dogstatsd-ruby', '5.6.4'
 gem 'dry-struct'
 gem 'dry-types'
 gem 'ethon', '>=0.13.0'
@@ -205,6 +206,7 @@ group :development, :test do
   gem 'byebug', platforms: :ruby # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'danger'
   gem 'database_cleaner'
+  gem 'debug'
   gem 'factory_bot_rails'
   gem 'faker'
   # CAUTION: faraday_curl may not provide all headers used in the actual faraday request. Be cautious if using this to
@@ -214,7 +216,7 @@ group :development, :test do
   gem 'guard-rspec'
   gem 'parallel_tests'
   gem 'pry-byebug'
-  gem 'rack-test', '2.1.0', require: 'rack/test'
+  gem 'rack-test', '2.2.0', require: 'rack/test'
   gem 'rack-vcr'
   gem 'rainbow' # Used to colorize output for rake tasks
   gem 'rspec-instrumentation-matcher'

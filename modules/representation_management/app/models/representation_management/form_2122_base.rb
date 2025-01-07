@@ -68,7 +68,7 @@ module RepresentationManagement
     validates :veteran_city, presence: true, length: { maximum: 18 }
     validates :veteran_country, presence: true, length: { is: 2 }
     validates :veteran_state_code, presence: true, length: { minimum: 2 }
-    validates :veteran_zip_code, presence: true
+    validates :veteran_zip_code, presence: true, length: { minimum: 4 }
 
     validates :veteran_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }, if: -> { veteran_phone.present? }
     validates :veteran_service_number,
@@ -90,7 +90,7 @@ module RepresentationManagement
       validates :claimant_city, presence: true, length: { maximum: 18 }
       validates :claimant_country, presence: true, length: { is: 2 }
       validates :claimant_state_code, presence: true, length: { minimum: 2 }
-      validates :claimant_zip_code, presence: true
+      validates :claimant_zip_code, presence: true, length: { minimum: 4 }
 
       validates :claimant_phone, length: { is: 10 }, format: { with: TEN_DIGIT_NUMBER }
     end

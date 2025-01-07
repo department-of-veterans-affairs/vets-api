@@ -57,6 +57,10 @@ module Eps
       { 'Content-Type' => 'application/x-www-form-urlencoded' }
     end
 
+    def patient_id
+      @patient_id ||= user.icn
+    end
+
     class TokenError < StandardError; end
   end
 end

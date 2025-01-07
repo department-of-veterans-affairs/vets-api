@@ -24,6 +24,7 @@ module VAProfile
         #   suggestions data
         def address_suggestions(address)
           with_monitoring do
+            address.address_pou = address.address_pou == 'RESIDENCE/CHOICE' ? 'RESIDENCE' : address.address_pou
             candidate_res = candidate(address)
 
             AddressSuggestionsResponse.new(candidate_res)
