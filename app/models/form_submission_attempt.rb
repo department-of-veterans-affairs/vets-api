@@ -71,7 +71,9 @@ class FormSubmissionAttempt < ApplicationRecord
     end
   end
 
+  # rubocop:disable Metrics/MethodLength
   def log_status_change
+    log_level = :info
     log_hash = {
       form_submission_id:,
       benefits_intake_uuid:,
@@ -82,19 +84,21 @@ class FormSubmissionAttempt < ApplicationRecord
     }
 
     case aasm.current_event
-    when 'fail!'
+    when :fail!
+      log_level = :error
       log_hash[:message] = 'Form Submission Attempt failed'
-      Rails.logger.error(log_hash)
-    when 'vbms!'
-      log_hash[:message] = 'Form Submission Attempt went to vbms'
-    when 'manual!'
+    when :manual!
+      log_level = :warn
       log_hash[:message] = 'Form Submission Attempt is being manually remediated'
+    when :vbms!
+      log_hash[:message] = 'Form Submission Attempt went to vbms'
     else
       log_hash[:message] = 'Form Submission Attempt State change'
     end
 
-    Rails.logger.info(log_hash) if aasm.current_event != 'fail!'
+    Rails.logger.public_send(log_level, log_hash)
   end
+  # rubocop:enable Metrics/MethodLength
 
   private
 
