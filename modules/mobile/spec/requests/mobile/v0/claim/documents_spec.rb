@@ -8,9 +8,8 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '24811694708759028') }
-  let(:user_account) { create(:user_account) }
   let(:file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
-  let(:claim_id) { 33 }
+  let(:claim_id) { '33' }
   let(:tracked_item_id) { '12345' }
   let(:document_type) { 'L023' }
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
@@ -22,8 +21,6 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     Flipper.enable_actor(:mobile_lighthouse_document_upload, user)
     Flipper.disable(:cst_synchronous_evidence_uploads)
     FileUtils.rm_rf(Rails.root.join('tmp', 'uploads', 'cache', '*'))
-    user.user_account_uuid = user_account.id
-    user.save!
   end
 
   after do

@@ -38,9 +38,9 @@ RSpec.describe BenefitsDocuments::Service do
       let(:params) do
         {
           file_number: 'xyz',
-          claimId: 1,
+          claimId: '1',
           file: upload_file,
-          trackedItemId: [1],
+          trackedItemId: ['1'], # Lighthouse expects an array for tracked items
           documentType: 'L023',
           password: nil
         }
