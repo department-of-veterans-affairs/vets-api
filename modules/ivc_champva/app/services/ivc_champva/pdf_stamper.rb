@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'pdf_utilities/datestamp_pdf'
+require 'fileutils'
 
 module IvcChampva
   class PdfStamper
@@ -89,12 +90,38 @@ module IvcChampva
     def self.perform_multistamp(stamped_template_path, stamp_path)
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
       pdftk = PdfFill::Filler::PDF_FORMS
-      pdftk.multistamp(stamped_template_path, stamp_path, out_path)
-      File.delete(stamped_template_path)
-      File.rename(out_path, stamped_template_path)
-    rescue
-      Common::FileHelpers.delete_file_if_exists(out_path)
-      raise
+
+      begin
+        Rails.logger.debug do
+          "Starting multistamp: stamped_template_path=#{stamped_template_path}, stamp_path=#{stamp_path}, out_path=#{out_path}"
+        end
+
+        pdftk.multistamp(stamped_template_path, stamp_path, out_path)
+        Rails.logger.debug('Multistamp command completed successfully.')
+
+        Rails.logger.debug { "Moving #{out_path} to #{stamped_template_path} (atomic move)" }
+        FileUtils.mv(out_path, stamped_template_path) # Atomic move!
+        Rails.logger.debug('Move complete.')
+      rescue PdfForms::PdftkError => e # Catch specific Pdftk errors
+        Rails.logger.error("PdftkError during multistamp: #{e.message}")
+        Rails.logger.error("Pdftk command output: #{e.output}") if e.respond_to?(:output) # If available
+        Rails.logger.error("Pdftk backtrace: #{e.backtrace.join("\n")}") if e.respond_to?(:backtrace)
+        Common::FileHelpers.delete_file_if_exists(out_path)
+        raise # Re-raise after logging
+      rescue SystemCallError => e # Catch file system errors
+        Rails.logger.error("SystemCallError during multistamp (file access issue?): #{e.message}")
+        Rails.logger.error("Backtrace: #{e.backtrace.join("\n")}")
+        Common::FileHelpers.delete_file_if_exists(out_path)
+        raise
+      rescue => e # Catch other potential errors
+        Rails.logger.error("Unexpected error during multistamp: #{e.message}")
+        Rails.logger.error("Backtrace: #{e.backtrace.join("\n")}")
+        Common::FileHelpers.delete_file_if_exists(out_path)
+        raise # Re-raise after logging
+      ensure
+        Rails.logger.debug { "Ensuring cleanup, checking out_path exists: #{File.exist?(out_path)}" }
+        Common::FileHelpers.delete_file_if_exists(out_path)
+      end
     end
 
     def self.stamp_submission_date(stamped_template_path, desired_stamps)
