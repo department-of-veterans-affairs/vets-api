@@ -53,11 +53,11 @@ module Organizations
 
     def rows_to_process(rows)
       rows.map do |row|
-        rep = Veteran::Service::Organization.find_by(poa: row[:poa])
-        diff = rep.diff(row)
-        row.merge(diff.merge({ address_exists: rep.location.present? })) if diff.values.any?
+        org = Veteran::Service::Organization.find_by(poa: row[:poa])
+        diff = org.diff(row)
+        row.merge(diff.merge({ address_exists: org.location.present? })) if diff.values.any?
       rescue ActiveRecord::RecordNotFound => e
-        log_error("Error: Representative not found #{e.message}")
+        log_error("Error: Organization not found #{e.message}")
         nil
       end.compact
     end

@@ -31,20 +31,25 @@ module Organizations
     # If the address validation fails or an error occurs during the update, the error is logged and the process
     # is halted for the current organization.
     # @param org_data [Hash] The organization data including id and address.
-    def process_org_data(org_data)
+    def process_org_data(org_data) # rubocop:disable Metrics/MethodLength
+      return unless record_can_be_updated?(org_data)
+
       address_validation_api_response = nil
 
-      api_response = if Flipper.enabled?(:va_v3_contact_information_service)
-                       get_best_address_candidate(org_data)
-                     else
-                       get_best_address_candidate(org_data['address'])
-                     end
+      if org_data['address_changed']
 
-      # don't update the record if there is not a valid address with non-zero lat and long at this point
-      if api_response.nil?
-        return
-      else
-        address_validation_api_response = api_response
+        api_response = if Flipper.enabled?(:va_v3_contact_information_service)
+                         get_best_address_candidate(org_data)
+                       else
+                         get_best_address_candidate(org_data['address'])
+                       end
+
+        # don't update the record if there is not a valid address with non-zero lat and long at this point
+        if api_response.nil?
+          return
+        else
+          address_validation_api_response = api_response
+        end
       end
 
       begin
@@ -56,6 +61,10 @@ module Organizations
         log_error("Update failed for Org id: #{org_data['id']}: #{e.message}")
         nil
       end
+    end
+
+    def record_can_be_updated?(org_data)
+      org_data['address_exists'] || org_data['address_changed']
     end
 
     # Constructs a validation address object from the provided address data.
@@ -115,7 +124,8 @@ module Organizations
         raise StandardError, 'Organization not found.'
       else
         address_attributes = org_data['address_changed'] ? build_address_attributes(org_data, api_response) : {}
-        record.update(address_attributes)
+        phone_attributes = org_data['phone_number_changed'] ? build_phone_attributes(org_data) : {}
+        record.update(address_attributes.merge(phone_attributes))
       end
     end
 
@@ -131,6 +141,10 @@ module Organizations
         meta = api_response['candidate_addresses'].first['address_meta_data']
         build_address(address, geocode, meta).merge({ raw_address: org_data['address'].to_json })
       end
+    end
+
+    def build_phone_attributes(org_data)
+      { phone_number: org_data['phone_number'] }
     end
 
     # Builds the attributes for the record update from the address, geocode, and metadata.
