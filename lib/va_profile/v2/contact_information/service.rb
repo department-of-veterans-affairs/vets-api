@@ -74,7 +74,6 @@ module VAProfile
 
         def update_email(email)
           update_model(email, 'email', 'email')
-          update_mpi_data('email', email)
         end
 
         def update_telephone(telephone)
@@ -136,7 +135,6 @@ module VAProfile
         # @param email [VAProfile::Models::Email] the email to update
         # @return [VAProfile::V2::ContactInformation::EmailTransactionResponse] wrapper around a transaction object
         def put_email(email)
-          binding.pry
           old_email =
             begin
               @user.va_profile_v2_email
@@ -223,16 +221,10 @@ module VAProfile
         end
 
         def update_model(model, attr, method_name)
-          binding.pry
-
           contact_info = VAProfileRedis::V2::ContactInformation.for_user(@user)
           model.id = contact_info.public_send(attr)&.id
           verb = model.id.present? ? 'put' : 'post'
           public_send("#{verb}_#{method_name}", model)
-        end
-
-        def update_mpi_data(attribute, value)
-
         end
 
         def get_email_personalisation(type)
