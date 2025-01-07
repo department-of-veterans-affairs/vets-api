@@ -4,6 +4,8 @@ require 'swagger_helper'
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
+require 'bgs_service/tracked_item_service'
+require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
 describe 'Claims',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
