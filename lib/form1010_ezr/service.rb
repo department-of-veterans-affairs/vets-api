@@ -47,7 +47,6 @@ module Form1010Ezr
           es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
         end
       end
-
       # Log the 'formSubmissionId' for successful submissions
       Rails.logger.info(
         '1010EZR successfully submitted',
