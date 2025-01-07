@@ -1427,7 +1427,7 @@ vanotify:
           template_id: burial_claim_error_email_template_id
           flipper_id: burial_error_email_notification
         received:
-          template_id: null
+          template_id: burial_received_email_template_id
           flipper_id: burial_received_email_notification
     burials: *vanotify_services_burial
     21p_530: *vanotify_services_burial
@@ -1438,19 +1438,6 @@ vanotify:
     password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
   status_callback:
     bearer_token: fake_bearer_token
-
-# Settings to connect to the drupal forms graphql api
-va_forms:
-  drupal_username: ~
-  drupal_password: ~
-  drupal_url: https://fake-url.com
-  form_reloader:
-    enabled: false
-  # A notification for when a forms url has changed
-  slack:
-    enabled: false
-    api_key: ""
-    channel_id: ""
 
 # Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
 genisis:
@@ -1881,7 +1868,7 @@ ogc:
 
 accredited_representative_portal:
   pilot_users_email_poa_codes: ~
-  
+
 banners:
   drupal_username: banners_api
   drupal_password: test

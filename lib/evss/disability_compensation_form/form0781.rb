@@ -58,6 +58,7 @@ module EVSS
                                      'reports' => @form_content['reports'],
                                      'reportsDetails' => @form_content['reportsDetails'],
                                      'behaviors' => @form_content['behaviors'],
+                                     'otherBehaviors' => @form_content['otherBehaviors'],
                                      'behaviorsDetails' => @form_content['behaviorsDetails'],
                                      'evidence' => @form_content['evidence'],
                                      'traumaTreatment' => @form_content['traumaTreatment'],
