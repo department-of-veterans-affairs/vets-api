@@ -7,13 +7,17 @@
 
 require 'common/models/comparable/ascending'
 require 'common/models/comparable/descending'
+require 'vets/collections/finder'
 
 # This will be a replacement for Common::Collection
 module Vets
   class Collection
-    def initialize(records)
+    attr_accessor :records, :metadata
+
+    def initialize(records, metadata: {})
       records = Array.wrap(records)
       @model_class = records.first.class
+      @metadata = metadata
 
       unless records.all? { |record| record.is_a?(@model_class) }
         raise ArgumentError, "All records must be instances of #{@model_class}"
@@ -38,6 +42,15 @@ module Vets
           direction == :asc ? Common::Ascending.new(value) : Common::Descending.new(value)
         end
       end
+    end
+
+    def where(conditions = {})
+      results = Vets::Collections::Finder.new(data: @records, conditions:).all
+      Vets::Collection.new(results, metadata: { filter: conditions })
+    end
+
+    def find_by(conditions = {})
+      Vets::Collections::Finder.new(data: @records, conditions:).first
     end
 
     private
