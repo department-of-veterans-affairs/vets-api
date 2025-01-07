@@ -8,7 +8,7 @@ module AccreditedRepresentativePortal
       before_action do
         authorize PowerOfAttorneyRequest
       end
-      
+
       with_options only: :show do
         before_action do
           id = params[:id]
@@ -21,7 +21,7 @@ module AccreditedRepresentativePortal
           :power_of_attorney_form,
           :power_of_attorney_holder,
           :accredited_individual,
-          resolution: :resolving
+          { resolution: :resolving }
         ]
 
         poa_requests = poa_request_scope.includes(includes).limit(100)
