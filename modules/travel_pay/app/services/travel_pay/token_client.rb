@@ -38,7 +38,7 @@ module TravelPay
       correlation_id = SecureRandom.uuid
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
 
-      response = connection(server_url: btsss_url).post('api/v1/Auth/access-token') do |req|
+      response = connection(server_url: btsss_url).post('api/v1.2/Auth/access-token') do |req|
         req.headers['Authorization'] = "Bearer #{veis_token}"
         req.headers['BTSSS-API-Client-Number'] = @client_number.to_s
         req.headers['X-Correlation-ID'] = correlation_id

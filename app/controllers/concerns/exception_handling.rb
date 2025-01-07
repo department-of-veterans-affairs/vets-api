@@ -3,7 +3,7 @@
 require 'common/exceptions'
 require 'common/client/errors'
 require 'json_schema/json_api_missing_attribute'
-require 'ddtrace'
+require 'datadog'
 
 module ExceptionHandling
   extend ActiveSupport::Concern
@@ -83,7 +83,7 @@ module ExceptionHandling
     # Add additional user specific context to the logs
     if exception.is_a?(Common::Exceptions::BackendServiceException) && current_user.present?
       extra[:icn] = current_user.icn
-      extra[:mhv_correlation_id] = current_user.mhv_correlation_id
+      extra[:mhv_credential_uuid] = current_user.mhv_credential_uuid
     end
     va_exception_info = { va_exception_errors: va_exception.errors.map(&:to_hash) }
     log_exception_to_sentry(exception, extra.merge(va_exception_info))
