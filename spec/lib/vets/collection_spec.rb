@@ -21,7 +21,7 @@ RSpec.describe Vets::Collection do
       record1 = dummy_class.new(name: 'Bob', age: 25)
       record2 = dummy_class.new(name: 'Alice', age: 30)
 
-      collection = Vets::Collection.new([record1, record2])
+      collection = described_class.new([record1, record2])
       expect(collection.instance_variable_get(:@records)).to eq([record2, record1])
     end
 
@@ -35,17 +35,38 @@ RSpec.describe Vets::Collection do
   end
 
   describe '.from_hashes' do
-    it 'creates a collection from an array of hashes' do
+    it 'creates a collection from an WillPaginate::Collection' do
       hashes = [{ name: 'Alice', age: 30 }, { name: 'Bob', age: 25 }]
-      collection = Vets::Collection.from_hashes(dummy_class, hashes)
+      collection = described_class.from_hashes(dummy_class, hashes)
       expect(collection.records.map(&:name)).to eq(%w[Alice Bob])
+    end
+
+    it 'raises an error if not a WillPaginate::Collection' do
+      hashes = [{ name: 'Alice', age: 30 }, 'invalid']
+
+      expect { described_class.from_hashes(dummy_class, hashes) }
+        .to raise_error(ArgumentError, 'Expected an array of hashes')
+    end
+  end
+
+  describe '.will_paginate' do
+    it 'creates a collection from an array of hashes' do
+      record1 = dummy_class.new(name: 'Bob', age: 25)
+      record2 = dummy_class.new(name: 'Alice', age: 30)
+      records = [record1, record2]
+
+      will_collection = WillPaginate::Collection.create(1, 2, records.size) do |pager|
+        pager.replace(records[0, 2])
+      end
+      collection = described_class.from_will_paginate(will_collection)
+      expect(collection.records.map(&:name)).to eq(%w[Bob Alice])
     end
 
     it 'raises an error if any element is not a hash' do
       hashes = [{ name: 'Alice', age: 30 }, 'invalid']
 
-      expect { Vets::Collection.from_hashes(dummy_class, hashes) }
-        .to raise_error(ArgumentError, 'Expected an array of hashes')
+      expect { described_class.from_will_paginate(hashes) }
+        .to raise_error(ArgumentError, 'Expected records to be instance of WillPaginate')
     end
   end
 
@@ -55,7 +76,7 @@ RSpec.describe Vets::Collection do
     let(:record3) { dummy_class.new(name: 'Charlie', age: 35) }
     let(:record4) { dummy_class.new(name: 'David', age: 25) }
 
-    let(:collection) { Vets::Collection.new([record4, record1, record2, record3]) }
+    let(:collection) { described_class.new([record4, record1, record2, record3]) }
 
     it 'returns records sorted by the specified attribute in ascending order' do
       sorted = collection.order(name: :asc)
@@ -101,7 +122,7 @@ RSpec.describe Vets::Collection do
         record3 = dummy_class.new(name: 'Steven', age: 30)
         records = [record1, record2, record3]
 
-        collection = Vets::Collection.new(records)
+        collection = described_class.new(records)
 
         paginated = collection.paginate(page: 2, per_page: 2)
         metadata = paginated.metadata[:pagination]
@@ -121,7 +142,7 @@ RSpec.describe Vets::Collection do
         record2 = dummy_class.new(name: 'Alice', age: 30)
         records = [record1, record2]
 
-        collection = Vets::Collection.new(records)
+        collection = described_class.new(records)
 
         paginated = collection.paginate(page: nil, per_page: 10)
         metadata = paginated.metadata[:pagination]
@@ -140,7 +161,7 @@ RSpec.describe Vets::Collection do
           record1 = dummy_class.new(name: 'Bob', age: 25)
           record2 = dummy_class.new(name: 'Alice', age: 30)
 
-          collection = Vets::Collection.new([record1, record2])
+          collection = described_class.new([record1, record2])
 
           paginated = collection.paginate(page: 1, per_page: nil)
           metadata = paginated.metadata[:pagination]
@@ -162,7 +183,7 @@ RSpec.describe Vets::Collection do
           record1 = dummy_class.new(name: 'Bob', age: 25)
           record2 = dummy_class.new(name: 'Alice', age: 30)
 
-          collection = Vets::Collection.new([record1, record2])
+          collection = described_class.new([record1, record2])
           paginated = collection.paginate(page: 1, per_page: nil)
           metadata = paginated.metadata[:pagination]
 
@@ -177,7 +198,7 @@ RSpec.describe Vets::Collection do
           record1 = dummy_class.new(name: 'Bob', age: 25)
           record2 = dummy_class.new(name: 'Alice', age: 30)
 
-          collection = Vets::Collection.new([record1, record2])
+          collection = described_class.new([record1, record2])
 
           paginated = collection.paginate(page: 1, per_page: 1000)
           metadata = paginated.metadata[:pagination]

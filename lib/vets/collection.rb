@@ -30,9 +30,8 @@ module Vets
 
     def self.from_will_paginate(records)
       if defined?(::WillPaginate::Collection)
-        records_will_paginate_collection = records.is_a?(WillPaginate::Collection)
         error_message = 'Expected records to be instance of WillPaginate'
-        raise ArgumentError, error_message if records_will_paginate_collection
+        raise ArgumentError, error_message unless records.is_a?(WillPaginate::Collection)
       end
 
       new(records)
