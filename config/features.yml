@@ -67,7 +67,7 @@ features:
     enable_in_development: true
   benefits_require_gateway_origin:
     actor_type: user
-    description: Requires that all requests made to endpoints in appeals_api, va_forms, and vba_documents be made through the gateway
+    description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
   caregiver_use_facilities_API:
     actor_type: user
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
@@ -355,9 +355,6 @@ features:
   communication_preferences:
     actor_type: user
     description: Allow user to access backend communication_preferences API
-  contact_info_change_email:
-    actor_type: user
-    description: Send user a notification email when their contact info changes.
   covid_vaccine_registration:
     actor_type: user
     description: Toggles availability of covid vaccine form API.
@@ -417,6 +414,12 @@ features:
   claims_status_v1_lh_auto_establish_claim_enabled:
     actor_type: user
     description: With feature flag enabled, v1 /526 should use Lighthouse Form526 docker container
+  cst_send_evidence_submission_failure_emails:
+    actor_type: user
+    description: >
+      If enabled and a user submits an evidence submission upload that fails to send, an email will be sent to the user and retried.
+      When disabled and a user submits an evidence submission upload that fails to send, an email will be sent to the user and not retried.
+    enable_in_development: true
   debt_letters_show_letters_vbms:
     actor_type: user
     description: Enables debt letter download from VBMS
@@ -1372,6 +1375,14 @@ features:
     actor_type: user
     description: enables exclusion period checks
     enable_in_development: false
+  meb_dpo_address_option_enabled:
+    actor_type: user
+    description: enables DPO option on address field
+    enable_in_development: false
+  meb_kicker_notification_enabled:
+    actor_type: user
+    description: enables kicker notification on additional consideration questions
+    enable_in_development: false
   meb_auto_populate_relinquishment_date:
     actor_type: user
     description: Flag to autofill datepicker for reliinquishment date
@@ -1832,6 +1843,9 @@ features:
     actor_type: user
     description: Enables new Burial module
     enable_in_development: true
+  burial_document_upload_update:
+    actor_type: user
+    description: Show updated document upload page
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
@@ -1960,7 +1974,10 @@ features:
     enabled_in_development: true
   remove_pciu:
     actor_type: user
-    description: If enabled, VA Profile is used to populate contact information- without PCIU calls (status quo)
+    description: If enabled, VA Profile is used to populate contact information with PCIU backup calls
+  remove_pciu_2:
+    actor_type: user
+    description: If enabled, removes all PCIU requests in form pre-fill.
   show_yellow_ribbon_table:
     actor_type: user
     description: Used to show yellow ribbon table in Comparison Tool
@@ -2004,5 +2021,6 @@ features:
   show_rudisill_1995:
     actor_type: user
     description: If enabled, show rudisill review in 22-1995
-
-
+  enable_lighthouse:
+    actor_type: user
+    description: If enabled, user will connect to lighthouse api in sob instead of evss
