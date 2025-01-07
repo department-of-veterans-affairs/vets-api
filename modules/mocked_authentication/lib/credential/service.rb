@@ -58,7 +58,7 @@ module MockedAuthentication
         return {} unless type == SignIn::Constants::Auth::LOGINGOV
 
         ial =  logingov_credential_has_attributes?(mock_credential_info(code)) ? IAL::TWO : IAL::ONE
-        id_token_payload = { logingov_acr: get_authn_context(ial) }
+        { logingov_acr: get_authn_context(ial) }
       end
 
       def logingov_credential_has_attributes?(mock_credential_info)
