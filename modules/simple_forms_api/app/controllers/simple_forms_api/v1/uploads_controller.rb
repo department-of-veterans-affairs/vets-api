@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'ddtrace'
+require 'datadog'
 require 'simple_forms_api_submission/metadata_validator'
 require 'lgy/service'
 require 'lighthouse/benefits_intake/service'
@@ -125,6 +125,18 @@ module SimpleFormsApi
           'Simple forms api - sent to lgy',
           { form_number: params[:form_number], status:, reference_number: }
         )
+
+        if Flipper.enabled?(:simple_forms_email_confirmations)
+          case status
+          when 'VALIDATED', 'ACCEPTED'
+            send_sahsha_email(parsed_form_data, :confirmation, reference_number)
+          when 'REJECTED'
+            send_sahsha_email(parsed_form_data, :rejected)
+          when 'DUPLICATE'
+            send_sahsha_email(parsed_form_data, :duplicate)
+          end
+        end
+
         { json: { reference_number:, status: }, status: lgy_response.status }
       end
 
@@ -322,6 +334,21 @@ module SimpleFormsApi
         notification_email = SimpleFormsApi::NotificationEmail.new(
           config,
           notification_type: :received,
+          user: @current_user
+        )
+        notification_email.send
+      end
+
+      def send_sahsha_email(parsed_form_data, notification_type, confirmation_number = nil)
+        config = {
+          form_data: parsed_form_data,
+          form_number: 'vba_26_4555',
+          confirmation_number:,
+          date_submitted: Time.zone.today.strftime('%B %d, %Y')
+        }
+        notification_email = SimpleFormsApi::NotificationEmail.new(
+          config,
+          notification_type:,
           user: @current_user
         )
         notification_email.send

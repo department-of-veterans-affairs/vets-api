@@ -321,25 +321,36 @@
                 "type": "string",
                 "description": "Specifies the category of Power of Attorney (POA) representation.",
                 "enum": [
-                  "veteran_service_representatives",
-                  "veteran_service_organizations"
-                ]
+                  "representative",
+                  "organization"
+                ],
+                "example": "representative"
               },
               "attributes": {
                 "type": "object",
                 "properties": {
                   "type": {
                     "type": "string",
-                    "example": "organization",
+                    "example": "representative",
                     "description": "Type of Power of Attorney representation",
                     "enum": [
                       "organization",
                       "representative"
                     ]
                   },
+                  "individual_type": {
+                    "type": "string",
+                    "description": "The type of individual appointed",
+                    "enum": [
+                      "attorney",
+                      "claim_agents",
+                      "veteran_service_officer"
+                    ],
+                    "example": "attorney"
+                  },
                   "name": {
                     "type": "string",
-                    "example": "Veterans Association"
+                    "example": "Bob Law"
                   },
                   "address_line1": {
                     "type": "string",
@@ -725,9 +736,7 @@
           "PDF Generation"
         ],
         "operationId": "createPdfForm2122",
-        "parameters": [
-
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "PDF generated successfully"
@@ -958,9 +967,7 @@
           "PDF Generation"
         ],
         "operationId": "createPdfForm2122a",
-        "parameters": [
-
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "PDF generated successfully"
@@ -1218,8 +1225,7 @@
                     {
                       "type": "object",
                       "description": "An empty JSON object indicating no Power of Attorney exists.",
-                      "example": {
-                      }
+                      "example": {}
                     }
                   ]
                 }
@@ -1256,9 +1262,7 @@
           "Next Steps Email"
         ],
         "operationId": "nextStepsEmail",
-        "parameters": [
-
-        ],
+        "parameters": [],
         "responses": {
           "200": {
             "description": "Email enqueued",

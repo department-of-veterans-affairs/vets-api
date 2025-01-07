@@ -4,11 +4,11 @@ require 'central_mail/service'
 require 'pdf_utilities/datestamp_pdf'
 require 'pension_burial/tag_sentry'
 require 'burials/monitor'
+require 'burials/notification_email'
 require 'pcpg/monitor'
 require 'benefits_intake_service/service'
-require 'simple_forms_api_submission/metadata_validator'
+require 'lighthouse/benefits_intake/metadata'
 require 'pdf_info'
-require 'va_notify/notification_email/burial'
 
 module Lighthouse
   class SubmitBenefitsIntakeClaim
@@ -82,7 +82,7 @@ module Lighthouse
       address = form['claimantAddress'] || form['veteranAddress']
 
       # also validates/manipulates the metadata
-      BenefitsIntake::Metadata.generate(
+      ::BenefitsIntake::Metadata.generate(
         veteran_full_name['first'],
         veteran_full_name['last'],
         form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
@@ -192,7 +192,7 @@ module Lighthouse
     def send_confirmation_email
       @claim.respond_to?(:send_confirmation_email) && @claim.send_confirmation_email
 
-      Burials::NotificationEmail.new(@claim).deliver(:confirmation) if %w[21P-530EZ].include?(@claim&.form_id)
+      Burials::NotificationEmail.new(@claim.id).deliver(:confirmation) if %w[21P-530EZ].include?(@claim&.form_id)
     rescue => e
       Rails.logger.warn('Lighthouse::SubmitBenefitsIntakeClaim send_confirmation_email failed',
                         generate_log_details(e))
