@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'ddtrace'
+require 'datadog'
 require 'timeout'
 require 'logging/third_party_transaction'
 require 'evss/failure_notification'
