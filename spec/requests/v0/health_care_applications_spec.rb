@@ -159,8 +159,10 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         end
 
         it 'returns 404' do
-          get(enrollment_status_v0_health_care_applications_path,
-            params: { userAttributes: build(:health_care_application).parsed_form })
+          get(
+            enrollment_status_v0_health_care_applications_path,
+            params: { userAttributes: build(:health_care_application).parsed_form }
+          )
           expect(response).to have_http_status(:not_found)
         end
       end
@@ -171,8 +173,10 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
             current_user.icn, true
           ).and_return(success_response)
 
-          get(enrollment_status_v0_health_care_applications_path,
-            params: { userAttributes: build(:health_care_application).parsed_form })
+          get(
+            enrollment_status_v0_health_care_applications_path,
+            params: { userAttributes: build(:health_care_application).parsed_form }
+          )
 
           expect(response.body).to eq(success_response.to_json)
         end
@@ -233,7 +237,8 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
       end
       expect(response).to have_http_status(:ok)
-      expect(response.parsed_body[0]).to eq({ 'access' => nil,
+      expect(response.parsed_body[0]).to eq({
+        'access' => nil,
         'active_status' => nil,
         'address' => {
           'mailing' => {
@@ -277,7 +282,8 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         'type' => 'va_facilities',
         'unique_id' => '042',
         'visn' => nil,
-        'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp' })
+        'website' => 'https://www.cem.va.gov/cems/lots/BaxterSprings.asp'
+      })
     end
 
     context 'with hca_retrieve_facilities_without_repopulating disabled' do

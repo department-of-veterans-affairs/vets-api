@@ -49,7 +49,8 @@ module Form1010Ezr
       end
 
       # Log the 'formSubmissionId' for successful submissions
-      Rails.logger.info('1010EZR successfully submitted',
+      Rails.logger.info(
+        '1010EZR successfully submitted',
         submission_id: res[:formSubmissionId],
         veteran_initials: veteran_initials(parsed_form)
       )
