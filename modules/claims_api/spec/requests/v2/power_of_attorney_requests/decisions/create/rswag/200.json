@@ -1,31 +1,20 @@
 {
   "type": "object",
   "properties": {
-    "VSOUserEmail": {
+    "decision": {
       "type": ["string", "null"]
     },
-    "VSOUserFirstName": {
+    "representativeId": {
       "type": ["string", "null"]
-    },
-    "VSOUserLastName": {
-      "type": ["string", "null"]
-    },
-    "dateRequestActioned": {
-      "type": "string"
     },
     "declinedReason": {
       "type": ["string", "null"]
     },
-    "procId": {
+    "id": {
       "type": "string"
     },
-    "secondaryStatus": {
-      "type": "string",
-      "enum": [
-        "ACC",
-        "DEC",
-        "OBS"
-      ]
+    "type": {
+      "type": ["string"]
     }
   }
 }

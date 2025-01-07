@@ -74,7 +74,9 @@ module ClaimsApi
 
           send_declined_notification(ptcpnt_id:, first_name:, representative_id:) if decision == 'declined'
 
-          render json: res, status: :ok
+          form_attributes['id'] = lighthouse_id
+          form_attributes['type'] = 'power-of-attorney-request-decision'
+          render json: { data: { attributes: form_attributes } }, status: :ok
         end
 
         def create # rubocop:disable Metrics/MethodLength

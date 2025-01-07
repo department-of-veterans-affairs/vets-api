@@ -17,14 +17,10 @@
           "type": "object",
           "additionalProperties": false,
           "required": [
-            "procId",
-            "decision"
+            "decision",
+            "representativeId"
           ],
           "properties": {
-            "procId": {
-              "type": "string",
-              "description": "The unique identifier of a process."
-            },
             "decision": {
               "type": "string",
               "description": "The decision of the request.",
@@ -41,15 +37,17 @@
               "description": "The reason for declining the request.",
               "nullable": true
             },
-            "participantId": {
-              "type": "string",
-              "description": "The unique identifier of the requestʼs participant. Required if the decision is DECLINED.",
-              "nullable": true
-            },
             "representativeId": {
               "type": "string",
-              "description": "The unique identifier of the requestʼs representative. Required if the decision is DECLINED.",
-              "nullable": true
+              "description": "The unique identifier of the requestʼs representative."
+            },
+            "id": {
+              "type": "string",
+              "description": "The unique Lighthouse id for the POA request."
+            },
+            "type": {
+              "type": "string",
+              "description": "The type of the request."
             }
           }
         }

@@ -14,7 +14,7 @@ metadata = {
 
 # rubocop:disable RSpec/ScatteredSetup, RSpec/RepeatedExample
 describe 'PowerOfAttorney', metadata do
-  path '/veterans/power-of-attorney-requests/decide' do
+  path '/veterans/power-of-attorney-requests/{id}/decide' do
     post 'Submit the decision for Power of Attorney requests.' do
       tags 'Power of Attorney'
       operationId 'createPowerOfAttorneyRequestDecisions'
@@ -27,8 +27,16 @@ describe 'PowerOfAttorney', metadata do
       consumes 'application/json'
       description 'Create the decision for Power of Attorney requests'
 
+      parameter name: :id,
+                in: :path,
+                required: true,
+                type: :string,
+                example: '348fa995-5b29-4819-91af-13f1bb3c7d77',
+                description: 'The ID of the request for representation'
+
       let(:Authorization) { 'Bearer token' }
       let(:scopes) { %w[system/claim.read system/claim.write] }
+      let(:id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
 
       body_schema =
         JSON.load_file(
@@ -43,9 +51,10 @@ describe 'PowerOfAttorney', metadata do
       body_schema[:example] = {
         'data' => {
           'attributes' => {
-            'procId' => '76529',
             'decision' => 'ACCEPTED',
-            'declinedReason' => nil
+            'representativeId' => '12345678',
+            'id' => '348fa995-5b29-4819-91af-13f1bb3c7d77',
+            'type' => 'power-of-attorney-request-decision'
           }
         }
       }
@@ -56,10 +65,24 @@ describe 'PowerOfAttorney', metadata do
         schema JSON.load_file(File.expand_path('rswag/200.json', __dir__))
 
         let(:data) { body_schema[:example] }
+        let(:request_response) do
+          ClaimsApi::PowerOfAttorneyRequest.new(
+            id: '348fa995-5b29-4819-91af-13f1bb3c7d77',
+            proc_id: '3858322',
+            veteran_icn: '1012667169V030190',
+            claimant_icn: '',
+            poa_code: '067',
+            metadata: {},
+            power_of_attorney_id: nil
+          )
+        end
 
         before do |example|
           allow(ClaimsApi::PowerOfAttorneyRequestService::UpdatePowerOfAttorney).to(
             receive(:perform)
+          )
+          allow(ClaimsApi::PowerOfAttorneyRequest).to(
+            receive(:find_by).and_return(request_response)
           )
 
           mock_ccg(scopes) do
@@ -82,8 +105,8 @@ describe 'PowerOfAttorney', metadata do
         end
       end
 
-      response '400', 'Invalid request' do
-        schema JSON.load_file(File.expand_path('rswag/400.json', __dir__))
+      response '404', 'Resource not found' do
+        schema JSON.load_file(File.expand_path('rswag/404.json', __dir__))
 
         let(:data) do
           {
@@ -94,13 +117,22 @@ describe 'PowerOfAttorney', metadata do
         end
 
         before do |example|
+          allow(ClaimsApi::PowerOfAttorneyRequest).to(
+            receive(:find_by).and_return(nil)
+          )
           mock_ccg(scopes) do
             submit_request(example.metadata)
           end
         end
 
         after do |example|
-          example.metadata[:response][:content] ||= { 'application/json' => { examples: {} } }
+          example.metadata[:response][:content] ||= { 'application/json' => { examples:
+          { errors: [{
+            status: '404',
+            code: '108',
+            title: 'Resource not found',
+            detail: 'Could not find Power of Attorney request with id: 348fa995-5b29-4819-91af-13f1bb3c7d77'
+          }] } } }
           examples = example.metadata.dig(:response, :content, 'application/json', :examples)
           examples[:schema_validation_error] = {
             summary: 'Schema validation error',
