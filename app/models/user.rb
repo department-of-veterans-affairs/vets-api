@@ -316,6 +316,13 @@ class User < Common::RedisStore
 
   # Other MPI
 
+  def validate_mpi_profile
+    return unless mpi_profile?
+
+    raise MPI::Errors::AccountLockedError, 'Death Flag Detected' if mpi_profile.deceased_date
+    raise MPI::Errors::AccountLockedError, 'Theft Flag Detected' if mpi_profile.id_theft_flag
+  end
+
   def invalidate_mpi_cache
     return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response
 

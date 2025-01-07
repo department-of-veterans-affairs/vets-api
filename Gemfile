@@ -33,7 +33,6 @@ path 'modules' do
   gem 'simple_forms_api'
   gem 'test_user_dashboard'
   gem 'travel_pay'
-  gem 'va_forms'
   gem 'va_notify'
   gem 'vaos'
   gem 'vba_documents'
