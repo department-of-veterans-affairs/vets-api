@@ -79,14 +79,18 @@ module VAOS
         drive_time = eps_provider_service.get_drive_times(
           destinations: {
             provider_response.id => {
-              latitude: provider_response.location.latitude,
-              longitude: provider_response.location.longitude
+              latitude: provider_response.location['latitude'],
+              longitude: provider_response.location['longitude']
             }
           },
-          origin: current_user.address
+          origin: {
+            latitude: current_user.address['latitude'],
+            longitude: current_user.address['longitude']
+          }
         )
 
         response_data = {
+          id: draft_appointment.id,
           appointment: draft_appointment,
           provider: provider_response,
           slots: slots,
@@ -126,12 +130,12 @@ module VAOS
 
       def eps_appointment_service
         @eps_appointment_service ||=
-          Eps::V2::AppointmentsService.new(current_user)
+          Eps::AppointmentService.new(current_user)
       end
 
       def eps_provider_service
         @eps_provider_service ||=
-          Eps::V2::ProviderService.new(current_user)
+          Eps::ProviderService.new(current_user)
       end
 
       def appointments
