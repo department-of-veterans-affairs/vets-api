@@ -1,0 +1,9 @@
+version: '3'
+services:
+  clamav:
+    image: clamav/clamav-debian:latest
+  postgres:
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
