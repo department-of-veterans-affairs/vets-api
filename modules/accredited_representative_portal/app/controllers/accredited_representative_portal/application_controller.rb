@@ -6,7 +6,12 @@ module AccreditedRepresentativePortal
     include Authenticable
     include Pundit::Authorization
 
-    rescue_from Pundit::NotAuthorizedError, with: :user_not_authorized
+    rescue_from Pundit::NotAuthorizedError do |e|
+      render(
+        json: { errors: [e.message] },
+        status: :forbidden
+      )
+    end
 
     service_tag 'accredited-representative-portal' # ARP DataDog monitoring: https://bit.ly/arp-datadog-monitoring
     validates_access_token_audience Settings.sign_in.arp_client_id
@@ -16,16 +21,6 @@ module AccreditedRepresentativePortal
     after_action :verify_pundit_authorization
 
     private
-
-    def render_errors(va_exception)
-      return if va_exception.exception.is_a? Pundit::AuthorizationNotPerformedError
-
-      super
-    end
-
-    def user_not_authorized
-      render json: { error: 'You are not authorized to perform this action.' }, status: :unauthorized
-    end
 
     def verify_pundit_authorization
       if action_name == 'index'

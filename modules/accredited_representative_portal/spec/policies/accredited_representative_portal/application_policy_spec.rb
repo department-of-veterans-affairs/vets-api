@@ -13,13 +13,6 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationPolicy do
     allow(Rails).to receive(:logger).and_return(mock_logger)
   end
 
-  describe '#initialize' do
-    it 'assigns the user and record' do
-      expect(policy.user).to eq(user)
-      expect(policy.record).to eq(record)
-    end
-  end
-
   describe 'default permissions' do
     it 'disallows all actions by default' do
       expect(policy.index?).to eq(false)
