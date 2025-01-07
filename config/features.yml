@@ -1839,6 +1839,9 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
+  burial_document_upload_update:
+    actor_type: user
+    description: Show updated document upload page
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
