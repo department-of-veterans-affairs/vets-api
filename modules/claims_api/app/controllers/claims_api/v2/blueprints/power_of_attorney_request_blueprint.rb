@@ -35,7 +35,7 @@ module ClaimsApi
                 vso_user_last_name: request['VSOUserLastName']
               },
               received_date: request['dateRequestReceived'],
-              decision_date: request['dateRequestActioned'],
+              actioned_date: request['dateRequestActioned'],
               status: request['secondaryStatus'],
               declined_reason: request['declinedReason'],
               change_address_authorization: request['changeAddressAuth'],

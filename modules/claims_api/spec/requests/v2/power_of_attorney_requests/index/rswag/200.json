@@ -78,7 +78,7 @@
                 "type": ["string", "null"],
                 "format": "date-time"
               },
-              "decisionDate": {
+              "actionedDate": {
                 "type": ["string", "null"],
                 "format": "date-time"
               },
