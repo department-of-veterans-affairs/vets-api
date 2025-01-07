@@ -7,6 +7,7 @@ require 'lighthouse/benefits_documents/constants'
 
 class EVSS::DocumentUpload
   include Sidekiq::Job
+  extend SentryLogging
   extend Logging::ThirdPartyTransaction::MethodWrapper
 
   FILENAME_EXTENSION_MATCHER = /\.\w*$/
@@ -34,32 +35,11 @@ class EVSS::DocumentUpload
   end
 
   sidekiq_retries_exhausted do |msg, _ex|
-    job_id = msg['jid']
-    job_class = 'EVSS::DocumentUpload'
-    first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
-    claim_id = msg['args'][2]['evss_claim_id']
-    tracked_item_id = msg['args'][2]['tracked_item_id']
-    filename = obscured_filename(msg['args'][2]['file_name'])
-    date_submitted = format_issue_instant_for_mailers(msg['created_at'])
-    date_failed = format_issue_instant_for_mailers(msg['failed_at'])
-    upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
-    uuid = msg['args'][2]['uuid']
-    user_account = UserAccount.find_or_create_by(id: uuid)
-    personalisation = { first_name:, filename:, date_submitted:, date_failed: }
-
-    EvidenceSubmission.create(
-      job_id:,
-      job_class:,
-      claim_id:,
-      tracked_item_id:,
-      upload_status:,
-      user_account:,
-      template_metadata_ciphertext: { personalisation: }.to_json
-    )
-  rescue => e
-    error_message = "#{job_class} failed to create EvidenceSubmission"
-    ::Rails.logger.info(error_message, { messsage: e.message })
-    StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
+    if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
+      create_evidence_submission(msg)
+    else
+      call_failure_notification(msg)
+    end
   end
 
   def perform(auth_headers, user_uuid, document_hash)
@@ -71,6 +51,53 @@ class EVSS::DocumentUpload
     pull_file_from_cloud!
     perform_document_upload_to_evss
     clean_up!
+  end
+
+  def self.create_evidence_submission(msg)
+    job_id = msg['jid']
+    job_class = 'EVSS::DocumentUpload'
+    claim_id = msg['args'][2]['evss_claim_id']
+    tracked_item_id = msg['args'][2]['tracked_item_id']
+    upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
+    uuid = msg['args'][2]['uuid']
+    user_account = UserAccount.find_or_create_by(id: uuid)
+
+    EvidenceSubmission.create(
+      job_id:,
+      job_class:,
+      claim_id:,
+      tracked_item_id:,
+      upload_status:,
+      user_account:,
+      template_metadata_ciphertext: { personalisation: create_personalisation(msg) }.to_json
+    )
+  rescue => e
+    error_message = "#{job_class} failed to create EvidenceSubmission"
+    ::Rails.logger.info(error_message, { messsage: e.message })
+    StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
+  end
+
+  def self.create_personalisation(msg)
+    first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
+    filename = obscured_filename(msg['args'][2]['file_name'])
+    date_submitted = format_issue_instant_for_mailers(msg['created_at'])
+    date_failed = format_issue_instant_for_mailers(msg['failed_at'])
+
+    { first_name:, filename:, date_submitted:, date_failed: }
+  end
+
+  def self.call_failure_notification(msg)
+    icn = UserAccount.find(msg['args'][1]).icn
+
+    EVSS::FailureNotification.perform_async(icn, personalisation: create_personalisation(msg))
+
+    ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email queued')
+    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
+  rescue => e
+    ::Rails.logger.error('EVSS::DocumentUpload exhaustion handler email error',
+                         { message: e.message })
+    StatsD.increment('silent_failure', tags: ['service:claim-status', 'function: evidence upload to EVSS'])
+    log_exception_to_sentry(e)
   end
 
   def self.obscured_filename(original_filename)
