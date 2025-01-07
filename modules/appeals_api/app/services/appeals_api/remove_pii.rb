@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'datadog'
+require 'ddtrace'
 
 module AppealsApi
   class RemovePii
