@@ -237,7 +237,8 @@ GEM
       base64
       gyoku (>= 0.4.0)
       nokogiri
-    argon2-kdf (0.2.0)
+    argon2-kdf (0.3.0)
+      fiddle
     ast (2.4.2)
     attr_extras (7.1.0)
     awesome_print (1.9.2)
@@ -474,6 +475,7 @@ GEM
       date_time_precision (>= 0.8)
       mime-types (>= 3.0)
       nokogiri (>= 1.11.4)
+    fiddle (1.1.6)
     fitbit_api (1.0.0)
       oauth2 (~> 2.0)
     flipper (1.3.2)
