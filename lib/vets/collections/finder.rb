@@ -15,29 +15,32 @@ module Vets
         'match' => 'match'
       }.with_indifferent_access.freeze
 
-      attr_reader :data, :filterable_attribute
+      attr_reader :data, :filterable_attributes
 
       def initialize(data:)
         @data = data
         @model_class = data.first.class
-        @filterable_attribute = @model_class.filterable_attributes
+        @filterable_attributes = @model_class.filterable_attributes
       end
 
       def all(conditions)
         validate_conditions(conditions)
-        @data.select { |item| finder(item, conditions) }
+        @data.select { |item| compare(item, conditions) }
       end
 
       def first(conditions)
         validate_conditions(conditions)
-        @data.detect { |item| finder(item, conditions) }
+        @data.detect { |item| compare(item, conditions) }
       end
 
       private
 
       def validate_conditions(conditions)
+        # Validates conditions aren't nil or blank
+        raise Common::Exceptions::InvalidFiltersSyntax, 'Filters must be present' if conditions.blank?
+
         # Validate attributes are filterable
-        failed_attributes = (conditions.keys.map(&:to_s) - @filterable_attributes.keys).join(', ')
+        failed_attributes = (conditions.keys - @filterable_attributes.keys).join(', ')
         raise Common::Exceptions::FilterNotAllowed, failed_attributes unless failed_attributes.empty?
 
         # Validate the operations are valid for each attribute
@@ -59,10 +62,9 @@ module Vets
             operator = OPERATIONS_MAP.fetch(operation)
 
             parsed_values = value.try(:split, ',') || [value]
-            results = parsed_values.map do |item|
+            results = parsed_values.map do |_item|
               if operator == 'match'
-                object_value.to_s.match?(value.to_s)
-                object_value.downcase.include?(item.downcase)
+                object_value.downcase.include?(value.downcase)
               else
                 object_value.public_send(operator, value)
               end
@@ -71,7 +73,7 @@ module Vets
           end
         end
       rescue
-        raise Common::Exceptions::InvalidFiltersSyntax.new(nil, detail: 'The syntax for your filters is invalid')
+        raise Common::Exceptions::InvalidFiltersSyntax, 'The syntax for your filters is invalid'
       end
     end
   end

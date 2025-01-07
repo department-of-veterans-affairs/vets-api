@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'vets/collection/finder'
 require 'vets/model'
+require 'vets/collections/finder'
 
 RSpec.describe Vets::Collections::Finder do
   let(:dummy_class) do
@@ -21,114 +21,82 @@ RSpec.describe Vets::Collections::Finder do
     end
   end
 
-  let(:data) do
+  let(:dummy_data) do
     [
       dummy_class.new(name: 'John Doe', age: 30),
       dummy_class.new(name: 'Jane Smith', age: 40),
-      dummy_class.new(name: 'Jim Brown', age: 50)
+      dummy_class.new(name: 'Jim Brown', age: 50),
+      dummy_class.new(name: 'Alice White', age: 25)
     ]
   end
 
-  let(:finder) { described_class.new(data: data) }
+  let(:finder) { described_class.new(data: dummy_data) }
 
   describe '#all' do
-    context 'when valid conditions are passed' do
-      it 'returns filtered data based on conditions' do
-        conditions = { name: { eq: 'John Doe' } }
+    context 'with valid filters' do
+      it 'returns filtered results based on conditions' do
+        conditions = { age: { lteq: 40 }, name: { match: 'John' } }
         result = finder.all(conditions)
 
         expect(result.size).to eq(1)
         expect(result.first.name).to eq('John Doe')
       end
 
-      it 'returns filtered data using multiple conditions' do
-        conditions = { age: { lteq: 40 } }
+      it 'returns an empty array when no results match' do
+        conditions = { age: { gteq: 60 } }
         result = finder.all(conditions)
 
-        expect(result.size).to eq(2)
-        expect(result.map(&:name)).to include('John Doe', 'Jane Smith')
+        expect(result).to eq([])
       end
     end
 
-    context 'when invalid conditions are passed' do
-      it 'raises FilterNotAllowed for an invalid attribute' do
-        conditions = { invalid_attr: { eq: 'some value' } }
-        expect { finder.all(conditions) }.to raise_error(Common::Exceptions::FilterNotAllowed)
+    context 'with invalid filters' do
+      it 'raises a FilterNotAllowed error for invalid attributes' do
+        conditions = { invalid_attribute: { eq: 'value' } }
+
+        expect do
+          finder.all(conditions)
+        end.to raise_error(Common::Exceptions::FilterNotAllowed, 'Filter not allowed')
       end
 
-      it 'raises FilterNotAllowed for an invalid operation' do
-        conditions = { name: { not_eq: 'John Doe' } }
-        expect { finder.all(conditions) }.to raise_error(Common::Exceptions::FilterNotAllowed)
+      it 'raises a FilterNotAllowed error for invalid operations' do
+        conditions = { age: { invalid_op: 30 } }
+
+        expect do
+          finder.all(conditions)
+        end.to raise_error(Common::Exceptions::FilterNotAllowed, 'Filter not allowed')
+      end
+
+      it 'raises an InvalidFiltersSyntax error for malformed conditions' do
+        conditions = { age: { gteq: 'invalid_value' } }
+
+        expect do
+          finder.all(conditions)
+        end.to raise_error(Common::Exceptions::InvalidFiltersSyntax)
+      end
+
+      it 'raises an InvalidFiltersSyntax error for nil conditions' do
+        conditions = nil
+        expect do
+          finder.all(conditions)
+        end.to raise_error(Common::Exceptions::InvalidFiltersSyntax)
       end
     end
   end
 
   describe '#first' do
-    context 'when valid conditions are passed' do
-      it 'returns the first filtered item' do
-        conditions = { name: { eq: 'Jane Smith' } }
-        result = finder.first(conditions)
+    it 'returns the first matching result based on conditions' do
+      conditions = { age: { lteq: 40 } }
+      result = finder.first(conditions)
 
-        expect(result.name).to eq('Jane Smith')
-      end
+      expect(result.name).to eq('John Doe')
     end
 
-    context 'when no match is found' do
-      it 'returns nil' do
-        conditions = { name: { eq: 'Nonexistent Name' } }
-        result = finder.first(conditions)
+    it 'returns nil when no results match' do
+      conditions = { age: { gteq: 60 } }
+      result = finder.first(conditions)
 
-        expect(result).to be_nil
-      end
-    end
-  end
-
-  describe '#compare' do
-    context 'when valid conditions are passed' do
-      it 'compares correctly with equality operator' do
-        conditions = { name: { eq: 'John Doe' } }
-        object = dummy_class.new(name: 'John Doe', age: 30)
-        result = finder.send(:compare, object, conditions)
-
-        expect(result).to be_truthy
-      end
-
-      it 'compares correctly with match operator' do
-        conditions = { name: { match: 'John' } }
-        object = dummy_class.new(name: 'John Doe', age: 30)
-        result = finder.send(:compare, object, conditions)
-
-        expect(result).to be_truthy
-      end
-
-      it 'returns false for mismatched conditions' do
-        conditions = { name: { eq: 'Jim Brown' } }
-        object = dummy_class.new(name: 'John Doe', age: 30)
-        result = finder.send(:compare, object, conditions)
-
-        expect(result).to be_falsey
-      end
-    end
-
-    context 'when invalid syntax is passed' do
-      it 'raises InvalidFiltersSyntax for invalid filters' do
-        conditions = { name: { invalid_op: 'John Doe' } }
-        object = dummy_class.new(name: 'John Doe', age: 30)
-
-        expect { finder.send(:compare, object, conditions) }.to raise_error(Common::Exceptions::InvalidFiltersSyntax)
-      end
-    end
-  end
-
-  describe 'validations' do
-    it 'raises FilterNotAllowed for unsupported operations' do
-      conditions = { age: { not_eq: 30 } }
-      expect { finder.send(:validate_conditions, conditions) }.to raise_error(Common::Exceptions::FilterNotAllowed)
-    end
-
-    it 'raises FilterNotAllowed for unsupported attributes' do
-      conditions = { unknown_attr: { eq: 'value' } }
-      expect { finder.send(:validate_conditions, conditions) }.to raise_error(Common::Exceptions::FilterNotAllowed)
+      expect(result).to be_nil
     end
   end
 end
