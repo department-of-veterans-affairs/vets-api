@@ -693,6 +693,16 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.index ["user_uuid"], name: "index_evss_claims_on_user_uuid"
   end
 
+  create_table "excel_file_events", force: :cascade do |t|
+    t.integer "number_of_submissions"
+    t.string "filename"
+    t.datetime "successful_at", precision: nil
+    t.integer "retry_attempt", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["filename"], name: "index_excel_file_events_uniqueness", unique: true
+  end
+
   create_table "feature_toggle_events", force: :cascade do |t|
     t.string "feature_name"
     t.string "operation"
