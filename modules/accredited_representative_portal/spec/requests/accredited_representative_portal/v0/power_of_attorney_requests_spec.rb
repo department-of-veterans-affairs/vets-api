@@ -38,7 +38,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       expect(parsed_response).to eq(
         [
-          PoaRequestResponses.poa_response0(poa_requests, time, expires_at)
+          PoaRequestResponses.pending_poa_response(poa_requests[0], time, expires_at)
         ]
       )
     end
@@ -53,8 +53,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       expect(parsed_response).to eq(
         [
-          PoaRequestResponses.poa_response_2_with_extra_day(poa_requests, time, time_plus_one_day),
-          PoaRequestResponses.poa_response1(poa_requests, time)
+          PoaRequestResponses.veteran_poa_response_with_extra_day(poa_requests[2], time, time_plus_one_day),
+          PoaRequestResponses.accepted_poa_response(poa_requests[1], time)
         ]
       )
     end
@@ -73,8 +73,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       expect(parsed_response).to eq(
         [
-          PoaRequestResponses.poa_response_2_with_extra_day(poa_requests, time, time_plus_one_day),
-          PoaRequestResponses.poa_response_1_with_resolution_extra_day(poa_requests, time, time_plus_one_day)
+          PoaRequestResponses.veteran_poa_response_with_extra_day(poa_requests[2], time, time_plus_one_day),
+          PoaRequestResponses.poa_response_with_resolution_extra_day(poa_requests[1], time, time_plus_one_day)
         ]
       )
     end
@@ -93,8 +93,8 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       expect(parsed_response).to eq(
         [
-          PoaRequestResponses.poa_response_2_with_both_extra_day(poa_requests, time_plus_one_day),
-          PoaRequestResponses.poa_response1(poa_requests, time)
+          PoaRequestResponses.veteran_poa_response_with_both_extra_day(poa_requests[2], time_plus_one_day),
+          PoaRequestResponses.accepted_poa_response(poa_requests[1], time)
         ]
       )
     end
@@ -113,7 +113,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       expect(parsed_response).to eq(
         [
-          PoaRequestResponses.poa_response_1_with_resolution_extra_day(poa_requests, time, time_plus_one_day)
+          PoaRequestResponses.poa_response_with_resolution_extra_day(poa_requests[1], time, time_plus_one_day)
         ]
       )
     end
@@ -145,7 +145,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       expect(response).to have_http_status(:ok)
 
       expect(parsed_response).to eq(
-        PoaRequestResponses.singular_poa_response(poa_request, time)
+        PoaRequestResponses.declined_poa_response(poa_request, time)
       )
     end
   end
