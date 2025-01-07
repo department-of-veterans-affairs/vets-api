@@ -445,8 +445,8 @@ GEM
       faraday (>= 0.8)
     faraday-httpclient (2.0.1)
       httpclient (>= 2.2)
-    faraday-multipart (1.0.4)
-      multipart-post (~> 2)
+    faraday-multipart (1.1.0)
+      multipart-post (~> 2.0)
     faraday-net_http (3.1.1)
       net-http
     faraday-retry (2.2.1)
