@@ -62,6 +62,19 @@ module ClaimsApi
       end
 
       ##
+      # ContentionServiceBean
+      #
+      module ContentionService
+        DEFINITION =
+          Bean.new(
+            path: 'ContentionService',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
       # CorporateUpdateServiceBean
       #
       module CorporateUpdateServiceBean
@@ -95,7 +108,7 @@ module ClaimsApi
       ##
       # EBenefitsBnftClaimStatusWebServiceBean
       #
-      module EBenefitsBnftClaimStatusWebService
+      module EBenefitsBenefitClaimStatusWebServiceBean
         DEFINITION =
           Bean.new(
             path: 'EBenefitsBnftClaimStatusWebServiceBean',
@@ -103,6 +116,14 @@ module ClaimsApi
               target: 'http://claimstatus.services.ebenefits.vba.va.gov/',
               data: nil
             )
+          )
+      end
+
+      module EBenefitsBenefitClaimStatusWebService
+        DEFINITION =
+          Service.new(
+            bean: EBenefitsBenefitClaimStatusWebServiceBean::DEFINITION,
+            path: 'EBenefitsBnftClaimStatusWebService'
           )
       end
 
@@ -123,7 +144,7 @@ module ClaimsApi
       ##
       # OrgWebServiceBean
       #
-      module OrgWebServiceBean
+      module OrgWebService
         DEFINITION =
           Bean.new(
             path: 'OrgWebServiceBean',
@@ -132,23 +153,6 @@ module ClaimsApi
               data: nil
             )
           )
-      end
-
-      module OrgWebService
-        DEFINITION =
-          Service.new(
-            bean: OrgWebServiceBean::DEFINITION,
-            path: 'OrgWebService'
-          )
-
-        module FindOrgBySSN
-          DEFINITION =
-            Action.new(
-              service: OrgWebService::DEFINITION,
-              name: 'findPoaHistoryByPtcpntId',
-              key: 'PoaHistory'
-            )
-        end
       end
 
       ##
@@ -160,6 +164,20 @@ module ClaimsApi
             path: 'PersonWebServiceBean',
             namespaces: Namespaces.new(
               target: 'http://person.services.vetsnet.vba.va.gov/',
+              data: nil
+            )
+          )
+      end
+
+      ##
+      # StandardDataService
+      #
+      module StandardDataService
+        DEFINITION =
+          Bean.new(
+            path: 'StandardDataService',
+            namespaces: Namespaces.new(
+              target: 'http://services.mapd.benefits.vba.va.gov/',
               data: nil
             )
           )

@@ -6,7 +6,7 @@ module ClaimsApi
       'CorporateUpdateServiceBean/CorporateUpdateWebService'
     end
 
-    def update_poa_access(participant_id:, poa_code:, allow_poa_access: 'y', allow_poa_c_add: 'Y')
+    def update_poa_access(participant_id:, poa_code:, allow_poa_access: 'Y', allow_poa_c_add: 'Y')
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
         <ptcpntId>#{participant_id}</ptcpntId>
         <poa>#{poa_code}</poa>

@@ -4,6 +4,7 @@ require 'notifications/client'
 require 'common/client/base'
 require 'common/client/concerns/monitoring'
 require_relative 'configuration'
+require_relative 'error'
 
 module VaNotify
   class Service < Common::Client::Base
@@ -81,7 +82,11 @@ module VaNotify
       case error
       when Common::Client::Errors::ClientError
         save_error_details(error)
-        raise_backend_exception("VANOTIFY_#{error.status}", self.class, error) if error.status >= 400
+        if Flipper.enabled?(:va_notify_custom_errors) && error.status >= 400
+          raise VANotify::Error.from_generic_error(error)
+        elsif error.status >= 400
+          raise_backend_exception("VANOTIFY_#{error.status}", self.class, error)
+        end
       else
         raise error
       end
@@ -105,11 +110,13 @@ module VaNotify
         return
       end
 
+      # when the class is used directly we can pass symbols as keys
+      # when it comes from a sidekiq job all the keys get converted to strings (because sidekiq serializes it's args)
       notification = VANotify::Notification.new(
         notification_id: response.id,
         source_location: find_caller_locations,
-        callback_klass: callback_options[:callback_klass],
-        callback_metadata: callback_options[:callback_metadata],
+        callback_klass: callback_options[:callback_klass] || callback_options['callback_klass'],
+        callback_metadata: callback_options[:callback_metadata] || callback_options['callback_metadata'],
         template_id: template_id
       )
 

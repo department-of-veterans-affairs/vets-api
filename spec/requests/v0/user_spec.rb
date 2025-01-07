@@ -11,7 +11,7 @@ RSpec.describe 'V0::User', type: :request do
     let(:mhv_user) { build(:user, :mhv) }
     let(:v0_user_request_headers) { {} }
     let(:edipi) { '1005127153' }
-    let!(:mhv_user_verification) { create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id) }
+    let!(:mhv_user_verification) { create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid) }
 
     before do
       allow(SM::Client).to receive(:new).and_return(authenticated_client)
@@ -134,7 +134,7 @@ RSpec.describe 'V0::User', type: :request do
     end
 
     context 'with missing MHV accounts' do
-      let(:mhv_user) { build(:user, :mhv, mhv_ids: nil, active_mhv_ids: nil, mhv_correlation_id: nil) }
+      let(:mhv_user) { build(:user, :mhv, mhv_ids: nil, active_mhv_ids: nil, mhv_credential_uuid: nil) }
       let!(:mhv_user_verification) { create(:mhv_user_verification, backing_idme_uuid: mhv_user.idme_uuid) }
 
       before do
@@ -162,7 +162,8 @@ RSpec.describe 'V0::User', type: :request do
       end
     end
 
-    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', :skip_vet360 do
+    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person',
+            :skip_va_profile_user, :skip_vet360 do
       before do
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }

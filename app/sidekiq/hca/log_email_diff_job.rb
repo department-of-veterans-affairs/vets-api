@@ -22,9 +22,8 @@ module HCA
 
       parsed_form = JSON.parse(in_progress_form.form_data)
       form_email = parsed_form['email']
-      email_confirmation = parsed_form['view:email_confirmation']
 
-      return if form_email.blank? || form_email != email_confirmation
+      return if form_email.blank?
 
       user = User.find(user_uuid)
       va_profile_email = user.va_profile_email
@@ -45,9 +44,8 @@ module HCA
 
       parsed_form = JSON.parse(in_progress_form.form_data)
       form_email = parsed_form['email']
-      email_confirmation = parsed_form['view:email_confirmation']
 
-      return if form_email.blank? || form_email != email_confirmation
+      return if form_email.blank?
 
       user = User.find(user_uuid)
       va_profile_email = user.va_profile_email
