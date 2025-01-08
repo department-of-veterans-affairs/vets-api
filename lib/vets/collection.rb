@@ -7,19 +7,34 @@
 
 require 'common/models/comparable/ascending'
 require 'common/models/comparable/descending'
-
+require 'vets/collections/pagination'
 # This will be a replacement for Common::Collection
 module Vets
   class Collection
-    def initialize(records)
+    DEFAULT_PER_PAGE = 10
+    DEFAULT_MAX_PER_PAGE = 100
+
+    attr_accessor :records, :metadata
+
+    def initialize(records, metadata: {})
       records = Array.wrap(records)
       @model_class = records.first.class
+      @metadata = metadata
 
       unless records.all? { |record| record.is_a?(@model_class) }
         raise ArgumentError, "All records must be instances of #{@model_class}"
       end
 
       @records = records.sort
+    end
+
+    def self.from_will_paginate(records)
+      if defined?(::WillPaginate::Collection)
+        error_message = 'Expected records to be instance of WillPaginate'
+        raise ArgumentError, error_message unless records.is_a?(WillPaginate::Collection)
+      end
+
+      new(records)
     end
 
     def self.from_hashes(model_class, records)
@@ -40,6 +55,16 @@ module Vets
       end
     end
 
+    def paginate(page: nil, per_page: nil)
+      pagination = Vets::Collections::Pagination.new(
+        page: normalize_page(page),
+        per_page: normalize_per_page(per_page),
+        total_entries: @records.size,
+        data: @records
+      )
+      Vets::Collection.new(pagination.data, metadata: pagination.metadata)
+    end
+
     private
 
     def validate_sort_clauses(clauses)
@@ -54,6 +79,19 @@ module Vets
 
         raise ArgumentError, "Direction #{direction} must be :asc or :desc" unless %i[asc desc].include?(direction)
       end
+    end
+
+    def normalize_page(page)
+      page = page.to_i
+      page.positive? ? page : 1
+    end
+
+    def normalize_per_page(per_page)
+      [per_page || @model_class.try(:per_page) || DEFAULT_PER_PAGE, max_per_page].min
+    end
+
+    def max_per_page
+      @model_class.try(:max_per_page) || DEFAULT_MAX_PER_PAGE
     end
   end
 end
