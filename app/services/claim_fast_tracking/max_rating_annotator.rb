@@ -55,9 +55,14 @@ module ClaimFastTracking
     end
 
     def self.get_ratings(diagnostic_codes)
-      vro_client = VirtualRegionalOffice::Client.new
-      response = vro_client.get_max_rating_for_diagnostic_codes(diagnostic_codes)
-      response.body['ratings']
+      if Flipper.enabled?(:disability_526_max_cfi_service_switch)
+        Rails.logger.info('Implement the new service logic')
+        # TODO: Handle the new logic for max ratings when switching to the new service
+      else
+        vro_client = VirtualRegionalOffice::Client.new
+        response = vro_client.get_max_rating_for_diagnostic_codes(diagnostic_codes)
+        response.body['ratings']
+      end
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error "Get Max Ratings Failed  #{e.message}.", backtrace: e.backtrace
       nil

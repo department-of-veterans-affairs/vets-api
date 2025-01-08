@@ -6,7 +6,9 @@ require 'disability_compensation/providers/rated_disabilities/lighthouse_rated_d
 RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
   describe 'annotate_disabilities' do
     subject { described_class.annotate_disabilities(disabilities_response) }
-
+    before do
+      allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch).and_return(false)
+    end
     let(:disabilities_response) do
       DisabilityCompensation::ApiProvider::RatedDisabilitiesResponse.new(rated_disabilities:)
     end
@@ -202,6 +204,52 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       let(:rd_hash) { { diagnostic_code: 7347 } }
 
       it { is_expected.to be_truthy }
+    end
+  end
+
+  describe 'get ratings' do
+    let(:diagnostic_codes) { [6260, 7347, 6516] }
+
+    context 'when the feature flag disability_526_max_cfi_service_switch is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch).and_return(true)
+      end
+
+      it 'logs a message indicating the new service is used' do
+        expect(Rails.logger).to receive(:info).with('Implement the new service logic')
+        described_class.send(:get_ratings, diagnostic_codes)
+      end
+    end
+
+    context 'when the feature flag disability_526_max_cfi_service_switch is disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch).and_return(false)
+      end
+
+      it 'calls the VRO client to fetch max ratings' do
+        vro_client = instance_double(VirtualRegionalOffice::Client)
+        response = double('response', body: { 'ratings' => [10, 20, 30] })
+
+        allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client)
+        allow(vro_client).to receive(:get_max_rating_for_diagnostic_codes).with(diagnostic_codes).and_return(response)
+
+        result = described_class.send(:get_ratings, diagnostic_codes)
+        expect(result).to eq([10, 20, 30])
+      end
+
+      it 'logs an error when the VRO client raises a ClientError' do
+        vro_client = instance_double(VirtualRegionalOffice::Client)
+        allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client)
+        allow(vro_client).to receive(:get_max_rating_for_diagnostic_codes).and_raise(Common::Client::Errors::ClientError.new('Miserably'))
+
+        expect(Rails.logger).to receive(:error).with(
+          "Get Max Ratings Failed  Miserably.",
+          hash_including(:backtrace)
+        )
+
+        result = described_class.send(:get_ratings, diagnostic_codes)
+        expect(result).to be_nil
+      end
     end
   end
 end

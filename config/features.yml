@@ -587,6 +587,9 @@ features:
     actor_type: user
     description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
     enable_in_development: true
+  disability_526_max_cfi_service_switch:
+    actor_type: user
+    description: Enables the use of the new Max Ratings CFI service instead of the VRO client for fetching max ratings.
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
