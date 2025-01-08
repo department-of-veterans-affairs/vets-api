@@ -181,16 +181,13 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               post request_path, params: request_body, headers: auth_header
 
               response_body = JSON.parse(response.body)
+              request_body_with_type_and_id = JSON.parse(request_body)
 
-              # need to add the returned ID and type to match request
-              json_data = JSON.parse(request_body)
-              updated_request_body = json_data
-              updated_request_body['data']['id'] = response_body['data']['id']
-              updated_request_body['data']['type'] = response_body['data']['type']
-              request_body = updated_request_body
+              request_body_with_type_and_id['data']['id'] = response_body['data']['id']
+              request_body_with_type_and_id['data']['type'] = response_body['data']['type']
 
               expect(response).to have_http_status(:created)
-              expect(response_body).to eq(request_body)
+              expect(response_body).to eq(request_body_with_type_and_id)
             end
           end
 
