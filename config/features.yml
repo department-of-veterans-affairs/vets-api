@@ -414,6 +414,12 @@ features:
   claims_status_v1_lh_auto_establish_claim_enabled:
     actor_type: user
     description: With feature flag enabled, v1 /526 should use Lighthouse Form526 docker container
+  cst_send_evidence_submission_failure_emails:
+    actor_type: user
+    description: >
+      If enabled and a user submits an evidence submission upload that fails to send, an email will be sent to the user and retried.
+      When disabled and a user submits an evidence submission upload that fails to send, an email will be sent to the user and not retried.
+    enable_in_development: true
   debt_letters_show_letters_vbms:
     actor_type: user
     description: Enables debt letter download from VBMS
@@ -1833,6 +1839,9 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
+  burial_document_upload_update:
+    actor_type: user
+    description: Show updated document upload page
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
