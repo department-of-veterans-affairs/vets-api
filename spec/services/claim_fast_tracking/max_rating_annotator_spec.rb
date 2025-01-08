@@ -6,9 +6,11 @@ require 'disability_compensation/providers/rated_disabilities/lighthouse_rated_d
 RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
   describe 'annotate_disabilities' do
     subject { described_class.annotate_disabilities(disabilities_response) }
+
     before do
       allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch).and_return(false)
     end
+
     let(:disabilities_response) do
       DisabilityCompensation::ApiProvider::RatedDisabilitiesResponse.new(rated_disabilities:)
     end
@@ -240,10 +242,11 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       it 'logs an error when the VRO client raises a ClientError' do
         vro_client = instance_double(VirtualRegionalOffice::Client)
         allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client)
-        allow(vro_client).to receive(:get_max_rating_for_diagnostic_codes).and_raise(Common::Client::Errors::ClientError.new('Miserably'))
-
+        allow(vro_client).to receive(:get_max_rating_for_diagnostic_codes).and_raise(
+          Common::Client::Errors::ClientError.new('Miserably')
+        )
         expect(Rails.logger).to receive(:error).with(
-          "Get Max Ratings Failed  Miserably.",
+          'Get Max Ratings Failed  Miserably.',
           hash_including(:backtrace)
         )
 
