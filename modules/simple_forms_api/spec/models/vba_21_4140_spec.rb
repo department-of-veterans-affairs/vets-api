@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/shared_examples_for_base_form'
 
 RSpec.describe SimpleFormsApi::VBA214140 do
   subject(:form) { described_class.new(data) }
@@ -10,10 +11,30 @@ RSpec.describe SimpleFormsApi::VBA214140 do
   end
   let(:data) { JSON.parse(fixture_path.read) }
 
+  it_behaves_like 'zip_code_is_us_based', %w[address]
+
   describe '#data' do
     subject { form.data }
 
     it { is_expected.to match(data) }
+  end
+
+  describe '#first_name' do
+    subject { form.first_name }
+
+    it('is limited to twelve characters') do
+      expect(data.dig('full_name', 'first').length).to be > 12
+      expect(subject.length).to eq 12
+    end
+  end
+
+  describe '#last_name' do
+    subject { form.last_name }
+
+    it('is limited to eighteen characters') do
+      expect(data.dig('full_name', 'last').length).to be > 18
+      expect(subject.length).to eq 18
+    end
   end
 
   describe '#metadata' do
@@ -31,6 +52,15 @@ RSpec.describe SimpleFormsApi::VBA214140 do
           'businessLine' => 'CMP'
         }
       )
+    end
+  end
+
+  describe '#middle_initial' do
+    subject { form.middle_initial }
+
+    it('is limited to one character') do
+      expect(data.dig('full_name', 'middle').length).to be > 1
+      expect(subject.length).to eq 1
     end
   end
 
