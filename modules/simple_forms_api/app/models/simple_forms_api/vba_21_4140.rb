@@ -6,6 +6,14 @@ module SimpleFormsApi
       []
     end
 
+    def first_name
+      data.dig('full_name', 'first')&.[](0..11)
+    end
+
+    def last_name
+      data.dig('full_name', 'last')&.[](0..17)
+    end
+
     def metadata
       {
         'veteranFirstName' => data.dig('full_name', 'first'),
@@ -16,6 +24,10 @@ module SimpleFormsApi
         'docType' => data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def middle_initial
+      data.dig('full_name', 'middle')&.[](0)
     end
 
     def submission_date_stamps(_timestamp)

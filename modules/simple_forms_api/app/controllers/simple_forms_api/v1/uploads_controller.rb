@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'ddtrace'
+require 'datadog'
 require 'simple_forms_api_submission/metadata_validator'
 require 'lgy/service'
 require 'lighthouse/benefits_intake/service'

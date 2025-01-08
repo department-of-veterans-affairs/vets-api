@@ -24,7 +24,7 @@ class ApplicationRecord < ActiveRecord::Base
 
   def timestamp_attributes_for_update_in_model
     kms_key_changed = changed? && changed.include?('encrypted_kms_key')
-    called_from_kms_encrypted = caller_locations(1, 1)[0].label == 'encrypt_kms_keys'
+    called_from_kms_encrypted = caller_locations(1, 1)[0].base_label == 'encrypt_kms_keys'
 
     # If update is due to kms key, don't update updated_at
     kms_key_changed || called_from_kms_encrypted ? [] : super
