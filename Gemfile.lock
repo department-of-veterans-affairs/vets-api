@@ -774,7 +774,7 @@ GEM
       matrix (~> 0.4)
       pdf-core (~> 0.10.0)
       ttfunk (~> 1.8)
-    prawn-markup (1.0.0)
+    prawn-markup (1.0.1)
       nokogiri
       prawn
       prawn-table
