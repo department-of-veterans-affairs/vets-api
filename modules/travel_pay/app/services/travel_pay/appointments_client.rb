@@ -24,9 +24,9 @@ module TravelPay
       Rails.logger.debug(message: 'Correlation ID', correlation_id:)
 
       query_path = if params.empty?
-                     'api/v1.1/appointments'
+                     'api/v1.2/appointments'
                    else
-                     "api/v1.1/appointments?#{params.to_query}"
+                     "api/v1.2/appointments?#{params.to_query}"
                    end
 
       connection(server_url: btsss_url).get(query_path) do |req|
