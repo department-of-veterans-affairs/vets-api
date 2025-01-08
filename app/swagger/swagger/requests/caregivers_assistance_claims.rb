@@ -51,14 +51,7 @@ module Swagger
             key :description, 'Validation Error (Bad Request)'
 
             schema do
-              key :required, [:errors]
-
-              property :errors do
-                key :type, :array
-                items do
-                  key :type, :string
-                end
-              end
+              key :$ref, :Errors
             end
           end
 
@@ -66,12 +59,7 @@ module Swagger
             key :description, 'Internal Server Error'
 
             schema do
-              key :required, [:error]
-
-              property :error do
-                key :type, :string
-                key :example, 'Backend Service Outage'
-              end
+              key :$ref, :Errors
             end
           end
         end
@@ -79,6 +67,11 @@ module Swagger
 
       swagger_path '/v0/caregivers_assistance_claims/facilities' do
         operation :post do
+          extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ValidationError
+          extend Swagger::Responses::BackendServiceError
+          extend Swagger::Responses::InternalServerError
+
           key :description, 'Get a list of medical facilities based on search criteria.'
 
           key :tags, %w[benefits_forms]
@@ -141,47 +134,8 @@ module Swagger
 
           response 200 do
             key :description, 'List of facilities retrieved successfully'
-
             schema do
-              key :type, :array
-              items do
-                key :type, :object
-                property :id do
-                  key :type, :string
-                end
-                property :name do
-                  key :type, :string
-                end
-                property :address do
-                  key :type, :string
-                end
-              end
-            end
-          end
-
-          response 400 do
-            key :description, 'Invalid query parameters'
-
-            schema do
-              key :required, [:error]
-
-              property :error do
-                key :type, :string
-                key :example, 'Invalid facility query parameters'
-              end
-            end
-          end
-
-          response 500 do
-            key :description, 'Internal Server Error'
-
-            schema do
-              key :required, [:error]
-
-              property :error do
-                key :type, :string
-                key :example, 'Backend Service Outage'
-              end
+              key :$ref, :Facilities
             end
           end
         end
@@ -189,6 +143,11 @@ module Swagger
 
       swagger_path '/v0/caregivers_assistance_claims/download_pdf' do
         operation :post do
+          extend Swagger::Responses::AuthenticationError
+          extend Swagger::Responses::ValidationError
+          extend Swagger::Responses::BackendServiceError
+          extend Swagger::Responses::InternalServerError
+          
           key :description, 'Download a pre-filled 10-10CG PDF form.'
 
           key :tags, %w[benefits_forms]
@@ -205,34 +164,7 @@ module Swagger
             key :description, 'PDF form download'
 
             schema do
-              key :type, :string
-              key :example, 'application/pdf'
-            end
-          end
-
-          response 400 do
-            key :description, 'Invalid request for PDF download'
-
-            schema do
-              key :required, [:error]
-
-              property :error do
-                key :type, :string
-                key :example, 'Invalid claim ID'
-              end
-            end
-          end
-
-          response 500 do
-            key :description, 'Internal Server Error'
-
-            schema do
-              key :required, [:error]
-
-              property :error do
-                key :type, :string
-                key :example, 'Backend Service Outage'
-              end
+              property :data, type: :string, format: 'binary'
             end
           end
         end
