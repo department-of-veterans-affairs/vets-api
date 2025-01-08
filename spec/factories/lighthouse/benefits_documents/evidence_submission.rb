@@ -27,6 +27,7 @@ FactoryBot.define do
     template_metadata_ciphertext do
       { 'personalisation' => {
         'first_name' => 'test',
+        'document_type' => 'L014',
         'filename' => 'test.txt',
         'date_submitted' => DateTime.now.utc.to_s,
         'date_failed' => DateTime.now.utc.to_s

@@ -22,11 +22,11 @@ class Lighthouse::FailureNotification
     VaNotify::Service.new(NOTIFY_SETTINGS.api_key)
   end
 
-  def perform(icn, first_name, filename, date_submitted, date_failed)
+  def perform(icn, personalisation)
     notify_client.send_email(
       recipient_identifier: { id_value: icn, id_type: 'ICN' },
       template_id: MAILER_TEMPLATE_ID,
-      personalisation: { first_name:, filename:, date_submitted:, date_failed: }
+      personalisation:
     )
 
     ::Rails.logger.info('Lighthouse::FailureNotification email sent')

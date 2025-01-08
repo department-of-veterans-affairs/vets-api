@@ -17,7 +17,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
 
   let(:user_icn) { user_account.icn }
   let(:claim_id) { 4567 }
-  let(:filename) { 'doctors-note.pdf' }
+  let(:file_name) { 'doctors-note.pdf' }
   let(:tracked_item_ids) { 1234 }
   let(:document_type) { 'L029' }
   let(:document_data) do
@@ -25,10 +25,9 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
       first_name: 'First Name',
       participant_id: '1111',
       claim_id: claim_id,
-      # file_obj: file,
       uuid: SecureRandom.uuid,
       file_extension: 'pdf',
-      file_name: filename,
+      file_name:,
       tracked_item_id: tracked_item_ids,
       document_type:
     )
@@ -43,12 +42,13 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   let(:msg) do
     {
       'jid' => job_id,
-      'args' => [user_account.icn, { 'file_name' => filename, 'first_name' => 'Bob' }],
+      'args' => [user_account.icn,
+                 { 'first_name' => 'Bob', 'document_type' => document_type, 'file_name' => file_name }],
       'created_at' => issue_instant,
       'failed_at' => issue_instant
     }
   end
-  let(:file) { Rails.root.join('spec', 'fixtures', 'files', filename).read }
+  let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
 
   context 'when :cst_send_evidence_submission_failure_emails is enabled' do
     before { Flipper.enable(:cst_send_evidence_submission_failure_emails) }
@@ -75,7 +75,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
       it 'retrieves the file and uploads to Lighthouse' do
         allow(LighthouseDocumentUploader).to receive(:new) { uploader_stub }
         allow(BenefitsDocuments::WorkerService).to receive(:new) { client_stub }
-        allow(uploader_stub).to receive(:retrieve_from_store!).with(filename) { file }
+        allow(uploader_stub).to receive(:retrieve_from_store!).with(file_name) { file }
         allow(uploader_stub).to receive(:read_for_upload) { file }
         allow(client_stub).to receive(:upload_document).with(file, document_data)
         expect(uploader_stub).to receive(:remove!).once
@@ -97,7 +97,8 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
     context 'when upload fails' do
       let(:msg_with_errors) do
         {
-          'args' => ['test', user_account.icn, { 'file_name' => filename, 'first_name' => 'Bob' }],
+          'args' => ['test', user_account.icn,
+                     { 'first_name' => 'Bob', 'document_type' => document_type, 'file_name' => file_name }],
           'created_at' => issue_instant,
           'failed_at' => issue_instant
         }
@@ -165,10 +166,13 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
       described_class.within_sidekiq_retries_exhausted_block(msg) do
         expect(Lighthouse::FailureNotification).to receive(:perform_async).with(
           user_account.icn,
-          'Bob', # first_name
-          'docXXXX-XXte.pdf', # filename
-          formatted_submit_date, # date_submitted
-          formatted_submit_date # date_failed
+          personalisation: {
+            first_name: 'Bob',
+            document_type: document_type,
+            filename: 'docXXXX-XXte.pdf',
+            date_submitted: formatted_submit_date,
+            date_failed: formatted_submit_date
+          }
         )
 
         expect(Rails.logger)

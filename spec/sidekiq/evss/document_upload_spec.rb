@@ -55,14 +55,16 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       let(:issue_instant) { Time.now.to_i }
       let(:msg) do
         {
-          'args' => [{ 'va_eauth_firstName' => 'Bob' }, user_account_uuid, { 'file_name' => filename }],
+          'args' => [{ 'va_eauth_firstName' => 'Bob' }, user_account_uuid,
+                     { 'document_type' => document_type, 'file_name' => filename }],
           'created_at' => issue_instant,
           'failed_at' => issue_instant
         }
       end
       let(:msg_with_errors) do
         {
-          'args' => [{ 'va_eauth_firstName' => 'Bob' }, 'test', user_account_uuid, { 'file_name' => filename }],
+          'args' => [{ 'va_eauth_firstName' => 'Bob' }, 'test', user_account_uuid,
+                     { 'document_type' => document_type, 'file_name' => filename }],
           'created_at' => issue_instant,
           'failed_at' => issue_instant
         }
@@ -98,7 +100,8 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
     let(:issue_instant) { Time.now.to_i }
     let(:args) do
       {
-        'args' => [{ 'va_eauth_firstName' => 'Bob' }, user_account_uuid, { 'file_name' => filename }],
+        'args' => [{ 'va_eauth_firstName' => 'Bob' }, user_account_uuid,
+                   { 'document_type' => document_type, 'file_name' => filename }],
         'created_at' => issue_instant,
         'failed_at' => issue_instant
       }
@@ -131,6 +134,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
           user_account.icn,
           personalisation: {
             first_name: 'Bob',
+            document_type: document_type,
             filename: 'docXXXX-XXte.pdf',
             date_submitted: formatted_submit_date,
             date_failed: formatted_submit_date

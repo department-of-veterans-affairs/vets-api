@@ -79,11 +79,12 @@ class EVSS::DocumentUpload
 
   def self.create_personalisation(msg)
     first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
+    document_type = obscured_filename(msg['args'][2]['document_type'])
     filename = obscured_filename(msg['args'][2]['file_name'])
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
     date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
-    { first_name:, filename:, date_submitted:, date_failed: }
+    { first_name:, document_type:, filename:, date_submitted:, date_failed: }
   end
 
   def self.call_failure_notification(msg)

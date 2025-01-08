@@ -101,12 +101,8 @@ module Lighthouse
 
       def self.call_failure_notification(msg)
         icn = msg['args'].first
-        first_name = msg['args'][1]['first_name'].titleize
-        filename = obscured_filename(msg['args'][1]['file_name'])
-        date_submitted = format_issue_instant_for_mailers(msg['created_at'])
-        date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
-        Lighthouse::FailureNotification.perform_async(icn, first_name, filename, date_submitted, date_failed)
+        Lighthouse::FailureNotification.perform_async(icn, personalisation: create_personalisation(msg))
 
         ::Rails.logger.info('Lighthouse::DocumentUpload exhaustion handler email queued')
         StatsD.increment('silent_failure_avoided_no_confirmation',
@@ -120,11 +116,12 @@ module Lighthouse
 
       def self.create_personalisation(msg)
         first_name = msg['args'][1]['first_name'].titleize unless msg['args'][1]['first_name'].nil?
+        document_type = obscured_filename(msg['args'][1]['document_type'])
         filename = obscured_filename(msg['args'][1]['file_name'])
         date_submitted = format_issue_instant_for_mailers(msg['created_at'])
         date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
-        { first_name:, filename:, date_submitted:, date_failed: }
+        { first_name:, document_type:, filename:, date_submitted:, date_failed: }
       end
 
       private
