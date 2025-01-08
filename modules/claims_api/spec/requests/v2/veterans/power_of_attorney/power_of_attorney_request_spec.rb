@@ -144,7 +144,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                           'power_of_attorney', 'request_representative', 'valid.json').read
         end
 
-        context 'lighthouse_claims_v2_poa_requests_skip_bgs dsabled' do
+        context 'lighthouse_claims_v2_poa_requests_skip_bgs disabled' do
           before do
             Flipper.disable(:lighthouse_claims_v2_poa_requests_skip_bgs)
           end
@@ -185,8 +185,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               # need to add the returned ID and type to match request
               json_data = JSON.parse(request_body)
               updated_request_body = json_data
-              updated_request_body['data']['attributes']['id'] = response_body['data']['attributes']['id']
-              updated_request_body['data']['attributes']['type'] = response_body['data']['attributes']['type']
+              updated_request_body['data']['id'] = response_body['data']['id']
+              updated_request_body['data']['type'] = response_body['data']['type']
               request_body = updated_request_body
 
               expect(response).to have_http_status(:created)
@@ -224,9 +224,13 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               post request_path, params: request_body, headers: auth_header
 
               response_body = JSON.parse(response.body)
+              request_body_with_type_and_id = JSON.parse(request_body)
+
+              request_body_with_type_and_id['data']['type'] = 'power-of-attorney-request'
+              request_body_with_type_and_id['data']['id'] = response_body['data']['id']
 
               expect(response).to have_http_status(:created)
-              expect(response_body).to eq(JSON.parse(request_body))
+              expect(response_body).to eq(request_body_with_type_and_id)
             end
           end
         end
