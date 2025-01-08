@@ -617,7 +617,7 @@ GEM
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     jwe (0.4.0)
-    jwt (2.9.3)
+    jwt (2.10.1)
       base64
     kms_encrypted (1.6.0)
       activesupport (>= 6.1)
@@ -741,7 +741,8 @@ GEM
     optimist (3.2.0)
     os (1.1.4)
     ostruct (0.6.1)
-    ox (2.14.18)
+    ox (2.14.19)
+      bigdecimal (>= 3.0)
     parallel (1.26.3)
     parallel_tests (4.7.2)
       parallel
@@ -774,7 +775,7 @@ GEM
       matrix (~> 0.4)
       pdf-core (~> 0.10.0)
       ttfunk (~> 1.8)
-    prawn-markup (1.0.0)
+    prawn-markup (1.0.1)
       nokogiri
       prawn
       prawn-table
