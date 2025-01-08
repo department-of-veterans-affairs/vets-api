@@ -25,7 +25,6 @@ module MockedAuthentication
       end
 
       def normalized_attributes(user_info, credential_level)
-        # binding.pry
         case type
         when SignIn::Constants::Auth::LOGINGOV
           logingov_auth_service.normalized_attributes(user_info, credential_level)
