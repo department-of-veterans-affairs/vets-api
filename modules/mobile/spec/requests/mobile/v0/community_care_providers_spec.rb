@@ -10,6 +10,11 @@ RSpec.describe 'Mobile::V0::CommunityCareProviders', type: :request do
   let!(:user) { sis_user(icn: '9000682') }
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
+  before do
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+  end
+
   describe 'GET providers', :aggregate_failures do
     it 'returns 200 with paginated results' do
       VCR.use_cassette('mobile/facilities/ppms/community_clinics_near_user', match_requests_on: %i[method uri]) do

@@ -17,11 +17,11 @@ describe VAProfileRedis::V2::Cache, :skip_vet360 do
           VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
             VAProfileRedis::V2::ContactInformation.for_user(user)
           end
-          expect(VAProfileRedis::V2::ContactInformation.exists?(user.uuid)).to eq(true)
+          expect(VAProfileRedis::V2::ContactInformation.exists?(user.icn)).to eq(true)
 
           VAProfileRedis::V2::Cache.invalidate(user)
 
-          expect(VAProfileRedis::V2::ContactInformation.exists?(user.uuid)).to eq(false)
+          expect(VAProfileRedis::V2::ContactInformation.exists?(user.icn)).to eq(false)
         end
       end
 

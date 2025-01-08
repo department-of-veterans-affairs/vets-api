@@ -23,15 +23,11 @@ module AccreditedRepresentativePortal
     private
 
     def set_claimant_type
-      if power_of_attorney_form.parsed_data['dependent']
-        self.claimant_type = ClaimantTypes::DEPENDENT
-        return
-      end
-
-      if power_of_attorney_form.parsed_data['veteran']
-        self.claimant_type = ClaimantTypes::VETERAN
-        nil
-      end
+      self.claimant_type = if power_of_attorney_form.parsed_data['dependent']
+                             ClaimantTypes::DEPENDENT
+                           elsif power_of_attorney_form.parsed_data['veteran']
+                             ClaimantTypes::VETERAN
+                           end
     end
   end
 end
