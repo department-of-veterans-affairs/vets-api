@@ -41,7 +41,9 @@ spec:
                   key: {{ $secret.name }}
           {{- end }}
           {{- end }}
-
+          envFrom:
+            - secretRef:
+                name: common-environment-ssm-vars
       restartPolicy: Never
       securityContext:
         fsGroup: {{ .Values.fsGroup }}

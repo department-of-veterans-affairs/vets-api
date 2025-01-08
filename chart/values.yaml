@@ -1,4 +1,3 @@
-ssmPath:
 parameters:
   - SETTINGS__HOSTNAME
   - SETTINGS__VIRTUAL_HOSTS
