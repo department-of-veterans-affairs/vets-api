@@ -193,9 +193,9 @@ module Swagger
           key :description, 'Retrieve a list of active healthcare facilities'
           key :operationId, 'getFacilities'
           key :tags, %w[benefits_forms]
-      
+
           parameter :optional_authorization
-      
+
           parameter do
             key :name, :zip
             key :in, :query
@@ -203,7 +203,7 @@ module Swagger
             key :required, false
             key :type, :string
           end
-      
+
           parameter do
             key :name, :state
             key :in, :query
@@ -211,7 +211,7 @@ module Swagger
             key :required, false
             key :type, :string
           end
-      
+
           parameter do
             key :name, :lat
             key :in, :query
@@ -219,7 +219,7 @@ module Swagger
             key :required, false
             key :type, :string
           end
-      
+
           parameter do
             key :name, :long
             key :in, :query
@@ -227,7 +227,7 @@ module Swagger
             key :required, false
             key :type, :string
           end
-      
+
           parameter do
             key :name, :radius
             key :in, :query
@@ -235,7 +235,7 @@ module Swagger
             key :required, false
             key :type, :string
           end
-      
+
           parameter do
             key :name, :bbox
             key :in, :query
@@ -243,7 +243,7 @@ module Swagger
             key :required, false
             key :type, :string
           end
-      
+
           parameter do
             key :name, :visn
             key :in, :query
@@ -251,7 +251,7 @@ module Swagger
             key :required, false
             key :type, :string
           end
-      
+
           parameter do
             key :name, :type
             key :in, :query
@@ -259,7 +259,7 @@ module Swagger
             key :required, false
             key :type, :string
           end
-      
+
           parameter do
             key :name, :services
             key :in, :query
@@ -267,7 +267,7 @@ module Swagger
             key :required, false
             key :type, :string
           end
-      
+
           parameter do
             key :name, :mobile
             key :in, :query
@@ -275,7 +275,7 @@ module Swagger
             key :required, false
             key :type, :boolean
           end
-      
+
           parameter do
             key :name, :page
             key :in, :query
@@ -283,7 +283,7 @@ module Swagger
             key :required, false
             key :type, :integer
           end
-      
+
           parameter do
             key :name, :per_page
             key :in, :query
@@ -291,7 +291,7 @@ module Swagger
             key :required, false
             key :type, :integer
           end
-      
+
           parameter do
             key :name, :facilityIds
             key :in, :query
@@ -304,12 +304,26 @@ module Swagger
           end
 
           response 200 do
-            key :description,  'Successful response with a list of healthcare facilities'
+            key :description, 'Successful response with a list of healthcare facilities'
             schema do
               key :$ref, :Facilities
             end
           end
         end
+      end
+
+      swagger_schema :HealthCareApplicationSubmissionResponse do
+        key :required, %i[formSubmissionId timestamp success]
+
+        property :formSubmissionId, type: :integer
+        property :timestamp, type: :string
+        property :success, type: :boolean
+      end
+
+      swagger_schema :HealthCareApplicationHealthcheckResponse do
+        key :required, %i[formSubmissionId timestamp]
+        property :formSubmissionId, type: :integer
+        property :timestamp, type: :string
       end
     end
   end
