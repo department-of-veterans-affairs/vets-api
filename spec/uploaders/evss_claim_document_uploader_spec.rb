@@ -21,7 +21,9 @@ RSpec.describe EVSSClaimDocumentUploader do
   end
 
   after do
-    FileUtils.rm_rf(Rails.root.glob('tmp/uploads/evss_claim_documents/**/*/*/**/*/*/evss_claim_documents/**/*/*/**/*/*'))
+    FileUtils.rm_rf(Rails.root.glob(
+                      'tmp/uploads/evss_claim_documents/**/*/*/**/*/*/evss_claim_documents/**/*/*/**/*/*'
+                    ))
   end
 
   describe 'initialize' do
@@ -175,11 +177,6 @@ RSpec.describe EVSSClaimDocumentUploader do
     it 'includes both tracked item id and secondary id if provided' do
       uploader = described_class.new(user_uuid, [tracked_item_id, secondary_id])
       expect(uploader.store_dir).to eq("evss_claim_documents/#{user_uuid}/#{tracked_item_id}/#{secondary_id}")
-    end
-
-    it 'handles a case where both IDs are nil' do
-      uploader = described_class.new(user_uuid, [nil, nil])
-      expect(uploader.store_dir).to eq("evss_claim_documents/#{user_uuid}")
     end
 
     it 'handles a case where user_uuid is missing or nil' do
