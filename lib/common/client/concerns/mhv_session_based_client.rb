@@ -57,6 +57,7 @@ module Common
         def get_session_tagged
           Sentry.set_tags(error: 'mhv_session')
           env = perform(:get, 'session', nil, auth_headers)
+          puts "MHV SESSION ENV: #{env.inspect}"
           Sentry.get_current_scope.tags.delete(:error)
           env
         end
