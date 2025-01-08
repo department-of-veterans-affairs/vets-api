@@ -56,7 +56,7 @@ module SimpleFormsApi
     end
 
     def benefits_claims_lighthouse_service
-      @benefits_claims_lighthouse_service ||= BenefitsClaims::Service.new(icn)
+      @benefits_claims_lighthouse_service ||= ::BenefitsClaims::Service.new(icn)
     end
 
     def create_intent_to_file(type, ssn)

@@ -10,7 +10,7 @@ module SimpleFormsApi
 
       def initialize(current_user, params)
         @current_user = current_user
-        @params = params.deep_symbolize_keys
+        @params = params
       end
 
       def submit

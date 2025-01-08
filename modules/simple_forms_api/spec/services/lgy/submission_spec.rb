@@ -19,7 +19,6 @@ RSpec.describe SimpleFormsApi::Lgy::Submission do
         let(:current_user) { build(:user, :loa3) }
         let(:instance) { described_class.new(current_user, params) }
 
-        let(:mock_attachment) { fixture_file_upload('doctors-note.gif') }
         let(:response_status) { 'ACCEPTED' }
         let(:lgy_response_status) { 200 }
         let(:mock_lgy_response) do
@@ -28,15 +27,15 @@ RSpec.describe SimpleFormsApi::Lgy::Submission do
             body: { 'reference_number' => '123456', 'status' => response_status }
           )
         end
-        let(:lgy_response_double) { instance_double(LGY::Service) }
+        let(:lgy_service_double) { instance_double(LGY::Service) }
         let(:notification_email_double) { instance_double(SimpleFormsApi::NotificationEmail) }
         let(:notification_response) { true }
         let(:email_flag_enabled?) { true }
 
         before do
           allow(form_class).to receive(:new).and_call_original
-          allow(LGY::Service).to receive(:new).and_return(lgy_response_double)
-          allow(lgy_response_double).to receive(:post_grant_application).and_return(mock_lgy_response)
+          allow(LGY::Service).to receive(:new).and_return(lgy_service_double)
+          allow(lgy_service_double).to receive(:post_grant_application).and_return(mock_lgy_response)
           allow(SimpleFormsApi::NotificationEmail).to receive(:new).and_return(notification_email_double)
           allow(notification_email_double).to receive(:send).and_return(notification_response)
           allow(Flipper).to receive(:enabled?).with(:simple_forms_email_confirmations).and_return(email_flag_enabled?)
@@ -49,7 +48,7 @@ RSpec.describe SimpleFormsApi::Lgy::Submission do
         end
 
         it "calls LGY service post_grant_application with the form's payload" do
-          expect(lgy_response_double).to(
+          expect(lgy_service_double).to(
             have_received(:post_grant_application).with(payload: a_hash_including(formNumber: '26-4555'))
           )
         end
@@ -142,7 +141,7 @@ RSpec.describe SimpleFormsApi::Lgy::Submission do
 
           context 'when the LGY service throws an error', skip: 'TODO: refactor to handle this edge case' do
             before do
-              allow(lgy_response_double).to(
+              allow(lgy_service_double).to(
                 receive(:post_grant_application).and_raise(Common::Client::Errors::ClientError)
               )
             end

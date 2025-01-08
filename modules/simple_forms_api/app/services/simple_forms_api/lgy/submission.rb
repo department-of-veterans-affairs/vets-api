@@ -9,7 +9,7 @@ module SimpleFormsApi
 
       def initialize(current_user, params)
         @current_user = current_user
-        @params = params.deep_symbolize_keys
+        @params = params
       end
 
       def submit
@@ -37,7 +37,7 @@ module SimpleFormsApi
       end
 
       def initialize_form(data)
-        "SimpleFormsApi::#{form_class_name.titleize.delete(' ')}".constantize.new(data)
+        "SimpleFormsApi::#{form_class_name&.titleize&.delete(' ')}".constantize.new(data)
       end
 
       def handle_emails(status, parsed_form_data, reference_number)

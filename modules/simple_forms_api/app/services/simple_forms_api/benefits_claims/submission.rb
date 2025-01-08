@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'simple_forms_api/supporting_forms/intent_to_file'
-
 module SimpleFormsApi
-  module IntentToFile
+  module BenefitsClaims
     class Submission
+      INTENT_API_FORMS = %w[21-0966].freeze
+
       def initialize(current_user, params)
         @current_user = current_user
         @params = params
@@ -12,7 +12,7 @@ module SimpleFormsApi
 
       def submit
         parsed_form_data = JSON.parse(params.to_json)
-        form = SimpleFormsApi::VBA210966.new(parsed_form_data)
+        form = initialize_form(parsed_form_data)
         existing_intents = intent_service.existing_intents
         confirmation_number, expiration_date = intent_service.submit
         form.track_user_identity(confirmation_number)
@@ -35,19 +35,30 @@ module SimpleFormsApi
       attr_accessor :current_user, :params
 
       def intent_service
-        @intent_service ||= SimpleFormsApi::SupportingForms::IntentToFile.new(current_user, params)
+        @intent_service ||= SimpleFormsApi::IntentToFile.new(current_user, params)
       end
 
-      def send_intent_received_email(parsed_form_data, confirmation_number, expiration_date)
-        config = {
-          form_data: parsed_form_data,
-          form_number: 'vba_21_0966_intent_api',
+      def form_class_name
+        @form_class_name ||= "vba_#{params[:form_number].gsub('-', '_')}"
+      end
+
+      def initialize_form(data)
+        "SimpleFormsApi::#{form_class_name&.titleize&.delete(' ')}".constantize.new(data)
+      end
+
+      def build_config(data, confirmation_number, expiration_date)
+        {
+          form_data: data,
+          form_number: "#{form_class_name}_intent_api",
           confirmation_number:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y'),
           expiration_date:
         }
+      end
+
+      def send_intent_received_email(parsed_form_data, confirmation_number, expiration_date)
         notification_email = SimpleFormsApi::NotificationEmail.new(
-          config,
+          build_config(parsed_form_data, confirmation_number, expiration_date),
           notification_type: :received,
           user: current_user
         )
@@ -74,7 +85,7 @@ module SimpleFormsApi
         params['veteran_id'] ||= { 'ssn' => params['ssn'] }
         params['veteran_mailing_address'] ||= { 'postal_code' => current_user.address[:postal_code] || '00000' }
         Rails.logger.info(
-          'Simple forms api - 21-0966 Benefits Claims Intent to File API error,' \
+          "Simple forms api - #{params[:form_number]} Benefits Claims Intent to File API error," \
           'reverting to filling a PDF and sending it to Benefits Intake API',
           {
             error: e,

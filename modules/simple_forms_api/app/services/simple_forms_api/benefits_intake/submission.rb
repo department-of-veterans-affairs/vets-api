@@ -24,7 +24,7 @@ module SimpleFormsApi
 
       def initialize(current_user, params)
         @current_user = current_user
-        @params = params.deep_symbolize_keys
+        @params = params
       end
 
       def submit
@@ -70,7 +70,7 @@ module SimpleFormsApi
       end
 
       def get_file_paths_and_metadata(parsed_form_data)
-        form = "SimpleFormsApi::#{form_id.titleize.gsub(' ', '')}".constantize.new(parsed_form_data)
+        form = "SimpleFormsApi::#{form_id&.titleize&.gsub(' ', '')}".constantize.new(parsed_form_data)
         # This path can come about if the user is authenticated and, for some reason, doesn't have a participant_id
         if form_id == 'vba_21_0966' && params[:preparer_identification] == 'VETERAN' && current_user
           form = form.populate_veteran_data(current_user)

@@ -49,18 +49,19 @@ module SimpleFormsApi
       private
 
       def intent_service
-        @intent_service ||= SupportingForms::IntentToFile.new(@current_user, params)
+        @intent_service ||= SimpleFormsApi::IntentToFile.new(@current_user, params)
       end
 
       def skip_authentication?
-        UNAUTHENTICATED_FORMS.include?(params[:form_number]) || UNAUTHENTICATED_FORMS.include?(params[:form_id])
+        UNAUTHENTICATED_FORMS.include?(params[:form_number]) ||
+          UNAUTHENTICATED_FORMS.include?(params[:form_id])
       end
 
       def submission
         if intent_service.use_intent_api?
-          IntentToFile::Submission.new(@current_user, params)
-        elsif LGY::Submission::LGY_API_FORMS.include?(params[:form_number])
-          LGY::Submission.new(@current_user, params)
+          SimpleFormsApi::BenefitsClaims::Submission.new(@current_user, params)
+        elsif Lgy::Submission::LGY_API_FORMS.include?(params[:form_number])
+          Lgy::Submission.new(@current_user, params)
         else
           BenefitsIntake::Submission.new(@current_user, params)
         end
