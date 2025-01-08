@@ -103,7 +103,12 @@ module ClaimsApi
           end
 
           # return only the form information consumers provided
-          render json: { data: { attributes: form_attributes } }, status: :created
+          if form_attributes['id'].present?
+            render json: { data: { attributes: form_attributes } }, status: :created,
+                   location: url_for(controller: 'base', action: 'status', id: form_attributes['id'])
+          else
+            render json: { data: { attributes: form_attributes } }, status: :created
+          end
         end
 
         private
