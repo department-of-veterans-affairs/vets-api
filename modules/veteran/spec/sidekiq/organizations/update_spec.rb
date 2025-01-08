@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.shared_examples 'a organization email or phone update process' do |flag_type, attribute, valid_value, invalid_value| # rubocop:disable Layout/LineLength
-  let(:id) { '123abc' }
+  let(:id) { '123' }
   let(:address_changed) { flag_type == 'address' }
   let(:email_changed) { flag_type == 'email' }
   let(:phone_number_changed) { flag_type == 'phone_number' }
@@ -168,7 +168,7 @@ RSpec.describe Organizations::Update do
     end
 
     context 'when address_exists is true and address_changed is true' do
-      let(:id) { '123abc' }
+      let(:id) { '123' }
       let(:address_exists) { true }
       let(:address_changed) { true }
       let(:email_changed) { false }
@@ -188,7 +188,7 @@ RSpec.describe Organizations::Update do
     end
 
     context 'when address_exists is false and address_changed is true' do
-      let(:id) { '123abc' }
+      let(:id) { '123' }
       let(:address_exists) { false }
       let(:address_changed) { true }
       let(:email_changed) { false }
@@ -208,7 +208,7 @@ RSpec.describe Organizations::Update do
     end
 
     context 'when address_changed and email_changed is true' do
-      let(:id) { '123abc' }
+      let(:id) { '123' }
       let(:address_exists) { false }
       let(:address_changed) { true }
       let(:email_changed) { true }
@@ -237,7 +237,7 @@ RSpec.describe Organizations::Update do
     end
 
     context 'address validation retries' do
-      let(:id) { '123abc' }
+      let(:id) { '123' }
       let(:address_exists) { true }
       let(:address_changed) { true }
       let(:email_changed) { false }
@@ -618,7 +618,7 @@ RSpec.describe Organizations::Update do
       end
 
       context 'when address_exists is true and address_changed is true' do
-        let(:id) { '123abc' }
+        let(:id) { '123' }
         let(:address_exists) { true }
         let(:address_changed) { true }
         let(:email_changed) { false }
@@ -634,7 +634,7 @@ RSpec.describe Organizations::Update do
       end
 
       context 'when address_exists is false and address_changed is true' do
-        let(:id) { '123abc' }
+        let(:id) { '123' }
         let(:address_exists) { false }
         let(:address_changed) { true }
         let(:email_changed) { false }
@@ -649,34 +649,8 @@ RSpec.describe Organizations::Update do
         end
       end
 
-      context 'when address_changed and email_changed is true' do
-        let(:id) { '123abc' }
-        let(:address_exists) { false }
-        let(:address_changed) { true }
-        let(:email_changed) { true }
-        let(:phone_number_changed) { false }
-        let!(:organization) { create_organization }
-
-        it 'updates the address and email and the associated flagged records' do
-          subject.perform(json_data)
-          organization.reload
-          expect(organization.send('address_line1')).to eq('37N 1st St')
-          expect(organization.send('email')).to eq('test@example.com')
-        end
-      end
-
-      context "when updating a organization's email" do
-        it_behaves_like 'a organization email or phone update process', 'email', :email, 'test@example.com',
-                        'email@example.com'
-      end
-
-      context "when updating a organization's phone number" do
-        it_behaves_like 'a organization email or phone update process', 'phone_number', :phone_number, '999-999-9999',
-                        '111-111-1111'
-      end
-
       context 'address validation retries' do
-        let(:id) { '123abc' }
+        let(:id) { '123' }
         let(:address_exists) { true }
         let(:address_changed) { true }
         let(:email_changed) { false }
