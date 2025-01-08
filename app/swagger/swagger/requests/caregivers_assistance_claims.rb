@@ -131,7 +131,7 @@ module Swagger
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::BackendServiceError
           extend Swagger::Responses::InternalServerError
-          
+
           key :description, 'Download a pre-filled 10-10CG PDF form.'
 
           key :tags, %w[benefits_forms]
