@@ -1839,6 +1839,10 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
+  burial_module_enabled:
+    actor_type: user
+    description: Enables new Burial module
+    enable_in_development: true
   burial_document_upload_update:
     actor_type: user
     description: Show updated document upload page
