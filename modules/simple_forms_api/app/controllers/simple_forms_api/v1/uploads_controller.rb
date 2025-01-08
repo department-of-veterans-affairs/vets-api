@@ -31,9 +31,10 @@ module SimpleFormsApi
         submission = SupportingDocuments::Submission.new(@current_user, params)
         response = submission.submit
 
-        render json: response, status: :unprocessable_entity if response[:error]
+        payload = { json: response }
+        payload[:status] = :unprocessable_entity if response[:error]
 
-        render json: response
+        render payload
       end
 
       def get_intents_to_file

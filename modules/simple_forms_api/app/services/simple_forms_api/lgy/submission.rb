@@ -3,19 +3,19 @@
 require 'lgy/service'
 
 module SimpleFormsApi
-  module LGY
+  module Lgy
     class Submission
       LGY_API_FORMS = %w[26-4555].freeze
 
       def initialize(current_user, params)
         @current_user = current_user
-        @params = params
+        @params = params.deep_symbolize_keys
       end
 
       def submit
         parsed_form_data = JSON.parse(params.to_json)
-        form = SimpleFormsApi::VBA264555.new(parsed_form_data)
-        lgy_response = LGY::Service.new.post_grant_application(payload: form.as_payload)
+        payload = initialize_form(parsed_form_data).as_payload
+        lgy_response = LGY::Service.new.post_grant_application(payload:)
         reference_number = lgy_response.body['reference_number']
         status = lgy_response.body['status']
         Rails.logger.info(
@@ -32,6 +32,14 @@ module SimpleFormsApi
 
       attr_accessor :current_user, :params
 
+      def form_class_name
+        @form_class_name ||= "vba_#{params[:form_number].gsub('-', '_')}"
+      end
+
+      def initialize_form(data)
+        "SimpleFormsApi::#{form_class_name.titleize.delete(' ')}".constantize.new(data)
+      end
+
       def handle_emails(status, parsed_form_data, reference_number)
         case status
         when 'VALIDATED', 'ACCEPTED'
@@ -46,7 +54,7 @@ module SimpleFormsApi
       def send_sahsha_email(parsed_form_data, confirmation_number, notification_type)
         config = {
           form_data: parsed_form_data,
-          form_number: 'vba_26_4555',
+          form_number: form_class_name,
           confirmation_number:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y')
         }
