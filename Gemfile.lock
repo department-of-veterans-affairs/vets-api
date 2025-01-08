@@ -617,7 +617,7 @@ GEM
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     jwe (0.4.0)
-    jwt (2.9.3)
+    jwt (2.10.1)
       base64
     kms_encrypted (1.6.0)
       activesupport (>= 6.1)
