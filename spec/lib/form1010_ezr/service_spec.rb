@@ -295,15 +295,23 @@ RSpec.describe Form1010Ezr::Service do
             allow_logger_to_receive_error
           end
 
-          it 'increments StatsD as well as logs and raises the error' do
+          it 'increments StatsD, logs the message to sentry, and raises the error' do
             allow(StatsD).to receive(:increment)
 
             expect(StatsD).to receive(:increment).with('api.1010ezr.failed')
+            expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
+              '1010EZR failure',
+              :error,
+              {
+                first_initial: 'F',
+                middle_initial: 'M',
+                last_initial: 'Z'
+              },
+              ezr: :failure
+            )
+
             expect { submit_form(form) }.to raise_error(
               StandardError, 'Uh oh. Some bad error occurred.'
-            )
-            expect_logger_errors(
-              ['10-10EZR form submission failed: Uh oh. Some bad error occurred.']
             )
           end
         end
