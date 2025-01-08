@@ -8,6 +8,8 @@ module Swagger
       swagger_path '/v0/caregivers_assistance_claims' do
         operation :post do
           extend Swagger::Responses::ValidationError
+          extend Swagger::Responses::BackendServiceError
+          extend Swagger::Responses::InternalServerError
 
           key :description,
               'Submit a 10-10CG form (Application for the Program of Comprehensive Assistance for Family Caregivers)'
@@ -46,28 +48,11 @@ module Swagger
               end
             end
           end
-
-          response 400 do
-            key :description, 'Validation Error (Bad Request)'
-
-            schema do
-              key :$ref, :Errors
-            end
-          end
-
-          response 500 do
-            key :description, 'Internal Server Error'
-
-            schema do
-              key :$ref, :Errors
-            end
-          end
         end
       end
 
       swagger_path '/v0/caregivers_assistance_claims/facilities' do
         operation :post do
-          extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::BackendServiceError
           extend Swagger::Responses::InternalServerError
@@ -143,7 +128,6 @@ module Swagger
 
       swagger_path '/v0/caregivers_assistance_claims/download_pdf' do
         operation :post do
-          extend Swagger::Responses::AuthenticationError
           extend Swagger::Responses::ValidationError
           extend Swagger::Responses::BackendServiceError
           extend Swagger::Responses::InternalServerError
