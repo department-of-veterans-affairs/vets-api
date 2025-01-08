@@ -5,12 +5,9 @@ require 'disability_compensation/providers/rated_disabilities/lighthouse_rated_d
 
 RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
   describe 'annotate_disabilities' do
-    let(:user) { FactoryBot.create(:user, :loa3) }
     subject { described_class.annotate_disabilities(disabilities_response, user) }
-    before do
-      allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, user).and_return(false)
-    end
 
+    let(:user) { FactoryBot.create(:user, :loa3) }
     let(:disabilities_response) do
       DisabilityCompensation::ApiProvider::RatedDisabilitiesResponse.new(rated_disabilities:)
     end
@@ -23,6 +20,10 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
         { name: 'Hypertension', diagnostic_code: 7101, rating_percentage: 20 },
         { name: 'Vertigo', diagnostic_code: 6204, rating_percentage: 30 }
       ]
+    end
+
+    before do
+      allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, user).and_return(false)
     end
 
     context 'when a disabilities response does not contains rating any disability' do
