@@ -160,46 +160,161 @@ module PdfFill
             {
               'remarks' => { 
                 key: 'form1[0].#subform[0].Remarks[0]',
-                limit: '1000',
-                question_num: '15',
+                limit: 1000,
+                question_num: 15,
                 question_suffix: 'A',
                 question_text: 'REMARKS'
               },
               'student_networth_information' => {
-                'savings' => {
-                  key: '',
-                  limit: '',
-                  question_num: '',
-                  question_suffix: '',
-                  question_text: ''
+                'savings' => { # Update logic to seperate savings numbers
+                  'first' => {
+                    key: 'form1[0].#subform[0].StudentSavings_FirstOne[0]',
+                    limit: 1,
+                    question_num: 14,
+                    question_suffix: 'A',
+                    question_text: 'VALUE OF ESTATE > SAVINGS'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].StudentSavings_SecondThree[0]',
+                    limit: 3,
+                    question_num: 14,
+                    question_suffix: 'A',
+                    question_text: 'VALUE OF ESTATE > SAVINGS'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].StudentSavings_ThirdThree[0]',
+                    limit: 3,
+                    question_num: 14,
+                    question_suffix: 'A',
+                    question_text: 'VALUE OF ESTATE > SAVINGS'
+                  },
+                  'last' => {
+                    key: 'form1[0].#subform[0].StudentSavings_LastTwo[0]',
+                    limit: 2,
+                    question_num: 14,
+                    question_suffix: 'A',
+                    question_text: 'VALUE OF ESTATE > SAVINGS'
+                  }
                 },
                 'securities' => {
-                  key: '',
-                  limit: '',
-                  question_num: '',
-                  question_suffix: '',
-                  question_text: ''
+                  'first' => {
+                    key: 'form1[0].#subform[0].StudentSecurities_FirstOne[0]',
+                    limit: 1,
+                    question_num: 14,
+                    question_suffix: 'B',
+                    question_text: 'VALUE OF ESTATE > SECURITIES'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].StudentSecurities_SecondThree[0]',
+                    limit: 3,
+                    question_num: 14,
+                    question_suffix: 'B',
+                    question_text: 'VALUE OF ESTATE > SECURITIES'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].StudentSecurities_ThirdThree[0]',
+                    limit: 3,
+                    question_num: 14,
+                    question_suffix: 'B',
+                    question_text: 'VALUE OF ESTATE > SECURITIES'
+                  },
+                  'last' => {
+                    key: 'form1[0].#subform[0].StudentSecurities_LastTwo[0]',
+                    limit: 2,
+                    question_num: 14,
+                    question_suffix: 'B',
+                    question_text: 'VALUE OF ESTATE > SECURITIES'
+                  }
                 },
                 'real_estate' => {
-                  key: '',
-                  limit: '',
-                  question_num: '',
-                  question_suffix: '',
-                  question_text: ''
+                  'first' => {
+                    key: 'form1[0].#subform[0].StudentRealEstate_FirstOne[0]',
+                    limit: 1,
+                    question_num: 14,
+                    question_suffix: 'C',
+                    question_text: 'VALUE OF ESTATE > REAL ESTATE'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].StudentRealEstate_SecondThree[0]',
+                    limit: 3,
+                    question_num: 14,
+                    question_suffix: 'C',
+                    question_text: 'VALUE OF ESTATE > REAL ESTATE'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].StudentRealEstate_ThirdThree[0]',
+                    limit: 3,
+                    question_num: 14,
+                    question_suffix: 'C',
+                    question_text: 'VALUE OF ESTATE > REAL ESTATE'
+                  },
+                  'last' => {
+                    key: 'form1[0].#subform[0].StudentRealEstate_LastTwo[0]',
+                    limit: 2,
+                    question_num: 14,
+                    question_suffix: 'C',
+                    question_text: 'VALUE OF ESTATE > REAL ESTATE'
+                  }
                 },
                 'other_assets' => {
-                  key: '',
-                  limit: '',
-                  question_num: '',
-                  question_suffix: '',
-                  question_text: ''
+                  'first' => {
+                    key: 'form1[0].#subform[0].StudentOtherAssets_FirstOne[0]',
+                    limit: 1,
+                    question_num: 14,
+                    question_suffix: 'D',
+                    question_text: 'VALUE OF ESTATE > OTHER ASSETS'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].StudentOtherAssets_SecondThree[0]',
+                    limit: 3,
+                    question_num: 14,
+                    question_suffix: 'D',
+                    question_text: 'VALUE OF ESTATE > OTHER ASSETS'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].StudentOtherAssets_ThirdThree[0]',
+                    limit: 3,
+                    question_num: 14,
+                    question_suffix: 'D',
+                    question_text: 'VALUE OF ESTATE > OTHER ASSETS'
+                  },
+                  'last' => {
+                    key: 'form1[0].#subform[0].StudentOtherAssets_LastTwo[0]',
+                    limit: 2,
+                    question_num: 14,
+                    question_suffix: 'D',
+                    question_text: 'VALUE OF ESTATE > OTHER ASSETS'
+                  }
                 },
                 'total_value' => {
-                  key: '',
-                  limit: '',
-                  question_num: '',
-                  question_suffix: '',
-                  question_text: ''
+                  'first' => {
+                    key: 'form1[0].#subform[0].StudentTotalValues_FirstOne[0]',
+                    limit: 1,
+                    question_num: 14
+                    question_suffix: 'E',
+                    question_text: 'VALUE OF ESTATE > TOTAL VALUE'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].StudentTotalValues_SecondThree[0]',
+                    limit: 3,
+                    question_num: 14,
+                    question_suffix: 'E',
+                    question_text: 'VALUE OF ESTATE > TOTAL VALUE'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].StudentTotalValues_ThirdThree[0]',
+                    limit: 3,
+                    question_num: 14,
+                    question_suffix: 'E',
+                    question_text: 'VALUE OF ESTATE > TOTAL VALUE'
+                  },
+                  'last' => {
+                    key: 'form1[0].#subform[0].StudentTotalValues_LastTwo[0]',
+                    limit: 2,
+                    question_num: 14,
+                    question_suffix: 'E',
+                    question_text: 'VALUE OF ESTATE > TOTAL VALUE'
+                  }
                 }
               },
               'student_expected_earnings_next_year' => {
