@@ -206,7 +206,7 @@ GEM
       activemodel (= 7.2.2.1)
       activesupport (= 7.2.2.1)
       timeout (>= 0.4.0)
-    activerecord-import (1.8.1)
+    activerecord-import (2.0.0)
       activerecord (>= 4.2)
     activerecord-postgis-adapter (10.0.1)
       activerecord (~> 7.2.0)
@@ -326,7 +326,7 @@ GEM
     config (5.5.2)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
-    connection_pool (2.4.1)
+    connection_pool (2.5.0)
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
