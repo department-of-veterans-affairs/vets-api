@@ -221,12 +221,13 @@ module ClaimsApi
     end
 
     def add_overflow_text(text)
-      form_data['overflowText'] ||= ''
+      form_data['overflowText'] = (form_data['overflowText'] || '').dup
       form_data['overflowText'] << text
     end
 
-    def phone_number_valid?(area_code, phone_number)
-      area_code.present? && area_code.length == 3 && phone_number.present? && phone_number.length == 7
+    def phone_number_valid?(phone_number)
+      phone_number['areaCode'].present? && phone_number['phoneNumber'].present? &&
+        phone_number['areaCode'].length == 3 && phone_number['phoneNumber'].length == 7
     end
 
     def transform_homelessness_point_of_contact_primary_phone!
@@ -236,10 +237,10 @@ module ClaimsApi
 
       original_area_code = primary_phone['areaCode'].dup
       original_phone_number = primary_phone['phoneNumber'].dup
-      area_code = clean_phone_number!(primary_phone['areaCode'])
-      phone_number = clean_phone_number!(primary_phone['phoneNumber'])
+      clean_phone_number!(primary_phone['areaCode'])
+      clean_phone_number!(primary_phone['phoneNumber'])
 
-      return if phone_number_valid?(area_code, phone_number)
+      return if phone_number_valid?(primary_phone)
 
       add_overflow_text("14F. pointOfContact.primaryPhone - #{original_area_code}#{original_phone_number}\n")
       form_data.dig('veteran', 'homelessness', 'pointOfContact').delete('primaryPhone')
@@ -466,12 +467,12 @@ module ClaimsApi
       original_area_code = unit_phone['areaCode'].dup
       original_phone_number = unit_phone['phoneNumber'].dup
 
-      area_code = clean_phone_number!(unit_phone['areaCode'])
-      phone_number = clean_phone_number!(unit_phone['phoneNumber'])
+      clean_phone_number!(unit_phone['areaCode'])
+      clean_phone_number!(unit_phone['phoneNumber'])
 
-      return if phone_number_valid?(area_code, phone_number)
+      return if phone_number_valid?(unit_phone)
 
-      add_overflow_text("21E. unitPhone - #{original_area_code}#{original_phone_number}")
+      add_overflow_text("21E. unitPhone - #{original_area_code}#{original_phone_number}\n")
       form_data.dig('serviceInformation', 'reservesNationalGuardService').delete('unitPhone')
     end
 
