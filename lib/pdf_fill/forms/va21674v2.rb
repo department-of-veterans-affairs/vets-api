@@ -156,6 +156,457 @@ module PdfFill
               }
             }
           }, # end student_name_and_ssn
+          'student_information' => [
+            {
+              'remarks' => { 
+                key: 'form1[0].#subform[0].Remarks[0]',
+                limit: '1000',
+                question_num: '15',
+                question_suffix: 'A',
+                question_text: 'REMARKS'
+              },
+              'student_networth_information' => {
+                'savings' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'securities' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'real_estate' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'other_assets' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'total_value' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                }
+              },
+              'student_expected_earnings_next_year' => {
+                'earnings_from_all_employment' => {
+                  'first' => {
+                    key: 'form1[0].#subform[0].ExpectedEarningsFromAllEmployment_FirstTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'A',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > EARNINGS FROM ALL EMPLOYMENT'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].ExpectedEarningsFromAllEmployment_MiddleThree[0]',
+                    limit: 3,
+                    question_num: 13,
+                    question_suffix: 'B',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > EARNINGS FROM ALL EMPLOYMENT'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].ExpectedEarningsFromAllEmployment_LastTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'C',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > EARNINGS FROM ALL EMPLOYMENT'
+                  }
+                },
+                'annual_social_security_payments' => {
+                  'first' => {
+                    key: 'form1[0].#subform[0].ExpectedAnnualSocialSecurity_FirstTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'A',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > ANNUAL SOCIAL SECURITY'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].ExpectedAnnualSocialSecurity_MiddleThree[0]',
+                    limit: 3,
+                    question_num: 13,
+                    question_suffix: 'B',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > ANNUAL SOCIAL SECURITY'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].ExpectedAnnualSocialSecurity_LastTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'C',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > ANNUAL SOCIAL SECURITY'
+                  }
+                },
+                'other_annuities_income' => {
+                  'first' => {
+                    key: 'form1[0].#subform[0].ExpectedOtherAnnuities_FirstTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'A',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > OTHER ANNUITIES'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].ExpectedOtherAnnuities_MiddleThree[0]',
+                    limit: 3,
+                    question_num: 13,
+                    question_suffix: 'B',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > OTHER ANNUITIES'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].ExpectedOtherAnnuities_LastTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'C',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > OTHER ANNUITIES'
+                  }
+                },
+                'all_other_income' => {
+                  'first' => {
+                    key: 'form1[0].#subform[0].ExpectedAllOtherIncome_FirstTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'A',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > ALL OTHER INCOME'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].ExpectedAllOtherIncome_MiddleThree[0]',
+                    limit: 3,
+                    question_num: 13,
+                    question_suffix: 'B',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > ALL OTHER INCOME'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].ExpectedAllOtherIncome_LastTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'C',
+                    question_text: 'STUDENT\'S INFORMATION > EXPECTED > ALL OTHER INCOME'
+                  }
+                }
+              },
+              'student_earnings_from_school_year' => {
+                'earnings_from_all_employment' => {
+                  'first' => {
+                    key: 'form1[0].#subform[0].ReceivedEarningsFromAllEmployment_FirstTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'A',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > EARNINGS FROM ALL EMPLOYMENT'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].ReceivedEarningsFromAllEmployment_MiddleThree[0]',
+                    limit: 3,
+                    question_num: 13,
+                    question_suffix: 'B',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > EARNINGS FROM ALL EMPLOYMENT'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].ReceivedEarningsFromAllEmployment_LastTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'C',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > EARNINGS FROM ALL EMPLOYMENT'
+                  }
+                },
+                'annual_social_security_payments' => {
+                  'first' => {
+                    key: 'form1[0].#subform[0].ReceivedAnnualSocialSecurity_FirstTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'A',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > ANNUAL SOCIAL SECURITY'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].ReceivedAnnualSocialSecurity_MiddleThree[0]',
+                    limit: 3,
+                    question_num: 13,
+                    question_suffix: 'B',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > ANNUAL SOCIAL SECURITY'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].ReceivedAnnualSocialSecurity_LastTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'C',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > ANNUAL SOCIAL SECURITY'
+                  }
+                },
+                'other_annuities_income' => {
+                  'first' => {
+                    key: 'form1[0].#subform[0].ReceivedOtherAnnuities_FirstTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'A',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > OTHER ANNUITIES'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].ReceivedOtherAnnuities_MiddleThree[0]',
+                    limit: 3,
+                    question_num: 13,
+                    question_suffix: 'B',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > OTHER ANNUITIES'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].ReceivedOtherAnnuities_LastTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'C',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > OTHER ANNUITIES'
+                  }
+                },
+                'all_other_income' => {
+                  'first' => {
+                    key: 'form1[0].#subform[0].ReceivedAllOtherIncome_FirstTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'A',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > ALL OTHER INCOME'
+                  },
+                  'second' => {
+                    key: 'form1[0].#subform[0].ReceivedAllOtherIncome_MiddleThree[0]',
+                    limit: 3,
+                    question_num: 13,
+                    question_suffix: 'B',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > ALL OTHER INCOME'
+                  },
+                  'third' => {
+                    key: 'form1[0].#subform[0].ReceivedAllOtherIncome_LastTwo[0]',
+                    limit: 2,
+                    question_num: 13,
+                    question_suffix: 'C',
+                    question_text: 'STUDENT\'S INFORMATION > RECIEVED > ALL OTHER INCOME'
+                  }
+                }
+              },
+              'claims_or_receives_pension' => {
+                key: '',
+                limit: '',
+                question_num: '',
+                question_suffix: '',
+                question_text: ''
+              },
+              'school_information' => {
+                'last_term_school_information' => {
+                  'term_begin' => {
+                    key: '',
+                    limit: '',
+                    question_num: '',
+                    question_suffix: '',
+                    question_text: ''
+                  },
+                  'date_term_ended' => {
+                    key: '',
+                    limit: '',
+                    question_num: '',
+                    question_suffix: '',
+                    question_text: ''
+                  }
+                },
+                'student_did_attend_school_last_term' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'current_term_dates' => {
+                  'official_school_start_date' => {
+                    key: '',
+                    limit: '',
+                    question_num: '',
+                    question_suffix: '',
+                    question_text: ''
+                  },
+                  'expected_student_start_date' => {
+                    key: '',
+                    limit: '',
+                    question_num: '',
+                    question_suffix: '',
+                    question_text: ''
+                  },
+                  'expected_graduation_date' => {
+                    key: '',
+                    limit: '',
+                    question_num: '',
+                    question_suffix: '',
+                    question_text: ''
+                  }
+                },
+                'is_school_accredited' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'date_full_time_ended' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'student_is_enrolled_full_time' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'name' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                }
+              },
+              'benefit_payment_date' => {
+                key: '',
+                limit: '',
+                question_num: '',
+                question_suffix: '',
+                question_text: ''
+              },
+              'type_of_program_or_benefit' => {
+                'ch35' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'fry' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'feca' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'other' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                }
+              },
+              'tuition_is_paid_by_gov_agency' => {
+                key: '',
+                limit: '',
+                question_num: '',
+                question_suffix: '',
+                question_text: ''
+              },
+              'was_married' => {
+                key: '',
+                limit: '',
+                question_num: '',
+                question_suffix: '',
+                question_text: ''
+              },
+              'address' => {
+                'country' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'street' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'city' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'state' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'postal_code' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                }
+              },
+              'student_income' => {
+                key: '',
+                limit: '',
+                question_num: '',
+                question_suffix: '',
+                question_text: ''
+              },
+              'ssn' => {
+                key: '',
+                limit: '',
+                question_num: '',
+                question_suffix: '',
+                question_text: ''
+              },
+              'is_parent' => {
+                key: '',
+                limit: '',
+                question_num: '',
+                question_suffix: '',
+                question_text: ''
+              },
+              'full_name' => {
+                'first' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                },
+                'last' => {
+                  key: '',
+                  limit: '',
+                  question_num: '',
+                  question_suffix: '',
+                  question_text: ''
+                }
+              },
+              'birth_date' => {
+                key: '',
+                limit: '',
+                question_num: '',
+                question_suffix: '',
+                question_text: ''
+              }
+            }
+          ], # end of student information
           'student_address_marriage_tuition' => {
             'was_married' => {
               'was_married_yes' => { key: 'form1[0].#subform[0].YES[0]' },
