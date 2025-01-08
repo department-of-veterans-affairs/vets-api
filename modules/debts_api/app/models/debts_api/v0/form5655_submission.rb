@@ -6,6 +6,7 @@ module DebtsApi
   class V0::Form5655Submission < ApplicationRecord
     class StaleUserError < StandardError; end
     STATS_KEY = 'api.fsr_submission'
+    SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID = 'template_id_here'
     enum :state, { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
 
     self.table_name = 'form5655_submissions'
@@ -85,10 +86,27 @@ module DebtsApi
         message = "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
       end
       update(error_message: message)
+      if Flipper.enabled?(:debts_silent_failure_mailer)
+        # TODO: Get vets_email_address
+        DebtManagementCenter::VANotifyEmailJob.perform_async(
+          vets_email_address,
+          SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
+
+
+        )
+      end
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
       StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
+    end
+
+    def failure_email_personalization_info
+      {
+        'name' => 'Joe',
+        'time' => self.created_at,
+        'date' => Time.zone.now.strftime('%m/%d/%Y')
+      }
     end
 
     def register_success
