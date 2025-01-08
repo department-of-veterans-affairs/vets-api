@@ -362,6 +362,7 @@ app/policies/mhv_health_records_policy.rb @department-of-veterans-affairs/vfs-he
 app/policies/mhv_medical_records_policy.rb @department-of-veterans-affairs/vfs-mhv-medical-records @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/policies/mhv_messaging_policy.rb @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/policies/mhv_prescriptions_policy.rb @department-of-veterans-affairs/vfs-health-modernization-initiative @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+app/policies/mhv_user_account_policy.rb @department-of-veterans-affairs/octo-identity
 app/policies/mpi_policy.rb @department-of-veterans-affairs/octo-identity
 app/policies/ppiu_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/policies/vet360_policy.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
@@ -1661,6 +1662,7 @@ spec/policies/hca_disability_rating_policy_spec.rb @department-of-veterans-affai
 spec/policies/lighthouse_policy_spec.rb @department-of-veterans-affairs/backend-review-group
 spec/policies/meb_policy_spec.rb @department-of-veterans-affairs/my-education-benefits @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/policies/medical_copays_policy_spec.rb @department-of-veterans-affairs/vsa-debt-resolution @department-of-veterans-affairs/backend-review-group
+spec/policies/mhv_user_account_policy_spec.rb @department-of-veterans-affairs/octo-identity
 spec/policies/mpi_policy_spec.rb @department-of-veterans-affairs/octo-identity
 spec/policies/ppiu_policy_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/policies/vet360_policy_spec.rb @department-of-veterans-affairs/vfs-authenticated-experience-backend @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
