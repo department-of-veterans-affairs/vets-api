@@ -68,4 +68,34 @@ RSpec.describe IvcChampva::Attachments do
       end
     end
   end
+
+  describe '#handle_attachment_errors' do
+    context 'when renaming one of multiple attachments fails' do
+      it 'processes the rest of the attachments then throw an error' do
+        expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf', 'attachmentB.png', 'attachmentC.jpg', 'attachmentD.jpg'])
+        expect(File).to receive(:rename).with('attachmentA.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
+        expect(File).to receive(:rename).with('attachmentB.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf").and_raise(StandardError.new('Rename failed'))
+        expect(File).to receive(:rename).with('attachmentC.jpg', "./#{uuid}_#{form_id}_supporting_doc-2.pdf")
+        expect(File).to receive(:rename).with('attachmentD.jpg', "./#{uuid}_#{form_id}_supporting_doc-3.pdf")
+
+        expect {
+          test_instance.handle_attachments(file_path)
+        }.to raise_error(StandardError, 'Unable to process all attachments: Error processing attachment at index 1: Rename failed')
+      end
+    end
+
+    context 'when renaming two of multiple attachments fails' do
+      it 'processes the rest of the attachments then throw an error with both failure messages' do
+        expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf', 'attachmentB.png', 'attachmentC.jpg', 'attachmentD.jpg'])
+        expect(File).to receive(:rename).with('attachmentA.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
+        expect(File).to receive(:rename).with('attachmentB.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf").and_raise(StandardError.new('Rename failed'))
+        expect(File).to receive(:rename).with('attachmentC.jpg', "./#{uuid}_#{form_id}_supporting_doc-2.pdf").and_raise(StandardError.new('Rename failed'))
+        expect(File).to receive(:rename).with('attachmentD.jpg', "./#{uuid}_#{form_id}_supporting_doc-3.pdf")
+
+        expect {
+          test_instance.handle_attachments(file_path)
+        }.to raise_error(StandardError, 'Unable to process all attachments: Error processing attachment at index 1: Rename failed, Error processing attachment at index 2: Rename failed')
+      end
+    end
+  end
 end
