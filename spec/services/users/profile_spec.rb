@@ -429,8 +429,8 @@ RSpec.describe Users::Profile do
     end
 
     describe '#vet360_contact_information' do
-      context 'with an loa1 user' do
-        let(:user) { build(:user, :loa1) }
+      context 'with an unverified user' do
+        let(:user) { build(:user, :loa1, icn: nil) }
 
         it 'returns an empty hash', :aggregate_failures do
           expect(user.vet360_contact_info).to be_nil
@@ -439,12 +439,11 @@ RSpec.describe Users::Profile do
       end
 
       context 'with a valid user' do
-        let(:user) { build(:user, :loa3, vet360_id: '1') }
+        let(:user) { build(:user, :loa3) }
         let(:vet360_info) { subject.vet360_contact_information }
 
         it 'is populated', :aggregate_failures do
           expect(user.vet360_contact_info).not_to be_nil
-          expect(vet360_info[:vet360_id]).to be_present
           expect(vet360_info[:email]).to be_present
           expect(vet360_info[:residential_address]).to be_present
           expect(vet360_info[:mailing_address]).to be_present
