@@ -40,17 +40,16 @@ module Form1010Ezr
     def submit_sync(parsed_form)
       res = with_monitoring do
         if Flipper.enabled?(:va1010_forms_enrollment_system_service_enabled)
-          VA1010Forms::EnrollmentSystem::Service.new(HealthCareApplication.get_user_identifier(@user)).submit(parsed_form,FORM_ID)
+          VA1010Forms::EnrollmentSystem::Service.new(
+            HealthCareApplication.get_user_identifier(@user)
+          ).submit(parsed_form, FORM_ID)
         else
           es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
         end
       end
       # Log the 'formSubmissionId' for successful submissions
-      Rails.logger.info(
-        '1010EZR successfully submitted',
-        submission_id: res[:formSubmissionId],
-        veteran_initials: veteran_initials(parsed_form)
-      )
+      log_successful_submission(res[:formSubmissionId], veteran_initials(parsed_form))
+
       if parsed_form['attachments'].present?
         StatsD.increment("#{Form1010Ezr::Service::STATSD_KEY_PREFIX}.submission_with_attachment")
       end
@@ -181,6 +180,14 @@ module Form1010Ezr
       PersonalInformationLog.create(
         data: parsed_form,
         error_class: 'Form1010Ezr ValidationError'
+      )
+    end
+
+    def log_successful_submission(submission_id, veteran_initials)
+      Rails.logger.info(
+        '1010EZR successfully submitted',
+        submission_id:,
+        veteran_initials:
       )
     end
   end
