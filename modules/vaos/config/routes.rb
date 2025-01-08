@@ -6,6 +6,8 @@ VAOS::Engine.routes.draw do
     get '/appointments', to: 'appointments#index'
     get '/appointments/:appointment_id', to: 'appointments#show'
     put '/appointments/:id', to: 'appointments#update'
+    get '/providers', to: 'providers#index'
+    get '/providers/:provider_id', to: 'providers#show'
     get 'community_care/eligibility/:service_type', to: 'cc_eligibility#show'
     get '/locations/:location_id/clinics', to: 'clinics#index'
     get '/locations/last_visited_clinic', to: 'clinics#last_visited_clinic'
