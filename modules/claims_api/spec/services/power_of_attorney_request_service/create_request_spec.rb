@@ -243,9 +243,9 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
             'veteranVAFileNumber' => nil,
             'meta' => {
               'veteran' => {
+                'vnp_email_id' => '144761',
                 'vnp_phone_id' => '102315',
-                'vnp_mail_id' => '144745',
-                'vnp_email_id' => '144761'
+                'vnp_mail_id' => '144745'
               }
             }
           }

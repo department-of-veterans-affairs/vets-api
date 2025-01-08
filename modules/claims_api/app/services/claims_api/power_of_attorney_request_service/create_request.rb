@@ -330,7 +330,7 @@ module ClaimsApi
       end
 
       def add_meta_ids(vet_obj)
-        return vet_obj if @vnp_res_object['meta'].empty?
+        return vet_obj if @vnp_res_object['meta'].blank?
 
         vet_obj['meta'] ||= {}
         vet_obj['meta'] = remove_nil_values(@vnp_res_object['meta'])

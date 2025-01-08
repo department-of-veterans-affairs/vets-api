@@ -98,7 +98,7 @@ module ClaimsApi
             poa_request = ClaimsApi::PowerOfAttorneyRequest.create!(proc_id: res['procId'],
                                                                     veteran_icn: params[:veteranId],
                                                                     claimant_icn:, poa_code:,
-                                                                    metadata: res['meta'] || nil)
+                                                                    metadata: res['meta'])
             form_attributes['id'] = poa_request.id
           end
 
