@@ -98,11 +98,12 @@ RSpec.describe IvcChampva::Attachments do
                                         .and_raise(StandardError.new('Rename failed'))
         expect(File).to receive(:rename).with('attachmentD.jpg', "./#{uuid}_#{form_id}_supporting_doc-3.pdf")
 
+        expected_error_message = 'Unable to process all attachments: '
+        expected_error_message += 'Error processing attachment at index 1: Rename failed, '
+        expected_error_message += 'Error processing attachment at index 2: Rename failed'
         expect do
           test_instance.handle_attachments(file_path)
-        end.to raise_error(StandardError,
-                           'Unable to process all attachments: Error processing attachment at index 1: Rename failed, \
-                            Error processing attachment at index 2: Rename failed')
+        end.to raise_error(StandardError, expected_error_message)
       end
     end
   end
