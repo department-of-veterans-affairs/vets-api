@@ -2,11 +2,9 @@
 
 require 'rails_helper'
 
-RSpec.shared_examples 'a organization email or phone update process' do |flag_type, attribute, valid_value, invalid_value| # rubocop:disable Layout/LineLength
+RSpec.shared_examples 'a organization email or phone update process' do |flag_type|
   let(:id) { '123' }
   let(:address_changed) { flag_type == 'address' }
-  let(:email_changed) { flag_type == 'email' }
-  let(:phone_number_changed) { flag_type == 'phone_number' }
   let!(:organization) { create_organization }
 
   context 'when address_exists is true' do
@@ -86,9 +84,7 @@ RSpec.describe Organizations::Update do
           email: 'test@example.com',
           phone_number: '999-999-9999',
           address_exists:,
-          address_changed:,
-          email_changed:,
-          phone_number_changed:
+          address_changed:
         }
       ].to_json
     end
@@ -155,8 +151,6 @@ RSpec.describe Organizations::Update do
       let(:id) { 'not_found' }
       let(:address_exists) { false }
       let(:address_changed) { true }
-      let(:email_changed) { false }
-      let(:phone_number_changed) { false }
 
       it 'logs an error to Sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
@@ -171,8 +165,6 @@ RSpec.describe Organizations::Update do
       let(:id) { '123' }
       let(:address_exists) { true }
       let(:address_changed) { true }
-      let(:email_changed) { false }
-      let(:phone_number_changed) { false }
       let!(:organization) { create_organization }
 
       before do
@@ -191,57 +183,24 @@ RSpec.describe Organizations::Update do
       let(:id) { '123' }
       let(:address_exists) { false }
       let(:address_changed) { true }
-      let(:email_changed) { false }
-      let(:phone_number_changed) { false }
       let!(:organization) { create_organization }
 
       before do
         Flipper.disable(:va_v3_contact_information_service)
       end
 
-      it 'updates the address and the associated flagged records' do
+      it 'updates the address' do
         subject.perform(json_data)
         organization.reload
 
         expect(organization.send('address_line1')).to eq('37N 1st St')
       end
-    end
-
-    context 'when address_changed and email_changed is true' do
-      let(:id) { '123' }
-      let(:address_exists) { false }
-      let(:address_changed) { true }
-      let(:email_changed) { true }
-      let(:phone_number_changed) { false }
-      let!(:organization) { create_organization }
-
-      before do
-        Flipper.disable(:va_v3_contact_information_service)
-      end
-
-      it 'updates the address and email and the associated flagged records' do
-        subject.perform(json_data)
-        organization.reload
-        expect(organization.send('address_line1')).to eq('37N 1st St')
-      end
-    end
-
-    context "when updating a organization's email" do
-      it_behaves_like 'a organization email or phone update process', 'email', :email, 'test@example.com',
-                      'email@example.com'
-    end
-
-    context "when updating a organization's phone number" do
-      it_behaves_like 'a organization email or phone update process', 'phone_number', :phone_number, '999-999-9999',
-                      '111-111-1111'
     end
 
     context 'address validation retries' do
       let(:id) { '123' }
       let(:address_exists) { true }
       let(:address_changed) { true }
-      let(:email_changed) { false }
-      let(:phone_number_changed) { false }
       let!(:organization) { create_organization }
       let(:validation_stub) { instance_double(VAProfile::AddressValidation::Service) }
       let(:api_response_with_zero) do
@@ -538,9 +497,7 @@ RSpec.describe Organizations::Update do
             email: 'test@example.com',
             phone_number: '999-999-9999',
             address_exists:,
-            address_changed:,
-            email_changed:,
-            phone_number_changed:
+            address_changed:
           }
         ].to_json
       end
@@ -605,8 +562,6 @@ RSpec.describe Organizations::Update do
         let(:id) { 'not_found' }
         let(:address_exists) { false }
         let(:address_changed) { true }
-        let(:email_changed) { false }
-        let(:phone_number_changed) { false }
 
         it 'logs an error to Sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
@@ -621,11 +576,9 @@ RSpec.describe Organizations::Update do
         let(:id) { '123' }
         let(:address_exists) { true }
         let(:address_changed) { true }
-        let(:email_changed) { false }
-        let(:phone_number_changed) { false }
         let!(:organization) { create_organization }
 
-        it 'updates the address and the associated flagged records' do
+        it 'updates the address' do
           subject.perform(json_data)
           organization.reload
 
@@ -637,11 +590,9 @@ RSpec.describe Organizations::Update do
         let(:id) { '123' }
         let(:address_exists) { false }
         let(:address_changed) { true }
-        let(:email_changed) { false }
-        let(:phone_number_changed) { false }
         let!(:organization) { create_organization }
 
-        it 'updates the address and the associated flagged records' do
+        it 'updates the address' do
           subject.perform(json_data)
           organization.reload
 
@@ -653,8 +604,6 @@ RSpec.describe Organizations::Update do
         let(:id) { '123' }
         let(:address_exists) { true }
         let(:address_changed) { true }
-        let(:email_changed) { false }
-        let(:phone_number_changed) { false }
         let!(:organization) { create_organization }
         let(:validation_stub) { instance_double(VAProfile::V3::AddressValidation::Service) }
         let(:api_response_with_zero) do
