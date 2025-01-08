@@ -1,60 +1,59 @@
 # frozen_string_literal: true
 
-require 'common/models/base'
+require 'vets/model'
 
 module Avs
-  class V0::AfterVisitSummary < Common::Base
-    include ActiveModel::Serializers::JSON
+  class V0::AfterVisitSummary
+    include Vets::Model
 
     attribute :id, String
     attribute :icn, String
-    attribute :meta, Object
-    attribute :patient_info, Object
-    attribute :appointment_iens, Array
-    attribute :clinics_visited, Array
-    attribute :providers, Array
-    attribute :reason_for_visit, Array
-    attribute :diagnoses, Array
-    attribute :vitals, Array
-    attribute :orders, Array
-    attribute :procedures, Array
-    attribute :immunizations, Array
-    attribute :appointments, Array
+    attribute :meta, Hash
+    attribute :patient_info, Hash
+    attribute :appointment_iens, Array, default: []
+    attribute :clinics_visited, Array, default: []
+    attribute :providers, Array, default: []
+    attribute :reason_for_visit, Array, default: []
+    attribute :diagnoses, Array, default: []
+    attribute :vitals, Array, default: []
+    attribute :orders, Array, default: []
+    attribute :procedures, Array, default: []
+    attribute :immunizations, Array, default: []
+    attribute :appointments, Array, default: []
     attribute :patient_instructions, String
     attribute :patient_education, String
-    attribute :pharmacy_terms, Array
-    attribute :primary_care_providers, Array
+    attribute :pharmacy_terms, Array, default: []
+    attribute :primary_care_providers, Array, default: []
     attribute :primary_care_team, String
-    attribute :primary_care_team_members, Array
-    attribute :problems, Array
-    attribute :clinical_reminders, Array
-    attribute :clinical_services, Array
-    attribute :allergies_reactions, Object
-    attribute :clinic_medications, Array
-    attribute :va_medications, Array
-    attribute :nonva_medications, Array
-    attribute :med_changes_summary, Object
-    attribute :lab_results, Array
+    attribute :primary_care_team_members, Array, default: []
+    attribute :problems, Array, default: []
+    attribute :clinical_reminders, Array, default: []
+    attribute :clinical_services, Array, default: []
+    attribute :allergies_reactions, Hash
+    attribute :clinic_medications, Array, default: []
+    attribute :va_medications, Array, default: []
+    attribute :nonva_medications, Array, default: []
+    attribute :med_changes_summary, Hash
+    attribute :lab_results, Array, default: []
     attribute :radiology_reports1_yr, String
-    attribute :discrete_data, Object
+    attribute :discrete_data, Hash
     attribute :more_help_and_information, String
 
     def initialize(data)
-      super(data)
-      set_attributes(data['data'])
-
-      self.id = data['sid']
-      self.icn = data.dig('data', 'patientInfo', 'icn')
-      self.appointment_iens = data['appointmentIens']
-      self.meta = {
+      attributes = flatten_attributes(data['data'])
+      attributes[:id] = data['sid']
+      attributes[:icn] = data.dig('data', 'patientInfo', 'icn')
+      attributes[:appointment_iens] = data['appointmentIens']
+      attributes[:meta] = {
         generated_date: data['generatedDate'],
         station_no: data.dig('data', 'header', 'stationNo'),
         page_header: sanitize_html(data.dig('data', 'header', 'pageHeader')),
         time_zone: data.dig('data', 'header', 'timeZone')
       }
-      self.patient_info = {
+      attributes[:patient_info] = {
         smoking_status: data.dig('data', 'patientInfo', 'smokingStatus') || ''
       }
+      super(attributes)
     end
 
     private
@@ -69,10 +68,17 @@ module Avs
       end
     end
 
-    def set_attributes(data)
+    def flatten_attributes(data)
+      transformed_data = {}
       data.each_key do |key|
-        self[key.snakecase.to_sym] = data[key] if attributes.include?(key.snakecase.to_sym)
+        transformed_key = key.to_s.snakecase.to_sym
+        transformed_data[transformed_key] = data[key] if self.class.attribute_set.include?(transformed_key)
       end
+      transformed_data
+    end
+
+    def as_json(options = {})
+      super(options).deep_transform_keys { |key| key.snakecase.to_sym }
     end
   end
 end

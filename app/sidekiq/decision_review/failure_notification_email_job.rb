@@ -20,6 +20,8 @@ module DecisionReview
     STATSD_KEY_PREFIX = 'worker.decision_review.failure_notification_email'
 
     def perform
+      ActiveSupport::Deprecation.new.warn("#{self.class.name} job is deprecated and will be replaced by DR engine job")
+
       return unless should_perform?
 
       send_form_emails
@@ -146,10 +148,6 @@ module DecisionReview
       params = { submitted_appeal_uuid: submission.submitted_appeal_uuid, appeal_type:, notification_id: }
       Rails.logger.info('DecisionReview::FailureNotificationEmailJob form email queued', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.form.email_queued", tags: ["appeal_type:#{appeal_type}"])
-
-      tags = ["service:#{DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-              'function: form submission to Lighthouse']
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
     end
 
     def record_form_email_send_failure(submission, e)
@@ -157,6 +155,10 @@ module DecisionReview
       params = { submitted_appeal_uuid: submission.submitted_appeal_uuid, appeal_type:, message: e.message }
       Rails.logger.error('DecisionReview::FailureNotificationEmailJob form error', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.form.error", tags: ["appeal_type:#{appeal_type}"])
+
+      tags = ["service:#{DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
+              'function: form submission to Lighthouse']
+      StatsD.increment('silent_failure', tags:)
     end
 
     def record_secondary_form_email_send_successful(secondary_form, notification_id)
@@ -168,10 +170,6 @@ module DecisionReview
                  notification_id: }
       Rails.logger.info('DecisionReview::FailureNotificationEmailJob secondary form email queued', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_form.email_queued", tags: ["appeal_type:#{appeal_type}"])
-
-      tags = ["service:#{DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-              'function: secondary form submission to Lighthouse']
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
     end
 
     def record_secondary_form_email_send_failure(secondary_form, e)
@@ -183,6 +181,10 @@ module DecisionReview
                  message: e.message }
       Rails.logger.error('DecisionReview::FailureNotificationEmailJob secondary form error', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.secondary_form.error", tags: ["appeal_type:#{appeal_type}"])
+
+      tags = ["service:#{DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
+              'function: secondary form submission to Lighthouse']
+      StatsD.increment('silent_failure', tags:)
     end
 
     def record_evidence_email_send_successful(upload, notification_id)
@@ -196,10 +198,6 @@ module DecisionReview
       }
       Rails.logger.info('DecisionReview::FailureNotificationEmailJob evidence email queued', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.email_queued", tags: ["appeal_type:#{appeal_type}"])
-
-      tags = ["service:#{DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
-              'function: evidence submission to Lighthouse']
-      StatsD.increment('silent_failure_avoided_no_confirmation', tags:)
     end
 
     def record_evidence_email_send_failure(upload, e)
@@ -213,6 +211,10 @@ module DecisionReview
       }
       Rails.logger.error('DecisionReview::FailureNotificationEmailJob evidence error', params)
       StatsD.increment("#{STATSD_KEY_PREFIX}.evidence.error", tags: ["appeal_type:#{appeal_type}"])
+
+      tags = ["service:#{DecisionReviewV1::APPEAL_TYPE_TO_SERVICE_MAP[appeal_type]}",
+              'function: evidence submission to Lighthouse']
+      StatsD.increment('silent_failure', tags:)
     end
 
     def enabled?

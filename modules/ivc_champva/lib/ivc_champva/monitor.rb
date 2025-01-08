@@ -42,5 +42,25 @@ module IvcChampva
                     "#{STATS_KEY}.form_missing_status_email_sent",
                     call_location: caller_locations.first, **additional_context)
     end
+
+    def track_send_zsf_notification_to_pega(form_uuid, template_id)
+      additional_context = {
+        form_uuid:,
+        template_id:
+      }
+      track_request('info', "IVC ChampVA Forms - Sent notification to Pega for submission #{form_uuid}",
+                    "#{STATS_KEY}.send_zsf_notification_to_pega",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    def track_failed_send_zsf_notification_to_pega(form_uuid, template_id)
+      additional_context = {
+        form_uuid:,
+        template_id:
+      }
+      track_request('warn', "IVC ChampVA Forms - Failed to send notification to Pega for submission #{form_uuid}",
+                    "#{STATS_KEY}.failed_send_zsf_notification_to_pega",
+                    call_location: caller_locations.first, **additional_context)
+    end
   end
 end

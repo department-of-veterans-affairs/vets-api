@@ -33,21 +33,11 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
   let(:mhv_user) { build(:user, :mhv, middle_name: 'Bob') }
 
-  Flipper.disable(:va_v3_contact_information_service)
-  let(:cassette_path) do
-    if Flipper.enabled?(:va_v3_contact_information_service)
-      'va_profile/v2/contact_information'
-    else
-      'va_profile/contact_information'
-    end
-  end
-
   context 'has valid paths' do
     let(:headers) { { '_headers' => { 'Cookie' => sign_in(mhv_user, nil, true) } } }
 
     before do
-      Flipper.enable(:va_burial_v2)
-      create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_correlation_id)
+      create(:mhv_user_verification, mhv_uuid: mhv_user.mhv_credential_uuid)
     end
 
     describe 'backend statuses' do
@@ -297,25 +287,27 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports adding a claim document' do
-      expect(subject).to validate(
-        :post,
-        '/v0/claim_attachments',
-        200,
-        '_data' => {
-          'form_id' => '21P-530V2',
-          file: fixture_file_upload('spec/fixtures/files/doctors-note.pdf')
-        }
-      )
+      VCR.use_cassette('uploads/validate_document') do
+        expect(subject).to validate(
+          :post,
+          '/v0/claim_attachments',
+          200,
+          '_data' => {
+            'form_id' => '21P-530EZ',
+            file: fixture_file_upload('spec/fixtures/files/doctors-note.pdf')
+          }
+        )
 
-      expect(subject).to validate(
-        :post,
-        '/v0/claim_attachments',
-        422,
-        '_data' => {
-          'form_id' => '21P-530V2',
-          file: fixture_file_upload('spec/fixtures/files/empty_file.txt')
-        }
-      )
+        expect(subject).to validate(
+          :post,
+          '/v0/claim_attachments',
+          422,
+          '_data' => {
+            'form_id' => '21P-530EZ',
+            file: fixture_file_upload('spec/fixtures/files/empty_file.txt')
+          }
+        )
+      end
     end
 
     it 'supports checking stem_claim_status' do
@@ -409,7 +401,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           200,
           '_data' => {
             'burial_claim' => {
-              'form' => build(:burial_claim_v2).form
+              'form' => build(:burial_claim).form
             }
           }
         )
@@ -1099,6 +1091,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         Flipper.disable('disability_compensation_prevent_submission_job')
         Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_BRD)
         Flipper.disable('disability_compensation_production_tester')
+        Flipper.disable(:disability_compensation_staging_lighthouse_brd)
       end
 
       let(:form526v2) do
@@ -2237,8 +2230,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profiles' do
-      Flipper.disable(:va_v3_contact_information_service)
+    describe 'profiles', :skip_va_profile_user do
       let(:mhv_user) { create(:user, :loa3) }
 
       it 'supports getting service history data' do
@@ -2644,8 +2636,12 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profile/status' do
+    describe 'profile/status', :skip_va_profile_user do
       before do
+        allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service,
+                                                  instance_of(User)).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
+
         # vet360_id appears in the API request URI so we need it to match the cassette
         allow_any_instance_of(MPIData).to receive(:response_from_redis_or_service).and_return(
           create(:find_profile_response, profile: build(:mpi_profile, vet360_id: '1'))
@@ -2696,7 +2692,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'profile/person/status/:transaction_id' do
+    describe 'profile/person/status/:transaction_id', :skip_va_profile_user do
       let(:user_without_vet360_id) { build(:user, :loa3) }
       let(:headers) { { '_headers' => { 'Cookie' => sign_in(user_without_vet360_id, nil, true) } } }
 
@@ -2731,14 +2727,16 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
       end
     end
 
-    describe 'contact infromation v2' do
+    describe 'contact infromation v2', :skip_vet360 do
       before do
         Flipper.enable(:va_v3_contact_information_service)
+        Flipper.enable(:remove_pciu)
         allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       end
 
       after do
         Flipper.disable(:va_v3_contact_information_service)
+        Flipper.disable(:remove_pciu)
       end
 
       describe 'profiles v2', :skip_vet360, :initiate_vaprofile do

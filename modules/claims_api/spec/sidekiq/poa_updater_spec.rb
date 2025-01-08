@@ -65,38 +65,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
         expect(poa.status).to eq('updated')
       end
     end
-
-    context 'and record consent is not granted' do
-      context "because 'recordConsent' is false" do
-        it "updates the form's status but does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-          create_mock_lighthouse_service
-          expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-
-          poa = create_poa
-          poa.form_data.merge!({ recordConsent: false, consentLimits: [] })
-          poa.save!
-
-          subject.new.perform(poa.id)
-          poa.reload
-          expect(poa.status).to eq('updated')
-        end
-      end
-
-      context "because a limitation exists in 'consentLimits'" do
-        it "updates the form's status but does not create a 'ClaimsApi::PoaVBMSUpdater' job" do
-          create_mock_lighthouse_service
-          expect(ClaimsApi::PoaVBMSUpdater).not_to receive(:perform_async)
-
-          poa = create_poa
-          poa.form_data.merge!({ recordConsent: true, consentLimits: %w[ALCOHOLISM] })
-          poa.save!
-
-          subject.new.perform(poa.id)
-          poa.reload
-          expect(poa.status).to eq('updated')
-        end
-      end
-    end
   end
 
   context "when call to BGS 'update_birls_record' fails" do
@@ -131,13 +99,14 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
                                 })
         poa.save!
 
+        allow_any_instance_of(ClaimsApi::ServiceBase).to receive(:vanotify?).and_return true
         expect(ClaimsApi::VANotifyAcceptedJob).to receive(:perform_async)
 
         subject.new.perform(poa.id, 'Rep Data')
       end
     end
 
-    context 'when the flipper is on' do
+    context 'when the flipper is off' do
       it 'does not send the vanotify job' do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
         Flipper.disable(:lighthouse_claims_api_v2_poa_va_notify)

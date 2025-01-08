@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2024_11_19_190908) do
+ActiveRecord::Schema[7.2].define(version: 2024_12_31_213045) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -269,6 +269,47 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_190908) do
     t.index ["veteran_icn"], name: "index_appeals_api_supplemental_claims_on_veteran_icn"
   end
 
+  create_table "ar_power_of_attorney_forms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "power_of_attorney_request_id", null: false
+    t.text "encrypted_kms_key"
+    t.text "data_ciphertext", null: false
+    t.string "claimant_city_ciphertext", null: false
+    t.string "claimant_city_bidx", null: false
+    t.string "claimant_state_code_ciphertext", null: false
+    t.string "claimant_state_code_bidx", null: false
+    t.string "claimant_zip_code_ciphertext", null: false
+    t.string "claimant_zip_code_bidx", null: false
+    t.index ["claimant_city_bidx", "claimant_state_code_bidx", "claimant_zip_code_bidx"], name: "idx_on_claimant_city_bidx_claimant_state_code_bidx__11e9adbe25"
+    t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fc59a0dabc", unique: true
+  end
+
+  create_table "ar_power_of_attorney_request_decisions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "type", null: false
+    t.uuid "creator_id", null: false
+    t.index ["creator_id"], name: "index_ar_power_of_attorney_request_decisions_on_creator_id"
+  end
+
+  create_table "ar_power_of_attorney_request_expirations", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+  end
+
+  create_table "ar_power_of_attorney_request_resolutions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "power_of_attorney_request_id", null: false
+    t.string "resolving_type", null: false
+    t.uuid "resolving_id", null: false
+    t.text "reason_ciphertext"
+    t.text "encrypted_kms_key"
+    t.datetime "created_at", null: false
+    t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fd7d2d11b1", unique: true
+    t.index ["resolving_type", "resolving_id"], name: "unique_resolving_type_and_id", unique: true
+  end
+
+  create_table "ar_power_of_attorney_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "claimant_id", null: false
+    t.datetime "created_at", null: false
+    t.string "claimant_type", null: false
+    t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
+  end
+
   create_table "async_transactions", id: :serial, force: :cascade do |t|
     t.string "type"
     t.string "user_uuid"
@@ -310,7 +351,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_190908) do
     t.boolean "limit_subpage_inheritance"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "path"
     t.index ["entity_id"], name: "index_banners_on_entity_id"
+    t.index ["path"], name: "index_banners_on_path"
   end
 
   create_table "base_facilities", id: false, force: :cascade do |t|
@@ -354,6 +397,9 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_190908) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "email_template_id"
+    t.uuid "notification_id"
+    t.string "notification_type"
+    t.string "notification_status"
     t.index ["saved_claim_id"], name: "index_claim_va_notifications_on_saved_claim_id"
   end
 
@@ -411,6 +457,18 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_190908) do
     t.string "cid"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "claims_api_power_of_attorney_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "proc_id"
+    t.string "veteran_icn"
+    t.string "claimant_icn"
+    t.string "poa_code"
+    t.jsonb "metadata", default: {}
+    t.uuid "power_of_attorney_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["power_of_attorney_id"], name: "idx_on_power_of_attorney_id_9fc9134311"
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -636,6 +694,16 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_190908) do
     t.index ["updated_at"], name: "index_evss_claims_on_updated_at"
     t.index ["user_account_id"], name: "index_evss_claims_on_user_account_id"
     t.index ["user_uuid"], name: "index_evss_claims_on_user_uuid"
+  end
+
+  create_table "excel_file_events", force: :cascade do |t|
+    t.integer "number_of_submissions"
+    t.string "filename"
+    t.datetime "successful_at", precision: nil
+    t.integer "retry_attempt", default: 0
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["filename"], name: "index_excel_file_events_uniqueness", unique: true
   end
 
   create_table "feature_toggle_events", force: :cascade do |t|
@@ -1081,8 +1149,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_190908) do
     t.text "metadata"
     t.datetime "metadata_updated_at"
     t.index ["created_at", "type"], name: "index_saved_claims_on_created_at_and_type"
+    t.index ["delete_date"], name: "index_saved_claims_on_delete_date"
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
+    t.index ["id"], name: "index_partial_saved_claims_on_id_metadata_like_error", where: "(metadata ~~ '%error%'::text)"
   end
 
   create_table "schema_contract_validations", force: :cascade do |t|
@@ -1331,35 +1401,6 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_190908) do
     t.index ["verified_at"], name: "index_user_verifications_on_verified_at"
   end
 
-  create_table "va_forms_forms", force: :cascade do |t|
-    t.string "form_name"
-    t.string "url"
-    t.string "title"
-    t.date "first_issued_on"
-    t.date "last_revision_on"
-    t.integer "pages"
-    t.string "sha256"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "valid_pdf", default: false
-    t.text "form_usage"
-    t.text "form_tool_intro"
-    t.string "form_tool_url"
-    t.string "form_type"
-    t.string "language"
-    t.datetime "deleted_at"
-    t.string "related_forms", array: true
-    t.jsonb "benefit_categories"
-    t.string "form_details_url"
-    t.jsonb "va_form_administration"
-    t.integer "row_id"
-    t.float "ranking"
-    t.string "tags"
-    t.date "last_sha256_change"
-    t.jsonb "change_history"
-    t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
-  end
-
   create_table "va_notify_in_progress_reminders_sent", force: :cascade do |t|
     t.string "form_id", null: false
     t.uuid "user_account_id", null: false
@@ -1384,6 +1425,8 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_190908) do
     t.jsonb "callback_metadata"
     t.text "callback_klass"
     t.uuid "template_id"
+    t.text "to_ciphertext"
+    t.text "encrypted_kms_key"
   end
 
   create_table "vba_documents_monthly_stats", force: :cascade do |t|
@@ -1697,6 +1740,10 @@ ActiveRecord::Schema[7.1].define(version: 2024_11_19_190908) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "appeal_submissions", "user_accounts"
+  add_foreign_key "ar_power_of_attorney_forms", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
+  add_foreign_key "ar_power_of_attorney_request_decisions", "user_accounts", column: "creator_id"
+  add_foreign_key "ar_power_of_attorney_request_resolutions", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
+  add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claim_va_notifications", "saved_claims"
   add_foreign_key "claims_api_claim_submissions", "claims_api_auto_established_claims", column: "claim_id"

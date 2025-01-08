@@ -35,7 +35,7 @@ module VANotify
       )
       StatsD.increment('api.vanotify.user_account_job.success')
       response
-    rescue Common::Exceptions::BackendServiceException => e
+    rescue VANotify::Error => e
       handle_backend_exception(e, user_account, template_id, personalisation)
     end
 

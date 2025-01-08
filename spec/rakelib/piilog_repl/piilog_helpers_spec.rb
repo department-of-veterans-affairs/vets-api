@@ -11,7 +11,7 @@ describe PersonalInformationLogQueryBuilder do
       'string/symbol args* narrow the error_class (*most string args)',
       Q.call(:hlr, :nod),
       'SELECT "personal_information_logs".* FROM "personal_information_logs"' \
-      " WHERE (error_class ILIKE ANY (array['%hlr%','%nod%']))"
+      " WHERE (error_class ILIKE ANY (array['%hlr%', '%nod%']))"
     ],
     [
       'a single date narrows the query to just that day',

@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
-require 'ddtrace'
+require 'datadog'
 require 'simple_forms_api_submission/metadata_validator'
 require 'lgy/service'
 require 'lighthouse/benefits_intake/service'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
+require 'benefits_intake_service/service'
 
 module SimpleFormsApi
   module V1
@@ -53,6 +54,17 @@ module SimpleFormsApi
         if %w[40-0247 20-10207 40-10007].include?(params[:form_id])
           attachment = PersistentAttachments::MilitaryRecords.new(form_id: params[:form_id])
           attachment.file = params['file']
+          file_path = params['file'].tempfile.path
+          # Validate the document using BenefitsIntakeService
+          if %w[40-0247 40-10007].include?(params[:form_id])
+            begin
+              service = BenefitsIntakeService::Service.new
+              service.valid_document?(document: file_path)
+            rescue BenefitsIntakeService::Service::InvalidDocumentError => e
+              render json: { error: "Document validation failed: #{e.message}" }, status: :unprocessable_entity
+              return
+            end
+          end
           raise Common::Exceptions::ValidationErrors, attachment unless attachment.valid?
 
           attachment.save
@@ -113,6 +125,18 @@ module SimpleFormsApi
           'Simple forms api - sent to lgy',
           { form_number: params[:form_number], status:, reference_number: }
         )
+
+        if Flipper.enabled?(:simple_forms_email_confirmations)
+          case status
+          when 'VALIDATED', 'ACCEPTED'
+            send_sahsha_email(parsed_form_data, :confirmation, reference_number)
+          when 'REJECTED'
+            send_sahsha_email(parsed_form_data, :rejected)
+          when 'DUPLICATE'
+            send_sahsha_email(parsed_form_data, :duplicate)
+          end
+        end
+
         { json: { reference_number:, status: }, status: lgy_response.status }
       end
 
@@ -310,6 +334,21 @@ module SimpleFormsApi
         notification_email = SimpleFormsApi::NotificationEmail.new(
           config,
           notification_type: :received,
+          user: @current_user
+        )
+        notification_email.send
+      end
+
+      def send_sahsha_email(parsed_form_data, notification_type, confirmation_number = nil)
+        config = {
+          form_data: parsed_form_data,
+          form_number: 'vba_26_4555',
+          confirmation_number:,
+          date_submitted: Time.zone.today.strftime('%B %d, %Y')
+        }
+        notification_email = SimpleFormsApi::NotificationEmail.new(
+          config,
+          notification_type:,
           user: @current_user
         )
         notification_email.send

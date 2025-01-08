@@ -6,7 +6,7 @@ require 'bgs_service/vet_record_web_service'
 
 module ClaimsApi
   class PoaUpdater < ClaimsApi::ServiceBase
-    def perform(power_of_attorney_id, rep = nil)
+    def perform(power_of_attorney_id, rep_id = nil)
       poa_form = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
 
       ssn = poa_form.auth_headers['va_eauth_pnid']
@@ -23,9 +23,9 @@ module ClaimsApi
 
         ClaimsApi::Logger.log('poa', poa_id: poa_form.id, detail: 'BIRLS Success')
 
-        ClaimsApi::VANotifyAcceptedJob.perform_async(poa_form.id, rep) if vanotify?(poa_form.auth_headers, rep)
+        ClaimsApi::VANotifyAcceptedJob.perform_async(poa_form.id, rep_id) if vanotify?(poa_form.auth_headers, rep_id)
 
-        ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id) if enable_vbms_access?(poa_form:)
+        ClaimsApi::PoaVBMSUpdater.perform_async(poa_form.id)
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
         poa_form.vbms_error_message = "BGS Error: update_birls_record failed with code #{response[:return_code]}"
@@ -36,14 +36,6 @@ module ClaimsApi
     end
 
     private
-
-    def vanotify?(auth_headers, rep)
-      if Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify)
-        auth_headers.key?(ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY) && rep.present?
-      else
-        false
-      end
-    end
 
     def bgs_ext_service(poa_form)
       BGS::Services.new(

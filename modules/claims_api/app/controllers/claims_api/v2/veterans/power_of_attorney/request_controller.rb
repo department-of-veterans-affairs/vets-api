@@ -68,7 +68,7 @@ module ClaimsApi
           render json: res, status: :ok
         end
 
-        def create
+        def create # rubocop:disable Metrics/MethodLength
           # validate target veteran exists
           target_veteran
 
@@ -94,11 +94,17 @@ module ClaimsApi
                                                                              bgs_form_attributes.deep_symbolize_keys,
                                                                              user_profile&.profile&.participant_id,
                                                                              :poa).submit_request
-            form_attributes['procId'] = res['procId']
+            claimant_icn = form_attributes.dig('claimant', 'claimantId')
+            poa_request = ClaimsApi::PowerOfAttorneyRequest.create!(proc_id: res['procId'],
+                                                                    veteran_icn: params[:veteranId],
+                                                                    claimant_icn:, poa_code:)
+            form_attributes['id'] = poa_request.id
           end
 
           # return only the form information consumers provided
-          render json: { data: { attributes: form_attributes } }, status: :created
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes, view: :create,
+                                                                                                          root: :data),
+                 status: :created
         end
 
         private
@@ -118,6 +124,8 @@ module ClaimsApi
         end
 
         def send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
+          return unless Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify)
+
           lockbox = Lockbox.new(key: Settings.lockbox.master_key)
           encrypted_ptcpnt_id = Base64.strict_encode64(lockbox.encrypt(ptcpnt_id))
           encrypted_first_name = Base64.strict_encode64(lockbox.encrypt(first_name))
