@@ -100,11 +100,12 @@ module ClaimsApi
                                                                     claimant_icn:, poa_code:,
                                                                     metadata: res['meta'] || nil)
             form_attributes['id'] = poa_request.id
-            form_attributes['type'] = 'power-of-attorney-request'
           end
 
           # return only the form information consumers provided
-          render json: { data: { attributes: form_attributes } }, status: :created
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes, view: :create,
+                                                                                                          root: :data),
+                 status: :created
         end
 
         private
