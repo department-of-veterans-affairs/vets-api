@@ -6,10 +6,12 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 require 'bgs_service/local_bgs'
+require 'bgs_service/org_web_service'
 
 describe 'PowerOfAttorney',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   let(:local_bgs) { ClaimsApi::LocalBGS }
+  let(:org_web_service) { ClaimsApi::OrgWebService }
 
   claimant_data = {
     'claimantId' => '1013093331V548481',
@@ -61,7 +63,7 @@ describe 'PowerOfAttorney',
 
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             FactoryBot.create(:veteran_representative, representative_id: '12345',
                                                        poa_codes: [poa_code],
@@ -119,7 +121,7 @@ describe 'PowerOfAttorney',
 
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
 
             FactoryBot.create(:veteran_representative, representative_id: '12345',
@@ -153,7 +155,7 @@ describe 'PowerOfAttorney',
 
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             FactoryBot.create(:veteran_representative, representative_id: '12345',
                                                        poa_codes: [poa_code],
@@ -262,7 +264,7 @@ describe 'PowerOfAttorney',
 
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             FactoryBot.create(:veteran_representative, representative_id: '999999999999',
                                                        poa_codes: [poa_code],
@@ -459,7 +461,7 @@ describe 'PowerOfAttorney',
 
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             FactoryBot.create(:veteran_organization, poa: organization_poa_code,
                                                      name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS",
@@ -528,7 +530,7 @@ describe 'PowerOfAttorney',
 
           before do |example|
             mock_ccg(scopes) do
-              allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+              allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
               submit_request(example.metadata)
             end
