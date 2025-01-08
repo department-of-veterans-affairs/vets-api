@@ -24,37 +24,11 @@ module Lighthouse
       end
 
       sidekiq_retries_exhausted do |msg, _ex|
-        job_id = msg['jid']
-        job_class = 'Lighthouse::EvidenceSubmissions::DocumentUpload'
-        first_name = msg['args'][1]['first_name'].titleize unless msg['args'][1]['first_name'].nil?
-        claim_id = msg['args'][1]['claim_id']
-        tracked_item_id = msg['args'][1]['tracked_item_id']
-        filename = obscured_filename(msg['args'][1]['file_name'])
-        date_submitted = format_issue_instant_for_mailers(msg['created_at'])
-        date_failed = format_issue_instant_for_mailers(msg['failed_at'])
-        upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
-        uuid = msg['args'][1]['uuid']
-        user_account = UserAccount.find_or_create_by(id: uuid)
-        personalisation = { first_name:, filename:, date_submitted:, date_failed: }
-
-        EvidenceSubmission.create(
-          job_id:,
-          job_class:,
-          claim_id:,
-          tracked_item_id:,
-          upload_status:,
-          user_account:,
-          template_metadata_ciphertext: { personalisation: }.to_json
-        )
-
-        message = "#{job_class} EvidenceSubmission created"
-        ::Rails.logger.info(message)
-        StatsD.increment('silent_failure_avoided_no_confirmation',
-                         tags: ['service:claim-status', "function: #{message}"])
-      rescue => e
-        error_message = "#{job_class} failed to create EvidenceSubmission"
-        ::Rails.logger.info(error_message, { messsage: e.message })
-        StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
+        if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
+          create_evidence_submission(msg)
+        else
+          call_failure_notification(msg)
+        end
       end
 
       def self.obscured_filename(original_filename)
@@ -80,22 +54,20 @@ module Lighthouse
         timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
       end
 
-      def perform(user_icn, document_hash, user_account_uuid, claim_id, tracked_item_id)
+      def perform(user_icn, document_hash, user_account_uuid)
         @user_icn = user_icn
         @document_hash = document_hash
+        document = LighthouseDocument.new document_hash
 
-        evidence_submission = record_evidence_submission(claim_id, jid, tracked_item_id, user_account_uuid)
+        evidence_submission = record_evidence_submission(document.claim_id, jid, document.tracked_item_id,
+                                                         user_account_uuid)
         initialize_upload_document
 
         Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
           span.set_tag('Document File Size', file_body.size)
           response = client.upload_document(file_body, document) # returns upload response which includes requestId
-          request_successful = response.dig(:data, :success)
-          if request_successful
-            request_id = response.dig(:data, :requestId)
-            evidence_submission.update(request_id:)
-          else
-            raise StandardError
+          if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
+            add_request_id(response, evidence_submission)
           end
         end
         Datadog::Tracing.trace('Remove Upload Document') do
@@ -103,7 +75,69 @@ module Lighthouse
         end
       end
 
+      def self.create_evidence_submission(msg)
+        job_class = 'Lighthouse::EvidenceSubmissions::DocumentUpload'
+        uuid = msg['args'][1]['uuid']
+
+        EvidenceSubmission.create(
+          job_id: msg['jid'],
+          job_class: 'Lighthouse::EvidenceSubmissions::DocumentUpload',
+          claim_id: msg['args'][1]['claim_id'],
+          tracked_item_id: msg['args'][1]['tracked_item_id'],
+          upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
+          user_account: UserAccount.find_or_create_by(id: uuid),
+          template_metadata_ciphertext: { personalisation: create_personalisation(msg) }.to_json
+        )
+
+        message = "#{job_class} EvidenceSubmission created"
+        ::Rails.logger.info(message)
+        StatsD.increment('silent_failure_avoided_no_confirmation',
+                         tags: ['service:claim-status', "function: #{message}"])
+      rescue => e
+        error_message = "#{job_class} failed to create EvidenceSubmission"
+        ::Rails.logger.info(error_message, { messsage: e.message })
+        StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
+      end
+
+      def self.call_failure_notification(msg)
+        icn = msg['args'].first
+        first_name = msg['args'][1]['first_name'].titleize
+        filename = obscured_filename(msg['args'][1]['file_name'])
+        date_submitted = format_issue_instant_for_mailers(msg['created_at'])
+        date_failed = format_issue_instant_for_mailers(msg['failed_at'])
+
+        Lighthouse::FailureNotification.perform_async(icn, first_name, filename, date_submitted, date_failed)
+
+        ::Rails.logger.info('Lighthouse::DocumentUpload exhaustion handler email queued')
+        StatsD.increment('silent_failure_avoided_no_confirmation',
+                         tags: ['service:claim-status', 'function: evidence upload to Lighthouse'])
+      rescue => e
+        ::Rails.logger.error('Lighthouse::DocumentUpload exhaustion handler email error',
+                             { message: e.message })
+        StatsD.increment('silent_failure', tags: ['service:claim-status', 'function: evidence upload to Lighthouse'])
+        log_exception_to_sentry(e)
+      end
+
+      def self.create_personalisation(msg)
+        first_name = msg['args'][1]['first_name'].titleize unless msg['args'][1]['first_name'].nil?
+        filename = obscured_filename(msg['args'][1]['file_name'])
+        date_submitted = format_issue_instant_for_mailers(msg['created_at'])
+        date_failed = format_issue_instant_for_mailers(msg['failed_at'])
+
+        { first_name:, filename:, date_submitted:, date_failed: }
+      end
+
       private
+
+      def add_request_id(response, evidence_submission)
+        request_successful = response.dig(:data, :success)
+        if request_successful
+          request_id = response.dig(:data, :requestId)
+          evidence_submission.update(request_id:)
+        else
+          raise StandardError
+        end
+      end
 
       def initialize_upload_document
         Datadog::Tracing.trace('Config/Initialize Upload Document') do

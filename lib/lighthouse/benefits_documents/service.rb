@@ -52,7 +52,6 @@ module BenefitsDocuments
       user_account_uuid = @user.user_account_uuid
       document_data = build_lh_doc(file, file_params)
       claim_id = file_params[:claimId] || file_params[:claim_id]
-      tracked_item_id = file_params[:trackedItemIds] || file_params[:tracked_item_ids]
 
       unless claim_id
         raise Common::Exceptions::InternalServerError,
@@ -65,19 +64,17 @@ module BenefitsDocuments
       uploader.store!(document_data.file_obj)
       # the uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
-      document_upload(user_icn, document_data.to_serializable_hash, user_account_uuid,
-                      claim_id, tracked_item_id)
+      document_upload(user_icn, document_data.to_serializable_hash, user_account_uuid)
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)
       raise e
     end
 
-    def document_upload(user_icn, document_hash, user_account_uuid, claim_id, tracked_item_id)
+    def document_upload(user_icn, document_hash, user_account_uuid)
       if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
         Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_hash)
       else
-        Lighthouse::EvidenceSubmissions::DocumentUpload.perform_async(user_icn, document_hash, user_account_uuid,
-                                                                      claim_id, tracked_item_id)
+        Lighthouse::EvidenceSubmissions::DocumentUpload.perform_async(user_icn, document_hash, user_account_uuid)
       end
     end
 
