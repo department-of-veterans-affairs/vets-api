@@ -186,7 +186,7 @@ class FormProfiles::VA526ez < FormProfile
   end
 
   def initialize_veteran_contact_information
-    return {} unless user.authorize :evss, :access?
+    return {} unless user.authorize :va_profile, :access_to_v2?
 
     contact_info = initialize_vets360_contact_info
 
