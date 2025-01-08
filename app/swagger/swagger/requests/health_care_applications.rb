@@ -185,19 +185,131 @@ module Swagger
         end
       end
 
-      swagger_schema :HealthCareApplicationSubmissionResponse do
-        key :required, %i[formSubmissionId timestamp success]
+      swagger_path '/v0/health_care_applications/facilities' do
+        operation :get do
+          extend Swagger::Responses::BackendServiceError
+          extend Swagger::Responses::InternalServerError
 
-        property :formSubmissionId, type: :integer
-        property :timestamp, type: :string
-        property :success, type: :boolean
-      end
+          key :description, 'Retrieve a list of active healthcare facilities'
+          key :operationId, 'getFacilities'
+          key :tags, %w[benefits_forms]
+      
+          parameter :optional_authorization
+      
+          parameter do
+            key :name, :zip
+            key :in, :query
+            key :description, 'ZIP code for filtering facilities'
+            key :required, false
+            key :type, :string
+          end
+      
+          parameter do
+            key :name, :state
+            key :in, :query
+            key :description, 'State for filtering facilities'
+            key :required, false
+            key :type, :string
+          end
+      
+          parameter do
+            key :name, :lat
+            key :in, :query
+            key :description, 'Latitude for filtering facilities'
+            key :required, false
+            key :type, :string
+          end
+      
+          parameter do
+            key :name, :long
+            key :in, :query
+            key :description, 'Longitude for filtering facilities'
+            key :required, false
+            key :type, :string
+          end
+      
+          parameter do
+            key :name, :radius
+            key :in, :query
+            key :description, 'The radius around the location for facility search.'
+            key :required, false
+            key :type, :string
+          end
+      
+          parameter do
+            key :name, :bbox
+            key :in, :query
+            key :description, 'Bounding box for facility search'
+            key :required, false
+            key :type, :string
+          end
+      
+          parameter do
+            key :name, :visn
+            key :in, :query
+            key :description, 'VISN code for filtering facilities'
+            key :required, false
+            key :type, :string
+          end
+      
+          parameter do
+            key :name, :type
+            key :in, :query
+            key :description, 'Type of facility'
+            key :required, false
+            key :type, :string
+          end
+      
+          parameter do
+            key :name, :services
+            key :in, :query
+            key :description, 'Services offered at the facility'
+            key :required, false
+            key :type, :string
+          end
+      
+          parameter do
+            key :name, :mobile
+            key :in, :query
+            key :description, 'Filter by mobile facilities'
+            key :required, false
+            key :type, :boolean
+          end
+      
+          parameter do
+            key :name, :page
+            key :in, :query
+            key :description, 'Page number for pagination'
+            key :required, false
+            key :type, :integer
+          end
+      
+          parameter do
+            key :name, :per_page
+            key :in, :query
+            key :description, 'Number of facilities per page'
+            key :required, false
+            key :type, :integer
+          end
+      
+          parameter do
+            key :name, :facilityIds
+            key :in, :query
+            key :description, 'Array of facility IDs'
+            key :type, :array
+            items do
+              key :type, :string
+            end
+            key :collectionFormat, :multi
+          end
 
-      swagger_schema :HealthCareApplicationHealthcheckResponse do
-        key :required, %i[formSubmissionId timestamp]
-
-        property :formSubmissionId, type: :integer
-        property :timestamp, type: :string
+          response 200 do
+            key :description,  'Successful response with a list of healthcare facilities'
+            schema do
+              key :$ref, :Facilities
+            end
+          end
+        end
       end
     end
   end
