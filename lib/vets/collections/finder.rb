@@ -40,7 +40,7 @@ module Vets
         raise Common::Exceptions::InvalidFiltersSyntax, 'Filters must be present' if conditions.blank?
 
         # Validate attributes are filterable
-        failed_attributes = (conditions.keys - @filterable_attributes.keys).join(', ')
+        failed_attributes = (conditions.keys.map(&:to_s) - @filterable_attributes.keys.map(&:to_s)).join(', ')
         raise Common::Exceptions::FilterNotAllowed, failed_attributes unless failed_attributes.empty?
 
         # Validate the operations are valid for each attribute

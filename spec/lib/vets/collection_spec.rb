@@ -16,6 +16,13 @@ RSpec.describe Vets::Collection do
       def <=>(other)
         name <=> other.name
       end
+
+      def self.filterable_attributes
+        {
+          'name' => ['match', 'eq'],
+          'age' => ['eq', 'gteq', 'lteq']
+        }.with_indifferent_access
+      end
     end
   end
 
@@ -50,6 +57,54 @@ RSpec.describe Vets::Collection do
 
       expect { Vets::Collection.from_hashes(dummy_class, hashes) }
         .to raise_error(ArgumentError, 'Expected an array of hashes')
+    end
+  end
+
+  describe '#where' do
+
+    let(:records) do
+      [
+        dummy_class.new(name: 'Alice', age: 30),
+        dummy_class.new(name: 'Bob', age: 40),
+        dummy_class.new(name: 'Charlie', age: 50)
+      ]
+    end
+
+    let(:collection) { described_class.new(records) }
+
+    it 'returns a filtered collection based on conditions' do
+      results = collection.where(age: { eq: 40 })
+      expect(results.records.map(&:name)).to contain_exactly('Bob')
+      expect(results.metadata[:filter]).to eq(age: { eq: 40 })
+    end
+
+    it 'returns an empty collection if no records match' do
+      results = collection.where(age: { eq: 60 })
+      expect(results.records).to be_empty
+      expect(results.metadata[:filter]).to eq(age: { eq: 60 })
+    end
+  end
+
+  describe '#find_by' do
+
+    let(:records) do
+      [
+        dummy_class.new(name: 'Alice', age: 30),
+        dummy_class.new(name: 'Bob', age: 40),
+        dummy_class.new(name: 'Charlie', age: 50)
+      ]
+    end
+
+    let(:collection) { described_class.new(records) }
+
+    it 'returns the first record that matches the conditions' do
+      result = collection.find_by(age: { gteq: 40 })
+      expect(result.name).to eq('Bob')
+    end
+
+    it 'returns nil if no record matches the conditions' do
+      result = collection.find_by(age: { eq: 60 })
+      expect(result).to be_nil
     end
   end
 

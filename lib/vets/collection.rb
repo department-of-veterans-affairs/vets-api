@@ -45,12 +45,12 @@ module Vets
     end
 
     def where(conditions = {})
-      results = Vets::Collections::Finder.new(data: @records, conditions:).all
+      results = Vets::Collections::Finder.new(data: @records).all(conditions)
       Vets::Collection.new(results, metadata: { filter: conditions })
     end
 
     def find_by(conditions = {})
-      Vets::Collections::Finder.new(data: @records, conditions:).first
+      Vets::Collections::Finder.new(data: @records).first(conditions)
     end
 
     private
