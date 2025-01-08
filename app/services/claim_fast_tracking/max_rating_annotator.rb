@@ -6,7 +6,7 @@ module ClaimFastTracking
   class MaxRatingAnnotator
     EXCLUDED_DIGESTIVE_CODES = [7318, 7319, 7327, 7336, 7346].freeze
 
-    def self.annotate_disabilities(rated_disabilities_response)
+    def self.annotate_disabilities(rated_disabilities_response, user)
       return if rated_disabilities_response.rated_disabilities.blank?
 
       log_hyphenated_diagnostic_codes(rated_disabilities_response.rated_disabilities)
@@ -17,7 +17,7 @@ module ClaimFastTracking
                                                     .map(&:diagnostic_code) # map to diagnostic_code field in rating
       return rated_disabilities_response if diagnostic_codes.empty?
 
-      ratings = get_ratings(diagnostic_codes)
+      ratings = get_ratings(diagnostic_codes, user)
       return rated_disabilities_response unless ratings
 
       ratings_hash = ratings.to_h { |rating| [rating['diagnostic_code'], rating['max_rating']] }
@@ -54,8 +54,8 @@ module ClaimFastTracking
       end
     end
 
-    def self.get_ratings(diagnostic_codes)
-      if Flipper.enabled?(:disability_526_max_cfi_service_switch)
+    def self.get_ratings(diagnostic_codes, user)
+      if Flipper.enabled?(:disability_526_max_cfi_service_switch, user)
         Rails.logger.info('Implement the new service logic')
         # TODO: Handle the new logic for max ratings when switching to the new service
       else

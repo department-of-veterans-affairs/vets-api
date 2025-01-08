@@ -5,10 +5,10 @@ require 'disability_compensation/providers/rated_disabilities/lighthouse_rated_d
 
 RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
   describe 'annotate_disabilities' do
-    subject { described_class.annotate_disabilities(disabilities_response) }
-
+    let(:user) { FactoryBot.create(:user, :loa3) }
+    subject { described_class.annotate_disabilities(disabilities_response, user) }
     before do
-      allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, user).and_return(false)
     end
 
     let(:disabilities_response) do
@@ -211,21 +211,22 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
 
   describe 'get ratings' do
     let(:diagnostic_codes) { [6260, 7347, 6516] }
+    let(:user) { FactoryBot.create(:user, :loa3) }
 
     context 'when the feature flag disability_526_max_cfi_service_switch is enabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch).and_return(true)
+        allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, user).and_return(true)
       end
 
       it 'logs a message indicating the new service is used' do
         expect(Rails.logger).to receive(:info).with('Implement the new service logic')
-        described_class.send(:get_ratings, diagnostic_codes)
+        described_class.send(:get_ratings, diagnostic_codes, user)
       end
     end
 
     context 'when the feature flag disability_526_max_cfi_service_switch is disabled' do
       before do
-        allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch).and_return(false)
+        allow(Flipper).to receive(:enabled?).with(:disability_526_max_cfi_service_switch, user).and_return(false)
       end
 
       it 'calls the VRO client to fetch max ratings' do
@@ -235,7 +236,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
         allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client)
         allow(vro_client).to receive(:get_max_rating_for_diagnostic_codes).with(diagnostic_codes).and_return(response)
 
-        result = described_class.send(:get_ratings, diagnostic_codes)
+        result = described_class.send(:get_ratings, diagnostic_codes, user)
         expect(result).to eq([10, 20, 30])
       end
 
@@ -250,7 +251,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
           hash_including(:backtrace)
         )
 
-        result = described_class.send(:get_ratings, diagnostic_codes)
+        result = described_class.send(:get_ratings, diagnostic_codes, user)
         expect(result).to be_nil
       end
     end

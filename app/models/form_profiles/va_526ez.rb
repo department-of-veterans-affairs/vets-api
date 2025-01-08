@@ -135,7 +135,7 @@ class FormProfiles::VA526ez < FormProfile
     )
     invoker = 'FormProfiles::VA526ez#initialize_rated_disabilities_information'
     response = api_provider.get_rated_disabilities(nil, nil, { invoker: })
-    ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response)
+    ClaimFastTracking::MaxRatingAnnotator.annotate_disabilities(response, user)
 
     # Remap response object to schema fields
     VA526ez::FormRatedDisabilities.new(
