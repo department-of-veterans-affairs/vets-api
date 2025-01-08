@@ -20,8 +20,8 @@ RSpec.describe EVSSClaimDocumentUploader do
     document_uploader
   end
 
-  after(:each) do
-    FileUtils.rm_rf(Dir[Rails.root.join('tmp/uploads/evss_claim_documents/*')])
+  after do
+    FileUtils.rm_rf(Rails.root.glob('tmp/uploads/evss_claim_documents/*/*/evss_claim_documents/*/*'))
   end
 
   describe 'initialize' do
