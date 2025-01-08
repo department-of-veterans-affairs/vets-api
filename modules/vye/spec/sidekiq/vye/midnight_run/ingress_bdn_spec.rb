@@ -58,4 +58,23 @@ describe Vye::MidnightRun::IngressBdn, type: :worker do
       described_class.new.perform
     end
   end
+
+  context 'logging' do
+    before do
+      allow(Vye::BdnClone).to receive(:create!).and_return(double('BdnClone', id: 123))
+      allow(Vye::BatchTransfer::BdnChunk).to receive(:build_chunks).and_return([])
+
+      batch_double = instance_double(Sidekiq::Batch, description: nil, on: nil, jobs: nil)
+      allow(Sidekiq::Batch).to receive(:new).and_return(batch_double)
+      allow(batch_double).to receive(:description=).with('Ingress BDN Clone feed as chunked files')
+    end
+
+    # See comment in Vye::MidnightRun regarding logging. It applies here too.
+    it 'logs info' do
+      expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: starting')
+      expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: finished')
+
+      Vye::MidnightRun::IngressBdn.new.perform
+    end
+  end
 end

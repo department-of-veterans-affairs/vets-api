@@ -89,32 +89,6 @@ module ClaimsApi
                    key: 'return')
     end
 
-    def find_poa_history_by_ptcpnt_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'OrgWebServiceBean/OrgWebService', action: 'findPoaHistoryByPtcpntId', body:,
-                   key: 'PoaHistory')
-    end
-
-    def find_tracked_items(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <claimId />
-      EOXML
-
-      { claimId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'TrackedItemService/TrackedItemService', action: 'findTrackedItems', body:,
-                   key: 'BenefitClaim')
-    end
-
     def header # rubocop:disable Metrics/MethodLength
       # Stock XML structure {{{
       header = Nokogiri::XML::DocumentFragment.parse <<~EOXML
