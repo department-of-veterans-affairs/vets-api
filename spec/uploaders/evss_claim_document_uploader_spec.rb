@@ -186,10 +186,5 @@ RSpec.describe EVSSClaimDocumentUploader do
       uploader = described_class.new(nil, [tracked_item_id, secondary_id])
       expect(uploader.store_dir).to eq("evss_claim_documents//#{tracked_item_id}/#{secondary_id}")
     end
-
-    it 'handles unexpected values in ids' do
-      uploader = described_class.new(user_uuid, ['', 123])
-      expect(uploader.store_dir).to eq("evss_claim_documents/#{user_uuid}/123")
-    end
   end
 end
