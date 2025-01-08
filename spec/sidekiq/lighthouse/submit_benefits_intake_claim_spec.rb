@@ -32,7 +32,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       allow(response).to receive(:success?).and_return(true)
 
       expect(job).to receive(:create_form_submission_attempt)
-      expect(job).to receive(:generate_metadata).once
+      expect(job).to receive(:generate_metadata).once.and_call_original
       expect(service).to receive(:upload_doc)
 
       # burials only

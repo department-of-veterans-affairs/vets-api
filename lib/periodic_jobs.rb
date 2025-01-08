@@ -50,8 +50,8 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
   mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
 
-  # Update alternative Banners data every 10 minutes
-  mgr.register('*/10 * * * *', 'Banners::UpdateAllJob')
+  # Update alternative Banners data every 5 minutes
+  mgr.register('*/5 * * * *', 'Banners::UpdateAllJob')
 
   # Update static data cache
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
@@ -161,12 +161,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # TODO: Document this job
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
-
-  # Fetches latest VA forms from Drupal database and updates vets-api forms database
-  mgr.register('0 2 * * *', 'VAForms::FormReloader')
-
-  # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
-  mgr.register('0 2,9,16 * * 1-5', 'VAForms::FlipperStatusAlert')
 
   # TODO: Document these jobs
   mgr.register('0 16 * * *', 'VANotify::InProgressForms')
