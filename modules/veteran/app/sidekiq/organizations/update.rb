@@ -124,8 +124,7 @@ module Organizations
         raise StandardError, 'Organization not found.'
       else
         address_attributes = org_data['address_changed'] ? build_address_attributes(org_data, api_response) : {}
-        phone_attributes = org_data['phone_number_changed'] ? build_phone_attributes(org_data) : {}
-        record.update(address_attributes.merge(phone_attributes))
+        record.update(address_attributes)
       end
     end
 
@@ -141,10 +140,6 @@ module Organizations
         meta = api_response['candidate_addresses'].first['address_meta_data']
         build_address(address, geocode, meta).merge({ raw_address: org_data['address'].to_json })
       end
-    end
-
-    def build_phone_attributes(org_data)
-      { phone_number: org_data['phone_number'] }
     end
 
     # Builds the attributes for the record update from the address, geocode, and metadata.
