@@ -40,9 +40,7 @@ module Form1010Ezr
     def submit_sync(parsed_form)
       res = with_monitoring do
         if Flipper.enabled?(:va1010_forms_enrollment_system_service_enabled)
-          VA1010Forms::EnrollmentSystem::Service.new(
-            HealthCareApplication.get_user_identifier(@user)
-          ).submit(parsed_form, FORM_ID)
+          VA1010Forms::EnrollmentSystem::Service.new(HealthCareApplication.get_user_identifier(@user)).submit(parsed_form,FORM_ID)
         else
           es_submit(parsed_form, HealthCareApplication.get_user_identifier(@user), FORM_ID)
         end
