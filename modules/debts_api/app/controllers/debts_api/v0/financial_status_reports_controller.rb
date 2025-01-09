@@ -266,6 +266,20 @@ module DebtsApi
             :resolution_waiver_check,
             :resolution_option,
             :resolution_comment,
+            :file_number,
+            :payee_number,
+            :person_entitled,
+            :deduction_code,
+            :benefit_type,
+            :diary_code,
+            :diary_code_description,
+            :amount_overpaid,
+            :amount_withheld,
+            :original_ar,
+            :current_ar,
+            :composite_debt_id,
+            :selected_debt_id,
+            :debt_type,
             :p_s_seq_num,
             :p_s_tot_seq_num,
             :p_s_facility_num,
@@ -307,7 +321,6 @@ module DebtsApi
             :p_h_icn_number,
             :p_h_account_number,
             :p_h_large_font_indcator,
-            :debt_type,
             { details: [] },
             { station: {} }
           ],
@@ -352,6 +365,7 @@ module DebtsApi
       def full_transform_service
         StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.full_transform.run")
         Rails.logger.info(full_transform_logging('info'))
+binding.pry
         DebtsApi::V0::FsrFormTransform::FullTransformService.new(full_transform_form)
       rescue => e
         StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.full_transform.error")
