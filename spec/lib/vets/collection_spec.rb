@@ -20,8 +20,8 @@ RSpec.describe Vets::Collection do
 
       def self.filterable_attributes
         {
-          'name' => ['match', 'eq'],
-          'age' => ['eq', 'gteq', 'lteq']
+          'name' => %w[match eq],
+          'age' => %w[eq gteq lteq]
         }.with_indifferent_access
       end
     end
@@ -82,7 +82,6 @@ RSpec.describe Vets::Collection do
   end
 
   describe '#where' do
-
     let(:records) do
       [
         dummy_class.new(name: 'Alice', age: 30),
@@ -107,7 +106,6 @@ RSpec.describe Vets::Collection do
   end
 
   describe '#find_by' do
-
     let(:records) do
       [
         dummy_class.new(name: 'Alice', age: 30),
