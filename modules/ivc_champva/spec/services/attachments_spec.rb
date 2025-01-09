@@ -70,37 +70,88 @@ RSpec.describe IvcChampva::Attachments do
   end
 
   describe '#handle_attachment_errors' do
-    context 'when renaming one of multiple attachments fails' do
+    context 'when processing one of multiple attachments fails' do
       it 'processes the rest of the attachments then throw an error' do
         expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf', 'attachmentB.png',
                                                                        'attachmentC.jpg', 'attachmentD.jpg'])
         expect(File).to receive(:rename).with('attachmentA.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
         expect(File).to receive(:rename).with('attachmentB.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
-                                        .and_raise(StandardError.new('Rename failed'))
+                                        .and_raise(StandardError.new('Processing failed'))
         expect(File).to receive(:rename).with('attachmentC.jpg', "./#{uuid}_#{form_id}_supporting_doc-2.pdf")
         expect(File).to receive(:rename).with('attachmentD.jpg', "./#{uuid}_#{form_id}_supporting_doc-3.pdf")
 
+        expected_error_message = 'Unable to process all attachments: '
+        expected_error_message += 'Error processing attachment at index 1: Processing failed'
         expect do
           test_instance.handle_attachments(file_path)
-        end.to raise_error(StandardError,
-                           'Unable to process all attachments: Error processing attachment at index 1: Rename failed')
+        end.to raise_error(StandardError, expected_error_message)
       end
     end
 
-    context 'when renaming two of multiple attachments fails' do
+    context 'when processing two of multiple attachments fails' do
       it 'processes the rest of the attachments then throw an error with both failure messages' do
         expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf', 'attachmentB.png',
                                                                        'attachmentC.jpg', 'attachmentD.jpg'])
         expect(File).to receive(:rename).with('attachmentA.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
         expect(File).to receive(:rename).with('attachmentB.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
-                                        .and_raise(StandardError.new('Rename failed'))
+                                        .and_raise(StandardError.new('Processing failed'))
         expect(File).to receive(:rename).with('attachmentC.jpg', "./#{uuid}_#{form_id}_supporting_doc-2.pdf")
-                                        .and_raise(StandardError.new('Rename failed'))
+                                        .and_raise(StandardError.new('Processing failed'))
         expect(File).to receive(:rename).with('attachmentD.jpg', "./#{uuid}_#{form_id}_supporting_doc-3.pdf")
 
         expected_error_message = 'Unable to process all attachments: '
-        expected_error_message += 'Error processing attachment at index 1: Rename failed, '
-        expected_error_message += 'Error processing attachment at index 2: Rename failed'
+        expected_error_message += 'Error processing attachment at index 1: Processing failed, '
+        expected_error_message += 'Error processing attachment at index 2: Processing failed'
+        expect do
+          test_instance.handle_attachments(file_path)
+        end.to raise_error(StandardError, expected_error_message)
+      end
+    end
+
+    context 'when a file is not found' do
+      it 'throws an error with hard coded details' do
+        expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf'])
+        expect(File).to receive(:rename).with('attachmentA.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
+                                        .and_raise(Errno::ENOENT.new)
+
+        expected_error_message = 'Unable to process all attachments: '
+        expected_error_message += 'Error processing attachment at index 0: ENOENT No such file or directory'
+        expect do
+          test_instance.handle_attachments(file_path)
+        end.to raise_error(StandardError, expected_error_message)
+      end
+    end
+
+    context 'when a file is not found and champva_pdf_decrypt is enabled' do
+      before do
+        allow(Flipper).to receive(:enabled?)
+                            .with(:champva_pdf_decrypt, @current_user)
+                            .and_return(true)
+      end
+      it 'throws an error with hard coded details' do
+        expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf'])
+        expect(FileUtils).to receive(:mv).with('attachmentA.pdf', "tmp/#{uuid}_#{form_id}_supporting_doc-0.pdf")
+                                        .and_raise(Errno::ENOENT.new)
+
+        expected_error_message = 'Unable to process all attachments: '
+        expected_error_message += 'Error processing attachment at index 0: ENOENT No such file or directory'
+        expect do
+          test_instance.handle_attachments(file_path)
+        end.to raise_error(StandardError, expected_error_message)
+      end
+    end
+
+    context 'when an unanticipated low-level platform-dependent error occurs' do
+      it 'throws an error with hard coded details and the decoded error number when available' do
+        expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf', 'attachmentB.png'])
+        expect(File).to receive(:rename).with('attachmentA.pdf', "./#{uuid}_#{form_id}_supporting_doc-0.pdf")
+                                        .and_raise(SystemCallError.new('message with PII', -1))
+        expect(File).to receive(:rename).with('attachmentB.png', "./#{uuid}_#{form_id}_supporting_doc-1.pdf")
+                                        .and_raise(Errno::EEXIST)
+
+        expected_error_message = 'Unable to process all attachments: '
+        expected_error_message += 'Error processing attachment at index 0: SystemCallError Unknown -1, '
+        expected_error_message += 'Error processing attachment at index 1: SystemCallError EEXIST'
         expect do
           test_instance.handle_attachments(file_path)
         end.to raise_error(StandardError, expected_error_message)
