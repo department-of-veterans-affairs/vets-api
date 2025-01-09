@@ -70,7 +70,7 @@ RSpec.describe Vets::Collection do
         pager.replace(records[0, 2])
       end
       collection = described_class.from_will_paginate(will_collection)
-      expect(collection.records.map(&:name)).to eq(%w[Bob Alice])
+      expect(collection.records.map(&:name)).to eq(%w[Alice Bob])
     end
 
     it 'raises an error if any element is not a hash' do
@@ -197,7 +197,7 @@ RSpec.describe Vets::Collection do
       it 'defaults to the first page' do
         record1 = dummy_class.new(name: 'Bob', age: 25)
         record2 = dummy_class.new(name: 'Alice', age: 30)
-        records = [record1, record2]
+        records = [record2, record1]
 
         collection = described_class.new(records)
 
