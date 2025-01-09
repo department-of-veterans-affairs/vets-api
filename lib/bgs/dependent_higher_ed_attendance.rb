@@ -7,27 +7,34 @@ module BGS
     def initialize(proc_id:, payload:, user:)
       @proc_id = proc_id
       @payload = payload
+      @dependents_application = payload['dependents_application']
       @dependents = {}
       @user = user
     end
 
     def create
-      adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@payload['dependents_application'])
-      formatted_info = adult_attending_school.format_info
-      participant = bgs_service.create_participant(@proc_id)
+      report_adult_children_attending_school if @dependents['student_information']
+    end
 
-      bgs_service.create_person(person_params(adult_attending_school, participant, formatted_info))
-      send_address(adult_attending_school, participant, adult_attending_school.address)
-
-      @dependents = adult_attending_school.serialize_dependent_result(
-        participant,
-        'Child',
-        'Biological',
-        {
-          type: '674',
-          dep_has_income_ind: formatted_info['dependent_income']
-        }
-      )
+    def report_adult_children_attending_school
+      @dependents_application['student_information'].each do |student_info|
+        adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(student_info)
+        formatted_info = adult_attending_school.format_info
+        participant = bgs_service.create_participant(@proc_id)
+  
+        bgs_service.create_person(person_params(adult_attending_school, participant, formatted_info))
+        send_address(adult_attending_school, participant, adult_attending_school.address)
+  
+        @dependents = adult_attending_school.serialize_dependent_result(
+          participant,
+          'Child',
+          'Biological',
+          {
+            type: '674',
+            dep_has_income_ind: formatted_info['dependent_income']
+          }
+        )
+      end
     end
 
     def person_params(calling_object, participant, dependent_info)
