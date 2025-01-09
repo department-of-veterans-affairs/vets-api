@@ -8,12 +8,32 @@ module BGS
       @proc_id = proc_id
       @payload = payload
       @dependents_application = payload['dependents_application']
+      @is_v2 = Flipper.enabled?(:va_dependents_v2)
       @dependents = {}
       @user = user
     end
 
     def create
-      report_adult_children_attending_school if @dependents['student_information']
+      if @is_v2
+        report_adult_children_attending_school if @dependents_application['student_information']
+      else
+        adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(@dependents_application)
+        formatted_info = adult_attending_school.format_info
+        participant = bgs_service.create_participant(@proc_id)
+
+        bgs_service.create_person(person_params(adult_attending_school, participant, formatted_info))
+        send_address(adult_attending_school, participant, adult_attending_school.address)
+
+        @dependents = adult_attending_school.serialize_dependent_result(
+          participant,
+          'Child',
+          'Biological',
+          {
+            type: '674',
+            dep_has_income_ind: formatted_info['dependent_income']
+          }
+        )
+      end
     end
 
     def report_adult_children_attending_school
@@ -21,10 +41,10 @@ module BGS
         adult_attending_school = BGSDependents::AdultChildAttendingSchool.new(student_info)
         formatted_info = adult_attending_school.format_info
         participant = bgs_service.create_participant(@proc_id)
-  
+
         bgs_service.create_person(person_params(adult_attending_school, participant, formatted_info))
         send_address(adult_attending_school, participant, adult_attending_school.address)
-  
+
         @dependents = adult_attending_school.serialize_dependent_result(
           participant,
           'Child',
