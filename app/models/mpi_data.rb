@@ -232,11 +232,11 @@ class MPIData < Common::RedisStore
   end
 
   def add_ids(response)
-    # set new ids in the profile and recache the response
-    profile.birls_id = response.parsed_codes[:birls_id].presence
-    profile.participant_id = response.parsed_codes[:participant_id].presence
+    # set new ids in the profile and delete the cached response
+    # profile.birls_id = response.parsed_codes[:birls_id].presence
+    # profile.participant_id = response.parsed_codes[:participant_id].presence
 
-    cache(user_uuid, mvi_response) if mvi_response.cache?
+     delete_from_cache if mvi_response.cache?
   end
 
   def response_from_redis_or_service(user_key:)
@@ -246,6 +246,11 @@ class MPIData < Common::RedisStore
       log_message_to_sentry("[MPI Data] Request error: #{e.message}", :warn)
       return nil
     end
+  end
+
+  def delete_from_cache
+    self.class.delete(get_user_key)
+    @mvi_response = nil
   end
 
   def mpi_service
