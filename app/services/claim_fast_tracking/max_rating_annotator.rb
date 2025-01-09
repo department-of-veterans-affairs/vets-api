@@ -56,7 +56,7 @@ module ClaimFastTracking
 
     def self.get_ratings(diagnostic_codes, user)
       if Flipper.enabled?(:disability_526_max_cfi_service_switch, user)
-        Rails.logger.info('Implement the new service logic')
+        Rails.logger.info('New Max Ratings service triggered by feature flag, but implementation is pending')
         # TODO: Handle the new logic for max ratings when switching to the new service
       else
         vro_client = VirtualRegionalOffice::Client.new

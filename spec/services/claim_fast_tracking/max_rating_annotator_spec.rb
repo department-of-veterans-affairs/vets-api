@@ -220,7 +220,9 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       end
 
       it 'logs a message indicating the new service is used' do
-        expect(Rails.logger).to receive(:info).with('Implement the new service logic')
+        expect(Rails.logger).to receive(:info).with(
+          'New Max Ratings service triggered by feature flag, but implementation is pending'
+        )
         described_class.send(:get_ratings, diagnostic_codes, user)
       end
     end
