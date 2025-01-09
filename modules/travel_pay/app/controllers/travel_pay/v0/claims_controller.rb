@@ -3,6 +3,8 @@
 module TravelPay
   module V0
     class ClaimsController < ApplicationController
+      after_action :scrub_logs, only: [:show]
+
       def index
         begin
           claims = claims_service.get_claims(params)
@@ -75,6 +77,22 @@ module TravelPay
 
       def expense_service
         @expense_service ||= TravelPay::ExpensesService.new(auth_manager)
+      end
+
+      def scrub_logs
+        logger.filter = lambda do |log|
+          if log.name =~ /TravelPay/
+            log.payload[:params]['id'] = 'SCRUBBED_CLAIM_ID'
+            log.payload[:path] = log.payload[:path].gsub(%r{(.+claims/)(.+)}, '\1SCRUBBED_CLAIM_ID')
+
+            # Conditional because no referer if directly using the API
+            if log.named_tags.key? :referer
+              log.named_tags[:referer] = log.named_tags[:referer].gsub(%r{(.+claims/)(.+)(.+)}, '\1SCRUBBED_CLAIM_ID')
+            end
+          end
+          # After the log has been scrubbed, make sure it is logged:
+          true
+        end
       end
     end
   end
