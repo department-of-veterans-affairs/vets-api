@@ -19,7 +19,7 @@ RSpec.describe Burials::NotificationEmail do
         Settings.vanotify.services['21p_530ez'].email.confirmation.template_id,
         anything,
         Settings.vanotify.services['21p_530ez'].api_key,
-        { callback_klass: Burials::NotificationCallback.to_s,
+        { callback_klass: VANotify::NotificationCallback::SavedClaim.to_s,
           callback_metadata: anything }
       ]
       expect(VANotify::EmailJob).to receive(:perform_async).with(*args)
