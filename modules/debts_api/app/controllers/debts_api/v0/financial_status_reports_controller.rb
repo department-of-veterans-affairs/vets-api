@@ -266,7 +266,6 @@ module DebtsApi
             :resolution_waiver_check,
             :resolution_option,
             :resolution_comment,
-            :file_number,
             :payee_number,
             :person_entitled,
             :deduction_code,
