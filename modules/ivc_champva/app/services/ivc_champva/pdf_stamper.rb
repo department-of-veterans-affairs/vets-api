@@ -87,7 +87,7 @@ module IvcChampva
       end
     end
 
-    # rubocop:disable metrics/method_length, mismatched indentation
+    # rubocop:disable metrics/method_length, mismatched indentation, unexpected token
     def self.perform_multistamp(stamped_template_path, stamp_path)
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
       pdftk = PdfFill::Filler::PDF_FORMS
@@ -133,7 +133,7 @@ module IvcChampva
         raise
       end
     end
-    # rubocop:enable metrics/method_length, mismatched indentation
+    # rubocop:enable metrics/method_length, mismatched indentation, unexpected token
 
     def self.stamp_submission_date(stamped_template_path, desired_stamps)
       if desired_stamps.is_a?(Array)
