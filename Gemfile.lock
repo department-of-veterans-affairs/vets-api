@@ -138,14 +138,13 @@ PATH
 GEM
   remote: https://enterprise.contribsys.com/
   specs:
-    sidekiq-ent (7.2.4)
+    sidekiq-ent (7.3.4)
       einhorn (~> 1.0)
       gserver
-      sidekiq (>= 7.2.0, < 8)
-      sidekiq-pro (>= 7.2.0, < 8)
-    sidekiq-pro (7.2.1)
-      base64
-      sidekiq (>= 7.2.0, < 8)
+      sidekiq (>= 7.3.7, < 8)
+      sidekiq-pro (>= 7.3.4, < 8)
+    sidekiq-pro (7.3.5)
+      sidekiq (>= 7.3.7, < 8)
 
 GEM
   remote: https://rubygems.org/
@@ -872,7 +871,7 @@ GEM
       psych (>= 4.0.0)
     redis (5.3.0)
       redis-client (>= 0.22.0)
-    redis-client (0.22.2)
+    redis-client (0.23.0)
       connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)
@@ -1021,11 +1020,11 @@ GEM
     shrine (3.6.0)
       content_disposition (~> 1.0)
       down (~> 5.1)
-    sidekiq (7.2.4)
-      concurrent-ruby (< 2)
+    sidekiq (7.3.7)
       connection_pool (>= 2.3.0)
+      logger
       rack (>= 2.2.4)
-      redis-client (>= 0.19.0)
+      redis-client (>= 0.22.2)
     sign_in_service (0.4.0)
       faraday (~> 2.7)
       jwt (~> 2.8)
@@ -1318,7 +1317,7 @@ DEPENDENCIES
   sentry-ruby
   shoulda-matchers
   shrine
-  sidekiq (~> 7.2.0)
+  sidekiq
   sidekiq-ent!
   sidekiq-pro!
   sign_in_service
