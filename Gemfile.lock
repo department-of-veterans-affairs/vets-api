@@ -64,11 +64,11 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git
-  revision: d58cc59ae47e5f5f642b3603224f42f518f92f56
-  tag: v4.0.0
+  revision: f50c995b4a92fa8da4488ed608318eeca723b543
+  tag: v4.1.0
   specs:
-    govdelivery-tms (4.0.0)
-      activesupport (>= 5.2.4.3, < 8.0.0)
+    govdelivery-tms (4.1.0)
+      activesupport (>= 5.2.4.3, < 9.0.0)
       faraday
       mime-types
 
@@ -663,9 +663,10 @@ GEM
     matrix (0.4.2)
     memoist (0.16.2)
     method_source (1.0.0)
-    mime-types (3.5.1)
+    mime-types (3.6.0)
+      logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2023.1003)
+    mime-types-data (3.2025.0107)
     mimemagic (0.4.3)
       nokogiri (~> 1)
       rake
