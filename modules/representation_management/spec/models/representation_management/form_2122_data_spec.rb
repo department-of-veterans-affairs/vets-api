@@ -14,7 +14,7 @@ RSpec.describe RepresentationManagement::Form2122Data, type: :model do
 
     context 'when record_consent is true' do
       context 'when consent_limits is empty' do
-        it 'returns 1' do
+        it 'returns 0' do
           form_2122_data = described_class.new(record_consent: true, consent_limits: [])
 
           expect(form_2122_data.limitations_of_consent_checkbox('ALCOHOLISM')).to eq(0)
