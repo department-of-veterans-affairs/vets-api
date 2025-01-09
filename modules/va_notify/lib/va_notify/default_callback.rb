@@ -2,7 +2,6 @@
 
 module VANotify
   class DefaultCallback
-
     def self.call(notification_record)
       callback = new(notification_record)
 
@@ -20,15 +19,14 @@ module VANotify
       @metadata = notification_record.callback_metadata
     end
 
-    private
-
     def call_with_metadata
-      valid_metadata?
+      required_keys = %w[notification_type statsd_tags form_number]
+      raise "#{self.class}: Invalid Metadata" unless (required_keys - metadata.keys).empty?
 
       notification_type = metadata['notification_type']
       statsd_tags = metadata['statsd_tags']
-      service = statsd_tags['service']
-      function = statsd_tags['function']
+      service = statsd_tags['service'] || 'none-provided'
+      function = statsd_tags['function'] || 'none-provided'
       tags = ["service:#{service}", "function:#{function}"]
 
       case notification_record.status
@@ -39,13 +37,6 @@ module VANotify
       end
     end
 
-    def valid_metadata?
-      metadata.assert_valid_keys('notification_type', 'statsd_tags')
-
-      statsd_tags = metadata['statsd_tags']
-      statsd_tags.assert_valid_keys('service', 'function')
-    end
-
     def call_without_metadata
       case notification_record.status
       when 'delivered'
@@ -54,6 +45,8 @@ module VANotify
         permanent_failure_without_metadata
       end
     end
+
+    private
 
     def delivered(tags)
       StatsD.increment('silent_failure_avoided', tags:)

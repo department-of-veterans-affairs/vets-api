@@ -33,7 +33,8 @@ describe VANotify::StatusUpdate do
           .with(notification).and_raise(StandardError,
                                         'Something went wrong')
 
-        expect(Rails.logger).to receive(:info).with('Something went wrong')
+        expect(Rails.logger).to receive(:error).with(source: notification.source_location, status: notification.status,
+                                                     error_message: 'Something went wrong')
 
         subject.delegate(provider_callback)
       end
@@ -46,8 +47,9 @@ describe VANotify::StatusUpdate do
           id: notification_id
         }
 
-        expect(Rails.logger).to receive(:info).with(message: 'The callback class does not implement #call')
-        expect(Rails.logger).to receive(:info).with(source: notification.source_location)
+        error_message = "#{notification.callback_klass} does not implement #call"
+        expect(Rails.logger).to receive(:error).with(source: notification.source_location, status: notification.status,
+                                                     error_message:)
 
         subject.delegate(provider_callback)
       end
@@ -62,9 +64,9 @@ describe VANotify::StatusUpdate do
           id: notification_id
         }
 
-        expected_error_message = "VANotify - no callback provided for notification: #{notification.id}"
+        allow(VANotify::DefaultCallback).to receive(:call)
 
-        expect(Rails.logger).to receive(:info).with(message: expected_error_message)
+        expect(VANotify::DefaultCallback).to receive(:call).with(notification)
 
         subject.delegate(provider_callback)
       end

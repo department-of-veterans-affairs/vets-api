@@ -11,7 +11,7 @@ module VANotify
 
       klass = notification.callback_klass&.constantize || VANotify::DefaultCallback
 
-      raise "#{klass} does not implement #call" klass.respond_to?(:call)
+      raise "#{klass} does not implement #call" unless klass.respond_to?(:call)
 
       klass.call(notification)
     rescue => e

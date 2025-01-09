@@ -4,12 +4,14 @@ require 'rails_helper'
 require 'va_notify/default_callback'
 
 describe VANotify::DefaultCallback do
+  let(:form_number) { 'test' }
+
   describe '#call' do
     context 'notification of error' do
       let(:notification_type) { :error }
 
       context 'metadata is provided' do
-        let(:callback_metadata) { { notification_type:, statsd_tags: {} } }
+        let(:callback_metadata) { { notification_type:, statsd_tags: {}, form_number: } }
 
         context 'delivered' do
           let(:notification_record) do
@@ -19,7 +21,7 @@ describe VANotify::DefaultCallback do
           it 'increments StatsD' do
             allow(StatsD).to receive(:increment)
 
-            VANotify::DefaultCallback.new(notification_record).call
+            VANotify::DefaultCallback.call(notification_record)
 
             expect(StatsD).to have_received(:increment).with('silent_failure_avoided', anything)
           end
@@ -33,7 +35,7 @@ describe VANotify::DefaultCallback do
           it 'increments StatsD' do
             allow(StatsD).to receive(:increment)
 
-            VANotify::DefaultCallback.new(notification_record).call
+            VANotify::DefaultCallback.call(notification_record)
 
             expect(StatsD).to have_received(:increment).with('silent_failure', anything)
           end
@@ -45,7 +47,7 @@ describe VANotify::DefaultCallback do
       let(:notification_type) { :received }
 
       context 'metadata is provided' do
-        let(:callback_metadata) { { notification_type:, statsd_tags: {} } }
+        let(:callback_metadata) { { notification_type:, statsd_tags: {}, form_number: } }
 
         context 'delivered' do
           let(:notification_record) do
@@ -55,7 +57,7 @@ describe VANotify::DefaultCallback do
           it 'does not increment StatsD' do
             allow(StatsD).to receive(:increment)
 
-            VANotify::DefaultCallback.new(notification_record).call
+            VANotify::DefaultCallback.call(notification_record)
 
             expect(StatsD).not_to have_received(:increment)
           end
@@ -69,7 +71,7 @@ describe VANotify::DefaultCallback do
           it 'does not increment StatsD' do
             allow(StatsD).to receive(:increment)
 
-            VANotify::DefaultCallback.new(notification_record).call
+            VANotify::DefaultCallback.call(notification_record)
 
             expect(StatsD).not_to have_received(:increment)
           end
@@ -86,7 +88,7 @@ describe VANotify::DefaultCallback do
         it 'increments StatsD' do
           allow(StatsD).to receive(:increment)
 
-          VANotify::DefaultCallback.new(notification_record).call
+          VANotify::DefaultCallback.call(notification_record)
 
           expect(StatsD).to have_received(:increment).with('silent_failure_avoided',
                                                            tags: ['service:none-provided', 'function:none-provided'])
@@ -101,7 +103,7 @@ describe VANotify::DefaultCallback do
         it 'increments StatsD' do
           allow(StatsD).to receive(:increment)
 
-          VANotify::DefaultCallback.new(notification_record).call
+          VANotify::DefaultCallback.call(notification_record)
 
           expect(StatsD).to have_received(:increment).with('silent_failure',
                                                            tags: ['service:none-provided', 'function:none-provided'])
