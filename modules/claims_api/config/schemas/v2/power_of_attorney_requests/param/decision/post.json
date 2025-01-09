@@ -40,14 +40,6 @@
             "representativeId": {
               "type": "string",
               "description": "The unique identifier of the requestʼs representative."
-            },
-            "id": {
-              "type": "string",
-              "description": "The unique Lighthouse id for the POA request."
-            },
-            "type": {
-              "type": "string",
-              "description": "The type of the request."
             }
           }
         }
