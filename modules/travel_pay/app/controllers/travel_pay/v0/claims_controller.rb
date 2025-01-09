@@ -3,6 +3,7 @@
 module TravelPay
   module V0
     class ClaimsController < ApplicationController
+    skip_before_action :verify_authenticity_token
       def index
         begin
           claims = claims_service.get_claims(params)
@@ -35,21 +36,37 @@ module TravelPay
       end
 
       def create
+        appt_not_found_msg = "No appointment found for #{params['appointmentDatetime']}"
+
         unless Flipper.enabled?(:travel_pay_submit_mileage_expense, @current_user)
           message = 'Travel Pay mileage expense submission unavailable per feature toggle'
+          Rails.logger.error(message:)
           raise Common::Exceptions::ServiceUnavailable, message:
         end
 
         begin
+          Rails.logger.info(message: "Mileage claim submission transaction START")
+
+          Rails.logger.info(message: "Mileage claim submission transaction: Get appt by date time")
           appt = appts_service.get_appointment_by_date_time({ 'appt_datetime' => params['appointmentDatetime'] })
 
+          if appt[:data].nil?
+            Rails.logger.error(message: appt_not_found_msg)
+            raise Common::Exceptions::ResourceNotFound, detail: appt_not_found_msg
+          end
+
+          Rails.logger.info(message: "Mileage claim submission transaction: Create claim")
           claim = claims_service.create_new_claim({ 'btsss_appt_id' => appt[:data]['id'] })
 
           claim_id = claim['claimId']
 
+          Rails.logger.info(message: "Mileage claim submission transaction: Add expense to claim #{claim_id.slice(0,8)}")
           expense_service.add_expense({ 'claim_id' => claim_id, 'appt_date' => params['appointmentDatetime'] })
 
+          Rails.logger.info(message: "Mileage claim submission transaction: Submit claim #{claim_id.slice(0,8)}")
           submitted_claim = claims_service.submit_claim(claim_id)
+
+          Rails.logger.info(message: "Mileage claim submission transaction END")
         rescue ArgumentError => e
           raise Common::Exceptions::BadRequest, detail: e.message
         rescue Faraday::ClientError, Faraday::ServerError => e
