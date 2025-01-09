@@ -64,8 +64,8 @@ module Vets
 
     def find_by(conditions = {})
       Vets::Collections::Finder.new(data: @records).first(conditions)
-    end 
-    
+    end
+
     def paginate(page: nil, per_page: nil)
       pagination = Vets::Collections::Pagination.new(
         page: normalize_page(page),

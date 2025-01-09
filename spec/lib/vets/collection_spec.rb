@@ -11,7 +11,7 @@ RSpec.describe Vets::Collection do
 
       attribute :name, String
       attribute :age, Integer
-      
+
       set_pagination per_page: 21, max_per_page: 41
 
       def <=>(other)
