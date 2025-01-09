@@ -730,7 +730,7 @@ GEM
     oj (3.16.9)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
-    okcomputer (1.18.5)
+    okcomputer (1.18.6)
     olive_branch (4.0.1)
       multi_json
       rails (>= 4.0)
