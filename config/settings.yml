@@ -990,6 +990,7 @@ lighthouse:
         rsa_key: ~
       use_mocks: false
   benefits_documents:
+    timeout: 55
     host: https://sandbox-api.va.gov
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
@@ -1414,7 +1415,7 @@ vanotify:
           template_id: form527ez_error_email_template_id
           flipper_id: pension_error_email_notification
         received:
-          template_id: null
+          template_id: form527ez_received_email_template_id
           flipper_id: pension_received_email_notification
     pensions: *vanotify_services_pension
     21p_530ez: &vanotify_services_burial
