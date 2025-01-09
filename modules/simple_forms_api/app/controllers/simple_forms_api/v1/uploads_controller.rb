@@ -32,7 +32,7 @@ module SimpleFormsApi
         response = submission.submit
 
         payload = { json: response }
-        payload[:status] = :unprocessable_entity if response[:error]
+        payload[:status] = :unprocessable_entity if response.is_a?(Hash) && response[:error]
 
         render payload
       end
