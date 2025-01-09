@@ -18,6 +18,10 @@ module MyHealth
         data.reject { |item| item[:prescription_source] == 'NV' && item[:disp_status] != 'Active: Non-VA' }
       end
 
+      def remove_pf_pd(data)
+        data.reject { |item| item[:prescription_source] == 'PF' || item[:prescription_source] == 'PD' }
+      end
+
       def sort_by(resource, sort_params)
         sort_orders = sort_params.map { |param| param.to_s.start_with?('-') }
         resource.data = resource.data.sort do |a, b|
