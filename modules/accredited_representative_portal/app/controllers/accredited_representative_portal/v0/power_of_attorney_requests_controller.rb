@@ -6,7 +6,6 @@ module AccreditedRepresentativePortal
       def index
         poa_requests = PowerOfAttorneyRequest.includes(resolution: :resolving).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
-
         render json: serializer.serializable_hash, status: :ok
       end
 
