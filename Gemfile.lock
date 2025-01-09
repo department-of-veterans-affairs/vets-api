@@ -1058,7 +1058,7 @@ GEM
       activerecord (>= 6.1)
     strscan (3.1.2)
     strscan (3.1.2-java)
-    super_diff (0.14.0)
+    super_diff (0.15.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
