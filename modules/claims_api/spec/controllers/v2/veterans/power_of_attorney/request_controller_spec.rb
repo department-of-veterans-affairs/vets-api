@@ -140,50 +140,75 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
   describe '#decide' do
     let(:scopes) { %w[claim.write] }
-
-    it 'raises a ParameterMissing error if procId is not present' do
-      expect do
-        subject.decide
-      end.to raise_error(Common::Exceptions::ParameterMissing)
+    let(:id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
+    let(:request_response) do
+      ClaimsApi::PowerOfAttorneyRequest.new(
+        id: '348fa995-5b29-4819-91af-13f1bb3c7d77',
+        proc_id: '76529',
+        veteran_icn: '1008714701V416111',
+        claimant_icn: '',
+        poa_code: '123',
+        metadata: {},
+        power_of_attorney_id: nil
+      )
     end
 
-    context 'when decision is not present' do
-      before do
-        allow(subject).to receive(:form_attributes).and_return({ 'procId' => '76529' })
+    context 'when the decide endpoint is called' do
+      context 'when decision is not present' do
+        let(:decision) { '' }
+
+        before do
+          allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
+        end
+
+        it 'raises an error if decision is not present' do
+          mock_ccg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
+              decide_request_with(id:, decision:, auth_header:)
+              expect(response).to have_http_status(:bad_request)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['title']).to eq('Missing parameter')
+              expect(response_body['errors'][0]['status']).to eq('400')
+            end
+          end
+        end
       end
 
-      it 'raises a ParameterMissing error if decision is not present' do
-        expect do
-          subject.decide
-        end.to raise_error(Common::Exceptions::ParameterMissing)
-      end
-    end
+      context 'when decision is not ACCEPTED or DECLINED' do
+        let(:decision) { 'indecision' }
 
-    context 'when decision is not ACCEPTED or DECLINED' do
-      before do
-        allow(subject).to receive(:form_attributes).and_return({ 'procId' => '76529', 'decision' => 'invalid' })
-      end
+        before do
+          allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
+        end
 
-      it 'raises a ParameterMissing error' do
-        expect do
-          subject.decide
-        end.to raise_error(Common::Exceptions::ParameterMissing)
+        it 'raises an error if decision is not valid' do
+          mock_ccg(scopes) do |auth_header|
+            VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
+              decide_request_with(id:, decision:, auth_header:)
+              expect(response).to have_http_status(:bad_request)
+              response_body = JSON.parse(response.body)
+              expect(response_body['errors'][0]['title']).to eq('Missing parameter')
+              expect(response_body['errors'][0]['status']).to eq('400')
+            end
+          end
+        end
       end
     end
 
     context 'when procId is present and valid and decision is accepted' do
-      let(:proc_id) { '76529' }
       let(:decision) { 'ACCEPTED' }
+
+      before do
+        allow(ClaimsApi::PowerOfAttorneyRequest).to(receive(:find_by).and_return(request_response))
+      end
 
       it 'updates the secondaryStatus and returns a hash containing the ACC code' do
         mock_ccg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_accepted') do
-            decide_request_with(proc_id:, decision:, auth_header:)
-
+            decide_request_with(id:, decision:, auth_header:)
             expect(response).to have_http_status(:ok)
             response_body = JSON.parse(response.body)
-            expect(response_body['procId']).to eq(proc_id)
-            expect(response_body['secondaryStatus']).to eq('ACC')
+            expect(response_body['data']['attributes']['id']).to eq(id)
           end
         end
       end
@@ -203,12 +228,15 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         }
       end
       let(:mock_lockbox) { double('Lockbox', encrypt: 'encrypted value') }
+      let(:decision) { 'DECLINED' }
+      let(:representative_id) { '456' }
 
       before do
         allow(ClaimsApi::ManageRepresentativeService).to receive(:new).with(anything).and_return(service)
-        allow(service).to receive(:read_poa_request_by_ptcpnt_id).with(ptcpnt_id: '123456789')
+        allow(service).to receive(:read_poa_request_by_ptcpnt_id).with(anything)
                                                                  .and_return(poa_request_response)
         allow(service).to receive(:update_poa_request).with(anything).and_return('a successful response')
+        allow(ClaimsApi::PowerOfAttorneyRequest).to receive(:find_by).and_return(request_response)
         allow(Lockbox).to receive(:new).and_return(mock_lockbox)
       end
 
@@ -219,10 +247,12 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
 
         it 'enqueues the VANotifyDeclinedJob' do
           mock_ccg(scopes) do |auth_header|
-            expect do
-              decide_request_with(proc_id: '76529', decision: 'DECLINED', auth_header:, ptcpnt_id: '123456789',
-                                  representative_id: '456')
-            end.to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size).by(1)
+            VCR.use_cassette('mpi/find_candidate/valid') do
+              expect do
+                decide_request_with(id:, decision:, auth_header:,
+                                    representative_id:)
+              end.to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size).by(1)
+            end
           end
         end
       end
@@ -233,26 +263,28 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
         end
 
         it 'does not enqueue the VANotifyDeclinedJob' do
-          mock_ccg(scopes) do |auth_header|
-            expect do
-              decide_request_with(proc_id: '76529', decision: 'DECLINED', auth_header:, ptcpnt_id: '123456789',
-                                  representative_id: '456')
-            end.not_to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size)
+          VCR.use_cassette('mpi/find_candidate/valid') do
+            mock_ccg(scopes) do |auth_header|
+              expect do
+                decide_request_with(id:, decision:, auth_header:,
+                                    representative_id:)
+              end.not_to change(ClaimsApi::VANotifyDeclinedJob.jobs, :size)
+            end
           end
         end
       end
     end
 
-    context 'when procId is present but invalid' do
-      let(:proc_id) { '1' }
+    context 'when id is present but invalid' do
+      let(:id) { '1' }
       let(:decision) { 'ACCEPTED' }
+      let(:representative_id) { '456' }
 
       it 'raises an error' do
         mock_ccg(scopes) do |auth_header|
           VCR.use_cassette('claims_api/bgs/manage_representative_service/update_poa_request_not_found') do
-            decide_request_with(proc_id:, decision:, auth_header:)
-
-            expect(response).to have_http_status(:internal_server_error)
+            decide_request_with(id:, decision:, auth_header:, representative_id:)
+            expect(response).to have_http_status(:not_found)
           end
         end
       end
@@ -396,9 +428,10 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
          headers: auth_header
   end
 
-  def decide_request_with(proc_id:, decision:, auth_header:, ptcpnt_id: nil, representative_id: nil)
-    post v2_veterans_power_of_attorney_requests_decide_path,
-         params: { data: { attributes: { procId: proc_id, decision:, participantId: ptcpnt_id,
+  def decide_request_with(id:, decision:, auth_header:, representative_id: nil)
+    post "/services/claims/v2/veterans/power-of-attorney-requests/#{id}/decide",
+         params: { data: { attributes: { id: id,
+                                         decision:,
                                          representativeId: representative_id } } }.to_json,
          headers: auth_header
   end
