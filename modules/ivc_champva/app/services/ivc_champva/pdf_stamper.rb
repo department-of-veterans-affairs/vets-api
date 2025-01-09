@@ -87,7 +87,7 @@ module IvcChampva
       end
     end
 
-    # rubocop:disable metrics/method_length, mismatched indentation, unexpected token
+    # rubocop:disable metrics/method_length
     def self.perform_multistamp(stamped_template_path, stamp_path)
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
       pdftk = PdfFill::Filler::PDF_FORMS
@@ -127,13 +127,15 @@ module IvcChampva
       else
         pdftk.multistamp(stamped_template_path, stamp_path, out_path)
         File.delete(stamped_template_path)
-        File.rename(out_path, stamped_template_path)
+        begin
+          File.rename(out_path, stamped_template_path)
         rescue
-        Common::FileHelpers.delete_file_if_exists(out_path)
-        raise
+          Common::FileHelpers.delete_file_if_exists(out_path)
+          raise
+        end
       end
     end
-    # rubocop:enable metrics/method_length, mismatched indentation, unexpected token
+    # rubocop:enable metrics/method_length
 
     def self.stamp_submission_date(stamped_template_path, desired_stamps)
       if desired_stamps.is_a?(Array)
