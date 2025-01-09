@@ -16,7 +16,8 @@ module MyHealth
       # rubocop:disable Metrics/MethodLength
       def index
         resource = collection_resource
-        resource.data = remove_pf_pd(resource.data) # TODO: remove this and rubocop MethodLength disabler when PF and PD are allowed on va.gov
+        # TODO: remove this line and rubocop MethodLength disabler when PF and PD are allowed on va.gov
+        resource.data = remove_pf_pd(resource.data)
         resource.data = filter_data_by_refill_and_renew(resource.data)
         resource.data = group_prescriptions(resource.data) if Flipper.enabled?(:mhv_medications_display_grouping)
         resource.data = filter_non_va_meds(resource.data)
@@ -38,6 +39,7 @@ module MyHealth
         options[:links] = pagination_links(resource) if is_using_pagination
         render json: MyHealth::V1::PrescriptionDetailsSerializer.new(resource.data, options)
       end
+      # rubocop:enable Metrics/MethodLength
 
       def show
         id = params[:id].try(:to_i)
