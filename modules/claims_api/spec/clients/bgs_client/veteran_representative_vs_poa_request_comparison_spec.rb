@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
+require 'claims_api/bgs_client'
 
 RSpec.describe 'VeteranRepresentative versus POARequest comparison', :bgs do # rubocop:disable RSpec/DescribeClass
   it 'concerns the same underlying data' do
