@@ -102,9 +102,12 @@ describe IvcChampva::PdfFiller do
 
         allow(Tempfile).to receive(:new).and_return(tempfile)
         allow(IO).to receive(:copy_stream)
+        # Allow both close and flush to be called on the tempfile
         allow(tempfile).to receive(:close)
+        allow(tempfile).to receive(:flush)
 
         expect(IO).to receive(:copy_stream).with(template_path, tempfile)
+        expect(tempfile).to receive(:flush) # This is the new line for testing flush
         pdf_filler.create_tempfile
       end
     end

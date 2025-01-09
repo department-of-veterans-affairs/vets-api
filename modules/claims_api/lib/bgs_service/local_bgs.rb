@@ -9,7 +9,7 @@
 require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
 require 'claims_api/evss_bgs_mapper'
-require 'bgs_service/local_bgs_refactored'
+require 'bgs_service/find_definition'
 
 module ClaimsApi
   class LocalBGS
@@ -192,11 +192,11 @@ module ClaimsApi
     end
 
     def namespace(connection, endpoint)
-      ClaimsApi::LocalBGSRefactored::FindDefinition
+      ClaimsApi::FindDefinition
         .for_service(endpoint)
         .bean.namespaces.target
     rescue => e
-      unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+      unless e.is_a? ClaimsApi::FindDefinition::NotDefinedError
         ClaimsApi::Logger.log('local_bgs', level: :error,
                                            detail: "local BGS FindDefinition Error: #{e.message}")
       end

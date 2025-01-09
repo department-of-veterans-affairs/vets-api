@@ -107,7 +107,7 @@ describe V0::User::MHVUserAccountsController, type: :controller do
       end
 
       context 'when there is an MHV client error' do
-        let(:mhv_error_body) { { errorCode: mhv_error_code, message: mhv_error_message } }
+        let(:mhv_error_body) { { 'errorCode' => mhv_error_code, 'message' => mhv_error_message } }
         let(:mhv_error_code) { 'some-code' }
         let(:mhv_error_message) { 'some-error-message' }
 

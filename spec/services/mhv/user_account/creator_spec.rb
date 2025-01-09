@@ -138,13 +138,19 @@ RSpec.describe MHV::UserAccount::Creator do
         icn:
       }
     end
+    let(:mhv_error_body) { { 'message' => 'some-message', 'errorCode' => 'some-code' } }
 
     before do
-      allow(mhv_client).to receive(:create_account).and_raise(Common::Client::Errors::ClientError, 'error')
+      allow(mhv_client).to receive(:create_account).and_raise(
+        Common::Client::Errors::ClientError.new('error', 400, mhv_error_body)
+      )
     end
 
-    it 'logs and raises an error' do
-      expect { subject.perform }.to raise_error(MHV::UserAccount::Errors::MHVClientError)
+    it 'logs and raises an error with expected body' do
+      expect { subject.perform }.to raise_error(MHV::UserAccount::Errors::MHVClientError) do |error|
+        expect(error.body).to eq(mhv_error_body)
+      end
+
       expect(Rails.logger).to have_received(:error).with(expected_log_message, expected_log_payload)
     end
   end
