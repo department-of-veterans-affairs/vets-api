@@ -345,6 +345,32 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             }
           )
         end
+
+        it 'handles 400' do
+          expect(subject).to validate(
+            :post,
+            '/v0/caregivers_assistance_claims',
+            400,
+            '_data' => {
+              'invalid_thing_here' => {
+                'form' => {}.to_json
+              }
+            }
+          )
+        end
+
+        it 'handles 500' do
+          expect(subject).to validate(
+            :post,
+            '/v0/caregivers_assistance_claims',
+            500,
+            '_data' => {
+              'caregivers_assistance_claim' => {
+                'form' => build(:caregivers_assistance_claim).form
+              }
+            }
+          )
+        end
       end
 
       context 'supports uploading an attachment' do
@@ -416,17 +442,36 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
           expect(subject).to validate(
             :post,
             '/v0/caregivers_assistance_claims/facilities',
-            200,
-            {
-              facilityIds: '',
-              lat: 40.41742,
-              long: 'flerp',
-              page: 1,
-              perPage: 5,
-              radius: 500,
-              type: 'health'
-            }
+            200
           )
+        end
+
+        context 'errors' do
+          it 'handles a 500' do
+            expect(subject).to validate(
+              :post,
+              '/v0/caregivers_assistance_claims/facilities',
+              500,
+              {
+                facilityIds: ''
+              }
+            )
+          end
+
+          it 'handles a 400' do
+            allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
+            allow(lighthouse_service).to receive(:get_paginated_facilities).and_raise(
+              Common::Exceptions::BackendServiceException.new(
+                'Lighthouse::Facilities::V1::Client',
+                { status: 400, detail: 'Invalid request' }
+              )
+            )
+            expect(subject).to validate(
+              :post,
+              '/v0/caregivers_assistance_claims/facilities',
+              400
+            )
+          end
         end
       end
     end
@@ -881,6 +926,36 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
             :get,
             '/v0/health_care_applications/facilities',
             200,
+            { '_query_string' => 'facilityIds[]=vha_757&facilityIds[]=vha_358' }
+          )
+        end
+      end
+
+      context 'errors' do
+        let(:lighthouse_service) { double('Lighthouse::Facilities::V1::Client') }
+
+        it 'handles 400' do
+          allow(Lighthouse::Facilities::V1::Client).to receive(:new).and_return(lighthouse_service)
+          allow(lighthouse_service).to receive(:get_facilities).and_raise(
+            Common::Exceptions::BackendServiceException.new(
+              'Lighthouse::Facilities::V1::Client',
+              { status: 400, detail: 'Invalid request' }
+            )
+          )
+
+          expect(subject).to validate(
+            :get,
+            '/v0/health_care_applications/facilities',
+            400,
+            { '_query_string' => 'facilityIds[]=vha_757&facilityIds[]=vha_358' }
+          )
+        end
+
+        it 'handles 500' do
+          expect(subject).to validate(
+            :get,
+            '/v0/health_care_applications/facilities',
+            500,
             { '_query_string' => 'facilityIds[]=vha_757&facilityIds[]=vha_358' }
           )
         end
