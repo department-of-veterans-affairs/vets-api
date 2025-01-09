@@ -35,6 +35,18 @@ describe MockedAuthentication::Credential::Service do
       expect(subject.to_s).to include(type)
     end
 
+    it 'renders operation value' do
+      expect(subject.to_s).to include(operation)
+    end
+
+    context 'when operation is not supplied' do
+      let(:operation) { '' }
+
+      it 'defaults to authorize' do
+        expect(subject.to_s).to include(operation)
+      end
+    end
+
     it 'directs to the Mocked Authorization frontend page' do
       expect(subject.to_s).to include(expected_redirect_url)
     end
@@ -48,8 +60,6 @@ describe MockedAuthentication::Credential::Service do
     context 'when type in mock credential service is set to logingov' do
       let(:type) { SignIn::Constants::Auth::LOGINGOV }
       let(:access_token_hash) { { access_token: code } }
-      let(:id_token_hash) { { id_token: } }
-      let(:id_token) { JWT.encode(id_token_payload, nil) }
       let(:encoded_credential_info) { Base64.encode64(credential_info.to_json) }
       let(:code) { 'some-code' }
 
@@ -59,20 +69,20 @@ describe MockedAuthentication::Credential::Service do
       end
 
       context 'and stored logingov credential has ssn attribute' do
-        let(:id_token_payload) { { acr: IAL::LOGIN_GOV_IAL2 } }
+        let(:id_token_payload) { { logingov_acr: IAL::LOGIN_GOV_IAL2 } }
         let(:credential_info) { { social_security_number: 'some-social-security-number' } }
 
         it 'returns expected access token hash merged with id token hash' do
-          expect(subject).to eq(access_token_hash.merge(id_token_hash))
+          expect(subject).to eq(access_token_hash.merge(id_token_payload))
         end
       end
 
       context 'and stored logingov credential does not have ssn attribute' do
-        let(:id_token_payload) { { acr: IAL::LOGIN_GOV_IAL1 } }
+        let(:id_token_payload) { { logingov_acr: IAL::LOGIN_GOV_IAL1 } }
         let(:credential_info) { { attribute: 'some-attribute' } }
 
         it 'returns expected access token hash merged with id token hash' do
-          expect(subject).to eq(access_token_hash.merge(id_token_hash))
+          expect(subject).to eq(access_token_hash.merge(id_token_payload))
         end
       end
     end
