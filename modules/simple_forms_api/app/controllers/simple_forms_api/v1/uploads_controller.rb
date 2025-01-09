@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'ddtrace'
+require 'datadog'
 require 'simple_forms_api_submission/metadata_validator'
 require 'lgy/service'
 require 'lighthouse/benefits_intake/service'
@@ -22,6 +22,7 @@ module SimpleFormsApi
         '21-0972' => 'vba_21_0972',
         '21-10210' => 'vba_21_10210',
         '21-4138' => 'vba_21_4138',
+        '21-4140' => 'vba_21_4140',
         '21-4142' => 'vba_21_4142',
         '21P-0847' => 'vba_21p_0847',
         '26-4555' => 'vba_26_4555',
@@ -129,11 +130,11 @@ module SimpleFormsApi
         if Flipper.enabled?(:simple_forms_email_confirmations)
           case status
           when 'VALIDATED', 'ACCEPTED'
-            send_sahsha_email(parsed_form_data, reference_number, :confirmation)
+            send_sahsha_email(parsed_form_data, :confirmation, reference_number)
           when 'REJECTED'
-            send_sahsha_email(parsed_form_data, reference_number, :rejected)
+            send_sahsha_email(parsed_form_data, :rejected)
           when 'DUPLICATE'
-            send_sahsha_email(parsed_form_data, reference_number, :duplicate)
+            send_sahsha_email(parsed_form_data, :duplicate)
           end
         end
 
@@ -339,7 +340,7 @@ module SimpleFormsApi
         notification_email.send
       end
 
-      def send_sahsha_email(parsed_form_data, confirmation_number, notification_type)
+      def send_sahsha_email(parsed_form_data, notification_type, confirmation_number = nil)
         config = {
           form_data: parsed_form_data,
           form_number: 'vba_26_4555',
