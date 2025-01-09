@@ -8,8 +8,15 @@ describe VANotify::DefaultCallback do
     context 'notification of error' do
       let(:notification_type) { :error }
 
-      context 'metadata is provided' do
-        let(:callback_metadata) { { notification_type:, statsd_tags: {} } }
+      let(:tags) do
+        ['service:service-name',
+         'function:function description']
+      end
+
+      context 'metadata is provided with statsd_tags as hash' do
+        let(:callback_metadata) do
+          { notification_type:, statsd_tags: { 'service' => 'service-name', 'function' => 'function description' } }
+        end
 
         context 'delivered' do
           let(:notification_record) do
@@ -21,7 +28,7 @@ describe VANotify::DefaultCallback do
 
             VANotify::DefaultCallback.new(notification_record).call
 
-            expect(StatsD).to have_received(:increment).with('silent_failure_avoided', anything)
+            expect(StatsD).to have_received(:increment).with('silent_failure_avoided', tags:)
           end
         end
 
@@ -35,7 +42,42 @@ describe VANotify::DefaultCallback do
 
             VANotify::DefaultCallback.new(notification_record).call
 
-            expect(StatsD).to have_received(:increment).with('silent_failure', anything)
+            expect(StatsD).to have_received(:increment).with('silent_failure', tags:)
+          end
+        end
+      end
+
+      context 'metadata is provided with statsd_tags as array' do
+        let(:callback_metadata) do
+          { notification_type:, statsd_tags: ['service:service-name',
+                                              'function:function description'] }
+        end
+
+        context 'delivered' do
+          let(:notification_record) do
+            build(:notification, status: 'delivered', callback_metadata:)
+          end
+
+          it 'increments StatsD' do
+            allow(StatsD).to receive(:increment)
+
+            VANotify::DefaultCallback.new(notification_record).call
+
+            expect(StatsD).to have_received(:increment).with('silent_failure_avoided', tags:)
+          end
+        end
+
+        context 'permanently failed' do
+          let(:notification_record) do
+            build(:notification, status: 'permanent-failure', callback_metadata:)
+          end
+
+          it 'increments StatsD' do
+            allow(StatsD).to receive(:increment)
+
+            VANotify::DefaultCallback.new(notification_record).call
+
+            expect(StatsD).to have_received(:increment).with('silent_failure', tags:)
           end
         end
       end

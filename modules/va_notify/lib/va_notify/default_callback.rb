@@ -22,9 +22,12 @@ module VANotify
     def call_with_metadata
       notification_type = metadata['notification_type']
       statsd_tags = metadata['statsd_tags']
-      service = statsd_tags['service']
-      function = statsd_tags['function']
-      tags = ["service:#{service}", "function:#{function}"]
+
+      tags = if statsd_tags.is_a?(Hash)
+               statsd_tags.map { |key, value| "#{key}:#{value}" }
+             elsif statsd_tags.is_a?(Array)
+               statsd_tags
+             end
 
       case notification_record.status
       when 'delivered'
