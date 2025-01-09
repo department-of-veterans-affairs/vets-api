@@ -767,6 +767,9 @@ config/initializers/kms_encrypted.rb @department-of-veterans-affairs/va-api-engi
 config/initializers/loa.rb @department-of-veterans-affairs/octo-identity
 config/initializers/lockbox.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/mime_types.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+config/initializers/new_framework_defaults_7_0.rb @department-of-veterans-affairs/backend-review-group
+config/initializers/new_framework_defaults_7_1.rb @department-of-veterans-affairs/backend-review-group
+config/initializers/new_framework_defaults_8_0.rb @department-of-veterans-affairs/backend-review-group
 config/initializers/okcomputer.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/override_redirect_to_logging.rb @department-of-veterans-affairs/octo-identity
 config/initializers/rack_attack.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
