@@ -22,7 +22,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
   describe '#address' do
     subject(:address) { form.address }
 
-    it { is_expected.to be_a SimpleFormsApi::FormEngine::Address }
+    it { is_expected.to be_a FormEngine::Address }
 
     it 'maps correctly to attributes' do
       expect(address.address_line1).to eq data.dig('address', 'street')

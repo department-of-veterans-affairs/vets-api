@@ -9,7 +9,7 @@ module SimpleFormsApi
     def initialize(data)
       super
 
-      @address = SimpleFormsApi::FormEngine::Address.new(
+      @address = FormEngine::Address.new(
         address_line1: data.dig('address', 'street'),
         address_line2: data.dig('address', 'street2'),
         city: data.dig('address', 'city'),
