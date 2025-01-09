@@ -104,10 +104,6 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
         end
 
         it 'returns the correct status when bgs org service is not healthy' do
-          allow_any_instance_of(ClaimsApi::LocalBGS).to receive(
-            :find_poa_history_by_ptcpnt_id
-          )
-            .and_return(Struct.new(:healthy?).new(false))
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
           expect(result['org_web_service']['success']).to eq(false)

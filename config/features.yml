@@ -177,6 +177,9 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
+  champva_vanotify_custom_callback:
+    actor_type: user
+    description: Enables the custom callback_klass when sending IVC CHAMPVA failure emails with VA Notify
   champva_multiple_stamp_retry:
     actor_type: user
     description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
@@ -247,10 +250,6 @@ features:
   claims_api_flash_updater_uses_local_bgs:
     actor_type: user
     description: Enables flash updater to use local_bgs
-    enable_in_development: true
-  claims_api_local_bgs_refactor:
-    actor_type: user
-    description: Diverts codepath to LocalBGSRefactored
     enable_in_development: true
   claims_api_poa_vbms_updater_uses_local_bgs:
     actor_type: user
@@ -584,6 +583,10 @@ features:
     actor_type: user
     description: Enables the expanded contention classification service maintained by the Conditions Team.
     enable_in_development: true
+  disability_526_migrate_contention_classification:
+    actor_type: user
+    description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -713,6 +716,10 @@ features:
     actor_type: cookie_id
     description: Enables Appoint a Representative frontend
     enable_in_development: true
+  appoint_a_representative_enable_2.0_features:
+    actor_type: user
+    description: Enables Appoint a Representative 2.0 features for frontend and backend
+    enable_in_development: true  
   appoint_a_representative_enable_pdf:
     actor_type: user
     description: Enables Appoint a Representative PDF generation endpoint
@@ -1399,6 +1406,10 @@ features:
     actor_type: cookie_id
     description: Enables the ability to use OAuth authentication via the Sign in Service (Identity)
     enable_in_development: true
+  mhv_credential_button_disabled:
+    actor_type: user
+    description: Enables the ability to hide the My HealtheVet sign in button (Identity)
+    enable_in_development: true
   sign_in_modal_v2:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
@@ -1839,6 +1850,10 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
+  burial_module_enabled:
+    actor_type: user
+    description: Enables new Burial module
+    enable_in_development: true
   burial_document_upload_update:
     actor_type: user
     description: Show updated document upload page

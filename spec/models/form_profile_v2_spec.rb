@@ -1557,7 +1557,7 @@ RSpec.describe FormProfile, type: :model do
 
         context 'with preenabled forms' do
           it 'returns prefilled 21-686C' do
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
@@ -1584,6 +1584,7 @@ RSpec.describe FormProfile, type: :model do
             Flipper.enable(:disability_526_toxic_exposure, user)
             expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                 VCR.use_cassette('evss/ppiu/payment_information') do
