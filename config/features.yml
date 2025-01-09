@@ -580,6 +580,10 @@ features:
     actor_type: user
     description: Enables the expanded contention classification service maintained by the Conditions Team.
     enable_in_development: true
+  disability_526_migrate_contention_classification:
+    actor_type: user
+    description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
+    enable_in_development: true
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
