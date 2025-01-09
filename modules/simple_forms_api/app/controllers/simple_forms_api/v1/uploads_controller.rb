@@ -138,7 +138,7 @@ module SimpleFormsApi
           end
         end
 
-        { json: { reference_number:, status: }, status: lgy_response.status }
+        { json: { reference_number:, status:, submission_api: 'sahsha' }, status: lgy_response.status }
       end
 
       def submit_form_to_benefits_intake
@@ -275,7 +275,7 @@ module SimpleFormsApi
       end
 
       def get_json(confirmation_number, pdf_url)
-        { confirmation_number: }.tap do |json|
+        { confirmation_number:, submission_api: 'benefitsIntake' }.tap do |json|
           json[:pdf_url] = pdf_url if pdf_url.present?
           json[:expiration_date] = 1.year.from_now if form_id == 'vba_21_0966'
         end
@@ -305,7 +305,8 @@ module SimpleFormsApi
           expiration_date:,
           compensation_intent: existing_intents['compensation'],
           pension_intent: existing_intents['pension'],
-          survivor_intent: existing_intents['survivor']
+          survivor_intent: existing_intents['survivor'],
+          submission_api: 'intentToFile'
         } }
       end
 
