@@ -1,20 +1,24 @@
 {
   "type": "object",
   "properties": {
-    "decision": {
-      "type": ["string", "null"]
-    },
-    "representativeId": {
-      "type": ["string", "null"]
-    },
-    "declinedReason": {
-      "type": ["string", "null"]
-    },
-    "id": {
-      "type": "string"
-    },
-    "type": {
-      "type": ["string"]
+    "data": {
+      "attributes": {
+        "decision": {
+          "type": ["string", "null"]
+        },
+        "representativeId": {
+          "type": ["string", "null"]
+        },
+        "declinedReason": {
+          "type": ["string", "null"]
+        },
+        "id": {
+          "type": "string"
+        },
+        "type": {
+          "type": ["string"]
+        }
+      }
     }
   }
 }
