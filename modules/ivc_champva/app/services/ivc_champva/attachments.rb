@@ -46,7 +46,9 @@ module IvcChampva
         file_processing_errors << "Error processing attachment at index #{index}: ENOENT No such file or directory"
       rescue SystemCallError => e # Base class for any filesystem related errors
         # e.message could contain a filename and PII, so only pass on the decoded error number when available
-        error_name = Errno.constants.find(proc {"Unknown #{e.errno}"}) { |c| Errno.const_get(c).new.errno == e.errno }.to_s
+        error_name = Errno.constants.find(proc {
+          "Unknown #{e.errno}"
+        }) { |c| Errno.const_get(c).new.errno == e.errno }.to_s
         file_processing_errors << "Error processing attachment at index #{index}: SystemCallError #{error_name}"
       rescue => e
         file_processing_errors << "Error processing attachment at index #{index}: #{e.message}"

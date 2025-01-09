@@ -125,13 +125,14 @@ RSpec.describe IvcChampva::Attachments do
     context 'when a file is not found and champva_pdf_decrypt is enabled' do
       before do
         allow(Flipper).to receive(:enabled?)
-                            .with(:champva_pdf_decrypt, @current_user)
-                            .and_return(true)
+          .with(:champva_pdf_decrypt, @current_user)
+          .and_return(true)
       end
+
       it 'throws an error with hard coded details' do
         expect(test_instance).to receive(:get_attachments).and_return(['attachmentA.pdf'])
         expect(FileUtils).to receive(:mv).with('attachmentA.pdf', "tmp/#{uuid}_#{form_id}_supporting_doc-0.pdf")
-                                        .and_raise(Errno::ENOENT.new)
+                                         .and_raise(Errno::ENOENT.new)
 
         expected_error_message = 'Unable to process all attachments: '
         expected_error_message += 'Error processing attachment at index 0: ENOENT No such file or directory'
