@@ -156,12 +156,12 @@ module RepresentationManagement
             # Record Consent
             "#{PAGE2_KEY}.I_Authorize[1]": data.record_consent == true ? 1 : 0,
             # Item 20
-            "#{PAGE2_KEY}.Drug_Abuse[0]": limitations_of_consent_checkbox(data, 'DRUG_ABUSE'),
+            "#{PAGE2_KEY}.Drug_Abuse[0]": data.limitations_of_consent_checkbox('DRUG_ABUSE'),
             "#{PAGE2_KEY}.Alcoholism_Or_Alcohol_Abuse[0]": \
-            limitations_of_consent_checkbox(data, 'ALCOHOLISM'),
+            data.limitations_of_consent_checkbox('ALCOHOLISM'),
             "#{PAGE2_KEY}.Infection_With_The_Human_Immunodeficiency_Virus_HIV[0]": \
-            limitations_of_consent_checkbox(data, 'HIV'),
-            "#{PAGE2_KEY}.sicklecellanemia[0]": limitations_of_consent_checkbox(data, 'SICKLE_CELL'),
+            data.limitations_of_consent_checkbox('HIV'),
+            "#{PAGE2_KEY}.sicklecellanemia[0]": data.limitations_of_consent_checkbox('SICKLE_CELL'),
             # Consent Address Change
             "#{PAGE2_KEY}.I_Authorize[0]": data.consent_address_change == true ? 1 : 0
           }
@@ -209,17 +209,6 @@ module RepresentationManagement
             #{entity.zip_code}
           HEREDOC
           pdf.text(city_state_zip)
-        end
-
-        def limitations_of_consent_checkbox(data, key)
-          # The values of these four checkboxes are unintuitive.  Our online form experience asks the user to select
-          # what details to share with the representative but the actual 21-22 form asks the user to select what
-          # details to withhold from the representative.  So we need to invert the values.
-          # See https://github.com/department-of-veterans-affairs/va.gov-team/issues/98295
-          check_consent_limit_boxes = data.record_consent && data.consent_limits.any?
-          return 0 if check_consent_limit_boxes == false
-
-          check_consent_limit_boxes && data.consent_limits.include?(key) ? 0 : 1
         end
       end
     end
