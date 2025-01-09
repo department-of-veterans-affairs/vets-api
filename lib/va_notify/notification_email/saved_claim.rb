@@ -18,7 +18,7 @@ module VANotify
     #         error:
     #           template_id: form527ez_error_email_template_id,
     #           flipper_id: form527ez_error_email_flipper_id
-    #         received: null
+    #         received: form527ez_received_email_template_id
     #     pensions: *vanotify_services_pension
     #
     class SavedClaim
