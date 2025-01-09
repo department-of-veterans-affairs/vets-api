@@ -4,16 +4,15 @@ require 'rails_helper'
 
 RSpec.describe 'AskVAApi::V0::AddressValidation', type: :request do
   let(:user) { FactoryBot.build(:user) }
-  let(:address) { build(:va_profile_address) }
-  let(:multiple_match_addr) do
-    build(:va_profile_address, :multiple_matches)
-  end
+  let(:multiple_match_addr) { build(:va_profile_v3_address, :multiple_matches) }
+  let(:invalid_address) { build(:va_profile_v3_validation_address).to_h }
 
   describe '#create' do
     context 'with an invalid address' do
       it 'returns an error' do
-        post '/ask_va_api/v0/address_validation', params: { address: build(:va_profile_validation_address).to_h }
+        post '/ask_va_api/v0/address_validation', params: { address: invalid_address }
         expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)).to include('errors')
         expect(JSON.parse(response.body)).to eq(
           'errors' => [
             {
@@ -59,7 +58,7 @@ RSpec.describe 'AskVAApi::V0::AddressValidation', type: :request do
     context 'with a found address' do
       it 'returns suggested addresses for a given address' do
         VCR.use_cassette(
-          'va_profile/address_validation/candidate_multiple_matches',
+          'va_profile/v3/address_validation/candidate_multiple_matches',
           VCR::MATCH_EVERYTHING
         ) do
           post '/ask_va_api/v0/address_validation', params: { address: multiple_match_addr.to_h }
@@ -100,12 +99,11 @@ RSpec.describe 'AskVAApi::V0::AddressValidation', type: :request do
                 'address_meta_data' => {
                   'confidence_score' => 100.0,
                   'address_type' => 'Domestic',
-                  'delivery_point_validation' => 'CONFIRMED',
-                  'residential_delivery_indicator' => 'MIXED'
+                  'delivery_point_validation' => 'CONFIRMED'
                 }
               }
             ],
-            'validation_key' => -646_932_106
+            'validation_key' => '-646932106'
           )
           expect(response).to have_http_status(:ok)
         end

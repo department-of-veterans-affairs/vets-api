@@ -4,7 +4,6 @@ require 'common/models/base'
 require 'common/models/redis_store'
 require 'evss/auth_headers'
 require 'evss/common_service'
-require 'evss/pciu/service'
 require 'mpi/service'
 require 'saml/user'
 require 'formatters/date_formatter'
@@ -78,18 +77,6 @@ class User < Common::RedisStore
 
   def user_account_uuid
     @user_account_uuid ||= user_account&.id
-  end
-
-  def pciu_email
-    pciu&.get_email_address&.email
-  end
-
-  def pciu_primary_phone
-    pciu&.get_primary_phone&.to_s
-  end
-
-  def pciu_alternate_phone
-    pciu&.get_alternate_phone&.to_s
   end
 
   # Identity attributes & methods
@@ -410,27 +397,13 @@ class User < Common::RedisStore
   delegate :show_onboarding_flow_on_login, to: :onboarding, allow_nil: true
 
   def vet360_contact_info
-    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
+    return nil if icn.blank?
 
-    @vet360_contact_info ||= if Flipper.enabled?(:remove_pciu, self)
-                               VAProfileRedis::V2::ContactInformation.for_user(self)
-                             else
-                               VAProfileRedis::ContactInformation.for_user(self)
-                             end
+    @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
   def va_profile_email
     vet360_contact_info&.email&.email_address
-  end
-
-  def vaprofile_contact_info
-    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && icn.present?
-
-    @vaprofile_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
-  end
-
-  def va_profile_v2_email
-    vaprofile_contact_info&.email&.email_address
   end
 
   def all_emails
@@ -531,10 +504,6 @@ class User < Common::RedisStore
     return unless bgs_dependents.presence && bgs_dependents[:persons]
 
     bgs_dependents[:persons].map { |dependent| UserRelationship.from_bgs_dependent(dependent) }
-  end
-
-  def pciu
-    @pciu ||= EVSS::PCIU::Service.new self if loa3? && edipi.present?
   end
 
   def log_mhv_user_account_error(error_message)
