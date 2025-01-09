@@ -41,7 +41,7 @@ module ClaimsApi
         end
 
         def show
-          poa_request = ClaimsApi::PowerOfAttorneyRequest.find(params[:id])
+          poa_request = ClaimsApi::PowerOfAttorneyRequest.find_by(id: params[:id])
 
           unless poa_request
             raise Common::Exceptions::Lighthouse::ResourceNotFound.new(
