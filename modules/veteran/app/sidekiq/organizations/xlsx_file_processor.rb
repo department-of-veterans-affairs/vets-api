@@ -129,7 +129,7 @@ module Organizations
       zip_code5, zip_code4 = get_value(row, column_map, 'OrganizationZipCode')
 
       {
-        poa: row[column_map['POA']],
+        id: row[column_map['POA']],
         phone_number: get_value(row, column_map, 'OrganizationPhoneNumber'),
         address: {
           address_pou: 'CORRESPONDENCE',
