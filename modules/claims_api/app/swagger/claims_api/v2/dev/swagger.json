@@ -421,144 +421,221 @@
             "description": "Search results",
             "content": {
               "application/json": {
-                "example": [
-                  {
-                    "VSOUserEmail": null,
-                    "VSOUserFirstName": "Joe",
-                    "VSOUserLastName": "BestRep",
-                    "changeAddressAuth": "Y",
-                    "claimantCity": "Charlottesville",
-                    "claimantCountry": "USA",
-                    "claimantMilitaryPO": null,
-                    "claimantMilitaryPostalCode": null,
-                    "claimantState": null,
-                    "claimantZip": "00123",
-                    "dateRequestActioned": "2024-05-25T13:45:00-05:00",
-                    "dateRequestReceived": "2012-11-23T16:49:16-06:00",
-                    "declinedReason": null,
-                    "healthInfoAuth": "Y",
-                    "poaCode": "083",
-                    "procID": "11027",
-                    "secondaryStatus": "New",
-                    "vetFirstName": "[Vet First Name]",
-                    "vetLastName": "[Vet Last Name]",
-                    "vetMiddleName": null,
-                    "vetPtcpntID": "111"
-                  },
-                  {
-                    "VSOUserEmail": null,
-                    "VSOUserFirstName": "VDC USER",
-                    "VSOUserLastName": null,
-                    "changeAddressAuth": "Y",
-                    "claimantCity": "USAG J",
-                    "claimantCountry": "USA",
-                    "claimantMilitaryPO": "APO",
-                    "claimantMilitaryPostalCode": "AP",
-                    "claimantState": null,
-                    "claimantZip": "01234",
-                    "dateRequestActioned": "2013-01-14T08:50:17-06:00",
-                    "dateRequestReceived": "2013-01-14T08:50:17-06:00",
-                    "declinedReason": null,
-                    "healthInfoAuth": "Y",
-                    "poaCode": "002",
-                    "procID": "10906",
-                    "secondaryStatus": "New",
-                    "vetFirstName": "first",
-                    "vetLastName": "last",
-                    "vetMiddleName": null,
-                    "vetPtcpntID": "111"
-                  },
-                  {
-                    "VSOUserEmail": null,
-                    "VSOUserFirstName": "VDC USER",
-                    "VSOUserLastName": null,
-                    "changeAddressAuth": "Y",
-                    "claimantCity": "Bourges",
-                    "claimantCountry": "France",
-                    "claimantMilitaryPO": null,
-                    "claimantMilitaryPostalCode": null,
-                    "claimantState": null,
-                    "claimantZip": "00123",
-                    "dateRequestActioned": "2013-01-14T08:51:25-06:00",
-                    "dateRequestReceived": "2013-01-14T08:51:25-06:00",
-                    "declinedReason": null,
-                    "healthInfoAuth": "Y",
-                    "poaCode": "002",
-                    "procID": "10907",
-                    "secondaryStatus": "New",
-                    "vetFirstName": "first",
-                    "vetLastName": "last",
-                    "vetMiddleName": null,
-                    "vetPtcpntID": "111"
-                  }
-                ],
+                "example": {
+                  "data": [
+                    {
+                      "id": null,
+                      "type": "power-of-attorney-request",
+                      "attributes": {
+                        "veteran": {
+                          "firstName": "[Vet First Name]",
+                          "lastName": "[Vet Last Name]",
+                          "middleName": null
+                        },
+                        "claimant": {
+                          "city": "Charlottesville",
+                          "country": "USA",
+                          "militaryPo": null,
+                          "militaryPostalCode": null,
+                          "state": null,
+                          "zip": "00123"
+                        },
+                        "representative": {
+                          "poaCode": "083",
+                          "vsoUserEmail": null,
+                          "vsoUserFirstName": "Joe",
+                          "vsoUserLastName": "BestRep"
+                        },
+                        "receivedDate": "2012-11-23T16:49:16-06:00",
+                        "actionedDate": "2024-05-25T13:45:00-05:00",
+                        "status": "New",
+                        "declinedReason": null,
+                        "changeAddressAuthorization": "Y",
+                        "healthInfoAuthorization": "Y"
+                      }
+                    },
+                    {
+                      "id": null,
+                      "type": "power-of-attorney-request",
+                      "attributes": {
+                        "veteran": {
+                          "firstName": "first",
+                          "lastName": "last",
+                          "middleName": null
+                        },
+                        "claimant": {
+                          "city": "USAG J",
+                          "country": "USA",
+                          "militaryPo": "APO",
+                          "militaryPostalCode": "AP",
+                          "state": null,
+                          "zip": "01234"
+                        },
+                        "representative": {
+                          "poaCode": "002",
+                          "vsoUserEmail": null,
+                          "vsoUserFirstName": "VDC USER",
+                          "vsoUserLastName": null
+                        },
+                        "receivedDate": "2013-01-14T08:50:17-06:00",
+                        "actionedDate": "2013-01-14T08:50:17-06:00",
+                        "status": "New",
+                        "declinedReason": null,
+                        "changeAddressAuthorization": "Y",
+                        "healthInfoAuthorization": "Y"
+                      }
+                    },
+                    {
+                      "id": null,
+                      "type": "power-of-attorney-request",
+                      "attributes": {
+                        "veteran": {
+                          "firstName": "first",
+                          "lastName": "last",
+                          "middleName": null
+                        },
+                        "claimant": {
+                          "city": "Bourges",
+                          "country": "France",
+                          "militaryPo": null,
+                          "militaryPostalCode": null,
+                          "state": null,
+                          "zip": "00123"
+                        },
+                        "representative": {
+                          "poaCode": "002",
+                          "vsoUserEmail": null,
+                          "vsoUserFirstName": "VDC USER",
+                          "vsoUserLastName": null
+                        },
+                        "receivedDate": "2013-01-14T08:51:25-06:00",
+                        "actionedDate": "2013-01-14T08:51:25-06:00",
+                        "status": "New",
+                        "declinedReason": null,
+                        "changeAddressAuthorization": "Y",
+                        "healthInfoAuthorization": "Y"
+                      }
+                    }
+                  ]
+                },
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "VSOUserEmail": {
-                        "type": "string"
-                      },
-                      "VSOUserFirstName": {
-                        "type": "string"
-                      },
-                      "VSOUserLastName": {
-                        "type": "string"
-                      },
-                      "changeAddressAuth": {
-                        "type": "string"
-                      },
-                      "claimantCity": {
-                        "type": "string"
-                      },
-                      "claimantCountry": {
-                        "type": "string"
-                      },
-                      "claimantMilitaryPO": {
-                        "type": "string"
-                      },
-                      "claimantMilitaryPostalCode": {
-                        "type": "string"
-                      },
-                      "claimantState": {
-                        "type": "string"
-                      },
-                      "claimantZip": {
-                        "type": "string"
-                      },
-                      "dateRequestActioned": {
-                        "type": "string"
-                      },
-                      "dateRequestReceived": {
-                        "type": "string"
-                      },
-                      "declinedReason": {
-                        "type": "string"
-                      },
-                      "healthInfoAuth": {
-                        "type": "string"
-                      },
-                      "poaCode": {
-                        "type": "string"
-                      },
-                      "procID": {
-                        "type": "string"
-                      },
-                      "secondaryStatus": {
-                        "type": "string"
-                      },
-                      "vetFirstName": {
-                        "type": "string"
-                      },
-                      "vetLastName": {
-                        "type": "string"
-                      },
-                      "vetMiddleName": {
-                        "type": "string"
-                      },
-                      "vetPtcpntID": {
-                        "type": "string"
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "type",
+                          "attributes"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "power-of-attorney-request"
+                            ]
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "required": [
+                              "veteran",
+                              "claimant",
+                              "representative"
+                            ],
+                            "properties": {
+                              "veteran": {
+                                "type": "object",
+                                "properties": {
+                                  "firstName": {
+                                    "type": "string"
+                                  },
+                                  "lastName": {
+                                    "type": "string"
+                                  },
+                                  "middleName": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "claimant": {
+                                "type": "object",
+                                "properties": {
+                                  "city": {
+                                    "type": "string"
+                                  },
+                                  "country": {
+                                    "type": "string"
+                                  },
+                                  "militaryPo": {
+                                    "type": "string"
+                                  },
+                                  "militaryPostalCode": {
+                                    "type": "string"
+                                  },
+                                  "state": {
+                                    "type": "string"
+                                  },
+                                  "zip": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "representative": {
+                                "type": "object",
+                                "properties": {
+                                  "poaCode": {
+                                    "type": "string"
+                                  },
+                                  "vsoUserEmail": {
+                                    "type": "string"
+                                  },
+                                  "vsoUserFirstName": {
+                                    "type": "string"
+                                  },
+                                  "vsoUserLastName": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "receivedDate": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "actionedDate": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "declinedReason": {
+                                "type": "string"
+                              },
+                              "changeAddressAuthorization": {
+                                "type": "string",
+                                "enum": [
+                                  "Y",
+                                  "N"
+                                ]
+                              },
+                              "healthInfoAuthorization": {
+                                "type": "string",
+                                "enum": [
+                                  "Y",
+                                  "N"
+                                ]
+                              }
+                            }
+                          }
+                        }
                       }
                     }
                   }
@@ -13163,6 +13240,8 @@
               "application/json": {
                 "example": {
                   "data": {
+                    "id": "5f12b2a5-d865-43fd-8fad-9ac8ff65e110",
+                    "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
                         "serviceNumber": "123678453",
@@ -13212,9 +13291,22 @@
                       "type": "object",
                       "additionalProperties": false,
                       "required": [
+                        "id",
+                        "type",
                         "attributes"
                       ],
                       "properties": {
+                        "id": {
+                          "type": "string",
+                          "description": "The unique identifier for the power of attorney request"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "power-of-attorney-request"
+                          ],
+                          "description": "The type of the resource"
+                        },
                         "attributes": {
                           "type": "object",
                           "additionalProperties": false,
@@ -13478,16 +13570,6 @@
                             "consentAddressChange": {
                               "description": "AUTHORIZATION FOR REPRESENTATIVE TO ACT ON CLAIMANT'S BEHALF TO CHANGE CLAIMANT'S ADDRESS.",
                               "type": "boolean"
-                            },
-                            "id": {
-                              "description": "The ID of the new Power of Attorney request.",
-                              "type": "string",
-                              "example": "12e13134-7229-4e44-90ae-bcea2a4525fa"
-                            },
-                            "type": {
-                              "description": "The type of Power of Attorney request.",
-                              "type": "string",
-                              "example": "power-of-attorney-request"
                             }
                           }
                         }

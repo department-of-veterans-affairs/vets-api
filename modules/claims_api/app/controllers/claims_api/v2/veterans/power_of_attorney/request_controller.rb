@@ -29,16 +29,15 @@ module ClaimsApi
 
           validate_filter!(filter)
 
-          service = ClaimsApi::ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
-                                                               external_key: 'power_of_attorney_request_key')
+          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(poa_codes:, page_size:, page_index:, filter:)
 
-          res = service.read_poa_request(poa_codes:, page_size:, page_index:, filter:)
-
-          poa_list = res['poaRequestRespondReturnVOList']
+          poa_list = service.get_poa_list
 
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
-          render json: Array.wrap(poa_list), status: :ok
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
+            poa_list, view: :index, root: :data
+          ), status: :ok
         end
 
         def decide # rubocop:disable Metrics/MethodLength
@@ -57,8 +56,8 @@ module ClaimsApi
 
           validate_decide_params!(proc_id:, decision:)
 
-          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
-                                                    external_key: 'power_of_attorney_request_key')
+          service = ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
+                                                               external_key: Settings.bgs.external_key)
 
           if decision == 'declined'
             ptcpnt_id = fetch_ptcpnt_id(vet_icn)
@@ -108,13 +107,24 @@ module ClaimsApi
             claimant_icn = form_attributes.dig('claimant', 'claimantId')
             poa_request = ClaimsApi::PowerOfAttorneyRequest.create!(proc_id: res['procId'],
                                                                     veteran_icn: params[:veteranId],
-                                                                    claimant_icn:, poa_code:)
+                                                                    claimant_icn:, poa_code:,
+                                                                    metadata: res['meta'])
             form_attributes['id'] = poa_request.id
-            form_attributes['type'] = 'power-of-attorney-request'
           end
 
           # return only the form information consumers provided
-          render json: { data: { attributes: form_attributes } }, status: :created
+          if form_attributes['id'].present?
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
+                                                                                           view: :create,
+                                                                                           root: :data),
+                   status: :created,
+                   location: url_for(controller: 'base', action: 'status', id: form_attributes['id'])
+          else
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
+                                                                                           view: :create,
+                                                                                           root: :data),
+                   status: :created
+          end
         end
 
         private
