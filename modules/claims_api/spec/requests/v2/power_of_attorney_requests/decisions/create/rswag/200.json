@@ -2,21 +2,27 @@
   "type": "object",
   "properties": {
     "data": {
-      "attributes": {
-        "decision": {
-          "type": ["string", "null"]
-        },
-        "representativeId": {
-          "type": ["string", "null"]
-        },
-        "declinedReason": {
-          "type": ["string", "null"]
-        },
-        "id": {
-          "type": "string"
-        },
-        "type": {
-          "type": ["string"]
+      "type": "object",
+      "properties": {
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "decision": {
+              "type": ["string", "null"]
+            },
+            "representativeId": {
+              "type": ["string", "null"]
+            },
+            "declinedReason": {
+              "type": ["string", "null"]
+            },
+            "id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
         }
       }
     }
