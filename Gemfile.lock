@@ -206,7 +206,7 @@ GEM
       activemodel (= 7.2.2.1)
       activesupport (= 7.2.2.1)
       timeout (>= 0.4.0)
-    activerecord-import (1.8.1)
+    activerecord-import (2.0.0)
       activerecord (>= 4.2)
     activerecord-postgis-adapter (10.0.1)
       activerecord (~> 7.2.0)
@@ -326,7 +326,7 @@ GEM
     config (5.5.2)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
-    connection_pool (2.4.1)
+    connection_pool (2.5.0)
     content_disposition (1.0.0)
     cork (0.3.0)
       colored2 (~> 3.1)
@@ -383,27 +383,27 @@ GEM
     down (5.4.2)
       addressable (~> 2.8)
     drb (2.2.1)
-    dry-configurable (1.1.0)
-      dry-core (~> 1.0, < 2)
+    dry-configurable (1.3.0)
+      dry-core (~> 1.1)
       zeitwerk (~> 2.6)
     dry-core (1.1.0)
       concurrent-ruby (~> 1.0)
       logger
       zeitwerk (~> 2.6)
     dry-inflector (1.2.0)
-    dry-initializer (3.1.1)
+    dry-initializer (3.2.0)
     dry-logic (1.6.0)
       bigdecimal
       concurrent-ruby (~> 1.0)
       dry-core (~> 1.1)
       zeitwerk (~> 2.6)
-    dry-schema (1.13.4)
+    dry-schema (1.14.0)
       concurrent-ruby (~> 1.0)
       dry-configurable (~> 1.0, >= 1.0.1)
-      dry-core (~> 1.0, < 2)
-      dry-initializer (~> 3.0)
-      dry-logic (>= 1.4, < 2)
-      dry-types (>= 1.7, < 2)
+      dry-core (~> 1.1)
+      dry-initializer (~> 3.2)
+      dry-logic (~> 1.5)
+      dry-types (~> 1.8)
       zeitwerk (~> 2.6)
     dry-struct (1.7.0)
       dry-core (~> 1.1)
@@ -417,11 +417,11 @@ GEM
       dry-inflector (~> 1.0)
       dry-logic (~> 1.4)
       zeitwerk (~> 2.6)
-    dry-validation (1.10.0)
+    dry-validation (1.11.0)
       concurrent-ruby (~> 1.0)
-      dry-core (~> 1.0, < 2)
-      dry-initializer (~> 3.0)
-      dry-schema (>= 1.12, < 2)
+      dry-core (~> 1.1)
+      dry-initializer (~> 3.2)
+      dry-schema (~> 1.14)
       zeitwerk (~> 2.6)
     einhorn (1.0.0)
     erubi (1.13.0)
@@ -436,9 +436,8 @@ GEM
       railties (>= 5.0.0)
     faker (3.5.1)
       i18n (>= 1.8.11, < 2)
-    faraday (2.12.2)
-      faraday-net_http (>= 2.0, < 3.5)
-      json
+    faraday (2.10.1)
+      faraday-net_http (>= 2.0, < 3.2)
       logger
     faraday-follow_redirects (0.3.0)
       faraday (>= 1, < 3)
@@ -446,9 +445,9 @@ GEM
       faraday (>= 0.8)
     faraday-httpclient (2.0.1)
       httpclient (>= 2.2)
-    faraday-multipart (1.0.4)
-      multipart-post (~> 2)
-    faraday-net_http (3.2.0)
+    faraday-multipart (1.1.0)
+      multipart-post (~> 2.0)
+    faraday-net_http (3.1.1)
       net-http
     faraday-retry (2.2.1)
       faraday (~> 2.0)
@@ -486,9 +485,9 @@ GEM
     flipper-active_record (1.3.2)
       activerecord (>= 4.2, < 9)
       flipper (~> 1.3.2)
-    flipper-active_support_cache_store (1.3.1)
-      activesupport (>= 4.2, < 8)
-      flipper (~> 1.3.1)
+    flipper-active_support_cache_store (1.3.2)
+      activesupport (>= 4.2, < 9)
+      flipper (~> 1.3.2)
     flipper-ui (1.3.1)
       erubi (>= 1.0.0, < 2.0.0)
       flipper (~> 1.3.1)
@@ -606,8 +605,9 @@ GEM
     jruby-openssl (0.15.2-java)
     json (2.9.1)
     json (2.9.1-java)
-    json-schema (5.1.0)
+    json-schema (5.1.1)
       addressable (~> 2.8)
+      bigdecimal (~> 3.1)
     json_schema (0.21.0)
     json_schemer (2.3.0)
       bigdecimal
@@ -618,7 +618,7 @@ GEM
     jsonapi-serializer (2.2.0)
       activesupport (>= 4.2)
     jwe (0.4.0)
-    jwt (2.9.3)
+    jwt (2.10.1)
       base64
     kms_encrypted (1.6.0)
       activesupport (>= 6.1)
@@ -726,7 +726,7 @@ GEM
     octokit (9.2.0)
       faraday (>= 1, < 3)
       sawyer (~> 0.9)
-    oj (3.16.7)
+    oj (3.16.9)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
     okcomputer (1.18.5)
@@ -742,7 +742,8 @@ GEM
     optimist (3.2.0)
     os (1.1.4)
     ostruct (0.6.1)
-    ox (2.14.18)
+    ox (2.14.19)
+      bigdecimal (>= 3.0)
     parallel (1.26.3)
     parallel_tests (4.7.2)
       parallel
@@ -775,7 +776,7 @@ GEM
       matrix (~> 0.4)
       pdf-core (~> 0.10.0)
       ttfunk (~> 1.8)
-    prawn-markup (1.0.0)
+    prawn-markup (1.0.1)
       nokogiri
       prawn
       prawn-table
@@ -986,7 +987,7 @@ GEM
     ruby-vips (2.2.2)
       ffi (~> 1.12)
       logger
-    rubyzip (2.3.2)
+    rubyzip (2.4.1)
     rufus-scheduler (3.9.2)
       fugit (~> 1.1, >= 1.11.1)
     safe_shell (1.1.0)
@@ -1057,7 +1058,7 @@ GEM
       activerecord (>= 6.1)
     strscan (3.1.2)
     strscan (3.1.2-java)
-    super_diff (0.14.0)
+    super_diff (0.15.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
@@ -1196,7 +1197,7 @@ DEPENDENCIES
   facilities_api!
   factory_bot_rails
   faker
-  faraday (~> 2.12)
+  faraday (~> 2.10)
   faraday-follow_redirects
   faraday-httpclient
   faraday-multipart
