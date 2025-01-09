@@ -177,6 +177,9 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
+  champva_multiple_stamp_logger:
+    actor_type: user
+    description: Enables robust logging for CHAMPVA PDF multistamping
   champva_multiple_stamp_retry:
     actor_type: user
     description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
