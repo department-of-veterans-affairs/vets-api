@@ -19,7 +19,7 @@ module RepresentationManagement
       check_consent_limit_boxes = record_consent && consent_limits.any?
       return 0 if check_consent_limit_boxes == false
 
-      check_consent_limit_boxes && consent_limits.include?(key) ? 0 : 1
+      consent_limits.include?(key) ? 0 : 1
     end
 
     private
