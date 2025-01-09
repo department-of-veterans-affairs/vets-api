@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require_relative 'notification_callback'
-
 module SimpleFormsApi
   class NotificationEmail
     attr_reader :form_number, :confirmation_number, :date_submitted, :expiration_date, :lighthouse_updated_at,
@@ -148,10 +146,7 @@ module SimpleFormsApi
           template_id,
           get_personalization(first_name),
           Settings.vanotify.services.va_gov.api_key,
-          {
-            callback_klass: SimpleFormsApi::NotificationCallback.to_s,
-            callback_metadata: { notification_type:, form_number:, statsd_tags: }
-          }
+          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
         )
       else
         VANotify::EmailJob.perform_at(
@@ -164,26 +159,26 @@ module SimpleFormsApi
     end
 
     def async_job_with_user_account(user_account, at, template_id)
-      return unless (first_name_from_user_account = get_first_name_from_user_account)
-
-      params = [
-        at,
-        user_account.id,
-        template_id,
-        get_personalization(first_name_from_user_account)
-      ]
+      first_name_from_user_account = get_first_name_from_user_account
+      return unless first_name_from_user_account
 
       if Flipper.enabled?(:simple_forms_notification_callbacks)
-        params += [
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user_account.id,
+          template_id,
+          get_personalization(first_name_from_user_account),
           Settings.vanotify.services.va_gov.api_key,
-          {
-            callback_klass: SimpleFormsApi::NotificationCallback.to_s,
-            callback_metadata: { notification_type:, form_number:, statsd_tags: }
-          }
-        ]
+          { callback_metadata: { notification_type:, form_number:, statsd_tags: } }
+        )
+      else
+        VANotify::UserAccountJob.perform_at(
+          at,
+          user_account.id,
+          template_id,
+          get_personalization(first_name_from_user_account)
+        )
       end
-
-      VANotify::UserAccountJob.perform_at(*params)
     end
 
     def send_email_now(template_id)

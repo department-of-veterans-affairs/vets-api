@@ -121,7 +121,12 @@ Using option #2:
 
 ### VA Notify Callback Integration Guide for Vets-API
 
-To effectively track the status of individual notifications, VA Notify provides service callbacks. These callbacks enable you to determine whether a notification was successfully delivered or failed, allowing you to take appropriate action. This guide outlines integrating callback logic: Custom Callback Handler
+To effectively track the status of individual notifications, VA Notify provides service callbacks. These callbacks enable you to determine whether a notification was successfully delivered or failed, allowing you to take appropriate action.
+
+This guide outlines two distinct approaches to integrating callback logic:
+
+- [Default Callback Class][1]
+- [Custom Callback Handler][2]
 
 #### Why Teams Need to Integrate with Callback Logic
 
@@ -139,9 +144,51 @@ A successful request to the VA Notify API does not guarantee that the recipient 
 
 #### How Teams Can Integrate with Callbacks
 
-The Custom Callback Handler allows teams to create a bespoke solution tailored to their specific requirements. This approach offers complete control over how delivery statuses are processed and logged.
+**Option 1: Default Callback Class**
+<a id="default-callback"></a>
 
-Refer to the libraries in `vets-api/lib/va_notify/notification_callback`
+The Default Callback Class offers a standard, ready-to-use implementation for handling callbacks.
+
+Example Implementation
+
+Step 1: Set Up the Notification Trigger
+
+```rb
+# VANotify::EmailJob or VANotify::UserAccountJob
+
+VANotify::EmailJob.perform_async(
+  user.va_profile_email,
+  template_id,
+  get_personalization(first_name),
+  Settings.vanotify.services.va_gov.api_key,
+  {
+    callback_metadata: {
+      notification_type: 'error',
+      form_number: 'ExampleForm1234',
+      statsd_tags: { service: 'DefaultService', function: 'DefaultFunction' }
+    }
+  }
+)
+
+# VANotify::Service
+
+callback_options = {
+    callback_metadata: {
+      notification_type: 'error',
+      form_number: 'ExampleForm1234',
+      statsd_tags: { service: 'DefaultService', function: 'DefaultFunction' }
+    }
+}
+
+notify_client = VaNotify::Service.new(api_key, callback_options)
+
+notify_response = notify_client.send_email(....)
+```
+
+**Option 2: Custom Callback Handler**
+<a id="custom-callback"></a>
+
+The Custom Callback Handler allows teams to create a bespoke solution tailored to their specific requirements. This approach offers complete control over how delivery statuses are processed and logged.
 
 Example Implementation
 
@@ -189,7 +236,7 @@ if Flipper.enabled?(:custom_callback_handler)
     template_id,
     get_personalization(first_name),
     Settings.vanotify.services.va_gov.api_key,
-    { callback_klass: 'ExampleTeam::CustomNotificationCallback', callback_metadata: { ... } }
+    { callback_klass: 'ExampleTeam::CustomNotificationCallback', callback_metadata: {  statsd_tags: { service: 'ExampleTeam' } } }
   )
 else
   # Default logic

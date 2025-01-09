@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'va_notify/default_callback'
+
 module VANotify
   class CallbacksController < VANotify::ApplicationController
     include ActionController::HttpAuthentication::Token::ControllerMethods
@@ -16,12 +18,10 @@ module VANotify
 
       if (notification = VANotify::Notification.find_by(notification_id: notification_id))
         notification.update(notification_params)
-
         Rails.logger.info("va_notify callbacks - Updating notification: #{notification.id}",
                           {
                             source_location: notification.source_location,
                             template_id: notification.template_id,
-                            callback_klass: notification.callback_klass,
                             callback_metadata: notification.callback_metadata,
                             status: notification.status
                           })
