@@ -71,17 +71,9 @@ class FormSubmissionAttempt < ApplicationRecord
     end
   end
 
-  # rubocop:disable Metrics/MethodLength
   def log_status_change
     log_level = :info
-    log_hash = {
-      form_submission_id:,
-      benefits_intake_uuid:,
-      form_type: form_submission&.form_type,
-      from_state: aasm.from_state,
-      to_state: aasm.to_state,
-      event: aasm.current_event
-    }
+    log_hash = status_change_hash
 
     case aasm.current_event
     when :fail!
@@ -98,9 +90,19 @@ class FormSubmissionAttempt < ApplicationRecord
 
     Rails.logger.public_send(log_level, log_hash)
   end
-  # rubocop:enable Metrics/MethodLength
 
   private
+
+  def status_change_hash
+    {
+      form_submission_id:,
+      benefits_intake_uuid:,
+      form_type: form_submission&.form_type,
+      from_state: aasm.from_state,
+      to_state: aasm.to_state,
+      event: aasm.current_event
+    }
+  end
 
   def simple_forms_api_email(log_info)
     Rails.logger.info('Preparing to send Form Submission Attempt error email', log_info)
