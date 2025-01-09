@@ -26,10 +26,12 @@ module IvcChampva
         threshold = Settings.vanotify.services.ivc_champva.failure_email_threshold_days.to_i || 7
         if elapsed_days >= threshold && !form.email_sent
           template_id = "#{form[:form_number]}-FAILURE"
-          send_failure_email(form, template_id)
           additional_context = { form_id: form[:form_number], form_uuid: form[:form_uuid] }
-          monitor.log_silent_failure_avoided(additional_context)
-          monitor.track_missing_status_email_sent(form[:form_number])
+          unless Flipper.enabled?(:champva_vanotify_custom_callback, @current_user)
+            monitor.log_silent_failure_avoided(additional_context)
+            monitor.track_missing_status_email_sent(form[:form_number])
+          end
+          send_failure_email(form, template_id, additional_context)
           send_zsf_notification_to_pega(form, 'PEGA-TEAM-ZSF')
         elsif elapsed_days >= (threshold - 2) && !form.email_sent
           # Give pega 2-day notice if we intend to email a user.
@@ -51,7 +53,7 @@ module IvcChampva
         form_number: form.form_number,
         file_count: nil,
         pega_status: form.pega_status,
-        created_at: form.created_at.strftime('%B %d, %Y'),
+        date_submitted: form.created_at.strftime('%B %d, %Y'),
         template_id: template_id,
         form_uuid: form.form_uuid }
     end
@@ -60,13 +62,27 @@ module IvcChampva
     #
     # @param form [IvcChampvaForm] form object in question
     # @param template_id [string] key for template to use in `IvcChampva::Email::EMAIL_TEMPLATE_MAP`
-    def send_failure_email(form, template_id)
+    # @param additional_context [hash] contains properties form_id and form_uuid
+    #   (e.g.: {form_id: '10-10d', form_uuid: '12345678-1234-5678-1234-567812345678'})
+    def send_failure_email(form, template_id, additional_context)
       form_data = construct_email_payload(form, template_id)
+
+      if Flipper.enabled?(:champva_vanotify_custom_callback, @current_user)
+        form_data = form_data.merge(
+          {
+            callback_klass: 'IvcChampva::ZsfEmailNotificationCallback',
+            callback_metadata: {
+              statsd_tag: 'veteran-ivc-champva-forms',
+              additional_context:
+            }
+          }
+        )
+      end
+
       ActiveRecord::Base.transaction do
         if IvcChampva::Email.new(form_data).send_email
           fetch_forms_by_uuid(form[:form_uuid]).update_all(email_sent: true) # rubocop:disable Rails/SkipsModelValidations
         else
-          additional_context = { form_id: form[:form_number], form_uuid: form[:form_uuid] }
           monitor.log_silent_failure(additional_context)
           raise ActiveRecord::Rollback, 'Pega Status Update/Action Required Email send failure'
         end
