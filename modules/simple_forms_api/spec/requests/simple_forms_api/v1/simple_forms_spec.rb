@@ -17,6 +17,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     'vba_21_0972.json',
     'vba_21_10210.json',
     'vba_21_4138.json',
+    'vba_21_4140.json',
     'vba_21_4142.json',
     'vba_21p_0847.json',
     'vba_40_0247.json',
@@ -117,13 +118,13 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       describe 'unauthenticated forms' do
         unauthenticated_forms.each do |form|
-          include_examples 'form submission', form, false
+          it_behaves_like 'form submission', form, false
         end
       end
 
       describe 'authenticated forms' do
         authenticated_forms.each do |form|
-          include_examples 'form submission', form, true
+          it_behaves_like 'form submission', form, true
         end
       end
 

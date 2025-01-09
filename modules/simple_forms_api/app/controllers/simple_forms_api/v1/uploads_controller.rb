@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'ddtrace'
+require 'datadog'
 require 'simple_forms_api_submission/metadata_validator'
 require 'lgy/service'
 require 'lighthouse/benefits_intake/service'
@@ -22,6 +22,7 @@ module SimpleFormsApi
         '21-0972' => 'vba_21_0972',
         '21-10210' => 'vba_21_10210',
         '21-4138' => 'vba_21_4138',
+        '21-4140' => 'vba_21_4140',
         '21-4142' => 'vba_21_4142',
         '21P-0847' => 'vba_21p_0847',
         '26-4555' => 'vba_26_4555',
