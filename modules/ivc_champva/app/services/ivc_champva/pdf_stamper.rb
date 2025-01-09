@@ -87,7 +87,7 @@ module IvcChampva
       end
     end
 
-    # rubocop:disable metrics/method_length, ThreadSafety/ClassInstanceVariable, Layout/LineLength
+    # rubocop:disable Metrics/MethodLength, ThreadSafety/ClassInstanceVariable, Layout/LineLength
     def self.perform_multistamp(stamped_template_path, stamp_path)
       out_path = "#{Common::FileHelpers.random_file_path}.pdf"
       pdftk = PdfFill::Filler::PDF_FORMS
@@ -135,7 +135,7 @@ module IvcChampva
         end
       end
     end
-    # rubocop:enable metrics/method_length, ThreadSafety/ClassInstanceVariable, Layout/LineLength
+    # rubocop:enable Metrics/MethodLength, ThreadSafety/ClassInstanceVariable, Layout/LineLength
 
     def self.stamp_submission_date(stamped_template_path, desired_stamps)
       if desired_stamps.is_a?(Array)
