@@ -19,7 +19,7 @@ RSpec.describe DatadogLoggingModule do
     allow(dummy_class).to receive(:current_user).and_return(current_user)
   end
 
-  describe '#datadog_Logging_Module' do
+  describe '#datadog_logging_module' do
     let(:context) { 'some_context' }
     let(:message) { 'some_message' }
     let(:stack_trace) { 'some_stack_trace' }
@@ -33,14 +33,14 @@ RSpec.describe DatadogLoggingModule do
         error_details = { message: message, backtrace: stack_trace }
 
         expect(Rails.logger).to receive(:error).with(context, error_details)
-        dummy_class.datadog_Logging_Module(context, message, stack_trace)
+        dummy_class.datadog_logging_module(context, message, stack_trace)
       end
 
       it 'logs the error to Datadog when the backtrace is nil' do
         error_details = { message: message, backtrace: nil }
 
         expect(Rails.logger).to receive(:error).with(context, error_details)
-        dummy_class.datadog_Logging_Module(context, message, nil)
+        dummy_class.datadog_logging_module(context, message, nil)
       end
     end
 
@@ -51,7 +51,7 @@ RSpec.describe DatadogLoggingModule do
 
       it 'the method does not log the error to Datadog' do
         expect(Rails.logger).not_to receive(:error)
-        dummy_class.datadog_Logging_Module(context, message, stack_trace)
+        dummy_class.datadog_logging_module(context, message, stack_trace)
       end
     end
   end
