@@ -35,11 +35,12 @@ module BGSDependents
       @dependents_application = dependents_application
       @is_v2 = Flipper.enabled?(:va_dependents_v2)
       # with v2 handling, dependents_application is one to many hashes within the student_information array
-      @ssn = @is_v2 ? @dependents_application.dig('ssn') : @dependents_application.dig('student_information', 'ssn')
-      @full_name = @is_v2 ? @dependents_application['full_name'] : @dependents_application['student_information']['full_name']
-      @birth_date = @is_v2 ?  @dependents_application.dig('birth_date') : @dependents_application.dig('student_information', 'birth_date')
-      @was_married = @is_v2 ?  @dependents_application['was_married'] : @dependents_application['student_information']['was_married']
-      @dependent_income = @is_v2 ? @dependents_application['student_income'] : @dependents_application['student_information']['student_income']
+      @source = @is_v2 ? @dependents_application : @dependents_application['student_information']
+      @ssn = @source.dig('ssn')
+      @full_name = @source['full_name']
+      @birth_date = @source.dig('birth_date')
+      @was_married = @source['was_married']
+      @dependent_income = @source['student_income']
 
       self.attributes = described_class_attribute_hash
     end
@@ -57,7 +58,7 @@ module BGSDependents
     # @return [Hash] the student's address
     #
     def address
-      @is_v2 ? @dependents_application['address'] : @dependents_application['student_information']['address']
+      @source['address']
     end
 
     private
