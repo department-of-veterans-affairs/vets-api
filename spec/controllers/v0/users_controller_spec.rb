@@ -179,5 +179,23 @@ RSpec.describe V0::UsersController, type: :controller do
       expect(response).to be_successful
       expect(JSON.parse(response.body)).to eq(expected_response)
     end
+
+    context 'when a user verification does not have a credential email' do
+      let!(:logingov_user_verification) do
+        create(:user_verification,
+               logingov_uuid: user.logingov_uuid,
+               user_credential_email: nil,
+               user_account_id: user_account.id)
+      end
+      let(:expected_response) do
+        { idme_user_verification.credential_type => user_credential_email1.credential_email }
+      end
+
+      it 'returns the users credential emails that are not nil' do
+        get :credential_emails
+        expect(response).to be_successful
+        expect(JSON.parse(response.body)).to eq(expected_response)
+      end
+    end
   end
 end
