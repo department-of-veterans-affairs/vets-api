@@ -61,7 +61,7 @@ module ClaimsApi
                                                     external_key: 'power_of_attorney_request_key')
 
           if decision == 'declined'
-            ptcpnt_id = fetch_ptcnpnt_id(vet_icn)
+            ptcpnt_id = fetch_ptcpnt_id(vet_icn)
             poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
           end
 

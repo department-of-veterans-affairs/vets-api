@@ -239,7 +239,7 @@ module ClaimsApi
           mpi_profile
         end
 
-        def fetch_ptcnpnt_id(vet_icn)
+        def fetch_ptcpnt_id(vet_icn)
           mpi_profile = mpi_service.find_profile_by_identifier(identifier: vet_icn,
                                                                identifier_type: MPI::Constants::ICN)
           mpi_profile.profile.participant_id
