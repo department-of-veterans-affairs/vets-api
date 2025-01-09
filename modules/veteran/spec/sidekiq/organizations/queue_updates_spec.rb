@@ -19,7 +19,7 @@ RSpec.describe Organizations::QueueUpdates, type: :job do
     let(:file_content) { 'dummy file content' }
     let(:processed_data) do
       {
-        'VSOs' => [{ poa: '123', address: {} }]
+        'VSOs' => [{ id: '123', address: {} }]
       }
     end
 
