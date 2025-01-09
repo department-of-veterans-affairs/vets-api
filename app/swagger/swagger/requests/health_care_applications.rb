@@ -187,9 +187,6 @@ module Swagger
 
       swagger_path '/v0/health_care_applications/facilities' do
         operation :get do
-          extend Swagger::Responses::BackendServiceError
-          extend Swagger::Responses::InternalServerError
-
           key :description, 'Retrieve a list of active healthcare facilities'
           key :operationId, 'getFacilities'
           key :tags, %w[benefits_forms]

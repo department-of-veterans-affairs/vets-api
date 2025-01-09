@@ -8,8 +8,6 @@ module Swagger
       swagger_path '/v0/caregivers_assistance_claims' do
         operation :post do
           extend Swagger::Responses::ValidationError
-          extend Swagger::Responses::BackendServiceError
-          extend Swagger::Responses::InternalServerError
 
           key :description,
               'Submit a 10-10CG form (Application for the Program of Comprehensive Assistance for Family Caregivers)'
@@ -53,10 +51,6 @@ module Swagger
 
       swagger_path '/v0/caregivers_assistance_claims/facilities' do
         operation :post do
-          extend Swagger::Responses::ValidationError
-          extend Swagger::Responses::BackendServiceError
-          extend Swagger::Responses::InternalServerError
-
           key :description, 'Get a list of medical facilities based on search criteria.'
 
           key :tags, %w[benefits_forms]
@@ -128,10 +122,6 @@ module Swagger
 
       swagger_path '/v0/caregivers_assistance_claims/download_pdf' do
         operation :post do
-          extend Swagger::Responses::ValidationError
-          extend Swagger::Responses::BackendServiceError
-          extend Swagger::Responses::InternalServerError
-
           key :description, 'Download a pre-filled 10-10CG PDF form.'
 
           key :tags, %w[benefits_forms]
