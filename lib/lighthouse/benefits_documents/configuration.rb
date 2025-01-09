@@ -11,7 +11,7 @@ module BenefitsDocuments
   # sets the base path, the base request headers, and a service name for breakers and metrics.
   #
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.lighthouse.benefits_documents.timeout || 20
+    self.read_timeout = Settings.lighthouse.benefits_documents.timeout || 55
 
     SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze

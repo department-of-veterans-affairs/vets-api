@@ -96,14 +96,24 @@ module ClaimsApi
             claimant_icn = form_attributes.dig('claimant', 'claimantId')
             poa_request = ClaimsApi::PowerOfAttorneyRequest.create!(proc_id: res['procId'],
                                                                     veteran_icn: params[:veteranId],
-                                                                    claimant_icn:, poa_code:)
+                                                                    claimant_icn:, poa_code:,
+                                                                    metadata: res['meta'])
             form_attributes['id'] = poa_request.id
           end
 
           # return only the form information consumers provided
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes, view: :create,
-                                                                                                          root: :data),
-                 status: :created
+          if form_attributes['id'].present?
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
+                                                                                           view: :create,
+                                                                                           root: :data),
+                   status: :created,
+                   location: url_for(controller: 'base', action: 'status', id: form_attributes['id'])
+          else
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
+                                                                                           view: :create,
+                                                                                           root: :data),
+                   status: :created
+          end
         end
 
         private
