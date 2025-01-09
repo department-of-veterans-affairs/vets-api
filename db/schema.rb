@@ -469,6 +469,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_31_213045) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["power_of_attorney_id"], name: "idx_on_power_of_attorney_id_9fc9134311"
+    t.index ["proc_id"], name: "index_claims_api_power_of_attorney_requests_on_proc_id"
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
