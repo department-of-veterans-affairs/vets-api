@@ -14,9 +14,7 @@ module Veteran
       #
       # @return [Hash] Hash with "address_changed" keys as a boolean.
       def diff(org_data)
-        %i[address].each_with_object({}) do |field, diff|
-          diff["#{field}_changed"] = field == :address ? address_changed?(org_data) : send(field) != org_data[field]
-        end
+        { 'address_changed' => address_changed?(org_data) }
       end
 
       private
