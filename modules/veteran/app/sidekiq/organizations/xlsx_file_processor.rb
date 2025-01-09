@@ -126,6 +126,7 @@ module Organizations
     # @param column_map [Hash] The column index map for the sheet.
     # @return [String] The hash representation of the row data.
     def process_row(row, sheet_name, column_map)
+      row = row.map { |cell| cell.is_a?(Numeric) ? cell.to_i.to_s : cell }
       zip_code5, zip_code4 = get_value(row, column_map, 'OrganizationZipCode')
 
       {
