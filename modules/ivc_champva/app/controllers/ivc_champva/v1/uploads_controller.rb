@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'ddtrace'
+require 'datadog'
 
 module IvcChampva
   module V1

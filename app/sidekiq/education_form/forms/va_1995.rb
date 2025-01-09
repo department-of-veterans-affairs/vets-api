@@ -26,7 +26,7 @@ module EducationForm::Forms
     end
 
     def header_form_type
-      @applicant.rudisillReview == 'Yes' ? 'V1995R' : 'V1995'
+      @applicant.rudisillReview == 'Yes' ? '1995R' : 'V1995'
     end
   end
 end
