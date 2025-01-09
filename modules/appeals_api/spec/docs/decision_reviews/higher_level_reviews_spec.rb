@@ -204,15 +204,15 @@ describe 'Higher-Level Reviews', openapi_spec:, type: :request do
                         desc: 'Returns a 404 response'
       end
 
-      response '422', 'Bad receipt date' do
+      response '422', 'Invalid receipt date' do
         schema '$ref' => '#/components/schemas/errorModel'
 
         let(:benefit_type) { 'compensation' }
         let(:'X-VA-SSN') { '872958715' }
-        let(:'X-VA-Receipt-Date') { '1900-01-01' }
+        let(:'X-VA-Receipt-Date') { '2019-02-19' }
 
         it_behaves_like 'rswag example',
-                        cassette: 'caseflow/higher_level_reviews/bad_date',
+                        cassette: 'caseflow/higher_level_reviews/contestable_issues',
                         desc: 'Returns a 422 response'
       end
 

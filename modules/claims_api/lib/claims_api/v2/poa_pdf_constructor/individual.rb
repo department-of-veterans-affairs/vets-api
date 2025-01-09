@@ -116,7 +116,7 @@ module ClaimsApi
             # Item 12
             "#{base_form}.TelephoneNumber_IncludeAreaCode[1]": "#{data.dig('claimant', 'phone', 'areaCode')} #{data.dig('claimant', 'phone', 'phoneNumber')}",
             # Item 13
-            "#{base_form}.EmailAddress_Optional[1]": data.dig('claimant', 'email'),
+            "#{base_form}.EmailAddress_Optional[1]": data.dig('claimant', 'email')&.downcase,
             # Item 14
             "#{base_form}.RelationshipToVeteran[0]": data.dig('claimant', 'relationship'),
 

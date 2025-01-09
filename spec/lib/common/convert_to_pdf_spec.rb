@@ -6,10 +6,6 @@ require 'common/convert_to_pdf'
 describe Common::ConvertToPdf, :uploader_helpers do
   stub_virus_scan
 
-  before do
-    Flipper.enable(:va_burial_v2)
-  end
-
   let(:file) { create(:pension_burial).file }
 
   let(:instance) do

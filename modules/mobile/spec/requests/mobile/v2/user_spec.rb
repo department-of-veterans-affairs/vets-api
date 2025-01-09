@@ -43,6 +43,11 @@ RSpec.describe 'Mobile::V2::User', type: :request do
       expect(attributes['signinService']).to eq('idme')
     end
 
+    it 'includes edipi' do
+      get_user
+      expect(attributes['edipi']).to eq('384759483')
+    end
+
     describe 'has_facility_transitioning_to_cerner' do
       context 'with feature flag off and user\'s va_treatment_facility_ids contains the hardcoded facility id' do
         let!(:user) { sis_user(idme_uuid: 'b2fab2b5-6af0-45e1-a9e2-394347af91ef', vha_facility_ids: ['979']) }

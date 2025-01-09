@@ -16,6 +16,7 @@ module MPI
     class RecordNotFound < MPI::Errors::Response; end
     class ArgumentError < MPI::Errors::Response; end
     class DuplicateRecords < MPI::Errors::Response; end
+    class AccountLockedError < StandardError; end
     class Request < ServiceError; end
     class FailedRequestError < MPI::Errors::Request; end
     class InvalidRequestError < MPI::Errors::Request; end

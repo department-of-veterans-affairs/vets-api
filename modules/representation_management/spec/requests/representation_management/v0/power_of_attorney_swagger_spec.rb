@@ -25,7 +25,7 @@ RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_ma
         before do
           lh_response = {
             'data' => {
-              'type' => 'organization',
+              'type' => 'individual',
               'attributes' => {
                 'code' => 'abc'
               }
@@ -36,7 +36,7 @@ RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_ma
 
         schema anyOf: [
           {
-            '$ref' => '#/components/schemas/PowerOfAttorneyResponse'
+            '$ref' => '#/components/schemas/powerOfAttorneyResponse'
           },
           {
             type: :object,
@@ -55,13 +55,13 @@ RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_ma
             .and_raise(Common::Exceptions::UnprocessableEntity)
         end
 
-        schema '$ref' => '#/components/schemas/ErrorModel'
+        schema '$ref' => '#/components/schemas/errorModel'
 
         run_test!
       end
 
       response '500', 'Internal Server Error' do
-        schema '$ref' => '#/components/schemas/ErrorModel'
+        schema '$ref' => '#/components/schemas/errorModel'
         run_test!
       end
     end

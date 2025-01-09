@@ -6,9 +6,10 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v1'
 require 'bgs/power_of_attorney_verifier'
+require 'bgs_service/person_web_service'
 
 Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v1/swagger.json' do
-  let(:pws) { ClaimsApi::LocalBGS }
+  let(:pws) { ClaimsApi::PersonWebService }
 
   path '/forms/2122' do
     get 'Gets schema for POA form.' do
@@ -90,7 +91,37 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
       let(:'X-VA-Birth-Date') { '1986-05-06T00:00:00+00:00' }
       let(:Authorization) { 'Bearer token' }
 
-      parameter SwaggerSharedComponents::V1.body_examples[:power_of_attorney]
+      claimant_data = {
+        'firstName' => 'Mary',
+        'lastName' => 'Lincoln',
+        'address' => {
+          'numberAndStreet' => '123 anystreet',
+          'city' => 'anytown',
+          'state' => 'OR',
+          'country' => 'USA',
+          'zipFirstFive' => '12345'
+        },
+        'relationship' => 'Spouse'
+      }
+
+      request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
+                                                    'form_2122_json_api.json').read)
+
+      request_template_with_dependent = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures',
+                                                                   'form_2122_json_api.json').read)
+      request_template_with_dependent['data']['attributes']['claimant'] = claimant_data
+
+      parameter name: :power_of_attorney_request, in: :body,
+                schema: SwaggerSharedComponents::V1.body_examples[:power_of_attorney][:schema]
+
+      parameter in: :body, examples: {
+        'POA for Veteran' => {
+          value: request_template
+        },
+        'POA for Dependent Claimant' => {
+          value: request_template_with_dependent
+        }
+      }
 
       describe 'Getting a successful response' do
         response '200', '2122 Response' do
@@ -104,6 +135,11 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
 
             temp
           end
+
+          let(:power_of_attorney_request) do
+            data
+          end
+
           let(:bgs_poa_verifier) { BGS::PowerOfAttorneyVerifier.new(nil) }
 
           before do |example|
@@ -152,6 +188,10 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
           end
           let(:Authorization) { nil }
 
+          let(:power_of_attorney_request) do
+            data
+          end
+
           before do |example|
             stub_poa_verification
 
@@ -187,6 +227,10 @@ Rspec.describe 'Power of Attorney', openapi_spec: 'modules/claims_api/app/swagge
             temp['data']['attributes']['serviceOrganization']['poaCode'] = nil
 
             temp
+          end
+
+          let(:power_of_attorney_request) do
+            data
           end
 
           before do |example|

@@ -127,7 +127,7 @@ Rspec.describe 'EVSS Claims management', openapi_spec: 'modules/claims_api/app/s
           before do |example|
             stub_poa_verification
 
-            allow_any_instance_of(ClaimsApi::LocalBGS).to receive(:all).and_raise(
+            allow_any_instance_of(ClaimsApi::EbenefitsBnftClaimStatusWebService).to receive(:all).and_raise(
               Common::Exceptions::ResourceNotFound.new(detail: 'The Resource was not found.')
             )
             mock_acg(scopes) do

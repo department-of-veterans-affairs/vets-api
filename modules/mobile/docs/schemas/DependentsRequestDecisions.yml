@@ -154,6 +154,7 @@ properties:
                 sortOrderNumber:
                   type: string
                   example: "0"
+                  nullable: true
                 veteranId:
                   type: string
                   nullable: true
@@ -183,6 +184,7 @@ properties:
                 - ptcpntDiaryId
                 - statusDate
                 - veteranId
+                - payeeType
               properties:
                 awardDiaryId:
                   type: string
@@ -241,6 +243,10 @@ properties:
                 veteranId:
                   type: string
                   example: "13014883"
+                payeeType:
+                  type: string
+                  example: "11"
+                  nullable: true
           promptRenewal:
             type: boolean
             example: false

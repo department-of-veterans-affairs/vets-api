@@ -15,6 +15,10 @@ RSpec.describe VirtualRegionalOffice::Client do
         {
           contention_text: 'Asthma',
           contention_type: 'NEW'
+        },
+        {
+          contention_text: 'right acl tear',
+          contention_type: 'NEW'
         }
       ],
       claim_id: 4567,
@@ -48,6 +52,34 @@ RSpec.describe VirtualRegionalOffice::Client do
         end
 
         it 'returns the api response' do
+          expect(subject).to eq generic_response
+        end
+      end
+
+      describe 'when requesting expanded classification' do
+        subject { client.classify_vagov_contentions_expanded(classification_contention_params) }
+
+        let(:generic_response) do
+          double(
+            'virtual regional office response', status: 200,
+                                                body: {
+                                                  contentions: [
+                                                    { classification_code: '99999', classification_name: 'namey' },
+                                                    { classification_code: '9012', classification_name: 'Respiratory' },
+                                                    {
+                                                      classification_code: '8997',
+                                                      classification_name: 'Musculoskeletal - Knee'
+                                                    }
+                                                  ]
+                                                }.as_json
+          )
+        end
+
+        before do
+          allow(client).to receive(:perform).and_return generic_response
+        end
+
+        it 'returns the api response for the expanded classification' do
           expect(subject).to eq generic_response
         end
       end

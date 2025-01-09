@@ -9,9 +9,10 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
   let(:headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
   let(:headers_with_camel) { headers.merge('X-Key-Inflection' => 'camel') }
 
-  describe 'ContactInformationV1' do
+  describe 'ContactInformationV1', :skip_va_profile_user do
     before do
-      Flipper.disable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(false)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)
       Timecop.freeze(Time.zone.local(2018, 6, 6, 15, 35, 55))
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
       user.vet360_contact_info
@@ -23,10 +24,6 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'POST /v0/profile/email_addresses/create_or_update' do
-      before do
-        Flipper.disable(:va_v3_contact_information_service)
-      end
-
       let(:email) { build(:email, vet360_id: user.vet360_id) }
 
       it 'calls update_email' do
@@ -40,10 +37,6 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'POST /v0/profile/email_addresses' do
-      before do
-        Flipper.disable(:va_v3_contact_information_service)
-      end
-
       let(:email) { build(:email, vet360_id: user.vet360_id) }
 
       context 'with a 200 response' do
@@ -146,10 +139,6 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'PUT /v0/profile/email_addresses' do
-      before do
-        Flipper.disable(:va_v3_contact_information_service)
-      end
-
       let(:email) { build(:email, vet360_id: user.vet360_id) }
 
       context 'with a 200 response' do
@@ -248,7 +237,6 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
 
     describe 'DELETE /v0/profile/email_addresses' do
       before do
-        Flipper.disable(:va_v3_contact_information_service)
         allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
         email.id = id_in_cassette
       end
@@ -282,18 +270,19 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
   end
 
-  describe 'ContactInformationV2', :initiate_vaprofile, :skip_vet360 do
+  describe 'ContactInformationV2', :skip_vet360 do
     let(:contact_info) { VAProfileRedis::V2::ContactInformation.for_user(user) }
 
     before do
-      Flipper.enable(:va_v3_contact_information_service)
+      allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
+      allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(true)
       allow(VAProfile::Configuration::SETTINGS.contact_information).to receive(:cache_enabled).and_return(true)
-      user.vaprofile_contact_info
+      user.vet360_contact_info
       sign_in_as(user)
     end
 
     describe 'POST /v0/profile/email_addresses/create_or_update v2' do
-      let(:email) { build(:email, :contact_info_v2, vet360_id: user.vet360_id) }
+      let(:email) { build(:email, :contact_info_v2) }
 
       it 'calls update_email' do
         expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:update_email).and_call_original
@@ -305,7 +294,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'POST /v0/profile/email_addresses v2' do
-      let(:email) { build(:email, :contact_info_v2, vet360_id: user.vet360_id) }
+      let(:email) { build(:email, :contact_info_v2) }
 
       context 'with a 200 response' do
         it 'matches the email address schema', :aggregate_failures do
@@ -406,7 +395,7 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
     end
 
     describe 'PUT /v0/profile/email_addresses v2' do
-      let(:email) { build(:email, :contact_info_v2, vet360_id: user.vet360_id) }
+      let(:email) { build(:email, :contact_info_v2) }
 
       context 'with a 200 response' do
         it 'matches the email address schema', :aggregate_failures do
@@ -473,9 +462,9 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
 
       context 'when effective_end_date is included' do
         let(:email) do
-          build(:email, :contact_info_v2, vet360_id: user.vet360_id,
-                                          email_address: 'person42@example.com',
-                                          effective_end_date: '2024-09-09T11:52:03.000-06:00')
+          build(:email, :contact_info_v2,
+                email_address: 'person42@example.com',
+                effective_end_date: '2024-09-09T11:52:03.000-06:00')
         end
         let(:id_in_cassette) { 42 }
 
@@ -486,9 +475,9 @@ RSpec.describe 'V0::Profile::EmailAddresses', type: :request do
       end
     end
 
-    describe 'DELETE /v0/profile/email_addresses v2', :initiate_vaprofile, :skip_vet360 do
+    describe 'DELETE /v0/profile/email_addresses v2', :skip_vet360 do
       let(:email) do
-        build(:email, vet360_id: user.vet360_id, email_address: 'person42@example.com')
+        build(:email, email_address: 'person42@example.com')
       end
 
       before do

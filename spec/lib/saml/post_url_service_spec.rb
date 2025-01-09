@@ -613,6 +613,28 @@ RSpec.describe SAML::PostURLService do
             let(:expected_log_message) { 'Redirecting to /terms-of-use' }
             let(:expected_log_payload) { { type: :ssoe } }
 
+            shared_examples 'terms of use redirected url' do
+              it 'has a login redirect url as a parameter embedded in review instance terms of use page' do
+                expect(subject.terms_of_use_redirect_url)
+                  .to eq("#{base_url}/terms-of-use?#{expected_redirect_url_param}")
+              end
+
+              it 'logs expected message and payload' do
+                expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
+                subject.terms_of_use_redirect_url
+              end
+
+              context 'and tracker application is within SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
+                let(:application) { SAML::URLService::SKIP_MHV_ACCOUNT_CREATION_CLIENTS.first }
+                let(:skip_mhv_account_creation_param) { 'skip_mhv_account_creation=true' }
+
+                it 'appends skip_mhv_account_creation query parameter' do
+                  expect(subject.terms_of_use_redirect_url)
+                    .to eq("#{base_url}/terms-of-use?#{expected_redirect_url_param}&#{skip_mhv_account_creation_param}")
+                end
+              end
+            end
+
             context 'when associated terms of use redirect user cache object exists' do
               let(:cache_key) { "terms_of_use_redirect_user_#{user.uuid}" }
               let(:enabled_clients) { application }
@@ -628,31 +650,17 @@ RSpec.describe SAML::PostURLService do
 
                 context 'and authentication is occuring on a review instance' do
                   let(:review_instance_slug) { 'some-review-instance-slug' }
-                  let(:review_instance_url) { "#{review_instance_slug}.review.vetsgov-internal" }
+                  let(:base_url) { "http://#{review_instance_slug}.review.vetsgov-internal" }
 
                   before { allow(Settings).to receive(:review_instance_slug).and_return(review_instance_slug) }
 
-                  it 'has a login redirect url as a parameter embedded in review instance terms of use page' do
-                    expect(subject.terms_of_use_redirect_url)
-                      .to eq("http://#{review_instance_url}/terms-of-use?#{expected_redirect_url_param}")
-                  end
-
-                  it 'logs expected message and payload' do
-                    expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
-                    subject.terms_of_use_redirect_url
-                  end
+                  it_behaves_like 'terms of use redirected url'
                 end
 
                 context 'and authentication is not occurring on a review instance' do
-                  it 'has a login redirect url as a parameter embedded in terms of use page with success' do
-                    expect(subject.terms_of_use_redirect_url)
-                      .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
-                  end
+                  let(:base_url) { values[:base_redirect] }
 
-                  it 'logs expected message and payload' do
-                    expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
-                    subject.terms_of_use_redirect_url
-                  end
+                  it_behaves_like 'terms of use redirected url'
                 end
               end
 
@@ -678,46 +686,25 @@ RSpec.describe SAML::PostURLService do
 
                 context 'and authentication is occuring on a review instance' do
                   let(:review_instance_slug) { 'some-review-instance-slug' }
-                  let(:review_instance_url) { "#{review_instance_slug}.review.vetsgov-internal" }
+                  let(:base_url) { "http://#{review_instance_slug}.review.vetsgov-internal" }
 
                   before { allow(Settings).to receive(:review_instance_slug).and_return(review_instance_slug) }
 
-                  it 'has a login redirect url as a parameter embedded in review instance terms of use page' do
-                    expect(subject.terms_of_use_redirect_url)
-                      .to eq("http://#{review_instance_url}/terms-of-use?#{expected_redirect_url_param}")
-                  end
-
-                  it 'logs expected message and payload' do
-                    expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
-                    subject.terms_of_use_redirect_url
-                  end
+                  it_behaves_like 'terms of use redirected url'
                 end
 
                 context 'and authentication is not occurring on a review instance' do
-                  it 'has a login redirect url as a parameter embedded in terms of use page with success' do
-                    expect(subject.terms_of_use_redirect_url)
-                      .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
-                  end
+                  let(:base_url) { values[:base_redirect] }
 
-                  it 'logs expected message and payload' do
-                    expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
-                    subject.terms_of_use_redirect_url
-                  end
+                  it_behaves_like 'terms of use redirected url'
                 end
               end
 
               context 'when tracker application is nil' do
                 let(:application) { nil }
+                let(:base_url) { values[:base_redirect] }
 
-                it 'has a login redirect url as a parameter embedded in terms of use page with success' do
-                  expect(subject.terms_of_use_redirect_url)
-                    .to eq("#{values[:base_redirect]}/terms-of-use?#{expected_redirect_url_param}")
-                end
-
-                it 'logs expected message and payload' do
-                  expect(Rails.logger).to receive(:info).with(expected_log_message, expected_log_payload)
-                  subject.terms_of_use_redirect_url
-                end
+                it_behaves_like 'terms of use redirected url'
               end
 
               context 'when tracker application is not within Settings.terms_of_use.enabled_clients' do

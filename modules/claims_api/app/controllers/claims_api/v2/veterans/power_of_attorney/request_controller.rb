@@ -29,16 +29,15 @@ module ClaimsApi
 
           validate_filter!(filter)
 
-          service = ClaimsApi::ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
-                                                               external_key: 'power_of_attorney_request_key')
+          service = ClaimsApi::PowerOfAttorneyRequestService::Index.new(poa_codes:, page_size:, page_index:, filter:)
 
-          res = service.read_poa_request(poa_codes:, page_size:, page_index:, filter:)
-
-          poa_list = res['poaRequestRespondReturnVOList']
+          poa_list = service.get_poa_list
 
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
-          render json: Array.wrap(poa_list), status: :ok
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
+            poa_list, view: :index, root: :data
+          ), status: :ok
         end
 
         def decide
@@ -49,8 +48,8 @@ module ClaimsApi
 
           validate_decide_params!(proc_id:, decision:)
 
-          service = ManageRepresentativeService.new(external_uid: 'power_of_attorney_request_uid',
-                                                    external_key: 'power_of_attorney_request_key')
+          service = ClaimsApi::ManageRepresentativeService.new(external_uid: Settings.bgs.external_uid,
+                                                               external_key: Settings.bgs.external_key)
 
           if decision == 'declined'
             poa_request = validate_ptcpnt_id!(ptcpnt_id:, proc_id:, representative_id:, service:)
@@ -68,7 +67,7 @@ module ClaimsApi
           render json: res, status: :ok
         end
 
-        def create
+        def create # rubocop:disable Metrics/MethodLength
           # validate target veteran exists
           target_veteran
 
@@ -94,11 +93,27 @@ module ClaimsApi
                                                                              bgs_form_attributes.deep_symbolize_keys,
                                                                              user_profile&.profile&.participant_id,
                                                                              :poa).submit_request
-            form_attributes['procId'] = res['procId']
+            claimant_icn = form_attributes.dig('claimant', 'claimantId')
+            poa_request = ClaimsApi::PowerOfAttorneyRequest.create!(proc_id: res['procId'],
+                                                                    veteran_icn: params[:veteranId],
+                                                                    claimant_icn:, poa_code:,
+                                                                    metadata: res['meta'])
+            form_attributes['id'] = poa_request.id
           end
 
           # return only the form information consumers provided
-          render json: { data: { attributes: form_attributes } }, status: :created
+          if form_attributes['id'].present?
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
+                                                                                           view: :create,
+                                                                                           root: :data),
+                   status: :created,
+                   location: url_for(controller: 'base', action: 'status', id: form_attributes['id'])
+          else
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
+                                                                                           view: :create,
+                                                                                           root: :data),
+                   status: :created
+          end
         end
 
         private
@@ -118,6 +133,8 @@ module ClaimsApi
         end
 
         def send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
+          return unless Flipper.enabled?(:lighthouse_claims_api_v2_poa_va_notify)
+
           lockbox = Lockbox.new(key: Settings.lockbox.master_key)
           encrypted_ptcpnt_id = Base64.strict_encode64(lockbox.encrypt(ptcpnt_id))
           encrypted_first_name = Base64.strict_encode64(lockbox.encrypt(first_name))

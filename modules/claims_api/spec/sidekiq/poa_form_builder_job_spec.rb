@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'pdf_fill/filler'
 
-RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job do
+RSpec.describe ClaimsApi::V1::PoaFormBuilderJob, type: :job, vcr: 'bgs/person_web_service/find_by_ssn' do
   subject { described_class }
 
   let(:power_of_attorney) { create(:power_of_attorney, :with_full_headers) }

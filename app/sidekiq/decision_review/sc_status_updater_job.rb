@@ -4,6 +4,11 @@ require_relative 'saved_claim_status_updater_job'
 
 module DecisionReview
   class ScStatusUpdaterJob < SavedClaimStatusUpdaterJob
+    def perform
+      ActiveSupport::Deprecation.new.warn("#{self.class.name} job is deprecated and will be replaced by DR engine job")
+      super
+    end
+
     private
 
     def records_to_update
@@ -26,8 +31,8 @@ module DecisionReview
       decision_review_service.get_supplemental_claim(guid).body
     end
 
-    def get_evidence_status(uuid)
-      decision_review_service.get_supplemental_claim_upload(uuid:).body
+    def get_evidence_status(guid)
+      decision_review_service.get_supplemental_claim_upload(guid:).body
     end
 
     def evidence?

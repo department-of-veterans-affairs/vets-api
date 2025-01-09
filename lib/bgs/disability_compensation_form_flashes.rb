@@ -2,9 +2,10 @@
 
 module BGS
   class DisabilityCompensationFormFlashes
-    def initialize(user, form_content)
+    def initialize(user, form_content, claimed_disabilities)
       @user = user
       @form_content = form_content['form526']
+      @claimed_disabilities = claimed_disabilities
       @flashes = []
     end
 
@@ -32,6 +33,7 @@ module BGS
       @flashes << 'Terminally Ill' if terminally_ill?
       @flashes << 'Priority Processing - Veteran over age 85' if over_85?
       @flashes << 'POW' if pow?
+      @flashes << 'Amyotrophic Lateral Sclerosis' if als?
       @flashes
     end
 
@@ -49,6 +51,16 @@ module BGS
 
     def pow?
       @form_content['confinements'].present?
+    end
+
+    def als?
+      feature_enabled = Flipper.enabled?(:disability_526_ee_process_als_flash, @user)
+      add_als = ClaimFastTracking::FlashPicker.als?(@claimed_disabilities)
+      Rails.logger.info('FlashPicker for ALS', { feature_enabled: }) if add_als
+      feature_enabled && add_als
+    rescue => e
+      Rails.logger.error("Failed to determine need for ALS flash: #{e.message}.", backtrace: e.backtrace)
+      false
     end
   end
 end

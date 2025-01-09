@@ -98,6 +98,7 @@ class User < Common::RedisStore
   delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :loa3?, to: :identity, allow_nil: true
   delegate :logingov_uuid, to: :identity, allow_nil: true
+  delegate :mhv_credential_uuid, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :sign_in, to: :identity, allow_nil: true, prefix: true
@@ -152,20 +153,17 @@ class User < Common::RedisStore
   end
 
   def mhv_correlation_id
-    identity.mhv_correlation_id || mpi_mhv_correlation_id
+    return unless can_create_mhv_account?
+    return mhv_user_account.id if mhv_user_account.present?
+
+    mpi_mhv_correlation_id if active_mhv_ids&.one?
   end
 
   def mhv_user_account
-    @mhv_user_account ||= if va_patient?
-                            MHV::UserAccount::Creator.new(user_verification:).perform
-                          else
-                            log_mhv_user_account_error('User has no va_treatment_facility_ids')
-
-                            nil
-                          end
-  rescue MHV::UserAccount::Errors::UserAccountError => e
+    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:).perform
+  rescue => e
     log_mhv_user_account_error(e.message)
-    raise
+    nil
   end
 
   def middle_name
@@ -318,6 +316,13 @@ class User < Common::RedisStore
 
   # Other MPI
 
+  def validate_mpi_profile
+    return unless mpi_profile?
+
+    raise MPI::Errors::AccountLockedError, 'Death Flag Detected' if mpi_profile.deceased_date
+    raise MPI::Errors::AccountLockedError, 'Theft Flag Detected' if mpi_profile.id_theft_flag
+  end
+
   def invalidate_mpi_cache
     return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response
 
@@ -407,7 +412,11 @@ class User < Common::RedisStore
   def vet360_contact_info
     return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
 
-    @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
+    @vet360_contact_info ||= if Flipper.enabled?(:remove_pciu, self)
+                               VAProfileRedis::V2::ContactInformation.for_user(self)
+                             else
+                               VAProfileRedis::ContactInformation.for_user(self)
+                             end
   end
 
   def va_profile_email
@@ -415,7 +424,9 @@ class User < Common::RedisStore
   end
 
   def vaprofile_contact_info
-    @vet360_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
+    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && icn.present?
+
+    @vaprofile_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
   end
 
   def va_profile_v2_email
@@ -470,13 +481,11 @@ class User < Common::RedisStore
     MHV::AccountCreatorJob.perform_async(user_verification_id)
   end
 
-  def can_create_mhv_account?
-    return false unless Flipper.enabled?(:mhv_account_creation_after_login, user_account)
-
-    loa3? && va_patient? && !needs_accepted_terms_of_use
-  end
-
   private
+
+  def can_create_mhv_account?
+    loa3? && !needs_accepted_terms_of_use
+  end
 
   def mpi_profile
     return nil unless identity && mpi
@@ -494,7 +503,7 @@ class User < Common::RedisStore
   def get_user_verification
     case identity_sign_in&.dig(:service_name)
     when SAML::User::MHV_ORIGINAL_CSID
-      return UserVerification.find_by(mhv_uuid: mhv_correlation_id) if mhv_correlation_id
+      return UserVerification.find_by(mhv_uuid: mhv_credential_uuid) if mhv_credential_uuid
     when SAML::User::DSLOGON_CSID
       return UserVerification.find_by(dslogon_uuid: identity.edipi) if identity.edipi
     when SAML::User::LOGINGOV_CSID

@@ -12,7 +12,9 @@ module Form526ClaimFastTrackingConcern
   RRD_STATSD_KEY_PREFIX = 'worker.rapid_ready_for_decision'
   MAX_CFI_STATSD_KEY_PREFIX = 'api.max_cfi'
   EP_MERGE_STATSD_KEY_PREFIX = 'worker.ep_merge'
+  FLASHES_STATSD_KEY = 'worker.flashes'
 
+  FLASH_PROTOTYPES = ['Amyotrophic Lateral Sclerosis'].freeze
   EP_MERGE_BASE_CODES = %w[010 110 020].freeze
   EP_MERGE_SPECIAL_ISSUE = 'EMP'
   OPEN_STATUSES = [
@@ -67,7 +69,9 @@ module Form526ClaimFastTrackingConcern
   # Fetch all claims from EVSS
   # @return [Boolean] whether there are any open EP 020's
   def pending_eps?
-    pending = open_claims.any? { |claim| claim['base_end_product_code'] == '020' }
+    pending = open_claims.any? do |claim|
+      claim['base_end_product_code'] == '020' && claim['status'].upcase != 'COMPLETE'
+    end
     save_metadata(offramp_reason: 'pending_ep') if pending
     pending
   end
@@ -98,6 +102,10 @@ module Form526ClaimFastTrackingConcern
     end
   end
 
+  def flashes
+    form['flashes'] || []
+  end
+
   def disabilities
     form.dig('form526', 'form526', 'disabilities')
   end
@@ -114,8 +122,8 @@ module Form526ClaimFastTrackingConcern
     begin
       is_claim_fully_classified = update_contention_classification_all!
     rescue => e
-      Rails.logger.error "Contention Classification failed #{e.message}."
-      Rails.logger.error e.backtrace.join('\n')
+      Rails.logger.error("Contention Classification failed #{e.message}.")
+      Rails.logger.error(e.backtrace.join('\n'))
     end
 
     prepare_for_ep_merge! if is_claim_fully_classified
@@ -160,8 +168,15 @@ module Form526ClaimFastTrackingConcern
   end
 
   def classify_vagov_contentions(params)
+    user = OpenStruct.new({ flipper_id: user_uuid })
     vro_client = VirtualRegionalOffice::Client.new
-    response = vro_client.classify_vagov_contentions(params)
+
+    response = if Flipper.enabled?(:disability_526_expanded_contention_classification, user)
+                 vro_client.classify_vagov_contentions_expanded(params)
+               else
+                 vro_client.classify_vagov_contentions(params)
+               end
+
     response.body
   end
 
@@ -235,6 +250,7 @@ module Form526ClaimFastTrackingConcern
   def send_post_evss_notifications!
     conditionally_notify_mas
     conditionally_merge_ep
+    log_flashes
     Rails.logger.info('Submitted 526Submission to eVSS', id:, saved_claim_id:, submitted_claim_id:)
   end
 
@@ -338,18 +354,23 @@ module Form526ClaimFastTrackingConcern
   # fetch, memoize, and return all of the veteran's rated disabilities from EVSS
   def all_rated_disabilities
     settings = Settings.lighthouse.veteran_verification.form526
-    icn = UserAccount.where(id: user_account_id).first&.icn
+    icn = account&.icn
+    invoker = 'Form526ClaimFastTrackingConcern#all_rated_disabilities'
     api_provider = ApiProviderFactory.call(
       type: ApiProviderFactory::FACTORIES[:rated_disabilities],
       provider: nil,
       options: { auth_headers:, icn: },
       # Flipper id is needed to check if the feature toggle works for this user
-      current_user: OpenStruct.new({ flipper_id: user_account_id }),
+      current_user: OpenStruct.new({ flipper_id: user_uuid }),
       feature_toggle: ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND
     )
 
     @all_rated_disabilities ||= begin
-      response = api_provider.get_rated_disabilities(settings.access_token.client_id, settings.access_token.rsa_key)
+      response = api_provider.get_rated_disabilities(
+        settings.access_token.client_id,
+        settings.access_token.rsa_key,
+        { invoker: }
+      )
       response.rated_disabilities
     end
   end
@@ -389,7 +410,17 @@ module Form526ClaimFastTrackingConcern
     vro_client = VirtualRegionalOffice::Client.new
     vro_client.merge_end_products(pending_claim_id:, ep400_id: submitted_claim_id)
   rescue => e
-    Rails.logger.error "EP merge request failed #{e.message}.", backtrace: e.backtrace
+    Rails.logger.error("EP merge request failed #{e.message}.", backtrace: e.backtrace)
+  end
+
+  def log_flashes
+    flash_prototypes = FLASH_PROTOTYPES & flashes
+    Rails.logger.info('Flash Prototype Added', { submitted_claim_id:, flashes: }) if flash_prototypes.any?
+    flashes.each do |flash|
+      StatsD.increment(FLASHES_STATSD_KEY, tags: ["flash:#{flash}", "prototype:#{flash_prototypes.include?(flash)}"])
+    end
+  rescue => e
+    Rails.logger.error("Failed to log Flash Prototypes #{e.message}.", backtrace: e.backtrace)
   end
 end
 # rubocop:enable Metrics/ModuleLength

@@ -5,7 +5,7 @@ on:
   pull_request_review:
     types: [submitted]
   workflow_run:
-    workflows: 
+    workflows:
       - "Code Checks"
     types: [completed]
 jobs:
@@ -34,14 +34,14 @@ jobs:
             elif ${{ toJSON(github.event.workflow_run.pull_requests) != '[]' }}; then
               PR_NUMBER="${{ github.event.workflow_run.pull_requests[0].number }}"
               echo "pr_number=${PR_NUMBER}" >> $GITHUB_OUTPUT
-            
+
               # Fetch PR details from GitHub API
               PR_INFO=$(gh api /repos/${{ github.repository }}/pulls/${PR_NUMBER} --jq '{
                 draft: .draft,
                 labels: [.labels[].name],
                 requested_teams: [.requested_teams[].slug]
               }')
-              
+
               # Extract and store individual fields
               echo "pr_draft=$(echo "$PR_INFO" | jq -r '.draft')" >> $GITHUB_OUTPUT
               echo "pr_labels=$(echo "$PR_INFO" | jq -c '.labels')" >> $GITHUB_OUTPUT
@@ -104,6 +104,7 @@ jobs:
         id: audit_pr_labels
         run: |
           if \
+            ${{ contains(env.pr_labels, 'audit-service-failure') }} || \
             ${{ contains(env.pr_labels, 'code-health-failure') }} || \
             ${{ contains(env.pr_labels, 'codeowners-addition-failure') }} || \
             ${{ contains(env.pr_labels, 'codeowners-delete-failure') }} || \

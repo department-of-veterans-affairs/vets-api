@@ -122,7 +122,10 @@ RSpec.describe V1::SessionsController, type: :controller do
                 .with(force_authn: true)
               expect { call_endpoint }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ["type:#{type}", 'version:v1', 'client_id:vaweb'],
+                                             tags: ["type:#{type}",
+                                                    'version:v1',
+                                                    'client_id:vaweb',
+                                                    'operation:authorize'],
                                              **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
                                               tags: ["type:#{type}",
@@ -148,8 +151,46 @@ RSpec.describe V1::SessionsController, type: :controller do
               it 'logs the USiP client application' do
                 expect { call_endpoint }
                   .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                               tags: ["type:#{type}", 'version:v1', 'client_id:vamobile'], **once)
+                                               tags: ["type:#{type}",
+                                                      'version:v1',
+                                                      'client_id:vamobile',
+                                                      'operation:authorize'],
+                                               **once)
               end
+            end
+          end
+        end
+
+        context 'when type is idme_verified' do
+          context 'and the operation param is valid' do
+            let(:params) { { type: 'idme_verified', clientId: '123123', operation: 'interstitial_verify' } }
+
+            it 'does not raise an error and triggers statsd' do
+              expect { call_endpoint }
+                .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
+                                             tags: ['type:idme_verified',
+                                                    'version:v1',
+                                                    'client_id:vaweb',
+                                                    'operation:interstitial_verify'],
+                                             **once)
+              expect(response).to have_http_status(:success)
+            end
+          end
+
+          context 'and the operation param is invalid' do
+            subject(:call_endpoint) { get(:new, params: params) }
+
+            let(:params) { { type: 'idme_verified', clientId: '123123', operation: 'asdf' } }
+
+            it 'responds with bad request' do
+              call_endpoint
+              expect(response).to have_http_status(:bad_request)
+              errors = response.parsed_body['errors']
+              expect(errors).to eq([{ 'title' => 'Invalid field value',
+                                      'detail' =>
+                                        '"asdf" is not a valid value for "operation"',
+                                      'code' => '103',
+                                      'status' => '400' }])
             end
           end
         end
@@ -165,7 +206,11 @@ RSpec.describe V1::SessionsController, type: :controller do
 
               expect { call_endpoint }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ['type:custom', 'version:v1', 'client_id:vaweb'], **once)
+                                             tags: ['type:custom',
+                                                    'version:v1',
+                                                    'client_id:vaweb',
+                                                    'operation:authorize'],
+                                             **once)
                 .and trigger_statsd_increment(described_class::STATSD_SSO_SAMLREQUEST_KEY,
                                               tags: ['type:custom',
                                                      "context:#{IAL::LOGIN_GOV_IAL2}",
@@ -192,7 +237,11 @@ RSpec.describe V1::SessionsController, type: :controller do
               it 'raises exception' do
                 expect { call_endpoint }
                   .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                                   tags: ['type:custom', 'version:v1', 'client_id:vaweb'], **once)
+                                                   tags: ['type:custom',
+                                                          'version:v1',
+                                                          'client_id:vaweb',
+                                                          'operation:authorize'],
+                                                   **once)
                 expect(response).to have_http_status(:bad_request)
                 expect(JSON.parse(response.body))
                   .to eq({
@@ -212,7 +261,11 @@ RSpec.describe V1::SessionsController, type: :controller do
               it 'raises exception when ial parameter is not 1 or 2' do
                 expect { call_endpoint }
                   .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                                   tags: ['type:custom', 'version:v1', 'client_id:vaweb'], **once)
+                                                   tags: ['type:custom',
+                                                          'version:v1',
+                                                          'client_id:vaweb',
+                                                          'operation:authorize'],
+                                                   **once)
                 expect(response).to have_http_status(:bad_request)
                 expect(JSON.parse(response.body))
                   .to eq({
@@ -237,7 +290,11 @@ RSpec.describe V1::SessionsController, type: :controller do
 
               expect { call_endpoint }
                 .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                             tags: ['type:custom', 'version:v1', 'client_id:vaweb'], **once)
+                                             tags: ['type:custom',
+                                                    'version:v1',
+                                                    'client_id:vaweb',
+                                                    'operation:authorize'],
+                                             **once)
 
               expect(response).to have_http_status(:ok)
               expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
@@ -259,7 +316,11 @@ RSpec.describe V1::SessionsController, type: :controller do
               it 'raises exception' do
                 expect { call_endpoint }
                   .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                                   tags: ['type:custom', 'version:v1', 'client_id:vaweb'], **once)
+                                                   tags: ['type:custom',
+                                                          'version:v1',
+                                                          'client_id:vaweb',
+                                                          'operation:authorize'],
+                                                   **once)
                 expect(response).to have_http_status(:bad_request)
                 expect(JSON.parse(response.body))
                   .to eq({
@@ -279,7 +340,11 @@ RSpec.describe V1::SessionsController, type: :controller do
               it 'raises exception' do
                 expect { call_endpoint }
                   .not_to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                                   tags: ['type:custom', 'version:v1', 'client_id:vaweb'], **once)
+                                                   tags: ['type:custom',
+                                                          'version:v1',
+                                                          'client_id:vaweb',
+                                                          'operation:authorize'],
+                                                   **once)
                 expect(response).to have_http_status(:bad_request)
                 expect(JSON.parse(response.body))
                   .to eq({
@@ -301,7 +366,11 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'routes /sessions/idme_signup/new to SessionsController#new' do
             expect { call_endpoint }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ['type:idme_signup', 'version:v1', 'client_id:vaweb'], **once)
+                                           tags: ['type:idme_signup',
+                                                  'version:v1',
+                                                  'client_id:vaweb',
+                                                  'operation:authorize'],
+                                           **once)
             expect(response).to have_http_status(:ok)
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                   'originating_request_id' => nil, 'type' => 'signup')
@@ -316,7 +385,9 @@ RSpec.describe V1::SessionsController, type: :controller do
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                            tags: ['type:idme_signup_verified',
                                                   'version:v1',
-                                                  'client_id:vaweb'], **once)
+                                                  'client_id:vaweb',
+                                                  'operation:authorize'],
+                                           **once)
             expect(response).to have_http_status(:ok)
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                   'originating_request_id' => nil, 'type' => 'signup')
@@ -329,7 +400,11 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'routes /sessions/logingov_signup/new to SessionsController#new' do
             expect { call_endpoint }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ['type:logingov_signup', 'version:v1', 'client_id:vaweb'], **once)
+                                           tags: ['type:logingov_signup',
+                                                  'version:v1',
+                                                  'client_id:vaweb',
+                                                  'operation:authorize'],
+                                           **once)
             expect(response).to have_http_status(:ok)
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                   'originating_request_id' => nil, 'type' => 'signup')
@@ -344,7 +419,9 @@ RSpec.describe V1::SessionsController, type: :controller do
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
                                            tags: ['type:logingov_signup_verified',
                                                   'version:v1',
-                                                  'client_id:vaweb'], **once)
+                                                  'client_id:vaweb',
+                                                  'operation:authorize'],
+                                           **once)
             expect(response).to have_http_status(:ok)
             expect_saml_post_form(response.body, 'https://pint.eauth.va.gov/isam/sps/saml20idp/saml20/login',
                                   'originating_request_id' => nil, 'type' => 'signup')
@@ -363,7 +440,11 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'routes /v1/sessions/slo/new to SessionController#new' do
             expect { call_endpoint }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ['type:slo', 'version:v1', 'client_id:vaweb'], **once)
+                                           tags: ['type:slo',
+                                                  'version:v1',
+                                                  'client_id:vaweb',
+                                                  'operation:authorize'],
+                                           **once)
             expect(response).to have_http_status(:found)
           end
 
@@ -416,7 +497,11 @@ RSpec.describe V1::SessionsController, type: :controller do
           it 'does not delete cookies' do
             expect { call_endpoint }
               .to trigger_statsd_increment(described_class::STATSD_SSO_NEW_KEY,
-                                           tags: ["type:#{type}", 'version:v1', 'client_id:vaweb'], **once)
+                                           tags: ["type:#{type}",
+                                                  'version:v1',
+                                                  'client_id:vaweb',
+                                                  'operation:authorize'],
+                                           **once)
             expect(response).to have_http_status(:ok)
             expect(cookies['vagov_saml_request_localhost']).not_to be_nil
           end
@@ -527,10 +612,20 @@ RSpec.describe V1::SessionsController, type: :controller do
             allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
           end
 
-          it 'redirects to terms of use page' do
-            expect(call_endpoint).to redirect_to(
-              'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
-            )
+          context 'when the application is not in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
+            it 'redirects to terms of use page' do
+              expect(call_endpoint).to redirect_to(
+                'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
+              )
+            end
+          end
+
+          context 'when the application is in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
+            let(:application) { 'mhv' }
+
+            it 'redirects to terms of use page with skip_mhv_account_creation query param' do
+              expect(call_endpoint).to redirect_to(a_string_including('skip_mhv_account_creation=true'))
+            end
           end
         end
 
@@ -570,10 +665,20 @@ RSpec.describe V1::SessionsController, type: :controller do
             allow(Settings.terms_of_use).to receive(:enabled_clients).and_return(application)
           end
 
-          it 'redirects to terms of use page' do
-            expect(call_endpoint).to redirect_to(
-              'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
-            )
+          context 'when the application is not in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
+            it 'redirects to terms of use page' do
+              expect(call_endpoint).to redirect_to(
+                'http://127.0.0.1:3001/terms-of-use?redirect_url=http%3A%2F%2F127.0.0.1%3A3001%2Fauth%2Flogin%2Fcallback'
+              )
+            end
+          end
+
+          context 'when the application is in SKIP_MHV_ACCOUNT_CREATION_CLIENTS' do
+            let(:application) { 'mhv' }
+
+            it 'redirects to terms of use page with skip_mhv_account_creation query param' do
+              expect(call_endpoint).to redirect_to(a_string_including('skip_mhv_account_creation=true'))
+            end
           end
         end
 
@@ -795,7 +900,7 @@ RSpec.describe V1::SessionsController, type: :controller do
 
           context 'MHV correlation id validation' do
             let(:mpi_profile) { build(:mpi_profile, mhv_ids: [Faker::Number.number(digits: 11)]) }
-            let(:expected_identity_value) { user.identity.mhv_correlation_id }
+            let(:expected_identity_value) { user.identity.mhv_credential_uuid }
             let(:expected_mpi_value) { user.mpi_mhv_correlation_id }
             let(:validation_id) { 'MHV Correlation ID' }
 
@@ -1145,41 +1250,6 @@ RSpec.describe V1::SessionsController, type: :controller do
           call_endpoint
           expect(PersonalInformationLog.count).to be_positive
           expect(PersonalInformationLog.last.error_class).to eq('Login Failed! on User/Session Validation')
-        end
-      end
-
-      context 'when MHV user attribute validation fails' do
-        let(:saml_attributes) do
-          build(:ssoe_idme_mhv_loa3,
-                va_eauth_mhvuuid: ['999888'],
-                va_eauth_mhvien: ['888777'])
-        end
-        let(:saml_response) do
-          build_saml_response(
-            authn_context: 'myhealthevet',
-            level_of_assurance: ['3'],
-            attributes: saml_attributes,
-            existing_attributes: nil,
-            issuer: 'https://int.eauth.va.gov/FIM/sps/saml20fedCSP/saml20'
-          )
-        end
-        let(:saml_user) { SAML::User.new(saml_response) }
-        let(:expected_error_message) { SAML::UserAttributeError::ERRORS[:multiple_mhv_ids][:message] }
-        let(:version) { 'v1' }
-        let(:expected_warn_message) do
-          "SessionsController version:#{version} context:{} message:#{expected_error_message}"
-        end
-        let(:error_code) { '101' }
-
-        before { allow(SAML::User).to receive(:new).and_return(saml_user) }
-
-        it 'logs a generic user validation error', :aggregate_failures do
-          expect(controller).not_to receive(:log_message_to_sentry)
-          expect(Rails.logger).to receive(:warn).ordered
-          expect(Rails.logger).to receive(:warn).ordered.with(expected_warn_message)
-          expect(call_endpoint).to redirect_to(expected_redirect)
-
-          expect(response).to have_http_status(:found)
         end
       end
 

@@ -22,7 +22,7 @@ describe VAProfileRedis::V2::ContactInformation do
   end
 
   before do
-    Flipper.enable(:va_v3_contact_information_service)
+    allow(Flipper).to receive(:enabled?).with(:va_v3_contact_information_service, instance_of(User)).and_return(true)
     allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
   end
 
@@ -83,7 +83,7 @@ describe VAProfileRedis::V2::ContactInformation do
           if VAProfile::Configuration::SETTINGS.contact_information.cache_enabled
             expect(contact_info.redis_namespace).to receive(:set).once
           end
-          expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:get_person).twice
+          expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:get_person).once
           expect(contact_info.status).to eq 200
           expect(contact_info.response.person).to have_deep_attributes(person)
         end
@@ -93,7 +93,7 @@ describe VAProfileRedis::V2::ContactInformation do
     context 'when there is cached data' do
       it 'returns the cached data', :aggregate_failures do
         VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
-          contact_info.cache(user.uuid, person_response)
+          contact_info.cache(user.icn, person_response)
           expect_any_instance_of(VAProfile::V2::ContactInformation::Service).not_to receive(:get_person)
           expect(contact_info.response.person).to have_deep_attributes(person)
         end

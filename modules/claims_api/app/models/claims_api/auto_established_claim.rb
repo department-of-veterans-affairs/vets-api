@@ -83,6 +83,7 @@ module ClaimsApi
       transform_homelessness_point_of_contact_primary_phone!
       transform_address_lines_length!
       transform_empty_unit_name!
+      transform_empty_zip_last_four!
 
       {
         form526: form_data
@@ -542,6 +543,12 @@ module ClaimsApi
       unit_name = reserves['unitName']
       unit_name = unit_name.presence || ' '
       reserves['unitName'] = unit_name
+    end
+
+    def transform_empty_zip_last_four!
+      change_of_address = form_data.dig('veteran', 'changeOfAddress')
+
+      change_of_address.delete('zipLastFour') if change_of_address.present? && change_of_address['zipLastFour'].blank?
     end
   end
 end

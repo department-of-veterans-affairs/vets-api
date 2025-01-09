@@ -41,6 +41,7 @@ module PagerDuty
         perform(:get, 'maintenance_windows', query).body
       rescue => e
         if e&.original_status == 400
+          # Dadadog monitor for this error message https://vagov.ddog-gov.com/monitors/296944
           Rails.logger.error(
             "Invalid arguments sent to PagerDuty. One of the following Service IDs is bad: #{query['service_ids']}"
           )

@@ -47,10 +47,10 @@ module ClaimsApi
             # Item 19
             "#{base_form}.I_Authorize[1]": data['recordConsent'] == true ? 1 : 0,
             # Item 20
-            "#{base_form}.Drug_Abuse[0]": data['consentLimits'].present? && data['consentLimits'].include?('DRUG_ABUSE') ? 1 : 0,
-            "#{base_form}.Alcoholism_Or_Alcohol_Abuse[0]": data['consentLimits'].present? && data['consentLimits'].include?('ALCOHOLISM') ? 1 : 0,
-            "#{base_form}.Infection_With_The_Human_Immunodeficiency_Virus_HIV[0]": data['consentLimits'].present? && data['consentLimits'].include?('HIV') ? 1 : 0,
-            "#{base_form}.sicklecellanemia[0]": data['consentLimits'].present? && data['consentLimits'].include?('SICKLE_CELL') ? 1 : 0,
+            "#{base_form}.Drug_Abuse[0]": set_limitation_of_consent_check_box(data['consentLimits'], 'DRUG_ABUSE'),
+            "#{base_form}.Alcoholism_Or_Alcohol_Abuse[0]": set_limitation_of_consent_check_box(data['consentLimits'], 'ALCOHOLISM'),
+            "#{base_form}.Infection_With_The_Human_Immunodeficiency_Virus_HIV[0]": set_limitation_of_consent_check_box(data['consentLimits'], 'HIV'),
+            "#{base_form}.sicklecellanemia[0]": set_limitation_of_consent_check_box(data['consentLimits'], 'SICKLE_CELL'),
             # Item 21
             "#{base_form}.I_Authorize[0]": data['consentAddressChange'] == true ? 1 : 0,
             # Item 22B
@@ -107,7 +107,7 @@ module ClaimsApi
             # Item 12
             "#{base_form}.TelephoneNumber_IncludeAreaCode[0]": "#{data.dig('claimant', 'phone', 'areaCode')} #{data.dig('claimant', 'phone', 'phoneNumber')}",
             # Item 13
-            "#{base_form}.Claimants_EmailAddress_Optional[0]": data.dig('claimant', 'email'),
+            "#{base_form}.Claimants_EmailAddress_Optional[0]": data.dig('claimant', 'email')&.downcase,
             # Item 14
             "#{base_form}.Relationship_To_Veteran[0]": data.dig('claimant', 'relationship'),
 

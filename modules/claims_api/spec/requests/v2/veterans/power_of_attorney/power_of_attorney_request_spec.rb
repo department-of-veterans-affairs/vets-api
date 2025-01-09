@@ -95,8 +95,8 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
             it 'returns a meaningful 422' do
               VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
                 mock_ccg(scopes) do |auth_header|
-                  detail = "If claimant is present 'address' must be filled in  with required fields addressLine1, " \
-                           'city, stateCode, country and zipCode'
+                  detail = "If claimant is present 'address' must be filled in with required fields addressLine1, " \
+                           "city, stateCode and countryCode. If the countryCode is 'US' then zipCode is also required."
 
                   post request_path, params: request_body, headers: auth_header
 
@@ -144,6 +144,65 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
                           'power_of_attorney', 'request_representative', 'valid.json').read
         end
 
+        context 'lighthouse_claims_v2_poa_requests_skip_bgs disabled' do
+          before do
+            Flipper.disable(:lighthouse_claims_v2_poa_requests_skip_bgs)
+          end
+
+          let(:request_body) do
+            Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                            'power_of_attorney', 'request_representative', 'valid_no_claimant.json').read
+          end
+
+          let(:orchestrator_res) do
+            {
+              'addressLine1' => '2719 Hyperion Ave', 'addressLine2' => 'Apt 2', 'addressLine3' => nil,
+              'changeAddressAuth' => 'true', 'city' => 'Los Angeles', 'claimantPtcpntId' => '187216',
+              'claimantRelationship' => nil, 'formTypeCode' => '21-22 ', 'insuranceNumbers' => '1234567890',
+              'limitationAlcohol' => 'true', 'limitationDrugAbuse' => 'true', 'limitationHIV' => 'true',
+              'limitationSCA' => 'true', 'organizationName' => '083 - DISABLED AMERICAN VETERANS',
+              'otherServiceBranch' => nil, 'phoneNumber' => '5555551234', 'poaCode' => '083', 'postalCode' => '92264',
+              'procId' => '3858517', 'representativeFirstName' => 'John', 'representativeLastName' => 'Doe',
+              'representativeLawFirmOrAgencyName' => nil, 'representativeTitle' => 'MyJob',
+              'representativeType' => 'Recognized Veterans Service Organization', 'section7332Auth' => 'true',
+              'serviceBranch' => 'Army', 'serviceNumber' => '123678453', 'state' => 'CA', 'vdcStatus' => 'Submitted',
+              'veteranPtcpntId' => '187216', 'acceptedBy' => nil, 'claimantFirstName' => 'JESSE',
+              'claimantLastName' => 'GRAY', 'claimantMiddleName' => nil, 'declinedBy' => nil, 'declinedReason' => nil,
+              'secondaryStatus' => nil, 'veteranFirstName' => 'JESSE', 'veteranLastName' => 'GRAY',
+              'veteranMiddleName' => nil, 'veteranSSN' => '796378881', 'veteranVAFileNumber' => '796378881'
+            }
+          end
+
+          it 'does call the Orchestrator' do
+            mock_ccg(scopes) do |auth_header|
+              expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
+                .to receive(:submit_request).and_return(orchestrator_res)
+
+              post request_path, params: request_body, headers: auth_header
+
+              response_body = JSON.parse(response.body)
+              request_body_with_type_and_id = JSON.parse(request_body)
+
+              request_body_with_type_and_id['data']['id'] = response_body['data']['id']
+              request_body_with_type_and_id['data']['type'] = response_body['data']['type']
+
+              expect(response).to have_http_status(:created)
+              expect(response_body).to eq(request_body_with_type_and_id)
+            end
+          end
+
+          it 'has Location in the response header' do
+            mock_ccg(scopes) do |auth_header|
+              expect_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
+                .to receive(:submit_request).and_return(orchestrator_res)
+
+              post request_path, params: request_body, headers: auth_header
+
+              expect(response.headers).to have_key('Location')
+            end
+          end
+        end
+
         context 'lighthouse_claims_v2_poa_requests_skip_bgs enabled' do
           before do
             Flipper.enable(:lighthouse_claims_v2_poa_requests_skip_bgs)
@@ -162,9 +221,13 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorneyRequest', type: :
               post request_path, params: request_body, headers: auth_header
 
               response_body = JSON.parse(response.body)
+              request_body_with_type_and_id = JSON.parse(request_body)
+
+              request_body_with_type_and_id['data']['type'] = 'power-of-attorney-request'
+              request_body_with_type_and_id['data']['id'] = response_body['data']['id']
 
               expect(response).to have_http_status(:created)
-              expect(response_body).to eq(JSON.parse(request_body))
+              expect(response_body).to eq(request_body_with_type_and_id)
             end
           end
         end

@@ -17,7 +17,11 @@ module V0
 
     def accept
       terms_of_use_agreement = acceptor.perform!
-      recache_user unless terms_code_temporary_auth?
+      unless terms_code_temporary_auth?
+        recache_user
+        current_user.create_mhv_account_async unless skip_mhv_account_creation?
+      end
+
       render_success(action: 'accept', body: { terms_of_use_agreement: }, status: :created)
     rescue TermsOfUse::Errors::AcceptorError => e
       render_error(action: 'accept', message: e.message)
@@ -28,7 +32,13 @@ module V0
       if terms_of_use_agreement.accepted?
         provisioner.perform
         create_cerner_cookie
-        recache_user unless terms_code_temporary_auth?
+
+        unless terms_code_temporary_auth?
+          recache_user
+          current_user.create_mhv_account_async unless skip_mhv_account_creation?
+
+        end
+
         render_success(action: 'accept_and_provision', body: { terms_of_use_agreement:, provisioned: true },
                        status: :created)
       else
@@ -115,6 +125,10 @@ module V0
     def mpi_profile
       @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier: @user_account.icn,
                                                                    identifier_type: MPI::Constants::ICN)&.profile
+    end
+
+    def skip_mhv_account_creation?
+      ActiveModel::Type::Boolean.new.cast(params[:skip_mhv_account_creation])
     end
 
     def render_success(action:, body:, status: :ok, icn: @user_account.icn)

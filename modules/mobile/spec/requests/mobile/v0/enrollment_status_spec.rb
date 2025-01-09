@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require_relative '../../../support/helpers/rails_helper'
+require_relative '../../../support/helpers/committee_helper'
 
 RSpec.describe 'Mobile::V0::EnrollmentStatus', type: :request do
+  include CommitteeHelper
+
   let!(:user) { sis_user }
 
   describe 'GET /mobile/v0/enrollment-status' do
@@ -13,7 +16,7 @@ RSpec.describe 'Mobile::V0::EnrollmentStatus', type: :request do
             get('/mobile/v0/enrollment-status', headers: sis_headers)
           end
 
-          expect(response).to have_http_status(:ok)
+          assert_schema_conform(200)
           expect(response.parsed_body).to match(
             {
               data: {
@@ -47,7 +50,7 @@ RSpec.describe 'Mobile::V0::EnrollmentStatus', type: :request do
           ).and_return(pending_response)
           get('/mobile/v0/enrollment-status', headers: sis_headers)
 
-          expect(response).to have_http_status(:ok)
+          assert_schema_conform(200)
           expect(response.parsed_body).to match(
             {
               data: {
@@ -68,7 +71,7 @@ RSpec.describe 'Mobile::V0::EnrollmentStatus', type: :request do
             get('/mobile/v0/enrollment-status', headers: sis_headers)
           end
 
-          expect(response).to have_http_status(:ok)
+          assert_schema_conform(200)
           expect(response.parsed_body).to match(
             {
               data: {
@@ -89,7 +92,7 @@ RSpec.describe 'Mobile::V0::EnrollmentStatus', type: :request do
 
       it 'returns unauthorized' do
         get('/mobile/v0/enrollment-status', headers: sis_headers)
-        expect(response).to have_http_status(:unauthorized)
+        assert_schema_conform(401)
       end
     end
 
@@ -98,7 +101,7 @@ RSpec.describe 'Mobile::V0::EnrollmentStatus', type: :request do
 
       it 'returns not found' do
         get('/mobile/v0/enrollment-status', headers: sis_headers)
-        expect(response).to have_http_status(:not_found)
+        assert_schema_conform(404)
       end
     end
   end

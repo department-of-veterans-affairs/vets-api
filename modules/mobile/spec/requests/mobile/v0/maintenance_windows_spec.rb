@@ -95,6 +95,15 @@ RSpec.describe 'Mobile::V0::MaintenanceWindows', type: :request do
                 'startTime' => '2021-05-25T23:33:39.000Z',
                 'endTime' => '2021-05-26T01:45:00.000Z'
               }
+            },
+            {
+              'id' => 'c07d7af4-b54a-5b82-b94c-3366f79cc500',
+              'type' => 'maintenance_window',
+              'attributes' => {
+                'service' => 'efolder',
+                'startTime' => '2021-05-25T23:33:39.000Z',
+                'endTime' => '2021-05-27T01:45:00.000Z'
+              }
             }
           ]
         )

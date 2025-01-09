@@ -4,10 +4,11 @@ module ClaimsApi
   class PoaAssignDependentClaimantJob < ClaimsApi::ServiceBase
     LOG_TAG = 'poa_assign_dependent_claimant_job'
 
-    def perform(poa_id)
+    def perform(poa_id, rep_id)
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
 
       service = dependent_claimant_poa_assignment_service(
+        poa.id,
         poa.form_data,
         poa.auth_headers
       )
@@ -28,6 +29,8 @@ module ClaimsApi
         poa.id,
         'POA assigned for dependent'
       )
+
+      ClaimsApi::VANotifyAcceptedJob.perform_async(poa.id, rep_id) if vanotify?(poa.auth_headers, rep_id)
     end
 
     private
@@ -42,8 +45,9 @@ module ClaimsApi
       raise e
     end
 
-    def dependent_claimant_poa_assignment_service(data, auth_headers)
+    def dependent_claimant_poa_assignment_service(poa_id, data, auth_headers)
       ClaimsApi::DependentClaimantPoaAssignmentService.new(
+        poa_id:,
         poa_code: find_poa_code(data),
         veteran_participant_id: auth_headers['va_eauth_pid'],
         dependent_participant_id: auth_headers.dig('dependent', 'participant_id'),

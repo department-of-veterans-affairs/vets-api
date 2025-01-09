@@ -17,6 +17,7 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       @statsd_timeout = CheckIn::Constants::OH_STATSD_BTSSS_TIMEOUT
       @statsd_failed_claim = CheckIn::Constants::OH_STATSD_BTSSS_CLAIM_FAILURE
       @statsd_error = CheckIn::Constants::OH_STATSD_BTSSS_ERROR
+      @statsd_silent_failure_tag = CheckIn::Constants::STATSD_OH_SILENT_FAILURE_TAGS
 
       allow(redis_client).to receive(:facility_type).and_return('oh')
     else
@@ -32,6 +33,7 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
       @statsd_timeout = CheckIn::Constants::CIE_STATSD_BTSSS_TIMEOUT
       @statsd_failed_claim = CheckIn::Constants::CIE_STATSD_BTSSS_CLAIM_FAILURE
       @statsd_error = CheckIn::Constants::CIE_STATSD_BTSSS_ERROR
+      @statsd_silent_failure_tag = CheckIn::Constants::STATSD_CIE_SILENT_FAILURE_TAGS
 
       allow(redis_client).to receive(:facility_type).and_return(nil)
     end
@@ -251,6 +253,29 @@ shared_examples 'travel claim status check worker #perform' do |facility_type|
                                                  .exactly(1).time
     end
   end
+
+  context "when #{facility_type} and both travel claim status & notification fails" do
+    let(:travel_claim_status_resp) do
+      Faraday::Response.new(response_body: { message: 'BTSSS timeout error' }, status: 408)
+    end
+
+    before do
+      allow_any_instance_of(TravelClaim::Client).to receive(:claim_status).and_return(travel_claim_status_resp)
+    end
+
+    it 'logs silent_failure statsd error metrics' do
+      worker = described_class.new
+
+      VCR.use_cassette('check_in/vanotify/send_sms_403_forbidden', match_requests_on: [:host]) do
+        expect { worker.perform(uuid, appt_date) }.to raise_error(VANotify::Forbidden)
+      end
+
+      expect(StatsD).to have_received(:increment).with(@statsd_timeout).exactly(1).time
+      expect(StatsD).to have_received(:increment).with(CheckIn::Constants::STATSD_NOTIFY_SILENT_FAILURE,
+                                                       { tags: @statsd_silent_failure_tag })
+                                                 .exactly(1).time
+    end
+  end
 end
 
 describe CheckIn::TravelClaimStatusCheckWorker, type: :worker do
@@ -269,6 +294,8 @@ describe CheckIn::TravelClaimStatusCheckWorker, type: :worker do
   before do
     allow(TravelClaim::RedisClient).to receive(:build).and_return(redis_client)
     allow(Flipper).to receive(:enabled?).with('check_in_experience_mock_enabled').and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(false)
+    allow(Flipper).to receive(:enabled?).with(:va_notify_custom_errors).and_return(true)
 
     allow(redis_client).to receive_messages(patient_cell_phone:, token: redis_token, icn:,
                                             station_number:, facility_type: nil)

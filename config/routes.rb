@@ -105,6 +105,8 @@ Rails.application.routes.draw do
       resource :mhv_user_account, only: [:show], controller: 'user/mhv_user_accounts'
     end
 
+    resource :test_account_user_email, only: [:create]
+
     resource :veteran_onboarding, only: %i[show update]
 
     resource :education_benefits_claims, only: %i[create show] do
@@ -128,7 +130,7 @@ Rails.application.routes.draw do
 
     resources :caregivers_assistance_claims, only: :create do
       collection do
-        get(:facilities)
+        post(:facilities)
         post(:download_pdf)
       end
     end
@@ -284,6 +286,7 @@ Rails.application.routes.draw do
 
     namespace :my_va do
       resource :submission_statuses, only: :show
+      resource :submission_pdf_urls, only: :create
     end
 
     namespace :profile do
@@ -446,6 +449,10 @@ Rails.application.routes.draw do
     end
   end
 
+  namespace :v2, defaults: { format: 'json' } do
+    resources :higher_level_reviews, only: %i[create show]
+  end
+
   root 'v0/example#index', module: 'v0'
 
   scope '/services' do
@@ -454,7 +461,6 @@ Rails.application.routes.draw do
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
-    mount VAForms::Engine, at: '/va_forms'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
@@ -481,6 +487,7 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
+  mount DecisionReviews::Engine, at: '/decision_reviews'
   # End Modules
 
   require 'sidekiq/web'

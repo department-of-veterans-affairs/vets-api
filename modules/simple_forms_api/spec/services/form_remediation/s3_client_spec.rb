@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
+require 'simple_forms_api/form_remediation/error'
 require 'simple_forms_api/form_remediation/configuration/vff_config'
 
 RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
@@ -46,7 +47,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
   # Doubles and mocks
   let(:submission_archive_double) { instance_double(SimpleFormsApi::FormRemediation::SubmissionArchive) }
   let(:uploader) { instance_double(SimpleFormsApi::FormRemediation::Uploader) }
-  let(:carrier_wave_file) { instance_double(CarrierWave::SanitizedFile) }
+  let(:carrier_wave_file) { instance_double(CarrierWave::SanitizedFile, filename: 'mock_file.txt') }
   let(:file_double) { instance_double(File, read: 'content') }
   let(:s3_file) { instance_double(Aws::S3::Object) }
 
@@ -111,14 +112,14 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
 
             it 'logs "uploading" notification' do
               expect(Rails.logger).to have_received(:info).with(
-                { message: "Uploading #{type}: #{benefits_intake_uuid} to S3 bucket" }
+                { message: a_string_including("Uploading #{type}: #{benefits_intake_uuid} to S3 bucket") }
               )
             end
 
             describe '#log_initialization' do
               it 'logs s3 client initialization notification' do
                 expect(Rails.logger).to have_received(:info).with(
-                  { message: "Initialized S3Client for #{type} with ID: #{benefits_intake_uuid}" }
+                  { message: a_string_including("Initialized S3 Client for #{type} with ID: #{benefits_intake_uuid}") }
                 )
               end
             end
@@ -182,7 +183,7 @@ RSpec.describe SimpleFormsApi::FormRemediation::S3Client do
             before { allow(File).to receive(:directory?).and_raise('oops') }
 
             it 'raises the error' do
-              expect { upload }.to raise_exception(RuntimeError, 'oops')
+              expect { upload }.to raise_exception(SimpleFormsApi::FormRemediation::Error, a_string_including('oops'))
             end
           end
         end

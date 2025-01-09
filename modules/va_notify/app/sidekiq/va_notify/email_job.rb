@@ -21,7 +21,7 @@ module VANotify
                 callback_options = nil)
       notify_client = VaNotify::Service.new(api_key, callback_options)
 
-      notify_client.send_email(
+      response = notify_client.send_email(
         {
           email_address: email,
           template_id:,
@@ -29,7 +29,8 @@ module VANotify
         }.compact
       )
       StatsD.increment('api.vanotify.email_job.success')
-    rescue Common::Exceptions::BackendServiceException => e
+      response
+    rescue VANotify::Error => e
       handle_backend_exception(e, template_id, personalisation)
     end
 
