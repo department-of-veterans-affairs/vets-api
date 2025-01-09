@@ -4,6 +4,8 @@ require 'rails_helper'
 require 'debts_api/v0/fsr_form_transform/utils'
 
 RSpec.describe FsrFormTransform::Utils do
+  include FsrFormTransform::Utils
+
   describe 'sanitize_date_string' do
     context 'when the input is empty' do
       it 'returns an empty string' do
