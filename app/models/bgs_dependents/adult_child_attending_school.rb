@@ -31,13 +31,13 @@ module BGSDependents
     validates :first, presence: true
     validates :last, presence: true
 
-    def initialize(dependents_application)
-      @dependents_application = dependents_application
-      @ssn = @dependents_application.dig('student_information', 'ssn')
-      @full_name = @dependents_application['student_informatino']['full_name']
-      @birth_date = @dependents_application.dig('student_information', 'birth_date')
-      @was_married = @dependents_application['student_information']['was_married']
-      @dependent_income = @dependents_application['student_information']['student_income']
+    def initialize(student_info)
+      @student_info = student_info
+      @ssn = student_info.dig('ssn')
+      @full_name = student_info['full_name']
+      @birth_date = student_info.dig('birth_date')
+      @was_married = student_info['was_married']
+      @dependent_income = student_info['student_income']
 
       self.attributes = described_class_attribute_hash
     end
@@ -55,7 +55,7 @@ module BGSDependents
     # @return [Hash] the student's address
     #
     def address
-      @dependents_application['student_information']['address']
+      @student_info['address']
     end
 
     private
