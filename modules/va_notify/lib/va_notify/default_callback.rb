@@ -2,16 +2,6 @@
 
 module VANotify
   class DefaultCallback
-    def self.call(notification_record)
-      callback = new(notification_record)
-
-      if callback.metadata.present?
-        callback.call_with_metadata
-      else
-        callback.call_without_metadata
-      end
-    end
-
     attr_reader :notification_record, :metadata
 
     def initialize(notification_record)
@@ -19,14 +9,21 @@ module VANotify
       @metadata = notification_record.callback_metadata
     end
 
-    def call_with_metadata
-      required_keys = %w[notification_type statsd_tags form_number]
-      raise "#{self.class}: Invalid Metadata" unless (required_keys - metadata.keys).empty?
+    def call
+      if metadata.present?
+        call_with_metadata
+      else
+        call_without_metadata
+      end
+    end
 
+    private
+
+    def call_with_metadata
       notification_type = metadata['notification_type']
       statsd_tags = metadata['statsd_tags']
-      service = statsd_tags['service'] || 'none-provided'
-      function = statsd_tags['function'] || 'none-provided'
+      service = statsd_tags['service']
+      function = statsd_tags['function']
       tags = ["service:#{service}", "function:#{function}"]
 
       case notification_record.status
@@ -45,8 +42,6 @@ module VANotify
         permanent_failure_without_metadata
       end
     end
-
-    private
 
     def delivered(tags)
       StatsD.increment('silent_failure_avoided', tags:)

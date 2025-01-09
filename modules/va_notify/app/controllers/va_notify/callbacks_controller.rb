@@ -22,11 +22,11 @@ module VANotify
                           {
                             source_location: notification.source_location,
                             template_id: notification.template_id,
-                            callback_klass: notification.callback_klass,
                             callback_metadata: notification.callback_metadata,
                             status: notification.status
                           })
 
+        VANotify::DefaultCallback.new(notification).call
         VANotify::StatusUpdate.new.delegate(notification_params.merge(id: notification_id))
       else
         Rails.logger.info("va_notify callbacks - Received update for unknown notification #{notification_id}")
