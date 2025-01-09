@@ -17,13 +17,13 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }
   let(:claim_id) { '4567' }
-  let(:filename) { 'doctors-note.pdf' }
+  let(:file_name) { 'doctors-note.pdf' }
   let(:tracked_item_id) { '1234' }
   let(:document_type) { 'L023' }
   let(:document_data) do
     EVSSClaimDocument.new(
       evss_claim_id: claim_id,
-      file_name: filename,
+      file_name:,
       tracked_item_id:,
       document_type:
     )
@@ -38,12 +38,12 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
 
     context 'when upload succeeds' do
       let(:uploader_stub) { instance_double('EVSSClaimDocumentUploader') }
-      let(:file) { Rails.root.join('spec', 'fixtures', 'files', filename).read }
+      let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
 
       it 'retrieves the file and uploads to EVSS' do
         allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
         allow(EVSS::DocumentsService).to receive(:new) { client_stub }
-        allow(uploader_stub).to receive(:retrieve_from_store!).with(filename) { file }
+        allow(uploader_stub).to receive(:retrieve_from_store!).with(file_name) { file }
         allow(uploader_stub).to receive(:read_for_upload) { file }
         expect(uploader_stub).to receive(:remove!).once
         expect(client_stub).to receive(:upload).with(file, document_data)
@@ -55,16 +55,24 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       let(:issue_instant) { Time.now.to_i }
       let(:msg) do
         {
+          'jid' => job_id,
           'args' => [{ 'va_eauth_firstName' => 'Bob' }, user_account_uuid,
-                     { 'document_type' => document_type, 'file_name' => filename }],
+                     { 'evss_claim_id' => claim_id,
+                       'tracked_item_id' => tracked_item_id,
+                       'document_type' => document_type,
+                       'file_name' => file_name }],
           'created_at' => issue_instant,
           'failed_at' => issue_instant
         }
       end
-      let(:msg_with_errors) do
+      let(:msg_with_errors) do ## added 'test' so file would error
         {
-          'args' => [{ 'va_eauth_firstName' => 'Bob' }, 'test', user_account_uuid,
-                     { 'document_type' => document_type, 'file_name' => filename }],
+          'jid' => job_id,
+          'args' => ['test', { 'va_eauth_firstName' => 'Bob' }, user_account_uuid,
+                     { 'evss_claim_id' => claim_id,
+                       'tracked_item_id' => tracked_item_id,
+                       'document_type' => document_type,
+                       'file_name' => file_name }],
           'created_at' => issue_instant,
           'failed_at' => issue_instant
         }
@@ -82,13 +90,10 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do
-        EVSS::DocumentUpload.within_sidekiq_retries_exhausted_block(msg_with_errors) do
-          expect(EvidenceSubmission).not_to receive(:create)
-          expect(Rails.logger)
-            .to receive(:info)
-            .with(error_message, { messsage: "undefined method `[]' for nil" })
-          expect(StatsD).to receive(:increment).with('silent_failure', tags: tags)
-        end
+        expect do
+          described_class.within_sidekiq_retries_exhausted_block(msg_with_errors) {}
+        end.to raise_error(StandardError,
+                           'Missing fields in EVSS::DocumentUpload')
       end
     end
   end
@@ -100,8 +105,12 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
     let(:issue_instant) { Time.now.to_i }
     let(:args) do
       {
+        'jid' => job_id,
         'args' => [{ 'va_eauth_firstName' => 'Bob' }, user_account_uuid,
-                   { 'document_type' => document_type, 'file_name' => filename }],
+                   { 'evss_claim_id' => claim_id,
+                     'tracked_item_id' => tracked_item_id,
+                     'document_type' => document_type,
+                     'file_name' => file_name }],
         'created_at' => issue_instant,
         'failed_at' => issue_instant
       }
@@ -120,8 +129,8 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
     it 'retrieves the file and uploads to EVSS' do
       allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
       allow(EVSS::DocumentsService).to receive(:new) { client_stub }
-      file = File.read("#{::Rails.root}/spec/fixtures/files/#{filename}")
-      allow(uploader_stub).to receive(:retrieve_from_store!).with(filename) { file }
+      file = File.read("#{::Rails.root}/spec/fixtures/files/#{file_name}")
+      allow(uploader_stub).to receive(:retrieve_from_store!).with(file_name) { file }
       allow(uploader_stub).to receive(:read_for_upload) { file }
       expect(uploader_stub).to receive(:remove!).once
       expect(client_stub).to receive(:upload).with(file, document_data)
@@ -135,7 +144,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
           personalisation: {
             first_name: 'Bob',
             document_type: document_type,
-            filename: 'docXXXX-XXte.pdf',
+            file_name: file_name,
             date_submitted: formatted_submit_date,
             date_failed: formatted_submit_date
           }

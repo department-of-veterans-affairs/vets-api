@@ -10,9 +10,6 @@ class EVSS::DocumentUpload
   extend SentryLogging
   extend Logging::ThirdPartyTransaction::MethodWrapper
 
-  FILENAME_EXTENSION_MATCHER = /\.\w*$/
-  OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
-
   attr_accessor :auth_headers, :user_uuid, :document_hash
 
   wrap_with_logging(
@@ -35,6 +32,8 @@ class EVSS::DocumentUpload
   end
 
   sidekiq_retries_exhausted do |msg, _ex|
+    verify_msg(msg)
+
     if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
       create_evidence_submission(msg)
     else
@@ -53,22 +52,36 @@ class EVSS::DocumentUpload
     clean_up!
   end
 
+  def self.verify_msg(msg)
+    if invalid_msg_fields?(msg) || invalid_msg_args?(msg['args'])
+      raise StandardError, 'Missing fields in EVSS::DocumentUpload'
+    end
+  end
+
+  def self.invalid_msg_fields?(msg)
+    !(%w[jid args created_at failed_at] - msg.keys).empty?
+  end
+
+  def self.invalid_msg_args?(args)
+    return true unless args[0].is_a?(Hash)
+
+    return true unless args[2].is_a?(Hash)
+
+    return true if args[0]['va_eauth_firstName'].empty?
+
+    !(%w[evss_claim_id tracked_item_id document_type file_name] - args[2].keys).empty?
+  end
+
   def self.create_evidence_submission(msg)
-    job_id = msg['jid']
-    job_class = 'EVSS::DocumentUpload'
-    claim_id = msg['args'][2]['evss_claim_id']
-    tracked_item_id = msg['args'][2]['tracked_item_id']
-    upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
     uuid = msg['args'][2]['uuid']
-    user_account = UserAccount.find_or_create_by(id: uuid)
 
     EvidenceSubmission.create(
-      job_id:,
-      job_class:,
-      claim_id:,
-      tracked_item_id:,
-      upload_status:,
-      user_account:,
+      job_id: msg['jid'],
+      job_class: 'EVSS::DocumentUpload',
+      claim_id: msg['args'][2]['evss_claim_id'],
+      tracked_item_id: msg['args'][2]['tracked_item_id'],
+      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
+      user_account: UserAccount.find_or_create_by(id: uuid),
       template_metadata_ciphertext: { personalisation: create_personalisation(msg) }.to_json
     )
   rescue => e
@@ -79,12 +92,12 @@ class EVSS::DocumentUpload
 
   def self.create_personalisation(msg)
     first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
-    document_type = obscured_filename(msg['args'][2]['document_type'])
-    filename = obscured_filename(msg['args'][2]['file_name'])
+    document_type = msg['args'][2]['document_type']
+    file_name = msg['args'][2]['file_name']
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
     date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
-    { first_name:, document_type:, filename:, date_submitted:, date_failed: }
+    { first_name:, document_type:, file_name:, date_submitted:, date_failed: }
   end
 
   def self.call_failure_notification(msg)
@@ -99,21 +112,6 @@ class EVSS::DocumentUpload
                          { message: e.message })
     StatsD.increment('silent_failure', tags: ['service:claim-status', 'function: evidence upload to EVSS'])
     log_exception_to_sentry(e)
-  end
-
-  def self.obscured_filename(original_filename)
-    extension = original_filename[FILENAME_EXTENSION_MATCHER]
-    filename_without_extension = original_filename.gsub(FILENAME_EXTENSION_MATCHER, '')
-
-    if filename_without_extension.length > 5
-      # Obfuscate with the letter 'X'; we cannot obfuscate with special characters such as an asterisk,
-      # as these filenames appear in VA Notify Mailers and their templating engine uses markdown.
-      # Therefore, special characters can be interpreted as markdown and introduce formatting issues in the mailer
-      obfuscated_portion = filename_without_extension[3..-3].gsub(OBFUSCATED_CHARACTER_MATCHER, 'X')
-      filename_without_extension[0..2] + obfuscated_portion + filename_without_extension[-2..] + extension
-    else
-      original_filename
-    end
   end
 
   def self.format_issue_instant_for_mailers(issue_instant)

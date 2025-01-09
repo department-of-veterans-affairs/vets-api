@@ -24,7 +24,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
     LighthouseDocument.new(
       first_name: 'First Name',
       participant_id: '1111',
-      claim_id: claim_id,
+      claim_id:,
       uuid: SecureRandom.uuid,
       file_extension: 'pdf',
       file_name:,
@@ -43,7 +43,11 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
     {
       'jid' => job_id,
       'args' => [user_account.icn,
-                 { 'first_name' => 'Bob', 'document_type' => document_type, 'file_name' => file_name }],
+                 { 'first_name' => 'Bob',
+                   'claim_id' => claim_id,
+                   'document_type' => document_type,
+                   'file_name' => file_name,
+                   'tracked_item_id' => tracked_item_ids }],
       'created_at' => issue_instant,
       'failed_at' => issue_instant
     }
@@ -95,10 +99,15 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
     end
 
     context 'when upload fails' do
-      let(:msg_with_errors) do
+      let(:msg_with_errors) do ## added 'test' so file would error
         {
+          'jid' => job_id,
           'args' => ['test', user_account.icn,
-                     { 'first_name' => 'Bob', 'document_type' => document_type, 'file_name' => file_name }],
+                     { 'first_name' => 'Bob',
+                       'claim_id' => claim_id,
+                       'document_type' => document_type,
+                       'file_name' => file_name,
+                       'tracked_item_id' => tracked_item_ids }],
           'created_at' => issue_instant,
           'failed_at' => issue_instant
         }
@@ -128,13 +137,10 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
       end
 
       it 'fails to create a failed evidence submission record when args malformed' do
-        Lighthouse::EvidenceSubmissions::DocumentUpload.within_sidekiq_retries_exhausted_block(msg_with_errors) do
-          expect(EvidenceSubmission).not_to receive(:create)
-          expect(Rails.logger)
-            .to receive(:info)
-            .with(error_message, { messsage: "undefined method `[]' for nil" })
-          expect(StatsD).to receive(:increment).with('silent_failure', tags: tags)
-        end
+        expect do
+          described_class.within_sidekiq_retries_exhausted_block(msg_with_errors) {}
+        end.to raise_error(StandardError,
+                           'Missing fields in Lighthouse::EvidenceSubmissions::DocumentUpload')
       end
 
       it 'raises an error when Lighthouse returns a failure response' do
@@ -169,7 +175,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
           personalisation: {
             first_name: 'Bob',
             document_type: document_type,
-            filename: 'docXXXX-XXte.pdf',
+            file_name: file_name,
             date_submitted: formatted_submit_date,
             date_failed: formatted_submit_date
           }

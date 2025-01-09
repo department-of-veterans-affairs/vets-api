@@ -12,9 +12,6 @@ module Lighthouse
 
       attr_accessor :user_icn, :document_hash
 
-      FILENAME_EXTENSION_MATCHER = /\.\w*$/
-      OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
-
       # retry for  2d 1h 47m 12s
       # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
       sidekiq_options retry: 16, queue: 'low'
@@ -24,25 +21,12 @@ module Lighthouse
       end
 
       sidekiq_retries_exhausted do |msg, _ex|
+        verify_msg(msg)
+
         if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
           create_evidence_submission(msg)
         else
           call_failure_notification(msg)
-        end
-      end
-
-      def self.obscured_filename(original_filename)
-        extension = original_filename[FILENAME_EXTENSION_MATCHER]
-        filename_without_extension = original_filename.gsub(FILENAME_EXTENSION_MATCHER, '')
-
-        if filename_without_extension.length > 5
-          # Obfuscate with the letter 'X'; we cannot obfuscate with special characters such as an asterisk,
-          # as these filenames appear in VA Notify Mailers and their templating engine uses markdown.
-          # Therefore, special characters can be interpreted as markdown and introduce formatting issues in the mailer
-          obfuscated_portion = filename_without_extension[3..-3].gsub(OBFUSCATED_CHARACTER_MATCHER, 'X')
-          filename_without_extension[0..2] + obfuscated_portion + filename_without_extension[-2..] + extension
-        else
-          original_filename
         end
       end
 
@@ -75,10 +59,25 @@ module Lighthouse
         end
       end
 
+      def self.verify_msg(msg)
+        if invalid_msg_fields?(msg) || invalid_msg_args?(msg['args'])
+          raise StandardError, 'Missing fields in Lighthouse::EvidenceSubmissions::DocumentUpload'
+        end
+      end
+
+      def self.invalid_msg_fields?(msg)
+        !(%w[jid args created_at failed_at] - msg.keys).empty?
+      end
+
+      def self.invalid_msg_args?(args)
+        return true unless args[1].is_a?(Hash)
+
+        !(%w[first_name claim_id document_type file_name tracked_item_id] - args[1].keys).empty?
+      end
+
       def self.create_evidence_submission(msg)
         job_class = 'Lighthouse::EvidenceSubmissions::DocumentUpload'
         uuid = msg['args'][1]['uuid']
-
         EvidenceSubmission.create(
           job_id: msg['jid'],
           job_class: 'Lighthouse::EvidenceSubmissions::DocumentUpload',
@@ -116,12 +115,12 @@ module Lighthouse
 
       def self.create_personalisation(msg)
         first_name = msg['args'][1]['first_name'].titleize unless msg['args'][1]['first_name'].nil?
-        document_type = obscured_filename(msg['args'][1]['document_type'])
-        filename = obscured_filename(msg['args'][1]['file_name'])
+        document_type = msg['args'][1]['document_type']
+        file_name = msg['args'][1]['file_name']
         date_submitted = format_issue_instant_for_mailers(msg['created_at'])
         date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
-        { first_name:, document_type:, filename:, date_submitted:, date_failed: }
+        { first_name:, document_type:, file_name:, date_submitted:, date_failed: }
       end
 
       private
