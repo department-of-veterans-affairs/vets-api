@@ -30,7 +30,7 @@ module BGS
         # next if relationship_types[:family] == 'Child' # BGS does not support child death at this time
 
         formatted_info = death.format_info
-        death_info['location']['state_code'] = death_info['location'].delete('state')
+        death_info['dependent_death_location']['location']['state_code'] = death_info['dependent_death_location']['location'].delete('state')
         participant = bgs_service.create_participant(@proc_id)
         bgs_service.create_person(person_params(death, participant, formatted_info))
         # Need to add death location once BGS adds support for this functionality

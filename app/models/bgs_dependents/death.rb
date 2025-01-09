@@ -8,11 +8,11 @@ module BGSDependents
 
     def format_info
       {
-        death_date: format_date(@death_info['date']),
+        death_date: format_date(@death_info['dependent_death_date']),
         ssn: @death_info['ssn'],
         birth_date: @death_info['birth_date'],
         vet_ind: 'N',
-        dependent_income: formatted_boolean(@death_info['dependent_income'])
+        dependent_income: formatted_boolean(@death_info['deceased_dependent_income'])
       }.merge(@death_info['full_name']).with_indifferent_access
     end
   end
