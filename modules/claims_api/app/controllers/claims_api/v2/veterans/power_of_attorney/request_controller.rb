@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'bgs_service/veteran_representative_service'
 require 'bgs_service/manage_representative_service'
 require 'claims_api/common/exceptions/lighthouse/bad_gateway'
 require 'claims_api/v2/error/lighthouse_error_handler'
@@ -62,7 +63,11 @@ module ClaimsApi
 
           raise Common::Exceptions::Lighthouse::BadGateway if res.blank?
 
-          send_declined_notification(ptcpnt_id:, first_name:, representative_id:) if decision == 'declined'
+          if decision == 'declined'
+            send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
+          else
+            begin_auto_establishment(params[:id])
+          end
 
           render json: res, status: :ok
         end
@@ -107,6 +112,27 @@ module ClaimsApi
         end
 
         private
+
+        def begin_auto_establishment(id, form_type='21-22')
+          byebug
+          # readAllVeteranRepresentatives.serviceNumber
+          # readAllVeteranRepresentatives.insuranceNumbers
+          # readAllVeteranRepresentatives.phoneNumber
+          # readAllVeteranRepresentatives.claimantRelationship
+          # readAllVeteranRepresentatives.poaCode + organizationName
+          # readAllVeteranRepresentatives.representativeFirstName + representativeLastName
+          # readAllVeteranRepresentatives.representativeTitle
+          # readAllVeteranRepresentatives.section7332Auth
+          # readAllVeteranRepresentatives.limitationAlcohol + limitationDrugAbuse + limitationHIV + limitationSCA
+          # readAllVeteranRepresentatives.changeAddressAuth
+          # 
+          # ptcpnt_id = target_veteran.participant_id
+
+          read_all_service = ClaimsApi::VeteranRepresentativeService
+                              .new(external_uid: '600049322', external_key: '600049322')
+                              .read_all_veteran_representatives(type_code: form_type, ptcpnt_id: '600049322')
+          byebug
+        end
 
         def validate_decide_params!(proc_id:, decision:)
           if proc_id.blank?
