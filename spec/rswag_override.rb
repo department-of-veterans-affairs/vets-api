@@ -41,7 +41,7 @@ module Rswag
               v.each_pair do |_verb, value|
                 is_hash = value.is_a?(Hash)
                 if is_hash && value[:parameters]
-                  schema_param = value[:parameters]&.find { |p| (%i[body formData].include?(p[:in])) && p[:schema] }
+                  schema_param = value[:parameters]&.find { |p| %i[body formData].include?(p[:in]) && p[:schema] }
                   mime_list = value[:consumes] || doc[:consumes]
                   if value && schema_param && mime_list
                     value[:requestBody] = { content: {} } unless value.dig(:requestBody, :content)
@@ -74,7 +74,7 @@ module Rswag
       private # Added methods
 
       def request_examples(value)
-        examples = value[:parameters]&.find { |p| (%i[body formData].include?(p[:in])) && p[:examples] }
+        examples = value[:parameters]&.find { |p| %i[body formData].include?(p[:in]) && p[:examples] }
         if examples && examples[:examples]
           { examples: examples[:examples] }
         else
