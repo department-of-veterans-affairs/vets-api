@@ -79,7 +79,7 @@ RSpec.describe Organizations::XlsxFileProcessor do
 
     context 'with state code validation' do
       it 'processes only rows with valid state codes' do
-        valid_states = Representatives::XlsxFileProcessor::US_STATES_TERRITORIES.keys
+        valid_states = Representatives::XlsxFileProcessor::US_STATES_TERRITORIES
 
         result.each_value do |value_array|
           value_array.each do |row|
