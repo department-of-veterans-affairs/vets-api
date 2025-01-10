@@ -6,7 +6,6 @@ module CovidVaccine
     before_action :check_flipper
     skip_before_action :authenticate
     before_action :validate_session
-    before_action :authorize, only: :show
 
     protected
 

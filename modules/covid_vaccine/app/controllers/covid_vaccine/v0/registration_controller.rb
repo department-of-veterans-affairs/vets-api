@@ -10,6 +10,7 @@ module CovidVaccine
 
       before_action :validate_raw_form_data, only: :create
       skip_before_action :verify_authenticity_token, only: :opt_out
+      before_action :authorize, only: :show
 
       def create
         raw_form_data = params[:registration].merge(attributes_from_user)
