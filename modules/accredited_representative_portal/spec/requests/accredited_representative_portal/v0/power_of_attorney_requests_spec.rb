@@ -201,11 +201,9 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
         expect(parsed_response[0]['id']).to eq declined_request.id
       end
 
-      it 'returns empty if any other status filter provided' do
+      it 'throws 400 if any other status filter provided' do
         get('/accredited_representative_portal/v0/power_of_attorney_requests?status=delete_all')
-        parsed_response = JSON.parse(response.body)
-        expect(response).to have_http_status(:ok)
-        expect(parsed_response).to be_empty
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
