@@ -100,7 +100,7 @@ module ClaimsApi
       module ClaimManagementService
         DEFINITION =
           Service.new(
-            bean: ClaimManagementService::DEFINITION,
+            bean: ClaimManagementServiceBean::DEFINITION,
             path: 'ClaimManagementService'
           )
       end

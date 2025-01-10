@@ -146,7 +146,7 @@ OkComputer::Registry.register 'localbgs-trackeditem',
 
 services = [
   { name: 'benefit_claim_service', endpoint: 'BenefitClaimServiceBean/BenefitClaimWebService' },
-  { name: 'claimant_service', endpoint: 'ClaimantServiceBean/ClaimantWebService' },
+  { name: 'claimant_web_service', endpoint: 'ClaimantServiceBean/ClaimantWebService' },
   { name: 'claim_management_service', endpoint: 'ClaimManagementService/ClaimManagementService' },
   { name: 'contention_service', endpoint: 'ContentionService/ContentionService' },
   { name: 'corporate_update_web_service', endpoint: 'CorporateUpdateServiceBean/CorporateUpdateService' },

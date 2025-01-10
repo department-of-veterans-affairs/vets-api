@@ -61,12 +61,6 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
           expect(result['benefit_claim_service']['success']).to eq(false)
         end
 
-        it 'returns the correct status when the e-benefits-bnft-claim-status-web-service is not healthy' do
-          get "/services/claims/#{version}/upstream_healthcheck"
-          result = JSON.parse(response.body)
-          expect(result['e_benefits_bnft_claim_status_web_service']['success']).to eq(false)
-        end
-
         it 'returns the correct status when the claimant service is not healthy' do
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
@@ -91,16 +85,16 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
           expect(result['corporate_update_web_service']['success']).to eq(false)
         end
 
+        it 'returns the correct status when the e-benefits-bnft-claim-status-web-service is not healthy' do
+          get "/services/claims/#{version}/upstream_healthcheck"
+          result = JSON.parse(response.body)
+          expect(result['e_benefits_bnft_claim_status_web_service']['success']).to eq(false)
+        end
+
         it 'returns the correct status when the intenttofile is not healthy' do
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
           expect(result['intent_to_file_web_service']['success']).to eq(false)
-        end
-
-        it 'returns the correct status when the manage rep service is not healthy' do
-          get "/services/claims/#{version}/upstream_healthcheck"
-          result = JSON.parse(response.body)
-          expect(result['manage_representative_service']['success']).to eq(false)
         end
 
         it 'returns the correct status when bgs org service is not healthy' do
@@ -118,6 +112,12 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
         it 'returns the correct status when the bgs standard_data_service is not healthy' do
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
+          expect(result['standard_data_service']['success']).to eq(false)
+        end
+
+        it 'returns the correct status when the bgs standard_data_web_service is not healthy' do
+          get "/services/claims/#{version}/upstream_healthcheck"
+          result = JSON.parse(response.body)
           expect(result['standard_data_web_service']['success']).to eq(false)
         end
 
@@ -125,6 +125,18 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
           expect(result['tracked_item_service']['success']).to eq(false)
+        end
+
+        it 'returns the correct status when the manage rep service is not healthy' do
+          get "/services/claims/#{version}/upstream_healthcheck"
+          result = JSON.parse(response.body)
+          expect(result['vdc_manage_representative_service']['success']).to eq(false)
+        end
+
+        it 'returns the correct status when the vet rep service is not healthy' do
+          get "/services/claims/#{version}/upstream_healthcheck"
+          result = JSON.parse(response.body)
+          expect(result['vdc_veteran_representative_service']['success']).to eq(false)
         end
 
         it 'returns the correct status when the bgs vet_record service is not healthy' do
