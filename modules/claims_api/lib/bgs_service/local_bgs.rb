@@ -9,7 +9,7 @@
 require 'claims_api/claim_logger'
 require 'claims_api/error/soap_error_handler'
 require 'claims_api/evss_bgs_mapper'
-require 'bgs_service/local_bgs_refactored'
+require 'bgs_service/find_definition'
 
 module ClaimsApi
   class LocalBGS
@@ -87,32 +87,6 @@ module ClaimsApi
 
       make_request(endpoint: 'ClaimantServiceBean/ClaimantWebService', action: 'findPOAByPtcpntId', body:,
                    key: 'return')
-    end
-
-    def find_poa_history_by_ptcpnt_id(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
-      EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'OrgWebServiceBean/OrgWebService', action: 'findPoaHistoryByPtcpntId', body:,
-                   key: 'PoaHistory')
-    end
-
-    def find_tracked_items(id)
-      body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <claimId />
-      EOXML
-
-      { claimId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
-
-      make_request(endpoint: 'TrackedItemService/TrackedItemService', action: 'findTrackedItems', body:,
-                   key: 'BenefitClaim')
     end
 
     def header # rubocop:disable Metrics/MethodLength
@@ -218,11 +192,11 @@ module ClaimsApi
     end
 
     def namespace(connection, endpoint)
-      ClaimsApi::LocalBGSRefactored::FindDefinition
+      ClaimsApi::FindDefinition
         .for_service(endpoint)
         .bean.namespaces.target
     rescue => e
-      unless e.is_a? ClaimsApi::LocalBGSRefactored::FindDefinition::NotDefinedError
+      unless e.is_a? ClaimsApi::FindDefinition::NotDefinedError
         ClaimsApi::Logger.log('local_bgs', level: :error,
                                            detail: "local BGS FindDefinition Error: #{e.message}")
       end

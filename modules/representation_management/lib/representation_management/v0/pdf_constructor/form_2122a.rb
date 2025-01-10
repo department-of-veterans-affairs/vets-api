@@ -251,7 +251,7 @@ module RepresentationManagement
         end
 
         def limitations_of_consent_text(consent_limits, record_consent)
-          return '' unless record_consent
+          return '' unless record_consent && consent_limits.present?
 
           limitations = {
             'ALCOHOLISM' => 'Alcoholism and alcohol abuse records',

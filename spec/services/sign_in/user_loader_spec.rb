@@ -57,9 +57,11 @@ RSpec.describe SignIn::UserLoader do
             auth_broker:,
             client_id: }
         end
+        let(:deceased_date) { nil }
+        let(:id_theft_flag) { false }
 
         before do
-          stub_mpi(build(:mpi_profile, edipi:, icn: user_icn, vha_facility_ids:))
+          stub_mpi(build(:mpi_profile, edipi:, icn: user_icn, deceased_date:, id_theft_flag:, vha_facility_ids:))
         end
 
         context 'and user is authenticated with dslogon' do
@@ -75,6 +77,28 @@ RSpec.describe SignIn::UserLoader do
 
           it 'reloads user object with expected backing idme uuid' do
             expect(subject.idme_uuid).to eq user_verification.backing_idme_uuid
+          end
+        end
+
+        context 'when validating the user\'s MPI profile' do
+          context 'and the MPI profile has a deceased date' do
+            let(:deceased_date) { '20020202' }
+            let(:expected_error) { MPI::Errors::AccountLockedError }
+            let(:expected_error_message) { 'Death Flag Detected' }
+
+            it 'raises an MPI locked account error' do
+              expect { subject }.to raise_error(expected_error, expected_error_message)
+            end
+          end
+
+          context 'and the MPI profile has an id theft flag' do
+            let(:id_theft_flag) { true }
+            let(:expected_error) { MPI::Errors::AccountLockedError }
+            let(:expected_error_message) { 'Theft Flag Detected' }
+
+            it 'raises an MPI locked account error' do
+              expect { subject }.to raise_error(expected_error, expected_error_message)
+            end
           end
         end
 
