@@ -142,7 +142,10 @@ RSpec.describe Form1010cg::SubmissionJob do
             callback_metadata: {
               notification_type: 'error',
               form_number: claim.form_id,
-              statsd_tags: zsf_tags
+              statsd_tags: { 
+                "service" => "caregiver-application", 
+                "function" => "10-10CG async form submission" 
+              }
             }
           }
         ]

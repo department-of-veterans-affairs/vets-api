@@ -8,14 +8,18 @@ module Form1010cg
 
     DD_ZSF_TAGS = [
       'service:caregiver-application',
-      'function: 10-10CG async form submission'
+      'function:10-10CG async form submission'
     ].freeze
 
     CALLBACK_METADATA = {
       callback_metadata: {
         notification_type: 'error',
         form_number: '10-10CG',
-        statsd_tags: DD_ZSF_TAGS
+        # VANotify::DefaultCallback expects the statsd_tags as a hash and not an array, so we convert it here
+        statsd_tags: DD_ZSF_TAGS.each_with_object({}) do |tag, hash|
+          key, value = tag.split(':', 2)
+          hash[key.strip] = value
+        end
       }
     }.freeze
 
