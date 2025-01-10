@@ -8,16 +8,14 @@ module Swagger
 
       swagger_path '/v0/search' do
         operation :get do
-          key :description, 'Returns a list of search results, from Search.gov, for the passed search query'
+          key :description, 'Returns search results from either Search.gov or GSA search API based on search_use_v2_gsa feature flag'
           key :operationId, 'getSearchResults'
-          key :tags, %w[
-            search
-          ]
+          key :tags, ['search']
 
           parameter do
             key :name, 'query'
             key :in, :query
-            key :description, 'The search term being queried'
+            key :description, 'Search term to query'
             key :required, true
             key :type, :string
           end
@@ -25,29 +23,33 @@ module Swagger
           parameter do
             key :name, 'page'
             key :in, :query
-            key :description, 'The page number for the page of results that is being requested'
+            key :description, 'Page number of results (default: 1)'
             key :required, false
             key :type, :integer
+            key :minimum, 1
           end
 
           response 200 do
-            key :description, 'Response is OK'
+            key :description, 'Search results retrieved successfully'
             schema do
               key :required, %i[data meta]
-              property :data, type: :object do
-                key :required, [:attributes]
-                property :attributes, type: :object do
-                  key :required, [:body]
-                  property :body, type: :object do
-                    property :query, type: :string, description: 'The term used to generate these search results'
-                    property :web, type: :object do
-                      property :total, type: :integer, description: 'Total number of results available.'
-                      property :next_offset, type: :integer, description: 'Offset for the subsequent results.'
-                      property :spelling_correction,
-                               type: %i[string null],
-                               description: 'Spelling correction for your search term.'
-                      property :results do
-                        key :type, :array
+
+              property :data do
+                key :type, :object
+                key :required, %i[attributes]
+
+                property :attributes do
+                  key :type, :object
+                  key :required, %i[body]
+
+                  property :body do
+                    property :query, type: :string, description: 'Original search query'
+                    property :web do
+                      key :type, :object
+                      property :total, type: :integer, description: 'Total results count'
+                      property :next_offset, type: :integer
+                      property :spelling_correction, type: %i[string null]
+                      property :results, type: :array do
                         items do
                           property :title, type: :string
                           property :url, type: :string
@@ -209,30 +211,33 @@ module Swagger
           end
 
           response 400 do
-            key :description, 'Error Occurred'
+            key :description, 'Bad Request'
             schema do
               key :$ref, :Errors
             end
           end
 
           response 429 do
-            key :description, 'Exceeded rate limit'
+            key :description, 'Rate limit exceeded'
             schema do
-              key :required, [:errors]
-
               property :errors do
                 key :type, :array
                 items do
                   key :required, %i[title detail code status source]
-                  property :title, type: :string, example: 'Exceeded rate limit'
-                  property :detail,
-                           type: :string,
-                           example: 'Exceeded Search.gov rate limit'
+                  property :title, type: :string, example: 'Rate Limit Exceeded'
+                  property :detail, type: :string, example: 'Search API rate limit exceeded'
                   property :code, type: :string, example: 'SEARCH_429'
                   property :status, type: :string, example: '429'
                   property :source, type: :string, example: 'Search::Service'
                 end
               end
+            end
+          end
+
+          response 503 do
+            key :description, 'Search service unavailable'
+            schema do
+              key :$ref, :Errors
             end
           end
         end
