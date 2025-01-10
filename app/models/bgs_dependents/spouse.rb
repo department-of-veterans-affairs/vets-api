@@ -45,6 +45,7 @@ module BGSDependents
     def initialize(dependents_application)
       @dependents_application = dependents_application
       @spouse_information = @dependents_application['spouse_information']
+      @is_v2 = Flipper.enabled(:va_dependents_v2)
 
       self.attributes = spouse_attributes
     end
@@ -71,7 +72,7 @@ module BGSDependents
         martl_status_type_cd: marital_status,
         vet_ind: spouse_is_veteran,
         address: spouse_address,
-        spouse_income: formatted_boolean(@dependents_application['does_live_with_spouse']['spouse_income'])
+        spouse_income: @is_v2 ? formatted_boolean(@dependents_application['spouse_income']) : formatted_boolean(@dependents_application['does_live_with_spouse']['spouse_income'])
       }.merge(@spouse_information['full_name'])
       spouse_info.merge!({ va_file_number: @spouse_information['va_file_number'] }) if spouse_is_veteran == 'Y'
 
