@@ -15,9 +15,7 @@ module MyHealth
       #        (ie: ?sort[]=refill_status&sort[]=-prescription_id)
       def index
         resource = collection_resource
-        resource.data = remove_pf_pd(resource.data) # TODO: remove this line when PF and PD are allowed on va.gov
-        resource.data = group_prescriptions(resource.data) if Flipper.enabled?(:mhv_medications_display_grouping)
-        resource.data = filter_non_va_meds(resource.data)
+        resource.data = resource_data_modifications(resource)
         filter_count = set_filter_metadata(resource.data)
         resource = if params[:filter].present?
                      if filter_params[:disp_status]&.[](:eq) == 'Active,Expired' # renewal params
@@ -174,6 +172,12 @@ module MyHealth
         end
       end
 
+      def resource_data_modifications(resource)
+        resource.data = remove_pf_pd(resource.data) # TODO: remove this line when PF and PD are allowed on va.gov
+        resource.data = group_prescriptions(resource.data) if Flipper.enabled?(:mhv_medications_display_grouping)
+        resource.data = filter_non_va_meds(resource.data)
+      end
+
       def set_filter_metadata(list)
         {
           filter_count: {
@@ -206,7 +210,8 @@ module MyHealth
 
       # TODO: remove once pf and pd are allowed on va.gov
       def remove_pf_pd(data)
-        data.reject { |item| item[:prescription_source] == 'PF' || item[:prescription_source] == 'PD' }
+        sources_to_remove_from_data = ['PF', 'PD']
+        data.reject { |item| sources_to_remove_from_data.include?(item.prescription_source)}
       end
     end
   end
