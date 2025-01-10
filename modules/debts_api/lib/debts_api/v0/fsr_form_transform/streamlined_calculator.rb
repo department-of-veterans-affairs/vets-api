@@ -64,6 +64,8 @@ module DebtsApi
         def streamlined_short_form?
           return false unless eligible_for_streamlined? && income_below_gmt_threshold?
 
+          # if this is true: streamlined_waiver_asset_update? return are_liquid_assets_below_gmt_threshold?
+          # if this is false: streamlined_waiver_asset_update? return cash_below_gmt_threshold?
           asset_waiver_low_liquid_assets = streamlined_waiver_asset_update? && are_liquid_assets_below_gmt_threshold?
           cash_below_gmt_threshold? || asset_waiver_low_liquid_assets
         end
