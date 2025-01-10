@@ -186,7 +186,6 @@ module DebtsApi
       # rubocop:enable Metrics/MethodLength
 
       # rubocop:disable Metrics/MethodLength
-      params.permit(form)
       def full_transform_form
         params.permit(
           :'view:enhanced_financial_status_report',
