@@ -85,9 +85,9 @@ RSpec.describe SimpleFormsApi::VBA214140 do
 
     it 'returns an array of four EmploymentHistory instances' do
       expect(employment_history.length).to eq 4
-      expect(employment_history[0]).to be_a SimpleFormsApi::FormEngine::EmploymentHistory
+      expect(employment_history[0]).to be_a FormEngine::EmploymentHistory
       expect(employment_history[0].lost_time).to eq data['employers'][0]['lost_time']
-      expect(employment_history[3]).to be_a SimpleFormsApi::FormEngine::EmploymentHistory
+      expect(employment_history[3]).to be_a FormEngine::EmploymentHistory
       expect(employment_history[3].lost_time).to eq nil
     end
   end

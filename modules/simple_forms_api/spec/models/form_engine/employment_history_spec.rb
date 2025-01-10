@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../../app/models/form_engine/employment_history'
 
-RSpec.describe SimpleFormsApi::FormEngine::EmploymentHistory do
+RSpec.describe FormEngine::EmploymentHistory do
   subject(:employment_history) { described_class.new(data) }
 
   let(:fixture_file) { 'vba_21_4140.json' }

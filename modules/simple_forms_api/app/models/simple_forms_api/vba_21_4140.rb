@@ -31,11 +31,11 @@ module SimpleFormsApi
     end
 
     def employed?
-      data['employers'].size.positive?
+      data['employers'] ? data['employers'].size.positive? : false
     end
 
     def employment_history
-      [*0..3].map { |i| SimpleFormsApi::FormEngine::EmploymentHistory.new(data['employers'][i]) }
+      [*0..3].map { |i| FormEngine::EmploymentHistory.new(data['employers'][i]) }
     end
 
     def first_name
