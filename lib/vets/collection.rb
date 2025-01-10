@@ -7,7 +7,9 @@
 
 require 'common/models/comparable/ascending'
 require 'common/models/comparable/descending'
+require 'vets/collections/finder'
 require 'vets/collections/pagination'
+
 # This will be a replacement for Common::Collection
 module Vets
   class Collection
@@ -53,6 +55,15 @@ module Vets
           direction == :asc ? Common::Ascending.new(value) : Common::Descending.new(value)
         end
       end
+    end
+
+    def where(conditions = {})
+      results = Vets::Collections::Finder.new(data: @records).all(conditions)
+      Vets::Collection.new(results, metadata: { filter: conditions })
+    end
+
+    def find_by(conditions = {})
+      Vets::Collections::Finder.new(data: @records).first(conditions)
     end
 
     def paginate(page: nil, per_page: nil)

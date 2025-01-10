@@ -13,6 +13,17 @@ RSpec.describe Vets::Collection do
       attribute :age, Integer
 
       set_pagination per_page: 21, max_per_page: 41
+
+      def <=>(other)
+        name <=> other.name
+      end
+
+      def self.filterable_attributes
+        {
+          'name' => %w[match eq],
+          'age' => %w[eq gteq lteq]
+        }.with_indifferent_access
+      end
     end
   end
 
@@ -59,7 +70,7 @@ RSpec.describe Vets::Collection do
         pager.replace(records[0, 2])
       end
       collection = described_class.from_will_paginate(will_collection)
-      expect(collection.records.map(&:name)).to eq(%w[Bob Alice])
+      expect(collection.records.map(&:name)).to eq(%w[Alice Bob])
     end
 
     it 'raises an error if any element is not a hash' do
@@ -67,6 +78,52 @@ RSpec.describe Vets::Collection do
 
       expect { described_class.from_will_paginate(hashes) }
         .to raise_error(ArgumentError, 'Expected records to be instance of WillPaginate')
+    end
+  end
+
+  describe '#where' do
+    let(:records) do
+      [
+        dummy_class.new(name: 'Alice', age: 30),
+        dummy_class.new(name: 'Bob', age: 40),
+        dummy_class.new(name: 'Charlie', age: 50)
+      ]
+    end
+
+    let(:collection) { described_class.new(records) }
+
+    it 'returns a filtered collection based on conditions' do
+      results = collection.where(age: { eq: 40 })
+      expect(results.records.map(&:name)).to contain_exactly('Bob')
+      expect(results.metadata[:filter]).to eq(age: { eq: 40 })
+    end
+
+    it 'returns an empty collection if no records match' do
+      results = collection.where(age: { eq: 60 })
+      expect(results.records).to be_empty
+      expect(results.metadata[:filter]).to eq(age: { eq: 60 })
+    end
+  end
+
+  describe '#find_by' do
+    let(:records) do
+      [
+        dummy_class.new(name: 'Alice', age: 30),
+        dummy_class.new(name: 'Bob', age: 40),
+        dummy_class.new(name: 'Charlie', age: 50)
+      ]
+    end
+
+    let(:collection) { described_class.new(records) }
+
+    it 'returns the first record that matches the conditions' do
+      result = collection.find_by(age: { gteq: 40 })
+      expect(result.name).to eq('Bob')
+    end
+
+    it 'returns nil if no record matches the conditions' do
+      result = collection.find_by(age: { eq: 60 })
+      expect(result).to be_nil
     end
   end
 
@@ -140,7 +197,7 @@ RSpec.describe Vets::Collection do
       it 'defaults to the first page' do
         record1 = dummy_class.new(name: 'Bob', age: 25)
         record2 = dummy_class.new(name: 'Alice', age: 30)
-        records = [record1, record2]
+        records = [record2, record1]
 
         collection = described_class.new(records)
 
