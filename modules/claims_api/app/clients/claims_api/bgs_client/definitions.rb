@@ -89,7 +89,7 @@ module ClaimsApi
       module ClaimManagementServiceBean
         DEFINITION =
           Bean.new(
-            path: 'ClaimManagementService',
+            path: 'ClaimManagementServiceBean',
             namespaces: Namespaces.new(
               target: 'http://services.mapd.benefits.vba.va.gov/',
               data: nil
