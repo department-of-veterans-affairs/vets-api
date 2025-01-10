@@ -1,9 +1,6 @@
 # frozen_string_literal: true
 
 require 'lighthouse/benefits_intake/service'
-require 'dependents/benefits_intake/submission_handler'
-require 'pcpg/benefits_intake/submission_handler'
-require 'vre/benefits_intake/submission_handler'
 
 # Datadog Dashboard
 # https://vagov.ddog-gov.com/dashboard/4d8-3fn-dbp/benefits-intake-form-submission-tracking
@@ -33,20 +30,12 @@ module BenefitsIntake
     FORM_HANDLERS = {} # rubocop:disable Style/MutableConstant
 
     # Registers a form class with a specific form ID.
+    # @see config/initializers/benefits_intake_submission_status_handlers.rb
     #
     # @param form_id [String] The form ID to register.
     # @param form_handler [Class] The class associated with the form ID.
     def self.register_handler(form_id, form_handler)
       FORM_HANDLERS[form_id] = form_handler
-    end
-
-    # Registers handlers for various form IDs.
-    {
-      '686C-674' => Dependents::BenefitsIntake::SubmissionHandler,
-      '28-8832' => PCPG::BenefitsIntake::SubmissionHandler,
-      '28-1900' => VRE::BenefitsIntake::SubmissionHandler
-    }.each do |form_id, handler_class|
-      register_handler(form_id, handler_class)
     end
 
     def initialize(batch_size: BATCH_SIZE)
@@ -64,6 +53,9 @@ module BenefitsIntake
       batch_process(pending_attempts) unless pending_attempts.empty?
 
       log(:info, 'ended')
+    rescue => e
+      # catch and log, but not re-raise to avoid sidekiq exhaustion alerts
+      log(:error, 'ERROR', message: e.message)
     end
 
     private
@@ -92,8 +84,6 @@ module BenefitsIntake
 
         handle_response(data)
       end
-    rescue => e
-      log(:error, 'ERROR processing batch', message: e.message)
     end
 
     def pending_attempts_hash

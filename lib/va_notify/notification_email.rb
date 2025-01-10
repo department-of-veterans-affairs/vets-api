@@ -5,17 +5,7 @@ module VANotify
   # module functions for sending a VaNotify notification email
   module NotificationEmail
     # statsd metric prefix
-    STATSD = 'api.va_notify.notification_email'
-
-    # notification type constants
-    module Type
-      # confirmation
-      CONFIRMATION = :confirmation
-      # error
-      ERROR = :error
-      # received
-      RECEIVED = :received
-    end
+    STATSD = 'api.va_notify.notification.email'
 
     # error indicating failure to send email
     class FailureToSend < StandardError; end

@@ -2,8 +2,12 @@
 
 require 'holidays'
 
+# jobs no located under app/*
+require 'lighthouse/benefits_intake/submission_status_job'
+
 # @see https://crontab.guru/
 # @see https://en.wikipedia.org/wiki/Cron
+# @see https://github.com/sidekiq/sidekiq/wiki/Ent-Periodic-Jobs
 PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.tz = ActiveSupport::TimeZone.new('America/New_York')
 
@@ -64,6 +68,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Update FormSubmissionAttempt status from Lighthouse Benefits Intake API
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
+  mgr.register('0 0 * * *', '::BenefitsIntake::SubmissionStatusJob')
 
   # Generate FormSubmissionAttempt rememdiation statistics from Lighthouse Benefits Intake API
   mgr.register('0 1 * * 1', 'BenefitsIntakeRemediationStatusJob')
