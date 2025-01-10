@@ -51,8 +51,10 @@ class SourceAppMiddleware
     5490-edu-benefits
     5495-edu-benefits
     686C-674
+    686C-674-v2
     995-supplemental-claim
     appeals-testing
+    appoint-a-representative
     ask-a-question
     ask-va-too
     auth
@@ -81,6 +83,7 @@ class SourceAppMiddleware
     facilities
     feedback-tool
     find-a-representative
+    fmp-cover-sheet
     fry-dea
     gi
     hca
@@ -123,6 +126,7 @@ class SourceAppMiddleware
     search-representative
     secure-messaging
     secure-messaging-pilot
+    sign-in-changes
     survivor-dependent-education-benefit-22-5490
     static-pages
     submitted-appeal

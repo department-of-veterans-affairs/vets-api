@@ -11,7 +11,7 @@ module RepresentationManagement
         protected
 
         def next_steps_page?
-          true
+          false
         end
 
         def next_steps_part1(pdf)
@@ -251,7 +251,7 @@ module RepresentationManagement
         end
 
         def limitations_of_consent_text(consent_limits, record_consent)
-          return '' unless record_consent
+          return '' unless record_consent && consent_limits.present?
 
           limitations = {
             'ALCOHOLISM' => 'Alcoholism and alcohol abuse records',
