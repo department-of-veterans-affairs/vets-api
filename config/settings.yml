@@ -487,10 +487,6 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
-  search:
-    use_mocks: false
-  lce:
-    use_mocks: false
 
 mvi_hca:
   url: http://example.com
@@ -812,8 +808,8 @@ sentry:
   dsn: ~
 
 iam_ssoe:
-  client_cert_path: ~
-  client_key_path: ~
+  client_cert_path: spec/fixtures/iam_ssoe/oauth.crt
+  client_key_path: spec/fixtures/iam_ssoe/oauth.key
   client_id: "Mobile_App_API_Server_LOWERS"
   # oauth (rest) and sts (soap) services are on different hosts
   oauth_url: "https://int.fed.eauth.va.gov:444"
@@ -989,7 +985,7 @@ lighthouse:
         rsa_key: ~
       use_mocks: false
   benefits_documents:
-    timeout: 55
+    timeout: 65
     host: https://sandbox-api.va.gov
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
@@ -1438,13 +1434,6 @@ vanotify:
     password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
   status_callback:
     bearer_token: fake_bearer_token
-
-# Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
-genisis:
-  base_url: https://vaausapprne60.aac.dva.va.gov
-  service_path: /COVID19Service
-  user: TestUser
-  pass: bogus
 
 # Settings for connecting AFS Veteran Services
 # For locahost we can use the existing certs as long as we don't call out
