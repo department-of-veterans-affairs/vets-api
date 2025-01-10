@@ -66,7 +66,9 @@ class EVSSClaimService
     job_id = EVSS::DocumentUpload.perform_async(headers, @user.user_account_uuid,
                                                 evss_claim_document.to_serializable_hash)
 
-    record_evidence_submission(evss_claim_document, job_id)
+    if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
+      record_evidence_submission(evss_claim_document, job_id)
+    end
     record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
 
     job_id

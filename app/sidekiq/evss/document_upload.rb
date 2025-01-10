@@ -36,7 +36,7 @@ class EVSS::DocumentUpload
     verify_msg(msg)
 
     if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
-      create_evidence_submission(msg)
+      update_evidence_submission(msg)
     else
       call_failure_notification(msg)
     end
@@ -74,11 +74,13 @@ class EVSS::DocumentUpload
     !(%w[evss_claim_id tracked_item_id document_type file_name] - args[2].keys).empty?
   end
 
-  def self.create_evidence_submission(msg)
+  def self.update_evidence_submission(msg)
     evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
     evidence_submission.update(
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
-      template_metadata_ciphertext: { personalisation: create_personalisation_for_msg(msg) }.to_json
+      template_metadata_ciphertext: {
+        personalisation: update_personalisation(evidence_submission, msg['failed_at'])
+      }.to_json
     )
   rescue => e
     error_message = "#{job_class} failed to update EvidenceSubmission"
@@ -86,22 +88,12 @@ class EVSS::DocumentUpload
     StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
   end
 
-  def self.create_personalisation_for_msg(msg)
-    first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
-    document_type = msg['args'][2]['document_type']
-    file_name = msg['args'][2]['file_name']
-    date_submitted = format_issue_instant_for_mailers(msg['created_at'])
-    date_failed = format_issue_instant_for_mailers(msg['failed_at'])
-
-    { first_name:, document_type:, file_name:, date_submitted:, date_failed: }
-  end
-
   def self.call_failure_notification(msg)
     return unless Flipper.enabled?('cst_send_evidence_failure_emails')
 
     icn = UserAccount.find(msg['args'][1]).icn
 
-    EVSS::FailureNotification.perform_async(icn, personalisation: create_personalisation_for_msg(msg))
+    EVSS::FailureNotification.perform_async(icn, personalisation: create_personalisation(msg))
 
     ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email queued')
     StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
@@ -110,6 +102,27 @@ class EVSS::DocumentUpload
                          { message: e.message })
     StatsD.increment('silent_failure', tags: ['service:claim-status', 'function: evidence upload to EVSS'])
     log_exception_to_sentry(e)
+  end
+
+  # Update personalisation here since an evidence submission record was previously created
+  def self.update_personalisation(current_personalisation, failed_at)
+    { first_name: current_personalisation['first_name'],
+      document_type: current_personalisation['document_type'],
+      file_name: current_personalisation['file_name'],
+      date_submitted: current_personalisation['date_submitted'],
+      date_failed: format_issue_instant_for_mailers(failed_at) }
+  end
+
+  # Create personalisation here since there is no evidence submission record previously created
+  # since cst_send_evidence_failure_emails was false for this path
+  def self.create_personalisation(msg)
+    first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
+    document_type = msg['args'][2]['document_type']
+    file_name = msg['args'][2]['file_name']
+    date_submitted = format_issue_instant_for_mailers(msg['created_at'])
+    date_failed = format_issue_instant_for_mailers(msg['failed_at'])
+
+    { first_name:, document_type:, file_name:, date_submitted:, date_failed: }
   end
 
   def self.format_issue_instant_for_mailers(issue_instant)
@@ -169,21 +182,9 @@ class EVSS::DocumentUpload
   def record_evidence_submission(job_id)
     evidence_submission = EvidenceSubmission.find_by(job_id:)
     evidence_submission.update(
-      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
-      template_metadata_ciphertext: {
-        personalisation: create_personalisation
-      }
+      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]
     )
     evidence_submission.save!
     evidence_submission
-  end
-
-  def create_personalisation
-    first_name = auth_headers['va_eauth_firstName'].titleize unless auth_headers['va_eauth_firstName'].nil?
-    { first_name:,
-      document_type: document.document_type,
-      file_name: document.file_name,
-      date_submitted: format_issue_instant_for_mailers(Time.zone.now),
-      date_failed: nil }
   end
 end

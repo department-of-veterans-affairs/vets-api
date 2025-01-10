@@ -140,9 +140,22 @@ RSpec.describe EVSSClaimService do
       end.to change(EVSS::DocumentUpload.jobs, :size).by(1)
     end
 
-    it 'records evidence submission' do
-      subject.upload_document(document)
-      expect(EvidenceSubmission.count).to eq(1)
+    context 'when :cst_send_evidence_submission_failure_emails is enabled' do
+      before { Flipper.enable(:cst_send_evidence_submission_failure_emails) }
+
+      it 'records evidence submission' do
+        subject.upload_document(document)
+        expect(EvidenceSubmission.count).to eq(1)
+      end
+    end
+
+    context 'when :cst_send_evidence_submission_failure_emails is disabled' do
+      before { Flipper.disable(:cst_send_evidence_submission_failure_emails) }
+
+      it 'does not record evidence submission' do
+        subject.upload_document(document)
+        expect(EvidenceSubmission.count).to eq(0)
+      end
     end
 
     it 'updates document with sanitized filename' do

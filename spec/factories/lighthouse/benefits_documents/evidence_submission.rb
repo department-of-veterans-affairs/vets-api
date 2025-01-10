@@ -23,7 +23,7 @@ FactoryBot.define do
         'document_type' => 'L014',
         'filename' => 'test.txt',
         'date_submitted' => DateTime.now.utc.to_s,
-        'date_failed' => DateTime.now.utc.to_s
+        'date_failed' => nil
       } }.to_json
     end
   end
