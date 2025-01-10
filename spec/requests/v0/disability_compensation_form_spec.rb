@@ -265,7 +265,7 @@ RSpec.describe 'V0::DisabilityCompensationForm', type: :request do
             expect(response).to match_response_schema('submit_disability_form')
             expect(Form526Submission.count).to eq(1)
             form = Form526Submission.last.form
-            expect(form.dig('form526', 'form526', 'startedFormVersion')).to eq(nil)
+            expect(form.dig('form526', 'form526', 'startedFormVersion')).to eq('2019')
           end
         end
 
