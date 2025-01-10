@@ -89,9 +89,10 @@ module BGSDependents
     end
 
     def generate_address(address)
+      is_v2 = Flipper.enabled?(:va_dependents_v2)
       # BGS will throw an error if we pass in a military postal code in for state
       if MILITARY_POST_OFFICE_TYPE_CODES.include?(address['city'])
-        address['military_postal_code'] = address.delete('state_code')
+        address['military_postal_code'] = is_v2 ?  address.delete('state') : address.delete('state_code')
         address['military_post_office_type_code'] = address.delete('city')
       end
 
@@ -105,7 +106,12 @@ module BGSDependents
 
     # BGS will not accept address lines longer than 20 characters
     def adjust_address_lines_for!(address:)
-      all_lines = "#{address['address_line1']} #{address['address_line2']} #{address['address_line3']}"
+      is_v2 = Flipper.enabled?(:va_dependents_v2)
+      if is_v2
+        all_lines = "#{address['street']} #{address['street2']} #{address['street3']}"
+      else
+        all_lines = "#{address['address_line1']} #{address['address_line2']} #{address['address_line3']}"
+      end
       new_lines = all_lines.gsub(/\s+/, ' ').scan(/.{1,19}(?: |$)/).map(&:strip)
 
       address['address_line1'] = new_lines[0]
