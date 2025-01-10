@@ -23,6 +23,13 @@ module AccreditedRepresentativePortal
             status: :unprocessable_entity
           )
         end
+
+        rescue_from Common::Exceptions::BadRequest do |e|
+          render(
+            json: { errors: e.errors },
+            status: :bad_request
+          )
+        end
       end
     end
 
