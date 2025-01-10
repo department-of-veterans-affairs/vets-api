@@ -64,11 +64,11 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/govdelivery-tms-ruby.git
-  revision: d58cc59ae47e5f5f642b3603224f42f518f92f56
-  tag: v4.0.0
+  revision: f50c995b4a92fa8da4488ed608318eeca723b543
+  tag: v4.1.0
   specs:
-    govdelivery-tms (4.0.0)
-      activesupport (>= 5.2.4.3, < 8.0.0)
+    govdelivery-tms (4.1.0)
+      activesupport (>= 5.2.4.3, < 9.0.0)
       faraday
       mime-types
 
@@ -138,14 +138,13 @@ PATH
 GEM
   remote: https://enterprise.contribsys.com/
   specs:
-    sidekiq-ent (7.2.4)
+    sidekiq-ent (7.3.4)
       einhorn (~> 1.0)
       gserver
-      sidekiq (>= 7.2.0, < 8)
-      sidekiq-pro (>= 7.2.0, < 8)
-    sidekiq-pro (7.2.1)
-      base64
-      sidekiq (>= 7.2.0, < 8)
+      sidekiq (>= 7.3.7, < 8)
+      sidekiq-pro (>= 7.3.4, < 8)
+    sidekiq-pro (7.3.5)
+      sidekiq (>= 7.3.7, < 8)
 
 GEM
   remote: https://rubygems.org/
@@ -336,7 +335,7 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
-    csv (3.3.0)
+    csv (3.3.2)
     danger (9.5.1)
       base64 (~> 0.2)
       claide (~> 1.0)
@@ -383,27 +382,27 @@ GEM
     down (5.4.2)
       addressable (~> 2.8)
     drb (2.2.1)
-    dry-configurable (1.1.0)
-      dry-core (~> 1.0, < 2)
+    dry-configurable (1.3.0)
+      dry-core (~> 1.1)
       zeitwerk (~> 2.6)
     dry-core (1.1.0)
       concurrent-ruby (~> 1.0)
       logger
       zeitwerk (~> 2.6)
     dry-inflector (1.2.0)
-    dry-initializer (3.1.1)
+    dry-initializer (3.2.0)
     dry-logic (1.6.0)
       bigdecimal
       concurrent-ruby (~> 1.0)
       dry-core (~> 1.1)
       zeitwerk (~> 2.6)
-    dry-schema (1.13.4)
+    dry-schema (1.14.0)
       concurrent-ruby (~> 1.0)
       dry-configurable (~> 1.0, >= 1.0.1)
-      dry-core (~> 1.0, < 2)
-      dry-initializer (~> 3.0)
-      dry-logic (>= 1.4, < 2)
-      dry-types (>= 1.7, < 2)
+      dry-core (~> 1.1)
+      dry-initializer (~> 3.2)
+      dry-logic (~> 1.5)
+      dry-types (~> 1.8)
       zeitwerk (~> 2.6)
     dry-struct (1.7.0)
       dry-core (~> 1.1)
@@ -417,14 +416,14 @@ GEM
       dry-inflector (~> 1.0)
       dry-logic (~> 1.4)
       zeitwerk (~> 2.6)
-    dry-validation (1.10.0)
+    dry-validation (1.11.0)
       concurrent-ruby (~> 1.0)
-      dry-core (~> 1.0, < 2)
-      dry-initializer (~> 3.0)
-      dry-schema (>= 1.12, < 2)
+      dry-core (~> 1.1)
+      dry-initializer (~> 3.2)
+      dry-schema (~> 1.14)
       zeitwerk (~> 2.6)
     einhorn (1.0.0)
-    erubi (1.13.0)
+    erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
     ethon (0.16.0)
@@ -456,7 +455,7 @@ GEM
       typhoeus (~> 1.4)
     faraday_curl (0.0.2)
       faraday (>= 0.9.0)
-    fastimage (2.3.1)
+    fastimage (2.4.0)
     ffi (1.17.1)
     ffi (1.17.1-java)
     ffi-compiler (1.3.2)
@@ -485,12 +484,12 @@ GEM
     flipper-active_record (1.3.2)
       activerecord (>= 4.2, < 9)
       flipper (~> 1.3.2)
-    flipper-active_support_cache_store (1.3.1)
-      activesupport (>= 4.2, < 8)
-      flipper (~> 1.3.1)
-    flipper-ui (1.3.1)
+    flipper-active_support_cache_store (1.3.2)
+      activesupport (>= 4.2, < 9)
+      flipper (~> 1.3.2)
+    flipper-ui (1.3.2)
       erubi (>= 1.0.0, < 2.0.0)
-      flipper (~> 1.3.1)
+      flipper (~> 1.3.2)
       rack (>= 1.4, < 4)
       rack-protection (>= 1.5.3, < 5.0.0)
       rack-session (>= 1.0.2, < 3.0.0)
@@ -532,7 +531,7 @@ GEM
     google-cloud-env (2.2.1)
       faraday (>= 1.0, < 3.a)
     google-logging-utils (0.1.0)
-    google-protobuf (4.29.2)
+    google-protobuf (4.29.3)
       bigdecimal
       rake (>= 13)
     googleauth (1.12.2)
@@ -568,10 +567,11 @@ GEM
     hashdiff (1.1.1)
     hashery (2.1.2)
     hashie (5.0.0)
-    hexapdf (1.0.3)
+    hexapdf (1.1.1)
       cmdparse (~> 3.0, >= 3.0.3)
       geom2d (~> 0.4, >= 0.4.1)
       openssl (>= 2.2.1)
+      strscan (>= 3.1.2)
     holidays (8.8.0)
     http (5.2.0)
       addressable (~> 2.8)
@@ -662,9 +662,10 @@ GEM
     matrix (0.4.2)
     memoist (0.16.2)
     method_source (1.0.0)
-    mime-types (3.5.1)
+    mime-types (3.6.0)
+      logger
       mime-types-data (~> 3.2015)
-    mime-types-data (3.2023.1003)
+    mime-types-data (3.2025.0107)
     mimemagic (0.4.3)
       nokogiri (~> 1)
       rake
@@ -729,7 +730,7 @@ GEM
     oj (3.16.9)
       bigdecimal (>= 3.0)
       ostruct (>= 0.2)
-    okcomputer (1.18.5)
+    okcomputer (1.18.6)
     olive_branch (4.0.1)
       multi_json
       rails (>= 4.0)
@@ -745,7 +746,7 @@ GEM
     ox (2.14.19)
       bigdecimal (>= 3.0)
     parallel (1.26.3)
-    parallel_tests (4.7.2)
+    parallel_tests (4.9.0)
       parallel
     parser (3.3.6.0)
       ast (~> 2.4.1)
@@ -872,7 +873,7 @@ GEM
       psych (>= 4.0.0)
     redis (5.3.0)
       redis-client (>= 0.22.0)
-    redis-client (0.22.2)
+    redis-client (0.23.0)
       connection_pool
     redis-namespace (1.11.0)
       redis (>= 4)
@@ -987,7 +988,7 @@ GEM
     ruby-vips (2.2.2)
       ffi (~> 1.12)
       logger
-    rubyzip (2.3.2)
+    rubyzip (2.4.1)
     rufus-scheduler (3.9.2)
       fugit (~> 1.1, >= 1.11.1)
     safe_shell (1.1.0)
@@ -1012,7 +1013,7 @@ GEM
       rake (>= 10.0)
     semantic_logger (4.16.0)
       concurrent-ruby (~> 1.0)
-    sentry-ruby (5.21.0)
+    sentry-ruby (5.22.1)
       bigdecimal
       concurrent-ruby (~> 1.0, >= 1.0.2)
     shellany (0.0.1)
@@ -1021,11 +1022,11 @@ GEM
     shrine (3.6.0)
       content_disposition (~> 1.0)
       down (~> 5.1)
-    sidekiq (7.2.4)
-      concurrent-ruby (< 2)
+    sidekiq (7.3.7)
       connection_pool (>= 2.3.0)
+      logger
       rack (>= 2.2.4)
-      redis-client (>= 0.19.0)
+      redis-client (>= 0.22.2)
     sign_in_service (0.4.0)
       faraday (~> 2.7)
       jwt (~> 2.8)
@@ -1058,7 +1059,7 @@ GEM
       activerecord (>= 6.1)
     strscan (3.1.2)
     strscan (3.1.2-java)
-    super_diff (0.14.0)
+    super_diff (0.15.0)
       attr_extras (>= 6.2.4)
       diff-lcs
       patience_diff
@@ -1318,7 +1319,7 @@ DEPENDENCIES
   sentry-ruby
   shoulda-matchers
   shrine
-  sidekiq (~> 7.2.0)
+  sidekiq
   sidekiq-ent!
   sidekiq-pro!
   sign_in_service

@@ -716,6 +716,10 @@ features:
     actor_type: cookie_id
     description: Enables Appoint a Representative frontend
     enable_in_development: true
+  appoint_a_representative_enable_2.0_features:
+    actor_type: user
+    description: Enables Appoint a Representative 2.0 features for frontend and backend
+    enable_in_development: true  
   appoint_a_representative_enable_pdf:
     actor_type: user
     description: Enables Appoint a Representative PDF generation endpoint

@@ -17,6 +17,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     'vba_21_0972.json',
     'vba_21_10210.json',
     'vba_21_4138.json',
+    'vba_21_4140.json',
     'vba_21_4142.json',
     'vba_21p_0847.json',
     'vba_40_0247.json',
