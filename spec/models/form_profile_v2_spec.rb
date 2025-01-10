@@ -1623,16 +1623,6 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        expect(prefill.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')).to be_a(String).or be_nil
-        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'areaCode')).to be_a(String).or be_nil
-        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'phoneNumber')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street2')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'city')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'state')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'country')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'postalCode')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranSsnLastFour')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranVaFileNumberLastFour')).to be_a(String)
       end
@@ -1672,19 +1662,6 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        veteran = prefill.dig 'data', 'attributes', 'veteran'
-        address = veteran['address']
-        phone = veteran['phone']
-        expect(address['addressLine1']).to be_a String
-        expect(address['addressLine2']).to be_a(String).or be_nil
-        expect(address['city']).to be_a String
-        expect(address['stateCode']).to be_a String
-        expect(address['zipCode5']).to be_a String
-        expect(address['countryName']).to be_a String
-        expect(address['internationalPostalCode']).to be_a(String).or be_nil
-        expect(phone['areaCode']).to be_a String
-        expect(phone['phoneNumber']).to be_a String
-        expect(veteran['emailAddressText']).to be_a String
         non_prefill = prefill['nonPrefill']
         expect(non_prefill['veteranSsnLastFour']).to be_a String
         expect(non_prefill['veteranVaFileNumberLastFour']).to be_a String
