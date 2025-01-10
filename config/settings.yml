@@ -990,7 +990,7 @@ lighthouse:
         rsa_key: ~
       use_mocks: false
   benefits_documents:
-    timeout: 55
+    timeout: 65
     host: https://sandbox-api.va.gov
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
