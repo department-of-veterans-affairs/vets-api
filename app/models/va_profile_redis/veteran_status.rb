@@ -37,7 +37,7 @@ module VAProfileRedis
     # @return [Boolean]
     #
     def military_person?
-      ['V3', 'V6'].include?(title38_status)
+      %w[V3 V6].include?(title38_status)
     end
 
     def status
