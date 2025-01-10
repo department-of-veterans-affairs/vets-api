@@ -6,7 +6,7 @@ module DebtsApi
   class V0::Form5655Submission < ApplicationRecord
     class StaleUserError < StandardError; end
     STATS_KEY = 'api.fsr_submission'
-    SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID = 'template_id_here'
+    SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID = Settings.vanotify.services.dmc.template_id.fsr_failed_email
     enum :state, { unassigned: 0, in_progress: 1, submitted: 2, failed: 3 }
 
     self.table_name = 'form5655_submissions'
@@ -86,25 +86,34 @@ module DebtsApi
         message = "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
       end
       update(error_message: message)
-      if Flipper.enabled?(:debts_silent_failure_mailer)
-        # TODO: Get vets_email_address
-        DebtManagementCenter::VANotifyEmailJob.perform_async(
-          vets_email_address,
-          SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
-
-
-        )
-      end
+      send_failed_form_email
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
       StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
     end
 
+    def send_failed_form_email
+      if Flipper.enabled?(:debts_silent_failure_mailer)
+        submission_email = ipf_form.dig('personal_data', 'email_address').downcase
+        # TODO: Handle no email?
+        DebtManagementCenter::VANotifyEmailJob.perform_async(
+          submission_email,
+          SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
+          failure_email_personalization_info
+        )
+      end
+    end
+
     def failure_email_personalization_info
+      name_info = ipf_form.dig('personal_data', 'veteran_full_name')
+      full_name = "#{name_info['first']} #{name_info['last']}"
+      # TODO: Format date? Do we need just time? Do we need the date too?
+      # TODO: look back at template in va network and verify data keys are good to go
+      # TODO: Add Datadog stuff
       {
-        'name' => 'Joe',
-        'time' => self.created_at,
+        'name' => full_name,
+        'time' => self.updated_at,
         'date' => Time.zone.now.strftime('%m/%d/%Y')
       }
     end
