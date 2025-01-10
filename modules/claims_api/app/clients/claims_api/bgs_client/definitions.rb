@@ -54,8 +54,8 @@ module ClaimsApi
         DEFINITION =
           Bean.new(
             path: 'BenefitClaimServiceBean',
-            namespaces: Namespce.new(
-              target: 'http://bepdev.vba.va.gov', # ?
+            namespaces: Namespaces.new(
+              target: 'http://services.share.benefits.vba.va.gov/',
               data: nil
             )
           )
@@ -91,7 +91,7 @@ module ClaimsApi
           Bean.new(
             path: 'ClaimManagementService',
             namespaces: Namespaces.new(
-              target: 'http://claimstatus.services.ebenefits.vba.va.gov/', # ?
+              target: 'http://services.mapd.benefits.vba.va.gov/',
               data: nil
             )
           )
