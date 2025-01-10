@@ -210,7 +210,7 @@ module MyHealth
 
       # TODO: remove once pf and pd are allowed on va.gov
       def remove_pf_pd(data)
-        sources_to_remove_from_data = ['PF', 'PD']
+        sources_to_remove_from_data = %w[PF PD]
         data.reject { |item| sources_to_remove_from_data.include?(item.prescription_source)}
       end
     end
