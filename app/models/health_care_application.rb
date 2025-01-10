@@ -17,7 +17,7 @@ class HealthCareApplication < ApplicationRecord
   DISABILITY_THRESHOLD = 50
   DD_ZSF_TAGS = [
     'service:healthcare-application',
-    'function: 10-10EZ async form submission'
+    'function:10-10EZ async form submission'
   ].freeze
   LOCKBOX = Lockbox.new(key: Settings.lockbox.master_key, encode: true)
 
@@ -294,24 +294,29 @@ class HealthCareApplication < ApplicationRecord
     first_name = parsed_form.dig('veteranFullName', 'first')
     template_id = Settings.vanotify.services.health_apps_1010.template_id.form1010_ez_failure_email
     api_key = Settings.vanotify.services.health_apps_1010.api_key
-
     salutation = first_name ? "Dear #{first_name}," : ''
-    metadata =
-      {
-        callback_metadata: {
-          notification_type: 'error',
-          form_number: FORM_ID,
-          statsd_tags: DD_ZSF_TAGS
-        }
-      }
 
     params = [email, template_id, { 'salutation' => salutation }, api_key]
-    params << metadata if Flipper.enabled?(:hca_zero_silent_failures)
+    params << failure_email_metadata if Flipper.enabled?(:hca_zero_silent_failures)
 
     VANotify::EmailJob.perform_async(*params)
     StatsD.increment("#{HCA::Service::STATSD_KEY_PREFIX}.submission_failure_email_sent")
   rescue => e
     log_exception_to_sentry(e)
+  end
+
+  def failure_email_metadata
+    {
+      callback_metadata: {
+        notification_type: 'error',
+        form_number: FORM_ID,
+        # VANotify::DefaultCallback expects the statsd_tags as a hash and not an array, so we convert it here
+        statsd_tags: DD_ZSF_TAGS.each_with_object({}) do |tag, hash|
+          key, value = tag.split(':', 2)
+          hash[key.strip] = value
+        end
+      }
+    }
   end
 
   def form_matches_schema

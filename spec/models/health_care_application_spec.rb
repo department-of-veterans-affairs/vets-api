@@ -591,6 +591,19 @@ RSpec.describe HealthCareApplication, type: :model do
             ]
           end
 
+          let(:callback_metadata) do
+            {
+              callback_metadata: {
+                notification_type: 'error',
+                form_number: form_id,
+                statsd_tags: {
+                  'function' => '10-10EZ async form submission',
+                  'service' => 'healthcare-application'
+                }
+              }
+            }
+          end
+
           let(:standard_error) { StandardError.new('Test error') }
 
           context ':hca_zero_silent_failures enabled' do
@@ -599,13 +612,7 @@ RSpec.describe HealthCareApplication, type: :model do
             end
 
             let(:template_params_with_callback_metadata) do
-              template_params << {
-                callback_metadata: {
-                  notification_type: 'error',
-                  form_number: form_id,
-                  statsd_tags: zsf_tags
-                }
-              }
+              template_params << callback_metadata
             end
 
             it 'sends a failure email to the email address provided on the form with callback metadata' do
@@ -654,13 +661,7 @@ RSpec.describe HealthCareApplication, type: :model do
               end
 
               let(:template_params_no_name_with_callback_metadata) do
-                template_params_no_name << {
-                  callback_metadata: {
-                    notification_type: 'error',
-                    form_number: form_id,
-                    statsd_tags: zsf_tags
-                  }
-                }
+                template_params_no_name << callback_metadata
               end
 
               it 'sends a failure email to the email address provided on the form with callback metadata' do
