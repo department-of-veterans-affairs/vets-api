@@ -146,28 +146,28 @@ OkComputer::Registry.register 'localbgs-trackeditem',
 
 services = [
   { name: 'benefit_claim_service', endpoint: 'BenefitClaimServiceBean/BenefitClaimWebService' },
-  { name: 'claimant_web_service', endpoint: 'ClaimManagementService/ClaimManagementService' },
-  { name: 'claim_management_service', endpoint: 'ClaimantServiceBean/ClaimantWebService' },
+  { name: 'claimant_service', endpoint: 'ClaimantServiceBean/ClaimantWebService' },
+  { name: 'claim_management_service', endpoint: 'ClaimManagementService/ClaimManagementService' },
   { name: 'contention_service', endpoint: 'ContentionService/ContentionService' },
   { name: 'corporate_update_web_service', endpoint: 'CorporateUpdateServiceBean/CorporateUpdateService' },
   { name: 'e_benefits_bnft_claim_status_web_service',
     endpoint: 'EBenefitsBnftClaimStatusWebServiceBean/EBenefitsBnftClaimStatusWebService' },
   { name: 'intent_to_file_web_service', endpoint: 'IntentToFileWebServiceBean/IntentToFileWebService' },
-  { name: 'manage_representative_service', endpoint: 'VDC/ManageRepresentativeService' },
+  { name: 'org_web_service', endpoint: 'OrgWebServiceBean/OrgWebService' },
   { name: 'person_web_service', endpoint: 'PersonWebServiceBean/PersonWebService' },
   { name: 'standard_data_service', endpoint: 'StandardDataService/StandardDataService' },
+  { name: 'standard_data_web_service', endpoint: 'StandardDataWebServiceBean/StandardDataWebService' },
+  { name: 'tracked_item_service', endpoint: 'TrackedItemService/TrackedItemService' },
+  { name: 'vdc_manage_representative_service', endpoint: 'VDC/ManageRepresentativeService' },
+  { name: 'vdc_veteran_representative_service', endpoint: 'VDC/VeteranRepresentativeService' },
   { name: 'vet_record_web_service', endpoint: 'VetRecordServiceBean/VetRecordWebService' },
-  { name: 'veteran_representative_service', endpoint: 'VDC/VeteranRepresentativeService' },
   { name: 'vnp_atchms_service', endpoint: 'VnpAtchmsWebServiceBean/VnpAtchmsService' },
   { name: 'vnp_person_service', endpoint: 'VnpPersonWebServiceBean/VnpPersonService' },
   { name: 'vnp_proc_form_service', endpoint: 'VnpProcFormWebServiceBean/VnpProcFormService' },
   { name: 'vnp_proc_service_v2', endpoint: 'VnpProcWebServiceBeanV2/VnpProcServiceV2' },
   { name: 'vnp_ptcpnt_addrs_service', endpoint: 'VnpPtcpntAddrsWebServiceBean/VnpPtcpntAddrsService' },
   { name: 'vnp_ptcpnt_phone_service', endpoint: 'VnpPtcpntPhoneWebServiceBean/VnpPtcpntPhoneService' },
-  { name: 'vnp_ptcpnt_service', endpoint: 'VnpPtcpntWebServiceBean/VnpPtcpntService' },
-  { name: 'org_web_service', endpoint: 'OrgWebServiceBean/OrgWebService' },
-  { name: 'standard_data_web_service', endpoint: 'StandardDataWebServiceBean/StandardDataWebService' },
-  { name: 'tracked_item_service', endpoint: 'TrackedItemService/TrackedItemService' }
+  { name: 'vnp_ptcpnt_service', endpoint: 'VnpPtcpntWebServiceBean/VnpPtcpntService' }
 ]
 services.each do |service|
   OkComputer::Registry.register service[:name], FaradayBGSCheck.new(service[:endpoint])
