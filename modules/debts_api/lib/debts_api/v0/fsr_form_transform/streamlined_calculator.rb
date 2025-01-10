@@ -63,10 +63,7 @@ module DebtsApi
 
         def streamlined_short_form?
           return false unless eligible_for_streamlined? && income_below_gmt_threshold?
-          # streamlined_waiver_asset_update? <- this is a feature flag
 
-          # if this is true: streamlined_waiver_asset_update? return are_liquid_assets_below_gmt_threshold?
-          # if this is false: streamlined_waiver_asset_update? return cash_below_gmt_threshold?
           if streamlined_waiver_asset_update?
             are_liquid_assets_below_gmt_threshold?
           else
