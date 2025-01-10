@@ -104,16 +104,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         end
 
         context 'when toxic exposure' do
-          it 'returns startedFormVersion as 2019 for an in-progress user (pre-TE)' do
-            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
-            end
-
-            expect(response).to have_http_status(:ok)
-            json_response = JSON.parse(response.body)
-            expect(json_response['formData']['startedFormVersion']).to eq('2019')
-          end
-
           # if the user with an IPF was not chosen for Toxic Exposure 1.1 release
           it 'does return 2019 as startedFormVersion' do
             VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
