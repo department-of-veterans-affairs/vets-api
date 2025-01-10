@@ -3,7 +3,22 @@
 require 'rails_helper'
 
 RSpec.describe BenefitsIntakeStatusJob, type: :job do
+  before do
+    Flipper.disable(:benefits_intake_submission_status_job)
+  end
+
   describe '#perform' do
+    context 'other job flipper is enabled' do
+      before do
+        Flipper.enable(:benefits_intake_submission_status_job)
+      end
+
+      it 'does nothing' do
+        expect(Rails.logger).not_to receive(:info).with('BenefitsIntakeStatusJob started')
+        BenefitsIntakeStatusJob.new.perform
+      end
+    end
+
     describe 'submission to the bulk status report endpoint' do
       context 'multiple attempts and multiple form submissions' do
         before do
