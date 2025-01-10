@@ -381,18 +381,6 @@ features:
     actor_type: user
     description: Toggles the availability of covid-19 vaccine scheduling links in the facility locator frontend
     enable_in_development: true
-  covid_volunteer_intake_backend_enabled:
-    actor_type: cookie_id
-    description: Toggles whether the COVID Research volunteer intake vets-api endpoint is available
-  covid_volunteer_intake_enabled:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer intake form Version 2 is available
-  covid_volunteer_update_enabled:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer update form and associated endpoint are available
-  covid_volunteer_delivery:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer submissions will be delivered to genISIS
   claims_claim_uploader_use_bd:
     actor_type: user
     description: Use BDS instead of EVSS to upload to VBMS.
