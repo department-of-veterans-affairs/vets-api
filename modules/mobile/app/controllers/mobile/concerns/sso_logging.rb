@@ -5,7 +5,7 @@ module Mobile::Concerns::SSOLogging
 
   included do
     after_action do
-      next if %w[create update destroy].include?(action_name)
+      next unless %w[create update destroy].include?(action_name)
 
       log_sso_info
     end
