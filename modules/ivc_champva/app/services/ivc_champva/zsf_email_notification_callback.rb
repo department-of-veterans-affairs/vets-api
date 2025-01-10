@@ -43,8 +43,8 @@ module IvcChampva
     #
     # @return [IvcChampva::Monitor]
     #
-    def monitor
-      @monitor ||= IvcChampva::Monitor.new
+    def self.monitor
+      IvcChampva::Monitor.new
     end
   end
 end
