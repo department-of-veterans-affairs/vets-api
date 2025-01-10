@@ -112,7 +112,7 @@ RSpec.describe IvcChampva::VHA1010d do
 
       it 'returns stamps for all applicants' do
         stamps = vha1010d_with_multiple_applicants.desired_stamps
-        expect(stamps.count { |stamp| stamp[:text] == 'Canada' || stamp[:text] == 'Mexico' }).to eq(2)
+        expect(stamps.count { |stamp| ['Canada', 'Mexico'].include?(stamp[:text]) }).to eq(2)
         expect(stamps).to include(
           hash_including(coords: [520, 470], text: 'Canada', page: 0),
           hash_including(coords: [520, 354], text: 'Mexico', page: 0)
