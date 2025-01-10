@@ -813,8 +813,8 @@ sentry:
   dsn: ~
 
 iam_ssoe:
-  client_cert_path: ~
-  client_key_path: ~
+  client_cert_path: spec/fixtures/iam_ssoe/oauth.crt
+  client_key_path: spec/fixtures/iam_ssoe/oauth.key
   client_id: "Mobile_App_API_Server_LOWERS"
   # oauth (rest) and sts (soap) services are on different hosts
   oauth_url: "https://int.fed.eauth.va.gov:444"
