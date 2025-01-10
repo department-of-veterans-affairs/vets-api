@@ -18,7 +18,7 @@ module DebtsApi
       @copays = params[:copays]
       @is_combined = params[:combined]
       @streamlined_data = params[:streamlined_data]
-      @is_streamlined = @streamlined_data ? @streamlined_data['value'] : false # cool
+      @is_streamlined = @streamlined_data ? @streamlined_data['value'] : false
       @form_data = build_vha_form
     end
 
