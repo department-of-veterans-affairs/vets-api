@@ -412,16 +412,9 @@ Rails.application.routes.draw do
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
 
-      resources :lce, only: :index, defaults: { format: :json }
-
-      namespace :lce do
-        resources :certifications, only: :show, defaults: { format: :json }
-
-        resources :exams, only: :show, defaults: { format: :json }
-
-        resources :licenses, only: :show, defaults: { format: :json }
-
-        resources :preps, only: :show, defaults: { format: :json }
+      namespace :lcpe do
+        resources :lacs, only: %i[index show], defaults: { format: :json }
+        resources :exams, only: %i[index show], defaults: { format: :json }
       end
     end
 
