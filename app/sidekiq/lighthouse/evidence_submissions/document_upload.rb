@@ -30,26 +30,20 @@ module Lighthouse
         end
       end
 
-      def self.format_issue_instant_for_mailers(issue_instant)
-        # We want to return all times in EDT
-        timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-        # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-        timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-      end
-
       def perform(user_icn, document_hash, user_account_uuid)
         @user_icn = user_icn
         @document_hash = document_hash
         document = LighthouseDocument.new document_hash
-
-        evidence_submission = record_evidence_submission(document.claim_id, jid, document.tracked_item_id,
-                                                         user_account_uuid)
         initialize_upload_document
 
         Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
           span.set_tag('Document File Size', file_body.size)
           response = client.upload_document(file_body, document) # returns upload response which includes requestId
+          evidence_submission = record_evidence_submission(
+            jid,
+            document,
+            user_account_uuid
+          )
           if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
             add_request_id(response, evidence_submission)
           end
@@ -85,7 +79,7 @@ module Lighthouse
           tracked_item_id: msg['args'][1]['tracked_item_id'],
           upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
           user_account: UserAccount.find_or_create_by(id: uuid),
-          template_metadata_ciphertext: { personalisation: create_personalisation(msg) }.to_json
+          template_metadata_ciphertext: { personalisation: create_personalisation(msg, false) }.to_json
         )
 
         message = "#{job_class} EvidenceSubmission created"
@@ -101,7 +95,7 @@ module Lighthouse
       def self.call_failure_notification(msg)
         icn = msg['args'].first
 
-        Lighthouse::FailureNotification.perform_async(icn, personalisation: create_personalisation(msg))
+        Lighthouse::FailureNotification.perform_async(icn, personalisation: create_personalisation(msg, false))
 
         ::Rails.logger.info('Lighthouse::DocumentUpload exhaustion handler email queued')
         StatsD.increment('silent_failure_avoided_no_confirmation',
@@ -113,14 +107,36 @@ module Lighthouse
         log_exception_to_sentry(e)
       end
 
-      def self.create_personalisation(msg)
-        first_name = msg['args'][1]['first_name'].titleize unless msg['args'][1]['first_name'].nil?
-        document_type = msg['args'][1]['document_type']
-        file_name = msg['args'][1]['file_name']
-        date_submitted = format_issue_instant_for_mailers(msg['created_at'])
-        date_failed = format_issue_instant_for_mailers(msg['failed_at'])
+      def self.format_issue_instant_for_mailers(issue_instant)
+        # We want to return all times in EDT
+        timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
 
-        { first_name:, document_type:, file_name:, date_submitted:, date_failed: }
+        # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
+        timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+      end
+
+      def self.create_personalisation(data, is_lighthouse_document)
+        if is_lighthouse_document
+          { first_name: data.first_name,
+            document_type: data.document_type,
+            file_name: data.file_name,
+            date_submitted: format_issue_instant_for_mailers(Time.zone.now),
+            date_failed: nil }
+        else
+          first_name = data['args'][1]['first_name'].titleize unless data['args'][1]['first_name'].nil?
+          document_type = data['args'][1]['document_type']
+          file_name = data['args'][1]['file_name']
+          date_submitted = format_issue_instant_for_mailers(data['created_at'])
+          date_failed = format_issue_instant_for_mailers(data['failed_at'])
+
+          { first_name:, document_type:, file_name:, date_submitted:, date_failed: }
+        end
+      end
+
+      # This method allows create_personalisation to be used by record_evidence_submission
+      # and by the self methods called in sidekiq_retries_exhausted
+      def create_personalisation(data, is_lighthouse_document)
+        self.class.create_personalisation(data, is_lighthouse_document)
       end
 
       private
@@ -169,16 +185,23 @@ module Lighthouse
         @file_body ||= perform_initial_file_read
       end
 
-      def record_evidence_submission(claim_id, job_id, tracked_item_id, user_account_uuid)
+      def record_evidence_submission(job_id, document, user_account_uuid)
         user_account = UserAccount.find(user_account_uuid)
         job_class = self.class.to_s
         upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING]
 
-        evidence_submission = EvidenceSubmission.find_or_create_by(claim_id:,
-                                                                   tracked_item_id:,
+        evidence_submission = EvidenceSubmission.find_or_create_by(claim_id: document.claim_id,
+                                                                   tracked_item_id: document.tracked_item_id,
                                                                    job_id:,
                                                                    job_class:,
-                                                                   upload_status:)
+                                                                   upload_status:,
+                                                                   template_metadata_ciphertext: {
+                                                                     personalisation:
+                                                                     create_personalisation(
+                                                                       document, true
+                                                                     )
+                                                                   })
+
         evidence_submission.user_account = user_account
         evidence_submission.save!
         evidence_submission

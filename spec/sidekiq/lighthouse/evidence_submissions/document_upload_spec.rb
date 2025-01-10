@@ -59,6 +59,13 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
 
     context 'when upload succeeds' do
       let(:uploader_stub) { instance_double(LighthouseDocumentUploader) }
+      let(:formatted_submit_date) do
+        # We want to return all times in EDT
+        timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
+
+        # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
+        timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+      end
       let(:evidence_submission_pending) do
         create(:bd_evidence_submission_pending,
                tracked_item_id: tracked_item_ids,
@@ -89,7 +96,17 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
                   tracked_item_id: tracked_item_ids,
                   job_id:,
                   job_class:,
-                  upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING] })
+                  upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
+                  template_metadata_ciphertext:
+                  {
+                    personalisation: {
+                      first_name: 'First Name',
+                      document_type: document_type,
+                      file_name: file_name,
+                      date_submitted: formatted_submit_date,
+                      date_failed: nil
+                    }
+                  } })
           .and_return(evidence_submission_pending)
         described_class.drain # runs all queued jobs of this class
         # After running DocumentUpload job, there should be a new EvidenceSubmission record

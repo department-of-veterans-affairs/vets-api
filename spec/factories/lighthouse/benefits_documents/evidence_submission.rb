@@ -17,6 +17,15 @@ FactoryBot.define do
     association :user_account, factory: :user_account
     created_at { DateTime.now.utc }
     upload_status { BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING] }
+    template_metadata_ciphertext do
+      { 'personalisation' => {
+        'first_name' => 'test',
+        'document_type' => 'L014',
+        'filename' => 'test.txt',
+        'date_submitted' => DateTime.now.utc.to_s,
+        'date_failed' => DateTime.now.utc.to_s
+      } }.to_json
+    end
   end
 
   factory :bd_evidence_submission_failed, class: 'EvidenceSubmission' do

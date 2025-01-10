@@ -3,6 +3,7 @@
 require 'datadog'
 require 'timeout'
 require 'logging/third_party_transaction'
+require 'evss/failure_notification'
 require 'lighthouse/benefits_documents/constants'
 
 class EVSS::DocumentUpload
@@ -49,6 +50,7 @@ class EVSS::DocumentUpload
     validate_document!
     pull_file_from_cloud!
     perform_document_upload_to_evss
+    record_evidence_submission(jid)
     clean_up!
   end
 
@@ -73,24 +75,18 @@ class EVSS::DocumentUpload
   end
 
   def self.create_evidence_submission(msg)
-    uuid = msg['args'][2]['uuid']
-
-    EvidenceSubmission.create(
-      job_id: msg['jid'],
-      job_class: 'EVSS::DocumentUpload',
-      claim_id: msg['args'][2]['evss_claim_id'],
-      tracked_item_id: msg['args'][2]['tracked_item_id'],
+    evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
+    evidence_submission.update(
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
-      user_account: UserAccount.find_or_create_by(id: uuid),
-      template_metadata_ciphertext: { personalisation: create_personalisation(msg) }.to_json
+      template_metadata_ciphertext: { personalisation: create_personalisation_for_msg(msg) }.to_json
     )
   rescue => e
-    error_message = "#{job_class} failed to create EvidenceSubmission"
+    error_message = "#{job_class} failed to update EvidenceSubmission"
     ::Rails.logger.info(error_message, { messsage: e.message })
     StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
   end
 
-  def self.create_personalisation(msg)
+  def self.create_personalisation_for_msg(msg)
     first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
     document_type = msg['args'][2]['document_type']
     file_name = msg['args'][2]['file_name']
@@ -101,9 +97,11 @@ class EVSS::DocumentUpload
   end
 
   def self.call_failure_notification(msg)
+    return unless Flipper.enabled?('cst_send_evidence_failure_emails')
+
     icn = UserAccount.find(msg['args'][1]).icn
 
-    EVSS::FailureNotification.perform_async(icn, personalisation: create_personalisation(msg))
+    EVSS::FailureNotification.perform_async(icn, personalisation: create_personalisation_for_msg(msg))
 
     ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email queued')
     StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
@@ -120,6 +118,12 @@ class EVSS::DocumentUpload
 
     # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
     timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+  end
+
+  # This method allows format_issue_instant_for_mailers to be used by record_evidence_submission
+  # and by the self methods called in sidekiq_retries_exhausted
+  def format_issue_instant_for_mailers(issue_instant)
+    self.class.format_issue_instant_for_mailers(issue_instant)
   end
 
   private
@@ -160,5 +164,26 @@ class EVSS::DocumentUpload
 
   def file_body
     @file_body ||= perform_initial_file_read
+  end
+
+  def record_evidence_submission(job_id)
+    evidence_submission = EvidenceSubmission.find_by(job_id:)
+    evidence_submission.update(
+      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS],
+      template_metadata_ciphertext: {
+        personalisation: create_personalisation
+      }
+    )
+    evidence_submission.save!
+    evidence_submission
+  end
+
+  def create_personalisation
+    first_name = auth_headers['va_eauth_firstName'].titleize unless auth_headers['va_eauth_firstName'].nil?
+    { first_name:,
+      document_type: document.document_type,
+      file_name: document.file_name,
+      date_submitted: format_issue_instant_for_mailers(Time.zone.now),
+      date_failed: nil }
   end
 end
