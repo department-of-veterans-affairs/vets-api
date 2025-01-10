@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs_service/local_bgs_refactored/find_definition'
+require 'bgs_service/find_definition'
 
-describe ClaimsApi::LocalBGSRefactored::FindDefinition do
+describe ClaimsApi::FindDefinition do
   subject { described_class }
 
   before do
