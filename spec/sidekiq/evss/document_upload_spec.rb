@@ -104,7 +104,6 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
 
     context 'when upload fails' do
       let(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
-      # let(:tags) { ['service:claim-status', "function: #{error_message}"] }
       let!(:evidence_submission_pending) do
         create(:bd_evidence_submission_pending,
                tracked_item_id:,

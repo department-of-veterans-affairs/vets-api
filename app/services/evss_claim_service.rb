@@ -66,7 +66,7 @@ class EVSSClaimService
     job_id = EVSS::DocumentUpload.perform_async(headers, @user.user_account_uuid,
                                                 evss_claim_document.to_serializable_hash)
 
-    record_evidence_submission(evss_claim_document.evss_claim_id, job_id, evss_claim_document.tracked_item_id)
+    record_evidence_submission(evss_claim_document, job_id)
     record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
 
     job_id
@@ -125,17 +125,37 @@ class EVSSClaimService
                         })
   end
 
-  def record_evidence_submission(claim_id, job_id, tracked_item_id)
+  def record_evidence_submission(document, job_id)
     user_account = UserAccount.find(@user.user_account_uuid)
     job_class = self.class
     upload_status = 'pending'
-    evidence_submission = EvidenceSubmission.new(claim_id:,
-                                                 tracked_item_id:,
-                                                 job_id:,
-                                                 job_class:,
-                                                 upload_status:)
+    evidence_submission = EvidenceSubmission.new(
+      claim_id: document.evss_claim_id,
+      tracked_item_id: document.tracked_item_id,
+      job_id:,
+      job_class:,
+      upload_status:,
+      template_metadata_ciphertext: { personalisation: create_personalisation(document) }.to_json
+    )
     evidence_submission.user_account = user_account
     evidence_submission.save!
+  end
+
+  def format_issue_instant_for_mailers(issue_instant)
+    # We want to return all times in EDT
+    timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
+
+    # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
+    timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+  end
+
+  def create_personalisation(document)
+    first_name = auth_headers['va_eauth_firstName'].titleize unless auth_headers['va_eauth_firstName'].nil?
+    { first_name:,
+      document_type: document.document_type,
+      file_name: document.file_name,
+      date_submitted: format_issue_instant_for_mailers(Time.zone.now),
+      date_failed: nil }
   end
 
   def claims_scope
