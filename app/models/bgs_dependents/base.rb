@@ -121,9 +121,13 @@ module BGSDependents
 
     # This method converts ISO 3166-1 Alpha-3 country codes to ISO 3166-1 country names.
     def adjust_country_name_for!(address:)
-      return if address['international_postal_code'].blank?
+      is_v2 = Flipper.enabled?(:va_dependents_v2)
+      
+      # international postal code is only in v1, return if country is usa in v2
+      return if address['international_postal_code'].blank? || address['country'] == 'USA'
 
-      country_name = address['country_name']
+      #handle v1 and v2 country naming
+      country_name = address['country_name'] || address['country']
       return if country_name.blank? || country_name.size != 3
 
       # The ISO 3166-1 country name for GBR exceeds BIS's (formerly, BGS) 50 char limit. No other country name exceeds
@@ -149,6 +153,9 @@ module BGSDependents
         else
           IsoCountryCodes.find(country_name).name
         end
+      
+      address['country'] = address['country_name'] if is_v2
+      address
     end
 
     def create_address_params(proc_id, participant_id, payload)
@@ -164,13 +171,13 @@ module BGSDependents
         addrs_two_txt: address['address_line2'],
         addrs_three_txt: address['address_line3'],
         city_nm: address['city'],
-        cntry_nm: address['country_name'],
-        postal_cd: address['state_code'],
-        frgn_postal_cd: address['international_postal_code'],
+        cntry_nm: is_v2 ? address['country'] : address['country_name'],
+        postal_cd: is_v2 ? address['state'] : address['state_code'],
+        frgn_postal_cd: is_v2 ? address[postal_code] : address['international_postal_code'],
         mlty_postal_type_cd: address['military_postal_code'],
         mlty_post_office_type_cd: address['military_post_office_type_code'],
-        zip_prefix_nbr: address['zip_code'],
-        prvnc_nm: address['state_code'],
+        zip_prefix_nbr: is_v2 ? address['postal_code'] : address['zip_code'],
+        prvnc_nm: is_v2 ? address['state'] : address['state_code'],
         email_addrs_txt: payload['email_address']
       }
     end
