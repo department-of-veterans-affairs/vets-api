@@ -67,15 +67,11 @@ module DebtsApi
 
           # if this is true: streamlined_waiver_asset_update? return are_liquid_assets_below_gmt_threshold?
           # if this is false: streamlined_waiver_asset_update? return cash_below_gmt_threshold?
-          asset_waiver_low_liquid_assets = streamlined_waiver_asset_update? && are_liquid_assets_below_gmt_threshold?
           if streamlined_waiver_asset_update?
-            binding.pry
             are_liquid_assets_below_gmt_threshold?
           else
-            binding.pry
             cash_below_gmt_threshold?
           end
-          # cash_below_gmt_threshold? || asset_waiver_low_liquid_assets
         end
 
         def streamlined_long_form?
