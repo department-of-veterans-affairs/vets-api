@@ -3,7 +3,7 @@
 require 'holidays'
 
 # jobs no located under app/*
-require 'lighthouse/benefits_intake/submission_status_job'
+require 'lighthouse/benefits_intake/sidekiq/submission_status_job'
 
 # @see https://crontab.guru/
 # @see https://en.wikipedia.org/wiki/Cron

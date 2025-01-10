@@ -2035,3 +2035,6 @@ features:
   enable_lighthouse:
     actor_type: user
     description: If enabled, user will connect to lighthouse api in sob instead of evss
+  benefits_intake_submission_status_job:
+    actor_type: user
+    description: Batch process FormSubmissionAttempts using ::BenefitsIntake::SubmissionStatusJob

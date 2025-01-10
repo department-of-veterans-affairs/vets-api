@@ -43,6 +43,8 @@ module BenefitsIntake
     end
 
     def perform(form_id = nil)
+      return unless Flipper.enabled?(:benefits_intake_submission_status_job)
+
       log(:info, 'started')
 
       pending_attempts = FormSubmissionAttempt.where(aasm_state: 'pending').includes(:form_submission)
