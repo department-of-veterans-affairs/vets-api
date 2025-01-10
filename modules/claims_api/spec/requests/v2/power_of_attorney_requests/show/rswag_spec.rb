@@ -12,6 +12,7 @@ metadata = {
   bgs: true
 }
 
+# rubocop:disable RSpec/ScatteredSetup, RSpec/RepeatedExample
 describe 'PowerOfAttorney', metadata do
   path '/veterans/power-of-attorney-requests/{id}' do
     get 'Retrieves a Power of Attorney request' do
@@ -86,6 +87,49 @@ describe 'PowerOfAttorney', metadata do
           assert_response_matches_metadata(example.metadata)
         end
       end
+
+      response '401', 'Unauthorized' do
+        schema JSON.load_file(File.expand_path('rswag/401.json', __dir__))
+
+        before do |example|
+          submit_request(example.metadata)
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        it do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+      end
+
+      response '404', 'Resource not found' do
+        schema JSON.load_file(File.expand_path('rswag/404.json', __dir__))
+
+        before do |example|
+          mock_ccg(scopes) do
+            submit_request(example.metadata)
+          end
+        end
+
+        after do |example|
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+        end
+
+        it do |example|
+          assert_response_matches_metadata(example.metadata)
+        end
+      end
     end
   end
 end
+# rubocop:enable RSpec/ScatteredSetup, RSpec/RepeatedExample
