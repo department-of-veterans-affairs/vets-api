@@ -179,7 +179,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
           'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
         )
         expect(StatsD).to receive(:increment).with(
-          'api.fsr_submission.failure_mailer.enqueue'
+          'api.fsr_submission.send_failed_form_email.enqueue'
         )
         expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
         form5655_submission.register_failure(message)
@@ -208,7 +208,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
             'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
           )
           expect(StatsD).to receive(:increment).with(
-            'api.fsr_submission.failure_mailer.enqueue'
+            'api.fsr_submission.send_failed_form_email.enqueue'
           )
           expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
           expect(StatsD).to receive(:increment).with('api.fsr_submission.combined.failure')
@@ -229,7 +229,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
           'shared.sidekiq.default.DebtManagementCenter_VANotifyEmailJob.enqueue'
         )
         expect(StatsD).not_to receive(:increment).with(
-          'api.fsr_submission.failure_mailer.enqueue'
+          'api.fsr_submission.send_failed_form_email.enqueue'
         )
         expect(StatsD).to receive(:increment).with('api.fsr_submission.failure')
         form5655_submission.register_failure(message)
