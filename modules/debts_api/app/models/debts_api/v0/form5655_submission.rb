@@ -114,8 +114,7 @@ module DebtsApi
     def failure_email_personalization_info
       name_info = ipf_form['personal_data']['veteran_full_name']
       full_name = "#{name_info['first']} #{name_info['last']}"
-      # TODO: Format date? Do we need just time? Do we need the date too?
-      # TODO: look back at template in va network and verify data keys are good to go
+
       {
         'name' => full_name,
         'time' => updated_at,
