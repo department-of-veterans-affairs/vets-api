@@ -118,7 +118,7 @@ module DebtsApi
       # TODO: look back at template in va network and verify data keys are good to go
       {
         'name' => full_name,
-        'time' => self.updated_at,
+        'time' => updated_at,
         'date' => Time.zone.now.strftime('%m/%d/%Y')
       }
     end
