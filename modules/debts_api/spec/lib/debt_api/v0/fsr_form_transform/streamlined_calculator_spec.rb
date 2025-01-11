@@ -65,7 +65,6 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::StreamlinedCalculator, type: :ser
       context 'with data that should return non-streamlined' do
         let(:pre_data) do
           get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform_non_streamlined')
-          # Add modifications to the data as needed
         end
         let(:expected_post_streamlined_data) do
           {
@@ -82,7 +81,6 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::StreamlinedCalculator, type: :ser
       context 'with data that should return streamlined short form' do
         let(:pre_data) do
           get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform_streamlined_short')
-          # Add modifications to the data as needed
         end
         let(:expected_post_streamlined_data) do
           {
@@ -99,7 +97,6 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::StreamlinedCalculator, type: :ser
       context 'with data that should return streamlined long form' do
         let(:pre_data) do
           get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform_streamlined_long')
-          # Add modifications to the data as needed
         end
         let(:expected_post_streamlined_data) do
           {
