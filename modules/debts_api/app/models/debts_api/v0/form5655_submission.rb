@@ -86,17 +86,23 @@ module DebtsApi
         message = "An unknown error occurred while submitting the form from call_location: #{caller_locations&.first}"
       end
       update(error_message: message)
-      send_failed_form_email
       Rails.logger.error("Form5655Submission id: #{id} failed", message)
       StatsD.increment("#{STATS_KEY}.failure")
       StatsD.increment('silent_failure', tags: %w[service:debt-resolution function:register_failure])
       StatsD.increment("#{STATS_KEY}.combined.failure") if public_metadata['combined']
+      begin
+        send_failed_form_email
+      rescue => e
+        StatsD.increment("#{STATS_KEY}.failure_mailer.enqueue.failure")
+        Rails.logger.error("Failed to send failed form email: #{e.message}")
+      end
     end
 
     def send_failed_form_email
       if Flipper.enabled?(:debts_silent_failure_mailer)
-        submission_email = ipf_form.dig('personal_data', 'email_address').downcase
-        # TODO: Handle no email?
+        StatsD.increment("#{STATS_KEY}.failure_mailer.enqueue")
+        submission_email = ipf_form['personal_data']['email_address'].downcase
+
         DebtManagementCenter::VANotifyEmailJob.perform_async(
           submission_email,
           SUBMISSION_FAILURE_EMAIL_TEMPLATE_ID,
@@ -106,11 +112,10 @@ module DebtsApi
     end
 
     def failure_email_personalization_info
-      name_info = ipf_form.dig('personal_data', 'veteran_full_name')
+      name_info = ipf_form['personal_data']['veteran_full_name']
       full_name = "#{name_info['first']} #{name_info['last']}"
       # TODO: Format date? Do we need just time? Do we need the date too?
       # TODO: look back at template in va network and verify data keys are good to go
-      # TODO: Add Datadog stuff
       {
         'name' => full_name,
         'time' => self.updated_at,
