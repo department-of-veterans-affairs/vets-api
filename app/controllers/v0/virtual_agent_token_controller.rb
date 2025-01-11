@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 require 'erb'
+require 'datadog_logging_module'
+
+include DatadogLoggingModule
 
 module V0
   class VirtualAgentTokenController < ApplicationController
@@ -62,6 +65,7 @@ module V0
     def service_exception_handler(exception)
       context = 'An error occurred with the Microsoft service that issues chatbot tokens'
       log_exception_to_sentry(exception, 'context' => context)
+      datadog_logging_module(context, exception.message, exception.backtrace)
       render nothing: true, status: :service_unavailable
     end
 
