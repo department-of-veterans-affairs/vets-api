@@ -198,7 +198,9 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
           form5655_submission.public_metadata = { combined: true }
           form5655_submission.save
 
-          expect(Rails.logger).to receive(:error).with("Form5655Submission id: #{form5655_submission.id} failed", message)
+          expect(Rails.logger).to receive(:error).with(
+            "Form5655Submission id: #{form5655_submission.id} failed", message
+          )
           expect(StatsD).to receive(:increment).with(
             'silent_failure', { tags: %w[service:debt-resolution function:register_failure] }
           )
