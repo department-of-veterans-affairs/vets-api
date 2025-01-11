@@ -93,14 +93,14 @@ module DebtsApi
       begin
         send_failed_form_email
       rescue => e
-        StatsD.increment("#{STATS_KEY}.failure_mailer.enqueue.failure")
+        StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue.failure")
         Rails.logger.error("Failed to send failed form email: #{e.message}")
       end
     end
 
     def send_failed_form_email
       if Flipper.enabled?(:debts_silent_failure_mailer)
-        StatsD.increment("#{STATS_KEY}.failure_mailer.enqueue")
+        StatsD.increment("#{STATS_KEY}.send_failed_form_email.enqueue")
         submission_email = ipf_form['personal_data']['email_address'].downcase
 
         DebtManagementCenter::VANotifyEmailJob.perform_async(
