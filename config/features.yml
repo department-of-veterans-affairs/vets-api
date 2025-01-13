@@ -381,18 +381,6 @@ features:
     actor_type: user
     description: Toggles the availability of covid-19 vaccine scheduling links in the facility locator frontend
     enable_in_development: true
-  covid_volunteer_intake_backend_enabled:
-    actor_type: cookie_id
-    description: Toggles whether the COVID Research volunteer intake vets-api endpoint is available
-  covid_volunteer_intake_enabled:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer intake form Version 2 is available
-  covid_volunteer_update_enabled:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer update form and associated endpoint are available
-  covid_volunteer_delivery:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer submissions will be delivered to genISIS
   claims_claim_uploader_use_bd:
     actor_type: user
     description: Use BDS instead of EVSS to upload to VBMS.
@@ -587,6 +575,9 @@ features:
     actor_type: user
     description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
     enable_in_development: true
+  disability_526_max_cfi_service_switch:
+    actor_type: user
+    description: Enables the use of the new Max Ratings CFI service instead of the VRO client for fetching max ratings.
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -716,6 +707,10 @@ features:
     actor_type: cookie_id
     description: Enables Appoint a Representative frontend
     enable_in_development: true
+  appoint_a_representative_enable_2.0_features:
+    actor_type: user
+    description: Enables Appoint a Representative 2.0 features for frontend and backend
+    enable_in_development: true  
   appoint_a_representative_enable_pdf:
     actor_type: user
     description: Enables Appoint a Representative PDF generation endpoint

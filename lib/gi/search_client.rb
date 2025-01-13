@@ -14,10 +14,6 @@ module GI
     end
 
     def get_institution_program_search_results_v0(params = {})
-      # Mock response if querying for flight school programs
-      # TO-DO: Remove after flight school program data becomes accessible
-      config.instance_variable_set(:@program_type_flight, true) if params[:type] == 'FLGT'
-
       response = perform(:get, 'v0/institution_programs', params)
       gids_response(response)
     end
