@@ -52,6 +52,7 @@ ClaimsApi::Engine.routes.draw do
         # Power of Attorney Requests
         post '/:veteranId/power-of-attorney-request', to: 'request#create'
         post '/power-of-attorney-requests', to: 'request#index'
+        get '/power-of-attorney-requests/:id', to: 'request#show'
         post '/power-of-attorney-requests/decide', to: 'request#decide'
       end
       ## 0966 Forms
@@ -62,13 +63,6 @@ ClaimsApi::Engine.routes.draw do
       post '/:veteranId/526/validate', to: 'disability_compensation#validate'
       post '/:veteranId/526/generatePDF/minimum-validations', to: 'disability_compensation#generate_pdf'
       post '/:veteranId/526/synchronous', to: 'disability_compensation#synchronous'
-    end
-
-    # Deprecated
-    resources :power_of_attorney_requests, path: 'power-of-attorney-requests', only: [:index] do
-      scope module: :power_of_attorney_requests do
-        resource :decision, only: [:create]
-      end
     end
   end
 
