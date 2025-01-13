@@ -24,7 +24,7 @@ module Lighthouse
         verify_msg(msg)
 
         if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
-          update_evidence_submission(msg)
+          update_evidence_submission_for_failure(msg)
         else
           call_failure_notification(msg)
         end
@@ -39,7 +39,7 @@ module Lighthouse
           span.set_tag('Document File Size', file_body.size)
           response = client.upload_document(file_body, document) # returns upload response which includes requestId
           if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
-            update_evidence_submission_status(jid, response)
+            update_evidence_submission_for_success(jid, response)
           end
         end
         Datadog::Tracing.trace('Remove Upload Document') do
@@ -63,7 +63,7 @@ module Lighthouse
         !(%w[first_name claim_id document_type file_name tracked_item_id] - args[1].keys).empty?
       end
 
-      def self.update_evidence_submission(msg)
+      def self.update_evidence_submission_for_failure(msg)
         evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
         evidence_submission.update(
           upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
@@ -132,7 +132,7 @@ module Lighthouse
         end
       end
 
-      # This method allows create_personalisation to be used by update_evidence_submission_status
+      # This method allows create_personalisation to be used by update_evidence_submission_for_success
       # and by the self methods called in sidekiq_retries_exhausted
       def create_personalisation(data, is_lighthouse_document)
         self.class.create_personalisation(data, is_lighthouse_document)
@@ -174,7 +174,7 @@ module Lighthouse
         @file_body ||= perform_initial_file_read
       end
 
-      def update_evidence_submission_status(job_id, response)
+      def update_evidence_submission_for_success(job_id, response)
         evidence_submission = EvidenceSubmission.find_by(job_id:)
         request_successful = response.dig(:data, :success)
         if request_successful
