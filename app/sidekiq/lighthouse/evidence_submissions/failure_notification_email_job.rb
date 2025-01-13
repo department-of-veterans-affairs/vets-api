@@ -39,6 +39,12 @@ module Lighthouse
       def send_failed_evidence_submissions
         failed_uploads.each do |upload|
           personalisation = JSON.parse(upload.template_metadata_ciphertext)['personalisation']
+              # TO DO Add obfuscation
+# Obfuscate with the letter 'X'; we cannot obfuscate with special characters such as an asterisk,
+      # as these filenames appear in VA Notify Mailers and their templating engine uses markdown.
+      # Therefore, special characters can be interpreted as markdown and introduce formatting issues in the mailer
+      # obfuscated_portion = filename_without_extension[3..-3].gsub(OBFUSCATED_CHARACTER_MATCHER, 'X')
+      # filename_without_extension[0..2] + obfuscated_portion + filename_without_extension[-2..] + extension
           response = notify_client.send_email(
             recipient_identifier: { id_value: upload.user_account.icn, id_type: 'ICN' },
             template_id: MAILER_TEMPLATE_ID,

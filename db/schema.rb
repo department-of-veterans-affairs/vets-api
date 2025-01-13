@@ -748,6 +748,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_03_152522) do
     t.datetime "updated_at", null: false
     t.datetime "flagged_value_updated_at"
     t.index ["ip_address", "representative_id", "flag_type", "flagged_value_updated_at"], name: "index_unique_constraint_fields", unique: true
+    t.index ["ip_address", "representative_id", "flag_type"], name: "index_unique_flagged_veteran_representative", unique: true
   end
 
   create_table "flipper_features", force: :cascade do |t|
