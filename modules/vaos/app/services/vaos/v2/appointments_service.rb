@@ -774,7 +774,22 @@ module VAOS
           modality = 'communityCare'
         end
 
-        Rails.logger.info("VAOS appointment id #{appointment[:id]} modality cannot be determined.") if modality.nil?
+        if modality.nil?
+          Rails.logger.info("VAOS appointment id #{appointment[:id]} modality cannot be determined.")
+          if Random.new.rand(10).zero?
+            Rails.logger.info(
+              "VAOS appointment id #{appointment[:id]} modality details.",
+              {
+                service_type: appointment[:service_type],
+                service_category_text: appointment.dig(:service_category, 0, :text),
+                kind: appointment[:kind],
+                atlas: appointment.dig(:telehealth, :atlas),
+                vvs_kind: appointment.dig(:telehealth, :vvs_kind),
+                gfe: appointment.dig(:extension, :patient_has_mobile_gfe)
+              }.to_json
+            )
+          end
+        end
 
         appointment[:modality] = modality
       end
