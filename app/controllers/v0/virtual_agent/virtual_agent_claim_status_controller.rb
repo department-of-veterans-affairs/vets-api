@@ -10,7 +10,7 @@ module V0
       include IgnoreNotFound
       service_tag 'virtual-agent'
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
-      unless Settings.vsp_environment.downcase == 'localhost' || Settings.vsp_environment.downcase == 'development'
+      unless %w[localhost development].include?(Settings.vsp_environment.downcase)
         before_action { authorize :lighthouse, :access? }
       end
 

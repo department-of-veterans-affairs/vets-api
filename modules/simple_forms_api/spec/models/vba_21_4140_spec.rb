@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require_relative '../support/shared_examples_for_base_form'
+require_relative '../../app/models/form_engine/address'
 
 RSpec.describe SimpleFormsApi::VBA214140 do
   subject(:form) { described_class.new(data) }
@@ -16,6 +17,22 @@ RSpec.describe SimpleFormsApi::VBA214140 do
 
   shared_examples 'hyphenated_phone_number' do
     it { is_expected.to match(/\d{3}-\d{3}-\d{4}/) }
+  end
+
+  describe '#address' do
+    subject(:address) { form.address }
+
+    it { is_expected.to be_a FormEngine::Address }
+
+    it 'maps correctly to attributes' do
+      expect(address.address_line1).to eq data.dig('address', 'street')
+      expect(address.address_line2).to eq data.dig('address', 'street2')
+      expect(address.city).to eq data.dig('address', 'city')
+      expect(address.state_code).to eq data.dig('address', 'state')
+      expect(address.zip_code).to eq data.dig('address', 'postal_code')
+      expect(address.country_code_iso3).to eq data.dig('address', 'country')
+      expect(address.country_code_iso2).to eq IsoCountryCodes.find(data.dig('address', 'country')).alpha2
+    end
   end
 
   describe '#data' do
