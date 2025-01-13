@@ -11,8 +11,7 @@ require 'lighthouse/benefits_documents/constants'
 RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   subject(:job) do
     described_class.perform_async(user_icn,
-                                  document_data.to_serializable_hash,
-                                  user_account_uuid)
+                                  document_data.to_serializable_hash)
   end
 
   let(:user_icn) { user_account.icn }
@@ -33,7 +32,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
     )
   end
   let(:user_account) { create(:user_account) }
-  let(:user_account_uuid) { user_account.id }
   let(:job_id) { job }
 
   let(:client_stub) { instance_double(BenefitsDocuments::WorkerService) }
@@ -66,13 +64,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
         timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
       end
-      let(:evidence_submission_pending) do
-        create(:bd_evidence_submission_pending,
-               tracked_item_id: tracked_item_ids,
-               claim_id:,
-               job_id:,
-               job_class: described_class)
-      end
       let(:response) do
         {
           data: {
@@ -81,7 +72,14 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
           }
         }
       end
-      let(:message) { "#{job_class} EvidenceSubmission created" }
+      let(:message) { "#{job_class} EvidenceSubmission updated" }
+      let(:evidence_submission_pending) do
+        create(:bd_evidence_submission_pending,
+               tracked_item_id: tracked_item_ids,
+               claim_id:,
+               job_id:,
+               job_class: described_class)
+      end
 
       it 'retrieves the file and uploads to Lighthouse' do
         allow(LighthouseDocumentUploader).to receive(:new) { uploader_stub }
@@ -91,25 +89,11 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         allow(client_stub).to receive(:upload_document).with(file, document_data)
         expect(uploader_stub).to receive(:remove!).once
         expect(client_stub).to receive(:upload_document).with(file, document_data).and_return(response)
-        allow(EvidenceSubmission).to receive(:find_or_create_by)
-          .with({ claim_id:,
-                  tracked_item_id: tracked_item_ids,
-                  job_id:,
-                  job_class:,
-                  upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
-                  template_metadata_ciphertext:
-                  {
-                    personalisation: {
-                      first_name: 'First Name',
-                      document_type: document_type,
-                      file_name: file_name,
-                      date_submitted: formatted_submit_date,
-                      date_failed: nil
-                    }
-                  } })
+        allow(EvidenceSubmission).to receive(:find_by)
+          .with({ job_id: })
           .and_return(evidence_submission_pending)
         described_class.drain # runs all queued jobs of this class
-        # After running DocumentUpload job, there should be a new EvidenceSubmission record
+        # After running DocumentUpload job, there should be an updated EvidenceSubmission record
         # with the response request_id
         expect(EvidenceSubmission.find_by(job_id: job_id).request_id).to eql(response.dig(:data, :requestId))
       end
@@ -137,13 +121,22 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
         }
       end
       let(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
+      let(:evidence_submission_pending) do
+        create(:bd_evidence_submission_pending,
+               tracked_item_id: tracked_item_ids,
+               claim_id:,
+               job_id:,
+               job_class: described_class)
+      end
       let(:error_message) { "#{job_class} failed to create EvidenceSubmission" }
-      let(:message) { "#{job_class} EvidenceSubmission created" }
+      let(:message) { "#{job_class} EvidenceSubmission updated" }
       let(:tags) { ['service:claim-status', "function: #{error_message}"] }
 
-      it 'creates a failed evidence submission record' do
+      it 'updates an evidence submission record to a failed status with a failed date' do
         Lighthouse::EvidenceSubmissions::DocumentUpload.within_sidekiq_retries_exhausted_block(msg) do
-          expect(EvidenceSubmission).to receive(:create).and_return(evidence_submission_failed)
+          allow(EvidenceSubmission).to receive(:find_by)
+            .with({ job_id: })
+            .and_return(evidence_submission_pending)
           expect(Rails.logger)
             .to receive(:info)
             .with(message)
@@ -156,8 +149,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
       it 'fails to create a failed evidence submission record when args malformed' do
         expect do
           described_class.within_sidekiq_retries_exhausted_block(msg_with_errors) {}
-        end.to raise_error(StandardError,
-                           'Missing fields in Lighthouse::EvidenceSubmissions::DocumentUpload')
+        end.to raise_error(StandardError, "Missing fields in #{job_class}")
       end
 
       it 'raises an error when Lighthouse returns a failure response' do
@@ -200,8 +192,9 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
 
         expect(Rails.logger)
           .to receive(:info)
-          .with('Lighthouse::DocumentUpload exhaustion handler email queued')
+          .with("#{job_class} exhaustion handler email queued")
         expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
+        expect(EvidenceSubmission.count).to equal(0)
       end
     end
   end

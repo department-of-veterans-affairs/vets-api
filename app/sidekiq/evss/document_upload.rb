@@ -50,14 +50,12 @@ class EVSS::DocumentUpload
     validate_document!
     pull_file_from_cloud!
     perform_document_upload_to_evss
-    record_evidence_submission(jid)
+    update_evidence_submission_status(jid) if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
     clean_up!
   end
 
   def self.verify_msg(msg)
-    if invalid_msg_fields?(msg) || invalid_msg_args?(msg['args'])
-      raise StandardError, 'Missing fields in EVSS::DocumentUpload'
-    end
+    raise StandardError, "Missing fields in #{name}" if invalid_msg_fields?(msg) || invalid_msg_args?(msg['args'])
   end
 
   def self.invalid_msg_fields?(msg)
@@ -83,7 +81,7 @@ class EVSS::DocumentUpload
       }.to_json
     )
   rescue => e
-    error_message = "#{job_class} failed to update EvidenceSubmission"
+    error_message = "#{name} failed to update EvidenceSubmission"
     ::Rails.logger.info(error_message, { messsage: e.message })
     StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
   end
@@ -133,7 +131,7 @@ class EVSS::DocumentUpload
     timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
   end
 
-  # This method allows format_issue_instant_for_mailers to be used by record_evidence_submission
+  # This method allows format_issue_instant_for_mailers to be used by update_evidence_submission_status
   # and by the self methods called in sidekiq_retries_exhausted
   def format_issue_instant_for_mailers(issue_instant)
     self.class.format_issue_instant_for_mailers(issue_instant)
@@ -179,7 +177,7 @@ class EVSS::DocumentUpload
     @file_body ||= perform_initial_file_read
   end
 
-  def record_evidence_submission(job_id)
+  def update_evidence_submission_status(job_id)
     evidence_submission = EvidenceSubmission.find_by(job_id:)
     evidence_submission.update(
       upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]

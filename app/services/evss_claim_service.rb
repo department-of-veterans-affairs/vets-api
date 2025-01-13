@@ -3,6 +3,7 @@
 require 'evss/claims_service'
 require 'evss/documents_service'
 require 'evss/auth_headers'
+require 'lighthouse/benefits_documents/constants'
 
 # EVSS Claims Status Tool
 class EVSSClaimService
@@ -129,18 +130,15 @@ class EVSSClaimService
 
   def record_evidence_submission(document, job_id)
     user_account = UserAccount.find(@user.user_account_uuid)
-    job_class = self.class
-    upload_status = 'pending'
-    evidence_submission = EvidenceSubmission.new(
+    EvidenceSubmission.create(
       claim_id: document.evss_claim_id,
       tracked_item_id: document.tracked_item_id,
       job_id:,
-      job_class:,
-      upload_status:,
+      job_class: self.class,
+      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
+      user_account:,
       template_metadata_ciphertext: { personalisation: create_personalisation(document) }.to_json
     )
-    evidence_submission.user_account = user_account
-    evidence_submission.save!
   end
 
   def format_issue_instant_for_mailers(issue_instant)

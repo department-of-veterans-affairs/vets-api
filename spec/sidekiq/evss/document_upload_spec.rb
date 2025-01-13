@@ -120,8 +120,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       it 'fails to create a failed evidence submission record when args malformed' do
         expect do
           described_class.within_sidekiq_retries_exhausted_block(msg_with_errors) {}
-        end.to raise_error(StandardError,
-                           'Missing fields in EVSS::DocumentUpload')
+        end.to raise_error(StandardError, "Missing fields in #{job_class}")
       end
     end
   end
@@ -137,13 +136,6 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
       timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
     end
-    let(:evidence_submission_pending) do
-      create(:bd_evidence_submission_pending,
-             tracked_item_id:,
-             claim_id:,
-             job_id:,
-             job_class: described_class)
-    end
 
     it 'retrieves the file and uploads to EVSS' do
       allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
@@ -153,9 +145,8 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       allow(uploader_stub).to receive(:read_for_upload) { file }
       expect(uploader_stub).to receive(:remove!).once
       expect(client_stub).to receive(:upload).with(file, document_data)
-      allow(EvidenceSubmission).to receive(:find_by).with({ job_id: job_id.to_s })
-                                                    .and_return(evidence_submission_pending)
-      described_class.drain
+      expect(EvidenceSubmission.count).to equal(0)
+      described_class.new.perform(auth_headers, user.uuid, document_data.to_serializable_hash)
     end
 
     context 'when cst_send_evidence_failure_emails is enabled' do
