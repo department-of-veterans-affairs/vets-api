@@ -938,7 +938,7 @@
         :uid_location: url
         :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/provisioning\/cerner'
 
-# VA Profile / Vet360
+# VA Profile (formerly known as Vet360)
 - :name: "VA Profile"
   :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
   :endpoints:
@@ -948,33 +948,3 @@
     - :method: :post
       :path: "/profile-service/profile/v3/*/*"
       :file_path: "vet360/profile-service/default"
-
-# GIDS
-- :name: "GIDS"
-  :base_uri: <%= "#{URI(Settings.gids.url).host}:#{URI(Settings.gids.url).port}" %>
-  :endpoints:
-    - :method: :get
-      :path: "/gids/v0/institution_programs"
-      :file_path: "gids/programs"
-      # Mock only enabled when filtering by flight programs, see: lib/gi/search_client.rb
-      :cache_multiple_responses:
-        :uid_location: query
-        :uid_locator: type
-    - :method: :get
-      :path: "/gids/v1/lce"
-      :file_path: "gids/lce"
-      :cache_multiple_responses:
-        :uid_location: query
-        :uid_locator: type
-    - :method: :get
-      :path: "/gids/v1/lce/certifications/*"
-      :file_path: "gids/lce/certifications/default"
-    - :method: :get
-      :path: "/gids/v1/lce/exams/*"
-      :file_path: "gids/lce/exams/default"
-    - :method: :get
-      :path: "/gids/v1/lce/licenses/*"
-      :file_path: "gids/lce/licenses/default"
-    - :method: :get
-      :path: "/gids/v1/lce/preps/*"
-      :file_path: "gids/lce/preps/default"

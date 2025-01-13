@@ -5,11 +5,12 @@ require 'mhv/account_creation/service'
 module MHV
   module UserAccount
     class Creator
-      attr_reader :user_verification, :break_cache
+      attr_reader :user_verification, :break_cache, :from_cache_only
 
-      def initialize(user_verification:, break_cache: false)
+      def initialize(user_verification:, break_cache: false, from_cache_only: false)
         @user_verification = user_verification
         @break_cache = break_cache
+        @from_cache_only = from_cache_only
       end
 
       def perform
@@ -30,6 +31,8 @@ module MHV
       private
 
       def create_mhv_user_account!
+        return nil if mhv_account_creation_response.nil? && from_cache_only
+
         account = MHVUserAccount.new(mhv_account_creation_response)
         account.validate!
         MPIData.find(icn)&.destroy
@@ -37,9 +40,8 @@ module MHV
       end
 
       def mhv_account_creation_response
-        tou_occurred_at = current_tou_agreement.created_at
-
-        mhv_client.create_account(icn:, email:, tou_occurred_at:, break_cache:)
+        @mhv_account_creation_response ||= mhv_client.create_account(icn:, email:, tou_occurred_at:, break_cache:,
+                                                                     from_cache_only:)
       end
 
       def icn
@@ -56,6 +58,10 @@ module MHV
 
       def user_account
         @user_account ||= user_verification.user_account
+      end
+
+      def tou_occurred_at
+        current_tou_agreement.created_at
       end
 
       def mhv_client
