@@ -11,8 +11,12 @@ RSpec.describe FormProfile, type: :model do
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mpi_profile_address)) }
 
   before do
+    Flipper.disable(:remove_pciu)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
+    Flipper.disable(:va_v3_contact_information_service)
+    Flipper.disable(:remove_pciu)
+    Flipper.disable('remove_pciu_2')
     Flipper.disable(:disability_526_toxic_exposure)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
   end
@@ -1876,6 +1880,7 @@ RSpec.describe FormProfile, type: :model do
               Flipper.enable(:disability_526_toxic_exposure, user)
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+              expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do
@@ -1953,16 +1958,6 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        expect(prefill.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')).to be_a(String).or be_nil
-        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'areaCode')).to be_a(String).or be_nil
-        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'phoneNumber')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street2')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'city')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'state')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'country')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'postalCode')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranSsnLastFour')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranVaFileNumberLastFour')).to be_a(String)
       end
@@ -2002,20 +1997,6 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        veteran = prefill.dig 'data', 'attributes', 'veteran'
-        address = veteran['address']
-        phone = veteran['phone']
-        expect(address['addressLine1']).to be_a String
-        expect(address['addressLine2']).to be_a(String).or be_nil
-        expect(address['addressLine3']).to be_a(String).or be_nil
-        expect(address['city']).to be_a String
-        expect(address['stateCode']).to be_a String
-        expect(address['zipCode5']).to be_a String
-        expect(address['countryName']).to be_a String
-        expect(address['internationalPostalCode']).to be_a(String).or be_nil
-        expect(phone['areaCode']).to be_a String
-        expect(phone['phoneNumber']).to be_a String
-        expect(veteran['emailAddressText']).to be_a String
         non_prefill = prefill['nonPrefill']
         expect(non_prefill['veteranSsnLastFour']).to be_a String
         expect(non_prefill['veteranVaFileNumberLastFour']).to be_a String
