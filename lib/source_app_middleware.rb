@@ -75,6 +75,7 @@ class SourceAppMiddleware
     dependents-view-dependents
     dhp-consent-flow
     discharge-upgrade-instructions
+    discover-your-benefits
     ds-playground
     ds-v3-playground
     education-letters
