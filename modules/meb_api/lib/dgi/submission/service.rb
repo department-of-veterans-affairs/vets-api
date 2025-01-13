@@ -78,9 +78,9 @@ module MebApi
 
         def merge_poa_into_claimant(poa_code, params)
           code = poa_code.with_indifferent_access
-          
+
           if code.dig('data', 'attributes', 'code')
-            modified_params = params['claimant'].merge({poa: poa_code})
+            modified_params = params['claimant'].merge({ poa: poa_code })
             params['claimant'] = modified_params
             modified_params
           end

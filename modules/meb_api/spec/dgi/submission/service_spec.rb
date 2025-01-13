@@ -117,7 +117,7 @@ RSpec.describe MebApi::DGI::Submission::Service do
           lighthouse_dd_response = OpenStruct.new(body: dd_params_lighthouse)
           response = service.submit_claim(
             ActionController::Parameters.new(claimant_params_with_asterisks[:education_benefit]),
-            {data: {attributes: {code: '1776'}}},
+            { data: { attributes: { code: '1776' } } },
             Lighthouse::DirectDeposit::PaymentInfoParser.parse(lighthouse_dd_response)
           )
 

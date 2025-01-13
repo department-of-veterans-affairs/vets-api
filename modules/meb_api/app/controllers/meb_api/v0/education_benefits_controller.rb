@@ -77,14 +77,13 @@ module MebApi
           end
         end
 
-        response = submission_service.submit_claim(params[:education_benefit].except(:form_id),  poa_code, response_data)
+        response = submission_service.submit_claim(params[:education_benefit].except(:form_id), poa_code,
+                                                   response_data)
 
         clear_saved_form(params[:form_id]) if params[:form_id]
 
         render json: {
-          data: {
-            'status': response.status
-          }
+          data: { 'status': response.status }
         }
       end
 
