@@ -3,7 +3,7 @@
 require_relative '../../../rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
-  let(:test_user) { create(:representative_user) }
+  let(:test_user) { create(:representative_user, email: 'test@va.gov') }
   let(:poa_request) { create(:power_of_attorney_request_resolution, :declination).power_of_attorney_request }
   let(:time) { '2024-12-21T04:45:37.458Z' }
 
@@ -20,7 +20,11 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     Flipper.enable(:accredited_representative_portal_pilot)
     login_as(test_user)
     travel_to(time)
+
+    allow_any_instance_of(AccreditedRepresentativePortal::PowerOfAttorneyRequestsPolicy).to receive(:pilot_user_email_poa_codes)
+      .and_return({ 'test@va.gov' => ['123'] })
   end
+
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
     it 'returns the list of power of attorney requests' do
