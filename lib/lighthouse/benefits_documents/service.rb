@@ -62,7 +62,7 @@ module BenefitsDocuments
 
       uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
       uploader.store!(document_data.file_obj)
-      # the uploader sanitizes the filename before storing, so set our doc to match
+      # The uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
       job_id = document_upload(user_icn, document_data.to_serializable_hash)
       if Flipper.enabled?('cst_send_evidence_submission_failure_emails') && !job_id.nil?
@@ -86,7 +86,7 @@ module BenefitsDocuments
       user_account = UserAccount.find(@user.user_account_uuid)
       EvidenceSubmission.create(
         claim_id: document.claim_id,
-        tracked_item_id: document.tracked_item_id[0], # TODO: do we want an array here or a string?
+        tracked_item_id: document.tracked_item_id,
         job_id:,
         job_class: self.class,
         upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
@@ -124,7 +124,9 @@ module BenefitsDocuments
         file_obj: file,
         uuid: SecureRandom.uuid,
         file_name: file.original_filename,
-        tracked_item_id: tracked_item_ids, # TODO: should we pass multiple tracked item ids here in an array?
+        # We pull the string out of the array for the tracked item since lighthouse gives us an array
+        # NOTE there will only be one tracked item here
+        tracked_item_id: tracked_item_ids[0],
         document_type:,
         password:
       )
