@@ -6,7 +6,7 @@ class CodeownersParser
       next if line.start_with?('#')
       next unless line.include?(team_name)
 
-      line.split(' ').first
+      line.split.first
     end
     parsed_codeowners.compact
   end
