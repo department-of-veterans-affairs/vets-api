@@ -69,7 +69,7 @@ features:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
   caregiver_use_facilities_API:
-    actor_type: user
+    actor_type: cookie_id
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
   caregiver_browser_monitoring_enabled:
     actor_type: user
