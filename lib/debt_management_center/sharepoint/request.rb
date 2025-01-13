@@ -109,9 +109,9 @@ module DebtManagementCenter
           File.delete(pdf_path)
 
           response
-          rescue => e
+        rescue => e
           if Flipper.enabled?(:debts_sharepoint_error_logging)
-            report_sharepoint_error(response, 'PDF')
+            report_sharepoint_error(e, 'PDF')
           else
             raise e
           end
@@ -138,7 +138,7 @@ module DebtManagementCenter
           list_item_id
         rescue => e
           if Flipper.enabled?(:debts_sharepoint_error_logging)
-            report_sharepoint_error(get_item_response, 'GET_LIST_ITEM')
+            report_sharepoint_error(e, 'GET_LIST_ITEM')
           else
             raise e
           end

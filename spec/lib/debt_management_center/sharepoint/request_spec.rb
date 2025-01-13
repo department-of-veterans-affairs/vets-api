@@ -96,10 +96,33 @@ RSpec.describe DebtManagementCenter::Sharepoint::Request do
       )
     end
 
-    it 'uploads a pdf file to SharePoint' do
-      VCR.use_cassette('vha/sharepoint/upload_pdf') do
-        response = subject.upload(form_contents: form_content, form_submission:, station_id:)
-        expect(response.success?).to be(true)
+    context 'with debts_sharepoint_error_logging feature enabled' do
+      it 'uploads a pdf file to SharePoint' do
+        VCR.use_cassette('vha/sharepoint/upload_pdf') do
+          response = subject.upload(form_contents: form_content, form_submission:, station_id:)
+          expect(response.success?).to be(true)
+        end
+      end
+
+      it 'raises an error if the upload fails' do
+        VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+          expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
+            .to raise_error(Common::Exceptions::BackendServiceException)
+        end
+      end
+    end
+
+    context 'with debts_sharepoint_error_logging feature disabled' do
+      before do
+        allow(Flipper).to receive(:enabled?).with(:debts_sharepoint_error_logging)
+      end
+
+      it 'does not log errors' do
+        VCR.use_cassette('vha/sharepoint/upload_pdf_400_response') do
+          # expect { subject.upload(form_contents: form_content, form_submission:, station_id:) }
+          #   .to raise_error(Common::Exceptions::BackendServiceException)
+          subject.upload(form_contents: form_content, form_submission:, station_id:)
+        end
       end
     end
   end
