@@ -5,7 +5,7 @@ require 'mhv/account_creation/service'
 
 describe MHV::AccountCreation::Service do
   describe '#create_account' do
-    subject { described_class.new.create_account(icn:, email:, tou_occurred_at:, break_cache:) }
+    subject { described_class.new.create_account(icn:, email:, tou_occurred_at:, break_cache:, from_cache_only:) }
 
     let(:icn) { '10101V964144' }
     let(:email) { 'some-email@email.com' }
@@ -16,8 +16,19 @@ describe MHV::AccountCreation::Service do
     let(:account_creation_base_url) { 'https://apigw-intb.aws.myhealth.va.gov' }
     let(:account_creation_path) { 'v1/usermgmt/account-service/account' }
     let(:break_cache) { false }
+    let(:from_cache_only) { false }
     let(:start_time) { Time.zone.now }
     let(:end_time) { start_time + 10.seconds }
+
+    let(:user_profile_id) { '12345678' }
+    let(:premium) { true }
+    let(:champ_va) { true }
+    let(:patient) { true }
+    let(:sm_account_created) { true }
+    let(:message) { 'Existing MHV Account Found for ICN' }
+    let(:expected_response_body) do
+      { user_profile_id:, premium:, champ_va:, patient:, sm_account_created:, message: }
+    end
 
     before do
       allow(Rails.logger).to receive(:info)
@@ -47,6 +58,45 @@ describe MHV::AccountCreation::Service do
       end
     end
 
+    context 'when from_cache_only is true' do
+      let(:from_cache_only) { true }
+      let(:expected_cache_key) { "mhv_account_creation_#{icn}" }
+
+      context 'when the account is in the cache' do
+        before do
+          allow(Rails.cache).to receive(:read).with(expected_cache_key).and_return(expected_response_body)
+        end
+
+        it 'returns the cached response' do
+          expect(subject).to eq(expected_response_body)
+        end
+
+        it 'does not make a request to the account creation service' do
+          subject
+          expect(a_request(:post, "#{account_creation_base_url}/#{account_creation_path}")).not_to have_been_made
+          expect(Rails.logger).not_to have_received(:info).with("#{log_prefix} create_account request",
+                                                                anything)
+        end
+      end
+
+      context 'when the account is not in the cache' do
+        before do
+          allow(Rails.cache).to receive(:read).with(expected_cache_key).and_return(nil)
+        end
+
+        it 'returns nil' do
+          expect(subject).to be_nil
+        end
+
+        it 'does not make a request to the account creation service' do
+          subject
+          expect(a_request(:post, "#{account_creation_base_url}/#{account_creation_path}")).not_to have_been_made
+          expect(Rails.logger).not_to have_received(:info).with("#{log_prefix} create_account request",
+                                                                anything)
+        end
+      end
+    end
+
     context 'when the response is successful' do
       let(:successful_response_cassette) { 'mhv/account_creation/account_creation_service_200_found' }
       let(:expected_log_message) { "#{log_prefix} create_account success" }
@@ -54,15 +104,7 @@ describe MHV::AccountCreation::Service do
         { icn:, account: expected_response_body, from_cache: expected_from_cache_log,
           duration_ms: expected_duration }.compact
       end
-      let(:user_profile_id) { '12345678' }
-      let(:premium) { true }
-      let(:champ_va) { true }
-      let(:patient) { true }
-      let(:sm_account_created) { true }
-      let(:message) { 'Existing MHV Account Found for ICN' }
-      let(:expected_response_body) do
-        { user_profile_id:, premium:, champ_va:, patient:, sm_account_created:, message: }
-      end
+
       let(:expected_duration) { 10_000.0 }
 
       shared_examples 'a successful external request' do
