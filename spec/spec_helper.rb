@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'i18n'
+require 'support/codeowners_parser'
 require 'support/spec_builders'
 require 'support/matchers'
 require 'support/spool_helpers'
@@ -87,6 +88,11 @@ unless ENV['NOCOVERAGE']
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     # End Modules
+
+    # Team Groups
+    codeowners_parser = CodeownersParser.new
+    octo_identity_files = codeowners_parser.perform('octo-identity')
+    add_group 'OctoIdentity', octo_identity_files
 
     if ENV['CI']
       SimpleCov.minimum_coverage 90
