@@ -29,6 +29,10 @@ module AccreditedRepresentativePortal
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
 
+    def expires_at
+      created_at + 60.days
+    end
+
     private
 
     def set_claimant_type
