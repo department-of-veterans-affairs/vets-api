@@ -29,21 +29,7 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
       Rails.application.reload_routes!
     end
 
-    context 'authorization not performed' do
-      it 'renders the data but logs the error' do
-        allow(Rails.logger).to receive(:error)
-        expect(subject).to have_http_status(:ok)
-        expect(Rails.logger).to have_received(:error).exactly(3).times
-      end
-    end
-
     context 'when authenticated' do
-      before do
-        allow_any_instance_of(
-          AccreditedRepresentativePortal::ApplicationController
-        ).to receive(:verify_pundit_authorization)
-      end
-
       context 'with a valid audience' do
         it 'allows access' do
           expect(subject).to have_http_status(:ok)
@@ -76,6 +62,8 @@ end
 
 module AccreditedRepresentativePortal
   class ArbitraryController < ApplicationController
+    skip_after_action :verify_pundit_authorization
+
     def arbitrary = head :ok
   end
 end

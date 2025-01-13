@@ -3,31 +3,35 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
+      include PowerOfAttorneyRequests
+
+      before_action do
+        authorize PowerOfAttorneyRequest
+      end
+      
+      with_options only: :show do
+        before_action do
+          id = params[:id]
+          find_poa_request(id)
+        end
+      end
+
       def index
-        poa_requests = poa_requests_rel.limit(100)
+        includes = [
+          :power_of_attorney_form,
+          :power_of_attorney_holder,
+          :accredited_individual,
+          resolution: :resolving
+        ]
+
+        poa_requests = poa_request_scope.includes(includes).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
         render json: serializer.serializable_hash, status: :ok
       end
 
       def show
-        if poa_request && authorize(poa_request, :show?, policy_class: PowerOfAttorneyRequestsPolicy)
-          serializer = PowerOfAttorneyRequestSerializer.new(poa_request)
-          render json: serializer.serializable_hash, status: :ok
-        else
-          render json: { error: 'Record not found' }, status: :not_found
-        end
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Record not found' }, status: :not_found
-      end
-
-      private
-
-      def poa_request
-        poa_requests_rel.find(params[:id])
-      end
-
-      def poa_requests_rel
-        policy_scope(PowerOfAttorneyRequest, policy_scope_class: PowerOfAttorneyRequestsPolicy::Scope)
+        serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
+        render json: serializer.serializable_hash, status: :ok
       end
     end
   end
