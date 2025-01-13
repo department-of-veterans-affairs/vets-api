@@ -82,15 +82,15 @@ all subsequent requests will use the cache (feel free to turn off your VA VPNs).
 You can record an error response or edit one manually to return an error status, or you can turn errors on and off
 by adding an error key to the config with an optional body. Restart rails after updating the service config:
 ```yaml
-- :method: :post
-  :path: "/veis/api/btsss/travelclaim/api/v1.2/Auth/access-token"
-  :file_path: "/travel_pay/btsss_token/default"
+- :method: :get
+  :path: "/_api/Web/*"
+  :file_path: "vha/sharepoint/show"
   :error: 400
 ```
 ```yaml
 - :method: :post
-  :path: "/veis/api/btsss/travelclaim/api/v1.2/Auth/access-token"
-  :file_path: "/travel_pay/btsss_token/default"
+  :path: "/_api/Web/*"
+  :file_path: "vha/sharepoint/show"
   :error: 420
   :body: '{"key": "letter.generator.error", "message": "the letter generator hamsters have fallen asleep"}'
 ```
