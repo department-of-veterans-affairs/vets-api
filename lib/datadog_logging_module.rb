@@ -3,7 +3,6 @@ module DatadogLoggingModule
     if Flipper.enabled?(:virtual_agent_enable_datadog_logging, current_user)
       error_details = { message: message, backtrace: stack_trace }
       Rails.logger.error(context, error_details)
-      #Rails.logger.send(context, error_details)
     end
   end
 end
