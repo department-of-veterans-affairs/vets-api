@@ -54,11 +54,6 @@ module DebtManagementCenter
 
       private
 
-      def log_failure_response(response, list_item_id)
-        Rails.logger.error("Failed to update SharePoint list item: #{list_item_id}")
-        Rails.logger.error("Response: #{response.status} - #{response.body}")
-      end
-
       ##
       # Set the access token for SharePoint authentication from Microsoft Access Control
       #
@@ -106,40 +101,43 @@ module DebtManagementCenter
           "#{base_path}/_api/Web/GetFolderByServerRelativeUrl('#{base_path}/Submissions')" \
             "/Files/add(url='#{file_name}.pdf',overwrite=true)"
 
-        if Flipper.enabled?(:debts_sharepoint_error_logging)
+        with_monitoring do
           response = sharepoint_file_connection.post(file_transfer_path) do |req|
             req.headers['Content-Type'] = 'octet/stream'
             req.headers['Content-Length'] = fsr_pdf.size.to_s
             req.body = Faraday::UploadIO.new(fsr_pdf, 'octet/stream')
           end
 
-          unless response.success?
-            log_sharepoint_error(response)
-          end
-
           File.delete(pdf_path)
 
-          response
-        else
-          with_monitoring do
-            response = sharepoint_file_connection.post(file_transfer_path) do |req|
-              req.headers['Content-Type'] = 'octet/stream'
-              req.headers['Content-Length'] = fsr_pdf.size.to_s
-              req.body = Faraday::UploadIO.new(fsr_pdf, 'octet/stream')
-            end
-
-            File.delete(pdf_path)
-
+          if Flipper.enabled?(:debts_sharepoint_error_logging)
+            report_sharepoint_error(response)
+          else
             response
           end
         end
-
-      ensure
-        fsr_pdf.close if fsr_pdf
       end
 
-      def log_sharepoint_error(response)
-        Rails.logger.error("Failed to upload file to SharePoint: #{response.message}")
+      def report_sharepoint_error(response)
+        return response if response.success?
+
+        case response.status
+        when 400..499
+          raise Common::Exceptions::BackendServiceException.new(
+          'SHAREPOINT_PDF_400',
+          { detail: response.body || "Unknown error from SharePoint", status: response.status },
+          response.status,
+          response.body
+        )
+        when 500..599
+          raise Common::Exceptions::BackendServiceException.new(
+          'SHAREPOINT_PDF_502',
+          { detail: response.body || "Unknown error from SharePoint", status: response.status },
+          response.status
+        )
+        else
+          raise 'Unexpected SharePoint Error'
+        end
       end
 
       ##
