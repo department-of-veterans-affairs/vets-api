@@ -2026,3 +2026,6 @@ features:
   enable_lighthouse:
     actor_type: user
     description: If enabled, user will connect to lighthouse api in sob instead of evss
+  virtual_agent_enable_datadog_logging:
+    actor_type: user
+    description: If enabled, allows for the use of Datadog logging for the chatbot
