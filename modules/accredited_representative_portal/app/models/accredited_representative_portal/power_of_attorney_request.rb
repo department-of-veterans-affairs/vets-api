@@ -29,8 +29,6 @@ module AccreditedRepresentativePortal
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
 
-    delegate :poa_code, to: :accredited_individual
-
     private
 
     def set_claimant_type
