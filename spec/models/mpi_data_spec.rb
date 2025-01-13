@@ -96,6 +96,13 @@ describe MPIData, :skip_mvi do
         expect(mpi_data.participant_id).to eq(participant_id)
       end
 
+      it 'clears the cached MPI response' do
+        mpi_data.status
+        expect(mpi_data).to be_mpi_response_is_cached
+        subject
+        expect(mpi_data).not_to be_mpi_response_is_cached
+      end
+
       it 'returns the successful response' do
         expect(subject.ok?).to be(true)
       end

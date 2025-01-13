@@ -233,10 +233,10 @@ class MPIData < Common::RedisStore
 
   def add_ids(response)
     # set new ids in the profile and delete the cached response
-    # profile.birls_id = response.parsed_codes[:birls_id].presence
-    # profile.participant_id = response.parsed_codes[:participant_id].presence
+    profile.birls_id = response.parsed_codes[:birls_id].presence
+    profile.participant_id = response.parsed_codes[:participant_id].presence
 
-     delete_from_cache if mvi_response.cache?
+    delete_cached_response if mvi_response.cache?
   end
 
   def response_from_redis_or_service(user_key:)
@@ -248,7 +248,7 @@ class MPIData < Common::RedisStore
     end
   end
 
-  def delete_from_cache
+  def delete_cached_response
     self.class.delete(get_user_key)
     @mvi_response = nil
   end
