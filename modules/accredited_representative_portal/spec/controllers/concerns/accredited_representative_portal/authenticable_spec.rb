@@ -4,11 +4,11 @@ require_relative '../../../rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::Authenticable do
   controller(AccreditedRepresentativePortal::ApplicationController) do
+    skip_after_action :verify_pundit_authorization
+
     def index
       head :ok
     end
-
-    def verify_pundit_authorization; end
   end
 
   let(:representative_user) { create(:representative_user) }
