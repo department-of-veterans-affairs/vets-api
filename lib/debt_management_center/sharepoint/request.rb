@@ -54,6 +54,11 @@ module DebtManagementCenter
 
       private
 
+      def log_failure_response(response, list_item_id)
+        Rails.logger.error("Failed to update SharePoint list item: #{list_item_id}")
+        Rails.logger.error("Response: #{response.status} - #{response.body}")
+      end
+
       ##
       # Set the access token for SharePoint authentication from Microsoft Access Control
       #
@@ -99,19 +104,42 @@ module DebtManagementCenter
 
         file_transfer_path =
           "#{base_path}/_api/Web/GetFolderByServerRelativeUrl('#{base_path}/Submissions')" \
-          "/Files/add(url='#{file_name}.pdf',overwrite=true)"
+            "/Files/add(url='#{file_name}.pdf',overwrite=true)"
 
-        with_monitoring do
+        if Flipper.enabled?(:debts_sharepoint_error_logging)
           response = sharepoint_file_connection.post(file_transfer_path) do |req|
             req.headers['Content-Type'] = 'octet/stream'
             req.headers['Content-Length'] = fsr_pdf.size.to_s
             req.body = Faraday::UploadIO.new(fsr_pdf, 'octet/stream')
           end
 
+          unless response.success?
+            log_sharepoint_error(response)
+          end
+
           File.delete(pdf_path)
 
           response
+        else
+          with_monitoring do
+            response = sharepoint_file_connection.post(file_transfer_path) do |req|
+              req.headers['Content-Type'] = 'octet/stream'
+              req.headers['Content-Length'] = fsr_pdf.size.to_s
+              req.body = Faraday::UploadIO.new(fsr_pdf, 'octet/stream')
+            end
+
+            File.delete(pdf_path)
+
+            response
+          end
         end
+
+      ensure
+        fsr_pdf.close if fsr_pdf
+      end
+
+      def log_sharepoint_error(response)
+        Rails.logger.error("Failed to upload file to SharePoint: #{response.message}")
       end
 
       ##
