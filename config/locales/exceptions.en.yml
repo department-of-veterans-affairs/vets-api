@@ -972,6 +972,30 @@ en:
         code: SHAREPOINT_PDF_502
         detail: Received an an invalid response from the upstream server
         status: 502
+      SHAREPOINT_PDF_UNKNOWN:
+        <<: *external_defaults
+        title: Unexpected SharePoint Error
+        code: SHAREPOINT_PDF_UNKNOWN
+        detail: An unexpected error occurred while communicating with SharePoint
+        status: 500
+      SHAREPOINT_GET_LIST_ITEM_400:
+        <<: *external_defaults
+        title: Bad Request
+        code: SHAREPOINT_GET_LIST_ITEM_400
+        detail: The PDF could not be generated
+        status: 400
+      SHAREPOINT_GET_LIST_ITEM_502:
+        <<: *external_defaults
+        title: Bad Gateway
+        code: SHAREPOINT_GET_LIST_ITEM_502
+        detail: Received an an invalid response from the upstream server
+        status: 502
+      SHAREPOINT_GET_LIST_ITEM_UNKNOWN:
+        <<: *external_defaults
+        title: Unexpected SharePoint Error
+        code: SHAREPOINT_GET_LIST_ITEM_UNKNOWN
+        detail: An unexpected error occurred while communicating with SharePoint
+        status: 500
       VET360_502:
         <<: *external_defaults
         title: Bad Gateway
