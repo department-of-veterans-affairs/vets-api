@@ -412,6 +412,8 @@ intent_to_file:
 
 ivc_champva:
   prefill: true
+  pega_api:
+    api_key: fake_api_key
 
 form_upload_flow:
   prefill: true
@@ -486,10 +488,6 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
-  search:
-    use_mocks: false
-  lce:
-    use_mocks: false
 
 mvi_hca:
   url: http://example.com
@@ -811,8 +809,8 @@ sentry:
   dsn: ~
 
 iam_ssoe:
-  client_cert_path: ~
-  client_key_path: ~
+  client_cert_path: spec/fixtures/iam_ssoe/oauth.crt
+  client_key_path: spec/fixtures/iam_ssoe/oauth.key
   client_id: "Mobile_App_API_Server_LOWERS"
   # oauth (rest) and sts (soap) services are on different hosts
   oauth_url: "https://int.fed.eauth.va.gov:444"
@@ -988,6 +986,7 @@ lighthouse:
         rsa_key: ~
       use_mocks: false
   benefits_documents:
+    timeout: 65
     host: https://sandbox-api.va.gov
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
@@ -1412,7 +1411,7 @@ vanotify:
           template_id: form527ez_error_email_template_id
           flipper_id: pension_error_email_notification
         received:
-          template_id: null
+          template_id: form527ez_received_email_template_id
           flipper_id: pension_received_email_notification
     pensions: *vanotify_services_pension
     21p_530ez: &vanotify_services_burial
@@ -1425,7 +1424,7 @@ vanotify:
           template_id: burial_claim_error_email_template_id
           flipper_id: burial_error_email_notification
         received:
-          template_id: null
+          template_id: burial_received_email_template_id
           flipper_id: burial_received_email_notification
     burials: *vanotify_services_burial
     21p_530: *vanotify_services_burial
@@ -1436,26 +1435,6 @@ vanotify:
     password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
   status_callback:
     bearer_token: fake_bearer_token
-
-# Settings to connect to the drupal forms graphql api
-va_forms:
-  drupal_username: ~
-  drupal_password: ~
-  drupal_url: https://fake-url.com
-  form_reloader:
-    enabled: false
-  # A notification for when a forms url has changed
-  slack:
-    enabled: false
-    api_key: ""
-    channel_id: ""
-
-# Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
-genisis:
-  base_url: https://vaausapprne60.aac.dva.va.gov
-  service_path: /COVID19Service
-  user: TestUser
-  pass: bogus
 
 # Settings for connecting AFS Veteran Services
 # For locahost we can use the existing certs as long as we don't call out
@@ -1879,7 +1858,7 @@ ogc:
 
 accredited_representative_portal:
   pilot_users_email_poa_codes: ~
-  
+
 banners:
   drupal_username: banners_api
   drupal_password: test

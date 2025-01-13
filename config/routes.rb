@@ -130,7 +130,7 @@ Rails.application.routes.draw do
 
     resources :caregivers_assistance_claims, only: :create do
       collection do
-        get(:facilities)
+        post(:facilities)
         post(:download_pdf)
       end
     end
@@ -412,16 +412,9 @@ Rails.application.routes.draw do
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
 
-      resources :lce, only: :index, defaults: { format: :json }
-
-      namespace :lce do
-        resources :certifications, only: :show, defaults: { format: :json }
-
-        resources :exams, only: :show, defaults: { format: :json }
-
-        resources :licenses, only: :show, defaults: { format: :json }
-
-        resources :preps, only: :show, defaults: { format: :json }
+      namespace :lcpe do
+        resources :lacs, only: %i[index show], defaults: { format: :json }
+        resources :exams, only: %i[index show], defaults: { format: :json }
       end
     end
 
@@ -461,7 +454,6 @@ Rails.application.routes.draw do
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
-    mount VAForms::Engine, at: '/va_forms'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
@@ -470,7 +462,6 @@ Rails.application.routes.draw do
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
   mount CheckIn::Engine, at: '/check_in'
-  mount CovidResearch::Engine, at: '/covid-research'
   mount CovidVaccine::Engine, at: '/covid_vaccine'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
