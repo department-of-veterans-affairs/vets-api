@@ -20,11 +20,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     Flipper.enable(:accredited_representative_portal_pilot)
     login_as(test_user)
     travel_to(time)
-
-    allow_any_instance_of(
-      AccreditedRepresentativePortal::PowerOfAttorneyRequestsPolicy
-    ).to receive(:pilot_user_email_poa_codes)
-      .and_return({ 'test@va.gov' => ['123'] })
   end
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
@@ -33,9 +28,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       get('/accredited_representative_portal/v0/power_of_attorney_requests')
 
-      parsed_response = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
-
       expect(parsed_response).to eq(
         [
           {
@@ -340,9 +333,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     it 'returns the details of a specific power of attorney request' do
       get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
 
-      parsed_response = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
-
       expect(parsed_response).to eq(
         {
           'id' => poa_request.id,
