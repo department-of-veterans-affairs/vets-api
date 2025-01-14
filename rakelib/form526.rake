@@ -426,7 +426,7 @@ namespace :form526 do
       puts '----------------------------------------'
       puts "Jobs:\n\n"
       submission.form526_job_statuses.each do |s|
-        puts s.job_class.to_s
+        puts s.job_class
         puts "  status: #{s.status}"
         puts "  error: #{s.error_class}" if s.error_class
         puts "    message: #{s.error_message}" if s.error_message

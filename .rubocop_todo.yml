@@ -196,9 +196,9 @@ Lint/RedundantSafeNavigation:
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
-Lint/RedundantStringCoercion:
-  Exclude:
-    - 'rakelib/form526.rake'
+# Lint/RedundantStringCoercion:
+#   Exclude:
+#     - 'rakelib/form526.rake'
 
 # Offense count: 1
 Lint/RequireRangeParentheses:
