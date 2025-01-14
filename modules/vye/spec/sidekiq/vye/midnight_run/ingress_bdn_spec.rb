@@ -5,7 +5,7 @@ require Vye::Engine.root / 'spec/rails_helper'
 require 'timecop'
 
 describe Vye::MidnightRun::IngressBdn, type: :worker do
-  let(:bdn_clone) { FactoryBot.create(:vye_bdn_clone_base) }
+  let(:bdn_clone) { create(:vye_bdn_clone_base) }
   let(:chunks) do
     5.times.map do |i|
       offset = i * 1000

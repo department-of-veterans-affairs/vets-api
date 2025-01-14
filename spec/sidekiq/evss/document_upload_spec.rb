@@ -14,7 +14,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
 
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:filename) { 'doctors-note.pdf' }
   let(:document_data) do
     EVSSClaimDocument.new(

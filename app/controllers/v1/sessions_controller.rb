@@ -227,9 +227,7 @@ module V1
         url_service.login_url('mhv', 'myhealthevet', AuthnContext::MHV)
       when 'mhv_verified'
         url_service.login_url('mhv_verified', 'myhealthevet', AuthnContext::MHV)
-      when 'dslogon'
-        url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
-      when 'dslogon_verified'
+      when 'dslogon', 'dslogon_verified'
         url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
@@ -307,10 +305,10 @@ module V1
       logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
       if logout_request.present?
         logout_request.destroy
-        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id "\
+        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id " \
                           "'#{originating_request_id}'")
       else
-        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
+        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id ' \
                           "'#{originating_request_id}'")
       end
     end

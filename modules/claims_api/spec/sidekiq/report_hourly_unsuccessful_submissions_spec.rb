@@ -58,18 +58,18 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
                                                             .and_return(true)
 
-        claim_one = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                                transaction_id: 'transaction_1',
-                                                                                id: '1')
-        claim_two = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
-                                                                                transaction_id: 'transaction_1',
-                                                                                id: '2')
-        claim_three = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                                  transaction_id: 'transaction_2',
-                                                                                  id: '3')
-        claim_four = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                                 transaction_id: 'transaction_3',
-                                                                                 id: '4')
+        claim_one = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                     transaction_id: 'transaction_1',
+                                                                     id: '1')
+        claim_two = create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
+                                                                     transaction_id: 'transaction_1',
+                                                                     id: '2')
+        claim_three = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                       transaction_id: 'transaction_2',
+                                                                       id: '3')
+        claim_four = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                      transaction_id: 'transaction_3',
+                                                                      id: '4')
 
         expected_vagov_claims = [claim_three.id, claim_four.id]
         expected_absent_values = [claim_one.id, claim_two.id]
@@ -91,36 +91,36 @@ describe ClaimsApi::ReportHourlyUnsuccessfulSubmissions, type: :job do
         allow_any_instance_of(Flipper).to receive(:enabled?).with(:claims_hourly_slack_error_report_enabled)
                                                             .and_return(true)
 
-        claim_one = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                                transaction_id: 'transaction_1',
-                                                                                id: '1')
-        claim_two = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
-                                                                                transaction_id: 'transaction_1',
-                                                                                id: '2')
-        claim_three = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                                  transaction_id: 'transaction_2',
-                                                                                  id: '3')
-        claim_four = FactoryBot.create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
-                                                                                 transaction_id: 'transaction_3',
-                                                                                 id: '4')
+        claim_one = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                     transaction_id: 'transaction_1',
+                                                                     id: '1')
+        claim_two = create(:auto_established_claim_va_gov, :errored, created_at: 2.hours.ago,
+                                                                     transaction_id: 'transaction_1',
+                                                                     id: '2')
+        claim_three = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                       transaction_id: 'transaction_2',
+                                                                       id: '3')
+        claim_four = create(:auto_established_claim_va_gov, :errored, created_at: Time.zone.now,
+                                                                      transaction_id: 'transaction_3',
+                                                                      id: '4')
 
-        claim_five = FactoryBot.create(:auto_established_claim_va_gov,
-                                       :errored,
-                                       created_at: 30.seconds.ago,
-                                       evss_response: [{ 'status' => '422',
-                                                         'title' => 'Backend Service Exception',
-                                                         'detail' => 'The Maximum number of EP codes have been ' \
-                                                                     'reached for this benefit type claim code' }],
-                                       transaction_id: 'transaction_4')
+        claim_five = create(:auto_established_claim_va_gov,
+                            :errored,
+                            created_at: 30.seconds.ago,
+                            evss_response: [{ 'status' => '422',
+                                              'title' => 'Backend Service Exception',
+                                              'detail' => 'The Maximum number of EP codes have been ' \
+                                                          'reached for this benefit type claim code' }],
+                            transaction_id: 'transaction_4')
 
-        claim_six = FactoryBot.create(:auto_established_claim_va_gov,
-                                      :errored,
-                                      created_at: 120.seconds.ago,
-                                      evss_response: [{ 'status' => '422',
-                                                        'title' => 'Backend Service Exception',
-                                                        'detail' => 'Claim could not be established. ' \
-                                                                    'Retries will fail.' }],
-                                      transaction_id: 'transaction_5')
+        claim_six = create(:auto_established_claim_va_gov,
+                           :errored,
+                           created_at: 120.seconds.ago,
+                           evss_response: [{ 'status' => '422',
+                                             'title' => 'Backend Service Exception',
+                                             'detail' => 'Claim could not be established. ' \
+                                                         'Retries will fail.' }],
+                           transaction_id: 'transaction_5')
 
         expected_vagov_claims = [claim_three.id, claim_four.id]
         expected_absent_values = [claim_one.id, claim_two.id, claim_five.id, claim_six.id]
