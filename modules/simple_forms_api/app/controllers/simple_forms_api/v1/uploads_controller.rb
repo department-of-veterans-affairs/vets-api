@@ -346,7 +346,7 @@ module SimpleFormsApi
           form_data: parsed_form_data,
           form_number: 'vba_26_4555',
           confirmation_number:,
-          date_submitted: Time.zone.today.strftime('%B %d, %Y')
+          date_received: Time.zone.today.strftime('%B %d, %Y')
         }
         notification_email = SimpleFormsApi::NotificationEmail.new(
           config,
