@@ -9,8 +9,7 @@ RSpec.describe 'Vye::V1::DirectDeposit#create', type: :request do
   let(:headers) { { 'Content-Type' => 'application/json', 'X-Key-Inflection' => 'camel' } }
 
   let(:params) do
-    FactoryBot
-      .attributes_for(:vye_direct_deposit_change)
+    attributes_for(:vye_direct_deposit_change)
       .deep_transform_keys! { |key| key.to_s.camelize(:lower) }
       .slice('fullName', 'phone', 'email', 'acctNo', 'acctType', 'routingNo', 'bankName', 'bankPhone')
       .to_json

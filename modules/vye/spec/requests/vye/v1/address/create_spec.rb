@@ -9,8 +9,7 @@ RSpec.describe 'Vye::V1::Address#create', type: :request do
   let(:headers) { { 'Content-Type' => 'application/json', 'X-Key-Inflection' => 'camel' } }
 
   let(:params) do
-    FactoryBot
-      .attributes_for(:vye_address_change)
+    attributes_for(:vye_address_change)
       .deep_transform_keys! { |key| key.to_s.camelize(:lower) }
       .slice('veteranName', 'address1', 'address2', 'address3', 'address4', 'city', 'state', 'zipCode')
       .to_json
