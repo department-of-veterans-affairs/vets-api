@@ -160,7 +160,7 @@ class User < Common::RedisStore
   end
 
   def mhv_user_account
-    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:).perform
+    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:, from_cache_only: true).perform
   rescue => e
     log_mhv_user_account_error(e.message)
     nil

@@ -994,7 +994,7 @@ RSpec.describe User, type: :model do
 
   describe '#account' do
     context 'when user has an existing Account record' do
-      let(:user) { create :user, :accountable }
+      let(:user) { create(:user, :accountable) }
 
       it 'returns the users Account record' do
         account = Account.find_by(idme_uuid: user.uuid)
@@ -1004,7 +1004,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when user does not have an existing Account record' do
-      let(:user) { create :user, :loa3 }
+      let(:user) { create(:user, :loa3) }
 
       before do
         account = Account.find_by(idme_uuid: user.uuid)
@@ -1189,7 +1189,7 @@ RSpec.describe User, type: :model do
 
   describe '#fingerprint' do
     let(:fingerprint) { '196.168.0.0' }
-    let(:user) { create :user, fingerprint: }
+    let(:user) { create(:user, fingerprint:) }
 
     it 'returns expected user fingerprint' do
       expect(user.fingerprint).to eq(fingerprint)
@@ -1399,6 +1399,7 @@ RSpec.describe User, type: :model do
   describe '#mhv_user_account' do
     let(:user) { build(:user, :loa3) }
     let(:icn) { user.icn }
+    let(:expected_cache_key) { "mhv_account_creation_#{icn}" }
 
     let!(:user_verification) do
       create(:idme_user_verification, idme_uuid: user.idme_uuid, user_credential_email:, user_account:)
@@ -1423,55 +1424,65 @@ RSpec.describe User, type: :model do
     before do
       allow(Rails.logger).to receive(:info)
       allow(MHV::AccountCreation::Service).to receive(:new).and_return(mhv_client)
-      allow(mhv_client).to receive(:create_account).and_return(mhv_response)
+      allow(Rails.cache).to receive(:read).with(expected_cache_key).and_return(mhv_response)
     end
 
-    context 'when the user has all required attributes' do
-      it 'returns a MHVUserAccount with the expected attributes' do
-        mhv_user_account = user.mhv_user_account
+    context 'when the mhv response is cached' do
+      context 'when the user has all required attributes' do
+        it 'returns a MHVUserAccount with the expected attributes' do
+          mhv_user_account = user.mhv_user_account
 
-        expect(mhv_user_account).to be_a(MHVUserAccount)
-        expect(mhv_user_account.attributes).to eq(mhv_response.with_indifferent_access)
-      end
-    end
-
-    context 'when there is an error creating the account' do
-      shared_examples 'mhv_user_account error' do
-        let(:expected_log_message) { '[User] mhv_user_account error' }
-        let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
-
-        it 'logs and returns nil' do
-          expect(user.mhv_user_account).to be_nil
-          expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+          expect(mhv_user_account).to be_a(MHVUserAccount)
+          expect(mhv_user_account.attributes).to eq(mhv_response.with_indifferent_access)
         end
       end
 
-      context 'when the user does not have a terms_of_use_agreement' do
-        let(:terms_of_use_agreement) { nil }
-        let(:expected_error_message) { 'Current terms of use agreement must be present' }
+      context 'when there is an error creating the account' do
+        shared_examples 'mhv_user_account error' do
+          let(:expected_log_message) { '[User] mhv_user_account error' }
+          let(:expected_log_payload) { { error_message: /#{expected_error_message}/, icn: user.icn } }
 
-        it_behaves_like 'mhv_user_account error'
+          it 'logs and returns nil' do
+            expect(user.mhv_user_account).to be_nil
+            expect(Rails.logger).to have_received(:info).with(expected_log_message, expected_log_payload)
+          end
+        end
+
+        context 'when the user does not have a terms_of_use_agreement' do
+          let(:terms_of_use_agreement) { nil }
+          let(:expected_error_message) { 'Current terms of use agreement must be present' }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+
+        context 'when the user has not accepted the terms of use' do
+          let(:terms_of_use_response) { 'declined' }
+          let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+
+        context 'when the user does not have a user_credential_email' do
+          let(:user_credential_email) { nil }
+          let(:expected_error_message) { 'Email must be present' }
+
+          it_behaves_like 'mhv_user_account error'
+        end
+
+        context 'when the user does not have an icn' do
+          let(:icn) { nil }
+          let(:expected_error_message) { 'ICN must be present' }
+
+          it_behaves_like 'mhv_user_account error'
+        end
       end
+    end
 
-      context 'when the user has not accepted the terms of use' do
-        let(:terms_of_use_response) { 'declined' }
-        let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
+    context 'when the mhv response is not cached' do
+      let(:mhv_response) { nil }
 
-        it_behaves_like 'mhv_user_account error'
-      end
-
-      context 'when the user does not have a user_credential_email' do
-        let(:user_credential_email) { nil }
-        let(:expected_error_message) { 'Email must be present' }
-
-        it_behaves_like 'mhv_user_account error'
-      end
-
-      context 'when the user does not have an icn' do
-        let(:icn) { nil }
-        let(:expected_error_message) { 'ICN must be present' }
-
-        it_behaves_like 'mhv_user_account error'
+      it 'returns nil' do
+        expect(user.mhv_user_account).to be_nil
       end
     end
   end
