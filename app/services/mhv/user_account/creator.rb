@@ -71,7 +71,6 @@ module MHV
       def validate!
         errors = [
           ('ICN must be present' if icn.blank?),
-          ('Email must be present' if email.blank?),
           ('Current terms of use agreement must be present' if current_tou_agreement.blank?),
           ("Current terms of use agreement must be 'accepted'" unless current_tou_agreement&.accepted?)
         ].compact

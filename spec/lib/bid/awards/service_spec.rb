@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'bid/awards/service'
 
 RSpec.describe BID::Awards::Service do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:service) { BID::Awards::Service.new(user) }
 
   describe '#get_awards_pension' do

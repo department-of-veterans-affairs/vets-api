@@ -1029,7 +1029,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                 tag: :unknown,
                                 short_message: 'Other SAML Response Error(s)',
                                 level: :error,
-                                full_message: 'The status code of the Response was not Success, was Requester =>'\
+                                full_message: 'The status code of the Response was not Success, was Requester =>' \
                                               ' NoAuthnContext -> AuthnRequest without an authentication context.' }]
             )
           expect(call_endpoint).to redirect_to(expected_redirect)
@@ -1054,11 +1054,11 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'when saml response error contains status_detail' do
-        status_detail_xml = '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">'\
-                            '</samlp:StatusCode>'\
-                            '<samlp:StatusDetail>'\
-                            '<fim:FIMStatusDetail MessageID="could_not_perform_token_exchange"></fim:FIMStatusDetail>'\
-                            '</samlp:StatusDetail>'\
+        status_detail_xml = '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">' \
+                            '</samlp:StatusCode>' \
+                            '<samlp:StatusDetail>' \
+                            '<fim:FIMStatusDetail MessageID="could_not_perform_token_exchange"></fim:FIMStatusDetail>' \
+                            '</samlp:StatusDetail>' \
 
         before do
           allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_detail_error(status_detail_xml))
@@ -1093,10 +1093,10 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'when saml response error contains invalid_message_timestamp' do
         let(:status_detail_xml) do
-          '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">'\
-            '</samlp:StatusCode>'\
-            '<samlp:StatusDetail>'\
-            '<fim:FIMStatusDetail MessageID="invalid_message_timestamp"></fim:FIMStatusDetail>'\
+          '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">' \
+            '</samlp:StatusCode>' \
+            '<samlp:StatusDetail>' \
+            '<fim:FIMStatusDetail MessageID="invalid_message_timestamp"></fim:FIMStatusDetail>' \
             '</samlp:StatusDetail>'
         end
         let(:expected_error_message) { "<fim:FIMStatusDetail MessageID='invalid_message_timestamp'/>" }

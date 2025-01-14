@@ -19,8 +19,8 @@ RSpec.describe CypressViewportUpdater::GithubService do
 
     # the following filter is used on responses from
     # https://api.github.com/app/installations/14176090/access_tokens
-    string = '{"token":"removed","expires_at":"2021-02-02T18:24:37Z",'\
-             '"permissions":{"contents":"write","metadata":"read","pull_requests":"write"},'\
+    string = '{"token":"removed","expires_at":"2021-02-02T18:24:37Z",' \
+             '"permissions":{"contents":"write","metadata":"read","pull_requests":"write"},' \
              '"repository_selection":"selected"}'
     c.filter_sensitive_data(string) do |interaction|
       if (match = interaction.response.body.match(/^{"token.+/))

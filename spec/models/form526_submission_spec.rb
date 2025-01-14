@@ -20,7 +20,7 @@ RSpec.describe Form526Submission do
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
+  let(:saved_claim) { create(:va526ez) }
   let(:form_json) do
     File.read('spec/support/disability_compensation_form/submissions/only_526.json')
   end
@@ -1471,7 +1471,7 @@ RSpec.describe Form526Submission do
 
         context 'when there are form526_submission_remediations' do
           let(:remediation) do
-            FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+            create(:form526_submission_remediation, form526_submission: subject)
           end
 
           it 'returns true if the most recent remediation was successful' do
@@ -1495,7 +1495,7 @@ RSpec.describe Form526Submission do
 
         context 'when there are form526_submission_remediations' do
           let(:remediation) do
-            FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+            create(:form526_submission_remediation, form526_submission: subject)
           end
 
           it 'returns true if the most recent remediation_type is ignored_as_duplicate' do
@@ -1512,7 +1512,7 @@ RSpec.describe Form526Submission do
 
       describe '#success_type?' do
         let(:remediation) do
-          FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+          create(:form526_submission_remediation, form526_submission: subject)
         end
 
         context 'when submitted_claim_id is present and backup_submitted_claim_status is nil' do
@@ -1606,7 +1606,7 @@ RSpec.describe Form526Submission do
 
       describe 'ICN retrieval' do
         context 'various ICN retrieval scenarios' do
-          let(:user) { FactoryBot.create(:user, :loa3) }
+          let(:user) { create(:user, :loa3) }
           let(:auth_headers) do
             EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
           end
