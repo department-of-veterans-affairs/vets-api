@@ -30,7 +30,8 @@ module V1
     FIM_INVALID_MESSAGE_TIMESTAMP = 'invalid_message_timestamp'
     OPERATION_TYPES = [AUTHORIZE = 'authorize',
                        INTERSTITIAL_VERIFY = 'interstitial_verify',
-                       INTERSTITIAL_SIGNUP = 'interstitial_signup'].freeze
+                       INTERSTITIAL_SIGNUP = 'interstitial_signup',
+                       MYHEALTHEVET_TEST_ACCOUNT = 'myhealthevet_test_account'].freeze
 
     # Collection Action: auth is required for certain types of requests
     # @type is set automatically by the routes in config/routes.rb
@@ -153,12 +154,12 @@ module V1
       user_session_form = UserSessionForm.new(saml_response)
       raise_saml_error(user_session_form) unless user_session_form.valid?
       mhv_unverified_validation(user_session_form.user)
-      create_user_verification(user_session_form.user)
+      user_verification = create_user_verification(user_session_form.user_identity)
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
 
-      if @current_user.needs_accepted_terms_of_use
+      if user_verification.user_account.needs_accepted_terms_of_use?
         redirect_to url_service.terms_of_use_redirect_url
       else
         redirect_to url_service.login_redirect_url
@@ -166,14 +167,14 @@ module V1
       login_stats(:success)
     end
 
-    def create_user_verification(user)
-      user_verifier_object = OpenStruct.new({ sign_in: user.identity.sign_in,
-                                              mhv_correlation_id: user.mhv_correlation_id,
-                                              idme_uuid: user.idme_uuid,
-                                              edipi: user.identity.edipi,
-                                              logingov_uuid: user.logingov_uuid,
-                                              icn: user.icn })
-      Login::UserVerifier.new(user_verifier_object).perform
+    def create_user_verification(user_identity)
+      Login::UserVerifier.new(login_type: user_identity.sign_in&.dig(:service_name),
+                              auth_broker: user_identity.sign_in&.dig(:auth_broker),
+                              mhv_uuid: user_identity.mhv_credential_uuid,
+                              idme_uuid: user_identity.idme_uuid,
+                              dslogon_uuid: user_identity.edipi,
+                              logingov_uuid: user_identity.logingov_uuid,
+                              icn: user_identity.icn).perform
     end
 
     def mhv_unverified_validation(user)
@@ -306,10 +307,10 @@ module V1
       logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
       if logout_request.present?
         logout_request.destroy
-        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id "\
+        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id " \
                           "'#{originating_request_id}'")
       else
-        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
+        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id ' \
                           "'#{originating_request_id}'")
       end
     end

@@ -4,11 +4,11 @@ require 'rails_helper'
 require 'common/models/concerns/cache_aside'
 
 describe Common::CacheAside do
-  let(:user) { build :user, :loa3 }
+  let(:user) { build(:user, :loa3) }
 
   unless Flipper.enabled?(:va_v3_contact_information_service)
     describe 'ContactInformationV1' do
-      let(:person) { build :person }
+      let(:person) { build(:person) }
 
       before do
         Flipper.disable(:va_v3_contact_information_service)
@@ -45,13 +45,13 @@ describe Common::CacheAside do
 
   if Flipper.enabled?(:va_v3_contact_information_service)
     describe 'ContactInformationV2' do
-      let(:person) { build :person_v2 }
+      let(:person) { build(:person_v2) }
 
       before do
         allow(VAProfile::Models::V3::Person).to receive(:build_from).and_return(person)
       end
 
-      describe '#do_cached_with', :initiate_vaprofile, :skip_vet360 do
+      describe '#do_cached_with', :skip_vet360 do
         let(:person_response) do
           VAProfile::V2::ContactInformation::PersonResponse.from(
             OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })

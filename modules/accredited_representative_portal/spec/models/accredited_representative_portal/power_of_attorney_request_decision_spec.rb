@@ -1,10 +1,18 @@
 # frozen_string_literal: true
 
-require_relative '../../rails_helper'
+require 'rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision, type: :model do
-  describe 'associations' do
-    it { is_expected.to belong_to(:creator).class_name('UserAccount') }
-    it { is_expected.to have_one(:power_of_attorney_request_resolution) }
+  it 'validates inclusion of type in (acceptance, declination)' do
+    decision = build(:power_of_attorney_request_decision, type: 'invalid')
+    decision.valid?
+
+    expect(decision).not_to be_valid
+    expect(decision.errors.full_messages).to eq(
+      [
+        'Type is not included in the list',
+        'Resolution is invalid'
+      ]
+    )
   end
 end

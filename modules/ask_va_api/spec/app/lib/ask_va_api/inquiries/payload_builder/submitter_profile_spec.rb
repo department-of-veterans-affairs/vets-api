@@ -21,7 +21,7 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
       }
     end
     let(:pronouns) do
-      { he_him_his: true }
+      { he_him_his: 'true' }
     end
     let(:params) do
       {

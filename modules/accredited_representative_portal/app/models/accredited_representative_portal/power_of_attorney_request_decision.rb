@@ -6,7 +6,15 @@ module AccreditedRepresentativePortal
 
     self.inheritance_column = nil
 
-    belongs_to :creator,
-               class_name: 'UserAccount'
+    module Types
+      ALL = [
+        ACCEPTANCE = 'PowerOfAttorneyRequestAcceptance',
+        DECLINATION = 'PowerOfAttorneyRequestDeclination'
+      ].freeze
+    end
+
+    belongs_to :creator, class_name: 'UserAccount'
+
+    validates :type, inclusion: { in: Types::ALL }
   end
 end

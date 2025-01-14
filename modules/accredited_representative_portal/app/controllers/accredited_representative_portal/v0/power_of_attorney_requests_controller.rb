@@ -3,53 +3,29 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
-      POA_REQUEST_ITEM_MOCK_DATA = {
-        status: 'Pending',
-        declinedReason: nil,
-        powerOfAttorneyCode: '091',
-        submittedAt: '2024-04-30T11:03:17Z',
-        acceptedOrDeclinedAt: nil,
-        isAddressChangingAuthorized: false,
-        isTreatmentDisclosureAuthorized: true,
-        veteran: {
-          firstName: 'Jon',
-          middleName: nil,
-          lastName: 'Smith',
-          participantId: '6666666666666'
-        },
-        representative: {
-          email: 'j2@example.com',
-          firstName: 'Jane',
-          lastName: 'Doe'
-        },
-        claimant: {
-          firstName: 'Sam',
-          lastName: 'Smith',
-          participantId: '777777777777777',
-          relationshipToVeteran: 'Child'
-        },
-        claimantAddress: {
-          city: 'Hartford',
-          state: 'CT',
-          zip: '06107',
-          country: 'GU',
-          militaryPostOffice: nil,
-          militaryPostalCode: nil
-        }
-      }.freeze
-
-      POA_REQUEST_LIST_MOCK_DATA = [
-        POA_REQUEST_ITEM_MOCK_DATA,
-        POA_REQUEST_ITEM_MOCK_DATA,
-        POA_REQUEST_ITEM_MOCK_DATA
-      ].freeze
-
       def index
-        render json: POA_REQUEST_LIST_MOCK_DATA
+        poa_requests = poa_requests_rel.limit(100)
+        serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
+        render json: serializer.serializable_hash, status: :ok
       end
 
       def show
-        render json: POA_REQUEST_ITEM_MOCK_DATA
+        poa_request = poa_requests_rel.find(params[:id])
+        serializer = PowerOfAttorneyRequestSerializer.new(poa_request)
+        render json: serializer.serializable_hash, status: :ok
+      rescue ActiveRecord::RecordNotFound
+        render json: { error: 'Record not found' }, status: :not_found
+      end
+
+      private
+
+      def poa_requests_rel
+        PowerOfAttorneyRequest.includes(
+          :power_of_attorney_form,
+          :power_of_attorney_holder,
+          :accredited_individual,
+          resolution: :resolving
+        )
       end
     end
   end
