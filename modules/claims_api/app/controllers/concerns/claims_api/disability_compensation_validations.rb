@@ -236,21 +236,21 @@ module ClaimsApi
     def validate_form_526_veteran_homelessness!
       if too_many_homelessness_attributes_provided?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "Must define only one of 'veteran.homelessness.currentlyHomeless' or "\
+          detail: "Must define only one of 'veteran.homelessness.currentlyHomeless' or " \
                   "'veteran.homelessness.homelessnessRisk'"
         )
       end
 
       if unnecessary_homelessness_point_of_contact_provided?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "If 'veteran.homelessness.pointOfContact' is defined, then one of "\
+          detail: "If 'veteran.homelessness.pointOfContact' is defined, then one of " \
                   "'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is required"
         )
       end
 
       if missing_point_of_contact?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is "\
+          detail: "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is " \
                   "defined, then 'veteran.homelessness.pointOfContact' is required"
         )
       end
@@ -267,7 +267,7 @@ module ClaimsApi
       end
       if started_before_age_thirteen
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "If any 'serviceInformation.servicePeriods.activeDutyBeginDate' is "\
+          detail: "If any 'serviceInformation.servicePeriods.activeDutyBeginDate' is " \
                   "before the Veteran's 13th birthdate: #{age_thirteen}, the claim can not be processed."
         )
       end

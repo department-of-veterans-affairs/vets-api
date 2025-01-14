@@ -22,12 +22,12 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       Flipper.disable(:disability_compensation_form4142_supplemental)
     end
 
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
     let(:evss_claim_id) { 123_456_789 }
-    let(:saved_claim) { FactoryBot.create(:va526ez) }
+    let(:saved_claim) { create(:va526ez) }
 
     describe '.perform_async' do
       let(:form_json) do
@@ -201,12 +201,12 @@ RSpec.describe CentralMail::SubmitForm4142Job, type: :job do
       Flipper.enable(:disability_compensation_form4142_supplemental)
     end
 
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
     let(:evss_claim_id) { 123_456_789 }
-    let(:saved_claim) { FactoryBot.create(:va526ez) }
+    let(:saved_claim) { create(:va526ez) }
 
     describe '.perform_async' do
       let(:form_json) do

@@ -17,12 +17,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
   let(:evss_claim_id) { 123_456_789 }
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
+  let(:saved_claim) { create(:va526ez) }
   # contains 0781 and 0781a
   let(:form0781) do
     File.read 'spec/support/disability_compensation_form/submissions/with_0781.json'

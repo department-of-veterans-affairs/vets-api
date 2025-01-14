@@ -15,7 +15,6 @@ path 'modules' do
   gem 'burials'
   gem 'check_in'
   gem 'claims_api'
-  gem 'covid_vaccine'
   gem 'debts_api'
   gem 'decision_reviews'
   gem 'dhp_connected_devices'
