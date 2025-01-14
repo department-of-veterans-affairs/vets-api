@@ -8,7 +8,7 @@ RSpec.describe 'legacy Mobile::V0::User::Logout', type: :request do
   # this should be deleted when iam is sunset.
   describe 'GET /mobile/v0/user/logout' do
     before do
-      iam_sign_in(FactoryBot.build(:iam_user))
+      iam_sign_in(build(:iam_user))
       allow_any_instance_of(IAMUser).to receive(:idme_uuid).and_return('b2fab2b5-6af0-45e1-a9e2-394347af91ef')
     end
 

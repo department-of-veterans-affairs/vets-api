@@ -104,8 +104,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   end
 
   describe '#perform' do
-    let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
-    let(:v2_upload) { FactoryBot.create(:upload_submission, :status_uploaded, :version_2) }
+    let(:upload) { create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
+    let(:v2_upload) { create(:upload_submission, :status_uploaded, :version_2) }
 
     context 'duplicates' do
       before(:context) do

@@ -62,10 +62,10 @@ describe 'PowerOfAttorney', metadata do
         end
 
         before do |example|
-          FactoryBot.create(:claims_api_power_of_attorney_request, id:,
-                                                                   proc_id: '3858547',
-                                                                   veteran_icn: '1012829932V238054',
-                                                                   poa_code: '003')
+          create(:claims_api_power_of_attorney_request, id:,
+                                                        proc_id: '3858547',
+                                                        veteran_icn: '1012829932V238054',
+                                                        poa_code: '003')
           allow_any_instance_of(ClaimsApi::Veteran).to receive(:participant_id).and_return(participant_id)
           allow(ClaimsApi::ManageRepresentativeService).to receive(:new).and_return(manage_representative_service)
           allow(manage_representative_service).to receive(:read_poa_request_by_ptcpnt_id).with(anything)

@@ -186,7 +186,7 @@ RSpec.describe AsyncTransaction::VAProfile::Base, type: :model do
           service_method: :get_person_transaction_status
         }
       ].each do |transaction_test_data|
-        it "given a #{transaction_test_data[:factory_name]} model it calls "\
+        it "given a #{transaction_test_data[:factory_name]} model it calls " \
            "the #{transaction_test_data[:service_method]} service method" do
           transaction = create(transaction_test_data[:factory_name])
           service = double

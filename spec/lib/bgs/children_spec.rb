@@ -4,13 +4,13 @@ require 'rails_helper'
 require 'bgs/children'
 
 RSpec.describe BGS::Children do
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:proc_id) { '3828033' }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
 
   context 'adding children' do
-    let(:adopted_payload) { FactoryBot.build(:adopted_child_lives_with_veteran) }
-    let(:add_step_child_payload) { FactoryBot.build(:step_child_lives_with_veteran) }
+    let(:adopted_payload) { build(:adopted_child_lives_with_veteran) }
+    let(:add_step_child_payload) { build(:step_child_lives_with_veteran) }
 
     it 'returns a hash for biological child that does not live with veteran' do
       VCR.use_cassette('bgs/dependents/create') do

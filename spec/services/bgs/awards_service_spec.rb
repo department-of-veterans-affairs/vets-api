@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGS::AwardsService do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
 
   describe '#get_awards' do
     context 'with a valid participant id' do
