@@ -439,10 +439,21 @@ describe BBInternal::Client do
   end
 
   describe '#invalid?' do
-    let(:session_data) { OpenStruct.new(patient_id: patient_id, expired?: session_expired) }
+    let(:session_data) { OpenStruct.new(icn: icn, patient_id: patient_id, expired?: session_expired) }
 
     context 'when session is expired' do
       let(:session_expired) { true }
+      let(:icn) { '1000000000V000000' }
+      let(:patient_id) { '12345' }
+
+      it 'returns true' do
+        expect(client.send(:invalid?, session_data)).to be true
+      end
+    end
+
+    context 'when session has no icn' do
+      let(:session_expired) { false }
+      let(:icn) { nil }
       let(:patient_id) { '12345' }
 
       it 'returns true' do
@@ -452,6 +463,7 @@ describe BBInternal::Client do
 
     context 'when session has no patient_id' do
       let(:session_expired) { false }
+      let(:icn) { '1000000000V000000' }
       let(:patient_id) { nil }
 
       it 'returns true' do
@@ -461,6 +473,7 @@ describe BBInternal::Client do
 
     context 'when session is valid' do
       let(:session_expired) { false }
+      let(:icn) { '1000000000V000000' }
       let(:patient_id) { '12345' }
 
       it 'returns false' do

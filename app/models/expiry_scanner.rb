@@ -17,7 +17,7 @@ class ExpiryScanner
     messages = ["Vets-Api #{Settings.vsp_environment} - SSL certificate scan result"]
     cert_paths = Dir.glob(directories)
     cert_paths.each do |cert_path|
-      if File.extname(cert_path) == '.pem' || File.extname(cert_path) == '.crt'
+      if ['.pem', '.crt'].include?(File.extname(cert_path))
         message = define_expiry_urgency(cert_path)
         if message.present?
           messages << message
