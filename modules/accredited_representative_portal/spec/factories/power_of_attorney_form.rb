@@ -104,5 +104,44 @@ FactoryBot.define do
         }.to_json
       end
     end
+
+    factory :veteran_type_form do
+      data do
+        {
+          authorizations: {
+            record_disclosure: true,
+            record_disclosure_limitations: %w[
+              HIV
+              DRUG_ABUSE
+            ],
+            address_change: true
+          },
+          dependent: nil,
+          veteran: {
+            name: {
+              first: 'John',
+              middle: 'Middle',
+              last: 'Doe'
+            },
+            address: {
+              address_line1: '123 Main St',
+              address_line2: 'Apt 1',
+              city: 'Springfield',
+              state_code: 'IL',
+              country: 'US',
+              zip_code: '62704',
+              zip_code_suffix: '6789'
+            },
+            ssn: '123456789',
+            va_file_number: '123456789',
+            date_of_birth: '1980-12-31',
+            service_number: '123456789',
+            service_branch: 'ARMY',
+            phone: '1234567890',
+            email: 'veteran@example.com'
+          }
+        }.to_json
+      end
+    end
   end
 end

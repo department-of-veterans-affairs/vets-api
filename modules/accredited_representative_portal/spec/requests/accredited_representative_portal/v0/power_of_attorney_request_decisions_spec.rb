@@ -15,7 +15,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
   describe 'POST /accredited_representative_portal/v0/power_of_attorney_requests/:id/decision' do
     context 'with invalid params' do
       it 'complains about an invalid type param' do
-        poa_request = FactoryBot.create(:power_of_attorney_request)
+        poa_request = FactoryBot.create(:power_of_attorney_request, skip_resolution: true)
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'invalid_type', reason: nil } }
@@ -27,7 +27,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
       end
 
       it 'complains about an invalid reason param' do
-        poa_request = FactoryBot.create(:power_of_attorney_request)
+        poa_request = FactoryBot.create(:power_of_attorney_request, skip_resolution: true)
 
         post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
              params: { decision: { type: 'acceptance', reason: 'not allowed to give reasons for these' } }
@@ -40,7 +40,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     end
 
     it 'creates acceptance decision with proper params' do
-      poa_request = FactoryBot.create(:power_of_attorney_request)
+      poa_request = FactoryBot.create(:power_of_attorney_request, skip_resolution: true)
 
       post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
            params: { decision: { type: 'acceptance', reason: nil } }
@@ -55,7 +55,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     end
 
     it 'creates declination decision with proper params' do
-      poa_request = FactoryBot.create(:power_of_attorney_request)
+      poa_request = FactoryBot.create(:power_of_attorney_request, skip_resolution: true)
       post "/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}/decision",
            params: { decision: { type: 'declination', reason: 'bad data' } }
 
@@ -78,7 +78,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
     end
 
     it 'returns an error if decision already exists' do
-      poa_request = FactoryBot.create(:power_of_attorney_request)
+      poa_request = FactoryBot.create(:power_of_attorney_request, skip_resolution: true)
       FactoryBot.create(:power_of_attorney_request_resolution, :expiration,
                         power_of_attorney_request: poa_request)
 
@@ -94,7 +94,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestDecisio
 
   describe 'full cycle for decision api' do
     it 'returns the correct results for POST GET POST GET' do
-      poa_request = FactoryBot.create(:power_of_attorney_request)
+      poa_request = FactoryBot.create(:power_of_attorney_request, skip_resolution: true)
 
       # --------------
       # GET REQUEST

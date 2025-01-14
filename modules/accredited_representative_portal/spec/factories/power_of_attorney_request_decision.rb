@@ -6,6 +6,19 @@ FactoryBot.define do
     association :creator, factory: :user_account
     association :resolution, factory: :power_of_attorney_request_resolution
 
+    transient do
+      skip_creator { false }
+      skip_resolution { false }
+    end
+
+    after(:build) do |decision, evaluator|
+      decision.creator ||= build(:user_account) unless evaluator.skip_creator || decision.creator.present?
+
+      unless evaluator.skip_resolution || decision.resolution.present?
+        decision.resolution ||= build(:power_of_attorney_request_resolution, skip_poa_request: true)
+      end
+    end
+
     trait :acceptance do
       type { AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision::Types::ACCEPTANCE }
     end
