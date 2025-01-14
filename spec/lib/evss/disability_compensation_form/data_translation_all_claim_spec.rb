@@ -1597,7 +1597,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'classificationCode' => 'Test Code',
             'specialIssues' => ['POW'],
             'serviceRelevance' =>
-              "Caused by VA care\nEvent: va condition description\n"\
+              "Caused by VA care\nEvent: va condition description\n" \
               "Location: va location\nTimeFrame: the third of october",
             'cause' => 'VA'
           }

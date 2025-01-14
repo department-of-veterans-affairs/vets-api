@@ -368,7 +368,7 @@ describe AppealsApi::NoticeOfDisagreement, type: :model do
 
       describe '#validate_api_version_presence' do
         it 'throws an error when api_version is blank' do
-          nod_blank_api_version = FactoryBot.build(:extra_notice_of_disagreement_v2, api_version: '')
+          nod_blank_api_version = build(:extra_notice_of_disagreement_v2, api_version: '')
 
           expect(nod_blank_api_version.valid?).to be false
           expect(nod_blank_api_version.errors.size).to eq 1

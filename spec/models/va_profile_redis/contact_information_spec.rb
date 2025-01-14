@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VAProfileRedis::ContactInformation do
-  let(:user) { build :user, :loa3 }
+  let(:user) { build(:user, :loa3) }
   Flipper.disable(:va_v3_contact_information_service)
   let(:person_response) do
     raw_response = OpenStruct.new(status: 200, body: { 'bio' => person.to_hash })
@@ -11,7 +11,7 @@ describe VAProfileRedis::ContactInformation do
     VAProfile::ContactInformation::PersonResponse.from(raw_response)
   end
   let(:contact_info) { VAProfileRedis::ContactInformation.for_user(user) }
-  let(:person) { build :person, telephones:, permissions: }
+  let(:person) { build(:person, telephones:, permissions:) }
   let(:telephones) do
     [
       build(:telephone),

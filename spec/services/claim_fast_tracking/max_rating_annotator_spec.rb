@@ -7,7 +7,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
   describe 'annotate_disabilities' do
     subject { described_class.annotate_disabilities(disabilities_response, user) }
 
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:disabilities_response) do
       DisabilityCompensation::ApiProvider::RatedDisabilitiesResponse.new(rated_disabilities:)
     end
@@ -212,7 +212,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
 
   describe 'get ratings' do
     let(:diagnostic_codes) { [6260, 7347, 6516] }
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
 
     context 'when the feature flag disability_526_max_cfi_service_switch is enabled' do
       before do

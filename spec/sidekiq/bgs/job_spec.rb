@@ -3,9 +3,9 @@
 require 'rails_helper'
 
 RSpec.describe BGS::Job, type: :job do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:dependency_claim) { create(:dependency_claim) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
 
   describe '#in_progress_form_copy' do
     it 'returns nil if the in progress form is blank' do

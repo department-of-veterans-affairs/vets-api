@@ -583,7 +583,7 @@ class AppealsApi::V1::NoticeOfDisagreementsControllerSwagger
             property :Message do
               key :type, :string
               key :description, 'Error detail'
-              key :example, 'A client error (InvalidDigest) occurred when calling the PutObject operation -'\
+              key :example, 'A client error (InvalidDigest) occurred when calling the PutObject operation -' \
                             'The Content-MD5 you specified was invalid.'
             end
 
