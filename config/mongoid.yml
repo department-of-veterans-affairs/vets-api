@@ -1,0 +1,6 @@
+development:
+  clients:
+    default:
+      uri: mongodb://mongodb-audit-db:27017/mongodb-audit-db
+      options:
+        server_selection_timeout: 5
