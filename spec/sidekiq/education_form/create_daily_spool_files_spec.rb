@@ -112,9 +112,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         allow(Rails.env).to receive('development?').and_return(true)
         application_1606.saved_claim.form = {}.to_json
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
-        FactoryBot.create(:va1990_western_region)
-        FactoryBot.create(:va1995_full_form)
-        FactoryBot.create(:va0994_full_form)
+        create(:va1990_western_region)
+        create(:va1995_full_form)
+        create(:va0994_full_form)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))
         # ensure our test data is spread across 2 regions..
@@ -131,9 +131,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
     context 'with records in staging', run_at: '2016-09-16 03:00:00 EDT' do
       before do
         application_1606.saved_claim.form = {}.to_json
-        FactoryBot.create(:va1990_western_region)
-        FactoryBot.create(:va1995_full_form)
-        FactoryBot.create(:va0994_full_form)
+        create(:va1990_western_region)
+        create(:va1995_full_form)
+        create(:va0994_full_form)
         ActionMailer::Base.deliveries.clear
       end
 
@@ -150,9 +150,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       before do
         ENV['HOSTNAME'] = 'api.va.gov' # Mock how this is set in production
         application_1606.saved_claim.form = {}.to_json
-        FactoryBot.create(:va1990_western_region)
-        FactoryBot.create(:va1995_full_form)
-        FactoryBot.create(:va0994_full_form)
+        create(:va1990_western_region)
+        create(:va1995_full_form)
+        create(:va0994_full_form)
         ActionMailer::Base.deliveries.clear
       end
 
@@ -233,7 +233,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'write_files', run_at: '2016-09-17 03:00:00 EDT' do
     let(:filename) { '307_09172016_070000_vetsgov.spl' }
-    let!(:second_record) { FactoryBot.create(:va1995) }
+    let!(:second_record) { create(:va1995) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }

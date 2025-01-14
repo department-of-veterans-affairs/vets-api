@@ -5,7 +5,7 @@ require 'bgs_service/org_web_service'
 
 describe Veteran::User do
   context 'initialization' do
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
 
     let(:ows) { ClaimsApi::OrgWebService }
 

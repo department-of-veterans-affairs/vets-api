@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'bgs/dependent_higher_ed_attendance'
 
 RSpec.describe BGS::DependentHigherEdAttendance do
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:proc_id) { '3831414' }
-  let(:form_674_only) { FactoryBot.build(:form_674_only) }
+  let(:form_674_only) { build(:form_674_only) }
 
   describe '#create' do
     context 'reporting a child 18 to 23 years old attending school' do
