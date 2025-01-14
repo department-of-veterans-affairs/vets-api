@@ -84,10 +84,10 @@
             "phoneNumber"
           ],
           "properties": {
-            "countryCode": { 
+            "countryCode": {
               "description": "Country code of the phone number. Required for international phone numbers.",
-              "type": "string", 
-              "pattern": "^[0-9]+$" 
+              "type": "string",
+              "pattern": "^[0-9]+$"
             },
             "areaCode": {
               "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
@@ -230,7 +230,7 @@
             "countryCode": {
               "description": "Country code of the phone number. Required for international phone numbers.",
               "type": "string",
-              "pattern": "^[0-9]+$" 
+              "pattern": "^[0-9]+$"
             },
             "areaCode": {
               "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
