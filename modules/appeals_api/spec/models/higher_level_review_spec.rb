@@ -183,7 +183,7 @@ describe AppealsApi::HigherLevelReview, type: :model do
   end
 
   describe 'when api_version is v2' do
-    let(:default_higher_level_review) { create :higher_level_review_v2, status: 'pending' }
+    let(:default_higher_level_review) { create(:higher_level_review_v2, status: 'pending') }
     let(:default_auth_headers) { fixture_as_json 'decision_reviews/v2/valid_200996_headers.json' }
     let(:default_form_data) { fixture_as_json 'decision_reviews/v2/valid_200996.json' }
     let(:higher_level_review) { default_higher_level_review }

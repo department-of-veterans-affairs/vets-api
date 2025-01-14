@@ -34,11 +34,11 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               '526_in_progress_form_minimal_lighthouse_rated_disabilities.json'
             )
           )
-          FactoryBot.create(:in_progress_form,
-                            user_uuid: lighthouse_user.uuid,
-                            form_id: '21-526EZ',
-                            form_data: form_json['formData'],
-                            metadata: form_json['metadata'])
+          create(:in_progress_form,
+                 user_uuid: lighthouse_user.uuid,
+                 form_id: '21-526EZ',
+                 form_data: form_json['formData'],
+                 metadata: form_json['metadata'])
         end
 
         before do
@@ -104,21 +104,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         end
 
         context 'when toxic exposure' do
-          before do
-            Flipper.disable('disability_526_toxic_exposure_ipf')
-          end
-
-          it 'returns startedFormVersion as 2019 in the response for toxic exposure 1.1 release' do
-            Flipper.enable('disability_526_toxic_exposure_ipf')
-            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              get v0_disability_compensation_in_progress_form_url(in_progress_form_lighthouse.form_id), params: nil
-            end
-
-            expect(response).to have_http_status(:ok)
-            json_response = JSON.parse(response.body)
-            expect(json_response['formData']['startedFormVersion']).to eq('2019')
-          end
-
           # if the user with an IPF was not chosen for Toxic Exposure 1.1 release
           it 'does return 2019 as startedFormVersion' do
             VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
@@ -134,7 +119,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
       context 'prefills formData when user does not have an InProgressForm pending submission' do
         before do
-          Flipper.disable(:disability_526_toxic_exposure)
           sign_in_as(user)
         end
 
@@ -142,13 +126,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         let!(:form_id) { '21-526EZ' }
 
         it 'adds startedFormVersion when corresponding flag is enabled for user' do
-          Flipper.enable(:disability_526_toxic_exposure, user)
-          get v0_disability_compensation_in_progress_form_url(form_id), params: nil
-          json_response = JSON.parse(response.body)
-          expect(json_response['formData']['startedFormVersion']).to eq('2022')
-        end
-
-        it 'adds default startedFormVersion when corresponding flag is not enabled for user' do
           get v0_disability_compensation_in_progress_form_url(form_id), params: nil
           json_response = JSON.parse(response.body)
           expect(json_response['formData']['startedFormVersion']).to eq('2022')
@@ -184,11 +161,11 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
           form_json = JSON.parse(
             File.read('spec/support/disability_compensation_form/526_in_progress_form_minimal.json')
           )
-          FactoryBot.create(:in_progress_form,
-                            user_uuid: user.uuid,
-                            form_id: '21-526EZ',
-                            form_data: form_json['formData'],
-                            metadata: form_json['metadata'])
+          create(:in_progress_form,
+                 user_uuid: user.uuid,
+                 form_id: '21-526EZ',
+                 form_data: form_json['formData'],
+                 metadata: form_json['metadata'])
         end
 
         context 'when the user is not loa3' do
@@ -253,34 +230,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
           end
         end
 
-        context 'when toxic exposure' do
-          before do
-            Flipper.disable('disability_526_toxic_exposure_ipf')
-          end
-
-          it 'returns startedFormVersion as 2019 in the response for toxic exposure 1.1 release' do
-            Flipper.enable('disability_526_toxic_exposure_ipf')
-            VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
-              get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
-            end
-
-            expect(response).to have_http_status(:ok)
-            json_response = JSON.parse(response.body)
-            expect(json_response['formData']['startedFormVersion']).to eq('2019')
-          end
-
-          # if the user with an IPF was not chosen for Toxic Exposure 1.1 release
-          it 'does returns 2019 as startedFormVersion' do
-            VCR.use_cassette('lighthouse/veteran_verification/disability_rating/200_response') do
-              get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil
-            end
-
-            expect(response).to have_http_status(:ok)
-            json_response = JSON.parse(response.body)
-            expect(json_response['formData']['startedFormVersion']).to eq('2019')
-          end
-        end
-
         describe '#index' do
           subject do
             get v0_disability_compensation_in_progress_forms_url, params: nil
@@ -297,7 +246,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
       describe '#update' do
         let(:update_user) { loa3_user }
-        let(:new_form) { FactoryBot.build(:in_progress_form) }
+        let(:new_form) { build(:in_progress_form) }
 
         it 'inserts the form', run_at: '2017-01-01' do
           sign_in_as(update_user)
@@ -314,7 +263,7 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
 
       context 'without a user' do
         describe '#show' do
-          let(:in_progress_form) { FactoryBot.create(:in_progress_form) }
+          let(:in_progress_form) { create(:in_progress_form) }
 
           it 'returns a 401' do
             get v0_disability_compensation_in_progress_form_url(in_progress_form.form_id), params: nil

@@ -10,7 +10,7 @@ describe CovidVaccine::V0::EnrollmentProcessor do
   let(:records) do
     subs = YAML.load_file('modules/covid_vaccine/spec/fixtures/expanded_registration_submissions.yml')
     subs.values.map do |s|
-      FactoryBot.create(:covid_vax_expanded_registration, state: 'received', raw_form_data: s['raw_form_data'])
+      create(:covid_vax_expanded_registration, state: 'received', raw_form_data: s['raw_form_data'])
     end
   end
 
@@ -18,8 +18,8 @@ describe CovidVaccine::V0::EnrollmentProcessor do
   let(:batched_records) do
     subs = YAML.load_file('modules/covid_vaccine/spec/fixtures/expanded_registration_submissions.yml')
     subs.values.map do |s|
-      FactoryBot.create(:covid_vax_expanded_registration, state: 'received', raw_form_data: s['raw_form_data'],
-                                                          batch_id:)
+      create(:covid_vax_expanded_registration, state: 'received', raw_form_data: s['raw_form_data'],
+                                               batch_id:)
     end
   end
 
@@ -101,7 +101,7 @@ describe CovidVaccine::V0::EnrollmentProcessor do
   describe 'update_state_to_pending' do
     it 'updates state for specified batch_id' do
       batch_id = 'test_batch123'
-      record = FactoryBot.create(:covid_vax_expanded_registration, state: 'received', batch_id:)
+      record = create(:covid_vax_expanded_registration, state: 'received', batch_id:)
       CovidVaccine::V0::EnrollmentProcessor.update_state_to_pending(batch_id)
       record.reload
       expect(record).to be_enrollment_pending
@@ -109,14 +109,14 @@ describe CovidVaccine::V0::EnrollmentProcessor do
 
     it 'leaves unrelated records alone' do
       batch_id = 'test_batch123'
-      record = FactoryBot.create(:covid_vax_expanded_registration, state: 'received', batch_id:)
+      record = create(:covid_vax_expanded_registration, state: 'received', batch_id:)
       CovidVaccine::V0::EnrollmentProcessor.update_state_to_pending('other_batchid')
       record.reload
       expect(record).to be_received
     end
 
     it 'does not update a nil batch_id' do
-      record = FactoryBot.create(:covid_vax_expanded_registration, state: 'received', batch_id: nil)
+      record = create(:covid_vax_expanded_registration, state: 'received', batch_id: nil)
       CovidVaccine::V0::EnrollmentProcessor.update_state_to_pending(nil)
       record.reload
       expect(record).to be_received

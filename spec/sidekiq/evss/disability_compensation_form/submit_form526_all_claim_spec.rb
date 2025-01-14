@@ -20,7 +20,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Flipper.disable(:disability_compensation_fail_submission)
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -35,7 +35,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       describe '.perform_async' do
         define_negated_matcher :not_change, :change
 
-        let(:saved_claim) { FactoryBot.create(:va526ez) }
+        let(:saved_claim) { create(:va526ez) }
         let(:submitted_claim_id) { 600_130_094 }
         let(:user_account) { create(:user_account, icn: '123498767V234859') }
         let(:submission) do
