@@ -2,7 +2,6 @@
 
 # spec/simplecov_helper.rb
 require 'active_support/inflector'
-require 'support/codeowners_parser'
 require 'simplecov'
 
 class SimpleCovHelper
@@ -14,7 +13,6 @@ class SimpleCovHelper
 
       add_filters
       add_modules
-      add_teams
 
       minimum_coverage(90) unless skip_check_coverage
       refuse_coverage_drop unless skip_check_coverage
@@ -92,11 +90,5 @@ class SimpleCovHelper
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
     add_group 'Vye', 'modules/vye/'
-  end
-
-  def add_teams
-    codeowners_parser = CodeownersParser.new
-    octo_identity_files = codeowners_parser.perform('octo-identity')
-    add_group 'OctoIdentity', octo_identity_files
   end
 end
