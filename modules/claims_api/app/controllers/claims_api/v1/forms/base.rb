@@ -29,6 +29,20 @@ module ClaimsApi
           validator.validate!(self.class::FORM_NUMBER, form_attributes)
         end
 
+        def validate_phone
+          %w[veteran claimant].each do |base|
+            phone = form_attributes.dig(base, 'phone')
+            next if phone.blank?
+
+            country_code = phone['countryCode']
+            area_code = phone['areaCode']
+            if (country_code == '1' || country_code.blank?) && area_code.blank?
+              raise ::Common::Exceptions::UnprocessableEntity.new(detail:
+                "If country code is blank or 1 'areaCode' must be filled in")
+            end
+          end
+        end
+
         def form_attributes
           pre_json_verification_of_email_for_poa # must be done before returning attributes
 
