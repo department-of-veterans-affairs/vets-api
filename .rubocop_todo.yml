@@ -6,13 +6,6 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 590
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: Include.
-# Include: **/*_spec.rb, **/spec/**/*, **/test/**/*, **/features/support/factories/**/*.rb
-FactoryBot/SyntaxMethods:
-  Enabled: false
-
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
 Layout/EmptyLinesAroundExceptionHandlingKeywords:

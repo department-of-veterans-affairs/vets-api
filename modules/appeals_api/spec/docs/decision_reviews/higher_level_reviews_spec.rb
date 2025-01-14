@@ -128,7 +128,7 @@ describe 'Higher-Level Reviews', openapi_spec:, type: :request do
       response '200', 'Info about a single Higher-Level Review' do
         schema '$ref' => '#/components/schemas/hlrShow'
 
-        let(:uuid) { FactoryBot.create(:minimal_higher_level_review_v2).id }
+        let(:uuid) { create(:minimal_higher_level_review_v2).id }
 
         it_behaves_like 'rswag example', desc: 'returns a 200 response',
                                          response_wrapper: :normalize_appeal_response

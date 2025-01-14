@@ -45,8 +45,8 @@ RSpec.describe 'Vye::V1::DirectDeposit#create', type: :request do
     end
 
     describe 'where current_user is in VYE' do
-      let!(:user_profile) { FactoryBot.create(:vye_user_profile, icn: current_user.icn) }
-      let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
+      let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
+      let!(:user_info) { create(:vye_user_info, user_profile:) }
 
       it 'creates a new bank info' do
         post('/vye/v1/bank_info', headers:, params:)

@@ -177,7 +177,7 @@ describe 'Higher-Level Reviews', openapi_spec: 'modules/appeals_api/app/swagger/
           #   or loaded from plain json files:
           #       schema JSON.parse(File.read(AppealsApi::Engine.root.join('spec', 'support', 'schemas', 'errors', '404.json')))
 
-        let(:uuid) { FactoryBot.create(:minimal_higher_level_review_v2).id }
+        let(:uuid) { create(:minimal_higher_level_review_v2).id }
         # ^ needs to match the parameters name otherwise you'll see a No method error for 'uuid' (or whatever your parameter is called)
 
         before do |example|

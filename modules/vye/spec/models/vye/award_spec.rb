@@ -5,7 +5,7 @@ require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::Award, type: :model do
   describe 'create' do
-    let(:user_info) { FactoryBot.create(:vye_user_info) }
+    let(:user_info) { create(:vye_user_info) }
 
     it 'creates a record' do
       expect do

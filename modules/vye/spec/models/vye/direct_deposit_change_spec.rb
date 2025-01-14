@@ -4,7 +4,7 @@ require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
 RSpec.describe Vye::DirectDepositChange, type: :model do
-  let(:user_info) { FactoryBot.create(:vye_user_info) }
+  let(:user_info) { create(:vye_user_info) }
 
   describe 'create' do
     it 'creates a record' do
@@ -17,10 +17,10 @@ RSpec.describe Vye::DirectDepositChange, type: :model do
 
   describe 'creates a report' do
     before do
-      old_bdn = FactoryBot.create(:vye_bdn_clone, is_active: true, export_ready: nil)
-      new_bdn = FactoryBot.create(:vye_bdn_clone, is_active: false, export_ready: nil)
+      old_bdn = create(:vye_bdn_clone, is_active: true, export_ready: nil)
+      new_bdn = create(:vye_bdn_clone, is_active: false, export_ready: nil)
 
-      FactoryBot.create_list(:vye_user_info, 7, :with_direct_deposit_changes, bdn_clone: old_bdn)
+      create_list(:vye_user_info, 7, :with_direct_deposit_changes, bdn_clone: old_bdn)
 
       new_bdn.activate!
 

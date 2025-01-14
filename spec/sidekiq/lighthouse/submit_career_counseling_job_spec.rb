@@ -31,7 +31,7 @@ RSpec.describe Lighthouse::SubmitCareerCounselingJob do
 
   describe '#send_confirmation_email' do
     context 'user logged in' do
-      let(:user) { FactoryBot.create(:evss_user, :loa3) }
+      let(:user) { create(:evss_user, :loa3) }
 
       it 'calls the VA notify email job with the user email' do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
