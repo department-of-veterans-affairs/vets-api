@@ -6,7 +6,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution,
   it 'must uniquely be associated to a poa request' do
     poa_request = create(:power_of_attorney_request, skip_resolution: true)
     resolution_a = create(:power_of_attorney_request_resolution, :expiration,
-                        power_of_attorney_request: poa_request)
+                          power_of_attorney_request: poa_request)
 
     resolution_b = build(
       :power_of_attorney_request_resolution, :expiration,
