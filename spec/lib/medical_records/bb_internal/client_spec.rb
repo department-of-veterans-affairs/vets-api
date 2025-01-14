@@ -37,6 +37,12 @@ describe BBInternal::Client do
     end
   end
 
+  describe 'session' do
+    it 'preserves ICN' do
+      expect(client.session.icn).to equal('1012740022V620959')
+    end
+  end
+
   describe '#list_radiology' do
     it 'gets the radiology records' do
       VCR.use_cassette 'mr_client/bb_internal/get_radiology' do
