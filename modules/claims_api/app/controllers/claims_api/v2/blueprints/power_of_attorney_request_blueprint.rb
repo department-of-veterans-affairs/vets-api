@@ -63,16 +63,16 @@ module ClaimsApi
         end
 
         view :decide do
-          field :id do |request|
-            request['id']
+          field :id do |form_attributes|
+            form_attributes['id']
           end
 
           field :type do
             'power-of-attorney-request-decision'
           end
 
-          field :attributes do |request|
-            request.except('id')
+          field :attributes do |form_attributes|
+            form_attributes.except('id')
           end
 
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer

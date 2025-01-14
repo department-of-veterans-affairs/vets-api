@@ -53,8 +53,7 @@ describe 'PowerOfAttorney', metadata do
           'attributes' => {
             'decision' => 'ACCEPTED',
             'representativeId' => '12345678',
-            'id' => '348fa995-5b29-4819-91af-13f1bb3c7d77',
-            'type' => 'power-of-attorney-request-decision'
+            'declinedReason' => nil
           }
         }
       }
