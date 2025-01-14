@@ -171,7 +171,7 @@ module EducationForm
     def remaining_entitlement_days(remaining_entitlement)
       months = remaining_entitlement.months
       days = remaining_entitlement.days
-      months * 30 + days
+      (months * 30) + days
     end
 
     # Inverse of less than six months check performed in SavedClaim::EducationBenefits::VA10203
