@@ -31,7 +31,7 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
 
       post '/burials/v0/claims', params: { param_name => { form: form.form } }
 
-      expect(response.status).to eq(500)
+      expect(response).to have_http_status(:internal_server_error)
     end
   end
 
@@ -43,7 +43,7 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
 
       get '/burials/v0/claims/:id', params: { id: claim.guid }
 
-      expect(response.status).to eq(200)
+      expect(response).to have_http_status(:ok)
     end
 
     it 'returns an error if the claim is not found' do
@@ -51,7 +51,7 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
 
       get '/burials/v0/claims/:id', params: { id: 'non-existant-saved-claim' }
 
-      expect(response.status).to eq(404)
+      expect(response).to have_http_status(:not_found)
     end
 
     it 'logs show errors' do
@@ -62,7 +62,7 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
 
       get '/burials/v0/claims/:id', params: { id: 'non-existant-saved-claim' }
 
-      expect(response.status).to eq(500)
+      expect(response).to have_http_status(:internal_server_error)
     end
   end
 
