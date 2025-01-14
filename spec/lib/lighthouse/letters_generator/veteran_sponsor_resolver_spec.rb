@@ -6,7 +6,7 @@ require 'lighthouse/letters_generator/veteran_sponsor_resolver'
 RSpec.describe Lighthouse::LettersGenerator::VeteranSponsorResolver do
   describe '#get_icn' do
     context 'for a dependent' do
-      let(:dependent_user) { FactoryBot.build(:dependent_user_with_relationship, :loa3) }
+      let(:dependent_user) { build(:dependent_user_with_relationship, :loa3) }
 
       context 'with relationships' do
         it 'returns the ICN of the Veteran sponsor of the dependent user' do
@@ -28,7 +28,7 @@ RSpec.describe Lighthouse::LettersGenerator::VeteranSponsorResolver do
     end
 
     context 'for a Veteran' do
-      let(:veteran_user) { FactoryBot.build(:user, :loa3) }
+      let(:veteran_user) { build(:user, :loa3) }
 
       it 'returns nil if the logged in user is not a dependent' do
         allow(veteran_user).to receive(:relationships).and_return(nil)

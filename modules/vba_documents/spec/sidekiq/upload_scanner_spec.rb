@@ -3,8 +3,8 @@
 require 'rails_helper'
 
 RSpec.describe VBADocuments::UploadScanner, type: :job do
-  let(:upload) { FactoryBot.create(:upload_submission) }
-  let(:evidence_upload) { FactoryBot.create(:upload_submission, consumer_name: 'appeals_api_sc_evidence_submission') }
+  let(:upload) { create(:upload_submission) }
+  let(:evidence_upload) { create(:upload_submission, consumer_name: 'appeals_api_sc_evidence_submission') }
 
   before do
     s3_client = instance_double(Aws::S3::Resource)
