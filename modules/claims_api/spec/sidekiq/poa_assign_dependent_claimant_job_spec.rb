@@ -85,6 +85,7 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
         allow_any_instance_of(described_class).to receive(:handle_error).with(poa, error)
 
         expect_any_instance_of(described_class).to receive(:handle_error)
+        expect(poa).not_to receive(:save)
         described_class.new.perform(poa.id, 'Rep Data')
       end
     end
