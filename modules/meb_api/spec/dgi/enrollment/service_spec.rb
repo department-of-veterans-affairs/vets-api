@@ -14,7 +14,7 @@ RSpec.describe MebApi::DGI::Enrollment::Service do
         end
       end
     end
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:service) { MebApi::DGI::Enrollment::Service.new(user) }
     let(:enrollment_verification_params) do
       { enrollment_verifications: {

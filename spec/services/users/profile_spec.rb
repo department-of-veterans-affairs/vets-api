@@ -21,7 +21,7 @@ RSpec.describe Users::Profile do
 
     context 'when initialized with a non-User object' do
       it 'raises an exception' do
-        account = build :account
+        account = build(:account)
 
         expect { Users::Profile.new(account) }.to raise_error(Common::Exceptions::ParameterMissing)
       end
@@ -291,7 +291,7 @@ RSpec.describe Users::Profile do
       end
 
       context 'when user.mpi is nil' do
-        let(:user) { build :user }
+        let(:user) { build(:user) }
 
         it 'returns va_profile as null' do
           expect(va_profile).to be_nil

@@ -5,7 +5,7 @@ require 'vre/ch31_form'
 
 RSpec.describe VRE::Ch31Form do
   let(:claim) { create(:veteran_readiness_employment_claim) }
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:service) { VRE::Ch31Form.new(user:, claim:) }
   let(:new_address_hash) do
     {
