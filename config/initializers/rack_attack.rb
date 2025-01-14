@@ -80,7 +80,7 @@ class Rack::Attack
     headers = {
       'X-RateLimit-Limit' => rate_limit[:limit].to_s,
       'X-RateLimit-Remaining' => '0',
-      'X-RateLimit-Reset' => (now + (rate_limit[:period] - now.to_i % rate_limit[:period])).to_i
+      'X-RateLimit-Reset' => (now + (rate_limit[:period] - (now.to_i % rate_limit[:period]))).to_i
     }
 
     [429, headers, ['throttled']]

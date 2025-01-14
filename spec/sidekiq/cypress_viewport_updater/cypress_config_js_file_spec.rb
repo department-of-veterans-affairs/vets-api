@@ -228,17 +228,17 @@ RSpec.describe CypressViewportUpdater::CypressConfigJsFile do
       line += ':' if %w[\[ \] { }].none? { |char| line.include?(char) } &&
                      (selected_lines[index + 1] == '[' ||
                      selected_lines[index + 1] == '{' ||
-                     in_object &&
-                     object_prop_index_is_even && index.even? || object_prop_index_is_odd && index.odd?)
+                     (in_object &&
+                     object_prop_index_is_even && index.even?) || (object_prop_index_is_odd && index.odd?))
 
       # append comma where necessary (at the end of most values, etc.)
-      line += ',' if line == ']' && selected_lines[index + 1] != '}' ||
-                     line == '}' && selected_lines[index + 1] == '{' ||
+      line += ',' if (line == ']' && selected_lines[index + 1] != '}') ||
+                     (line == '}' && selected_lines[index + 1] == '{') ||
                      (in_object &&
                      line.exclude?('{') &&
                      selected_lines[index + 1].exclude?('}') &&
                      selected_lines[index + 1].exclude?(']') &&
-                     (object_prop_index_is_even && index.odd? || object_prop_index_is_odd && index.even?))
+                     ((object_prop_index_is_even && index.odd?) || (object_prop_index_is_odd && index.even?)))
 
       line
     end

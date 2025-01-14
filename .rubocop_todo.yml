@@ -126,30 +126,6 @@ Layout/LineContinuationSpacing:
     - 'spec/sidekiq/cypress_viewport_updater/viewport_preset_js_file_spec.rb'
     - 'spec/support/saml/response_builder.rb'
 
-# Offense count: 38
-# This cop supports safe autocorrection (--autocorrect).
-Lint/AmbiguousOperatorPrecedence:
-  Exclude:
-    - 'app/controllers/facilities_controller.rb'
-    - 'app/models/facilities_query/bounding_box_query.rb'
-    - 'app/models/user.rb'
-    - 'app/sidekiq/education_form/create_daily_fiscal_year_to_date_report.rb'
-    - 'app/sidekiq/education_form/create_daily_year_to_date_report.rb'
-    - 'app/sidekiq/education_form/process10203_submissions.rb'
-    - 'app/sidekiq/facilities/pssg_download.rb'
-    - 'config/initializers/rack_attack.rb'
-    - 'lib/va_profile/military_personnel/service_history_response.rb'
-    - 'lib/va_profile/stats.rb'
-    - 'modules/appeals_api/app/services/appeals_api/pdf_construction/supplemental_claim/v2/structure.rb'
-    - 'modules/mobile/app/helpers/mobile/facilities_helper.rb'
-    - 'rakelib/form526.rake'
-    - 'spec/models/session_spec.rb'
-    - 'spec/services/mhv_logging_service_spec.rb'
-    - 'spec/sidekiq/cypress_viewport_updater/cypress_config_js_file_spec.rb'
-    - 'spec/support/bb_client_helpers.rb'
-    - 'spec/support/rx_client_helpers.rb'
-    - 'spec/support/sm_client_helpers.rb'
-
 # Offense count: 16
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: RequireParenthesesForMethodChains.
