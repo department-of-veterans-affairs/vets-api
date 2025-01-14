@@ -9,8 +9,8 @@ betamocks:
   enabled: true
   recording: false
   # the cache dir depends on how you run the api
-  # cache_dir: ../vets-api-mockdata # via rails; e.g. bundle exec rails s or bundle exec rails c
-  cache_dir: /cache # via docker; e.g. make up or make console
+  cache_dir: ../vets-api-mockdata # via rails; e.g. bundle exec rails s or bundle exec rails c
+  # cache_dir: /cache # via docker; e.g. make up or make console
   services_config: config/betamocks/services_config.yml
 
 account:

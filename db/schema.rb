@@ -1159,6 +1159,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_01_213062) do
     t.index ["guid"], name: "index_saved_claims_on_guid", unique: true
     t.index ["id", "type"], name: "index_saved_claims_on_id_and_type"
     t.index ["id"], name: "index_partial_saved_claims_on_id_metadata_like_error", where: "(metadata ~~ '%error%'::text)"
+    t.index ["metadata", "type"], name: "idx_saved_claims_partial_metadata_like_error_and_type", where: "(metadata ~~ '%error%'::text)"
   end
 
   create_table "schema_contract_validations", force: :cascade do |t|
