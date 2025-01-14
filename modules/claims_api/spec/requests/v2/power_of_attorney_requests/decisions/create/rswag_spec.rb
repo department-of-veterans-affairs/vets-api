@@ -126,14 +126,12 @@ describe 'PowerOfAttorney', metadata do
         end
 
         after do |example|
-          example.metadata[:response][:content] ||= { 'application/json' => { examples:
-          { errors: [{
-            status: '404',
-            code: '108',
-            title: 'Resource not found',
-            detail: 'Could not find Power of Attorney request with id: 348fa995-5b29-4819-91af-13f1bb3c7d77'
-          }] } } }
-          examples = example.metadata.dig(:response, :content, 'application/json', :examples)
+          example.metadata[:response][:content] = {
+            'application/json' => {
+              example: JSON.parse(response.body, symbolize_names: true)
+            }
+          }
+          examples = example.metadata.dig(:response, :content, 'application/json', :example)
           examples[:schema_validation_error] = {
             summary: 'Schema validation error',
             value: JSON.parse(response.body, symbolize_names: true)
