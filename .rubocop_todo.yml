@@ -190,9 +190,9 @@ Lint/MissingSuper:
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: instance_of?, kind_of?, is_a?, eql?, respond_to?, equal?, presence, present?
-Lint/RedundantSafeNavigation:
-  Exclude:
-    - 'app/sidekiq/education_form/process10203_submissions.rb'
+# Lint/RedundantSafeNavigation:
+#   Exclude:
+#     - 'app/sidekiq/education_form/process10203_submissions.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
