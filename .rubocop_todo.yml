@@ -158,17 +158,17 @@ Lint/MissingSuper:
 
 # Offense count: 18
 # This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/NonAtomicFileOperation:
-  Exclude:
-    - 'config/initializers/integration_recorder.rb'
-    - 'lib/common/file_helpers.rb'
-    - 'lib/generators/module/module_generator.rb'
-    - 'modules/appeals_api/app/sidekiq/appeals_api/pdf_submit_job.rb'
-    - 'modules/appeals_api/spec/services/appeals_api/pdf_construction/generator_spec.rb'
-    - 'modules/mobile/app/services/mobile/v0/claims/proxy.rb'
-    - 'spec/controllers/v0/caregivers_assistance_claims_controller_spec.rb'
-    - 'spec/models/form1010cg/attachment_spec.rb'
-    - 'spec/rswag_override.rb'
+# Lint/NonAtomicFileOperation:
+#   Exclude:
+#     - 'config/initializers/integration_recorder.rb'
+#     - 'lib/common/file_helpers.rb'
+#     - 'lib/generators/module/module_generator.rb'
+#     - 'modules/appeals_api/app/sidekiq/appeals_api/pdf_submit_job.rb'
+#     - 'modules/appeals_api/spec/services/appeals_api/pdf_construction/generator_spec.rb'
+#     - 'modules/mobile/app/services/mobile/v0/claims/proxy.rb'
+#     - 'spec/controllers/v0/caregivers_assistance_claims_controller_spec.rb'
+#     - 'spec/models/form1010cg/attachment_spec.rb'
+#     - 'spec/rswag_override.rb'
 
 # Offense count: 4
 # This cop supports unsafe autocorrection (--autocorrect-all).
