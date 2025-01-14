@@ -307,9 +307,6 @@ Lint/MissingSuper:
     - 'modules/appeals_api/lib/appeals_api/form_schemas.rb'
     - 'modules/appeals_api/lib/appeals_api/token_validation_client.rb'
     - 'modules/claims_api/config/initializers/okcomputer.rb'
-    - 'modules/covid_research/app/services/covid_research/volunteer/form_service.rb'
-    - 'modules/covid_research/app/services/covid_research/volunteer/genisis_service.rb'
-    - 'modules/covid_research/app/sidekiq/covid_research/volunteer/genisis_delivery_job.rb'
     - 'modules/meb_api/lib/dgi/service.rb'
     - 'modules/mobile/app/services/mobile/v0/lighthouse_health/service.rb'
     - 'modules/va_notify/lib/va_notify/service.rb'
@@ -687,13 +684,6 @@ RSpec/StubbedMock:
 # Offense count: 26
 RSpec/SubjectDeclaration:
   Exclude:
-    - 'modules/covid_research/spec/serializers/covid_research/genisis_serializer_spec.rb'
-    - 'modules/covid_research/spec/serializers/covid_research/volunteer/facility_serializer_spec.rb'
-    - 'modules/covid_research/spec/serializers/covid_research/volunteer/name_serializer_spec.rb'
-    - 'modules/covid_research/spec/services/covid_research/volunteer/form_crypto_service_spec.rb'
-    - 'modules/covid_research/spec/services/covid_research/volunteer/form_service_intake_spec.rb'
-    - 'modules/covid_research/spec/services/covid_research/volunteer/form_service_update_spec.rb'
-    - 'modules/covid_research/spec/services/covid_research/volunteer/genisis_service_spec.rb'
     - 'modules/mobile/spec/helpers/mobile/appointments_cache_interface_spec.rb'
     - 'modules/va_notify/spec/models/veteran_spec.rb'
     - 'modules/vaos/spec/services/user_service_spec.rb'

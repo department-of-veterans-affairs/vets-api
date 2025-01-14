@@ -132,7 +132,7 @@ module Sidekiq
 
       def evidence_526_split
         is_526_or_evidence = docs.group_by do |doc|
-          doc[:type] == FORM_526_DOC_TYPE || doc[:type] == FORM_526_UPLOADS_DOC_TYPE
+          [FORM_526_DOC_TYPE, FORM_526_UPLOADS_DOC_TYPE].include?(doc[:type])
         end
         [is_526_or_evidence[true], is_526_or_evidence[false]]
       end
