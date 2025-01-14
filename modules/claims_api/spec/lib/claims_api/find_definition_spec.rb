@@ -16,6 +16,18 @@ describe ClaimsApi::FindDefinition do
         Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
       end
 
+      context 'ClaimantWebService' do
+        let(:endpoint) { 'ClaimantServiceBean/ClaimantWebService' }
+
+        it 'responds with the correct namespace' do
+          result = subject.for_service(endpoint)
+          parsed_result = JSON.parse(result.to_json)
+          expect(parsed_result['bean']['path']).to eq('ClaimantServiceBean')
+          expect(parsed_result['path']).to eq('ClaimantWebService')
+          expect(parsed_result['bean']['namespaces']['target']).to eq('http://services.share.benefits.vba.va.gov/')
+        end
+      end
+
       context 'TrackedItemService' do
         let(:endpoint) { 'TrackedItemService/TrackedItemService' }
 
