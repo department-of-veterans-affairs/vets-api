@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require 'bgs_service/standard_data_web_service'
 
 RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
   let(:poa_id) { '98324hfsdfds-8923-po4r-1111-ghieutj9' }
@@ -72,6 +73,20 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
 
       poa.reload
       expect(poa.status).to eq(ClaimsApi::PowerOfAttorney::UPDATED)
+    end
+
+    context 'if an error occurs in the service call' do
+      let(:error) { StandardError.new('error message') }
+
+      it "does not mark the POA status as 'updated'" do
+        allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
+          .to receive(:assign_poa_to_dependent!).and_raise(error)
+
+        allow_any_instance_of(described_class).to receive(:handle_error).with(poa, error)
+
+        expect_any_instance_of(described_class).to receive(:handle_error)
+        described_class.new.perform(poa.id, 'Rep Data')
+      end
     end
   end
 
