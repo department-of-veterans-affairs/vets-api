@@ -238,7 +238,7 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
             decide_request_with(id:, decision:, auth_header:)
             expect(response).to have_http_status(:ok)
             response_body = JSON.parse(response.body)
-            expect(response_body['data']['attributes']['id']).to eq(id)
+            expect(response_body['data']['id']).to eq(id)
           end
         end
       end
