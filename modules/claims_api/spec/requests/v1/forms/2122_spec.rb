@@ -18,7 +18,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
   let(:multi_profile) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
+      profile: build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321])
     )
   end
   let(:pws) { ClaimsApi::PersonWebService }
