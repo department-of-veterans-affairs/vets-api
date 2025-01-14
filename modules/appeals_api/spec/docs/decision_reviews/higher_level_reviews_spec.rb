@@ -164,7 +164,7 @@ describe 'Higher-Level Reviews', openapi_spec:, type: :request do
       tags 'Higher-Level Reviews'
       operationId 'hlrContestableIssues'
       description = 'Returns all issues associated with a Veteran that have been decided by a ' \
-                    'Higher-Level Review as of the receiptDate and bound by benefitType. Not all issues returned are guaranteed '\
+                    'Higher-Level Review as of the receiptDate and bound by benefitType. Not all issues returned are guaranteed ' \
                     'to be eligible for appeal. Associate these results when creating a new Higher-Level Review.'
       description description
       security DocHelpers.decision_reviews_security_config

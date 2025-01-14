@@ -55,7 +55,7 @@ RSpec.describe BGS::Form686c do
               expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
               expect_any_instance_of(BGS::Service).to receive(:create_note).with(
                 '600210032',
-                'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted '\
+                'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted ' \
                 'for removal of a step-child that has left household.'
               )
 
@@ -112,7 +112,7 @@ RSpec.describe BGS::Form686c do
                                                                                    { proc_state: 'MANUAL_VAGOV' })
                 expect_any_instance_of(BGS::Service).to receive(:create_note).with(
                   '600210032',
-                  'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted '\
+                  'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted ' \
                   'along with a 674.'
                 )
 
@@ -164,7 +164,7 @@ RSpec.describe BGS::Form686c do
               expect_any_instance_of(BID::Awards::Service).to receive(:get_awards_pension).and_call_original
               expect_any_instance_of(BGS::Service).to receive(:create_note).with(
                 '600210032',
-                'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted '\
+                'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted ' \
                 'for removal of a step-child that has left household.'
               )
 
@@ -221,7 +221,7 @@ RSpec.describe BGS::Form686c do
                                                                                    { proc_state: 'MANUAL_VAGOV' })
                 expect_any_instance_of(BGS::Service).to receive(:create_note).with(
                   '600210032',
-                  'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted '\
+                  'Claim set to manual by VA.gov: This application needs manual review because a 686 was submitted ' \
                   'along with a 674.'
                 )
 

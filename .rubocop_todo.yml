@@ -80,52 +80,6 @@ FactoryBot/ConsistentParenthesesStyle:
 FactoryBot/SyntaxMethods:
   Enabled: false
 
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-Layout/EmptyLinesAroundExceptionHandlingKeywords:
-  Exclude:
-    - 'spec/controllers/v0/virtual_agent/virtual_agent_claim_spec.rb'
-
-# Offense count: 200
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: space, no_space
-Layout/LineContinuationSpacing:
-  Exclude:
-    - 'app/controllers/v1/sessions_controller.rb'
-    - 'app/models/in_progress_form.rb'
-    - 'app/sidekiq/cypress_viewport_updater/viewport.rb'
-    - 'app/sidekiq/form1095/new1095_bs_job.rb'
-    - 'app/swagger/swagger/requests/health_care_applications.rb'
-    - 'app/swagger/swagger/requests/profile.rb'
-    - 'app/swagger/swagger/requests/user.rb'
-    - 'lib/evss/disability_compensation_form/data_translation_all_claim.rb'
-    - 'lib/generators/module_component/module_component_generator.rb'
-    - 'modules/appeals_api/app/swagger/appeals_api/v1/notice_of_disagreements_controller_swagger.rb'
-    - 'modules/appeals_api/spec/docs/decision_reviews/higher_level_reviews_spec.rb'
-    - 'modules/claims_api/app/controllers/concerns/claims_api/disability_compensation_validations.rb'
-    - 'modules/claims_api/app/controllers/concerns/claims_api/poa_verification.rb'
-    - 'modules/claims_api/app/sidekiq/claims_api/poa_vbms_updater.rb'
-    - 'modules/mobile/spec/services/lighthouse_health_service_spec.rb'
-    - 'modules/vba_documents/lib/vba_documents/upload_validator.rb'
-    - 'spec/controllers/v1/sessions_controller_spec.rb'
-    - 'spec/factories/saml_attributes.rb'
-    - 'spec/lib/bgs/form686c_spec.rb'
-    - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
-    - 'spec/lib/iam_ssoe_oauth/service_spec.rb'
-    - 'spec/lib/saml/post_url_service_spec.rb'
-    - 'spec/lib/saml/responses/login_spec.rb'
-    - 'spec/lib/saml/ssoe_user_spec.rb'
-    - 'spec/lib/saml/url_service_spec.rb'
-    - 'spec/mailers/direct_deposit_mailer_spec.rb'
-    - 'spec/models/async_transaction/va_profile/base_spec.rb'
-    - 'spec/models/user_session_form_spec.rb'
-    - 'spec/rakelib/vet360_spec.rb'
-    - 'spec/sidekiq/cypress_viewport_updater/cypress_config_js_file_spec.rb'
-    - 'spec/sidekiq/cypress_viewport_updater/github_service_spec.rb'
-    - 'spec/sidekiq/cypress_viewport_updater/viewport_preset_js_file_spec.rb'
-    - 'spec/support/saml/response_builder.rb'
-
 # Offense count: 38
 # This cop supports safe autocorrection (--autocorrect).
 Lint/AmbiguousOperatorPrecedence:
