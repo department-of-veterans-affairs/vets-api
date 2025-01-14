@@ -16,8 +16,9 @@ module DebtsApi
           @gmt_data = @form['gmt_data']
           @income_data = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(form).get_monthly_income
           @asset_data = DebtsApi::V0::FsrFormTransform::AssetCalculator.new(form).transform_assets
-          @enhanced_expense_calculator =
-            DebtsApi::V0::FsrFormTransform::EnhancedExpenseCalculator.new(deep_transform_keys_to_camel_case(form)).transform_expenses
+          @enhanced_expense_calculator = DebtsApi::V0::FsrFormTransform::EnhancedExpenseCalculator.new(
+            deep_transform_keys_to_camel_case(form)
+          ).transform_expenses
         end
 
         def get_streamlined_data
