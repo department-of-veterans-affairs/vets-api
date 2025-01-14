@@ -6,7 +6,7 @@ RSpec.describe TriageTeam do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { attributes_for :triage_team, triage_team_id: 100, preferred_team: true }
+    let(:params) { attributes_for(:triage_team, triage_team_id: 100, preferred_team: true) }
     let(:other) { described_class.new(attributes_for(:triage_team, triage_team_id: 101)) }
 
     it 'populates attributes' do

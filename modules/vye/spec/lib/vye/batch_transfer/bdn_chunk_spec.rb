@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Vye::BatchTransfer::BdnChunk do
   describe '::new' do
-    let!(:bdn_clone) { FactoryBot.create(:vye_bdn_clone_base, is_active: nil) }
+    let!(:bdn_clone) { create(:vye_bdn_clone_base, is_active: nil) }
     let(:bdn_clone_id) { bdn_clone.id }
     let(:offset) { 0 }
     let(:block_size) { 1000 }
@@ -40,7 +40,7 @@ RSpec.describe Vye::BatchTransfer::BdnChunk do
   end
 
   describe '#import' do
-    let!(:bdn_clone) { FactoryBot.create(:vye_bdn_clone_base, is_active: nil) }
+    let!(:bdn_clone) { create(:vye_bdn_clone_base, is_active: nil) }
     let(:bdn_clone_id) { bdn_clone.id }
 
     let(:offset) { 0 }
