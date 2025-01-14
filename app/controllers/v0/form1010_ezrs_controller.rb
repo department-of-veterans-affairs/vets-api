@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'form1010_ezr/service'
+require 'hca/enrollment_eligibility/service'
 
 module V0
   class Form1010EzrsController < ApplicationController
@@ -16,6 +17,10 @@ module V0
       clear_saved_form('10-10EZR')
 
       render(json: result)
+    end
+
+    def enrollment_system_data
+      render(json: HCA::EnrollmentEligibility::Service.new.get_ezr_data(current_user.icn))
     end
 
     private

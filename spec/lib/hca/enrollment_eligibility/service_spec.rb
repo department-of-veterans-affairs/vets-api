@@ -37,6 +37,17 @@ describe HCA::EnrollmentEligibility::Service do
   end
 
   describe '#get_ezr_data', run_at: 'Tue, 24 Oct 2023 17:27:12 GMT' do
+    it 'does something' do
+      VCR.use_cassette('example1', :record => :once) do
+        # code to call external api
+      end
+      ezr_data = described_class.new.get_ezr_data('1012666182V203559')
+
+      debugger
+
+      expect(ezr_data).to be_a(Object)
+    end
+
     it 'gets data for prefilling 1010ezr' do
       VCR.use_cassette(
         'hca/ee/lookup_user_2023',

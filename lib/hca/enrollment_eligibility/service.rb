@@ -135,6 +135,23 @@ module HCA
         marital_status
       end
 
+      def get_income(xpath, response)
+        income = {}
+
+        response.locate(xpath).first&.each do |i|
+          case i['type']
+          when 'Total Employment Income'
+            income[:grossIncome] = i['amount']
+          when 'Net Income from Farm, Ranch, Property, Business'
+            income[:netIncome] = i['amount']
+          when 'All Other Income'
+            income[:otherIncome] = i['amount']
+          end
+        end
+
+        income
+      end
+
       # rubocop:disable Metrics/MethodLength
       def parse_spouse(response)
         spouse_financials_xpath =
@@ -172,6 +189,14 @@ module HCA
             spouseSocialSecurityNumber: get_locate_value(
               response,
               "#{spouse_financials_xpath}spouse/ssns/ssn/ssnText"
+            ),
+            spouseIncomeYear: get_locate_value(
+              response,
+              "#{spouse_financials_xpath}incomeYear"
+            ),
+            spouseIncome: get_income(
+              "#{XPATH_PREFIX}financialsInfo/financialStatement/spouseFinancialsList/spouseFinancials/incomes/income",
+              response
             )
           }
         )
