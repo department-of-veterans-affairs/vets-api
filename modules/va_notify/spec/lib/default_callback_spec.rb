@@ -69,9 +69,14 @@ describe VANotify::DefaultCallback do
       end
 
       context 'metadata is provided with statsd_tags as array' do
+        let(:tags) do
+          ['service:service-name',
+           'function:function description',
+           'some-non-required-tag:some-tag']
+        end
+
         let(:callback_metadata) do
-          { notification_type:, statsd_tags: ['service:service-name',
-                                              'function:function description'] }
+          { notification_type:, statsd_tags: tags }
         end
 
         context 'delivered' do
