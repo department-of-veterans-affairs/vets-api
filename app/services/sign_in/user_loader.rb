@@ -83,7 +83,7 @@ module SignIn
     end
 
     def idme_or_logingov_service
-      sign_in[:service_name] == Constants::Auth::IDME || sign_in[:service_name] == Constants::Auth::LOGINGOV
+      [Constants::Auth::IDME, Constants::Auth::LOGINGOV].include?(sign_in[:service_name])
     end
 
     def user_is_verified?
