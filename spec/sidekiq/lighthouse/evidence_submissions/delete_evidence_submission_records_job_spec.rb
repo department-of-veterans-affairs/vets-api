@@ -12,22 +12,16 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJ
 
     before do
       allow(StatsD).to receive(:increment)
+      allow(Rails.logger).to receive(:info)
     end
 
     context 'when EvidenceSubmission records have a delete_date set' do
       it 'deletes only the records with a past or current delete_time' do
-        subject.new.perform
-        expect(EvidenceSubmission.where(id: es_no_delete.id).count).to eq(1)
-        expect(EvidenceSubmission.where(id: es_delete_one.id).count).to eq(0)
-        expect(EvidenceSubmission.where(id: es_delete_two.id).count).to eq(0)
-
-        expect(StatsD).to have_received(:increment)
+        expect(StatsD).to receive(:increment)
           .with('worker.cst.delete_evidence_submission_records.count', 2).exactly(1).time
-      end
-    end
-
-    context 'when EvidenceSubmission records do not have a delete_date set' do
-      it 'does not delete the records' do
+        expect(Rails.logger)
+          .to receive(:info)
+          .with("#{described_class} deleted 2 of 3 EvidenceSubmission records")
         subject.new.perform
         expect(EvidenceSubmission.where(id: es_no_delete.id).count).to eq(1)
         expect(EvidenceSubmission.where(id: es_delete_one.id).count).to eq(0)
@@ -45,12 +39,10 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJ
       it 'rescues and logs the exception' do
         expect(Rails.logger)
           .to receive(:error)
-          .with('Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJob error: ', error_message)
-
-        expect { subject.new.perform }.not_to raise_error
-
-        expect(StatsD).to have_received(:increment)
+          .with("#{described_class} error: ", error_message)
+        expect(StatsD).to receive(:increment)
           .with('worker.cst.delete_evidence_submission_records.error').exactly(1).time
+        expect { subject.new.perform }.not_to raise_error
       end
     end
   end
