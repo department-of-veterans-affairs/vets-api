@@ -7,7 +7,7 @@ describe CovidVaccine::V0::ExpandedRegistrationCsvGenerator do
   subject do
     fixture_file = YAML.load_file('modules/covid_vaccine/spec/fixtures/expanded_registration_submissions.yml')
     records = fixture_file.values.map do |fixture|
-      FactoryBot.build(:covid_vax_expanded_registration, raw_form_data: fixture['raw_form_data'])
+      build(:covid_vax_expanded_registration, raw_form_data: fixture['raw_form_data'])
     end
     described_class.new(records)
   end
@@ -21,25 +21,25 @@ describe CovidVaccine::V0::ExpandedRegistrationCsvGenerator do
     end
 
     it 'uses mapped facility info if present' do
-      record = FactoryBot.build(:covid_vax_expanded_registration,
-                                raw_options: { 'preferred_facility' => 'Portland VA Medical Center' },
-                                eligibility_info: { 'preferred_facility' => '648' })
+      record = build(:covid_vax_expanded_registration,
+                     raw_options: { 'preferred_facility' => 'Portland VA Medical Center' },
+                     eligibility_info: { 'preferred_facility' => '648' })
       generator = described_class.new([record])
       expect(generator.csv).to include('^648^')
     end
 
     it 'uses mapped info if recorded but nil' do
-      record = FactoryBot.build(:covid_vax_expanded_registration,
-                                raw_options: { 'preferred_facility' => 'Some Fake Facility' },
-                                eligibility_info: { 'preferred_facility' => nil })
+      record = build(:covid_vax_expanded_registration,
+                     raw_options: { 'preferred_facility' => 'Some Fake Facility' },
+                     eligibility_info: { 'preferred_facility' => nil })
       generator = described_class.new([record])
       expect(generator.csv).not_to include('^Some Fake Facility^')
     end
 
     it 'uses submitted facility info if mapping not needed' do
-      record = FactoryBot.build(:covid_vax_expanded_registration,
-                                raw_options: { 'preferred_facility' => 'vha_688' },
-                                eligibility_info: nil)
+      record = build(:covid_vax_expanded_registration,
+                     raw_options: { 'preferred_facility' => 'vha_688' },
+                     eligibility_info: nil)
       generator = described_class.new([record])
       expect(generator.csv).to include('^688^')
     end

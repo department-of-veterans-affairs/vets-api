@@ -4,8 +4,8 @@ require 'rails_helper'
 require 'bgs/form686c'
 
 RSpec.describe BGS::Form686c do
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
-  let(:user_struct) { FactoryBot.build(:user_struct) }
+  let(:user_object) { create(:evss_user, :loa3) }
+  let(:user_struct) { build(:user_struct) }
   let(:saved_claim) { create(:dependency_claim_no_vet_information) }
 
   before do
@@ -19,7 +19,7 @@ RSpec.describe BGS::Form686c do
       let(:form686c) { BGS::Form686c.new(user_struct, saved_claim) }
 
       context 'form_686c_674_kitchen_sink' do
-        let(:payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+        let(:payload) { build(:form_686c_674_kitchen_sink) }
 
         # @TODO: may want to return something else
         it 'returns a hash with proc information' do
@@ -102,7 +102,7 @@ RSpec.describe BGS::Form686c do
       end
 
       context 'form_686c_add_child_report674' do
-        let(:payload) { FactoryBot.build(:form_686c_add_child_report674) }
+        let(:payload) { build(:form_686c_add_child_report674) }
 
         it 'submits a manual claim with the correct BGS note' do
           VCR.use_cassette('bgs/form686c/submit') do
@@ -128,7 +128,7 @@ RSpec.describe BGS::Form686c do
       let(:form686c) { BGS::Form686c.new(user_object, saved_claim) }
 
       context 'form_686c_674_kitchen_sink' do
-        let(:payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
+        let(:payload) { build(:form_686c_674_kitchen_sink) }
 
         # @TODO: may want to return something else
         it 'returns a hash with proc information' do
@@ -211,7 +211,7 @@ RSpec.describe BGS::Form686c do
       end
 
       context 'form_686c_add_child_report674' do
-        let(:payload) { FactoryBot.build(:form_686c_add_child_report674) }
+        let(:payload) { build(:form_686c_add_child_report674) }
 
         it 'submits a manual claim with the correct BGS note' do
           VCR.use_cassette('bgs/form686c/submit') do
