@@ -488,10 +488,6 @@ gids:
   url: https://dev.va.gov/gids
   open_timeout: 1
   read_timeout: 1
-  search:
-    use_mocks: false
-  lce:
-    use_mocks: false
 
 mvi_hca:
   url: http://example.com
@@ -813,8 +809,8 @@ sentry:
   dsn: ~
 
 iam_ssoe:
-  client_cert_path: ~
-  client_key_path: ~
+  client_cert_path: spec/fixtures/iam_ssoe/oauth.crt
+  client_key_path: spec/fixtures/iam_ssoe/oauth.key
   client_id: "Mobile_App_API_Server_LOWERS"
   # oauth (rest) and sts (soap) services are on different hosts
   oauth_url: "https://int.fed.eauth.va.gov:444"
@@ -916,12 +912,6 @@ va_mobile:
   key_path: /fake/client/key/path
   timeout: 25
 
-vetext:
-  url: "https://something.fake.va.gov"
-  mock: false
-  token: fake_token
-  timeout: 15
-
 hqva_mobile:
   url: "https://veteran.apps.va.gov"
   mock: false
@@ -990,7 +980,7 @@ lighthouse:
         rsa_key: ~
       use_mocks: false
   benefits_documents:
-    timeout: 55
+    timeout: 65
     host: https://sandbox-api.va.gov
     access_token:
       aud_claim_url: https://deptva-eval.okta.com/oauth2/ausi3ui83fLa68IJv2p7/v1/token
@@ -1104,149 +1094,6 @@ google_analytics:
   url: "https://internal-dsva-vagov-staging-fwdproxy-1821450725.us-gov-west-1.elb.amazonaws.com:4473"
   tracking_id: ~
 
-covid_vaccine:
-  allowed_facilities:
-    [
-      402,
-      405,
-      436,
-      437,
-      438,
-      442,
-      459,
-      460,
-      463,
-      501,
-      502,
-      503,
-      504,
-      506,
-      508,
-      509,
-      512,
-      515,
-      516,
-      517,
-      518,
-      519,
-      520,
-      521,
-      523,
-      526,
-      528,
-      529,
-      531,
-      534,
-      537,
-      538,
-      539,
-      540,
-      541,
-      542,
-      544,
-      546,
-      548,
-      549,
-      550,
-      552,
-      553,
-      554,
-      556,
-      557,
-      558,
-      561,
-      562,
-      564,
-      565,
-      568,
-      570,
-      573,
-      575,
-      578,
-      580,
-      581,
-      583,
-      585,
-      586,
-      589,
-      590,
-      593,
-      595,
-      596,
-      598,
-      600,
-      603,
-      605,
-      607,
-      608,
-      610,
-      612,
-      613,
-      614,
-      618,
-      619,
-      620,
-      621,
-      623,
-      626,
-      629,
-      630,
-      631,
-      632,
-      635,
-      636,
-      637,
-      640,
-      642,
-      644,
-      646,
-      648,
-      649,
-      650,
-      652,
-      653,
-      654,
-      655,
-      656,
-      657,
-      658,
-      659,
-      660,
-      662,
-      663,
-      664,
-      666,
-      667,
-      668,
-      671,
-      672,
-      673,
-      674,
-      675,
-      676,
-      678,
-      679,
-      687,
-      688,
-      689,
-      691,
-      692,
-      693,
-      695,
-      740,
-      756,
-      757,
-    ]
-  enrollment_service:
-    job_enabled: false
-    sftp:
-      host: fake_host
-      port: ~
-      username: fake_username
-      password: fake_password
-      kex_algorithms: fake_kex_algorithms
-      host_key_algorithms: fake_host_key_algorithms
-
 virtual_agent:
   webchat_secret: fake_secret
   webchat_secret_msft: fake_secret
@@ -1333,8 +1180,6 @@ vanotify:
         form1010ez_reminder_email: fake_template_id
         form1880_reminder_email: form1880_reminder_email_template_id
         in_progress_reminder_email_generic: fake_template_id
-        covid_vaccine_registration: fake_template_id
-        covid_vaccine_expanded_registration: fake_template_id
         direct_deposit: direct_deposit_template_id
         direct_deposit_edu: edu_template_id
         direct_deposit_comp_pen: comp_pen_template_id
@@ -1439,13 +1284,6 @@ vanotify:
     password_reset: https://www.va.gov/resources/signing-in-to-vagov/#what-if-i-cant-sign-in-to-vago
   status_callback:
     bearer_token: fake_bearer_token
-
-# Settings for connecting to genISIS, this is the storage system for the COVID Research initiative
-genisis:
-  base_url: https://vaausapprne60.aac.dva.va.gov
-  service_path: /COVID19Service
-  user: TestUser
-  pass: bogus
 
 # Settings for connecting AFS Veteran Services
 # For locahost we can use the existing certs as long as we don't call out
