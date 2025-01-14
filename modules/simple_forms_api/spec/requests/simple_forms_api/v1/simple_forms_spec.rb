@@ -414,7 +414,6 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         it 'makes the request and expects a failure' do
           expect(response).to have_http_status(:error)
-          # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected token at')
 
           exception = JSON.parse(response.body)['errors'][0]['meta']['exception']
