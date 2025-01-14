@@ -148,13 +148,13 @@ Lint/MissingSuper:
     - 'modules/veteran/app/models/veteran/user.rb'
     - 'lib/vye/dgib/service.rb'
 
-# Offense count: 5
-Lint/NoReturnInBeginEndBlocks:
-  Exclude:
-    - 'lib/saml/user_attributes/ssoe.rb'
-    - 'modules/check_in/app/services/travel_claim/service.rb'
-    - 'modules/check_in/app/services/v2/chip/service.rb'
-    - 'modules/mobile/app/models/mobile/v0/adapters/vaos_v2_appointment.rb'
+# # Offense count: 5
+# Lint/NoReturnInBeginEndBlocks:
+#   Exclude:
+#     - 'lib/saml/user_attributes/ssoe.rb'
+#     - 'modules/check_in/app/services/travel_claim/service.rb'
+#     - 'modules/check_in/app/services/v2/chip/service.rb'
+#     - 'modules/mobile/app/models/mobile/v0/adapters/vaos_v2_appointment.rb'
 
 # Offense count: 18
 # This cop supports unsafe autocorrection (--autocorrect-all).

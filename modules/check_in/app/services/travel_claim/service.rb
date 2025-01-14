@@ -42,17 +42,7 @@ module TravelClaim
     #
     # @return [String] token
     def token
-      @token ||= begin
-        token = redis_client.token
-
-        return token if token.present?
-
-        resp = client.token
-
-        Oj.safe_load(resp.body)&.fetch('access_token').tap do |access_token|
-          redis_client.save_token(token: access_token)
-        end
-      end
+      @token ||= fetch_token
     end
 
     # Submit claim for the given patient_icn and appointment time.
@@ -86,6 +76,16 @@ module TravelClaim
     end
 
     private
+
+    def fetch_token
+      token = redis_client.token
+      return token if token.present?
+
+      resp = client.token
+      access_token = Oj.safe_load(resp.body)&.fetch('access_token')
+      redis_client.save_token(token: access_token)
+      access_token
+    end
 
     def client
       client_number = facility_type.downcase == 'oh' ? settings.client_number_oh : settings.client_number
