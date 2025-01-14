@@ -126,19 +126,6 @@ Layout/LineContinuationSpacing:
     - 'spec/sidekiq/cypress_viewport_updater/viewport_preset_js_file_spec.rb'
     - 'spec/support/saml/response_builder.rb'
 
-# Offense count: 16
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: RequireParenthesesForMethodChains.
-Lint/AmbiguousRange:
-  Exclude:
-    - 'app/uploaders/decision_review_evidence_attachment_uploader.rb'
-    - 'app/uploaders/evss_claim_document_uploader_base.rb'
-    - 'app/uploaders/form1010cg/poa_uploader.rb'
-    - 'app/uploaders/hca_attachment_uploader.rb'
-    - 'app/uploaders/preneed_attachment_uploader.rb'
-    - 'modules/claims_api/app/uploaders/claims_api/base_uploader.rb'
-    - 'spec/uploaders/form1010cg/poa_uploader_spec.rb'
-
 # Offense count: 70
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: enums
