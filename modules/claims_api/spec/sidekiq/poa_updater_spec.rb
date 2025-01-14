@@ -43,6 +43,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
           recordConsent: true,
           consentLimits: []
         }
+        poa.status = 'pending'
         poa.save!
 
         subject.new.perform(poa.id)
