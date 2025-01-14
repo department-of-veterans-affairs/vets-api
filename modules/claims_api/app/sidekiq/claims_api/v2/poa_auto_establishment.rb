@@ -6,7 +6,10 @@ require 'bgs_service/vnp_ptcpnt_addrs_service'
 module ClaimsApi
   module V2
     class PoaAutoEstablishment < ClaimsApi::ServiceBase
-      def perform(proc_id, request_record_id=nil)
+      def perform(proc_id, request_meta, vet_pctpnt_id, claimant_pctpnt_id=nil)
+        @vet_pctpnt_id = vet_pctpnt_id
+        @claimant_pctpnt_id = claimant_pctpnt_id
+
         @form_attributes = gather_data(proc_id)
 
       end
@@ -15,22 +18,22 @@ module ClaimsApi
 
       def gather_data(proc_id, form_type='21-22')
         read_all_response = ClaimsApi::VeteranRepresentativeService
-                            .new(external_uid: '600049322', external_key: '600049322')
-                            .read_all_veteran_representatives(type_code: form_type, ptcpnt_id: '600049322')
+                            .new(external_uid: @vet_pctpnt_id, external_key: @vet_pctpnt_id)
+                            .read_all_veteran_representatives(type_code: form_type, ptcpnt_id: @vet_pctpnt_id)
 
         ra_data = read_all_service.data_object(proc_id, read_all_response)
 
         @form_type = set_form_type(ra_data)
 
         vet_find_addrs_response = ClaimsApi::VnpPtcpntAddrsService
-                  .new(external_uid: '600049322', external_key: '600049322')
+                  .new(external_uid: @vet_pctpnt_id, external_key: @vet_pctpnt_id)
                   .vnp_ptcpnt_addrs_find_by_primary_key(id: '148886')
 
         vnp_addr_data = vnp_addrs_service.data_object(vet_find_addrs_response)
 
-        if claimant_present?
+        if @claimant_pctpnt_id.present?
           claimant_find_addrs_response = ClaimsApi::VnpPtcpntAddrsService
-            .new(external_uid: '600049322', external_key: '600049322')
+            .new(external_uid: @claimant_pctpnt_id, external_key: @claimant_pctpnt_id)
             .vnp_ptcpnt_addrs_find_by_primary_key(id: '148886')
 
           claimant_addr_data = vnp_addrs_service.data_object(claimant_find_addrs_response)
@@ -56,6 +59,8 @@ byebug
       end
 
       def determine_form_type(type)
+        #raise if type nil?
+
         case type.downcase.gsub(' ', '')
         when 'attorney'
           return '2122a'
@@ -66,11 +71,6 @@ byebug
         else
           return '2122'
         end
-      end
-
-      # claimant_icn
-      def claimant_present?
-        return false
       end
 
       def read_all_service

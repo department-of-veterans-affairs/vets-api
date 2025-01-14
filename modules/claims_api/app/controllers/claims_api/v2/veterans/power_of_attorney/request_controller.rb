@@ -63,10 +63,25 @@ module ClaimsApi
         end
 
         def decide
+          lighthouse_id = params[:lh_id]
+
           proc_id = form_attributes['procId']
-          ptcpnt_id = form_attributes['participantId']
+          # ptcpnt_id = form_attributes['participantId']
           decision = normalize(form_attributes['decision'])
-          representative_id = form_attributes['representativeId']
+          # representative_id = form_attributes['representativeId']
+
+          request = ClaimsApi::PowerOfAttorneyRequest.find_by(id: lighthouse_id)
+          unless request
+            raise ::ClaimsApi::Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find Power of Attorney request with id: #{lighthouse_id}"
+            )
+          end
+
+          proc_id = request.proc_id
+          vet_icn = request.veteran_icn
+          claimant_icn = request.claimant_icn
+          vet_ptcpnt_id = fetch_ptcpnt_id(vet_icn)
+          claimant_pctpnt_id = fetch_ptcpnt_id(claimant_icn) if claimant_icn
 
           validate_decide_params!(proc_id:, decision:)
 
@@ -87,7 +102,7 @@ module ClaimsApi
           if decision == 'declined'
             send_declined_notification(ptcpnt_id:, first_name:, representative_id:)
           else
-            ClaimsApi::V2::PoaAutoEstablishment.perform_async(proc_id)
+            ClaimsApi::V2::PoaAutoEstablishment.new.perform(proc_id, request.metadata, vet_ptcpnt_id, claimant_pctpnt_id)
           end
 
           render json: res, status: :ok
