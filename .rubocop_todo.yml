@@ -172,10 +172,10 @@ Lint/MissingSuper:
 
 # Offense count: 4
 # This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/OrAssignmentToConstant:
-  Exclude:
-    - 'modules/appeals_api/app/controllers/concerns/appeals_api/header_modification.rb'
-    - 'modules/claims_api/app/controllers/concerns/claims_api/endpoint_deprecation.rb'
+# Lint/OrAssignmentToConstant:
+#   Exclude:
+#     - 'modules/appeals_api/app/controllers/concerns/appeals_api/header_modification.rb'
+#     - 'modules/claims_api/app/controllers/concerns/claims_api/endpoint_deprecation.rb'
 
 # Offense count: 16
 # This cop supports safe autocorrection (--autocorrect).
