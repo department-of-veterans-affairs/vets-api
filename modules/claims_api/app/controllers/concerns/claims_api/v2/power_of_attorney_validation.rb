@@ -11,6 +11,7 @@ module ClaimsApi
       def validate_form_2122_and_2122a_submission_values(user_profile:, veteran_participant_id: nil,
                                                          poa_code: nil, base: nil)
         validate_non_claimant_address_values
+        validate_phone('veteran')
         validate_claimant_fields(user_profile)
         if [veteran_participant_id, user_profile, poa_code, base].all?(&:present?)
           validate_dependent_claimant(veteran_participant_id:, user_profile:, poa_code:, base:)
@@ -78,6 +79,7 @@ module ClaimsApi
         validate_claimant_id_included(user_profile)
         validate_address
         validate_relationship
+        validate_phone('claimant')
       end
 
       def validate_address
@@ -143,6 +145,20 @@ module ClaimsApi
           collect_error_messages(
             source: "/#{base}/address/zipCode",
             detail: "If 'countryCode' is 'US' then 'zipCode' is required."
+          )
+        end
+      end
+
+      def validate_phone(base)
+        phone = form_attributes.dig(base, 'phone')
+        return if phone.blank?
+
+        country_code = phone['countryCode']
+        area_code = phone['areaCode']
+        if (country_code == '1' || country_code.blank?) && area_code.blank?
+          collect_error_messages(
+            source: "/#{base}/phone/areaCode",
+            detail: "If country code is blank or 1 'areaCode' must be filled in"
           )
         end
       end
