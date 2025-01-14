@@ -27,7 +27,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       allow(Settings.form526_backup).to receive(:enabled).and_return(false)
     end
 
-    let!(:submission) { create :form526_submission, :with_everything }
+    let!(:submission) { create(:form526_submission, :with_everything) }
 
     it 'creates a submission job' do
       expect { subject.perform_async(submission.id) }.to change(subject.jobs, :size).by(1)
@@ -112,7 +112,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
           allow(Settings.form526_backup).to receive_messages(submission_method: payload_method, enabled: true)
         end
 
-        let!(:submission) { create :form526_submission, :with_everything }
+        let!(:submission) { create(:form526_submission, :with_everything) }
         let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
         context "when json_schemer flipper is #{flipper}" do
@@ -229,7 +229,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
       allow(Settings.form526_backup).to receive_messages(submission_method: 'single', enabled: true)
     end
 
-    let!(:submission) { create :form526_submission, :with_non_pdf_uploads }
+    let!(:submission) { create(:form526_submission, :with_non_pdf_uploads) }
     let!(:upload_data) { submission.form[Form526Submission::FORM_526_UPLOADS] }
 
     context 'converts non-pdf files to pdf' do

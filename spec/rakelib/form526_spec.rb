@@ -119,8 +119,8 @@ describe 'form526 rake tasks', type: :request do
   end
 
   describe 'rake form526:mpi' do
-    let(:submission) { create :form526_submission }
-    let(:profile) { build :mpi_profile }
+    let(:submission) { create(:form526_submission) }
+    let(:profile) { build(:mpi_profile) }
     let(:profile_response) { create(:find_profile_response, profile:) }
     let(:run_rake_task) do
       Rake::Task['form526:mpi'].reenable
@@ -135,7 +135,7 @@ describe 'form526 rake tasks', type: :request do
   end
 
   describe 'rake form526:pif_errors' do
-    let!(:submission) { create :form526_submission, :with_pif_in_use_error }
+    let!(:submission) { create(:form526_submission, :with_pif_in_use_error) }
     let :run_rake_task do
       Rake::Task['form526:pif_errors'].reenable
       Rake.application.invoke_task 'form526:pif_errors'
