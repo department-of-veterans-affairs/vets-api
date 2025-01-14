@@ -177,12 +177,6 @@ Lint/DuplicateBranch:
   Exclude:
     - 'app/sidekiq/education_form/process10203_submissions.rb'
 
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-Lint/DuplicateRegexpCharacterClassElement:
-  Exclude:
-    - 'modules/check_in/lib/check_in/utils/logger.rb'
-
 # Offense count: 87
 # Configuration parameters: AllowedParentClasses.
 Lint/MissingSuper:
