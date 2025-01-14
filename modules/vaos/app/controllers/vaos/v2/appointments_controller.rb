@@ -63,6 +63,12 @@ module VAOS
       end
 
       def create_draft
+        ## scenarios to consider:
+        # 1. user reloads the page before the appointment is created ->> create a new draft appointment
+        # 2. user reloads the page after the appointment is created ->> return with 'already created' response
+
+        # TODO: validate referral_id from the cache from prior referrals response
+        # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
 
         provider_response = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
@@ -89,13 +95,13 @@ module VAOS
           }
         )
 
-        response_data = {
+        response_data = OpenStruct.new(
           id: draft_appointment.id,
           appointment: draft_appointment,
           provider: provider_response,
           slots: slots,
           drive_time: drive_time
-        }
+        )
 
         # (@randomsync) TODO: create and use a new serializer
         serializer = VAOS::V2::VAOSSerializer.new
