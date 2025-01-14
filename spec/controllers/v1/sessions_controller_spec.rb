@@ -93,17 +93,13 @@ RSpec.describe V1::SessionsController, type: :controller do
             let(:params) { { type:, clientId: '123123' } }
             let(:authn) do
               case type
-              when 'mhv'
-                ['myhealthevet', AuthnContext::MHV]
-              when 'mhv_verified'
+              when 'mhv', 'mhv_verified'
                 ['myhealthevet', AuthnContext::MHV]
               when 'idme'
                 [LOA::IDME_LOA1_VETS, AuthnContext::ID_ME]
               when 'idme_verified'
                 [LOA::IDME_LOA3, AuthnContext::ID_ME]
-              when 'dslogon'
-                ['dslogon', AuthnContext::DSLOGON]
-              when 'dslogon_verified'
+              when 'dslogon', 'dslogon_verified'
                 ['dslogon', AuthnContext::DSLOGON]
               when 'logingov'
                 [IAL::LOGIN_GOV_IAL1,

@@ -171,14 +171,11 @@ Lint/ConstantDefinitionInBlock:
     - 'spec/uploaders/uploader_virus_scan_spec.rb'
     - 'spec/uploaders/validate_pdf_spec.rb'
 
-# Offense count: 5
+# Offense count: 1
 # Configuration parameters: IgnoreLiteralBranches, IgnoreConstantBranches.
 Lint/DuplicateBranch:
   Exclude:
-    - 'app/controllers/v1/sessions_controller.rb'
-    - 'app/services/users/exception_handler.rb'
     - 'app/sidekiq/education_form/process10203_submissions.rb'
-    - 'spec/controllers/v1/sessions_controller_spec.rb'
 
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
