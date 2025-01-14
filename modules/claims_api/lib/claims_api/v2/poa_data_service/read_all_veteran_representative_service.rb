@@ -10,7 +10,7 @@ module ClaimsApi
       end
 
       def find_record(proc_id, records)
-        records.find { |el| el['procId'] == proc_id}
+        records.find { |record| record['procId'] == proc_id}
       end
 
       def build_data_object(data)
