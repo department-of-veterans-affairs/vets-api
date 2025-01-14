@@ -1,15 +1,12 @@
-# to start up services type # to bring up services type docker compose up -d.
-# to view mongodb logs you can type "docker logs mongodb-audit-db"
-
 services:
   mongodb:
-    image: mongo:5.0 #this version should align with available aws document-db versions
+    image: mongo:5.0
     container_name: mongodb-audit-db
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: changemebro
     ports:
-      - "27017:27017" #default port
+      - "27017:27017"
     volumes:
       - mongo_auditdb_data:/data/db
   rails:
