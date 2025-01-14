@@ -1,0 +1,28 @@
+# to start up services type # to bring up services type docker compose up -d.
+# to view mongodb logs you can type "docker logs mongodb-audit-db"
+
+services:
+  mongodb:
+    image: mongo:5.0 #this version should align with available aws document-db versions
+    container_name: mongodb-audit-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: changemebro
+    ports:
+      - "27017:27017" #default port
+    volumes:
+      - mongo_auditdb_data:/data/db
+  rails:
+    build: .
+    container_name: vets-api
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b '0.0.0.0'"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongodb
+    environment:
+      MONGO_URI: mongodb://mongodb-audit-db:27017/mongodb-audit-db
+
+volumes:
+ mongo_auditdb_data:
+  driver: local

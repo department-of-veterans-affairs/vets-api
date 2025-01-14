@@ -56,18 +56,6 @@ services:
   worker:
     <<: *common
     command: bundle exec sidekiq -q critical,4 -q tasker,3 -q default,2 -q low,1
-  mongodb:
-    image: mongo:5.0 #this version should align with available aws document-db versions
-    container_name: mongodb-audit-db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: changemebro
-    ports:
-      - "27017:27017" #default port
-    volumes:
-      - mongo_auditdb_data:/data/db
 
 volumes:
- mongo_auditdb_data:
-  driver: local
  shared-vol:

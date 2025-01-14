@@ -167,7 +167,6 @@ gem 'warden-github'
 gem 'will_paginate'
 gem 'with_advisory_lock'
 gem 'mongo'
-gem 'mongoid'
 
 group :development, :production do
   # This needs to be required as early as possible in the initialization

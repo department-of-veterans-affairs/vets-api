@@ -677,10 +677,6 @@ GEM
       redis (~> 5)
     mongo (2.21.0)
       bson (>= 4.14.1, < 6.0.0)
-    mongoid (9.0.4)
-      activemodel (>= 5.1, < 8.1, != 7.0.0)
-      concurrent-ruby (>= 1.0.5, < 2.0)
-      mongo (>= 2.18.0, < 3.0.0)
     msgpack (1.7.5)
     msgpack (1.7.5-java)
     multi_json (1.15.0)
@@ -1255,7 +1251,6 @@ DEPENDENCIES
   mock_redis
   mocked_authentication!
   mongo
-  mongoid
   my_health!
   net-sftp
   nkf
