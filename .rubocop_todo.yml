@@ -179,12 +179,12 @@ Lint/MissingSuper:
 
 # Offense count: 16
 # This cop supports safe autocorrection (--autocorrect).
-Lint/RedundantCopDisableDirective:
-  Exclude:
-    - 'modules/mobile/lib/scripts/appointments_list_validation.rb'
-    - 'rakelib/form526.rake'
-    - 'rakelib/mvi.rake'
-    - 'rakelib/vet360.rake'
+# Lint/RedundantCopDisableDirective:
+#   Exclude:
+#     - 'modules/mobile/lib/scripts/appointments_list_validation.rb'
+#     - 'rakelib/form526.rake'
+#     - 'rakelib/mvi.rake'
+#     - 'rakelib/vet360.rake'
 
 # Offense count: 2
 # This cop supports unsafe autocorrection (--autocorrect-all).
