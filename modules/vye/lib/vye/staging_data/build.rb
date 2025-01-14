@@ -80,7 +80,7 @@ module Vye
       end
 
       def fake_user_profile(summary:)
-        FactoryBot.attributes_for(:vye_user_profile).except(:ssn, :icn, :file_number).tap do |record|
+        attributes_for(:vye_user_profile).except(:ssn, :icn, :file_number).tap do |record|
           record[:ssn] = summary[:ssn]
           record[:file_number] = summary[:ssn]
           record[:icn] = summary[:icn]
@@ -88,7 +88,7 @@ module Vye
       end
 
       def fake_user_info(summary:)
-        FactoryBot.attributes_for(:vye_user_info).except(:full_name).tap do |record|
+        attributes_for(:vye_user_info).except(:full_name).tap do |record|
           name = summary[:full_name]
           parts = name.split(/\s+/)
           initials = parts.pluck(0).join
@@ -101,20 +101,20 @@ module Vye
       end
 
       def fake_address_change(summary:)
-        FactoryBot.attributes_for(:vye_address_backend).tap do |record|
+        attributes_for(:vye_address_backend).tap do |record|
           record[:veteran_name] = summary[:full_name]
         end
       end
 
       def fake_awards
         (1..rand(1..4)).map do
-          FactoryBot.attributes_for(:vye_award)
+          attributes_for(:vye_award)
         end
       end
 
       def fake_pending_documents
         (0..rand(0..1)).map do
-          FactoryBot.attributes_for(:vye_pending_document)
+          attributes_for(:vye_pending_document)
         end
       end
 

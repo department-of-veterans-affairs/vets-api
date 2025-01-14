@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe Vye::BdnClone, type: :model do
   describe 'create' do
-    let(:attributes) { FactoryBot.attributes_for(:vye_bdn_clone_base) }
+    let(:attributes) { attributes_for(:vye_bdn_clone_base) }
 
     it 'creates a record' do
       expect do

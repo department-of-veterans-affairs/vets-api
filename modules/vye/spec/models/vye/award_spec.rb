@@ -9,7 +9,7 @@ RSpec.describe Vye::Award, type: :model do
 
     it 'creates a record' do
       expect do
-        attributes = FactoryBot.attributes_for(:vye_award)
+        attributes = attributes_for(:vye_award)
         user_info.awards.create!(attributes)
       end.to change(Vye::Award, :count).by(1)
     end
