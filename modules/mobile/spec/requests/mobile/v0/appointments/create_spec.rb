@@ -31,13 +31,13 @@ RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
 
   describe 'CREATE appointment', :aggregate_failures do
     let(:community_cares_request_body) do
-      FactoryBot.build(:appointment_form_v2, :community_cares).attributes
+      build(:appointment_form_v2, :community_cares).attributes
     end
     let(:va_booked_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_booked).attributes
+      build(:appointment_form_v2, :va_booked).attributes
     end
     let(:va_proposed_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_proposed_clinic).attributes
+      build(:appointment_form_v2, :va_proposed_clinic).attributes
     end
 
     describe 'authorization' do

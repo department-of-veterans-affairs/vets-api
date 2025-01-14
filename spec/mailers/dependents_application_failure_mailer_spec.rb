@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe DependentsApplicationFailureMailer, type: [:mailer] do
   include ActionView::Helpers::TranslationHelper
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
   let(:recipients) do
     [user.email]
   end

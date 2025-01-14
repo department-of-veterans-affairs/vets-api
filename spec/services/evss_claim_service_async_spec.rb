@@ -5,9 +5,9 @@ require 'rails_helper'
 RSpec.describe EVSSClaimServiceAsync do
   subject { described_class.new(user) }
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:tracker) { EVSSClaimsSyncStatusTracker.find_or_build(user.uuid) }
-  let(:claim) { FactoryBot.create(:evss_claim, user_uuid: user.uuid) }
+  let(:claim) { create(:evss_claim, user_uuid: user.uuid) }
 
   describe '#all' do
     context 'there is not an existing tracker staus' do

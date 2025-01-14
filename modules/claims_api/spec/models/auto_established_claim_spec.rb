@@ -550,6 +550,57 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
       end
     end
 
+    context 'when the unitPhone number has more than 10 digits' do
+      let(:temp_form_data) do
+        pending_record.form_data.tap do |data|
+          data['serviceInformation']['reservesNationalGuardService']['unitPhone'] = {
+            'areaCode' => '555',
+            'phoneNumber' => '1231234x5555'
+          }
+        end
+      end
+      let(:payload) { JSON.parse(pending_record.to_internal) }
+      let(:reserves) { payload['form526']['serviceInformation']['reservesNationalGuardService'] }
+
+      before do
+        pending_record.form_data = temp_form_data
+      end
+
+      it 'adds the original phone number to overflowText and removes unitPhone' do
+        expect(payload['form526']['overflowText']).to eq("21E. unitPhone - 5551231234x5555\n")
+        expect(reserves['unitPhone']).to be_nil
+      end
+    end
+
+    context 'when both unitPhone and primaryPhone have more than 10 digits' do
+      let(:temp_form_data) do
+        pending_record.form_data.tap do |data|
+          data['serviceInformation']['reservesNationalGuardService']['unitPhone'] = {
+            'areaCode' => '555',
+            'phoneNumber' => '1231234x5555'
+          }
+          data['veteran']['homelessness']['pointOfContact']['primaryPhone'] = {
+            'areaCode' => '555',
+            'phoneNumber' => '1231234x5555'
+          }
+        end
+      end
+      let(:payload) { JSON.parse(pending_record.to_internal) }
+      let(:reserves) { payload['form526']['serviceInformation']['reservesNationalGuardService'] }
+      let(:point_of_contact) { payload['form526']['veteran']['homelessness']['pointOfContact'] }
+
+      before do
+        pending_record.form_data = temp_form_data
+      end
+
+      it 'adds the original phone numbers to overflowText and removes unitPhone and primaryPhone' do
+        expect(payload['form526']['overflowText'])
+          .to eq("21E. unitPhone - 5551231234x5555\n14F. pointOfContact.primaryPhone - 5551231234x5555\n")
+        expect(reserves['unitPhone']).to be_nil
+        expect(point_of_contact['primaryPhone']).to be_nil
+      end
+    end
+
     context 'removes empty disabilities having only empty string name and disabilityActionType' do
       let(:temp_form_data) do
         pending_record.form_data.tap do |data|
