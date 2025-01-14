@@ -1,29 +1,19 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs_service/local_bgs'
 require 'bgs_service/claimant_web_service'
 require 'claims_api/error/soap_error_handler'
 
-describe ClaimsApi::LocalBGS do
+describe ClaimsApi::ClaimantWebService do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
   let(:soap_error_handler) { ClaimsApi::SoapErrorHandler.new }
-  let(:claimant_web_service) { ClaimsApi::ClaimantWebService.new(external_uid: 'a', external_key: 'b') }
-
-  before do
-    Flipper.disable(:lighthouse_claims_api_hardcode_wsdl)
-  end
 
   describe '#find_poa_by_participant_id' do
     context 'hardcoded WSDL' do
-      before do
-        Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
-      end
-
       it 'response with the correct namespace' do
         VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
-          result = claimant_web_service.find_poa_by_participant_id('600061742')
+          result = subject.find_poa_by_participant_id('600061742')
           expect(result).to be_a Hash
           expect(result[:begin_date]).to eq '09/03/2024'
         end
@@ -35,7 +25,7 @@ describe ClaimsApi::LocalBGS do
         )
 
         VCR.use_cassette('claims_api/bgs/claimant_web_service/find_poa_by_participant_id') do
-          result = claimant_web_service.find_poa_by_participant_id('600061742')
+          result = subject.find_poa_by_participant_id('600061742')
           expect(result).to be_a Hash
           expect(result[:begin_date]).to eq '09/03/2024'
         end
@@ -57,7 +47,7 @@ describe ClaimsApi::LocalBGS do
 
           VCR.use_cassette('claims_api/bgs/bad_namespace') do
             expect do
-              claimant_web_service.find_poa_by_participant_id('does-not-matter')
+              subject.find_poa_by_participant_id('does-not-matter')
             end.to raise_error Common::Exceptions::ServiceError
           end
         end
@@ -73,7 +63,7 @@ describe ClaimsApi::LocalBGS do
         # 2: connection_post - how long does the post itself take for the request cycle
         # 3: parsed_response - how long to parse the response
         expect(ClaimsApi::Logger).to receive(:log).exactly(3).times
-        result = claimant_web_service.find_poa_by_participant_id('does-not-matter')
+        result = subject.find_poa_by_participant_id('does-not-matter')
         expect(result).to be_a Hash
         expect(result[:begin_date]).to eq '09/03/2024'
       end
@@ -84,15 +74,13 @@ describe ClaimsApi::LocalBGS do
         stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService").to_timeout
         stub_request(:any, "#{Settings.bgs.url}/ClaimantServiceBean/ClaimantWebService?WSDL").to_timeout
         expect do
-          claimant_web_service.find_poa_by_participant_id('also-does-not-matter')
+          subject.find_poa_by_participant_id('also-does-not-matter')
         end.to raise_error(Common::Exceptions::BadGateway)
       end
 
       it 'hits breakers' do
         ClaimsApi::LocalBGS.breakers_service.begin_forced_outage!
-        expect do
-          claimant_web_service.find_poa_by_participant_id('also-does-not-matter')
-        end.to raise_error(Breakers::OutageException)
+        expect { subject.find_poa_by_participant_id('also-does-not-matter') }.to raise_error(Breakers::OutageException)
         ClaimsApi::LocalBGS.breakers_service.end_forced_outage!
       end
     end
@@ -102,33 +90,8 @@ describe ClaimsApi::LocalBGS do
                        allow_playback_repeats: true) do
         allow_any_instance_of(BGS::OrgWebService).to receive(:find_poa_history_by_ptcpnt_id).and_return({})
         %w[establish_ssl_connection connection_post parsed_response].each do |event|
-          expect { claimant_web_service.find_poa_by_participant_id('600061742') }
+          expect { subject.find_poa_by_participant_id('600061742') }
             .to trigger_statsd_measure("api.claims_api.local_bgs.#{event}.duration")
-        end
-      end
-    end
-  end
-
-  # Testing potential ways the current check could be tricked
-  describe '#all' do
-    let(:subject_instance) { subject }
-
-    context 'when an error message gets returns unknown' do
-      it 'the soap error handler returns unprocessable' do
-        allow(subject_instance).to receive(:make_request).with(endpoint: 'PersonWebServiceBean/PersonWebService',
-                                                               action: 'findPersonBySSN',
-                                                               body: Nokogiri::XML::DocumentFragment.new(
-                                                                 Nokogiri::XML::Document.new
-                                                               ),
-                                                               key: 'PersonDTO').and_return(:bgs_unknown_error_message)
-        begin
-          allow(soap_error_handler).to receive(:handle_errors)
-            .with(:bgs_unknown_error_message).and_raise(Common::Exceptions::UnprocessableEntity)
-          ret = soap_error_handler.send(:handle_errors, :bgs_unknown_error_message)
-          expect(ret.class).to_be Array
-          expect(ret.size).to eq 1
-        rescue => e
-          expect(e.message).to include 'Unprocessable Entity'
         end
       end
     end
