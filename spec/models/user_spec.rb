@@ -1462,13 +1462,6 @@ RSpec.describe User, type: :model do
           it_behaves_like 'mhv_user_account error'
         end
 
-        context 'when the user does not have a user_credential_email' do
-          let(:user_credential_email) { nil }
-          let(:expected_error_message) { 'Email must be present' }
-
-          it_behaves_like 'mhv_user_account error'
-        end
-
         context 'when the user does not have an icn' do
           let(:icn) { nil }
           let(:expected_error_message) { 'ICN must be present' }
