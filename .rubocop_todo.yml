@@ -239,7 +239,6 @@ Lint/RedundantCopDisableDirective:
 Lint/RedundantSafeNavigation:
   Exclude:
     - 'app/sidekiq/education_form/process10203_submissions.rb'
-    - 'modules/covid_vaccine/app/services/covid_vaccine/v0/facility_resolver.rb'
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
@@ -277,9 +276,6 @@ Lint/SymbolConversion:
     - 'modules/check_in/spec/exceptions/check_in/v2/checkin_service_exception_spec.rb'
     - 'modules/claims_api/app/models/claims_api/auto_established_claim.rb'
     - 'modules/claims_api/lib/claims_api/evidence_waiver_pdf/pdf.rb'
-    - 'modules/covid_vaccine/app/services/covid_vaccine/v0/expanded_registration_service.rb'
-    - 'modules/covid_vaccine/spec/services/covid_vaccine/v0/expanded_registration_service_spec.rb'
-    - 'modules/covid_vaccine/spec/sidekiq/covid_vaccine/expanded_submission_state_job_spec.rb'
     - 'modules/dhp_connected_devices/app/services/token_storage_service.rb'
     - 'modules/dhp_connected_devices/spec/lib/fitbit_client_spec.rb'
     - 'modules/meb_api/app/controllers/meb_api/v0/education_benefits_controller.rb'
@@ -457,7 +453,6 @@ RSpec/BeNil:
 # Configuration parameters: NegatedMatcher.
 RSpec/ChangeByZero:
   Exclude:
-    - 'modules/covid_vaccine/spec/sidekiq/covid_vaccine/scheduled_batch_job_spec.rb'
     - 'spec/lib/flipper/instrumentation/event_subscriber_spec.rb'
     - 'spec/lib/sidekiq/form526_backup_submission_process/submit_spec.rb'
     - 'spec/models/form526_submission_spec.rb'
@@ -533,7 +528,6 @@ RSpec/PendingWithoutReason:
     - 'modules/appeals_api/spec/sidekiq/appeals_api/add_icn_updater_spec.rb'
     - 'modules/claims_api/spec/lib/claims_api/evidence_waiver_pdf_constructor/pdf_spec.rb'
     - 'modules/claims_api/spec/lib/claims_api/v1/poa_pdf_constructor/individual_spec.rb'
-    - 'modules/covid_vaccine/spec/sidekiq/covid_vaccine/scheduled_batch_job_spec.rb'
     - 'modules/vaos/spec/services/v1/fhir_service_spec.rb'
     - 'modules/vba_documents/spec/sidekiq/report_unsuccessful_submissions_spec.rb'
     - 'spec/lib/bb/generate_report_request_form_spec.rb'
@@ -767,8 +761,6 @@ Rails/I18nLocaleTexts:
     - 'lib/va_profile/models/communication_permission.rb'
     - 'lib/va_profile/models/preferred_name.rb'
     - 'modules/claims_api/app/mailers/claims_api/unsuccessful_report_mailer.rb'
-    - 'modules/covid_vaccine/app/models/covid_vaccine/v0/raw_expanded_form_data.rb'
-    - 'modules/covid_vaccine/app/models/covid_vaccine/v0/raw_form_data.rb'
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).

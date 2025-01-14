@@ -99,8 +99,6 @@ PATH
     check_in (0.1.0)
     claims_api (0.0.1)
       dry-schema
-    covid_vaccine (0.1.0)
-      sidekiq
     debts_api (0.1.0)
     decision_reviews (0.1.0)
       rails (>= 7.1.4.1)
@@ -1178,7 +1176,6 @@ DEPENDENCIES
   config
   connect_vbms!
   coverband
-  covid_vaccine!
   csv
   danger
   database_cleaner

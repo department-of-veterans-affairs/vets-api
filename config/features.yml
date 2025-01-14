@@ -354,13 +354,6 @@ features:
   communication_preferences:
     actor_type: user
     description: Allow user to access backend communication_preferences API
-  covid_vaccine_registration:
-    actor_type: user
-    description: Toggles availability of covid vaccine form API.
-  covid_vaccine_registration_expanded:
-    actor_type: user
-    description: Toggles availability of covid vaccine expanded registration form API.
-    enable_in_development: true
   covid_vaccine_registration_frontend:
     actor_type: user
     description: Toggles the availability of the frontend form on va.gov for the covid-19 vaccine sign-up
