@@ -18,7 +18,7 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
     end
 
     let(:user) do
-      user_mock = FactoryBot.create(:evss_user, :loa3)
+      user_mock = create(:evss_user, :loa3)
       {
         'ssn' => user_mock.ssn
       }
