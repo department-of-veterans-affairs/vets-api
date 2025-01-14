@@ -42,7 +42,7 @@ module SimpleFormsApi
     end
 
     def employment_history
-      [*0..3].map { |i| SimpleFormsApi::FormEngine::EmploymentHistory.new(employers[i]) }
+      [*0..3].map { |i| FormEngine::EmploymentHistory.new(employers[i]) }
     end
 
     def first_name
