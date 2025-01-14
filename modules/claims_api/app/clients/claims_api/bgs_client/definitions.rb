@@ -60,7 +60,7 @@ module ClaimsApi
             )
           )
       end
-      
+
       module ClaimantWebService
         DEFINITION =
           Service.new(
