@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe 'Veteran::V0::Representatives::FindRep', type: :request do
-  let!(:representative) { FactoryBot.create(:representative, first_name: 'Bob', last_name: 'Smith', poa_codes: ['1B']) }
+  let!(:representative) { create(:representative, first_name: 'Bob', last_name: 'Smith', poa_codes: ['1B']) }
 
   it 'finds a VSO rep' do
     get '/services/veteran/v0/representatives/find_rep', params: { first_name: 'Bob', last_name: 'Smith' }

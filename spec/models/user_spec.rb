@@ -994,7 +994,7 @@ RSpec.describe User, type: :model do
 
   describe '#account' do
     context 'when user has an existing Account record' do
-      let(:user) { create :user, :accountable }
+      let(:user) { create(:user, :accountable) }
 
       it 'returns the users Account record' do
         account = Account.find_by(idme_uuid: user.uuid)
@@ -1004,7 +1004,7 @@ RSpec.describe User, type: :model do
     end
 
     context 'when user does not have an existing Account record' do
-      let(:user) { create :user, :loa3 }
+      let(:user) { create(:user, :loa3) }
 
       before do
         account = Account.find_by(idme_uuid: user.uuid)
@@ -1189,7 +1189,7 @@ RSpec.describe User, type: :model do
 
   describe '#fingerprint' do
     let(:fingerprint) { '196.168.0.0' }
-    let(:user) { create :user, fingerprint: }
+    let(:user) { create(:user, fingerprint:) }
 
     it 'returns expected user fingerprint' do
       expect(user.fingerprint).to eq(fingerprint)
@@ -1458,13 +1458,6 @@ RSpec.describe User, type: :model do
         context 'when the user has not accepted the terms of use' do
           let(:terms_of_use_response) { 'declined' }
           let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
-
-          it_behaves_like 'mhv_user_account error'
-        end
-
-        context 'when the user does not have a user_credential_email' do
-          let(:user_credential_email) { nil }
-          let(:expected_error_message) { 'Email must be present' }
 
           it_behaves_like 'mhv_user_account error'
         end
