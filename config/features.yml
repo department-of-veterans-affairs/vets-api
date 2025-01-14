@@ -521,9 +521,6 @@ features:
     actor_type: user
     description: enables adding applicable flashes to disability_526 prior to submission.
     enable_in_development: true
-  disability_526_new_confirmation_page:
-    actor_type: user
-    description: enables new confirmation page for form 526 submission confirmation page
   disability_526_call_received_email_from_polling:
     actor_type: user
     description: enables received email in poll_form526_pdf job and disables calling from form526_submission
