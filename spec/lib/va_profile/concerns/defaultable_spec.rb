@@ -5,7 +5,7 @@ require 'va_profile/concerns/defaultable'
 
 describe VAProfile::Concerns::Defaultable do
   describe 'set_defaults' do
-    let(:user) { create :user, :loa3 }
+    let(:user) { create(:user, :loa3) }
     let(:email) { VAProfile::Models::Email.new }
     let(:default_attrs) { %i[effective_start_date source_date vet360_id].freeze }
 

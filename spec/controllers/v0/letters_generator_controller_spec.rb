@@ -8,7 +8,7 @@ RSpec.describe V0::LettersGeneratorController, type: :controller do
   # https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/letter_generator_test_accounts.md
   let(:user) { build(:user, :loa3, icn: '1012666073V986297') }
   let(:user_error) { build(:user, :loa3, icn: '1012667145V762142') }
-  let(:dependent_user) { FactoryBot.build(:dependent_user_with_relationship, :loa3) }
+  let(:dependent_user) { build(:dependent_user_with_relationship, :loa3) }
 
   before do
     token = 'abcdefghijklmnop'
