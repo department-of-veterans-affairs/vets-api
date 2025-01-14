@@ -262,4 +262,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Send Benefits Documents failure notification emails to Veteran for failed evidence submissions
   mgr.register('5 0 * * *', 'Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob')
+
+  # CST Daily job that deletes EvidenceSubmissions when their delete_date has been met
+  mgr.register('0 0 * * *', 'Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJob')
 }

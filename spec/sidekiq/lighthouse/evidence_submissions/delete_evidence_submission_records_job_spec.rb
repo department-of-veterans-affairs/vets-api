@@ -1,0 +1,57 @@
+# frozen_string_literal: true
+
+require 'rails_helper'
+
+RSpec.describe Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJob, type: :job do
+  subject { described_class }
+
+  describe 'perform' do
+    let!(:es_delete_one) { create(:bd_evidence_submission_for_deletion) }
+    let!(:es_delete_two) { create(:bd_evidence_submission_for_deletion) }
+    let!(:es_no_delete) { create(:bd_evidence_submission) }
+
+    before do
+      allow(StatsD).to receive(:increment)
+    end
+
+    context 'when EvidenceSubmission records have a delete_date set' do
+      it 'deletes only the records with a past or current delete_time' do
+        subject.new.perform
+        expect(EvidenceSubmission.where(id: es_no_delete.id).count).to eq(1)
+        expect(EvidenceSubmission.where(id: es_delete_one.id).count).to eq(0)
+        expect(EvidenceSubmission.where(id: es_delete_two.id).count).to eq(0)
+
+        expect(StatsD).to have_received(:increment)
+          .with('worker.cst.delete_evidence_submission_records.count', 2).exactly(1).time
+      end
+    end
+
+    context 'when EvidenceSubmission records do not have a delete_date set' do
+      it 'does not delete the records' do
+        subject.new.perform
+        expect(EvidenceSubmission.where(id: es_no_delete.id).count).to eq(1)
+        expect(EvidenceSubmission.where(id: es_delete_one.id).count).to eq(0)
+        expect(EvidenceSubmission.where(id: es_delete_two.id).count).to eq(0)
+      end
+    end
+
+    context 'when an exception is thrown' do
+      let(:error_message) { 'Error message' }
+
+      before do
+        allow(EvidenceSubmission).to receive(:where).and_raise(ActiveRecord::ActiveRecordError.new(error_message))
+      end
+
+      it 'rescues and logs the exception' do
+        expect(Rails.logger)
+          .to receive(:error)
+          .with('Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJob error: ', error_message)
+
+        expect { subject.new.perform }.not_to raise_error
+
+        expect(StatsD).to have_received(:increment)
+          .with('worker.cst.delete_evidence_submission_records.error').exactly(1).time
+      end
+    end
+  end
+end
