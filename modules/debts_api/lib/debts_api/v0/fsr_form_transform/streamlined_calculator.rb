@@ -17,7 +17,7 @@ module DebtsApi
           @income_data = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(form).get_monthly_income
           @asset_data = DebtsApi::V0::FsrFormTransform::AssetCalculator.new(form).transform_assets
           @enhanced_expense_calculator =
-            DebtsApi::V0::FsrFormTransform::EnhancedExpenseCalculator.new(form).transform_expenses
+            DebtsApi::V0::FsrFormTransform::EnhancedExpenseCalculator.new(deep_transform_keys_to_camel_case(form)).transform_expenses
         end
 
         def get_streamlined_data
@@ -74,10 +74,7 @@ module DebtsApi
         def streamlined_long_form?
           return false unless eligible_for_streamlined? && are_liquid_assets_below_gmt_threshold?
 
-          meets_streamlined_long_form_common_conditions =
-            !income_below_gmt_threshold? && income_below_upper_threshold? && income_below_discretionary_threshold?
-
-          meets_streamlined_long_form_common_conditions || streamlined_waiver_asset_update?
+          !income_below_gmt_threshold? && income_below_upper_threshold? && income_below_discretionary_threshold?
         end
 
         def eligible_for_streamlined?
@@ -128,6 +125,18 @@ module DebtsApi
 
         def streamlined?
           streamlined_short_form? || streamlined_long_form?
+        end
+
+        def deep_transform_keys_to_camel_case(value)
+          case value
+          when Hash
+            value.deep_transform_keys { |key| key.to_s.underscore.camelize(:lower) }
+                 .transform_values { |v| deep_transform_keys_to_camel_case(v) }
+          when Array
+            value.map { |v| deep_transform_keys_to_camel_case(v) }
+          else
+            value
+          end
         end
       end
     end

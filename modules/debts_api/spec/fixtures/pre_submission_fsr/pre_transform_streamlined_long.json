@@ -233,5 +233,19 @@
     "income_below_gmt": false,
     "income_below_one_fifty_gmt": true,
     "liquid_assets_below_gmt": true
-  }
+  },
+  "utility_records": [
+    {
+      "name": "Electricity",
+      "amount": "402.35"
+    },
+    {
+      "name": "Gas",
+      "amount": "300.00"
+    },
+    {
+      "name": "Cable",
+      "amount": "390.47"
+    }
+  ]
 }
