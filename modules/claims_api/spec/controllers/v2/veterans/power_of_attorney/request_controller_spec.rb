@@ -138,6 +138,36 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     end
   end
 
+  describe '#show' do
+    let(:scopes) { %w[claim.read] }
+
+    it 'returns a not found status if the PowerOfAttorneyRequest is not found' do
+      mock_ccg(scopes) do |auth_header|
+        show_request_with(id: 'some-missing-id', auth_header:)
+
+        expect(response).to have_http_status(:not_found)
+      end
+    end
+
+    context 'when the PowerOfAttorneyRequest is found' do
+      let(:poa_request) { create(:claims_api_power_of_attorney_request) }
+      let(:service) { instance_double(ClaimsApi::PowerOfAttorneyRequestService::Show) }
+
+      before do
+        allow(ClaimsApi::PowerOfAttorneyRequestService::Show).to receive(:new).and_return(service)
+        allow(service).to receive(:get_poa_request).and_return({})
+      end
+
+      it 'returns a successful response' do
+        mock_ccg(scopes) do |auth_header|
+          show_request_with(id: poa_request.id, auth_header:)
+
+          expect(response).to have_http_status(:ok)
+        end
+      end
+    end
+  end
+
   describe '#decide' do
     let(:scopes) { %w[claim.write] }
     let(:id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
@@ -426,6 +456,10 @@ Rspec.describe ClaimsApi::V2::Veterans::PowerOfAttorney::RequestController, type
     post v2_veterans_power_of_attorney_requests_path,
          params: { data: { attributes: { poaCodes: poa_codes, filter: } } }.to_json,
          headers: auth_header
+  end
+
+  def show_request_with(id:, auth_header:)
+    get "/services/claims/v2/veterans/power-of-attorney-requests/#{id}", headers: auth_header
   end
 
   def decide_request_with(id:, decision:, auth_header:, representative_id: nil)

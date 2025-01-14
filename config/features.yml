@@ -381,18 +381,6 @@ features:
     actor_type: user
     description: Toggles the availability of covid-19 vaccine scheduling links in the facility locator frontend
     enable_in_development: true
-  covid_volunteer_intake_backend_enabled:
-    actor_type: cookie_id
-    description: Toggles whether the COVID Research volunteer intake vets-api endpoint is available
-  covid_volunteer_intake_enabled:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer intake form Version 2 is available
-  covid_volunteer_update_enabled:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer update form and associated endpoint are available
-  covid_volunteer_delivery:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer submissions will be delivered to genISIS
   claims_claim_uploader_use_bd:
     actor_type: user
     description: Use BDS instead of EVSS to upload to VBMS.
@@ -560,18 +548,9 @@ features:
     actor_type: user
     description: enables adding applicable flashes to disability_526 prior to submission.
     enable_in_development: true
-  disability_526_toxic_exposure:
-    actor_type: user
-    description: enables new pages, processing, and submission of toxic exposure claims
-  disability_526_toxic_exposure_ipf:
-    actor_type: user
-    description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
   disability_526_new_confirmation_page:
     actor_type: user
     description: enables new confirmation page for form 526 submission confirmation page
-  disability_526_toxic_exposure_document_upload_polling:
-    actor_type: user
-    description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
   disability_526_call_received_email_from_polling:
     actor_type: user
     description: enables received email in poll_form526_pdf job and disables calling from form526_submission
@@ -587,6 +566,9 @@ features:
     actor_type: user
     description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
     enable_in_development: true
+  disability_526_max_cfi_service_switch:
+    actor_type: user
+    description: Enables the use of the new Max Ratings CFI service instead of the VRO client for fetching max ratings.
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -715,6 +697,10 @@ features:
   appoint_a_representative_enable_frontend:
     actor_type: cookie_id
     description: Enables Appoint a Representative frontend
+    enable_in_development: true
+  appoint_a_representative_enable_v2_features:
+    actor_type: user
+    description: Enables Appoint a Representative 2.0 features for frontend and backend
     enable_in_development: true
   appoint_a_representative_enable_pdf:
     actor_type: user
@@ -2031,3 +2017,6 @@ features:
   enable_lighthouse:
     actor_type: user
     description: If enabled, user will connect to lighthouse api in sob instead of evss
+  virtual_agent_enable_datadog_logging:
+    actor_type: user
+    description: If enabled, allows for the use of Datadog logging for the chatbot

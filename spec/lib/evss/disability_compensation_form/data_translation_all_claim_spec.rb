@@ -16,7 +16,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     frozen_time = Time.zone.parse '2020-11-05 13:19:50 -0500'
     Timecop.freeze(frozen_time)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
-    Flipper.disable('disability_526_toxic_exposure')
   end
 
   after { Timecop.return }
@@ -1531,24 +1530,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'name' => 'new condition',
             'classificationCode' => 'Test Code',
             'specialIssues' => ['POW'],
-            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
-          }
-        ]
-      end
-
-      it 'adds the cause field if the TE flag is ON' do
-        Flipper.enable('disability_526_toxic_exposure')
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'new condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
             'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description",
             'cause' => 'NEW'
           }
         ]
-        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1578,25 +1563,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'classificationCode' => 'Test Code',
             'specialIssues' => ['POW'],
             'serviceRelevance' =>
-              "Worsened because of military service\nworsened condition description: worsened effects"
-          }
-        ]
-      end
-
-      it 'adds the cause field if the TE flag is ON' do
-        Flipper.enable('disability_526_toxic_exposure')
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'worsened condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
-            'serviceRelevance' =>
               "Worsened because of military service\nworsened condition description: worsened effects",
             'cause' => 'WORSENED'
           }
         ]
-        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1628,26 +1598,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'specialIssues' => ['POW'],
             'serviceRelevance' =>
               "Caused by VA care\nEvent: va condition description\n"\
-              "Location: va location\nTimeFrame: the third of october"
-          }
-        ]
-      end
-
-      it 'adds the cause field if the TE flag is ON' do
-        Flipper.enable('disability_526_toxic_exposure')
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'va condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
-            'serviceRelevance' =>
-              "Caused by VA care\nEvent: va condition description\n"\
               "Location: va location\nTimeFrame: the third of october",
             'cause' => 'VA'
           }
         ]
-        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1763,7 +1717,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'brand new disability to be rated',
-            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
+            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description",
+            'cause' => 'NEW'
           }
         ]
       end
@@ -1827,6 +1782,54 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         it 'returns the year' do
           expect(subject.send(:approximate_date, date)).to eq nil
         end
+      end
+    end
+  end
+
+  describe '#translateStartedFormVersion' do
+    context 'no startedFormVersion on input form' do
+      let(:form_content) do
+        {
+          'form526' => {}
+        }
+      end
+
+      it 'adds in startedFormVersion when it was missing' do
+        expect(subject.send(:translate_started_form_version)).to eq({
+                                                                      'startedFormVersion' => '2019'
+                                                                    })
+      end
+    end
+
+    context 'startedFormVersion is 2022' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'startedFormVersion' => '2022'
+          }
+        }
+      end
+
+      it 'adds in startedFormVersion when it was missing' do
+        expect(subject.send(:translate_started_form_version)).to eq({
+                                                                      'startedFormVersion' => '2022'
+                                                                    })
+      end
+    end
+
+    context 'startedFormVersion is 2019' do
+      let(:form_content) do
+        {
+          'form526' => {
+            'startedFormVersion' => '2019'
+          }
+        }
+      end
+
+      it 'fills in 2019 startedFormVersion' do
+        expect(subject.send(:translate_started_form_version)).to eq({
+                                                                      'startedFormVersion' => '2019'
+                                                                    })
       end
     end
   end
