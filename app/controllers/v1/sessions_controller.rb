@@ -227,9 +227,7 @@ module V1
         url_service.login_url('mhv', 'myhealthevet', AuthnContext::MHV)
       when 'mhv_verified'
         url_service.login_url('mhv_verified', 'myhealthevet', AuthnContext::MHV)
-      when 'dslogon'
-        url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
-      when 'dslogon_verified'
+      when 'dslogon', 'dslogon_verified'
         url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
