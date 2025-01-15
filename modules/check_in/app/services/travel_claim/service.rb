@@ -42,7 +42,7 @@ module TravelClaim
     #
     # @return [String] token
     def token
-      @token ||= fetch_token
+      @token ||= redis_client.token || access_token_from_veis
     end
 
     # Submit claim for the given patient_icn and appointment time.
@@ -77,12 +77,9 @@ module TravelClaim
 
     private
 
-    def fetch_token
-      token = redis_client.token
-      return token if token.present?
-
-      resp = client.token
-      access_token = Oj.safe_load(resp.body)&.fetch('access_token')
+    def access_token_from_veis
+      response = Oj.safe_load(client.token)
+      access_token = response&.fetch('access_token')
       redis_client.save_token(token: access_token)
       access_token
     end
