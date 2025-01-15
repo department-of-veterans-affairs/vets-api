@@ -368,39 +368,39 @@ Naming/VariableNumber:
 
 # Offense count: 1075
 # This cop supports unsafe autocorrection (--autocorrect-all).
-RSpec/BeEq:
-  Enabled: false
+# RSpec/BeEq:
+#   Enabled: false
 
 # Offense count: 45
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: be, be_nil
-RSpec/BeNil:
-  Exclude:
-    - 'modules/appeals_api/spec/models/higher_level_review/phone_spec.rb'
-    - 'modules/claims_api/spec/models/auto_establish_claim_spec.rb'
-    - 'modules/va_notify/spec/models/confirmation_email_spec.rb'
-    - 'modules/vba_documents/spec/models/upload_submission_spec.rb'
-    - 'modules/vba_documents/spec/sidekiq/upload_processor_spec.rb'
-    - 'spec/controllers/v0/users_controller_spec.rb'
-    - 'spec/lib/common/models/concerns/cache_aside_spec.rb'
-    - 'spec/lib/evss/auth_headers_spec.rb'
-    - 'spec/lib/evss/pciu/request_body_spec.rb'
-    - 'spec/lib/facilities/drivetime_bands/response_spec.rb'
-    - 'spec/lib/formatters/date_formatter_spec.rb'
-    - 'spec/lib/identity/parsers/gc_ids_helper_spec.rb'
-    - 'spec/lib/mpi/responses/parser_base_spec.rb'
-    - 'spec/lib/pdf_fill/forms/form_helper_spec.rb'
-    - 'spec/lib/sentry/scrubbers/filter_request_body_spec.rb'
-    - 'spec/lib/sidekiq/form526_backup_submission_process/submit_spec.rb'
-    - 'spec/models/education_benefits_claim_spec.rb'
-    - 'spec/models/form526_submission_spec.rb'
-    - 'spec/models/mpi_data_spec.rb'
-    - 'spec/models/user_spec.rb'
-    - 'spec/services/bgs/people/request_spec.rb'
-    - 'spec/services/identity/account_creator_spec.rb'
-    - 'spec/services/sign_in/attribute_validator_spec.rb'
-    - 'spec/sidekiq/webhooks/callback_url_job_spec.rb'
+# RSpec/BeNil:
+#   Exclude:
+#     - 'modules/appeals_api/spec/models/higher_level_review/phone_spec.rb'
+#     - 'modules/claims_api/spec/models/auto_establish_claim_spec.rb'
+#     - 'modules/va_notify/spec/models/confirmation_email_spec.rb'
+#     - 'modules/vba_documents/spec/models/upload_submission_spec.rb'
+#     - 'modules/vba_documents/spec/sidekiq/upload_processor_spec.rb'
+#     - 'spec/controllers/v0/users_controller_spec.rb'
+#     - 'spec/lib/common/models/concerns/cache_aside_spec.rb'
+#     - 'spec/lib/evss/auth_headers_spec.rb'
+#     - 'spec/lib/evss/pciu/request_body_spec.rb'
+#     - 'spec/lib/facilities/drivetime_bands/response_spec.rb'
+#     - 'spec/lib/formatters/date_formatter_spec.rb'
+#     - 'spec/lib/identity/parsers/gc_ids_helper_spec.rb'
+#     - 'spec/lib/mpi/responses/parser_base_spec.rb'
+#     - 'spec/lib/pdf_fill/forms/form_helper_spec.rb'
+#     - 'spec/lib/sentry/scrubbers/filter_request_body_spec.rb'
+#     - 'spec/lib/sidekiq/form526_backup_submission_process/submit_spec.rb'
+#     - 'spec/models/education_benefits_claim_spec.rb'
+#     - 'spec/models/form526_submission_spec.rb'
+#     - 'spec/models/mpi_data_spec.rb'
+#     - 'spec/models/user_spec.rb'
+#     - 'spec/services/bgs/people/request_spec.rb'
+#     - 'spec/services/identity/account_creator_spec.rb'
+#     - 'spec/services/sign_in/attribute_validator_spec.rb'
+#     - 'spec/sidekiq/webhooks/callback_url_job_spec.rb'
 
 # Offense count: 11
 # This cop supports safe autocorrection (--autocorrect).

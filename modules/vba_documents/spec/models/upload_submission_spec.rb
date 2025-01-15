@@ -231,7 +231,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload_success.refresh_status!
       updated = VBADocuments::UploadSubmission.find_by(guid: upload_success.guid)
       expect(updated.status).to eq('success')
-      expect(updated.metadata[VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY]).not_to be(nil)
+      expect(updated.metadata[VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY]).not_to be_nil
     end
 
     it 'updates completed status from upstream to ERROR if any UNIDENTIFIABLE_MAIL' do
@@ -411,17 +411,17 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload1 = VBADocuments::UploadSubmission.new
       upload2 = VBADocuments::UploadSubmission.new
       saved = upload1.save
-      expect(saved).to eq(true)
+      expect(saved).to be(true)
       guid = upload1.guid
       upload2.guid = guid
       saved = upload2.save
-      expect(saved).to eq(false)
+      expect(saved).to be(false)
     end
 
     it 'defaults s3_deleted to false when creating new records' do
       upload1 = VBADocuments::UploadSubmission.new
       upload1.save
-      expect(upload1.s3_deleted).to eq(false)
+      expect(upload1.s3_deleted).to be(false)
     end
   end
 
@@ -474,13 +474,13 @@ describe VBADocuments::UploadSubmission, type: :model do
     it 'returns true if #consumer_name is appeals specific' do
       upload = create(:upload_submission, consumer_name: 'appeals_api_sc_evidence_submission')
 
-      expect(upload.appeals_consumer?).to eq(true)
+      expect(upload.appeals_consumer?).to be(true)
     end
 
     it 'returns false if #consumer_name is not appeals specific' do
       upload = create(:upload_submission, consumer_name: 'unrelated')
 
-      expect(upload.appeals_consumer?).to eq(false)
+      expect(upload.appeals_consumer?).to be(false)
     end
   end
 
@@ -488,19 +488,19 @@ describe VBADocuments::UploadSubmission, type: :model do
     it 'returns true if metadata["base64_encoded"] is true' do
       upload = create(:upload_submission, metadata: { 'base64_encoded' => true })
 
-      expect(upload.base64_encoded?).to eq(true)
+      expect(upload.base64_encoded?).to be(true)
     end
 
     it 'returns false if metadata["base64_encoded"] is false' do
       upload = create(:upload_submission, metadata: { 'base64_encoded' => false })
 
-      expect(upload.base64_encoded?).to eq(false)
+      expect(upload.base64_encoded?).to be(false)
     end
 
     it 'returns false if metadata["base64_encoded"] is nil' do
       upload = create(:upload_submission)
 
-      expect(upload.base64_encoded?).to eq(false)
+      expect(upload.base64_encoded?).to be(false)
     end
   end
 

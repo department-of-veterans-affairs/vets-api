@@ -15,7 +15,7 @@ RSpec.describe TriageTeam do
       expect(subject.triage_team_id).to eq(params[:triage_team_id])
       expect(subject.name).to eq(params[:name])
       expect(subject.relation_type).to eq(params[:relation_type])
-      expect(subject.preferred_team).to eq(true)
+      expect(subject.preferred_team).to be(true)
     end
 
     it 'can be compared by name' do

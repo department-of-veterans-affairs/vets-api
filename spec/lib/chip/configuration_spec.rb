@@ -48,27 +48,27 @@ describe Chip::Configuration do
 
     context 'when invalid tenant_name' do
       it 'returns false for non-existent tenant_name' do
-        expect(subject.valid_tenant?(tenant_name: 'abc', tenant_id:)).to eq(false)
+        expect(subject.valid_tenant?(tenant_name: 'abc', tenant_id:)).to be(false)
       end
 
       it 'returns false for nil tenant_name' do
-        expect(subject.valid_tenant?(tenant_name: nil, tenant_id:)).to eq(false)
+        expect(subject.valid_tenant?(tenant_name: nil, tenant_id:)).to be(false)
       end
     end
 
     context 'when invalid tenant_id' do
       it 'returns false for non-matching tenant_id' do
-        expect(subject.valid_tenant?(tenant_name:, tenant_id: 'def')).to eq(false)
+        expect(subject.valid_tenant?(tenant_name:, tenant_id: 'def')).to be(false)
       end
 
       it 'returns false for nil tenant_id' do
-        expect(subject.valid_tenant?(tenant_name:, tenant_id: nil)).to eq(false)
+        expect(subject.valid_tenant?(tenant_name:, tenant_id: nil)).to be(false)
       end
     end
 
     context 'when valid tenant parameters' do
       it 'returns true' do
-        expect(subject.valid_tenant?(tenant_name:, tenant_id:)).to eq(true)
+        expect(subject.valid_tenant?(tenant_name:, tenant_id:)).to be(true)
       end
     end
   end

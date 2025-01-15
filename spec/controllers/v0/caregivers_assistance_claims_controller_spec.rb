@@ -240,12 +240,12 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       # compare it with the pdf fixture
       expect(
         pdfs_fields_match?(response_pdf, expected_pdf)
-      ).to eq(true)
+      ).to be(true)
 
       # ensure that the tmp file was deleted
       expect(
         File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-      ).to eq(false)
+      ).to be(false)
     end
   end
 end

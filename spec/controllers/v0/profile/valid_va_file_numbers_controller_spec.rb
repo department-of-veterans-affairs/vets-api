@@ -14,7 +14,7 @@ RSpec.describe V0::Profile::ValidVAFileNumbersController, type: :controller do
 
           expect(response.code).to eq('200')
           expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)['data']['attributes']['valid_va_file_number']).to eq(true)
+          expect(JSON.parse(response.body)['data']['attributes']['valid_va_file_number']).to be(true)
         end
       end
     end
@@ -27,7 +27,7 @@ RSpec.describe V0::Profile::ValidVAFileNumbersController, type: :controller do
           get(:show)
           expect(response.code).to eq('200')
           expect(response).to have_http_status(:ok)
-          expect(JSON.parse(response.body)['data']['attributes']['valid_va_file_number']).to eq(false)
+          expect(JSON.parse(response.body)['data']['attributes']['valid_va_file_number']).to be(false)
         end
       end
     end
