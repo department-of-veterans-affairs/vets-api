@@ -17,8 +17,8 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
   let(:multi_profile) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321],
-                                              birth_date: '19560506')
+      profile: build(:mpi_profile, participant_id: nil, participant_ids: %w[123456789 987654321],
+                                   birth_date: '19560506')
     )
   end
 
@@ -1306,7 +1306,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
         let(:profile_with_edipi) do
           MPI::Responses::FindProfileResponse.new(
             status: 'OK',
-            profile: FactoryBot.build(:mpi_profile, edipi: '2536798', birth_date: '19560506')
+            profile: build(:mpi_profile, edipi: '2536798', birth_date: '19560506')
           )
         end
         let(:profile) { build(:mpi_profile, birth_date: '19560506') }

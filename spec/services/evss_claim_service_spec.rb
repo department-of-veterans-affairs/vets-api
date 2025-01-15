@@ -15,7 +15,7 @@ RSpec.describe EVSSClaimService do
       it 'returns all claims for the user' do
         allow(client_stub).to receive(:all_claims).and_raise(EVSS::ErrorMiddleware::EVSSBackendServiceError)
         allow(subject).to receive(:client) { client_stub }
-        claim = FactoryBot.create(:evss_claim, user_uuid: user.uuid)
+        claim = create(:evss_claim, user_uuid: user.uuid)
         claims, synchronized = subject.all
         expect(claims).to eq([claim])
         expect(synchronized).to eq(false)
@@ -28,7 +28,7 @@ RSpec.describe EVSSClaimService do
           EVSS::ErrorMiddleware::EVSSBackendServiceError
         )
         allow(subject).to receive(:client) { client_stub }
-        claim = FactoryBot.build(:evss_claim, user_uuid: user.uuid)
+        claim = build(:evss_claim, user_uuid: user.uuid)
         updated_claim, synchronized = subject.update_from_remote(claim)
         expect(updated_claim).to eq(claim)
         expect(synchronized).to eq(false)
@@ -38,7 +38,7 @@ RSpec.describe EVSSClaimService do
 
   context 'when user is not a Veteran' do
     # Overriding global user / service values
-    let(:user) { FactoryBot.create(:evss_user, birls_id: nil) }
+    let(:user) { create(:evss_user, birls_id: nil) }
     let(:service) { described_class.new(user) }
     # rubocop:disable Style/HashSyntax
     let(:claim) { { :benefit_claim_details_dto => { :ptcpnt_vet_id => '234567891' } } }
@@ -54,7 +54,7 @@ RSpec.describe EVSSClaimService do
 
     describe '#request_decision' do
       it 'supplements the headers' do
-        claim = FactoryBot.build(:evss_claim, user_uuid: user.uuid)
+        claim = build(:evss_claim, user_uuid: user.uuid)
         subject.request_decision(claim)
 
         job = EVSS::RequestDecision.jobs.last
@@ -177,7 +177,7 @@ RSpec.describe EVSSClaimService do
       end
 
       it 'returns all claims for the user' do
-        claim = FactoryBot.create(:evss_claim, user_uuid: user.uuid)
+        claim = create(:evss_claim, user_uuid: user.uuid)
         claims, synchronized = subject
         expect(claims).to eq([claim])
         expect(synchronized).to eq(false)
@@ -189,7 +189,7 @@ RSpec.describe EVSSClaimService do
         service.update_from_remote(claim)
       end
 
-      let(:claim) { FactoryBot.build(:evss_claim, user_uuid: user.uuid) }
+      let(:claim) { build(:evss_claim, user_uuid: user.uuid) }
 
       it 'returns claim' do
         updated_claim, synchronized = subject

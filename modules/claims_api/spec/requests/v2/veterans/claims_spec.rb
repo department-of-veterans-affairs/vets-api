@@ -23,23 +23,23 @@ RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
   let(:profile) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile,
-                                participant_id: nil,
-                                participant_ids: [])
+      profile: build(:mpi_profile,
+                     participant_id: nil,
+                     participant_ids: [])
     )
   end
   let(:bnft_claim_web_service) { ClaimsApi::EbenefitsBnftClaimStatusWebService }
   let(:profile_for_claimant_on_behalf_of_veteran) do
     MPI::Responses::FindProfileResponse.new(
       status: :ok,
-      profile: FactoryBot.build(:mpi_profile,
-                                participant_id: '8675309')
+      profile: build(:mpi_profile,
+                     participant_id: '8675309')
     )
   end
   let(:profile_erroneous_icn) do
     MPI::Responses::FindProfileResponse.new(
       status: :not_found,
-      profile: FactoryBot.build(:mpi_profile, icn: '667711332299')
+      profile: build(:mpi_profile, icn: '667711332299')
     )
   end
   let(:person_web_service) do

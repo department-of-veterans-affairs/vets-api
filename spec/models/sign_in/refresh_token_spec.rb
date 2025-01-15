@@ -4,13 +4,13 @@ require 'rails_helper'
 
 RSpec.describe SignIn::RefreshToken, type: :model do
   let(:refresh_token) do
-    FactoryBot.create(:refresh_token,
-                      user_uuid:,
-                      uuid:,
-                      session_handle:,
-                      anti_csrf_token:,
-                      nonce:,
-                      version:)
+    create(:refresh_token,
+           user_uuid:,
+           uuid:,
+           session_handle:,
+           anti_csrf_token:,
+           nonce:,
+           version:)
   end
   let(:user_uuid) { create(:user).uuid }
   let(:uuid) { 'some-uuid' }
