@@ -5,6 +5,7 @@ require 'timeout'
 require 'logging/third_party_transaction'
 require 'evss/failure_notification'
 require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 class EVSS::DocumentUpload
   include Sidekiq::Job
@@ -104,19 +105,17 @@ class EVSS::DocumentUpload
 
   # Update personalisation here since an evidence submission record was previously created
   def self.update_personalisation(current_personalisation, failed_at)
-    { first_name: current_personalisation['first_name'],
-      document_type: current_personalisation['document_type'],
-      file_name: current_personalisation['file_name'],
-      date_submitted: current_personalisation['date_submitted'],
-      date_failed: format_issue_instant_for_mailers(failed_at) }
+    personalisation = current_personalisation.clone
+    personalisation.failed_date = format_issue_instant_for_mailers(failed_at)
+    personalisation
   end
 
-  # Create personalisation here since there is no evidence submission record previously created
-  # since cst_send_evidence_failure_emails was false for this path
+  # This will be used by EVSS::FailureNotification
   def self.create_personalisation(msg)
     first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
     document_type = msg['args'][2]['document_type']
-    file_name = msg['args'][2]['file_name']
+    # Obscure the file name here since this will be used to generate a failed email
+    file_name = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][2]['file_name'])
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
     date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 

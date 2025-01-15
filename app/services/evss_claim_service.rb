@@ -4,6 +4,7 @@ require 'evss/claims_service'
 require 'evss/documents_service'
 require 'evss/auth_headers'
 require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 # EVSS Claims Status Tool
 class EVSSClaimService
@@ -154,6 +155,7 @@ class EVSSClaimService
     { first_name:,
       document_type: document.document_type,
       file_name: document.file_name,
+      obfuscated_file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(document.file_name),
       date_submitted: format_issue_instant_for_mailers(Time.zone.now),
       date_failed: nil }
   end

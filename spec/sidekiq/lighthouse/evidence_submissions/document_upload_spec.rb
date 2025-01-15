@@ -7,6 +7,7 @@ Sidekiq::Testing.fake!
 require 'lighthouse/evidence_submissions/document_upload'
 require 'va_notify/service'
 require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
   subject(:job) do
@@ -184,7 +185,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DocumentUpload, type: :job do
           personalisation: {
             first_name: 'Bob',
             document_type: document_type,
-            file_name: file_name,
+            file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(file_name),
             date_submitted: formatted_submit_date,
             date_failed: formatted_submit_date
           }

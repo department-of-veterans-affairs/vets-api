@@ -19,7 +19,6 @@ RSpec.describe BenefitsDocuments::Service do
       allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return(token)
       user.user_account_uuid = user_account.id
       user.save!
-      # allow(EvidenceSubmission).to receive(:create)
     end
 
     describe 'when uploading single file' do

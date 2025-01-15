@@ -6,24 +6,7 @@ require 'va_notify/service'
 RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, type: :job do
   subject { described_class }
 
-  let(:notify_client_stub) { instance_double(VaNotify::Service) }
-  let(:user_account) { create(:user_account) }
-  let(:filename) { 'docXXXX-XXte.pdf' }
-  let(:icn) { user_account.icn }
-  let(:first_name) { 'Bob' }
-  let(:issue_instant) { Time.now.to_i }
-  let(:formatted_submit_date) do
-    # We want to return all times in EDT
-    timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
-
-    # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
-    timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
-  end
-  let(:date_submitted) { formatted_submit_date }
-  let(:date_failed) { formatted_submit_date }
-
   let(:notification_id) { SecureRandom.uuid }
-
   let(:vanotify_service) do
     service = instance_double(VaNotify::Service)
 
@@ -31,11 +14,6 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
     allow(service).to receive(:send_email).and_return(response)
 
     service
-  end
-
-  before do
-    allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
-    allow(Rails.logger).to receive(:info)
   end
 
   context 'when there are no FAILED records' do
@@ -88,10 +66,11 @@ RSpec.describe Lighthouse::EvidenceSubmissions::FailureNotificationEmailJob, typ
 
   context 'when there is 1 FAILED record without a va_notify_date' do
     let(:tags) { ['service:claim-status', "function: #{message}"] }
-    let!(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
     let(:message) { "#{evidence_submission_failed.job_class} va notify failure email queued" }
+    let!(:evidence_submission_failed) { create(:bd_evidence_submission_failed) }
 
     before do
+      allow(VaNotify::Service).to receive(:new).and_return(vanotify_service)
       allow(EvidenceSubmission).to receive(:va_notify_email_not_queued).and_return([evidence_submission_failed])
       allow(Rails.logger).to receive(:info)
       allow(StatsD).to receive(:increment)

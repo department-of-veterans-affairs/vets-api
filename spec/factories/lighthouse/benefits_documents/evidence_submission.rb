@@ -21,7 +21,8 @@ FactoryBot.define do
       { 'personalisation' => {
         'first_name' => 'test',
         'document_type' => 'L014',
-        'filename' => 'test.txt',
+        'file_name' => 'testfile.txt',
+        'obfuscated_file_name' => 'tesXXile.txt',
         'date_submitted' => DateTime.now.utc.to_s,
         'date_failed' => nil
       } }.to_json
@@ -37,7 +38,8 @@ FactoryBot.define do
       { 'personalisation' => {
         'first_name' => 'test',
         'document_type' => 'L014',
-        'filename' => 'test.txt',
+        'file_name' => 'test.txt',
+        'obfuscated_file_name' => 'tesXXile.txt',
         'date_submitted' => DateTime.now.utc.to_s,
         'date_failed' => DateTime.now.utc.to_s
       } }.to_json

@@ -4,10 +4,12 @@ require 'common/client/base'
 require 'lighthouse/benefits_documents/configuration'
 require 'lighthouse/service_exception'
 require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 module BenefitsDocuments
   class Service < Common::Client::Base
     configuration BenefitsDocuments::Configuration
+
     STATSD_KEY_PREFIX = 'api.benefits_documents'
     STATSD_UPLOAD_LATENCY = 'lighthouse.api.benefits.documents.latency'
 
@@ -99,6 +101,7 @@ module BenefitsDocuments
       { first_name: document.first_name.titleize,
         document_type: document.document_type,
         file_name: document.file_name,
+        obfuscated_file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(document.file_name),
         date_submitted: format_issue_instant_for_mailers(Time.zone.now),
         date_failed: nil }
     end
