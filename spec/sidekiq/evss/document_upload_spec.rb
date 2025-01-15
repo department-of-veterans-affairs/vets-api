@@ -73,7 +73,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
     before { Flipper.enable(:cst_send_evidence_submission_failure_emails) }
 
     context 'when upload succeeds' do
-      let(:uploader_stub) { instance_double('EVSSClaimDocumentUploader') }
+      let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
       let(:file) { Rails.root.join('spec', 'fixtures', 'files', file_name).read }
       let(:formatted_submit_date) do
         # We want to return all times in EDT
@@ -129,7 +129,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   context 'when :cst_send_evidence_submission_failure_emails is disabled' do
     before { Flipper.disable(:cst_send_evidence_submission_failure_emails) }
 
-    let(:uploader_stub) { instance_double('EVSSClaimDocumentUploader') }
+    let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
     let(:formatted_submit_date) do
       # We want to return all times in EDT
       timestamp = Time.at(issue_instant).in_time_zone('America/New_York')

@@ -47,8 +47,8 @@ RSpec.describe Lighthouse::EvidenceSubmissionDocumentUploadPollingJob, type: :jo
       end
       pending_es = EvidenceSubmission.where(request_id: 1).first
       pending_es2 = EvidenceSubmission.where(request_id: 2).first
-      expect(pending_es.completed?).to eq(true)
-      expect(pending_es2.completed?).to eq(true)
+      expect(pending_es.completed?).to be(true)
+      expect(pending_es2.completed?).to be(true)
       expect(pending_es.delete_date).to be_within(1.second).of((current_date_time + 60.days).utc)
       expect(pending_es2.delete_date).to be_within(1.second).of((current_date_time + 60.days).utc)
     end
@@ -62,8 +62,8 @@ RSpec.describe Lighthouse::EvidenceSubmissionDocumentUploadPollingJob, type: :jo
       end
       pending_es = EvidenceSubmission.where(request_id: 1).first
       pending_es2 = EvidenceSubmission.where(request_id: 2).first
-      expect(pending_es.failed?).to eq(true)
-      expect(pending_es2.failed?).to eq(true)
+      expect(pending_es.failed?).to be(true)
+      expect(pending_es2.failed?).to be(true)
       expect(pending_es.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
       expect(pending_es2.acknowledgement_date).to be_within(1.second).of((current_date_time + 30.days).utc)
       expect(pending_es.failed_date).to be_within(1.second).of(current_date_time.utc)
