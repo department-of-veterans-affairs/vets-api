@@ -33,6 +33,18 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
 
       expect(response).to have_http_status(:internal_server_error)
     end
+
+    it 'passes successfully' do
+      allow(Burials::SavedClaim).to receive(:new).and_return(form)
+
+      expect(monitor).to receive(:track_create_attempt).once
+      expect(monitor).to receive(:track_create_success).once
+      expect(form).to receive(:process_attachments!)
+
+      post '/burials/v0/claims', params: { param_name => { form: form.form } }
+
+      expect(response).to have_http_status(:success)
+    end
   end
 
   describe '#show' do
@@ -69,11 +81,22 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
   describe '#process_and_upload_to_lighthouse' do
     let(:claim) { build(:burials_saved_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
+    let(:error) { StandardError.new('Something went wrong') }
 
     it 'returns a success' do
       expect(claim).to receive(:process_attachments!)
 
       subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+    end
+
+    it 'returns a failure' do
+      allow(claim).to receive(:process_attachments!).and_raise(error)
+
+      expect {
+          subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+        }.to raise_error(StandardError, 'Something went wrong')
+
+        expect(monitor).to have_received(:track_process_attachment_error).with(in_progress_form, claim, anything)
     end
   end
 

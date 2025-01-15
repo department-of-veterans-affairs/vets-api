@@ -92,4 +92,44 @@ RSpec.describe Burials::SavedClaim do
       expect(benefits_claimed).to eq(expected)
     end
   end
+
+  describe '#process_pdf' do
+    let(:pdf_path) { 'path/to/original.pdf' }
+    let(:timestamp) { '2025-01-14T12:00:00Z' }
+    let(:form_id) { '21P-530EZ' }
+    let(:processed_pdf_path) { 'path/to/processed.pdf' }
+    let(:renamed_path) { "tmp/pdfs/#{form_id}_123_final.pdf" }
+    let(:pdf_utilities_instance) { instance_double('PDFUtilities::DatestampPdf') }
+
+    before do
+      allow(PDFUtilities::DatestampPdf).to receive(:new).with(pdf_path).and_return(pdf_utilities_instance)
+      allow(pdf_utilities_instance).to receive(:run).and_return(processed_pdf_path)
+      allow(File).to receive(:rename).with(processed_pdf_path, renamed_path)
+      allow(subject).to receive(:id).and_return(123)
+    end
+
+    it 'processes the PDF and renames the file correctly' do
+      result = subject.process_pdf(pdf_path, timestamp, form_id)
+
+      expect(PDFUtilities::DatestampPdf).to have_received(:new).with(pdf_path)
+      expect(pdf_utilities_instance).to have_received(:run).with(
+        text: 'Application Submitted on va.gov',
+        x: 400,
+        y: 675,
+        text_only: true,
+        timestamp: timestamp,
+        page_number: 6,
+        template: "lib/pdf_fill/forms/pdfs/#{form_id}.pdf",
+        multistamp: true
+      )
+      expect(File).to have_received(:rename).with(processed_pdf_path, renamed_path)
+      expect(result).to eq(renamed_path)
+    end
+  end
+
+  describe '#business_line' do
+    it 'returns the correct business line' do
+      expect(subject.business_line).to eq('NCA')
+    end
+  end
 end
