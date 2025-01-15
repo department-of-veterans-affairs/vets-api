@@ -81,6 +81,20 @@ module ClaimsApi
           "#{address['addressLine1']}, #{address['city']} #{address['stateCode']} #{address['zipCode']}"
         end
 
+        def handle_country_code(phone)
+          return if phone.blank?
+
+          country_code = phone['countryCode']
+          area_code = phone['areaCode']
+          phone_number = phone['phoneNumber']
+
+          if country_code.blank?
+            area_code + phone_number
+          else
+            "+#{country_code} #{area_code}#{phone_number}"
+          end
+        end
+
         private
 
         #
