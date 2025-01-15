@@ -412,28 +412,6 @@ RSpecRails/HaveHttpStatus:
 RSpecRails/InferredSpecType:
   Enabled: false
 
-# Offense count: 14
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: ExpectedOrder, Include.
-# ExpectedOrder: index, show, new, edit, create, update, destroy
-# Include: app/controllers/**/*.rb
-Rails/ActionOrder:
-  Exclude:
-    - 'app/controllers/claims_base_controller.rb'
-    - 'app/controllers/v0/dependents_applications_controller.rb'
-    - 'app/controllers/v0/gi_bill_feedbacks_controller.rb'
-    - 'app/controllers/v0/health_care_applications_controller.rb'
-    - 'app/controllers/v0/onsite_notifications_controller.rb'
-    - 'modules/appeals_api/app/controllers/appeals_api/v1/decision_reviews/notice_of_disagreements/evidence_submissions_controller.rb'
-    - 'modules/appeals_api/app/controllers/appeals_api/v1/decision_reviews/notice_of_disagreements_controller.rb'
-    - 'modules/appeals_api/app/controllers/appeals_api/v2/decision_reviews/higher_level_reviews_controller.rb'
-    - 'modules/appeals_api/app/controllers/appeals_api/v2/decision_reviews/notice_of_disagreements/evidence_submissions_controller.rb'
-    - 'modules/appeals_api/app/controllers/appeals_api/v2/decision_reviews/notice_of_disagreements_controller.rb'
-    - 'modules/appeals_api/app/controllers/appeals_api/v2/decision_reviews/supplemental_claims/evidence_submissions_controller.rb'
-    - 'modules/appeals_api/app/controllers/appeals_api/v2/decision_reviews/supplemental_claims_controller.rb'
-    - 'modules/vba_documents/app/controllers/vba_documents/v1/uploads_controller.rb'
-    - 'modules/vba_documents/app/controllers/vba_documents/v2/uploads_controller.rb'
-
 # Offense count: 3
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: Include.
