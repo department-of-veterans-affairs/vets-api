@@ -3,6 +3,13 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
+      module Statuses
+        ALL = [
+          PENDING = 'pending',
+          COMPLETED = 'completed'
+        ].freeze
+      end
+
       include PowerOfAttorneyRequests
 
       before_action do
@@ -25,16 +32,23 @@ module AccreditedRepresentativePortal
         ]
 
         rel = poa_request_scope
+        status = params[:status].presence
 
-        if params[:status]&.downcase == 'pending'
-          rel = rel.unresolved
-        elsif params[:status]&.downcase == 'completed'
-          rel = rel.resolved
-        elsif params[:status].present? # throw 400 for other non-blank statuses
-          raise Common::Exceptions::BadRequest.new(
-            errors: "Invalid status parameter. Values accepted: 'pending' or 'completed'."
-          )
-        end
+        rel =
+          case status
+          when Statuses::PENDING
+            rel.unresolved
+          when Statuses::COMPLETED
+            rel.resolved
+          when NilClass
+            rel
+          else
+            # Throw 400 for unexpected, non-blank statuses
+            raise ActionController::BadRequest.new(<<~MSG.squish)
+              Invalid status parameter.
+              Must be one of (#{Statuses::ALL.join(', ')})
+            MSG
+          end
 
         poa_requests = rel.includes(includes).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
