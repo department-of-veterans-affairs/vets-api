@@ -15,7 +15,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
     shared_examples 'invalid address' do
       it 'returns an error' do
         post(:create, params: { address: invalid_address })
-        expect(response.code).to eq('422')
+        expect(response).to have_http_status(:unprocessable_content)
         expect(JSON.parse(response.body)).to include('errors')
         expect(JSON.parse(response.body)).to eq(
           'errors' => [
@@ -63,7 +63,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
       it 'returns suggested addresses for a given address' do
         VCR.use_cassette('va_profile/address_validation/candidate_multiple_matches', VCR::MATCH_EVERYTHING) do
           post(:create, params: { address: multiple_match_addr.to_h })
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(
             'addresses' => [
               {
@@ -137,7 +137,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
     shared_examples 'invalid address' do
       it 'returns an error' do
         post(:create, params: { address: invalid_address })
-        expect(response.code).to eq('422')
+        expect(response).to have_http_status(:unprocessable_content)
         expect(JSON.parse(response.body)).to include('errors')
         expect(JSON.parse(response.body)).to eq(
           'errors' => [
@@ -185,7 +185,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
       it 'returns suggested addresses for a given address' do
         VCR.use_cassette('va_profile/v3/address_validation/candidate_multiple_matches', VCR::MATCH_EVERYTHING) do
           post(:create, params: { address: multiple_match_addr.to_h })
-          expect(response.status).to eq(200)
+          expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)).to eq(
             'addresses' => [
               {
