@@ -36,7 +36,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   let(:job_class) { 'EVSS::DocumentUpload' }
   let(:job_id) { job }
 
-  let(:client_stub) { instance_double('EVSS::DocumentsService') }
+  let(:client_stub) { instance_double(EVSS::DocumentsService) }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
   let(:issue_instant) { Time.now.to_i }
   let(:msg) do

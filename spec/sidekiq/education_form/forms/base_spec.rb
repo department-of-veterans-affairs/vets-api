@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationForm::Forms::Base, type: :model, form: :education_benefits do
+RSpec.describe EducationForm::Forms::Base, form: :education_benefits, type: :model do
   let!(:application) { create(:va1990).education_benefits_claim }
   let(:renderer) { described_class.new(application) }
 

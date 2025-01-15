@@ -138,7 +138,7 @@ RSpec.describe DebtsApi::V0::Form5655Submission do
 
       it 'sets the submission as submitted' do
         described_class.new.set_vha_completed_state(status, { 'submission_id' => form5655_submission.id })
-        expect(form5655_submission.submitted?).to eq(true)
+        expect(form5655_submission.submitted?).to be(true)
       end
     end
 

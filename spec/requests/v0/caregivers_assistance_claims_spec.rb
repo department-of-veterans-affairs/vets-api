@@ -215,12 +215,12 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         # compare it with the pdf fixture
         expect(
           pdfs_fields_match?(response_pdf, expected_pdf)
-        ).to eq(true)
+        ).to be(true)
 
         # ensure that the tmp file was deleted
         expect(
           File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
+        ).to be(false)
       end
 
       it 'ensures the tmp file is deleted when send_data fails', run_at: '2017-07-25 00:00:00 -0400' do
@@ -239,7 +239,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         expect(response).to have_http_status(:internal_server_error)
         expect(
           File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
+        ).to be(false)
       end
 
       it 'ensures the tmp file is deleted when fill_form fails', run_at: '2017-07-25 00:00:00 -0400' do
@@ -262,7 +262,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
         expect(
           File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
+        ).to be(false)
       end
     end
 
@@ -292,12 +292,12 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         # compare it with the pdf fixture
         expect(
           pdfs_fields_match?(response_pdf, expected_pdf)
-        ).to eq(true)
+        ).to be(true)
 
         # ensure that the tmp file was deleted
         expect(
           File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
+        ).to be(false)
       end
 
       it 'ensures the tmp file is deleted when send_data fails', run_at: '2017-07-25 00:00:00 -0400' do
@@ -316,7 +316,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
         expect(response).to have_http_status(:internal_server_error)
         expect(
           File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
+        ).to be(false)
       end
 
       it 'ensures the tmp file is deleted when fill_form fails', run_at: '2017-07-25 00:00:00 -0400' do
@@ -339,7 +339,7 @@ RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
 
         expect(
           File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-        ).to eq(false)
+        ).to be(false)
       end
     end
   end

@@ -128,7 +128,7 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
       expect(result[0][:document_id]).to eq(supporting_doc_list[:data][:documents][0][:documentId])
       expect(result[0][:document_type_label]).to eq(supporting_doc_list[:data][:documents][0][:documentTypeLabel])
       expect(result[0][:original_file_name]).to eq(supporting_doc_list[:data][:documents][0][:originalFileName])
-      expect(result[0][:tracked_item_id]).to eq(nil)
+      expect(result[0][:tracked_item_id]).to be_nil
       expect(result[0][:upload_date]).to eq('2024-07-16')
     end
   end
@@ -150,9 +150,9 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
 
       expect(result[0][:document_id]).to eq(evss_doc_list['documents'][0]['document_id'])
       expect(result[0][:document_type_label]).to eq(evss_doc_list['documents'][0]['document_type_label'])
-      expect(result[0][:original_file_name]).to eq(nil)
-      expect(result[0][:tracked_item_id]).to eq(nil)
-      expect(result[0][:upload_date]).to eq(nil)
+      expect(result[0][:original_file_name]).to be_nil
+      expect(result[0][:tracked_item_id]).to be_nil
+      expect(result[0][:upload_date]).to be_nil
     end
   end
 
@@ -164,7 +164,7 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
 
     it 'returns nil if the date is empty' do
       result = controller.bd_upload_date(nil)
-      expect(result).to eq(nil)
+      expect(result).to be_nil
     end
   end
 
@@ -177,7 +177,7 @@ describe ClaimsApi::V2::ClaimsRequests::SupportingDocuments do
 
     it 'returns nil if the date is empty' do
       result = controller.upload_date(nil)
-      expect(result).to eq(nil)
+      expect(result).to be_nil
     end
   end
 

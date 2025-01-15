@@ -25,10 +25,10 @@ RSpec.describe Account, type: :model do
       second_account.save
       expect(first_account.sec_id).to eq sec_id
       expect(second_account.sec_id).to eq sec_id
-      expect(first_account.idme_uuid).to eq nil
-      expect(second_account.idme_uuid).to eq nil
-      expect(first_account.valid?).to eq true
-      expect(second_account.valid?).to eq false
+      expect(first_account.idme_uuid).to be_nil
+      expect(second_account.idme_uuid).to be_nil
+      expect(first_account.valid?).to be true
+      expect(second_account.valid?).to be false
     end.to change(Account, :count).by(1)
   end
 
@@ -103,15 +103,15 @@ RSpec.describe Account, type: :model do
     end
 
     it 'returns nil when given bogus user_uuid' do
-      expect(Account.lookup_by_user_uuid('bogus-1234')).to eq nil
+      expect(Account.lookup_by_user_uuid('bogus-1234')).to be_nil
     end
 
     it 'returns nil when given blank user_uuid' do
-      expect(Account.lookup_by_user_uuid('')).to eq nil
+      expect(Account.lookup_by_user_uuid('')).to be_nil
     end
 
     it 'returns nil when given nil user_uuid' do
-      expect(Account.lookup_by_user_uuid(nil)).to eq nil
+      expect(Account.lookup_by_user_uuid(nil)).to be_nil
     end
 
     context 'when another account has a logingov_uuid matching user_uuid' do
@@ -153,7 +153,7 @@ RSpec.describe Account, type: :model do
         let(:icn) { nil }
 
         it 'returns nil' do
-          expect(Account.lookup_by_user_account_uuid(user_uuid)).to eq(nil)
+          expect(Account.lookup_by_user_account_uuid(user_uuid)).to be_nil
         end
       end
     end
@@ -162,7 +162,7 @@ RSpec.describe Account, type: :model do
       let(:user_uuid) { 'some-user-uuid' }
 
       it 'returns nil' do
-        expect(Account.lookup_by_user_account_uuid(user_uuid)).to eq(nil)
+        expect(Account.lookup_by_user_account_uuid(user_uuid)).to be_nil
       end
     end
   end

@@ -124,7 +124,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       expect(appt.id).to eq(booked_va_id)
       expect(appt.appointment_ien).to eq('IEN 1')
       expect(appt.comment).to eq('COMMENT')
-      expect(appt.healthcare_service).to eq(nil) # always nil
+      expect(appt.healthcare_service).to be_nil # always nil
       expect(appt.physical_location).to eq('NYC')
       expect(appt.minutes_duration).to eq(30)
       expect(appt.reason).to eq('REASON')
@@ -179,14 +179,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   describe 'cancel_id' do
     context 'when telehealth appointment and cancellable is true' do
       it 'is nil' do
-        expect(appointment_by_id(home_va_id).cancel_id).to eq(nil)
+        expect(appointment_by_id(home_va_id).cancel_id).to be_nil
       end
     end
 
     context 'when not telehealth appointment and cancellable is false' do
       it 'is nil' do
         appt = appointment_by_id(home_va_id, overrides: { cancellable: false })
-        expect(appt.cancel_id).to eq(nil)
+        expect(appt.cancel_id).to be_nil
       end
     end
 
@@ -242,7 +242,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
         booked_va_id,
         overrides: { preferred_provider_name: VAOS::V2::AppointmentProviderName::NPI_NOT_FOUND_MSG }
       )
-      expect(appt.healthcare_provider).to eq(nil)
+      expect(appt.healthcare_provider).to be_nil
     end
 
     it 'uses the practitioners list in favor of the not found message' do
@@ -359,14 +359,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     context 'when appointment kind is phone' do
       it 'is set to true' do
         appt = appointment_by_id(booked_va_id, overrides: { kind: 'phone' })
-        expect(appt.phone_only).to eq(true)
+        expect(appt.phone_only).to be(true)
       end
     end
 
     context 'when appointment kind is not phone' do
       it 'is set to false' do
         appt = appointment_by_id(booked_va_id)
-        expect(appt.phone_only).to eq(false)
+        expect(appt.phone_only).to be(false)
       end
     end
   end
@@ -460,7 +460,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     context 'with nil service type' do
       it 'returns nil' do
         vaos_data = appointment_by_id(booked_va_id, overrides: { service_type: nil })
-        expect(vaos_data[:type_of_care]).to eq(nil)
+        expect(vaos_data[:type_of_care]).to be_nil
       end
     end
 
@@ -534,12 +534,12 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   describe 'is_covid_vaccine' do
     it 'is true when service type is covid' do
       appt = appointment_by_id(booked_va_id, overrides: { service_type: 'covid' })
-      expect(appt.is_covid_vaccine).to eq(true)
+      expect(appt.is_covid_vaccine).to be(true)
     end
 
     it 'is false when service type is not covid' do
       appt = appointment_by_id(booked_va_id)
-      expect(appt.is_covid_vaccine).to eq(false)
+      expect(appt.is_covid_vaccine).to be(false)
     end
   end
 
@@ -594,12 +594,12 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   describe 'is_pending' do
     it 'is true for appointment requests' do
       appt = appointment_by_id(proposed_va_id)
-      expect(appt.is_pending).to eq(true)
+      expect(appt.is_pending).to be(true)
     end
 
     it 'is false for confirmed appointments' do
       appt = appointment_by_id(booked_va_id)
-      expect(appt.is_pending).to eq(false)
+      expect(appt.is_pending).to be(false)
     end
   end
 
@@ -607,7 +607,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     context 'when contact info is not present' do
       it 'is nil' do
         appt = appointment_by_id(proposed_cc_id, without: [:contact])
-        expect(appt.patient_email).to eq(nil)
+        expect(appt.patient_email).to be_nil
       end
     end
 
@@ -628,7 +628,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
       it 'is set to nil when location name is absent' do
         appt = appointment_by_id(booked_va_id, without: [:location])
-        expect(appt.friendly_location_name).to eq(nil)
+        expect(appt.friendly_location_name).to be_nil
       end
     end
 
@@ -640,7 +640,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
       it 'is set to nil when location name is absent' do
         appt = appointment_by_id(proposed_cc_id, without: [:location])
-        expect(appt.friendly_location_name).to eq(nil)
+        expect(appt.friendly_location_name).to be_nil
       end
     end
 
@@ -652,7 +652,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
       it 'is set to nil when cc location practice name is absent' do
         appt = appointment_by_id(booked_cc_id, without: [:extension])
-        expect(appt.friendly_location_name).to eq(nil)
+        expect(appt.friendly_location_name).to be_nil
       end
     end
   end
