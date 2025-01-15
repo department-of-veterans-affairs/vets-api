@@ -41,7 +41,7 @@ RSpec.describe EVSSClaimServiceAsync do
           expect(tracker.get_collection_status).to eq result
           subject.all
           tracker = EVSSClaimsSyncStatusTracker.find(user.uuid)
-          expect(tracker.get_collection_status).to eq nil
+          expect(tracker.get_collection_status).to be_nil
         end
       end
     end
@@ -80,7 +80,7 @@ RSpec.describe EVSSClaimServiceAsync do
           subject.update_from_remote(claim)
           tracker = EVSSClaimsSyncStatusTracker.find(user.uuid)
           tracker.claim_id = claim.id
-          expect(tracker.get_single_status).to eq nil
+          expect(tracker.get_single_status).to be_nil
         end
       end
     end

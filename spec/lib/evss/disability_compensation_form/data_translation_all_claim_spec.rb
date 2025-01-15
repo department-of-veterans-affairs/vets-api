@@ -23,7 +23,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   describe '#redacted' do
     context 'when the banking numbers include a *' do
       it 'returns true' do
-        expect(subject.send('redacted', '**234', '1212')).to eq(
+        expect(subject.send('redacted', '**234', '1212')).to be(
           true
         )
       end
@@ -31,7 +31,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
     context 'when the banking numbers dont include a *' do
       it 'returns false' do
-        expect(subject.send('redacted', '234', '1212')).to eq(
+        expect(subject.send('redacted', '234', '1212')).to be(
           false
         )
       end
@@ -618,7 +618,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'does not translate separation pay' do
-        expect(subject.send(:separation_pay)).to eq nil
+        expect(subject.send(:separation_pay)).to be_nil
       end
     end
 
@@ -633,7 +633,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'does not translate separation pay' do
-        expect(subject.send(:separation_pay)).to eq nil
+        expect(subject.send(:separation_pay)).to be_nil
       end
     end
 
@@ -1127,7 +1127,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'returns nil' do
-        expect(subject.send(:translate_homelessness)).to eq nil
+        expect(subject.send(:translate_homelessness)).to be_nil
       end
     end
 
@@ -1780,7 +1780,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         let(:date) { '' }
 
         it 'returns the year' do
-          expect(subject.send(:approximate_date, date)).to eq nil
+          expect(subject.send(:approximate_date, date)).to be_nil
         end
       end
     end
@@ -1921,7 +1921,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'bdd_qualified is true' do
-        expect(subject.send(:bdd_qualified?)).to eq true
+        expect(subject.send(:bdd_qualified?)).to be true
       end
 
       context 'when only gurard/reserves' do
@@ -1944,7 +1944,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
 
         it 'bdd_qualified is true' do
-          expect(subject.send(:bdd_qualified?)).to eq false
+          expect(subject.send(:bdd_qualified?)).to be false
         end
       end
 
@@ -1974,7 +1974,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
 
         it 'bdd_qualified is true' do
-          expect(subject.send(:bdd_qualified?)).to eq true
+          expect(subject.send(:bdd_qualified?)).to be true
         end
       end
     end
@@ -1999,7 +1999,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'bdd_qualified is false' do
-        expect(subject.send(:bdd_qualified?)).to eq false
+        expect(subject.send(:bdd_qualified?)).to be false
       end
     end
   end

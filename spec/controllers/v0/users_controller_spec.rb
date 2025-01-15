@@ -78,7 +78,7 @@ RSpec.describe V0::UsersController, type: :controller do
       expect(response).to be_successful
 
       claims = json.dig('attributes', 'profile', 'claims')
-      expect(claims).to be(nil)
+      expect(claims).to be_nil
     end
 
     context 'onboarding' do
@@ -98,7 +98,7 @@ RSpec.describe V0::UsersController, type: :controller do
         json = json_body_for(response)
         expect(response).to be_successful
         onboarding = json.dig('attributes', 'onboarding')
-        expect(onboarding['show']).to be(nil)
+        expect(onboarding['show']).to be_nil
       end
     end
 

@@ -1123,7 +1123,7 @@ RSpec.describe Form526Submission do
             subject { build(:form526_submission, :with_empty_auth_headers) }
 
             it 'returns nil' do
-              expect(subject.get_first_name).to be nil
+              expect(subject.get_first_name).to be_nil
             end
           end
         end
