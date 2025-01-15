@@ -23,59 +23,62 @@ class SourceAppMiddleware
   FRONT_END_APP_NAMES = Set.new %w[
     0247-pmc
     0845-auth-disclose
-    0993-edu-benefits
     0994-edu-benefits
     0996-higher-level-review
     10-10D
+    10-7959C
+    10-7959a
+    10-7959f-1-FMP
     1010cg-application-caregiver-assistance
     10182-board-appeal
     10203-edu-benefits
     10206-pa
     10207-pp
     10210-lay-witness-statement
-    10-7959f-1-FMP
+    10215-edu-benefits
+    10216-edu-benefits
+    10282-edu-benefits
+    1919-edu-benefits
     1990-edu-benefits
-    1990e-edu-benefits
+    1990-edu-benefits
     1990ez-edu-benefits
-    1990n-edu-benefits
-    1990s-edu-benefits
     1995-edu-benefits
     21-0966-intent-to-file-a-claim
     21-0972-alternate-signer
+    21-4140-eq
     21-4142-medical-release
     21P-0847-substitute-claimant
     25-8832-planning-and-career-guidance
     28-1900-chapter-31
+    4138-ss
     4555-adapted-housing
     526EZ-all-claims
     5490-edu-benefits
-    5495-edu-benefits
     686C-674
     686C-674-v2
+    8794-edu-benefits
     995-supplemental-claim
-    appeals-testing
     appoint-a-representative
     ask-a-question
     ask-va-too
     auth
     avs
     burial-poc-v6
-    burials
-    burials-v2
     burials-ez
     check-in
     claims-status
     coe
+    coe
+    coe-status
     coe-status
     combined-debt-portal
-    coronavirus-research
-    coronavirus-research-update
     covid19screen
     dashboard
     dependents-view-dependents
     dhp-consent-flow
     discharge-upgrade-instructions
     discover-your-benefits
+    download
     ds-playground
     ds-v3-playground
     education-letters
@@ -85,27 +88,32 @@ class SourceAppMiddleware
     feedback-tool
     find-a-representative
     fmp-cover-sheet
+    form-upload-flow
     fry-dea
     gi
     hca
     health-care-supply-reordering
+    hlr-testing
+    income-and-asset-statement
     income-limits
     letters
     login-page
-    medical-copays
     medical-records
     medications
     messages
-    mhv-inherited-proofing
     mhv-landing-page
     mhv-secure-messaging
     mhv-secure-messaging-pilot
-    mock-alternate-header-0845
+    mhv-supply-reordering
     mock-form
+    mock-form-ae-design-patterns
+    mock-form-minimal-header
     mock-form-patterns-v3
     mock-simple-forms-patterns
     mock-sip-form
     my-documents
+    new-conditions
+    nod-new
     notification-center
     office-directory
     order-form-2346
@@ -119,18 +127,17 @@ class SourceAppMiddleware
     proxy-rewrite
     public-outreach-materials
     rated-disabilities
-    representatives
+    representative
+    representative-21a
     request-debt-help-form-5655
     resources-and-support
     sahg
+    sc-testing
+    sco
     search
-    search-representative
-    secure-messaging
-    secure-messaging-pilot
     sign-in-changes
-    survivor-dependent-education-benefit-22-5490
     static-pages
-    submitted-appeal
+    survivor-dependent-education-benefit-22-5490
     terms-of-use
     toe
     travel-claim
@@ -142,8 +149,8 @@ class SourceAppMiddleware
     view-payments
     view-representative
     virtual-agent
+    welcome-va-setup-review-information
     yellow-ribbon
-    your-debt
   ].freeze
 
   MOBILE_APP_NAMES = Set.new %w[
