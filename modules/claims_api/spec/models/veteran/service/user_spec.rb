@@ -33,8 +33,8 @@ describe Veteran::User do
         allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
           .and_return({ person_poa_history: nil })
         veteran = Veteran::User.new(user)
-        expect(veteran.power_of_attorney).to eq(nil)
-        expect(veteran.previous_power_of_attorney).to eq(nil)
+        expect(veteran.power_of_attorney).to be_nil
+        expect(veteran.previous_power_of_attorney).to be_nil
       end
     end
 

@@ -84,9 +84,9 @@ RSpec.describe 'V0::EVSSClaims', type: :request do
         claim.requested_decision = false
         claim.save
 
-        expect(claim.requested_decision).to eq(false)
+        expect(claim.requested_decision).to be(false)
         post '/v0/evss_claims/600118851/request_decision'
-        expect(claim.reload.requested_decision).to eq(true)
+        expect(claim.reload.requested_decision).to be(true)
       end
     end
   end
