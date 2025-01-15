@@ -30,8 +30,8 @@ module V1
                .get_legacy_appeals(user: current_user)
                .body
           # punch in an empty LA section if no LAs for user to distinguish no LAs from a LA call fail
-          la['data'] = [{ 'type': 'legacyAppeal', 'attributes': { 'issues': [] } }] if la['data'].empty?
-          ci_la = { "data": contestable_issues['data'] + la['data'] }
+          la['data'] = [{ type: 'legacyAppeal', attributes: { issues: [] } }] if la['data'].empty?
+          ci_la = { data: contestable_issues['data'] + la['data'] }
         rescue => e
           # If LA fails keep going Legacy Appeals are not critical, return original contestable_issues
           log_exception_to_personal_information_log(
