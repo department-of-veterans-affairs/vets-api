@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'exceptions', type: :request do
+RSpec.describe 'exceptions' do
   context 'authorization' do
     it 'renders json for not authorized' do
       get '/v0/prescriptions'

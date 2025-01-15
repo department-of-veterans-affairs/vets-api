@@ -2,7 +2,7 @@
 
 require_relative '../../../rails_helper'
 
-RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
+RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a' do
   let(:valid_json) { { field: 'value' }.to_json }
   let(:invalid_json) { 'invalid json' }
   let(:mock_schema) do

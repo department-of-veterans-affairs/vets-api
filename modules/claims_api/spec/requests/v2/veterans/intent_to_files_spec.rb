@@ -5,7 +5,7 @@ require_relative '../../../rails_helper'
 require 'token_validation/v2/client'
 require 'bgs_service/intent_to_file_web_service'
 
-RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFile', type: :request do
+RSpec.describe 'ClaimsApi::V2::Veterans::IntentToFile' do
   let(:veteran_id) { '1013062086V794840' }
   let(:iws) do
     ClaimsApi::IntentToFileWebService

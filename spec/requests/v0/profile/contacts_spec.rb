@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Profile::Contacts', type: :request do
+RSpec.describe 'V0::Profile::Contacts' do
   include SchemaMatchers
   let(:user) { build(:user, :loa3, idme_uuid:) }
   let(:resource) { JSON.parse(response.body) }

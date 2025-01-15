@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'LHealthQuest::V0::Locations', type: :request do
+RSpec.describe 'LHealthQuest::V0::Locations' do
   let(:access_denied_message) { 'You do not have access to the health quest service' }
 
   describe 'GET locations `index`' do

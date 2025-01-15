@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::StateCode, type: :model do
+RSpec.describe SignIn::StateCode do
   let(:state_code) { create(:state_code, code:) }
   let(:code) { SecureRandom.hex }
 

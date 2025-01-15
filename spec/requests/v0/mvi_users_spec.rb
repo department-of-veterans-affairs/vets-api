@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe 'V0::MVIUsers', type: :request do
+RSpec.describe 'V0::MVIUsers' do
   describe 'POST #submit' do
     let(:user) { build(:user_with_no_ids) }
 

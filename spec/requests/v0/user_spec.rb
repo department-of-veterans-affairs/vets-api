@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/sm_client_helpers'
 
-RSpec.describe 'V0::User', type: :request do
+RSpec.describe 'V0::User' do
   include SchemaMatchers
   include SM::ClientHelpers
 

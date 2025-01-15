@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe IntentToFileQueueExhaustion, type: :model do
+RSpec.describe IntentToFileQueueExhaustion do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:veteran_icn) }
   end

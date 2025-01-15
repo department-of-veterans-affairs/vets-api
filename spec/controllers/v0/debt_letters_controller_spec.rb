@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/stub_debt_letters'
 
-RSpec.describe V0::DebtLettersController, type: :controller do
+RSpec.describe V0::DebtLettersController do
   let(:user) { build(:user, :loa3) }
 
   before do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::IdCard::Attributes', type: :request do
+RSpec.describe 'V0::IdCard::Attributes' do
   let(:token) { 'fa0f28d6-224a-4015-a3b0-81e77de269f2' }
   let(:auth_header) { { 'Authorization' => "Token token=#{token}" } }
   let(:current_user) { build(:user, :loa3) }

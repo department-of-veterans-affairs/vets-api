@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::ServiceAccountApplicationController, type: :controller do
+RSpec.describe SignIn::ServiceAccountApplicationController do
   controller do
     before_action :authenticate_service_account
 

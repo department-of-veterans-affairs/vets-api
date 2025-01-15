@@ -2,7 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile::V0::Health::LabsAndTests', type: :request do
+RSpec.describe 'Mobile::V0::Health::LabsAndTests' do
   let!(:user) { sis_user(icn: '32000225') }
 
   let(:diagnostic_report_response) do

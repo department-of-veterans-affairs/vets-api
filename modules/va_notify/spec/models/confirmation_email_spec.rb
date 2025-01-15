@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VANotify::ConfirmationEmail, type: :model do
+RSpec.describe VANotify::ConfirmationEmail do
   describe '.send' do
     it 'returns early if already sent' do
       allow(VANotify::EmailJob).to receive(:perform_async).and_return('email_notification')

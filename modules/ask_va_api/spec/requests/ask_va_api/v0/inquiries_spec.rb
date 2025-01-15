@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AskVAApi::Engine.root.join('spec', 'support', 'shared_contexts.rb')
 
-RSpec.describe 'AskVAApi::V0::Inquiries', type: :request do
+RSpec.describe 'AskVAApi::V0::Inquiries' do
   # allow to have access to inquiry_param
   include_context 'shared data'
 

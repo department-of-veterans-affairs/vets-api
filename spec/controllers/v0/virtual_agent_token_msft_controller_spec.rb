@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V0::VirtualAgentTokenMsftController, type: :controller do
+RSpec.describe V0::VirtualAgentTokenMsftController do
   describe '#create' do
     context 'when external service is healthy' do
       let(:api_session) do

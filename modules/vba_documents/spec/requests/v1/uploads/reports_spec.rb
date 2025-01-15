@@ -5,7 +5,7 @@ require_relative '../../../support/vba_document_fixtures'
 require 'vba_documents/pdf_inspector'
 require_relative '../../../../app/serializers/vba_documents/upload_serializer'
 
-RSpec.describe 'VBADocument::V1::Uploads::Report', type: :request do
+RSpec.describe 'VBADocument::V1::Uploads::Report' do
   describe '#create /v1/uploads/report' do
     let(:upload) { create(:upload_submission) }
     let(:pdf_info) { create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }

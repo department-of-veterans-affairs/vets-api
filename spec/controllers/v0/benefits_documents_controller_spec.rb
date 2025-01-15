@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'lighthouse/benefits_documents/service'
 require 'lighthouse/service_exception'
 
-RSpec.describe V0::BenefitsDocumentsController, type: :controller do
+RSpec.describe V0::BenefitsDocumentsController do
   let(:user) { create(:user, :loa3, :accountable, uuid: '1234', icn: '123498767V234859') }
 
   before do

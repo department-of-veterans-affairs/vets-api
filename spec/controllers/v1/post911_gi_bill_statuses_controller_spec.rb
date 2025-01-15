@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'lighthouse/benefits_education/service'
 
-RSpec.describe V1::Post911GIBillStatusesController, type: :controller do
+RSpec.describe V1::Post911GIBillStatusesController do
   let(:user) { create(:user, :loa3, icn: '1000000000V100000') }
   let(:once) { { times: 1, value: 1 } }
   let(:tz) { ActiveSupport::TimeZone.new(BenefitsEducation::Service::OPERATING_ZONE) }

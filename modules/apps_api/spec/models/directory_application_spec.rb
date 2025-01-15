@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DirectoryApplication, type: :model do
+RSpec.describe DirectoryApplication do
   it 'is invalid without valid attributes' do
     expect(DirectoryApplication.new).not_to be_valid
   end

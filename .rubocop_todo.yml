@@ -379,11 +379,6 @@ RSpec/SubjectDeclaration:
     - 'spec/sidekiq/pager_duty/cache_global_downtime_spec.rb'
     - 'spec/uploaders/form1010cg/poa_uploader_spec.rb'
 
-# Offense count: 470
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: Inferences.
-RSpecRails/InferredSpecType:
-  Enabled: false
 
 # Offense count: 14
 # This cop supports safe autocorrection (--autocorrect).

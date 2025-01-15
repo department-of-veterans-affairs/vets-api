@@ -2,7 +2,7 @@
 
 require_relative '../../../../../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validation, type: :request do
+RSpec.describe 'Mobile::V0::Messaging::Health::Folders', :skip_json_api_validation do
   include SchemaMatchers
 
   let!(:user) { sis_user(:mhv, mhv_correlation_id: '123', mhv_account_type: 'Premium') }

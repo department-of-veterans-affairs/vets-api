@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::HealthCareApplicationsController, type: :controller do
+RSpec.describe V0::HealthCareApplicationsController do
   let(:hca_request) { file_fixture('forms/healthcare_application_request.json').read }
   let(:hca_response) { JSON.parse(file_fixture('forms/healthcare_application_response.json').read) }
 

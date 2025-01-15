@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'NextStepsEmailController', type: :request do
+RSpec.describe 'NextStepsEmailController' do
   describe 'POST #create' do
     let(:base_path) { '/representation_management/v0/next_steps_email' }
     let(:accredited_individual) do

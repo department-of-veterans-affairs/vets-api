@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require_relative '../../../../support/helpers/rails_helper'
-RSpec.describe 'Mobile::V0::User::Demographics', type: :request do
+RSpec.describe 'Mobile::V0::User::Demographics' do
   describe 'logingov user' do
     let!(:user) do
       sis_user(

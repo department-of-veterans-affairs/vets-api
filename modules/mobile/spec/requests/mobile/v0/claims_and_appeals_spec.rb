@@ -520,7 +520,7 @@ claims-webparts/ErrorCodeMessages.properties. [Unique ID: 1522946240935]"
   end
 end
 
-RSpec.describe 'Mobile::V0::ClaimsAndAppeals', type: :request do
+RSpec.describe 'Mobile::V0::ClaimsAndAppeals' do
   include JsonSchemaMatchers
 
   it_behaves_like 'claims and appeals overview', false

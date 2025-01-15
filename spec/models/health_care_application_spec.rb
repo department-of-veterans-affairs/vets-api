@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe HealthCareApplication, type: :model do
+RSpec.describe HealthCareApplication do
   let(:health_care_application) { create(:health_care_application) }
   let(:health_care_application_short_form) do
     short_form = JSON.parse(health_care_application.form)

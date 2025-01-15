@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::ClaimLettersController, type: :controller do
+RSpec.describe V0::ClaimLettersController do
   let(:user) { build(:user, :loa3) }
   let(:document_id) { '{27832B64-2D88-4DEE-9F6F-DF80E4CAAA87}' }
   let(:filename) { 'ClaimLetter-2022-9-22.pdf' }

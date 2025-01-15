@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V1::Profile::MilitaryInfosController, type: :controller do
+RSpec.describe V1::Profile::MilitaryInfosController do
   let(:user) { create(:user, :loa3, edipi: '1100377582') }
 
   before do

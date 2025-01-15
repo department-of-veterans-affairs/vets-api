@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::TermsOfUseAgreementsController, type: :controller do
+RSpec.describe V0::TermsOfUseAgreementsController do
   let(:user) { create(:user) }
   let(:user_account) { create(:user_account, icn:) }
   let(:icn) { user.icn }

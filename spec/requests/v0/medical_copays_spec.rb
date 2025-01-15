@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::MedicalCopays', type: :request do
+RSpec.describe 'V0::MedicalCopays' do
   let(:current_user) { build(:user, :loa3) }
 
   before do

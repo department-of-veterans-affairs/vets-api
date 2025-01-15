@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Vye::BdnClone, type: :model do
+RSpec.describe Vye::BdnClone do
   describe 'create' do
     let(:attributes) { attributes_for(:vye_bdn_clone_base) }
 

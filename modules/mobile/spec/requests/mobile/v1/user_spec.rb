@@ -3,7 +3,7 @@
 require_relative '../../../support/helpers/rails_helper'
 require 'common/client/errors'
 
-RSpec.describe 'Mobile::V1::User', type: :request do
+RSpec.describe 'Mobile::V1::User' do
   include JsonSchemaMatchers
   let(:contact_information_service) do
     VAProfile::ContactInformation::Service

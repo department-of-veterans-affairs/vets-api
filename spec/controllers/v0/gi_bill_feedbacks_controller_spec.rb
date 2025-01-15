@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V0::GIBillFeedbacksController, type: :controller do
+RSpec.describe V0::GIBillFeedbacksController do
   let(:form) { build(:gi_bill_feedback).form }
   let(:user) { create(:user) }
 

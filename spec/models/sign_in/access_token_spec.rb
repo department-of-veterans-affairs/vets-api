@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::AccessToken, type: :model do
+RSpec.describe SignIn::AccessToken do
   let(:access_token) do
     create(:access_token,
            session_handle:,

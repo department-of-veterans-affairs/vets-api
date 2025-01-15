@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::TestAccountUserEmails', type: :request do
+RSpec.describe 'V0::TestAccountUserEmails' do
   describe 'POST #create' do
     subject { post '/v0/test_account_user_email', params: }
 

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SAMLRequestTracker, type: :model do
+RSpec.describe SAMLRequestTracker do
   describe '#save' do
     context 'with a datetime of 2020-01-01T08:00:00Z' do
       before { Timecop.freeze(Time.zone.parse('2020-01-01T08:00:00Z')) }

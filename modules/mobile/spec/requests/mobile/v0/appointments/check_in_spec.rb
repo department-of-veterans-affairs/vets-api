@@ -3,7 +3,7 @@
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
 
-RSpec.describe 'Mobile::V0::Appointments::CheckIn', type: :request do
+RSpec.describe 'Mobile::V0::Appointments::CheckIn' do
   include CommitteeHelper
 
   let(:attributes) { response.parsed_body.dig('data', 'attributes') }

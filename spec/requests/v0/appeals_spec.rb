@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Appeals', type: :request do
+RSpec.describe 'V0::Appeals' do
   include SchemaMatchers
 
   appeals_endpoint = '/v0/appeals'

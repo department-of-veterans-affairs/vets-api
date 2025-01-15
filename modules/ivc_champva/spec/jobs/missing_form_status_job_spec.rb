@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'IvcChampva::MissingFormStatusJob', type: :job do
+RSpec.describe 'IvcChampva::MissingFormStatusJob' do
   let!(:one_week_ago) { 1.week.ago.utc }
   let!(:forms) { create_list(:ivc_champva_form, 3, pega_status: nil, created_at: one_week_ago) }
   let!(:job) { IvcChampva::MissingFormStatusJob.new }

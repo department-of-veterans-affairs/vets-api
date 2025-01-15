@@ -3,7 +3,7 @@
 require_relative '../../../../support/helpers/rails_helper'
 require 'va_profile/demographics/service'
 
-RSpec.describe 'Mobile::V0::User::GenderIdentity', type: :request do
+RSpec.describe 'Mobile::V0::User::GenderIdentity' do
   include SchemaMatchers
 
   describe 'logingov user' do

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'vba_documents/health_checker'
 
-RSpec.describe 'VBADocument::V1::Healthcheck', type: :request do
+RSpec.describe 'VBADocument::V1::Healthcheck' do
   describe '#healthcheck' do
     context 'v1' do
       it 'returns a successful health check' do

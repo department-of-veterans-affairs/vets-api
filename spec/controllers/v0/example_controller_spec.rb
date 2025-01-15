@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::ExampleController, type: :controller do
+RSpec.describe V0::ExampleController do
   context 'when not logged in' do
     it 'returns unauthorized' do
       get :welcome

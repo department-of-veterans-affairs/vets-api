@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Profile::PaymentHistoryController, type: :controller do
+RSpec.describe V0::Profile::PaymentHistoryController do
   let(:user) { create(:evss_user) }
 
   describe '#index' do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Device, type: :model do
+RSpec.describe Device do
   let(:current_user) { build(:user) }
 
   it 'creates device when given a name and key' do

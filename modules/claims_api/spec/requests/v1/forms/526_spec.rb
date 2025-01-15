@@ -4,7 +4,7 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require 'bgs_service/standard_data_service'
 
-RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
+RSpec.describe 'ClaimsApi::V1::Forms::526' do
   let(:headers) do
     { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',

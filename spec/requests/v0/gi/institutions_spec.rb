@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::GI::Institutions', type: :request do
+RSpec.describe 'V0::GI::Institutions' do
   include SchemaMatchers
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }

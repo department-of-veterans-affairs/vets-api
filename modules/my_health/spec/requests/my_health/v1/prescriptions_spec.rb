@@ -5,7 +5,7 @@ require 'support/rx_client_helpers'
 require 'support/shared_examples_for_mhv'
 
 # rubocop:disable Layout/LineLength
-RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
+RSpec.describe 'MyHealth::V1::Prescriptions' do
   include Rx::ClientHelpers
   include SchemaMatchers
 

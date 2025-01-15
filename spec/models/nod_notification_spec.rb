@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe NodNotification, type: :model do
+RSpec.describe NodNotification do
   let(:nod_notification) { build(:nod_notification) }
 
   describe 'payload encryption' do

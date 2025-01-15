@@ -5,7 +5,7 @@ require Rails.root / 'modules/claims_api/spec/rails_helper'
 
 # TODO: Delete this file
 # We are covered by request_controller_spec.rb
-RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests::Decisions#create', :bgs, :skip, type: :request do
+RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests::Decisions#create', :bgs, :skip do
   def perform_request(params)
     post(
       "/services/claims/v2/power-of-attorney-requests/#{id}/decision",

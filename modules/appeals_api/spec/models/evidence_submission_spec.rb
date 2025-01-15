@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::EvidenceSubmission, type: :model do
+describe AppealsApi::EvidenceSubmission do
   let(:notice_of_disagreement) { create(:notice_of_disagreement) }
   let(:upload_submission) { create(:upload_submission) }
   let(:evidence_submission) do

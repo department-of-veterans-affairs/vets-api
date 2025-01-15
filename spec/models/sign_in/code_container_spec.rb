@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::CodeContainer, type: :model do
+RSpec.describe SignIn::CodeContainer do
   let(:code_container) do
     create(:code_container,
            code_challenge:,

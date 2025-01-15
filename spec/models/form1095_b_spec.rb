@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Form1095B, type: :model do
+RSpec.describe Form1095B do
   subject { create(:form1095_b) }
 
   describe 'validations' do

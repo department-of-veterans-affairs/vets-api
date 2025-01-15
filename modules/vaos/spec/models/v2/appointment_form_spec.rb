@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VAOS::V2::AppointmentForm, type: :model do
+describe VAOS::V2::AppointmentForm do
   let(:user) { build(:user, :vaos) }
 
   describe 'valid object' do

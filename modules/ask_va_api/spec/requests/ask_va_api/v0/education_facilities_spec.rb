@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'AskVAApi::V0::EducationFacilities', type: :request do
+RSpec.describe 'AskVAApi::V0::EducationFacilities' do
   include SchemaMatchers
 
   let(:inflection_header) { { 'X-Key-Inflection' => 'camel' } }

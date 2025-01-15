@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RepresentationManagement::FlaggedVeteranRepresentativeContactData, type: :model do
+RSpec.describe RepresentationManagement::FlaggedVeteranRepresentativeContactData do
   describe 'validations' do
     context 'ip_address' do
       it 'is valid when ip_address is present' do

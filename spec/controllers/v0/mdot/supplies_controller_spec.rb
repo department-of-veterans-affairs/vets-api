@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::MDOT::SuppliesController, type: :controller do
+RSpec.describe V0::MDOT::SuppliesController do
   let(:user_details) do
     {
       first_name: 'Greg',

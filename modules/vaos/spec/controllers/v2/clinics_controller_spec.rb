@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VAOS::V2::ClinicsController, type: :controller do
+RSpec.describe VAOS::V2::ClinicsController do
   describe '#unable_to_lookup_clinic?' do
     context 'when appointment is nil' do
       let(:appt) { nil }

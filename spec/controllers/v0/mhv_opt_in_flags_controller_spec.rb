@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::MHVOptInFlagsController, type: :controller do
+RSpec.describe V0::MHVOptInFlagsController do
   context 'when not logged in' do
     it 'returns unauthorized' do
       get :show, params: { feature: 'secure_messaging' }

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::ServiceAccountConfig, type: :model do
+RSpec.describe SignIn::ServiceAccountConfig do
   let(:certificates) { [] }
   let(:service_account_id) { SecureRandom.hex }
   let(:access_token_duration) { SignIn::Constants::ServiceAccountAccessToken::VALIDITY_LENGTH_SHORT_MINUTES }

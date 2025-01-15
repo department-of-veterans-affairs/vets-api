@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'admin/redis_health_checker'
 
-RSpec.describe 'V0::Status', type: :request do
+RSpec.describe 'V0::Status' do
   before do
     allow(RedisHealthChecker).to receive_messages(redis_up: true, app_data_redis_up: true, rails_cache_up: true,
                                                   sidekiq_redis_up: true)

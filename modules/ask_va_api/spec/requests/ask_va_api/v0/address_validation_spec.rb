@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'AskVAApi::V0::AddressValidation', type: :request do
+RSpec.describe 'AskVAApi::V0::AddressValidation' do
   let(:user) { build(:user) }
   let(:address) { build(:va_profile_address) }
   let(:multiple_match_addr) do

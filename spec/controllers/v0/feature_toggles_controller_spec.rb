@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::FeatureTogglesController, type: :controller do
+RSpec.describe V0::FeatureTogglesController do
   before(:all) do
     @feature_name = 'this_is_only_a_test'
     @feature_name_camel = @feature_name.camelize(:lower)

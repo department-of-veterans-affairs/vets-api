@@ -3,7 +3,7 @@
 require 'rails_helper'
 require './modules/vba_documents/spec/support/vba_document_fixtures'
 
-describe VBADocuments::UploadFile, type: :model do
+describe VBADocuments::UploadFile do
   include VBADocuments::Fixtures
 
   it 'can upload and purge from storage' do

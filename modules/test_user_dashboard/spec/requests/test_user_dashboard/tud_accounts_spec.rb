@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'TestUserDashboard::TudAccounts', type: :request do
+RSpec.describe 'TestUserDashboard::TudAccounts' do
   let(:rsa_private) { OpenSSL::PKey::RSA.new 2048 }
   let(:rsa_public) { rsa_private.public_key }
   let(:pub_key) { Base64.encode64(rsa_public.to_der) }

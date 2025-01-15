@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Claims API power of attorney routing', type: :routing do
+RSpec.describe 'Claims API power of attorney routing' do
   base_path = '/services/claims/v2/'
   controller_base = 'claims_api/v2/veterans/power_of_attorney'
 

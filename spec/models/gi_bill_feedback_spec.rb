@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe GIBillFeedback, type: :model do
+RSpec.describe GIBillFeedback do
   let(:gi_bill_feedback) { build(:gi_bill_feedback) }
 
   describe '#find' do

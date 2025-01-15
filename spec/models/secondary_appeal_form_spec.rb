@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'decision_review_v1/service'
 
-RSpec.describe SecondaryAppealForm, type: :model do
+RSpec.describe SecondaryAppealForm do
   subject { build(:secondary_appeal_form4142) }
 
   describe 'validations' do

@@ -2,7 +2,7 @@
 
 require_relative '../../../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile::V0::Translations', type: :request do
+RSpec.describe 'Mobile::V0::Translations' do
   describe 'GET /mobile/v0/translations/download' do
     let(:file_hex) do
       file = Rails.root.join('modules', 'mobile', 'app', 'assets', 'translations', 'en', 'common.json')

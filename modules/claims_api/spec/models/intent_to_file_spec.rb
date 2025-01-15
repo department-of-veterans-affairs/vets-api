@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::IntentToFile, type: :model do
+RSpec.describe ClaimsApi::IntentToFile do
   describe 'requiring fields' do
     context "when 'status' is not provided" do
       it 'fails validation' do

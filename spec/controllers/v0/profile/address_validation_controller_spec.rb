@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Profile::AddressValidationController, type: :controller do
+RSpec.describe V0::Profile::AddressValidationController do
   describe 'contact information v1', :skip_va_profile_user do
     let(:user) { build(:user) }
     let(:multiple_match_addr) { build(:va_profile_address, :multiple_matches) }

@@ -5,7 +5,7 @@ require_relative '../../../../support/helpers/committee_helper'
 
 require Rails.root.join('modules', 'claims_api', 'spec', 'support', 'fake_vbms.rb')
 
-RSpec.describe 'Mobile::V0::Claims::DecisionLetters', type: :request do
+RSpec.describe 'Mobile::V0::Claims::DecisionLetters' do
   include JsonSchemaMatchers
   include CommitteeHelper
 

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
+RSpec.describe V0::DisabilityCompensationFormsController do
   let(:user) { build(:user, :loa3) }
   let(:user_without_icn) { build(:user, :loa3, icn: '') }
   let(:user_without_ssn) { build(:user, :loa3, ssn: '') }

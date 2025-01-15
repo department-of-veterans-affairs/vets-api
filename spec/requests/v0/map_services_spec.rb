@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::MapServices', type: :request do
+RSpec.describe 'V0::MapServices' do
   describe 'POST /v0/map_services/token' do
     subject(:call_endpoint) do
       post v0_map_services_token_path(application:), headers: service_account_auth_header

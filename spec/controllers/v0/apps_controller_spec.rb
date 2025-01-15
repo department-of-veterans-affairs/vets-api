@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::AppsController, type: :controller do
+RSpec.describe V0::AppsController do
   describe '#index and #show' do
     context 'without query param' do
       it 'returns apps' do

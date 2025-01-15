@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'rx/client' # used to stub Rx::Client in tests
 
-RSpec.describe ApplicationController, type: :controller do
+RSpec.describe ApplicationController do
   controller do
     attr_reader :payload
 

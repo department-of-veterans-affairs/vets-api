@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Profile::Permissions', type: :request do
+RSpec.describe 'V0::Profile::Permissions' do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3, vet360_id: '1411684') }

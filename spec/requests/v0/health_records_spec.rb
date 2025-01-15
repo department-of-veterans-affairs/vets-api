@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'bb/client' # required to stub responses
 
-RSpec.describe 'V0::HealthRecords', type: :request do
+RSpec.describe 'V0::HealthRecords' do
   include SchemaMatchers
 
   let(:authenticated_client) do

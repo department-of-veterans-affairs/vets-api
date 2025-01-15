@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'root', type: :request do
+RSpec.describe 'root' do
   it 'Provides a welcome message at root' do
     get '/'
     assert_response :success

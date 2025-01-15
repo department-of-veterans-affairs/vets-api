@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedOrganization, type: :model do
+RSpec.describe AccreditedOrganization do
   describe 'validations' do
     subject { build(:accredited_organization, poa_code: 'A12') }
 

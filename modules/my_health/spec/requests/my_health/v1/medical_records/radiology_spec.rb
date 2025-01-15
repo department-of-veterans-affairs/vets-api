@@ -5,7 +5,7 @@ require 'support/mr_client_helpers'
 require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 
-RSpec.describe 'MyHealth::V1::MedicalRecords::Radiology', type: :request do
+RSpec.describe 'MyHealth::V1::MedicalRecords::Radiology' do
   include MedicalRecords::ClientHelpers
   include SchemaMatchers
 

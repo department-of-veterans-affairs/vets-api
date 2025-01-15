@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::BannersController, type: :controller do
+RSpec.describe V0::BannersController do
   describe 'GET #by_path' do
     let(:path) { '/sample/path' }
     let(:banner_type) { 'full_width_banner_alert' }

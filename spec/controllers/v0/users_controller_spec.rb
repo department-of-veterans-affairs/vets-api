@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::UsersController, type: :controller do
+RSpec.describe V0::UsersController do
   include RequestHelper
 
   context 'when not logged in' do

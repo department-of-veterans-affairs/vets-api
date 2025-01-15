@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Preneeds::PreneedAttachmentsController, type: :controller do
+RSpec.describe V0::Preneeds::PreneedAttachmentsController do
   describe '::FORM_ATTACHMENT_MODEL' do
     it 'is a FormAttachment model' do
       expect(described_class::FORM_ATTACHMENT_MODEL.ancestors).to include(FormAttachment)

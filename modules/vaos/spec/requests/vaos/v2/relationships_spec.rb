@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'relationships', :skip_mvi, type: :request do
+RSpec.describe 'relationships', :skip_mvi do
   before do
     sign_in_as(current_user)
     allow_any_instance_of(VAOS::UserService).to receive(:session).and_return('stubbed_token')

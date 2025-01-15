@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'MebApi::V0::Apidocs', type: :request do
+RSpec.describe 'MebApi::V0::Apidocs' do
   describe 'GET /meb_api/v0/apidocs' do
     it 'renders the apidocs as json' do
       get '/meb_api/v0/apidocs'

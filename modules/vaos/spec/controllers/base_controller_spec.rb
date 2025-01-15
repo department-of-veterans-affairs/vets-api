@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VAOS::BaseController, type: :controller do
+RSpec.describe VAOS::BaseController do
   describe '#authorize' do
     let(:current_user) { build(:user, :loa3) }
 

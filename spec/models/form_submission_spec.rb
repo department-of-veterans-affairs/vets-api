@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe FormSubmission, feature: :form_submission, type: :model do
+RSpec.describe FormSubmission, feature: :form_submission do
   let(:user_account) { create(:user_account) }
 
   describe 'associations' do

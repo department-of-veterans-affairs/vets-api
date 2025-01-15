@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Profile::CommunicationPreferencesController, type: :controller do
+RSpec.describe V0::Profile::CommunicationPreferencesController do
   let(:user) { build(:user, :loa3) }
 
   let(:valid_params) do

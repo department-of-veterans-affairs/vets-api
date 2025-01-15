@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'appeals_api/health_checker'
 
-describe 'metadata request api', type: :request do
+describe 'metadata request api' do
   RSpec.shared_examples 'a healthcheck' do |path|
     it 'returns a successful healthcheck' do
       # stub successful s3 up call
@@ -154,7 +154,7 @@ describe 'metadata request api', type: :request do
     end
   end
 
-  context 'Appeals Metadata Endpoint', type: :request do
+  context 'Appeals Metadata Endpoint' do
     describe '#get /metadata' do
       it 'returns decision reviews metadata JSON' do
         get '/services/appeals/decision_reviews/metadata'

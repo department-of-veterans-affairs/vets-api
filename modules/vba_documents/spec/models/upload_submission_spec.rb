@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VBADocuments::UploadSubmission, type: :model do
+describe VBADocuments::UploadSubmission do
   let(:upload_pending) { create(:upload_submission) }
   let(:upload_uploaded) { create(:upload_submission, status: 'uploaded') }
   let(:upload_received) { create(:upload_submission, status: 'received') }

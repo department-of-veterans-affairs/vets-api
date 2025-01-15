@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::ClientConfigsController, type: :controller do
+RSpec.describe SignIn::ClientConfigsController do
   let(:valid_attributes) { attributes_for(:client_config) }
   let(:invalid_attributes) { { client_id: nil } }
   let(:client_config) { create(:client_config) }

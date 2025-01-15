@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe UserCredentialEmail, type: :model do
+RSpec.describe UserCredentialEmail do
   subject do
     create(:user_credential_email,
            user_verification:,

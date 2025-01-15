@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DecisionReviewNotificationAuditLog, type: :model do
+RSpec.describe DecisionReviewNotificationAuditLog do
   let(:audit_log) { build(:decision_review_notification_audit_log) }
 
   describe 'payload encryption' do

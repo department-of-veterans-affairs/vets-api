@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::OnsiteNotificationsController, type: :controller do
+RSpec.describe V0::OnsiteNotificationsController do
   private_key = OpenSSL::PKey::EC.new(File.read('spec/support/certificates/notification-private.pem'))
 
   let(:template_id) { 'f9947b27-df3b-4b09-875c-7f76594d766d' }

@@ -6,7 +6,7 @@ require 'medical_records/client'
 require 'medical_records/bb_internal/client'
 require 'support/shared_examples_for_mhv'
 
-RSpec.describe 'MyHealth::V1::MedicalRecords::Conditions', type: :request do
+RSpec.describe 'MyHealth::V1::MedicalRecords::Conditions' do
   include MedicalRecords::ClientHelpers
   include SchemaMatchers
 

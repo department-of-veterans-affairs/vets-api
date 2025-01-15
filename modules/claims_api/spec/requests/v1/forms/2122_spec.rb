@@ -5,7 +5,7 @@ require_relative '../../../rails_helper'
 require 'bgs_service/local_bgs'
 require 'bgs_service/person_web_service'
 
-RSpec.describe 'ClaimsApi::V1::Forms::2122', type: :request do
+RSpec.describe 'ClaimsApi::V1::Forms::2122' do
   let(:headers) do
     { 'X-VA-SSN': '796-04-3735',
       'X-VA-First-Name': 'WESLEY',

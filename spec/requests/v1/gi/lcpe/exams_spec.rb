@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V1::GI::LCPE::Exams', type: :request do
+RSpec.describe 'V1::GI::LCPE::Exams' do
   include SchemaMatchers
 
   describe 'GET v1/gi/lcpe/exams' do

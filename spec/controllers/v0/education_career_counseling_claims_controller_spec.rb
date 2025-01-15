@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V0::EducationCareerCounselingClaimsController, type: :controller do
+RSpec.describe V0::EducationCareerCounselingClaimsController do
   let(:loa3_user) { create(:evss_user) }
   let(:loa1_user) { create(:user) }
 

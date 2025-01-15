@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Mobile::V0::ServiceGraph, type: :model do
+RSpec.describe Mobile::V0::ServiceGraph do
   subject do
     Mobile::V0::ServiceGraph.new(
       %i[bgs evss],

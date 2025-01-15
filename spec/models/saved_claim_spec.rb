@@ -15,7 +15,7 @@ class TestSavedClaim < SavedClaim
   end
 end
 
-RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFilePathFormat
+RSpec.describe TestSavedClaim do # rubocop:disable RSpec/SpecFilePathFormat
   subject(:saved_claim) { described_class.new(form: form_data) }
 
   let(:form_data) { { some_key: 'some_value' }.to_json }

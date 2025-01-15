@@ -60,7 +60,7 @@ shared_examples 'SC metadata' do |opts|
   end
 end
 
-describe AppealsApi::SupplementalClaim, type: :model do
+describe AppealsApi::SupplementalClaim do
   include FixtureHelpers
 
   describe 'when api_version is v0' do

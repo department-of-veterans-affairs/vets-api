@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RepresentationManagement::AccreditedIndividualSearch, type: :model do
+RSpec.describe RepresentationManagement::AccreditedIndividualSearch do
   describe 'validations' do
     subject { described_class.new }
 

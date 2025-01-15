@@ -5,8 +5,7 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require_relative '../../../support/swagger_shared_components/v0'
 
 RSpec.describe 'Accredited Entities for Appoint',
-               openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json',
-               type: :request do
+               openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json' do
   before do
     create(:accredited_organization,
            :with_location,

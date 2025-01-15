@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::AverageDaysForClaimCompletionController, type: :controller do
+RSpec.describe V0::AverageDaysForClaimCompletionController do
   context 'when querying with nothing in db' do
     it 'returns -1 for value' do
       get :index

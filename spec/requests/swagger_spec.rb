@@ -17,7 +17,7 @@ require 'hca/enrollment_eligibility/constants'
 require 'form1010_ezr/service'
 require 'lighthouse/facilities/v1/client'
 
-RSpec.describe 'API doc validations', type: :request do
+RSpec.describe 'API doc validations' do
   context 'json validation' do
     it 'has valid json' do
       get '/v0/apidocs.json'

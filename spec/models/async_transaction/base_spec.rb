@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AsyncTransaction::Base, type: :model do
+RSpec.describe AsyncTransaction::Base do
   describe 'Validation' do
     let(:transaction1) { create(:address_transaction) }
     let(:transaction2) { build(:address_transaction) }

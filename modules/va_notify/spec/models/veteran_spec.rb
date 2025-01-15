@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VANotify::Veteran, type: :model do
+RSpec.describe VANotify::Veteran do
   let(:user_account) { create(:user_account, icn:) }
   let(:icn) { nil }
   let(:in_progress_form) { create(:in_progress_686c_form, user_account:) }

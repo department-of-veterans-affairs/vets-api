@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::ClaimDocuments', type: :request do
+RSpec.describe 'V0::ClaimDocuments' do
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)

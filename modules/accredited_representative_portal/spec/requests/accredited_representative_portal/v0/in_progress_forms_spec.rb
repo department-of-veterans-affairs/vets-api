@@ -2,7 +2,7 @@
 
 require_relative '../../../rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController, type: :request do
+RSpec.describe AccreditedRepresentativePortal::V0::InProgressFormsController do
   let(:representative_user) { create(:representative_user) }
   let(:form_id) { '21a' }
   let(:headers) { { 'Content-Type' => 'application/json' } }

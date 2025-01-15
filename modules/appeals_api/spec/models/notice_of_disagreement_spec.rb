@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::NoticeOfDisagreement, type: :model do
+describe AppealsApi::NoticeOfDisagreement do
   include FixtureHelpers
 
   shared_examples 'NOD metadata' do |opts|

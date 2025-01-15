@@ -5,7 +5,7 @@ require_relative '../../../support/vba_document_fixtures'
 require 'vba_documents/pdf_inspector'
 require_relative '../../../../app/serializers/vba_documents/upload_serializer'
 
-RSpec.describe 'VBADocument::V2::Uploads::Report', type: :request do
+RSpec.describe 'VBADocument::V2::Uploads::Report' do
   include VBADocuments::Fixtures
   load('./modules/vba_documents/config/routes.rb')
 

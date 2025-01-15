@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Accreditation, type: :model do
+RSpec.describe Accreditation do
   describe 'validations' do
     subject { build(:accreditation) }
 

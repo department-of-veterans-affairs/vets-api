@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
-RSpec.describe Vye::Verification, type: :model do
+RSpec.describe Vye::Verification do
   it 'is valid with valid attributes' do
     address_change = build_stubbed(:vye_verification)
     expect(address_change).to be_valid

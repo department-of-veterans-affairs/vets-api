@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::GI::InstitutionPrograms', type: :request do
+RSpec.describe 'V0::GI::InstitutionPrograms' do
   include SchemaMatchers
 
   it 'responds to GET #search with bad encoding' do

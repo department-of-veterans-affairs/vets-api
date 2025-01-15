@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::BenefitsReferenceDataController, type: :controller do
+RSpec.describe V0::BenefitsReferenceDataController do
   let(:user) { create(:user, :loa3, :accountable) }
 
   before do

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'lighthouse/facilities/v1/client'
 
-RSpec.describe 'V0::CaregiversAssistanceClaims', type: :request do
+RSpec.describe 'V0::CaregiversAssistanceClaims' do
   let(:uri) { 'http://localhost:3000' }
   let(:headers) do
     {

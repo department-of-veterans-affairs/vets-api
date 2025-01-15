@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::UserCodeMap, type: :model do
+RSpec.describe SignIn::UserCodeMap do
   let(:user_code_map) do
     create(:user_code_map,
            login_code:,

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Preneeds::PreneedSubmission, type: :model do
+RSpec.describe Preneeds::PreneedSubmission do
   subject { build(:preneed_submission) }
 
   describe 'when validating' do

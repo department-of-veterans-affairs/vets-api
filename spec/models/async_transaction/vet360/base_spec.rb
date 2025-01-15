@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AsyncTransaction::Vet360::Base, type: :model do
+RSpec.describe AsyncTransaction::Vet360::Base do
   describe 'contact information v1', :skip_va_profile_user do
     before do
       allow(Flipper).to receive(:enabled?).with(:remove_pciu, instance_of(User)).and_return(false)

@@ -4,8 +4,7 @@ require 'rails_helper'
 require 'support/error_details'
 
 RSpec.describe 'V0::Profile::PersonalInformation',  feature: :personal_info,
-                                                    team_owner: :vfs_authenticated_experience_backend,
-                                                    type: :request do
+                                                    team_owner: :vfs_authenticated_experience_backend do
   include SchemaMatchers
   include ErrorDetails
 

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
+RSpec.describe ClaimsApi::AutoEstablishedClaim do
   let(:auto_form) { create(:auto_established_claim_va_gov, auth_headers: { some: 'data' }) }.freeze
   let(:pending_record) { create(:auto_established_claim, :special_issues, :flashes) }.freeze
 

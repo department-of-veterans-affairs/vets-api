@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DisabilityContention, type: :model do
+RSpec.describe DisabilityContention do
   describe '.suggested' do
     before do
       create(:disability_contention_arrhythmia)

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::GI::ZipcodeRates', type: :request do
+RSpec.describe 'V0::GI::ZipcodeRates' do
   include SchemaMatchers
 
   it 'responds to GET #show' do

@@ -3,7 +3,7 @@
 require './modules/decision_reviews/spec/dr_spec_helper'
 require './modules/decision_reviews/spec/support/vcr_helper'
 
-RSpec.describe 'DecisionReviews::V1::SupplementalClaims::ContestableIssues', type: :request do
+RSpec.describe 'DecisionReviews::V1::SupplementalClaims::ContestableIssues' do
   let(:user) { build(:user, :loa3) }
   let(:success_log_args) do
     {

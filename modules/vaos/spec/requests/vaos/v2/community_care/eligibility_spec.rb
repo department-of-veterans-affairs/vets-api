@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-RSpec.describe 'VAOS::V2::CommunityCare::Eligibility', type: :request do
+RSpec.describe 'VAOS::V2::CommunityCare::Eligibility' do
   include SchemaMatchers
 
   before do

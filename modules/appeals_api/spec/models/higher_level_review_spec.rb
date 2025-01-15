@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::HigherLevelReview, type: :model do
+describe AppealsApi::HigherLevelReview do
   include FixtureHelpers
 
   shared_examples 'HLR metadata' do |opts|

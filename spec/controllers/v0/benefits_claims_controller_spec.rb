@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::BenefitsClaimsController, type: :controller do
+RSpec.describe V0::BenefitsClaimsController do
   let(:user) { create(:user, :loa3, :accountable, icn: '123498767V234859') }
   let(:dependent_user) { build(:dependent_user_with_relationship, :loa3) }
 

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'routes for MAP services', type: :routing do
+RSpec.describe 'routes for MAP services' do
   it 'routes token requests' do
     expect(
       post('/v0/map_services/foobar/token')

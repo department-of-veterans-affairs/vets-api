@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V1::DecisionReviewEvidencesController, type: :controller do
+RSpec.describe V1::DecisionReviewEvidencesController do
   describe '::FORM_ATTACHMENT_MODEL' do
     it 'is a FormAttachment model' do
       expect(described_class::FORM_ATTACHMENT_MODEL.ancestors).to include(FormAttachment)

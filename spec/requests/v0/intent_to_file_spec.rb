@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'disability_compensation/factories/api_provider_factory'
 
-RSpec.describe 'V0::IntentToFile', type: :request do
+RSpec.describe 'V0::IntentToFile' do
   include SchemaMatchers
 
   let(:user) { build(:disabilities_compensation_user) }

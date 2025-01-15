@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VeteranDeviceRecord, type: :model do
+RSpec.describe VeteranDeviceRecord do
   describe 'Veteran Device Record' do
     let(:current_user) { build(:user) }
 

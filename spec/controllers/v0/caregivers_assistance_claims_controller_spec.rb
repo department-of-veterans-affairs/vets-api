@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'saved_claim/caregivers_assistance_claim'
 require 'lighthouse/facilities/v1/client'
 
-RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
+RSpec.describe V0::CaregiversAssistanceClaimsController do
   describe '::auditor' do
     it 'is an instance of Form1010cg::Auditor' do
       expect(described_class::AUDITOR).to be_an_instance_of(Form1010cg::Auditor)

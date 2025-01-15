@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Account, type: :model do
+RSpec.describe Account do
   it 'does not allow the uuid to be updated' do
     account  = create(:account)
     uuid     = account.uuid

@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/sm_client_helpers'
 require 'support/shared_examples_for_mhv'
 
-RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads', type: :request do
+RSpec.describe 'MyHealth::V1::Messaging::Folders::Threads' do
   include SM::ClientHelpers
   include SchemaMatchers
 

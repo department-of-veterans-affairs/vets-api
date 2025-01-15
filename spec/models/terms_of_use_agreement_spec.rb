@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe TermsOfUseAgreement, type: :model do
+RSpec.describe TermsOfUseAgreement do
   let(:terms_of_use_agreement) do
     build(:terms_of_use_agreement, user_account:, response:, agreement_version:)
   end

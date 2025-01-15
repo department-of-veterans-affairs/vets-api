@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'rx/client'
 
-RSpec.describe SignIn::ApplicationController, type: :controller do
+RSpec.describe SignIn::ApplicationController do
   controller do
     skip_before_action :authenticate, only: %w[index_optional_auth access_token_auth access_token_optional_auth]
     before_action :load_user, only: %(index_optional_auth)

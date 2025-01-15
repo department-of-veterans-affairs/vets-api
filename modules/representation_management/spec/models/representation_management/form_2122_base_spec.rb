@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RepresentationManagement::Form2122Base, type: :model do
+RSpec.describe RepresentationManagement::Form2122Base do
   describe 'validations' do
     subject { described_class.new }
 

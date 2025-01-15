@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationBenefitsSubmission, type: :model do
+RSpec.describe EducationBenefitsSubmission do
   subject { described_class.new(attributes) }
 
   let(:attributes) do

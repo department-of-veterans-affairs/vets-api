@@ -6,7 +6,7 @@ class FakeModel
   include ActiveModel::Validations
 end
 
-describe AppealsApi::ApplicationController, type: :controller do
+describe AppealsApi::ApplicationController do
   controller do
     skip_before_action :authenticate
 

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Form1095Bs', type: :request do
+RSpec.describe 'V0::Form1095Bs' do
   subject { create(:form1095_b) }
 
   let(:user) { build(:user, :loa3, icn: subject.veteran_icn) }

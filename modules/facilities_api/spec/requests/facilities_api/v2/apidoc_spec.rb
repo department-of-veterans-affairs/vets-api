@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'FacilitiesApi::V2::Apidocs', type: :request do
+RSpec.describe 'FacilitiesApi::V2::Apidocs' do
   describe 'GET `index`' do
     it 'is successful' do
       get '/facilities_api/v2/apidocs'

@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 require 'burials/monitor'
 
-RSpec.describe V0::BurialClaimsController, type: :controller do
+RSpec.describe V0::BurialClaimsController do
   let(:monitor) { double('Burials::Monitor') }
 
   before do
