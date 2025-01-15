@@ -10,7 +10,7 @@ RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
     create(:evss_claim, id: 1, evss_id: 189_625,
                         user_uuid: user.uuid, data: {})
   end
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:user_account) { create(:user_account) }
 
   before do
