@@ -779,20 +779,14 @@ module VAOS
       end
 
       def log_modality_failure(appointment)
-        Rails.logger.info("VAOS appointment id #{appointment[:id]} modality cannot be determined.")
-        if Random.new.rand(10).zero?
-          Rails.logger.info(
-            "VAOS appointment id #{appointment[:id]} modality details.",
-            {
-              service_type: appointment[:service_type],
-              service_category_text: appointment.dig(:service_category, 0, :text),
-              kind: appointment[:kind],
-              atlas: appointment.dig(:telehealth, :atlas),
-              vvs_kind: appointment.dig(:telehealth, :vvs_kind),
-              gfe: appointment.dig(:extension, :patient_has_mobile_gfe)
-            }.to_json
-          )
-        end
+        Rails.logger.warn("VAOS appointment id #{appointment[:id]} modality cannot be determined", {
+          service_type: appointment[:service_type],
+          service_category_text: appointment.dig(:service_category, 0, :text),
+          kind: appointment[:kind],
+          atlas: appointment.dig(:telehealth, :atlas),
+          vvs_kind: appointment.dig(:telehealth, :vvs_kind),
+          gfe: appointment.dig(:extension, :patient_has_mobile_gfe)
+        }.to_json)
       end
 
       def telehealth_modality(appointment)
@@ -800,8 +794,10 @@ module VAOS
           'vaVideoCareAtAnAtlasLocation'
         elsif %w[CLINIC_BASED STORE_FORWARD].include?(appointment.dig(:telehealth, :vvs_kind))
           'vaVideoCareAtAVaLocation'
-        elsif appointment.dig(:telehealth, :vvs_kind) == 'MOBILE_ANY/ADHOC'
-          appointment.dig(:extension, :patient_has_mobile_gfe) ? 'vaVideoCareOnGfe' : 'vaVideoCareAtHome'
+        elsif appointment.dig(:extension, :patient_has_mobile_gfe)
+          'vaVideoCareOnGfe'
+        else
+          'vaVideoCareAtHome'
         end
       end
 

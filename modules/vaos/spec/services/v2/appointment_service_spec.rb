@@ -1685,20 +1685,24 @@ describe VAOS::V2::AppointmentsService do
       expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
     end
 
-    it 'is vaVideoCareOnGfe for MOBILE_ANY/ADHOC vvsKind and patient has GFE' do
+    it 'is vaVideoCareOnGfe for patient with GFE' do
       appt = build(:appointment_form_v2, :telehealth).attributes
-      appt[:telehealth][:vvs_kind] = 'MOBILE_ANY/ADHOC'
+      appt[:telehealth][:vvs_kind] = 'ADHOC'
       appt[:extension][:patient_has_mobile_gfe] = true
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaVideoCareOnGfe')
     end
 
-    it 'is vaVideoCareAtHome for MOBILE_ANY/ADHOC vvsKind and patient does not have GFE' do
-      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
-      appt[:telehealth][:vvs_kind] = 'MOBILE_ANY/ADHOC'
-      appt[:extension][:patient_has_mobile_gfe] = false
-      subject.send(:set_modality, appt)
-      expect(appt[:modality]).to eq('vaVideoCareAtHome')
+    describe 'is vaVideoCareAtHome for' do
+      [nil, 'MOBILE_ANY', 'ADHOC'].each do |input|
+        it "#{input} and patient does not have GFE" do
+          appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
+          appt[:telehealth][:vvs_kind] = input
+          appt[:extension][:patient_has_mobile_gfe] = false
+          subject.send(:set_modality, appt)
+          expect(appt[:modality]).to eq('vaVideoCareAtHome')
+        end
+      end
     end
 
     it 'is vaVideoCareAtAnAtlasLocation for telehealth appointment with atlas' do
@@ -1730,12 +1734,12 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'logs failure to determine modality' do
-      allow(Rails.logger).to receive(:info).at_least(:once)
+      allow(Rails.logger).to receive(:warn).at_least(:once)
       appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:kind] = 'none'
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to be_nil
-      expect(Rails.logger).to have_received(:info).at_least(:once)
+      expect(Rails.logger).to have_received(:warn).at_least(:once)
     end
 
     it 'requires appointment' do
