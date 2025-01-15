@@ -33,7 +33,7 @@ RSpec.describe Lighthouse::LettersGenerator::VeteranSponsorResolver do
       it 'returns nil if the logged in user is not a dependent' do
         allow(veteran_user).to receive(:relationships).and_return(nil)
         sponsor_icn = Lighthouse::LettersGenerator::VeteranSponsorResolver.get_sponsor_icn(veteran_user)
-        expect(sponsor_icn).to eq(nil)
+        expect(sponsor_icn).to be_nil
       end
     end
   end

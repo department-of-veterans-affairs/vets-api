@@ -12,7 +12,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
   def sco_email_sent_false(less_than_six_months, facility_code)
     subject.perform(claim.id, less_than_six_months, facility_code)
     db_claim = SavedClaim::EducationBenefits::VA10203.find(claim.id)
-    expect(db_claim.parsed_form['scoEmailSent']).to eq(false)
+    expect(db_claim.parsed_form['scoEmailSent']).to be(false)
   end
 
   describe '#perform' do
@@ -56,7 +56,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
         subject.perform(form.id, true, '1')
         db_claim = SavedClaim::EducationBenefits::VA10203.find(form.id)
 
-        expect(db_claim.parsed_form['scoEmailSent']).to eq(false)
+        expect(db_claim.parsed_form['scoEmailSent']).to be(false)
       end
     end
 
@@ -82,7 +82,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
       it 'sco email sent is true' do
         subject.perform(claim.id, true, '1')
         db_claim = SavedClaim::EducationBenefits::VA10203.find(claim.id)
-        expect(db_claim.parsed_form['scoEmailSent']).to eq(true)
+        expect(db_claim.parsed_form['scoEmailSent']).to be(true)
       end
 
       it 'sends the SCO and applicant emails with correct contents' do
@@ -96,7 +96,7 @@ RSpec.describe EducationForm::SendSchoolCertifyingOfficialsEmail, type: :model, 
         db_claim = SavedClaim::EducationBenefits::VA10203.find(claim.id)
 
         # Verify that scoEmailSent is true
-        expect(db_claim.parsed_form['scoEmailSent']).to eq(true)
+        expect(db_claim.parsed_form['scoEmailSent']).to be(true)
 
         # Verify that two emails were sent
         expect(ActionMailer::Base.deliveries.count).to eq(2)

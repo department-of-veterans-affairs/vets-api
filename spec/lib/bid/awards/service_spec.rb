@@ -20,8 +20,8 @@ RSpec.describe BID::Awards::Service do
           response = service.get_awards_pension
 
           expect(response.status).to eq(200)
-          expect(response.body['awards_pension']['is_eligible_for_pension']).to eq(true)
-          expect(response.body['awards_pension']['is_in_receipt_of_pension']).to eq(true)
+          expect(response.body['awards_pension']['is_eligible_for_pension']).to be(true)
+          expect(response.body['awards_pension']['is_in_receipt_of_pension']).to be(true)
         end
       end
     end

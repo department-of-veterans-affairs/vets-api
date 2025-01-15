@@ -45,7 +45,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           'activeDutyEndDate' => '1990-04-05'
         }] } }
 
-        expect(auto_form.save).to eq(false)
+        expect(auto_form.save).to be(false)
         expect(auto_form.errors.messages).to include(:activeDutyBeginDate)
       end
     end
@@ -57,7 +57,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           'activeDutyEndDate' => nil
         }] } }
 
-        expect(auto_form.save).to eq(true)
+        expect(auto_form.save).to be(true)
       end
     end
 
@@ -68,7 +68,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           'activeDutyEndDate' => '1990-04-05'
         }] } }
 
-        expect(auto_form.save).to eq(false)
+        expect(auto_form.save).to be(false)
         expect(auto_form.errors.messages).to include(:activeDutyBeginDate)
       end
     end
@@ -407,7 +407,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
               payload = JSON.parse(pending_record.to_internal)
               transformed_ending_date = payload['form526']['veteran']['changeOfAddress']['endingDate']
 
-              expect(transformed_ending_date).to eq(nil)
+              expect(transformed_ending_date).to be_nil
             end
           end
 
@@ -419,7 +419,7 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
               payload = JSON.parse(pending_record.to_internal)
               untouched_ending_date = payload['form526']['veteran']['changeOfAddress']['endingDate']
 
-              expect(untouched_ending_date).to eq(nil)
+              expect(untouched_ending_date).to be_nil
             end
           end
 
@@ -837,19 +837,19 @@ RSpec.describe ClaimsApi::AutoEstablishedClaim, type: :model do
           payload = JSON.parse(pending_record.to_internal)
           disability_name = payload['form526']['disabilities'].first['name']
 
-          expect(disability_name.include?('abc 123')).to eq(true)
-          expect(disability_name.include?('`')).to eq(false)
-          expect(disability_name.include?('~')).to eq(false)
-          expect(disability_name.include?('!')).to eq(false)
-          expect(disability_name.include?('@')).to eq(false)
-          expect(disability_name.include?('#')).to eq(false)
-          expect(disability_name.include?('$')).to eq(false)
-          expect(disability_name.include?('%')).to eq(false)
-          expect(disability_name.include?('^')).to eq(false)
-          expect(disability_name.include?('&')).to eq(false)
-          expect(disability_name.include?('*')).to eq(false)
-          expect(disability_name.include?('=')).to eq(false)
-          expect(disability_name.include?('+')).to eq(false)
+          expect(disability_name.include?('abc 123')).to be(true)
+          expect(disability_name.include?('`')).to be(false)
+          expect(disability_name.include?('~')).to be(false)
+          expect(disability_name.include?('!')).to be(false)
+          expect(disability_name.include?('@')).to be(false)
+          expect(disability_name.include?('#')).to be(false)
+          expect(disability_name.include?('$')).to be(false)
+          expect(disability_name.include?('%')).to be(false)
+          expect(disability_name.include?('^')).to be(false)
+          expect(disability_name.include?('&')).to be(false)
+          expect(disability_name.include?('*')).to be(false)
+          expect(disability_name.include?('=')).to be(false)
+          expect(disability_name.include?('+')).to be(false)
         end
       end
 
