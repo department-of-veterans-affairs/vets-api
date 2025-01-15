@@ -61,7 +61,7 @@ module Rswag
           if relevant_path?(url_path) # Added conditional
             file_path = File.join(@config.openapi_root, url_path)
             dirname = File.dirname(file_path)
-            FileUtils.mkdir_p dirname unless File.exist?(dirname)
+            FileUtils.mkdir_p dirname
             File.open(file_path, 'w') do |file|
               file.write(pretty_generate(doc))
             end

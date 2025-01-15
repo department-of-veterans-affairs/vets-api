@@ -377,7 +377,7 @@ module SimpleFormsApi
       if form_data['preparer_identification'] == 'SURVIVING_DEPENDENT'
         form_data.dig('surviving_dependent_full_name', 'first')
       else
-        form_data.dig('veteran_full_name', 'first')
+        form_data.dig('veteran_full_name', 'first') || user&.first_name
       end
     end
 

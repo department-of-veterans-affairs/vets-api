@@ -81,35 +81,35 @@ FactoryBot.define do
   end
 
   trait :hypertension_claim_for_increase do
-    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    user { create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
       File.read("#{submissions_path}/only_526_hypertension.json")
     end
   end
 
   trait :als_claim_for_increase do
-    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    user { create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
       File.read("#{submissions_path}/only_526_als.json")
     end
   end
 
   trait :als_claim_for_increase_terminally_ill do
-    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    user { create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
       File.read("#{submissions_path}/only_526_als_terminally_ill.json")
     end
   end
 
   trait :asthma_claim_for_increase do
-    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    user { create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
       File.read("#{submissions_path}/only_526_asthma.json")
     end
   end
 
   trait :hypertension_claim_for_increase_with_uploads do
-    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    user { create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
       json = JSON.parse(File.read("#{submissions_path}/only_526_hypertension.json"))
       uploads = JSON.parse(File.read("#{submissions_path}/with_uploads.json"))
@@ -119,7 +119,7 @@ FactoryBot.define do
   end
 
   trait :asthma_claim_for_increase_with_uploads do
-    user { FactoryBot.create(:disabilities_compensation_user, icn: '2000163') }
+    user { create(:disabilities_compensation_user, icn: '2000163') }
     form_json do
       json = JSON.parse(File.read("#{submissions_path}/only_526_asthma.json"))
       uploads = JSON.parse(File.read("#{submissions_path}/with_uploads.json"))
