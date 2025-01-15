@@ -24,7 +24,7 @@ describe HCA::Service do
     </S:Envelope>
      )))
   end
-  let(:current_user) { FactoryBot.build(:user, :loa3, icn: nil) }
+  let(:current_user) { build(:user, :loa3, icn: nil) }
 
   describe '#submit_form' do
     before do

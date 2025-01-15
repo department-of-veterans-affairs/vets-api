@@ -29,7 +29,7 @@ describe ClaimsApi::V2::DisabilityCompensationPdfMapper do
       )
     end
 
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:auth_headers) do
       EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     end
