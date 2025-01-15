@@ -17,7 +17,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   end
 
   let(:auth_headers) { EVSS::AuthHeaders.new(user).to_h }
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }
   let(:claim_id) { 4567 }
