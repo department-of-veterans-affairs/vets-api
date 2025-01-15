@@ -39,7 +39,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJ
       it 'rescues and logs the exception' do
         expect(Rails.logger)
           .to receive(:error)
-          .with("#{described_class} error: ", error_message)
+          .with("#{subject} error: ", error_message)
         expect(StatsD).to receive(:increment)
           .with('worker.cst.delete_evidence_submission_records.error').exactly(1).time
         expect { subject.new.perform }.not_to raise_error

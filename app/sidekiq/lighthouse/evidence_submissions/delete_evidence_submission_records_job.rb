@@ -6,7 +6,6 @@ module Lighthouse
   module EvidenceSubmissions
     class DeleteEvidenceSubmissionRecordsJob
       include Sidekiq::Job
-      include SentryLogging
 
       # No need to retry since the schedule will run this periodically
       sidekiq_options retry: false
