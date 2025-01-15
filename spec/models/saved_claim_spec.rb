@@ -41,6 +41,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
     context 'validation errors' do
       let(:schema_errors) { [{ fragment: 'error' }] }
+
       context 'when validate_schema returns errors' do
         before do
           allow(Flipper).to receive(:enabled?).with(:saved_claim_schema_validation_disable).and_return(false)

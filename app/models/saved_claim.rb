@@ -156,7 +156,7 @@ class SavedClaim < ApplicationRecord
     reformatted_schemer_errors(errors)
   end
 
-  def validate_form(schema, clear_cache)
+  def validate_form(schema, _clear_cache)
     errors = JSONSchemer.schema(schema).validate(parsed_form).to_a
     return [] if errors.empty?
 

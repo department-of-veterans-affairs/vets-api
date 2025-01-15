@@ -16,9 +16,6 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
     # To generate the above credentials refer to this tutorial:
     # https://developer.va.gov/explore/api/benefits-documents/client-credentials
     allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return('abcd1234')
-  end
-
-  before do
     allow(Flipper).to receive(:enabled?).and_call_original
   end
 

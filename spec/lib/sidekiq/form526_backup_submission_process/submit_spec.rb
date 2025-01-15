@@ -105,7 +105,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
   end
 
   %w[single multi].each do |payload_method|
-      describe ".perform_async, enabled, #{payload_method} payload" do
+    describe ".perform_async, enabled, #{payload_method} payload" do
       before do
         allow(Settings.form526_backup).to receive_messages(submission_method: payload_method, enabled: true)
       end

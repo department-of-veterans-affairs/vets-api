@@ -7,14 +7,11 @@ RSpec.describe 'V0::Form0969', type: %i[request serializer] do
   before do
     allow(Rails.logger).to receive(:info)
     allow(Rails.logger).to receive(:error)
+    allow(Flipper).to receive(:enabled?).and_call_original
   end
 
   let(:full_claim) do
     build(:income_and_assets_claim).parsed_form
-  end
-
-  before do
-    allow(Flipper).to receive(:enabled?).and_call_original
   end
 
   describe 'POST create' do

@@ -852,7 +852,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm0781, type: :job do
       end
     end
   end
-  
+
   describe '#get_docs' do
     let(:submission_id) { 1 }
     let(:uuid) { 'some-uuid' }

@@ -17,15 +17,12 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_compensation_production_tester)
     Flipper.disable(:disability_compensation_fail_submission)
+    allow(Flipper).to receive(:enabled?).and_call_original
   end
 
   let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
-  end
-
-  before do
-    allow(Flipper).to receive(:enabled?).and_call_original
   end
 
   describe '.perform_async' do
