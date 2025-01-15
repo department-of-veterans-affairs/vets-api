@@ -37,7 +37,7 @@ describe EVSS::PCIU::RequestBody do
     end
 
     it 'removes any empty attributes passed in the request_attrs' do
-      phone        = build :phone_number, :nil_effective_date, extension: ''
+      phone        = build(:phone_number, :nil_effective_date, extension: '')
       request_body = EVSS::PCIU::RequestBody.new(phone, pciu_key: 'phone')
       extension    = JSON.parse(request_body.set).dig('phone', 'extension')
 

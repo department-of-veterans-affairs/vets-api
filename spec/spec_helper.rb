@@ -61,7 +61,6 @@ unless ENV['NOCOVERAGE']
     add_group 'CheckIn', 'modules/check_in/'
     add_group 'ClaimsApi', 'modules/claims_api/'
     add_group 'CovidResearch', 'modules/covid_research/'
-    add_group 'CovidVaccine', 'modules/covid_vaccine/'
     add_group 'DebtsApi', 'modules/debts_api/'
     add_group 'DhpConnectedDevices', 'modules/dhp_connected_devices/'
     add_group 'FacilitiesApi', 'modules/facilities_api/'
@@ -83,7 +82,6 @@ unless ENV['NOCOVERAGE']
     add_group 'Uploaders', 'app/uploaders'
     add_group 'VaNotify', 'modules/va_notify/'
     add_group 'VAOS', 'modules/vaos/'
-    add_group 'VAForms', 'modules/va_forms/'
     add_group 'VBADocuments', 'modules/vba_documents/'
     add_group 'Veteran', 'modules/veteran/'
     add_group 'VeteranVerification', 'modules/veteran_verification/'
@@ -180,7 +178,7 @@ RSpec.configure do |config|
   # in those modules have explicitly skipped the CSRF protection functionality
   lighthouse_dirs = %r{
     modules/
-    (appeals_api|apps_api|claims_api|openid_auth|va_forms|vba_documents|
+    (appeals_api|apps_api|claims_api|openid_auth|vba_documents|
       veteran|veteran_confirmation|veteran_verification)/
   }x
   config.define_derived_metadata(file_path: lighthouse_dirs) do |metadata|

@@ -322,7 +322,7 @@ RSpec.describe SAML::PostURLService do
               expect(subject.login_redirect_url(auth: 'fail',
                                                 code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
                                                 request_id:))
-                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}"\
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}" \
                        "?auth=fail&code=001&request_id=#{request_id}&type=idme")
             end
           end
@@ -350,7 +350,7 @@ RSpec.describe SAML::PostURLService do
               expect(subject.login_redirect_url(auth: 'fail',
                                                 code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
                                                 request_id:))
-                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}"\
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}" \
                        "?auth=force-needed&code=001&request_id=#{request_id}&type=custom")
             end
           end
@@ -588,7 +588,7 @@ RSpec.describe SAML::PostURLService do
               expect(subject.login_redirect_url(auth: 'fail',
                                                 code: SAML::Responses::Base::CLICKED_DENY_ERROR_CODE,
                                                 request_id:))
-                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}"\
+                .to eq("#{values[:base_redirect]}#{SAML::URLService::LOGIN_REDIRECT_PARTIAL}" \
                        "?auth=fail&code=001&request_id=#{request_id}&type=idme")
             end
           end

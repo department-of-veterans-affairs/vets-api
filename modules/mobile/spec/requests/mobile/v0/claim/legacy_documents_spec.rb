@@ -8,10 +8,10 @@ RSpec.describe 'legacy Mobile::V0::Claim::Document', :skip_json_api_validation, 
   let!(:user) { sis_user(icn: '1008596379V859838') }
   let(:user_account) { create(:user_account) }
   let(:file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
-  let(:tracked_item_id) { 33 }
+  let(:tracked_item_id) { '12345' }
   let(:document_type) { 'L023' }
   let!(:claim) do
-    FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
+    create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
   end
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 

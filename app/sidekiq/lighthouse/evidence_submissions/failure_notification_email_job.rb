@@ -2,6 +2,7 @@
 
 require 'sidekiq'
 require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 module Lighthouse
   module EvidenceSubmissions
@@ -38,7 +39,11 @@ module Lighthouse
 
       def send_failed_evidence_submissions
         failed_uploads.each do |upload|
-          personalisation = JSON.parse(upload.template_metadata_ciphertext)['personalisation']
+          personalisation =
+            create_personalisation(
+              JSON.parse(upload.template_metadata_ciphertext)['personalisation']
+            )
+          # NOTE: The file_name in the personalisation that is passed in is obscured
           response = notify_client.send_email(
             recipient_identifier: { id_value: upload.user_account.icn, id_type: 'ICN' },
             template_id: MAILER_TEMPLATE_ID,
@@ -50,6 +55,17 @@ module Lighthouse
         end
 
         nil
+      end
+
+      # This will be used to send an upload failure email
+      def create_personalisation(current_personalisation)
+        {
+          first_name: current_personalisation['first_name'],
+          document_type: current_personalisation['document_type'],
+          file_name: current_personalisation['obfuscated_file_name'],
+          date_submitted: current_personalisation['date_submitted'],
+          date_failed: current_personalisation['date_failed']
+        }
       end
 
       def record_email_send_success(upload, response)

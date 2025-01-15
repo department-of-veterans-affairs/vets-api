@@ -154,12 +154,12 @@ module V1
       user_session_form = UserSessionForm.new(saml_response)
       raise_saml_error(user_session_form) unless user_session_form.valid?
       mhv_unverified_validation(user_session_form.user)
-      create_user_verification(user_session_form.user)
+      user_verification = create_user_verification(user_session_form.user_identity)
       @current_user, @session_object = user_session_form.persist
       set_cookies
       after_login_actions
 
-      if @current_user.needs_accepted_terms_of_use
+      if user_verification.user_account.needs_accepted_terms_of_use?
         redirect_to url_service.terms_of_use_redirect_url
       else
         redirect_to url_service.login_redirect_url
@@ -167,14 +167,14 @@ module V1
       login_stats(:success)
     end
 
-    def create_user_verification(user)
-      user_verifier_object = OpenStruct.new({ sign_in: user.identity.sign_in,
-                                              mhv_correlation_id: user.mhv_correlation_id,
-                                              idme_uuid: user.idme_uuid,
-                                              edipi: user.identity.edipi,
-                                              logingov_uuid: user.logingov_uuid,
-                                              icn: user.icn })
-      Login::UserVerifier.new(user_verifier_object).perform
+    def create_user_verification(user_identity)
+      Login::UserVerifier.new(login_type: user_identity.sign_in&.dig(:service_name),
+                              auth_broker: user_identity.sign_in&.dig(:auth_broker),
+                              mhv_uuid: user_identity.mhv_credential_uuid,
+                              idme_uuid: user_identity.idme_uuid,
+                              dslogon_uuid: user_identity.edipi,
+                              logingov_uuid: user_identity.logingov_uuid,
+                              icn: user_identity.icn).perform
     end
 
     def mhv_unverified_validation(user)
@@ -227,9 +227,7 @@ module V1
         url_service.login_url('mhv', 'myhealthevet', AuthnContext::MHV)
       when 'mhv_verified'
         url_service.login_url('mhv_verified', 'myhealthevet', AuthnContext::MHV)
-      when 'dslogon'
-        url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
-      when 'dslogon_verified'
+      when 'dslogon', 'dslogon_verified'
         url_service.login_url('dslogon', 'dslogon', AuthnContext::DSLOGON)
       when 'idme'
         url_service.login_url('idme', LOA::IDME_LOA1_VETS, AuthnContext::ID_ME, AuthnContext::MINIMUM)
@@ -307,10 +305,10 @@ module V1
       logout_request = SingleLogoutRequest.find(saml_response&.in_response_to)
       if logout_request.present?
         logout_request.destroy
-        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id "\
+        Rails.logger.info("SLO callback response to '#{saml_response&.in_response_to}' for originating_request_id " \
                           "'#{originating_request_id}'")
       else
-        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id '\
+        Rails.logger.info('SLO callback response could not resolve logout request for originating_request_id ' \
                           "'#{originating_request_id}'")
       end
     end
@@ -325,12 +323,13 @@ module V1
     def login_stats(status, error = nil)
       type = url_service.tracker.payload_attr(:type)
       client_id = url_service.tracker.payload_attr(:application)
-      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}"]
+      operation = url_service.tracker.payload_attr(:operation)
+      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
       case status
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags:)
-        context = { icn: @current_user.icn, version: 'v1', client_id:, type: }
+        context = { icn: @current_user.icn, version: 'v1', client_id:, type:, operation: }
         Rails.logger.info('LOGIN_STATUS_SUCCESS', context)
         Rails.logger.info("SessionsController version:v1 login complete, user_uuid=#{@current_user.uuid}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags:)
@@ -344,22 +343,21 @@ module V1
     end
 
     def callback_stats(status, saml_response = nil, failure_tag = nil)
-      tracker = url_service.tracker
-      tracker_tags = ["type:#{tracker.payload_attr(:type)}", "client_id:#{tracker.payload_attr(:application)}"]
+      tracker_tags = ["type:#{url_service.tracker.payload_attr(:type)}",
+                      "client_id:#{url_service.tracker.payload_attr(:application)}",
+                      "operation:#{url_service.tracker.payload_attr(:operation)}"]
       case status
       when :success
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:success', "context:#{saml_response&.authn_context}",
-                                VERSION_TAG].concat(tracker_tags))
+        tags = ['status:success', "context:#{saml_response&.authn_context}", VERSION_TAG].concat(tracker_tags)
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags:)
       when :failure
-        tag = failure_tag.to_s.starts_with?('error:') ? failure_tag : "error:#{failure_tag}"
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', "context:#{saml_response&.authn_context}",
-                                VERSION_TAG].concat(tracker_tags))
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [tag, VERSION_TAG])
+        parsed_failure_tag = failure_tag.to_s.starts_with?('error:') ? failure_tag : "error:#{failure_tag}"
+        tags = ['status:failure', "context:#{saml_response&.authn_context}", VERSION_TAG].concat(tracker_tags)
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags:)
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [parsed_failure_tag, VERSION_TAG])
       when :failed_unknown
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', 'context:unknown', VERSION_TAG].concat(tracker_tags))
+        tags = ['status:failure', 'context:unknown', VERSION_TAG].concat(tracker_tags)
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags:)
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: ['error:unknown', VERSION_TAG])
       when :total
         StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY, tags: [VERSION_TAG])

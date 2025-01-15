@@ -3,10 +3,13 @@
 require 'common/client/base'
 require 'lighthouse/benefits_documents/configuration'
 require 'lighthouse/service_exception'
+require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 module BenefitsDocuments
   class Service < Common::Client::Base
     configuration BenefitsDocuments::Configuration
+
     STATSD_KEY_PREFIX = 'api.benefits_documents'
     STATSD_UPLOAD_LATENCY = 'lighthouse.api.benefits.documents.latency'
 
@@ -49,10 +52,8 @@ module BenefitsDocuments
 
     def submit_document(file, file_params, lighthouse_client_id = nil)
       user_icn = @user.icn
-      user_account_uuid = @user.user_account_uuid
       document_data = build_lh_doc(file, file_params)
       claim_id = file_params[:claimId] || file_params[:claim_id]
-      tracked_item_id = file_params[:trackedItemIds] || file_params[:tracked_item_ids]
 
       unless claim_id
         raise Common::Exceptions::InternalServerError,
@@ -63,22 +64,54 @@ module BenefitsDocuments
 
       uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
       uploader.store!(document_data.file_obj)
-      # the uploader sanitizes the filename before storing, so set our doc to match
+      # The uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
-      document_upload(user_icn, document_data.to_serializable_hash, user_account_uuid,
-                      claim_id, tracked_item_id)
+      job_id = document_upload(user_icn, document_data.to_serializable_hash)
+      if Flipper.enabled?('cst_send_evidence_submission_failure_emails') && !job_id.nil?
+        record_evidence_submission(document_data, job_id)
+      end
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)
       raise e
     end
 
-    def document_upload(user_icn, document_hash, user_account_uuid, claim_id, tracked_item_id)
+    def document_upload(user_icn, document_hash)
       if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
         Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_hash)
+        nil
       else
-        Lighthouse::EvidenceSubmissions::DocumentUpload.perform_async(user_icn, document_hash, user_account_uuid,
-                                                                      claim_id, tracked_item_id)
+        Lighthouse::EvidenceSubmissions::DocumentUpload.perform_async(user_icn, document_hash)
       end
+    end
+
+    def record_evidence_submission(document, job_id)
+      user_account = UserAccount.find(@user.user_account_uuid)
+      EvidenceSubmission.create(
+        claim_id: document.claim_id,
+        tracked_item_id: document.tracked_item_id,
+        job_id:,
+        job_class: self.class,
+        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
+        user_account:,
+        template_metadata_ciphertext: { personalisation: create_personalisation(document) }.to_json
+      )
+    end
+
+    def create_personalisation(document)
+      { first_name: document.first_name.titleize,
+        document_type: document.document_type,
+        file_name: document.file_name,
+        obfuscated_file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(document.file_name),
+        date_submitted: format_issue_instant_for_mailers(Time.zone.now),
+        date_failed: nil }
+    end
+
+    def format_issue_instant_for_mailers(issue_instant)
+      # We want to return all times in EDT
+      timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
+
+      # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
+      timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
     end
 
     def build_lh_doc(file, file_params)
@@ -94,7 +127,9 @@ module BenefitsDocuments
         file_obj: file,
         uuid: SecureRandom.uuid,
         file_name: file.original_filename,
-        tracked_item_id: tracked_item_ids,
+        # We pull the string out of the array for the tracked item since lighthouse gives us an array
+        # NOTE there will only be one tracked item here
+        tracked_item_id: tracked_item_ids[0],
         document_type:,
         password:
       )

@@ -5,9 +5,9 @@ require 'rails_helper'
 RSpec.describe SavedClaim::DependencyClaim do
   subject { create(:dependency_claim) }
 
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
-  let(:adopted_child) { FactoryBot.build(:adopted_child_lives_with_veteran) }
-  let(:form_674_only) { FactoryBot.build(:form_674_only) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
+  let(:adopted_child) { build(:adopted_child_lives_with_veteran) }
+  let(:form_674_only) { build(:form_674_only) }
   let(:doc_type) { '148' }
   let(:va_file_number) { subject.parsed_form['veteran_information']['va_file_number'] }
   let(:va_file_number_with_payload) do

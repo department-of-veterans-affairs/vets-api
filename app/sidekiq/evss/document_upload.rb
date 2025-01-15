@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
-require 'ddtrace'
+require 'datadog'
 require 'timeout'
 require 'logging/third_party_transaction'
+require 'evss/failure_notification'
 require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 class EVSS::DocumentUpload
   include Sidekiq::Job
+  extend SentryLogging
   extend Logging::ThirdPartyTransaction::MethodWrapper
-
-  FILENAME_EXTENSION_MATCHER = /\.\w*$/
-  OBFUSCATED_CHARACTER_MATCHER = /[a-zA-Z\d]/
 
   attr_accessor :auth_headers, :user_uuid, :document_hash
 
@@ -34,32 +34,13 @@ class EVSS::DocumentUpload
   end
 
   sidekiq_retries_exhausted do |msg, _ex|
-    job_id = msg['jid']
-    job_class = 'EVSS::DocumentUpload'
-    first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
-    claim_id = msg['args'][2]['evss_claim_id']
-    tracked_item_id = msg['args'][2]['tracked_item_id']
-    filename = obscured_filename(msg['args'][2]['file_name'])
-    date_submitted = format_issue_instant_for_mailers(msg['created_at'])
-    date_failed = format_issue_instant_for_mailers(msg['failed_at'])
-    upload_status = BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED]
-    uuid = msg['args'][2]['uuid']
-    user_account = UserAccount.find_or_create_by(id: uuid)
-    personalisation = { first_name:, filename:, date_submitted:, date_failed: }
+    verify_msg(msg)
 
-    EvidenceSubmission.create(
-      job_id:,
-      job_class:,
-      claim_id:,
-      tracked_item_id:,
-      upload_status:,
-      user_account:,
-      template_metadata_ciphertext: { personalisation: }.to_json
-    )
-  rescue => e
-    error_message = "#{job_class} failed to create EvidenceSubmission"
-    ::Rails.logger.info(error_message, { messsage: e.message })
-    StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
+    if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
+      update_evidence_submission(msg)
+    else
+      call_failure_notification(msg)
+    end
   end
 
   def perform(auth_headers, user_uuid, document_hash)
@@ -70,22 +51,75 @@ class EVSS::DocumentUpload
     validate_document!
     pull_file_from_cloud!
     perform_document_upload_to_evss
+    update_evidence_submission_status(jid) if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
     clean_up!
   end
 
-  def self.obscured_filename(original_filename)
-    extension = original_filename[FILENAME_EXTENSION_MATCHER]
-    filename_without_extension = original_filename.gsub(FILENAME_EXTENSION_MATCHER, '')
+  def self.verify_msg(msg)
+    raise StandardError, "Missing fields in #{name}" if invalid_msg_fields?(msg) || invalid_msg_args?(msg['args'])
+  end
 
-    if filename_without_extension.length > 5
-      # Obfuscate with the letter 'X'; we cannot obfuscate with special characters such as an asterisk,
-      # as these filenames appear in VA Notify Mailers and their templating engine uses markdown.
-      # Therefore, special characters can be interpreted as markdown and introduce formatting issues in the mailer
-      obfuscated_portion = filename_without_extension[3..-3].gsub(OBFUSCATED_CHARACTER_MATCHER, 'X')
-      filename_without_extension[0..2] + obfuscated_portion + filename_without_extension[-2..] + extension
-    else
-      original_filename
-    end
+  def self.invalid_msg_fields?(msg)
+    !(%w[jid args created_at failed_at] - msg.keys).empty?
+  end
+
+  def self.invalid_msg_args?(args)
+    return true unless args[0].is_a?(Hash)
+
+    return true unless args[2].is_a?(Hash)
+
+    return true if args[0]['va_eauth_firstName'].empty?
+
+    !(%w[evss_claim_id tracked_item_id document_type file_name] - args[2].keys).empty?
+  end
+
+  def self.update_evidence_submission(msg)
+    evidence_submission = EvidenceSubmission.find_by(job_id: msg['jid'])
+    evidence_submission.update(
+      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:FAILED],
+      template_metadata_ciphertext: {
+        personalisation: update_personalisation(evidence_submission, msg['failed_at'])
+      }.to_json
+    )
+  rescue => e
+    error_message = "#{name} failed to update EvidenceSubmission"
+    ::Rails.logger.info(error_message, { messsage: e.message })
+    StatsD.increment('silent_failure', tags: ['service:claim-status', "function: #{error_message}"])
+  end
+
+  def self.call_failure_notification(msg)
+    return unless Flipper.enabled?('cst_send_evidence_failure_emails')
+
+    icn = UserAccount.find(msg['args'][1]).icn
+
+    EVSS::FailureNotification.perform_async(icn, personalisation: create_personalisation(msg))
+
+    ::Rails.logger.info('EVSS::DocumentUpload exhaustion handler email queued')
+    StatsD.increment('silent_failure_avoided_no_confirmation', tags: DD_ZSF_TAGS)
+  rescue => e
+    ::Rails.logger.error('EVSS::DocumentUpload exhaustion handler email error',
+                         { message: e.message })
+    StatsD.increment('silent_failure', tags: ['service:claim-status', 'function: evidence upload to EVSS'])
+    log_exception_to_sentry(e)
+  end
+
+  # Update personalisation here since an evidence submission record was previously created
+  def self.update_personalisation(current_personalisation, failed_at)
+    personalisation = current_personalisation.clone
+    personalisation.failed_date = format_issue_instant_for_mailers(failed_at)
+    personalisation
+  end
+
+  # This will be used by EVSS::FailureNotification
+  def self.create_personalisation(msg)
+    first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
+    document_type = msg['args'][2]['document_type']
+    # Obscure the file name here since this will be used to generate a failed email
+    file_name = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][2]['file_name'])
+    date_submitted = format_issue_instant_for_mailers(msg['created_at'])
+    date_failed = format_issue_instant_for_mailers(msg['failed_at'])
+
+    { first_name:, document_type:, file_name:, date_submitted:, date_failed: }
   end
 
   def self.format_issue_instant_for_mailers(issue_instant)
@@ -94,6 +128,12 @@ class EVSS::DocumentUpload
 
     # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
     timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
+  end
+
+  # This method allows format_issue_instant_for_mailers to be used by update_evidence_submission_status
+  # and by the self methods called in sidekiq_retries_exhausted
+  def format_issue_instant_for_mailers(issue_instant)
+    self.class.format_issue_instant_for_mailers(issue_instant)
   end
 
   private
@@ -134,5 +174,14 @@ class EVSS::DocumentUpload
 
   def file_body
     @file_body ||= perform_initial_file_read
+  end
+
+  def update_evidence_submission_status(job_id)
+    evidence_submission = EvidenceSubmission.find_by(job_id:)
+    evidence_submission.update(
+      upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:SUCCESS]
+    )
+    evidence_submission.save!
+    evidence_submission
   end
 end

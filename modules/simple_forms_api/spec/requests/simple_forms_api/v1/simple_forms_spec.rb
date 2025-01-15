@@ -17,6 +17,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
     'vba_21_0972.json',
     'vba_21_10210.json',
     'vba_21_4138.json',
+    'vba_21_4140.json',
     'vba_21_4142.json',
     'vba_21p_0847.json',
     'vba_40_0247.json',
@@ -117,13 +118,13 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       describe 'unauthenticated forms' do
         unauthenticated_forms.each do |form|
-          include_examples 'form submission', form, false
+          it_behaves_like 'form submission', form, false
         end
       end
 
       describe 'authenticated forms' do
         authenticated_forms.each do |form|
-          include_examples 'form submission', form, true
+          it_behaves_like 'form submission', form, true
         end
       end
 
@@ -889,7 +890,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         end
 
         context 'veteran preparer' do
-          let(:expiration_date) { Time.zone.now }
+          let(:expiration_date) { '2026-01-14T09:25:55-06:00' }
 
           it 'sends the received email' do
             allow_any_instance_of(SimpleFormsApi::IntentToFile)
@@ -914,7 +915,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
                 'intent_to_file_benefits' => 'survivors pension benefits',
                 'intent_to_file_benefits_links' => '[Apply for DIC, Survivors Pension, and/or Accrued Benefits ' \
                                                    '(VA Form 21P-534EZ)](https://www.va.gov/find-forms/about-form-21p-534ez/)',
-                'itf_api_expiration_date' => expiration_date
+                'itf_api_expiration_date' => 'January 14, 2026'
               }
             )
           end
@@ -1016,9 +1017,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
       end
 
       context 'rejected' do
-        let(:reference_number) { 'some-reference-number' }
         let(:body_status) { 'REJECTED' }
-        let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }
+        let(:body) { { 'status' => body_status } }
         let(:status) { 200 }
         let(:lgy_response) { double(body:, status:) }
 
@@ -1039,17 +1039,15 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'form26_4555_rejected_email_template_id',
             {
               'first_name' => 'Veteran',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => reference_number
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
             }
           )
         end
       end
 
       context 'duplicate' do
-        let(:reference_number) { 'some-reference-number' }
         let(:body_status) { 'DUPLICATE' }
-        let(:body) { { 'reference_number' => reference_number, 'status' => body_status } }
+        let(:body) { { 'status' => body_status } }
         let(:status) { 200 }
         let(:lgy_response) { double(body:, status:) }
 
@@ -1070,8 +1068,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             'form26_4555_duplicate_email_template_id',
             {
               'first_name' => 'Veteran',
-              'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
-              'confirmation_number' => reference_number
+              'date_submitted' => Time.zone.today.strftime('%B %d, %Y')
             }
           )
         end
