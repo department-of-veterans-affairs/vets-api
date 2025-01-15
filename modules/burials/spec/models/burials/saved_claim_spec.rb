@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Burials::SavedClaim do
   subject { described_class.new }
 
-  let(:instance) { FactoryBot.build(:burial_claim) }
+  let(:instance) { FactoryBot.build(:burials_saved_claim) }
 
   it 'responds to #confirmation_number' do
     expect(subject.confirmation_number).to eq(subject.guid)
@@ -71,21 +71,21 @@ RSpec.describe Burials::SavedClaim do
       form = instance.parsed_form
 
       form = form.merge({ 'transportation' => false })
-      claim = FactoryBot.build(:burial_claim, form: form.to_json)
+      claim = FactoryBot.build(:burials_saved_claim, form: form.to_json)
       benefits_claimed = claim.benefits_claimed
       expected = ['Burial Allowance', 'Plot Allowance']
       expect(benefits_claimed.length).to eq(2)
       expect(benefits_claimed).to eq(expected)
 
       form = form.merge({ 'plotAllowance' => false })
-      claim = FactoryBot.build(:burial_claim, form: form.to_json)
+      claim = FactoryBot.build(:burials_saved_claim, form: form.to_json)
       benefits_claimed = claim.benefits_claimed
       expected = ['Burial Allowance']
       expect(benefits_claimed.length).to eq(1)
       expect(benefits_claimed).to eq(expected)
 
       form = form.merge({ 'burialAllowance' => false })
-      claim = FactoryBot.build(:burial_claim, form: form.to_json)
+      claim = FactoryBot.build(:burials_saved_claim, form: form.to_json)
       benefits_claimed = claim.benefits_claimed
       expected = []
       expect(benefits_claimed.length).to eq(0)
