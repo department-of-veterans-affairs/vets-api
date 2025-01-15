@@ -8,7 +8,7 @@ require 'lighthouse/benefits_documents/configuration'
 RSpec.describe BenefitsDocuments::Service do
   subject { service }
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:user_account) { create(:user_account) }
   let(:service) { BenefitsDocuments::Service.new(user) }
 
