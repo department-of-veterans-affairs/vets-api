@@ -501,10 +501,10 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
   create_table "claims_api_processes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "processable_id", null: false
     t.string "processable_type", null: false
-    t.string "type"
-    t.string "status"
+    t.string "step_type"
+    t.string "step_status"
     t.datetime "completed_at"
-    t.jsonb "errors", default: []
+    t.jsonb "error_messages", default: []
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["processable_id", "processable_type"], name: "idx_on_processable_id_processable_type_91e46b55a4"
