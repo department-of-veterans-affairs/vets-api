@@ -60,7 +60,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
 
   def process_pdf(pdf_path, timestamp = nil, form_id = nil)
     processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
-      text: 'Application Submitted on va.gov',
+      text: 'Application Submitted on site',
       x: form_id == '686C-674' ? 400 : 300,
       y: form_id == '686C-674' ? 675 : 775,
       text_only: true, # passing as text only because we override how the date is stamped in this instance
