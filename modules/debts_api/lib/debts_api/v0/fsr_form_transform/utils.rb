@@ -6,7 +6,7 @@ module FsrFormTransform
       flt.round(2).to_s.gsub(/^-?\d+\.\d{1}$/, '\00')
     end
 
-    def re_camel(x) # might want to use this in my PR
+    def re_camel(x)
       case x
       when Array
         x.map { |el| re_camel(el) }
