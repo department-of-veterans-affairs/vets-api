@@ -323,12 +323,13 @@ module V1
     def login_stats(status, error = nil)
       type = url_service.tracker.payload_attr(:type)
       client_id = url_service.tracker.payload_attr(:application)
-      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}"]
+      operation = url_service.tracker.payload_attr(:operation)
+      tags = ["type:#{type}", VERSION_TAG, "client_id:#{client_id}", "operation:#{operation}"]
       case status
       when :success
         StatsD.increment(STATSD_LOGIN_NEW_USER_KEY, tags: [VERSION_TAG]) if type == 'signup'
         StatsD.increment(STATSD_LOGIN_STATUS_SUCCESS, tags:)
-        context = { icn: @current_user.icn, version: 'v1', client_id:, type: }
+        context = { icn: @current_user.icn, version: 'v1', client_id:, type:, operation: }
         Rails.logger.info('LOGIN_STATUS_SUCCESS', context)
         Rails.logger.info("SessionsController version:v1 login complete, user_uuid=#{@current_user.uuid}")
         StatsD.measure(STATSD_LOGIN_LATENCY, url_service.tracker.age, tags:)
@@ -342,22 +343,21 @@ module V1
     end
 
     def callback_stats(status, saml_response = nil, failure_tag = nil)
-      tracker = url_service.tracker
-      tracker_tags = ["type:#{tracker.payload_attr(:type)}", "client_id:#{tracker.payload_attr(:application)}"]
+      tracker_tags = ["type:#{url_service.tracker.payload_attr(:type)}",
+                      "client_id:#{url_service.tracker.payload_attr(:application)}",
+                      "operation:#{url_service.tracker.payload_attr(:operation)}"]
       case status
       when :success
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:success', "context:#{saml_response&.authn_context}",
-                                VERSION_TAG].concat(tracker_tags))
+        tags = ['status:success', "context:#{saml_response&.authn_context}", VERSION_TAG].concat(tracker_tags)
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags:)
       when :failure
-        tag = failure_tag.to_s.starts_with?('error:') ? failure_tag : "error:#{failure_tag}"
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', "context:#{saml_response&.authn_context}",
-                                VERSION_TAG].concat(tracker_tags))
-        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [tag, VERSION_TAG])
+        parsed_failure_tag = failure_tag.to_s.starts_with?('error:') ? failure_tag : "error:#{failure_tag}"
+        tags = ['status:failure', "context:#{saml_response&.authn_context}", VERSION_TAG].concat(tracker_tags)
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags:)
+        StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: [parsed_failure_tag, VERSION_TAG])
       when :failed_unknown
-        StatsD.increment(STATSD_SSO_CALLBACK_KEY,
-                         tags: ['status:failure', 'context:unknown', VERSION_TAG].concat(tracker_tags))
+        tags = ['status:failure', 'context:unknown', VERSION_TAG].concat(tracker_tags)
+        StatsD.increment(STATSD_SSO_CALLBACK_KEY, tags:)
         StatsD.increment(STATSD_SSO_CALLBACK_FAILED_KEY, tags: ['error:unknown', VERSION_TAG])
       when :total
         StatsD.increment(STATSD_SSO_CALLBACK_TOTAL_KEY, tags: [VERSION_TAG])
