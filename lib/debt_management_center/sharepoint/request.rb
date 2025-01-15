@@ -34,12 +34,10 @@ module DebtManagementCenter
       #
       def upload(form_contents:, form_submission:, station_id:)
         @user = set_user_data(form_submission.user_account_id)
-        upload_response = upload_pdf(form_contents:, form_submission:,
-                                     station_id:)
-
+        upload_response = upload_pdf(form_contents:, form_submission:, station_id:)
         list_item_id = get_pdf_list_item_id(upload_response)
-
         resp = update_list_item_fields(list_item_id:, form_submission:, station_id:)
+
         if resp.success?
           StatsD.increment("#{STATSD_KEY_PREFIX}.success")
         else
@@ -111,6 +109,12 @@ module DebtManagementCenter
           File.delete(pdf_path)
 
           response
+        rescue => e
+          if Flipper.enabled?(:debts_sharepoint_error_logging)
+            report_sharepoint_error(e, 'PDF')
+          else
+            raise e
+          end
         end
       end
 
@@ -132,6 +136,12 @@ module DebtManagementCenter
           raise ListItemNotFound if list_item_id.nil?
 
           list_item_id
+        rescue => e
+          if Flipper.enabled?(:debts_sharepoint_error_logging)
+            report_sharepoint_error(e, 'GET_LIST_ITEM')
+          else
+            raise e
+          end
         end
       end
 
@@ -162,6 +172,38 @@ module DebtManagementCenter
             }.to_json
           end
         end
+      rescue => e
+        if Flipper.enabled?(:debts_sharepoint_error_logging)
+          report_sharepoint_error(e, 'UPDATE_LIST_ITEM')
+        else
+          raise e
+        end
+      end
+
+      def report_sharepoint_error(e, action)
+        status = e.try(:status) || 500
+        response_body = e.try(:response)&.dig(:body)
+        detail_message = response_body || e.message || "No details provided"
+
+        case status
+        when 400..499
+          error_code = "SHAREPOINT_#{action}_400"
+          Rails.logger.warn("SharePoint client error: #{status} - #{detail_message}")
+        when 500..599
+          error_code = "SHAREPOINT_#{action}_502"
+          Rails.logger.error("SharePoint server error: #{status} - #{detail_message}")
+        else
+          error_code = "SHAREPOINT_#{action}_UNKNOWN"
+          detail_message = "Unexpected status code: #{status}. Error: #{detail_message}"
+          Rails.logger.error("Unexpected SharePoint error: #{status} - #{detail_message}")
+        end
+
+        raise Common::Exceptions::BackendServiceException.new(
+          error_code,
+          { detail: detail_message, status: status },
+          status,
+          detail_message
+        )
       end
 
       def auth_connection
