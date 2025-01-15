@@ -95,9 +95,10 @@ module ClaimsApi
 
           send_declined_notification(ptcpnt_id:, first_name:, representative_id:) if decision == 'declined'
 
-          form_attributes['id'] = lighthouse_id
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes, view: :decide,
-                                                                                                          root: :data),
+          res['id'] = lighthouse_id
+
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :decide,
+                                                                                              root: :data),
                  status: :ok
         end
 

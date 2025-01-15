@@ -13,14 +13,31 @@
         "attributes": {
           "type": "object",
           "properties": {
-            "decision": {
+            "VSOUserEmail": {
               "type": ["string", "null"]
             },
-            "representativeId": {
+            "VSOUserFirstName": {
               "type": ["string", "null"]
+            },
+            "VSOUserLastName": {
+              "type": ["string", "null"]
+            },
+            "dateRequestActioned": {
+              "type": "string"
             },
             "declinedReason": {
               "type": ["string", "null"]
+            },
+            "procId": {
+              "type": "string"
+            },
+            "secondaryStatus": {
+              "type": "string",
+              "enum": [
+                "ACC",
+                "DEC",
+                "OBS"
+              ]
             }
           }
         }

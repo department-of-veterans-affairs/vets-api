@@ -112,9 +112,13 @@
                     "id": "348fa995-5b29-4819-91af-13f1bb3c7d77",
                     "type": "power-of-attorney-request-decision",
                     "attributes": {
-                      "decision": "ACCEPTED",
-                      "representativeId": "12345678",
-                      "declinedReason": null
+                      "vsoUserEmail": null,
+                      "vsoUserFirstName": "vets-api",
+                      "vsoUserLastName": "vets-api",
+                      "dateRequestActioned": "2024-10-15T17:40:36-05:00",
+                      "declinedReason": null,
+                      "procId": "76529",
+                      "secondaryStatus": "ACC"
                     }
                   }
                 },
@@ -133,14 +137,31 @@
                         "attributes": {
                           "type": "object",
                           "properties": {
-                            "decision": {
+                            "VSOUserEmail": {
                               "type": "string"
                             },
-                            "representativeId": {
+                            "VSOUserFirstName": {
+                              "type": "string"
+                            },
+                            "VSOUserLastName": {
+                              "type": "string"
+                            },
+                            "dateRequestActioned": {
                               "type": "string"
                             },
                             "declinedReason": {
                               "type": "string"
+                            },
+                            "procId": {
+                              "type": "string"
+                            },
+                            "secondaryStatus": {
+                              "type": "string",
+                              "enum": [
+                                "ACC",
+                                "DEC",
+                                "OBS"
+                              ]
                             }
                           }
                         }
@@ -1427,7 +1448,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "2bcf247e-488a-4fb9-af59-3b36bea9c3e2",
+                        "id": "5506cc73-83c6-4c8a-8dc0-7296b628152d",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -1612,7 +1633,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-01-16"
+                              "anticipatedSeparationDate": "2025-01-17"
                             },
                             "confinements": [
                               {
@@ -1658,7 +1679,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "0c21fa56-b428-44c4-bfea-9f54974f9776",
+                        "id": "2ebc2bd7-66fa-4a86-afb1-3c2c3dbbb4e5",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -1822,7 +1843,7 @@
                                 "serviceBranch": "Public Health Service",
                                 "serviceComponent": "Active",
                                 "activeDutyBeginDate": "2008-11-14",
-                                "activeDutyEndDate": "2025-01-16",
+                                "activeDutyEndDate": "2025-01-17",
                                 "separationLocationCode": "98282"
                               }
                             ],
@@ -1843,7 +1864,7 @@
                             },
                             "federalActivation": {
                               "activationDate": "2023-10-01",
-                              "anticipatedSeparationDate": "2025-01-16"
+                              "anticipatedSeparationDate": "2025-01-17"
                             },
                             "confinements": [
                               {
@@ -5086,7 +5107,7 @@
                               "serviceBranch": "Public Health Service",
                               "serviceComponent": "Active",
                               "activeDutyBeginDate": "2008-11-14",
-                              "activeDutyEndDate": "2025-01-16",
+                              "activeDutyEndDate": "2025-01-17",
                               "separationLocationCode": "98282"
                             }
                           ],
@@ -5107,7 +5128,7 @@
                           },
                           "federalActivation": {
                             "activationDate": "2023-10-01",
-                            "anticipatedSeparationDate": "2025-01-16"
+                            "anticipatedSeparationDate": "2025-01-17"
                           },
                           "confinements": [
                             {
@@ -9629,8 +9650,8 @@
                     "id": "1",
                     "type": "intent_to_file",
                     "attributes": {
-                      "creationDate": "2025-01-14",
-                      "expirationDate": "2026-01-14",
+                      "creationDate": "2025-01-15",
+                      "expirationDate": "2026-01-15",
                       "type": "compensation",
                       "status": "active"
                     }
@@ -10520,7 +10541,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "707e5f72-dcec-4ca6-b8d2-60688c2b649d",
+                    "id": "e86ec7a1-e9e5-4d92-91e6-112ee437346c",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -11292,7 +11313,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "587e200f-831d-431b-99d7-62ea28b99c41",
+                    "id": "91b0d284-6044-4aa2-9eb5-4876b8dda6bc",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -13286,10 +13307,10 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "4039225f-9786-46a4-a72c-0cd5c3c96881",
+                    "id": "3395906c-c9ee-46c8-9b42-089da70dcfa4",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
-                      "dateRequestAccepted": "2025-01-14",
+                      "dateRequestAccepted": "2025-01-15",
                       "previousPoa": null,
                       "representative": {
                         "serviceOrganization": {
@@ -13546,7 +13567,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "bf7d4c85-88a6-4425-94c7-9dd0553930f7",
+                    "id": "267e1af2-bca4-45b8-9434-a04147bd3155",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
