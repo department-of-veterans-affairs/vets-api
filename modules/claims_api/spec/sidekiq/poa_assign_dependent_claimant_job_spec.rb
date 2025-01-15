@@ -78,7 +78,7 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
     context 'if an error occurs in the service call' do
       let(:error) { StandardError.new('error message') }
 
-      it "does not mark the POA status as 'updated'" do
+      it "calls #handle_error to handle marking the POA's errored state" do
         allow_any_instance_of(ClaimsApi::DependentClaimantPoaAssignmentService)
           .to receive(:assign_poa_to_dependent!).and_raise(error)
 
