@@ -93,17 +93,13 @@ RSpec.describe V1::SessionsController, type: :controller do
             let(:params) { { type:, clientId: '123123' } }
             let(:authn) do
               case type
-              when 'mhv'
-                ['myhealthevet', AuthnContext::MHV]
-              when 'mhv_verified'
+              when 'mhv', 'mhv_verified'
                 ['myhealthevet', AuthnContext::MHV]
               when 'idme'
                 [LOA::IDME_LOA1_VETS, AuthnContext::ID_ME]
               when 'idme_verified'
                 [LOA::IDME_LOA3, AuthnContext::ID_ME]
-              when 'dslogon'
-                ['dslogon', AuthnContext::DSLOGON]
-              when 'dslogon_verified'
+              when 'dslogon', 'dslogon_verified'
                 ['dslogon', AuthnContext::DSLOGON]
               when 'logingov'
                 [IAL::LOGIN_GOV_IAL1,
@@ -141,6 +137,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                          type:,
                          authn_context: authn,
                          application: 'vaweb',
+                         operation: 'authorize',
                          transaction_id: payload[:transaction_id]
                        })
             end
@@ -197,7 +194,9 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         context 'when type is custom' do
           context 'logingov inbound ssoe' do
-            let(:params) { { type: 'custom', csp_type: 'logingov', ial: IAL::TWO, client_id: '123123' } }
+            let(:params) do
+              { type: 'custom', csp_type: 'logingov', ial: IAL::TWO, client_id: '123123', operation: 'authorize' }
+            end
 
             it 'redirects for an inbound ssoe' do
               expect(SAML::SSOeSettingsService)
@@ -227,6 +226,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                          type: 'custom',
                          authn_context: IAL::LOGIN_GOV_IAL2,
                          application: payload[:application],
+                         operation: payload[:operation],
                          transaction_id: payload[:transaction_id]
                        })
             end
@@ -281,7 +281,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           context 'dslogon mhv idme inbound ssoe' do
-            let(:params) { { type: 'custom', authn: 'myhealthevet', clientId: '123123' } }
+            let(:params) { { type: 'custom', authn: 'myhealthevet', clientId: '123123', operation: 'authorize' } }
 
             it 'redirects for an inbound ssoe' do
               expect(SAML::SSOeSettingsService)
@@ -306,6 +306,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                          type: 'custom',
                          authn_context: 'myhealthevet',
                          application: payload[:application],
+                         operation: payload[:operation],
                          transaction_id: payload[:transaction_id]
                        })
             end
@@ -736,7 +737,11 @@ RSpec.describe V1::SessionsController, type: :controller do
                                               'context:http://idmanagement.gov/ns/assurance/loa/1/vets',
                                               'version:v1'])
           .and trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE,
-                                        tags: ['type:idme', 'version:v1', 'client_id:vaweb', 'error:102'])
+                                        tags: ['type:idme',
+                                               'version:v1',
+                                               'client_id:vaweb',
+                                               'operation:authorize',
+                                               'error:102'])
           .and trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_FAILED_KEY,
                                         tags: ['error:multiple_edipis', 'version:v1'])
 
@@ -746,7 +751,7 @@ RSpec.describe V1::SessionsController, type: :controller do
       context 'USiP user' do
         it 'logs the USiP client application' do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'vamobile' })
-          login_failed_tags = ['type:idme', 'version:v1', 'client_id:vamobile', 'error:102']
+          login_failed_tags = ['type:idme', 'version:v1', 'client_id:vamobile', 'operation:authorize', 'error:102']
 
           expect { call_endpoint }
             .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE, tags: login_failed_tags)
@@ -805,7 +810,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         it 'uplevels an LOA 1 session to LOA 3', :aggregate_failures do
           SAMLRequestTracker.create(
             uuid: login_uuid,
-            payload: { type: 'verify', application: 'vaweb' }
+            payload: { type: 'verify', application: 'vaweb', operation: 'authorize' }
           )
           existing_user = User.find(uuid)
           expect(existing_user.last_signed_in).to be_a(Time)
@@ -818,7 +823,8 @@ RSpec.describe V1::SessionsController, type: :controller do
                            "context:#{IAL::LOGIN_GOV_IAL1}",
                            'version:v1',
                            'type:verify',
-                           'client_id:vaweb']
+                           'client_id:vaweb',
+                           'operation:authorize']
 
           new_user_sign_in = Time.current + 30.minutes
           Timecop.freeze(new_user_sign_in)
@@ -845,7 +851,7 @@ RSpec.describe V1::SessionsController, type: :controller do
           end
 
           it 'logs the USiP client application' do
-            callback_tags = ['type:idme', 'version:v1', 'client_id:vamobile']
+            callback_tags = ['type:idme', 'version:v1', 'client_id:vamobile', 'operation:authorize']
 
             expect { call_endpoint }
               .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_SUCCESS, tags: callback_tags, **once)
@@ -1005,7 +1011,12 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          callback_tags = ['status:failure', 'context:unknown', 'version:v1', 'type:', 'client_id:vaweb']
+          callback_tags = ['status:failure',
+                           'context:unknown',
+                           'version:v1',
+                           'type:',
+                           'client_id:vaweb',
+                           'operation:authorize']
           failed_tags = ['error:auth_too_early', 'version:v1']
 
           expect { call_endpoint }
@@ -1029,7 +1040,7 @@ RSpec.describe V1::SessionsController, type: :controller do
                                 tag: :unknown,
                                 short_message: 'Other SAML Response Error(s)',
                                 level: :error,
-                                full_message: 'The status code of the Response was not Success, was Requester =>'\
+                                full_message: 'The status code of the Response was not Success, was Requester =>' \
                                               ' NoAuthnContext -> AuthnRequest without an authentication context.' }]
             )
           expect(call_endpoint).to redirect_to(expected_redirect)
@@ -1037,7 +1048,12 @@ RSpec.describe V1::SessionsController, type: :controller do
         end
 
         it 'increments the failed and total statsd counters' do
-          callback_tags = ['status:failure', 'context:unknown', 'version:v1', 'type:', 'client_id:vaweb']
+          callback_tags = ['status:failure',
+                           'context:unknown',
+                           'version:v1',
+                           'type:',
+                           'client_id:vaweb',
+                           'operation:authorize']
           failed_tags = ['error:unknown', 'version:v1']
 
           expect { call_endpoint }
@@ -1054,11 +1070,11 @@ RSpec.describe V1::SessionsController, type: :controller do
       end
 
       context 'when saml response error contains status_detail' do
-        status_detail_xml = '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">'\
-                            '</samlp:StatusCode>'\
-                            '<samlp:StatusDetail>'\
-                            '<fim:FIMStatusDetail MessageID="could_not_perform_token_exchange"></fim:FIMStatusDetail>'\
-                            '</samlp:StatusDetail>'\
+        status_detail_xml = '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">' \
+                            '</samlp:StatusCode>' \
+                            '<samlp:StatusDetail>' \
+                            '<fim:FIMStatusDetail MessageID="could_not_perform_token_exchange"></fim:FIMStatusDetail>' \
+                            '</samlp:StatusDetail>' \
 
         before do
           allow(SAML::Responses::Login).to receive(:new).and_return(saml_response_detail_error(status_detail_xml))
@@ -1093,10 +1109,10 @@ RSpec.describe V1::SessionsController, type: :controller do
 
       context 'when saml response error contains invalid_message_timestamp' do
         let(:status_detail_xml) do
-          '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">'\
-            '</samlp:StatusCode>'\
-            '<samlp:StatusDetail>'\
-            '<fim:FIMStatusDetail MessageID="invalid_message_timestamp"></fim:FIMStatusDetail>'\
+          '<samlp:StatusCode Value="urn:oasis:names:tc:SAML:2.0:status:Responder">' \
+            '</samlp:StatusCode>' \
+            '<samlp:StatusDetail>' \
+            '<fim:FIMStatusDetail MessageID="invalid_message_timestamp"></fim:FIMStatusDetail>' \
             '</samlp:StatusDetail>'
         end
         let(:expected_error_message) { "<fim:FIMStatusDetail MessageID='invalid_message_timestamp'/>" }
@@ -1169,9 +1185,14 @@ RSpec.describe V1::SessionsController, type: :controller do
             uuid: multi_error_uuid,
             payload: { type: 'idme', application: 'vaweb' }
           )
-          callback_tags = ['status:failure', 'context:unknown', 'version:v1', 'type:idme', 'client_id:vaweb']
+          callback_tags = ['status:failure',
+                           'context:unknown',
+                           'version:v1',
+                           'type:idme',
+                           'client_id:vaweb',
+                           'operation:authorize']
           callback_failed_tags = ['error:clicked_deny', 'version:v1']
-          login_failed_tags = ['type:idme', 'version:v1', 'client_id:vaweb', 'error:001']
+          login_failed_tags = ['type:idme', 'version:v1', 'client_id:vaweb', 'operation:authorize', 'error:001']
 
           expect { call_endpoint }
             .to trigger_statsd_increment(described_class::STATSD_SSO_CALLBACK_KEY, tags: callback_tags, **once)
@@ -1185,7 +1206,7 @@ RSpec.describe V1::SessionsController, type: :controller do
         context 'USiP user' do
           it 'logs the USiP client application' do
             SAMLRequestTracker.create(uuid: multi_error_uuid, payload: { type: 'idme', application: 'vamobile' })
-            login_failed_tags = ['type:idme', 'version:v1', 'client_id:vamobile', 'error:001']
+            login_failed_tags = ['type:idme', 'version:v1', 'client_id:vamobile', 'operation:authorize', 'error:001']
 
             expect { call_endpoint }
               .to trigger_statsd_increment(described_class::STATSD_LOGIN_STATUS_FAILURE, tags: login_failed_tags)
@@ -1236,8 +1257,12 @@ RSpec.describe V1::SessionsController, type: :controller do
 
         it 'increments the failed and total statsd counters' do
           SAMLRequestTracker.create(uuid: login_uuid, payload: { type: 'idme', application: 'vaweb' })
-          callback_tags = ['status:failure', "context:#{LOA::IDME_LOA1_VETS}", 'version:v1', 'type:idme',
-                           'client_id:vaweb']
+          callback_tags = ['status:failure',
+                           "context:#{LOA::IDME_LOA1_VETS}",
+                           'version:v1',
+                           'type:idme',
+                           'client_id:vaweb',
+                           'operation:authorize']
           failed_tags = ['error:validations_failed', 'version:v1']
 
           expect { call_endpoint }

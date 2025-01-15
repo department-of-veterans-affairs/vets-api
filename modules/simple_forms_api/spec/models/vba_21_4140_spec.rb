@@ -18,6 +18,22 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     it { is_expected.to match(/\d{3}-\d{3}-\d{4}/) }
   end
 
+  describe '#address' do
+    subject(:address) { form.address }
+
+    it { is_expected.to be_a FormEngine::Address }
+
+    it 'maps correctly to attributes' do
+      expect(address.address_line1).to eq data.dig('address', 'street')
+      expect(address.address_line2).to eq data.dig('address', 'street2')
+      expect(address.city).to eq data.dig('address', 'city')
+      expect(address.state_code).to eq data.dig('address', 'state')
+      expect(address.zip_code).to eq data.dig('address', 'postal_code')
+      expect(address.country_code_iso3).to eq data.dig('address', 'country')
+      expect(address.country_code_iso2).to eq IsoCountryCodes.find(data.dig('address', 'country')).alpha2
+    end
+  end
+
   describe '#data' do
     subject { form.data }
 
@@ -47,6 +63,32 @@ RSpec.describe SimpleFormsApi::VBA214140 do
         expect(month).to eq nil
         expect(day).to eq nil
       end
+    end
+  end
+
+  describe '#employed?' do
+    subject { form.employed? }
+
+    context 'when employers exist' do
+      it { is_expected.to eq true }
+    end
+
+    context 'when employers do not exist' do
+      let(:fixture_file) { 'vba_21_4140-min.json' }
+
+      it { is_expected.to eq false }
+    end
+  end
+
+  describe '#employment_history' do
+    subject(:employment_history) { form.employment_history }
+
+    it 'returns an array of four EmploymentHistory instances' do
+      expect(employment_history.length).to eq 4
+      expect(employment_history[0]).to be_a FormEngine::EmploymentHistory
+      expect(employment_history[0].lost_time).to eq data['employers'][0]['lost_time']
+      expect(employment_history[3]).to be_a FormEngine::EmploymentHistory
+      expect(employment_history[3].lost_time).to eq nil
     end
   end
 

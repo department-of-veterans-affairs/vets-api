@@ -164,7 +164,7 @@ module Login
     end
 
     def type_with_backing_idme_uuid
-      type == MHV_TYPE || type == DSLOGON_TYPE
+      [MHV_TYPE, DSLOGON_TYPE].include?(type)
     end
 
     def type
