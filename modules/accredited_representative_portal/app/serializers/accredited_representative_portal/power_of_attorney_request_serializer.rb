@@ -9,16 +9,21 @@ module AccreditedRepresentativePortal
     end
 
     attribute :expires_at do |poa_request|
-      poa_request.resolution.present? ? nil : poa_request.created_at + 60.days
+      poa_request.expires_at
     end
 
     attribute :power_of_attorney_form do |poa_request|
-      if poa_request.power_of_attorney_form.parsed_data['dependent'].present?
-        poa_request.power_of_attorney_form.parsed_data.transform_keys { |key| key == 'dependent' ? 'claimant' : key }
-      elsif poa_request.power_of_attorney_form.parsed_data['veteran'].present?
-        poa_request.power_of_attorney_form.parsed_data
-                   .transform_keys { |key| key == 'veteran' ? 'claimant' : key }
-                   .tap { |data| data.delete('dependent') }
+      poa_request.power_of_attorney_form.parsed_data.tap do |form|
+        claimant_key =
+          case poa_request.claimant_type
+          when AccreditedRepresentativePortal::PowerOfAttorneyRequest::ClaimantTypes::DEPENDENT
+            'dependent'
+          when AccreditedRepresentativePortal::PowerOfAttorneyRequest::ClaimantTypes::VETERAN
+            'veteran'
+          end
+    
+        form.delete("dependent") if claimant_key == "veteran"
+        form['claimant'] = form.delete(claimant_key)
       end
     end
 
