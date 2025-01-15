@@ -148,17 +148,6 @@ Lint/MissingSuper:
     - 'modules/veteran/app/models/veteran/user.rb'
     - 'lib/vye/dgib/service.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Lint/RedundantStringCoercion:
-#   Exclude:
-#     - 'rakelib/form526.rake'
-
-# Offense count: 1
-# Lint/RequireRangeParentheses:
-#   Exclude:
-#     - 'rakelib/form526.rake'
-
 # Offense count: 976
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.
@@ -205,12 +194,6 @@ Lint/SymbolConversion:
     - 'spec/factories/in_progress_forms/in_progress_forms.rb'
     - 'spec/lib/github_authentication/coverband_reporters_web_spec.rb'
     - 'spec/lib/lighthouse/veterans_health/client_spec.rb'
-
-# Offense count: 3
-# Lint/UselessRescue:
-#   Exclude:
-#     - 'app/controllers/v0/contact_us/inquiries_controller.rb'
-#     - 'lib/lgy/service.rb'
 
 # Offense count: 1074
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.
