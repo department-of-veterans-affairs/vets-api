@@ -288,7 +288,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
       it 'shouldnt copy fields from previous benefits' do
         %w[veteranFullName vaFileNumber veteranSocialSecurityNumber].each do |attr|
-          expect(subject.public_send(attr)).to be(nil)
+          expect(subject.public_send(attr)).to be_nil
         end
       end
     end
@@ -315,7 +315,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       expect do
         education_benefits_claim.reprocess_at('western')
       end.to change(education_benefits_claim, :regional_processing_office).from('eastern').to('western')
-      expect(education_benefits_claim.processed_at).to be nil
+      expect(education_benefits_claim.processed_at).to be_nil
     end
   end
 

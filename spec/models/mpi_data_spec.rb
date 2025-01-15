@@ -140,7 +140,7 @@ describe MPIData, :skip_mvi do
       let(:user) { build(:user) }
 
       it 'returns nil' do
-        expect(subject).to be(nil)
+        expect(subject).to be_nil
       end
     end
 
@@ -221,7 +221,7 @@ describe MPIData, :skip_mvi do
 
           it 'does not cache the unsuccessful response' do
             subject
-            expect(MPIData.find(user.icn)).to be(nil)
+            expect(MPIData.find(user.icn)).to be_nil
           end
         end
       end

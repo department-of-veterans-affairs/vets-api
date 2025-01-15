@@ -44,7 +44,7 @@ RSpec.describe User, type: :model do
         let(:mpi_icn) { nil }
 
         it 'returns nil' do
-          expect(user.icn).to be(nil)
+          expect(user.icn).to be_nil
         end
       end
     end
@@ -979,15 +979,15 @@ RSpec.describe User, type: :model do
       let(:user) { build(:user, :loa1) }
 
       it 'returns blank pciu_email' do
-        expect(user.pciu_email).to be nil
+        expect(user.pciu_email).to be_nil
       end
 
       it 'returns blank pciu_primary_phone' do
-        expect(user.pciu_primary_phone).to be nil
+        expect(user.pciu_primary_phone).to be_nil
       end
 
       it 'returns blank pciu_alternate_phone' do
-        expect(user.pciu_alternate_phone).to be nil
+        expect(user.pciu_alternate_phone).to be_nil
       end
     end
   end
@@ -1044,7 +1044,7 @@ RSpec.describe User, type: :model do
           let(:mpi_profile) { build(:mpi_profile, { birth_date: nil }) }
 
           it 'returns nil' do
-            expect(user.birth_date).to be nil
+            expect(user.birth_date).to be_nil
           end
         end
 
@@ -1061,7 +1061,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'returns nil' do
-          expect(user.birth_date).to be nil
+          expect(user.birth_date).to be_nil
         end
       end
     end
@@ -1076,7 +1076,7 @@ RSpec.describe User, type: :model do
       end
 
       it 'returns nil' do
-        expect(user.deceased_date).to be nil
+        expect(user.deceased_date).to be_nil
       end
     end
 
@@ -1106,7 +1106,7 @@ RSpec.describe User, type: :model do
       let(:mpi_relationship_array) { [] }
 
       it 'returns nil' do
-        expect(user.relationships).to be nil
+        expect(user.relationships).to be_nil
       end
     end
 
@@ -1180,7 +1180,7 @@ RSpec.describe User, type: :model do
 
         context 'when BGS relationship response does not contain information' do
           it 'returns an empty array' do
-            expect(user.relationships).to be nil
+            expect(user.relationships).to be_nil
           end
         end
       end
@@ -1259,7 +1259,7 @@ RSpec.describe User, type: :model do
             let(:user_verification) { nil }
 
             it 'returns nil' do
-              expect(user.user_verification).to be nil
+              expect(user.user_verification).to be_nil
             end
           end
         end
@@ -1292,7 +1292,7 @@ RSpec.describe User, type: :model do
             let(:user_verification) { nil }
 
             it 'returns nil' do
-              expect(user.user_verification).to be nil
+              expect(user.user_verification).to be_nil
             end
           end
         end
@@ -1323,7 +1323,7 @@ RSpec.describe User, type: :model do
           let(:user_verification) { nil }
 
           it 'returns nil' do
-            expect(user.user_verification).to be nil
+            expect(user.user_verification).to be_nil
           end
         end
       end
@@ -1361,7 +1361,7 @@ RSpec.describe User, type: :model do
         let(:user) { build(:user, :loa1) }
 
         it 'returns nil' do
-          expect(user.credential_lock).to be(nil)
+          expect(user.credential_lock).to be_nil
         end
       end
     end

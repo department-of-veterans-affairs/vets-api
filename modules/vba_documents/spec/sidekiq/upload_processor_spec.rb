@@ -838,8 +838,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
         it 'does not update the upload\'s status' do
           expect(upload.status).to eql('uploaded')
-          expect(upload.code).to be(nil)
-          expect(upload.detail).to be(nil)
+          expect(upload.code).to be_nil
+          expect(upload.detail).to be_nil
         end
       end
 

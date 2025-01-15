@@ -231,7 +231,7 @@ describe VBADocuments::UploadSubmission, type: :model do
       upload_success.refresh_status!
       updated = VBADocuments::UploadSubmission.find_by(guid: upload_success.guid)
       expect(updated.status).to eq('success')
-      expect(updated.metadata[VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY]).not_to be(nil)
+      expect(updated.metadata[VBADocuments::UploadSubmission::FINAL_SUCCESS_STATUS_KEY]).not_to be_nil
     end
 
     it 'updates completed status from upstream to ERROR if any UNIDENTIFIABLE_MAIL' do

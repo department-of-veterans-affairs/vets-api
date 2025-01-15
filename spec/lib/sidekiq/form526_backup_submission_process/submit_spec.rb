@@ -153,7 +153,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                     # to send to Central Mail at the same time
 
                     # Form 4142 Backup Submission Process
-                    expect(submission.form['form4142']).not_to be(nil)
+                    expect(submission.form['form4142']).not_to be_nil
                     form4142_processor = DecisionReviewV1::Processor::Form4142Processor.new(
                       form_data: submission.form['form4142'], submission_id: submission.id
                     )
@@ -165,7 +165,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                     ).to be_within(1.second).of(form4142_received_date)
 
                     # Form 0781 Backup Submission Process
-                    expect(submission.form['form0781']).not_to be(nil)
+                    expect(submission.form['form0781']).not_to be_nil
                     # not really a way to test the dates here
 
                     job_status = Form526JobStatus.last
@@ -174,7 +174,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
                     expect(job_status.job_id).to eq(jid)
                     expect(job_status.status).to eq('success')
                     submission = Form526Submission.last
-                    expect(submission.backup_submitted_claim_id).not_to be(nil)
+                    expect(submission.backup_submitted_claim_id).not_to be_nil
                     expect(submission.submit_endpoint).to eq('benefits_intake_api')
                   end
                 end
@@ -264,7 +264,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
               expect(job_status.job_id).to eq(jid)
               expect(job_status.status).to eq('success')
               submission = Form526Submission.last
-              expect(submission.backup_submitted_claim_id).not_to be(nil)
+              expect(submission.backup_submitted_claim_id).not_to be_nil
             end
           end
         end

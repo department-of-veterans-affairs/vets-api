@@ -101,7 +101,7 @@ describe MPI::Responses::ParserBase do
       let(:el) { nil }
 
       it 'returns nil' do
-        expect(subject).to be(nil)
+        expect(subject).to be_nil
       end
     end
 
@@ -109,7 +109,7 @@ describe MPI::Responses::ParserBase do
       let(:el) { 'some-parameter' }
 
       it 'returns nil' do
-        expect(subject).to be(nil)
+        expect(subject).to be_nil
       end
     end
 
@@ -123,7 +123,7 @@ describe MPI::Responses::ParserBase do
         let(:path_to_parse) { 'incorrect-parse' }
 
         it 'returns nil' do
-          expect(subject).to be(nil)
+          expect(subject).to be_nil
         end
       end
 
