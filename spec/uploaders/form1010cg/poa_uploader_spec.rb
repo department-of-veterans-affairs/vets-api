@@ -19,7 +19,7 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
   describe 'configuration' do
     it 'uses an AWS store' do
       expect(described_class.storage).to eq(CarrierWave::Storage::AWS)
-      expect(subject._storage?).to eq(true)
+      expect(subject._storage?).to be(true)
       expect(subject._storage).to eq(CarrierWave::Storage::AWS)
     end
 
@@ -123,8 +123,8 @@ describe Form1010cg::PoaUploader, :uploader_helpers do
 
       it 'stores file in aws' do
         VCR.use_cassette("s3/object/put/#{form_attachment_guid}/doctors-note.jpg", vcr_options) do
-          expect(subject.filename).to eq(nil)
-          expect(subject.file).to eq(nil)
+          expect(subject.filename).to be_nil
+          expect(subject.file).to be_nil
           expect(subject.versions).to eq({})
 
           subject.store!(source_file)

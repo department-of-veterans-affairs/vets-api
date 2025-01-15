@@ -67,9 +67,8 @@ module BenefitsDocuments
       # The uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
       job_id = document_upload(user_icn, document_data.to_serializable_hash)
-      if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) && !Flipper.enabled?(
-        :cst_synchronous_evidence_uploads, @user
-      )
+      if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) &&
+         !Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
         record_evidence_submission(document_data, job_id)
       end
       job_id

@@ -634,9 +634,9 @@ GEM
       ffi (~> 1.0)
     libddwaf (1.18.0.0.0-x86_64-linux)
       ffi (~> 1.0)
-    liquid (5.6.0)
+    liquid (5.6.4)
       bigdecimal
-      strscan
+      strscan (>= 3.1.1)
     listen (3.8.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -1049,7 +1049,7 @@ GEM
       ffi
     ssrf_filter (1.2.0)
     staccato (0.5.3)
-    statsd-instrument (3.9.9)
+    statsd-instrument (3.9.8)
     stringio (3.1.2)
     strong_migrations (2.1.0)
       activerecord (>= 6.1)

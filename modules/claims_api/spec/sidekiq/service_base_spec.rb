@@ -50,7 +50,7 @@ RSpec.describe ClaimsApi::ServiceBase do
       @service.send(:set_established_state_on_claim, claim)
       claim.reload
       expect(claim.status).to eq('established')
-      expect(claim.evss_response).to eq(nil)
+      expect(claim.evss_response).to be_nil
     end
   end
 
@@ -112,14 +112,14 @@ RSpec.describe ClaimsApi::ServiceBase do
         poa.save
 
         res = @service.send(:enable_vbms_access?, poa_form: poa)
-        expect(res).to eq(false)
+        expect(res).to be(false)
       end
 
       it 'if recordConsent is not present' do
         poa.save
 
         res = @service.send(:enable_vbms_access?, poa_form: poa)
-        expect(res).to eq(false)
+        expect(res).to be(false)
       end
 
       it 'if consentLimits are present' do
@@ -128,7 +128,7 @@ RSpec.describe ClaimsApi::ServiceBase do
         poa.save
 
         res = @service.send(:enable_vbms_access?, poa_form: poa)
-        expect(res).to eq(false)
+        expect(res).to be(false)
       end
     end
 
@@ -138,7 +138,7 @@ RSpec.describe ClaimsApi::ServiceBase do
         poa.save
 
         res = @service.send(:enable_vbms_access?, poa_form: poa)
-        expect(res).to eq(true)
+        expect(res).to be(true)
       end
     end
   end
@@ -155,7 +155,7 @@ RSpec.describe ClaimsApi::ServiceBase do
       claim.save!
 
       should_retry = @service.send(:will_retry?, claim, error)
-      expect(should_retry).to eq(true)
+      expect(should_retry).to be(true)
     end
 
     it 'does not retry a form526.InProcess error' do
@@ -169,7 +169,7 @@ RSpec.describe ClaimsApi::ServiceBase do
       claim.save!
 
       should_retry = @service.send(:will_retry?, claim, error)
-      expect(should_retry).to eq(false)
+      expect(should_retry).to be(false)
     end
 
     it 'does not retry a form526.submit.noRetryError error' do
@@ -184,7 +184,7 @@ RSpec.describe ClaimsApi::ServiceBase do
       claim.save!
 
       should_retry = @service.send(:will_retry?, claim, error)
-      expect(should_retry).to eq(false)
+      expect(should_retry).to be(false)
     end
   end
 

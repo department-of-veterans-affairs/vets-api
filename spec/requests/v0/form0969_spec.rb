@@ -50,13 +50,13 @@ RSpec.describe 'V0::Form0969', type: %i[request serializer] do
                   '/veteran-social-security-number - string at `/veteranSocialSecurityNumber` ' \
                   'does not match pattern: ^[0-9]{9}$'
                 )
-              ).to eq(true)
+              ).to be(true)
             else
               expect(
                 JSON.parse(response.body)['errors'][0]['detail'].include?(
                   "The property '#/veteranSocialSecurityNumber' value \"just a string\" did not match the regex"
                 )
-              ).to eq(true)
+              ).to be(true)
             end
           end
         end
