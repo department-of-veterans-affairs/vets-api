@@ -19,9 +19,9 @@ module V0
                     VAProfile::Models::ValidationAddress.new(address_params)
                   end
 
-        Rails.logger.info("Staging Address params: #{address_params}") if Settings.vsp_environment == "staging"
-        Rails.logger.info("Staging validation Address: #{address}") if Settings.vsp_environment == "staging"
-        Rails.logger.info("Staging Address valid: #{address.valid?}") if Settings.vsp_environment == "staging"
+        Rails.logger.info("Staging Address params: #{address_params}") if Settings.vsp_environment == 'staging'
+        Rails.logger.info("Staging validation Address: #{address}") if Settings.vsp_environment == 'staging'
+        Rails.logger.info("Staging Address valid: #{address.valid?}") if Settings.vsp_environment == 'staging'
 
         raise Common::Exceptions::ValidationErrors, address unless address.valid?
 
