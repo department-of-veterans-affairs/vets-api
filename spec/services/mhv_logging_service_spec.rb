@@ -10,7 +10,7 @@ RSpec.describe MHVLoggingService do
 
   let(:authenticated_client) do
     MHVLogging::Client.new(session: { user_id: mhv_user.mhv_correlation_id,
-                                      expires_at: Time.current + 60 * 60,
+                                      expires_at: Time.current + (60 * 60),
                                       token: '<SESSION_TOKEN>' })
   end
 

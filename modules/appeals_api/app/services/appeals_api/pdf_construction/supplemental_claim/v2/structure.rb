@@ -187,7 +187,7 @@ module AppealsApi
             evidence_dates.first(MAX_NUMBER_OF_EVIDENCE_LOCATIONS_FORM).each_with_index do |dates, i|
               dates.each_with_index do |date, date_index|
                 x, y = form_fields.boxes[:new_evidence_dates][i][:at]
-                y_offset = y - date_index * 9
+                y_offset = y - (date_index * 9)
                 date_opts = form_fields.boxes[:new_evidence_dates][i].merge({ at: [x, y_offset], size: 8 })
 
                 pdf.text_box date, default_text_opts.merge(date_opts)
