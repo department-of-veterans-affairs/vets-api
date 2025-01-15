@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Burials::SavedClaim do
   subject { described_class.new }
 
-  let(:instance) { FactoryBot.build(:burials_saved_claim) }
+  let(:instance) { build(:burials_saved_claim) }
 
   it 'responds to #confirmation_number' do
     expect(subject.confirmation_number).to eq(subject.guid)
@@ -71,21 +71,21 @@ RSpec.describe Burials::SavedClaim do
       form = instance.parsed_form
 
       form = form.merge({ 'transportation' => false })
-      claim = FactoryBot.build(:burials_saved_claim, form: form.to_json)
+      claim = build(:burials_saved_claim, form: form.to_json)
       benefits_claimed = claim.benefits_claimed
       expected = ['Burial Allowance', 'Plot Allowance']
       expect(benefits_claimed.length).to eq(2)
       expect(benefits_claimed).to eq(expected)
 
       form = form.merge({ 'plotAllowance' => false })
-      claim = FactoryBot.build(:burials_saved_claim, form: form.to_json)
+      claim = build(:burials_saved_claim, form: form.to_json)
       benefits_claimed = claim.benefits_claimed
       expected = ['Burial Allowance']
       expect(benefits_claimed.length).to eq(1)
       expect(benefits_claimed).to eq(expected)
 
       form = form.merge({ 'burialAllowance' => false })
-      claim = FactoryBot.build(:burials_saved_claim, form: form.to_json)
+      claim = build(:burials_saved_claim, form: form.to_json)
       benefits_claimed = claim.benefits_claimed
       expected = []
       expect(benefits_claimed.length).to eq(0)
@@ -98,14 +98,13 @@ RSpec.describe Burials::SavedClaim do
     let(:timestamp) { '2025-01-14T12:00:00Z' }
     let(:form_id) { '21P-530EZ' }
     let(:processed_pdf_path) { 'path/to/processed.pdf' }
-    let(:renamed_path) { "tmp/pdfs/#{form_id}_123_final.pdf" }
-    let(:pdf_utilities_instance) { instance_double('PDFUtilities::DatestampPdf') }
+    let(:renamed_path) { "tmp/pdfs/#{form_id}__final.pdf" }
+    let(:pdf_utilities_instance) { instance_double(PDFUtilities::DatestampPdf) }
 
     before do
       allow(PDFUtilities::DatestampPdf).to receive(:new).with(pdf_path).and_return(pdf_utilities_instance)
       allow(pdf_utilities_instance).to receive(:run).and_return(processed_pdf_path)
       allow(File).to receive(:rename).with(processed_pdf_path, renamed_path)
-      allow(subject).to receive(:id).and_return(123)
     end
 
     it 'processes the PDF and renames the file correctly' do

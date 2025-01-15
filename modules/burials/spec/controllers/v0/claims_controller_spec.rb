@@ -92,11 +92,11 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
     it 'returns a failure' do
       allow(claim).to receive(:process_attachments!).and_raise(error)
 
-      expect {
-          subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
-        }.to raise_error(StandardError, 'Something went wrong')
+      expect do
+        subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+      end.to raise_error(StandardError, 'Something went wrong')
 
-        expect(monitor).to have_received(:track_process_attachment_error).with(in_progress_form, claim, anything)
+      expect(monitor).to have_received(:track_process_attachment_error).with(in_progress_form, claim, anything)
     end
   end
 
@@ -108,7 +108,7 @@ RSpec.describe Burials::V0::ClaimsController, type: :request do
       ['', [], {}, nil].each do |blank|
         expect(in_progress_form).not_to receive(:update)
         result = subject.send(:log_validation_error_to_metadata, blank, claim)
-        expect(result).to eq(nil)
+        expect(result).to be_nil
       end
     end
 
