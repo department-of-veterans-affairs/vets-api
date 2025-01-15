@@ -81,7 +81,6 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
           StateCode: 'CA'
         },
         ZipCode: '12345',
-        Province: nil,
         DateOfBirth: '1980-05-15',
         BusinessPhone: nil,
         PersonalPhone: '987-654-3210',
