@@ -8272,16 +8272,16 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "areaCode",
                                 "phoneNumber"
                               ],
                               "properties": {
                                 "countryCode": {
+                                  "description": "Country code of the phone number. Required for international phone numbers.",
                                   "type": "string",
                                   "pattern": "^[0-9]+$"
                                 },
                                 "areaCode": {
-                                  "description": "Area code of the phone number.",
+                                  "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                   "type": "string",
                                   "pattern": "^[2-9][0-9]{2}$",
                                   "example": "555"
@@ -8415,16 +8415,16 @@
                               "type": "object",
                               "additionalProperties": false,
                               "required": [
-                                "areaCode",
                                 "phoneNumber"
                               ],
                               "properties": {
                                 "countryCode": {
+                                  "description": "Country code of the phone number. Required for international phone numbers.",
                                   "type": "string",
                                   "pattern": "^[0-9]+$"
                                 },
                                 "areaCode": {
-                                  "description": "Area code of the phone number.",
+                                  "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                   "type": "string",
                                   "pattern": "^[2-9][0-9]{2}$",
                                   "example": "555"
@@ -8998,16 +8998,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -9156,16 +9156,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -10911,16 +10911,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
@@ -11069,16 +11069,16 @@
                                 "type": "object",
                                 "additionalProperties": false,
                                 "required": [
-                                  "areaCode",
                                   "phoneNumber"
                                 ],
                                 "properties": {
                                   "countryCode": {
+                                    "description": "Country code of the phone number. Required for international phone numbers.",
                                     "type": "string",
                                     "pattern": "^[0-9]+$"
                                   },
                                   "areaCode": {
-                                    "description": "Area code of the phone number.",
+                                    "description": "Area code of the phone number. Required if countryCode is '1' or not included.",
                                     "type": "string",
                                     "pattern": "^[2-9][0-9]{2}$",
                                     "example": "555"
