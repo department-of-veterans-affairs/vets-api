@@ -42,7 +42,7 @@ module TravelClaim
     #
     # @return [String] token
     def token
-      @token ||= redis_client.token || access_token_from_veis
+      @token ||= redis_client.token.presence || access_token_from_veis
     end
 
     # Submit claim for the given patient_icn and appointment time.
