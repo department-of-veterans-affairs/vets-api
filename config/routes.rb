@@ -412,16 +412,9 @@ Rails.application.routes.draw do
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
 
-      resources :lce, only: :index, defaults: { format: :json }
-
-      namespace :lce do
-        resources :certifications, only: :show, defaults: { format: :json }
-
-        resources :exams, only: :show, defaults: { format: :json }
-
-        resources :licenses, only: :show, defaults: { format: :json }
-
-        resources :preps, only: :show, defaults: { format: :json }
+      namespace :lcpe do
+        resources :lacs, only: %i[index show], defaults: { format: :json }
+        resources :exams, only: %i[index show], defaults: { format: :json }
       end
     end
 
@@ -470,8 +463,6 @@ Rails.application.routes.draw do
   mount Avs::Engine, at: '/avs'
   mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
-  mount CovidResearch::Engine, at: '/covid-research'
-  mount CovidVaccine::Engine, at: '/covid_vaccine'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'

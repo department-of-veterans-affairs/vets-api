@@ -370,7 +370,7 @@ RSpec.describe 'Mobile::V1::User', type: :request do
 
     describe 'vet360 linking' do
       context 'when user has a vet360_id' do
-        # let(:user) { FactoryBot.build(:iam_user) }
+        # let(:user) { build(:iam_user) }
 
         # before { iam_sign_in(user) }
 

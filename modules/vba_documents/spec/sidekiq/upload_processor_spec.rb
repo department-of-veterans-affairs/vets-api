@@ -104,8 +104,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
   end
 
   describe '#perform' do
-    let(:upload) { FactoryBot.create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
-    let(:v2_upload) { FactoryBot.create(:upload_submission, :status_uploaded, :version_2) }
+    let(:upload) { create(:upload_submission, :status_uploaded, consumer_name: 'test consumer') }
+    let(:v2_upload) { create(:upload_submission, :status_uploaded, :version_2) }
 
     context 'duplicates' do
       before(:context) do
@@ -838,8 +838,8 @@ RSpec.describe VBADocuments::UploadProcessor, type: :job do
 
         it 'does not update the upload\'s status' do
           expect(upload.status).to eql('uploaded')
-          expect(upload.code).to be(nil)
-          expect(upload.detail).to be(nil)
+          expect(upload.code).to be_nil
+          expect(upload.detail).to be_nil
         end
       end
 

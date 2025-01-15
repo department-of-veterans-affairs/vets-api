@@ -23,7 +23,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
       it 'returns separation locations' do
         VCR.use_cassette('evss/reference_data/get_intake_sites') do
           get(:separation_locations)
-          expect(JSON.parse(response.body)['separation_locations'].present?).to eq(true)
+          expect(JSON.parse(response.body)['separation_locations'].present?).to be(true)
         end
       end
 
@@ -50,7 +50,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
       it 'returns separation locations' do
         VCR.use_cassette('brd/separation_locations') do
           get(:separation_locations)
-          expect(JSON.parse(response.body)['separation_locations'].present?).to eq(true)
+          expect(JSON.parse(response.body)['separation_locations'].present?).to be(true)
         end
       end
 
@@ -78,7 +78,7 @@ RSpec.describe V0::DisabilityCompensationFormsController, type: :controller do
       it 'returns separation locations' do
         VCR.use_cassette('brd/separation_locations_staging') do
           get(:separation_locations)
-          expect(JSON.parse(response.body)['separation_locations'].present?).to eq(true)
+          expect(JSON.parse(response.body)['separation_locations'].present?).to be(true)
         end
       end
 

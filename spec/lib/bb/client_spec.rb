@@ -54,7 +54,7 @@ describe 'bb client' do
     client_response = client.get_eligible_data_classes
     expect(client_response).to be_a(Common::Collection)
     expect(client_response.type).to eq(EligibleDataClass)
-    expect(client_response.cached?).to eq(true)
+    expect(client_response.cached?).to be(true)
     expect(client_response.members).to all(respond_to(:name))
   end
 
@@ -134,7 +134,7 @@ describe 'bb client' do
   it 'gets vhie sharing status', :vcr do
     client_response = client.get_status
     expect(client_response).to be_a(Hash)
-    expect(client_response.key?(:consent_status)).to eq(true)
+    expect(client_response.key?(:consent_status)).to be(true)
     expect(client_response[:consent_status]).to eq('OPT-IN')
   end
 end

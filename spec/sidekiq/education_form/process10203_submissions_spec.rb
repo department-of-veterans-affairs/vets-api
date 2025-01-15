@@ -142,7 +142,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
         subject.perform
         application_10203.reload
-        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(nil)
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to be_nil
       end
 
       it 'skips POA check for user without an EDIPI' do
@@ -153,7 +153,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
         subject.perform
         application_10203.reload
-        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(nil)
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to be_nil
       end
 
       it 'sets claim poa for evss user without poa' do
@@ -167,7 +167,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
         subject.perform
         application_10203.reload
-        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(false)
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to be(false)
       end
 
       it 'sets claim poa for user with poa' do
@@ -180,7 +180,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
         subject.perform
         application_10203.reload
-        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to eq(true)
+        expect(application_10203.education_benefits_claim.education_stem_automated_decision.poa).to be(true)
       end
 
       it 'sets claim poa for claim with decision poa flag' do
@@ -191,7 +191,7 @@ RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :educ
 
         subject.perform
         application_10203.reload
-        expect(application_10203.education_stem_automated_decision.poa).to eq(true)
+        expect(application_10203.education_stem_automated_decision.poa).to be(true)
       end
     end
     # rubocop:enable Layout/MultilineMethodCallIndentation

@@ -28,7 +28,7 @@ module MHV
         end
 
         def as_json
-          [{ title: message, detail: body[:message], code: body[:errorCode] }]
+          [{ title: message, detail: body['message'], code: body['errorCode'] }]
         end
       end
     end

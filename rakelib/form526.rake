@@ -119,8 +119,8 @@ namespace :form526 do
         print_total: ->(header, total) { puts "#{header.to_s.strip},#{total}" },
         ignore_submission: ->(submission) { submission.bdd? ? false : submission.id },
         submissions: Form526Submission.where(created_at: [
-                                               (dates.first || '2020-11-01'.to_date).beginning_of_day..
-                                               (dates.second || Time.zone.now.utc + 1.day).end_of_day
+                                               (((dates.first || '2020-11-01'.to_date).beginning_of_day)..
+                                               ((dates.second || (Time.zone.now.utc + 1.day)).end_of_day))
                                              ]),
         success_failure_totals_header_string: '* Job Success/Failure counts *'
       )
@@ -132,7 +132,7 @@ namespace :form526 do
 
       dates = dates_from_array args_array
       start_date = dates.first || '2020-11-01'.to_date
-      end_date = dates.second || Time.zone.now.utc + 1.day
+      end_date = dates.second || (Time.zone.now.utc + 1.day)
       [start_date, end_date]
     end
 
@@ -426,7 +426,7 @@ namespace :form526 do
       puts '----------------------------------------'
       puts "Jobs:\n\n"
       submission.form526_job_statuses.each do |s|
-        puts s.job_class.to_s
+        puts s.job_class
         puts "  status: #{s.status}"
         puts "  error: #{s.error_class}" if s.error_class
         puts "    message: #{s.error_message}" if s.error_message
