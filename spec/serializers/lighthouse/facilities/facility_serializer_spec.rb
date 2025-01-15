@@ -6,7 +6,7 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, team: :facilities do
   # subject { serialize(facility, serializer_class: described_class) }
   subject { described_class.new(facility) }
 
-  let(:facility) { build :lighthouse_facility }
+  let(:facility) { build(:lighthouse_facility) }
   let(:data) { subject.serializable_hash.with_indifferent_access['data'] }
   let(:attributes) { data['attributes'] }
 

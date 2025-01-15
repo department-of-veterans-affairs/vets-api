@@ -252,6 +252,7 @@ module V0
       Swagger::Schemas::Vet360::States,
       Swagger::Schemas::Vet360::Zipcodes,
       Swagger::Schemas::VirtualAgentWebchatToken,
+      FacilitiesApi::V2::Schemas::Facilities,
       self
     ].freeze
 

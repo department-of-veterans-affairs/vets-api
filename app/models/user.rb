@@ -160,7 +160,7 @@ class User < Common::RedisStore
   end
 
   def mhv_user_account
-    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:).perform
+    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:, from_cache_only: true).perform
   rescue => e
     log_mhv_user_account_error(e.message)
     nil
@@ -460,7 +460,7 @@ class User < Common::RedisStore
   # @return [Boolean]
   #
   def served_in_military?
-    edipi.present? && veteran? || military_person?
+    (edipi.present? && veteran?) || military_person?
   end
 
   def power_of_attorney
@@ -481,11 +481,11 @@ class User < Common::RedisStore
     MHV::AccountCreatorJob.perform_async(user_verification_id)
   end
 
-  private
-
   def can_create_mhv_account?
     loa3? && !needs_accepted_terms_of_use
   end
+
+  private
 
   def mpi_profile
     return nil unless identity && mpi

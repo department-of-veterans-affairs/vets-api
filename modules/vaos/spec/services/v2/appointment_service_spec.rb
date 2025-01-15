@@ -66,19 +66,19 @@ describe VAOS::V2::AppointmentsService do
 
   describe '#post_appointment' do
     let(:va_proposed_clinic_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user:).attributes
+      build(:appointment_form_v2, :va_proposed_clinic, user:).attributes
     end
 
     let(:va_proposed_phone_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_proposed_phone, user:).attributes
+      build(:appointment_form_v2, :va_proposed_phone, user:).attributes
     end
 
     let(:va_booked_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_booked, user:).attributes
+      build(:appointment_form_v2, :va_booked, user:).attributes
     end
 
     let(:community_cares_request_body) do
-      FactoryBot.build(:appointment_form_v2, :community_cares, user:).attributes
+      build(:appointment_form_v2, :community_cares, user:).attributes
     end
 
     context 'using VAOS' do
@@ -1605,7 +1605,7 @@ describe VAOS::V2::AppointmentsService do
 
   describe '#modify_desired_date' do
     let(:va_booked_request_body) do
-      FactoryBot.build(:appointment_form_v2, :va_booked).attributes
+      build(:appointment_form_v2, :va_booked).attributes
     end
 
     context 'with a request body and facility timezone' do
@@ -1621,21 +1621,21 @@ describe VAOS::V2::AppointmentsService do
       # Note that the va_proposed appointment here contains both a reason code text and
       # requested periods which will not occur in a real scenario. However the example
       # demonstrates that the preferred dates from reason code text are not overwritten.
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text, user:).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, user:).attributes
       subject.send(:extract_appointment_fields, appt)
       expect(appt[:preferred_dates]).to eq(['Wed, June 26, 2024 in the morning',
                                             'Wed, June 26, 2024 in the afternoon'])
     end
 
     it 'extracts preferred dates if possible' do
-      appt = FactoryBot.build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
+      appt = build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
       subject.send(:extract_appointment_fields, appt)
       expect(appt[:preferred_dates]).to eq(['Wed, August 28, 2024 in the morning',
                                             'Wed, August 28, 2024 in the afternoon'])
     end
 
     it 'do not extract preferred dates if no requested periods' do
-      appt = FactoryBot.build(:appointment_form_v2, :community_cares_no_request_dates, user:).attributes
+      appt = build(:appointment_form_v2, :community_cares_no_request_dates, user:).attributes
       subject.send(:extract_appointment_fields, appt)
       expect(appt[:preferred_dates]).to be_nil
     end
@@ -1652,7 +1652,7 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'extracts when requested period start is present' do
-      appt = FactoryBot.build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
+      appt = build(:appointment_form_v2, :community_cares_multiple_request_dates, user:).attributes
       subject.send(:extract_request_preferred_dates, appt)
       expect(appt[:preferred_dates]).not_to be_nil
     end
@@ -1660,33 +1660,33 @@ describe VAOS::V2::AppointmentsService do
 
   describe '#set_modality' do
     it 'is vaInPersonVaccine for covid service_type' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:service_type] = 'covid'
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaInPersonVaccine')
     end
 
     it 'is vaInPerson for clinic kind' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaInPerson')
     end
 
     it 'is vaVideoCareAtAVaLocation for CLINIC_BASED vvsKind' do
-      appt = FactoryBot.build(:appointment_form_v2, :telehealth).attributes
+      appt = build(:appointment_form_v2, :telehealth).attributes
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
     end
 
     it 'is vaVideoCareAtAVaLocation for STORE_FORWARD vvsKind' do
-      appt = FactoryBot.build(:appointment_form_v2, :telehealth).attributes
+      appt = build(:appointment_form_v2, :telehealth).attributes
       appt[:telehealth][:vvs_kind] = 'STORE_FORWARD'
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
     end
 
     it 'is vaVideoCareOnGfe for MOBILE_ANY/ADHOC vvsKind and patient has GFE' do
-      appt = FactoryBot.build(:appointment_form_v2, :telehealth).attributes
+      appt = build(:appointment_form_v2, :telehealth).attributes
       appt[:telehealth][:vvs_kind] = 'MOBILE_ANY/ADHOC'
       appt[:extension][:patient_has_mobile_gfe] = true
       subject.send(:set_modality, appt)
@@ -1694,7 +1694,7 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'is vaVideoCareAtHome for MOBILE_ANY/ADHOC vvsKind and patient does not have GFE' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
       appt[:telehealth][:vvs_kind] = 'MOBILE_ANY/ADHOC'
       appt[:extension][:patient_has_mobile_gfe] = false
       subject.send(:set_modality, appt)
@@ -1702,28 +1702,28 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'is vaVideoCareAtAnAtlasLocation for telehealth appointment with atlas' do
-      appt = FactoryBot.build(:appointment_form_v2, :telehealth).attributes
+      appt = build(:appointment_form_v2, :telehealth).attributes
       appt[:telehealth][:atlas] = {}
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaVideoCareAtAnAtlasLocation')
     end
 
     it 'is vaPhone for phone kind' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:kind] = 'phone'
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('vaPhone')
     end
 
     it 'is claimExamAppointment for comp & pen service_category' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:service_category] = [{ text: 'COMPENSATION & PENSION' }]
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('claimExamAppointment')
     end
 
     it 'is communityCare for cc kind' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:kind] = 'cc'
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to eq('communityCare')
@@ -1731,7 +1731,7 @@ describe VAOS::V2::AppointmentsService do
 
     it 'logs failure to determine modality' do
       allow(Rails.logger).to receive(:info).at_least(:once)
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:kind] = 'none'
       subject.send(:set_modality, appt)
       expect(appt[:modality]).to be_nil
@@ -1747,7 +1747,7 @@ describe VAOS::V2::AppointmentsService do
 
   describe '#set_type' do
     it 'has a type of request for Cerner appointments without end dates' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
       appt[:end] = nil
       subject.send(:set_type, appt)
@@ -1755,7 +1755,7 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'is a VA appointment for Cerner appointments with a valid end date' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
       appt[:end] = :end_date
       subject.send(:set_type, appt)
@@ -1763,7 +1763,7 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'is a cc appointment for appointments with kind = "cc" and a valid start date' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = :id
       appt[:start] = :start_date
       appt[:requested_periods] = []
@@ -1773,7 +1773,7 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'is a cc request for appointments with kind = "cc" and at least one requested period' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = :id
       appt[:kind] = 'cc'
       appt[:requested_periods] = [{ start: '2024-06-26T12:00:00Z', end: '2024-06-26T13:00:00Z' }]
@@ -1782,7 +1782,7 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'is a request for appointments with kind other than "cc" and at least one requested period' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = :id
       appt[:kind] = 'telehealth'
       appt[:requested_periods] = [{ start: '2024-06-26T12:00:00Z', end: '2024-06-26T13:00:00Z' }]
@@ -1791,7 +1791,7 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'is a request for appointments with kind = "cc" and no start date or requested periods' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = :id
       appt[:kind] = 'cc'
       appt[:start] = nil
@@ -1801,7 +1801,7 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'is a cc request for Cerner with no start date or requested periods' do
-      appt = FactoryBot.build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text).attributes
       appt[:id] = 'CERN1234'
       appt[:kind] = 'cc'
       appt[:start] = nil

@@ -12,7 +12,7 @@ RSpec.describe 'IncomeLimits::V1::ValidateZipCode', type: :request do
       let(:zip) { '15222' }
 
       before do
-        zipcode_data = FactoryBot.create(:std_zipcode, zip_code: zip)
+        zipcode_data = create(:std_zipcode, zip_code: zip)
         allow(StdZipcode).to receive(:find_by).and_return(zipcode_data)
         get "/income_limits/v1/validateZipCode/#{zip}"
       end

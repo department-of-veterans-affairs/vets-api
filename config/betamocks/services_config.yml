@@ -9,25 +9,37 @@
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/ping" %>
       :file_path: "/ask_va/dynamics_api"
       :response_delay: 15
-    - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1/Sample/ping"
-      :file_path: "/travel_pay/ping/default"
-      :response_delay: 0.3
-    - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1/Sample/authorized-ping"
-      :file_path: "/travel_pay/ping/default"
-      :response_delay: 0.3
-    - :method: :post
-      :path: "/veis/api/btsss/travelclaim/api/v1/Auth/access-token"
-      :file_path: "/travel_pay/btsss_token/default"
-      :response_delay: 0.3
-    - :method: :get
-      :path: "/veis/api/btsss/travelclaim/api/v1/claims"
-      :file_path: "/travel_pay/claims/default"
-      :response_delay: 0.3
     - :method: :post
       :path: <%= "/#{Settings.ask_va_api.crm_api.veis_api_path}/inquiries/new" %>
       :file_path: "/ask_va/crm_api/post_inquiries/default"
+      :response_delay: 0.3
+    ## Travel Pay
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/Auth/access-token"
+      :file_path: "/travel_pay/btsss_token/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims"
+      :file_path: "/travel_pay/claims/index/default"
+      :response_delay: 0.3
+    - :method: :get
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/appointments"
+      :file_path: "/travel_pay/appointments/default"
+      :response_delay: 0.3
+    - :method: :patch
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims/*/submit"
+      :file_path: "/travel_pay/claims/submit"
+      :response_delay: 0.3
+      :cache_multiple_responses:
+        :uid_location: url
+        :uid_locator: '\/veis\/api\/btsss\/travelclaim\/api\/v1\.2\/claims\/(.+)\/submit'
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/claims"
+      :file_path: "/travel_pay/claims/create/default"
+      :response_delay: 0.3
+    - :method: :post
+      :path: "/veis/api/btsss/travelclaim/api/v1.2/expenses/mileage"
+      :file_path: "/travel_pay/expenses/default"
       :response_delay: 0.3
 
 #CRM Token post
@@ -896,9 +908,6 @@
     - :method: :post
       :path: "/sts/oauth/v1/token"
       :file_path: "map/secure_token_service/token"
-    - :method: :get
-      :path: "/sts/oauth/v1/jwks"
-      :file_path: "map/secure_token_service/jwks"
 
 # Sign Up Service Terms API
 - :name: "MAP SUS"
@@ -929,7 +938,7 @@
         :uid_location: url
         :uid_locator: '\/signup\/v1\/patients\/([V0-9]*)\/provisioning\/cerner'
 
-# VA Profile / Vet360
+# VA Profile (formerly known as Vet360)
 - :name: "VA Profile"
   :base_uri: <%= "#{URI(Settings.vet360.url).host}:#{URI(Settings.vet360.url).port}" %>
   :endpoints:
@@ -939,33 +948,3 @@
     - :method: :post
       :path: "/profile-service/profile/v3/*/*"
       :file_path: "vet360/profile-service/default"
-
-# GIDS
-- :name: "GIDS"
-  :base_uri: <%= "#{URI(Settings.gids.url).host}:#{URI(Settings.gids.url).port}" %>
-  :endpoints:
-    - :method: :get
-      :path: "/gids/v0/institution_programs"
-      :file_path: "gids/programs"
-      # Mock only enabled when filtering by flight programs, see: lib/gi/search_client.rb
-      :cache_multiple_responses:
-        :uid_location: query
-        :uid_locator: type
-    - :method: :get
-      :path: "/gids/v1/lce"
-      :file_path: "gids/lce"
-      :cache_multiple_responses:
-        :uid_location: query
-        :uid_locator: type
-    - :method: :get
-      :path: "/gids/v1/lce/certifications/*"
-      :file_path: "gids/lce/certifications/default"
-    - :method: :get
-      :path: "/gids/v1/lce/exams/*"
-      :file_path: "gids/lce/exams/default"
-    - :method: :get
-      :path: "/gids/v1/lce/licenses/*"
-      :file_path: "gids/lce/licenses/default"
-    - :method: :get
-      :path: "/gids/v1/lce/preps/*"
-      :file_path: "gids/lce/preps/default"

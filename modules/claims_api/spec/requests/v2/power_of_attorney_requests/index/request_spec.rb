@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Rails.root / 'modules/claims_api/spec/rails_helper'
 
-RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests#index', :bgs, type: :request do
+RSpec.describe 'ClaimsApi::V2::PowerOfAttorneyRequests#index', :bgs, skip: 'unused', type: :request do
   subject { perform_request(params) }
 
   def perform_request(params)

@@ -12,7 +12,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     headers['va_eauth_pnid'] = '796104437'
@@ -99,13 +99,14 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
                                 })
         poa.save!
 
+        allow_any_instance_of(ClaimsApi::ServiceBase).to receive(:vanotify?).and_return true
         expect(ClaimsApi::VANotifyAcceptedJob).to receive(:perform_async)
 
         subject.new.perform(poa.id, 'Rep Data')
       end
     end
 
-    context 'when the flipper is on' do
+    context 'when the flipper is off' do
       it 'does not send the vanotify job' do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
         Flipper.disable(:lighthouse_claims_api_v2_poa_va_notify)

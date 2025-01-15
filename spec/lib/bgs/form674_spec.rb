@@ -4,9 +4,9 @@ require 'rails_helper'
 require 'bgs/form674'
 
 RSpec.describe BGS::Form674 do
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
-  let(:all_flows_payload) { FactoryBot.build(:form_686c_674_kitchen_sink) }
-  let(:user_struct) { FactoryBot.build(:user_struct) }
+  let(:user_object) { create(:evss_user, :loa3) }
+  let(:all_flows_payload) { build(:form_686c_674_kitchen_sink) }
+  let(:user_struct) { build(:user_struct) }
   let(:saved_claim) { create(:dependency_claim) }
   let(:saved_claim_674_only) { create(:dependency_claim_674_only) }
 

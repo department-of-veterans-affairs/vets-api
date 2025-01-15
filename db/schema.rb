@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_27_213059) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_01_213062) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -307,7 +307,12 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_27_213059) do
     t.uuid "claimant_id", null: false
     t.datetime "created_at", null: false
     t.string "claimant_type", null: false
+    t.string "power_of_attorney_holder_type", null: false
+    t.uuid "power_of_attorney_holder_id", null: false
+    t.uuid "accredited_individual_id", null: false
+    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_a0a1fab1e0"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
+    t.index ["power_of_attorney_holder_type", "power_of_attorney_holder_id"], name: "index_ar_power_of_attorney_requests_on_power_of_attorney_holder"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -469,6 +474,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_27_213059) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["power_of_attorney_id"], name: "idx_on_power_of_attorney_id_9fc9134311"
+    t.index ["proc_id"], name: "index_claims_api_power_of_attorney_requests_on_proc_id"
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -1401,35 +1407,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_27_213059) do
     t.index ["verified_at"], name: "index_user_verifications_on_verified_at"
   end
 
-  create_table "va_forms_forms", force: :cascade do |t|
-    t.string "form_name"
-    t.string "url"
-    t.string "title"
-    t.date "first_issued_on"
-    t.date "last_revision_on"
-    t.integer "pages"
-    t.string "sha256"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "valid_pdf", default: false
-    t.text "form_usage"
-    t.text "form_tool_intro"
-    t.string "form_tool_url"
-    t.string "form_type"
-    t.string "language"
-    t.datetime "deleted_at"
-    t.string "related_forms", array: true
-    t.jsonb "benefit_categories"
-    t.string "form_details_url"
-    t.jsonb "va_form_administration"
-    t.integer "row_id"
-    t.float "ranking"
-    t.string "tags"
-    t.date "last_sha256_change"
-    t.jsonb "change_history"
-    t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
-  end
-
   create_table "va_notify_in_progress_reminders_sent", force: :cascade do |t|
     t.string "form_id", null: false
     t.uuid "user_account_id", null: false
@@ -1772,6 +1749,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_27_213059) do
   add_foreign_key "ar_power_of_attorney_forms", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_request_decisions", "user_accounts", column: "creator_id"
   add_foreign_key "ar_power_of_attorney_request_resolutions", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
+  add_foreign_key "ar_power_of_attorney_requests", "accredited_individuals"
   add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claim_va_notifications", "saved_claims"

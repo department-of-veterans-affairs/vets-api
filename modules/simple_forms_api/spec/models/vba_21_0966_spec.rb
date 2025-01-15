@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/shared_examples_for_base_form'
 
 RSpec.describe SimpleFormsApi::VBA210966 do
+  it_behaves_like 'zip_code_is_us_based', %w[veteran_mailing_address surviving_dependent_mailing_address]
+
   describe 'populate_veteran_data' do
     context 'data does not already have what it needs' do
       let(:expected_first_name) { 'Rory' }
@@ -47,50 +50,6 @@ RSpec.describe SimpleFormsApi::VBA210966 do
         expect(form.data['veteran_full_name']).to eq(expected_full_name)
         expect(form.data['veteran_mailing_address']).to eq expected_address
         expect(form.data['veteran_id']).to eq({ 'ssn' => expected_ssn })
-      end
-    end
-  end
-
-  describe 'zip_code_is_us_based' do
-    subject(:zip_code_is_us_based) { described_class.new(data).zip_code_is_us_based }
-
-    context 'veteran address is present and in US' do
-      let(:data) { { 'veteran_mailing_address' => { 'country' => 'USA' } } }
-
-      it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
-      end
-    end
-
-    context 'veteran address is present and not in US' do
-      let(:data) { { 'veteran_mailing_address' => { 'country' => 'Canada' } } }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
-      end
-    end
-
-    context 'surviving dependent is present and in US' do
-      let(:data) { { 'surviving_dependent_mailing_address' => { 'country' => 'USA' } } }
-
-      it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
-      end
-    end
-
-    context 'surviving dependent is present and not in US' do
-      let(:data) { { 'surviving_dependent_mailing_address' => { 'country' => 'Canada' } } }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
-      end
-    end
-
-    context 'no valid address is given' do
-      let(:data) { {} }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
       end
     end
   end

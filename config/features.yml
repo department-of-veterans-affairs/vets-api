@@ -69,7 +69,7 @@ features:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
   caregiver_use_facilities_API:
-    actor_type: user
+    actor_type: cookie_id
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
   caregiver_browser_monitoring_enabled:
     actor_type: user
@@ -177,6 +177,9 @@ features:
   cerner_override_757:
     actor_type: user
     description: This will show the Cerner facility 757 as `isCerner`.
+  champva_vanotify_custom_callback:
+    actor_type: user
+    description: Enables the custom callback_klass when sending IVC CHAMPVA failure emails with VA Notify
   champva_multiple_stamp_retry:
     actor_type: user
     description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
@@ -247,10 +250,6 @@ features:
   claims_api_flash_updater_uses_local_bgs:
     actor_type: user
     description: Enables flash updater to use local_bgs
-    enable_in_development: true
-  claims_api_local_bgs_refactor:
-    actor_type: user
-    description: Diverts codepath to LocalBGSRefactored
     enable_in_development: true
   claims_api_poa_vbms_updater_uses_local_bgs:
     actor_type: user
@@ -355,45 +354,6 @@ features:
   communication_preferences:
     actor_type: user
     description: Allow user to access backend communication_preferences API
-  covid_vaccine_registration:
-    actor_type: user
-    description: Toggles availability of covid vaccine form API.
-  covid_vaccine_registration_expanded:
-    actor_type: user
-    description: Toggles availability of covid vaccine expanded registration form API.
-    enable_in_development: true
-  covid_vaccine_registration_frontend:
-    actor_type: user
-    description: Toggles the availability of the frontend form on va.gov for the covid-19 vaccine sign-up
-  covid_vaccine_registration_frontend_cta:
-    actor_type: user
-    description: >
-      Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/"
-      leading to the frontend form on va.gov for the covid-19 vaccine sign-up
-  covid_vaccine_registration_frontend_enable_expanded_eligibility:
-    actor_type: user
-    description: Toggles the 'continue' button to launch the new expanded eligibility VAFS app
-  covid_vaccine_registration_frontend_hide_auth:
-    actor_type: user
-    description: >
-      Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov.
-      Note: When this is enabled, the 'Sign in' button will be hidden
-  covid_vaccine_scheduling_frontend:
-    actor_type: user
-    description: Toggles the availability of covid-19 vaccine scheduling links in the facility locator frontend
-    enable_in_development: true
-  covid_volunteer_intake_backend_enabled:
-    actor_type: cookie_id
-    description: Toggles whether the COVID Research volunteer intake vets-api endpoint is available
-  covid_volunteer_intake_enabled:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer intake form Version 2 is available
-  covid_volunteer_update_enabled:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer update form and associated endpoint are available
-  covid_volunteer_delivery:
-    actor_type: cookie_id
-    description: Toggles whether COVID Research volunteer submissions will be delivered to genISIS
   claims_claim_uploader_use_bd:
     actor_type: user
     description: Use BDS instead of EVSS to upload to VBMS.
@@ -561,18 +521,6 @@ features:
     actor_type: user
     description: enables adding applicable flashes to disability_526 prior to submission.
     enable_in_development: true
-  disability_526_toxic_exposure:
-    actor_type: user
-    description: enables new pages, processing, and submission of toxic exposure claims
-  disability_526_toxic_exposure_ipf:
-    actor_type: user
-    description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
-  disability_526_new_confirmation_page:
-    actor_type: user
-    description: enables new confirmation page for form 526 submission confirmation page
-  disability_526_toxic_exposure_document_upload_polling:
-    actor_type: user
-    description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
   disability_526_call_received_email_from_polling:
     actor_type: user
     description: enables received email in poll_form526_pdf job and disables calling from form526_submission
@@ -584,6 +532,13 @@ features:
     actor_type: user
     description: Enables the expanded contention classification service maintained by the Conditions Team.
     enable_in_development: true
+  disability_526_migrate_contention_classification:
+    actor_type: user
+    description: Enables the migration of contention classification service from VRO to the VA.gov infrastructure.
+    enable_in_development: true
+  disability_526_max_cfi_service_switch:
+    actor_type: user
+    description: Enables the use of the new Max Ratings CFI service instead of the VRO client for fetching max ratings.
   disability_compensation_flashes:
     actor_type: user
     description: enables sending flashes to BGS for disability_compensation submissions.
@@ -712,6 +667,10 @@ features:
   appoint_a_representative_enable_frontend:
     actor_type: cookie_id
     description: Enables Appoint a Representative frontend
+    enable_in_development: true
+  appoint_a_representative_enable_v2_features:
+    actor_type: user
+    description: Enables Appoint a Representative 2.0 features for frontend and backend
     enable_in_development: true
   appoint_a_representative_enable_pdf:
     actor_type: user
@@ -1399,6 +1358,10 @@ features:
     actor_type: cookie_id
     description: Enables the ability to use OAuth authentication via the Sign in Service (Identity)
     enable_in_development: true
+  mhv_credential_button_disabled:
+    actor_type: user
+    description: Enables the ability to hide the My HealtheVet sign in button (Identity)
+    enable_in_development: true
   sign_in_modal_v2:
     actor_type: user
     description: Enables new page design of Sign In modal and USiP
@@ -1805,10 +1768,6 @@ features:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
     enable_in_development: true
-  hlr_updateed_contnet:
-    actor_type: user
-    description: HLR show form content updates
-    enable_in_development: true
   sc_new_form:
     actor_type: user
     description: Supplemental Claim new form updates
@@ -1835,6 +1794,13 @@ features:
   burial_form_enabled:
     actor_type: user
     description: Enable the burial form
+  burial_module_enabled:
+    actor_type: user
+    description: Enables new Burial module
+    enable_in_development: true
+  burial_document_upload_update:
+    actor_type: user
+    description: Show updated document upload page
   burial_confirmation_page:
     actor_type: user
     description: Toggle showing the updated confirmation page
@@ -2013,3 +1979,6 @@ features:
   enable_lighthouse:
     actor_type: user
     description: If enabled, user will connect to lighthouse api in sob instead of evss
+  virtual_agent_enable_datadog_logging:
+    actor_type: user
+    description: If enabled, allows for the use of Datadog logging for the chatbot
