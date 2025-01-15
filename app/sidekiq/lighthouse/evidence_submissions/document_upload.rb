@@ -115,7 +115,6 @@ module Lighthouse
         document_type = msg['args'][1]['document_type']
         # Obscure the file name here since this will be used to generate a failed email
         file_name = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][1]['file_name'])
-        # file_name = msg['args'][1]['file_name']
         date_submitted = format_issue_instant_for_mailers(msg['created_at'])
         date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 

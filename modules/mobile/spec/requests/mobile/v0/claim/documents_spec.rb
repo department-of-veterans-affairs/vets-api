@@ -20,6 +20,7 @@ RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :
     allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return(token)
     Flipper.enable_actor(:mobile_lighthouse_document_upload, user)
     Flipper.disable(:cst_synchronous_evidence_uploads)
+    Flipper.disable(:cst_send_evidence_submission_failure_emails)
     FileUtils.rm_rf(Rails.root.join('tmp', 'uploads', 'cache', '*'))
   end
 
