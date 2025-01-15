@@ -36,7 +36,7 @@ class EVSS::DocumentUpload
   sidekiq_retries_exhausted do |msg, _ex|
     verify_msg(msg)
 
-    if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
+    if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
       update_evidence_submission(msg)
     else
       call_failure_notification(msg)
@@ -51,7 +51,7 @@ class EVSS::DocumentUpload
     validate_document!
     pull_file_from_cloud!
     perform_document_upload_to_evss
-    update_evidence_submission_status(jid) if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
+    update_evidence_submission_status(jid) if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
     clean_up!
   end
 
