@@ -40,7 +40,6 @@ class SourceAppMiddleware
     10282-edu-benefits
     1919-edu-benefits
     1990-edu-benefits
-    1990-edu-benefits
     1990ez-edu-benefits
     1995-edu-benefits
     21-0966-intent-to-file-a-claim
@@ -68,8 +67,6 @@ class SourceAppMiddleware
     check-in
     claims-status
     coe
-    coe
-    coe-status
     coe-status
     combined-debt-portal
     covid19screen
@@ -78,6 +75,7 @@ class SourceAppMiddleware
     dhp-consent-flow
     discharge-upgrade-instructions
     discover-your-benefits
+    dispute-debt
     download
     ds-playground
     ds-v3-playground
