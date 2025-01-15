@@ -148,63 +148,6 @@ Lint/MissingSuper:
     - 'modules/veteran/app/models/veteran/user.rb'
     - 'lib/vye/dgib/service.rb'
 
-# Offense count: 5
-Lint/NoReturnInBeginEndBlocks:
-  Exclude:
-    - 'lib/saml/user_attributes/ssoe.rb'
-    - 'modules/check_in/app/services/travel_claim/service.rb'
-    - 'modules/check_in/app/services/v2/chip/service.rb'
-    - 'modules/mobile/app/models/mobile/v0/adapters/vaos_v2_appointment.rb'
-
-# Offense count: 18
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/NonAtomicFileOperation:
-  Exclude:
-    - 'config/initializers/integration_recorder.rb'
-    - 'lib/common/file_helpers.rb'
-    - 'lib/generators/module/module_generator.rb'
-    - 'modules/appeals_api/app/sidekiq/appeals_api/pdf_submit_job.rb'
-    - 'modules/appeals_api/spec/services/appeals_api/pdf_construction/generator_spec.rb'
-    - 'modules/mobile/app/services/mobile/v0/claims/proxy.rb'
-    - 'spec/controllers/v0/caregivers_assistance_claims_controller_spec.rb'
-    - 'spec/models/form1010cg/attachment_spec.rb'
-    - 'spec/rswag_override.rb'
-
-# Offense count: 4
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Lint/OrAssignmentToConstant:
-  Exclude:
-    - 'modules/appeals_api/app/controllers/concerns/appeals_api/header_modification.rb'
-    - 'modules/claims_api/app/controllers/concerns/claims_api/endpoint_deprecation.rb'
-
-# Offense count: 16
-# This cop supports safe autocorrection (--autocorrect).
-Lint/RedundantCopDisableDirective:
-  Exclude:
-    - 'modules/mobile/lib/scripts/appointments_list_validation.rb'
-    - 'rakelib/form526.rake'
-    - 'rakelib/mvi.rake'
-    - 'rakelib/vet360.rake'
-
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowedMethods.
-# AllowedMethods: instance_of?, kind_of?, is_a?, eql?, respond_to?, equal?, presence, present?
-Lint/RedundantSafeNavigation:
-  Exclude:
-    - 'app/sidekiq/education_form/process10203_submissions.rb'
-
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-# Lint/RedundantStringCoercion:
-#   Exclude:
-#     - 'rakelib/form526.rake'
-
-# Offense count: 1
-# Lint/RequireRangeParentheses:
-#   Exclude:
-#     - 'rakelib/form526.rake'
-
 # Offense count: 976
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.
@@ -251,12 +194,6 @@ Lint/SymbolConversion:
     - 'spec/factories/in_progress_forms/in_progress_forms.rb'
     - 'spec/lib/github_authentication/coverband_reporters_web_spec.rb'
     - 'spec/lib/lighthouse/veterans_health/client_spec.rb'
-
-# Offense count: 3
-# Lint/UselessRescue:
-#   Exclude:
-#     - 'app/controllers/v0/contact_us/inquiries_controller.rb'
-#     - 'lib/lgy/service.rb'
 
 # Offense count: 1074
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.

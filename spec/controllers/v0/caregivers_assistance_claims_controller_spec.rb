@@ -209,7 +209,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
 
     after do
-      File.delete(response_pdf) if File.exist?(response_pdf)
+      FileUtils.rm_f(response_pdf)
     end
 
     it_behaves_like '10-10CG request with missing param: caregivers_assistance_claim', :download_pdf
