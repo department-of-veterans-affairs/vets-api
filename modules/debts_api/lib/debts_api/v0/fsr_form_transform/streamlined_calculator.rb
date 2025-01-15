@@ -4,11 +4,13 @@ require 'debts_api/v0/fsr_form_transform/gmt_calculator'
 require 'debts_api/v0/fsr_form_transform/income_calculator'
 require 'debts_api/v0/fsr_form_transform/asset_calculator'
 require 'debts_api/v0/fsr_form_transform/enhanced_expense_calculator'
+require 'debts_api/v0/fsr_form_transform/utils'
 
 module DebtsApi
   module V0
     module FsrFormTransform
       class StreamlinedCalculator
+        include ::FsrFormTransform::Utils
         VHA_LIMIT = 5000
 
         def initialize(form)
@@ -17,7 +19,7 @@ module DebtsApi
           @income_data = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(form).get_monthly_income
           @asset_data = DebtsApi::V0::FsrFormTransform::AssetCalculator.new(form).transform_assets
           @enhanced_expense_calculator = DebtsApi::V0::FsrFormTransform::EnhancedExpenseCalculator.new(
-            deep_transform_keys_to_camel_case(form)
+            re_camel(form)
           ).transform_expenses
         end
 
@@ -126,18 +128,6 @@ module DebtsApi
 
         def streamlined?
           streamlined_short_form? || streamlined_long_form?
-        end
-
-        def deep_transform_keys_to_camel_case(value)
-          case value
-          when Hash
-            value.deep_transform_keys { |key| key.to_s.underscore.camelize(:lower) }
-                 .transform_values { |v| deep_transform_keys_to_camel_case(v) }
-          when Array
-            value.map { |v| deep_transform_keys_to_camel_case(v) }
-          else
-            value
-          end
         end
       end
     end
