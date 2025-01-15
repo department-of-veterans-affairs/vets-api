@@ -78,10 +78,9 @@ module TravelClaim
     private
 
     def access_token_from_veis
-      response = Oj.safe_load(client.token)
-      access_token = response&.fetch('access_token')
-      redis_client.save_token(token: access_token)
-      access_token
+      Oj.safe_load(client.token.body)
+        &.fetch('access_token')
+        &.tap { |token| redis_client.save_token token: }
     end
 
     def client
