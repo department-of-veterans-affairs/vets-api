@@ -24,15 +24,15 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::StreamlinedCalculator, type: :ser
       let(:dependents) { pre_data['questions']['has_dependents'] }
 
       before do
-        income_threshold_data = FactoryBot.create(:std_income_threshold, income_threshold_year: 2019)
-        zipcode_data = FactoryBot.create(:std_zipcode, zip_code: zip)
-        state_data = FactoryBot.create(:std_state, id: zipcode_data.state_id)
-        county_data = FactoryBot.create(:std_county, county_number: zipcode_data.county_number,
-                                                     state_id: zipcode_data.state_id)
-        gmt_threshold_data = FactoryBot.create(:gmt_threshold,
-                                               state_name: state_data.name,
-                                               county_name: "#{county_data.name} county",
-                                               effective_year: income_threshold_data.income_threshold_year)
+        income_threshold_data = create(:std_income_threshold, income_threshold_year: 2019)
+        zipcode_data = create(:std_zipcode, zip_code: zip)
+        state_data = create(:std_state, id: zipcode_data.state_id)
+        county_data = create(:std_county, county_number: zipcode_data.county_number,
+                                          state_id: zipcode_data.state_id)
+        gmt_threshold_data = create(:gmt_threshold,
+                                    state_name: state_data.name,
+                                    county_name: "#{county_data.name} county",
+                                    effective_year: income_threshold_data.income_threshold_year)
         state_fips_code = state_data.fips_code
         county_number = format('%03d', county_data.county_number)
         county_indentifier = state_fips_code.to_s + county_number.to_s
@@ -62,41 +62,51 @@ RSpec.describe DebtsApi::V0::FsrFormTransform::StreamlinedCalculator, type: :ser
         expect(expected_post_streamlined_data).to eq(@data)
       end
 
-      context 'with data that should return streamlined short form' do
+      context 'with data that should return non-streamlined' do
         let(:pre_data) do
-          get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform')
-          # Add modifications to the data as needed
+          get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform_non_streamlined')
         end
         let(:expected_post_streamlined_data) do
           {
-            value: true,
-            type: 'short'
+            'value' => false,
+            'type' => 'none'
           }
         end
 
         it 'gets streamlined data correct' do
-          skip 'The pre_data variable needs to be modified as needed to make this pass'
           expect(expected_post_streamlined_data).to eq(@data)
-          expect(StatsD).to receive(:increment).once.with('api.fsr_submission.full_transform.has_streamlined_data')
+        end
+      end
+
+      context 'with data that should return streamlined short form' do
+        let(:pre_data) do
+          get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform_streamlined_short')
+        end
+        let(:expected_post_streamlined_data) do
+          {
+            'value' => true,
+            'type' => 'short'
+          }
+        end
+
+        it 'gets streamlined data correct' do
+          expect(expected_post_streamlined_data).to eq(@data)
         end
       end
 
       context 'with data that should return streamlined long form' do
         let(:pre_data) do
-          get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform')
-          # Add modifications to the data as needed
+          get_fixture_absolute('modules/debts_api/spec/fixtures/pre_submission_fsr/pre_transform_streamlined_long')
         end
         let(:expected_post_streamlined_data) do
           {
-            value: true,
-            type: 'long'
+            'value' => true,
+            'type' => 'long'
           }
         end
 
         it 'gets streamlined data correct' do
-          skip 'The pre_data variable needs to be modified as needed to make this pass'
           expect(expected_post_streamlined_data).to eq(@data)
-          expect(StatsD).to receive(:increment).once.with('api.fsr_submission.full_transform.has_streamlined_data')
         end
       end
     end

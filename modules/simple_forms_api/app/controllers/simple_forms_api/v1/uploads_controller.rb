@@ -331,7 +331,7 @@ module SimpleFormsApi
           form_number: 'vba_21_0966_intent_api',
           confirmation_number:,
           date_submitted: Time.zone.today.strftime('%B %d, %Y'),
-          expiration_date:
+          expiration_date: Time.zone.parse(expiration_date).strftime('%B %d, %Y')
         }
         notification_email = SimpleFormsApi::NotificationEmail.new(
           config,

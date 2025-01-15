@@ -75,13 +75,13 @@ RSpec.describe Session, type: :model do
         increment = subject.redis_namespace_ttl - 60.seconds
         max_hours = described_class::MAX_SESSION_LIFETIME / 1800.seconds
         (1..max_hours).each do |hour|
-          Timecop.freeze(start_time + increment * hour)
+          Timecop.freeze(start_time + (increment * hour))
           expect(subject.expire(described_class.redis_namespace_ttl)).to eq(true)
           expect(subject.ttl).to eq(described_class.redis_namespace_ttl)
         end
 
         # now outside Session::MAX_SESSION_LIFETIME
-        Timecop.freeze(start_time + increment * max_hours + increment)
+        Timecop.freeze(start_time + (increment * max_hours) + increment)
         expect(subject.expire(described_class.redis_namespace_ttl)).to eq(false)
         expect(subject.errors.messages).to include(:created_at)
 

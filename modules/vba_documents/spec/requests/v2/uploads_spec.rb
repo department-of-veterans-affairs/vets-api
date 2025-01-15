@@ -121,9 +121,9 @@ RSpec.describe 'VBADocument::V2::Uploads', type: :request do
   end
 
   describe '#show /v2/uploads/{id}' do
-    let(:upload) { FactoryBot.create(:upload_submission, status: 'pending') }
-    let(:upload_in_flight) { FactoryBot.create(:upload_submission, status: 'processing') }
-    let(:upload_large_detail) { FactoryBot.create(:upload_submission_large_detail) }
+    let(:upload) { create(:upload_submission, status: 'pending') }
+    let(:upload_in_flight) { create(:upload_submission, status: 'processing') }
+    let(:upload_large_detail) { create(:upload_submission_large_detail) }
 
     it 'returns status of an upload submission' do
       get vba_documents.v2_upload_path(upload.guid)
@@ -249,7 +249,7 @@ RSpec.describe 'VBADocument::V2::Uploads', type: :request do
     end
 
     context 'with vbms complete' do
-      let!(:vbms_upload) { FactoryBot.create(:upload_submission, status: 'vbms') }
+      let!(:vbms_upload) { create(:upload_submission, status: 'vbms') }
 
       it 'reports status of vbms' do
         get vba_documents.v2_upload_path(vbms_upload.guid)
@@ -258,7 +258,7 @@ RSpec.describe 'VBADocument::V2::Uploads', type: :request do
     end
 
     context 'with error status' do
-      let!(:error_upload) { FactoryBot.create(:upload_submission, :status_error) }
+      let!(:error_upload) { create(:upload_submission, :status_error) }
 
       it 'returns json api errors' do
         get vba_documents.v2_upload_path(error_upload.guid)
@@ -282,7 +282,7 @@ RSpec.describe 'VBADocument::V2::Uploads', type: :request do
   end
 
   describe '#download /v2/uploads/{id}' do
-    let(:upload) { FactoryBot.create(:upload_submission) }
+    let(:upload) { create(:upload_submission) }
     let(:valid_doc) { get_fixture('valid_doc.pdf') }
     let(:valid_metadata) { get_fixture('valid_metadata.json').read }
     let(:invalid_doc) { get_fixture('invalid_multipart_no_partname.blob') }

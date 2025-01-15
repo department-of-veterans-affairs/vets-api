@@ -74,10 +74,10 @@ GIT
 
 GIT
   remote: https://github.com/department-of-veterans-affairs/vets-json-schema
-  revision: a84abd360072a0d4aaa8b1984cee2c33e1844335
+  revision: 75b0a0dd78b479e230867e89989bf3e8262d850c
   branch: master
   specs:
-    vets_json_schema (24.7.0)
+    vets_json_schema (24.7.4)
       multi_json (~> 1.0)
       script_utils (= 0.0.4)
 
@@ -99,8 +99,6 @@ PATH
     check_in (0.1.0)
     claims_api (0.0.1)
       dry-schema
-    covid_vaccine (0.1.0)
-      sidekiq
     debts_api (0.1.0)
     decision_reviews (0.1.0)
       rails (>= 7.1.4.1)
@@ -1051,7 +1049,7 @@ GEM
       ffi
     ssrf_filter (1.2.0)
     staccato (0.5.3)
-    statsd-instrument (3.9.8)
+    statsd-instrument (3.9.9)
     stringio (3.1.2)
     strong_migrations (2.1.0)
       activerecord (>= 6.1)
@@ -1178,7 +1176,6 @@ DEPENDENCIES
   config
   connect_vbms!
   coverband
-  covid_vaccine!
   csv
   danger
   database_cleaner
