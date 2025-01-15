@@ -119,8 +119,8 @@ namespace :form526 do
         print_total: ->(header, total) { puts "#{header.to_s.strip},#{total}" },
         ignore_submission: ->(submission) { submission.bdd? ? false : submission.id },
         submissions: Form526Submission.where(created_at: [
-                                               (dates.first || '2020-11-01'.to_date).beginning_of_day..
-                                               (dates.second || (Time.zone.now.utc + 1.day)).end_of_day
+                                               (((dates.first || '2020-11-01'.to_date).beginning_of_day)..
+                                               ((dates.second || (Time.zone.now.utc + 1.day)).end_of_day))
                                              ]),
         success_failure_totals_header_string: '* Job Success/Failure counts *'
       )
