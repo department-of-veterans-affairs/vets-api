@@ -53,7 +53,6 @@ module VAOS
           end
 
           if include[:eps]
-            # TODO: prepare eps_appointments differently than vaos appointments
             appointments = merge_appointments(eps_appointments, appointments)
           end
 
@@ -212,9 +211,9 @@ module VAOS
 
       def merge_appointments(eps_appointments, appointments)
         normalized_new = eps_appointments.map { |appt| eps_serializer.serialize(appt) }
-        existing_ids = appointments.to_set { |a| a.dig(:referral, :referralNumber) }
+        existing_referral_ids = appointments.map { |a| a.dig(:referral, :referral_number) }.to_set
         merged_data = appointments + normalized_new.reject do |a|
-          existing_ids.include?(a.dig(:referral, :referralNumber))
+          existing_referral_ids.include?(a.dig(:referral, :referral_number))
         end
         merged_data.sort_by { |appt| appt[:start] || '' }
       end

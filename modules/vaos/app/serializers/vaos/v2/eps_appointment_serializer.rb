@@ -6,30 +6,21 @@ module VAOS
       def serialize(appt)
         {
           id: appt[:id].to_s,
-          status: appt[:state] == 'booked',
-          patientIcn: appt[:patientId],
-          created: appt.dig(:appointmentDetails, :lastRetrieved),
-          requestedPeriods: prepare_requested_periods(appt[:appointmentDetails]),
-          locationId: appt[:locationId],
-          clinic: appt[:clinic],
-          start: appt[:start],
+          status: appt.dig(:appointment_details, :status) ? 'booked' : 'proposed',
+          patient_icn: appt[:patient_id],
+          created: appt.dig(:appointment_details, :last_retrieved),
+          location_id: appt[:network_id],
+          clinic: appt[:provider_service_id],
+          start: appt.dig(:appointment_details, :start),
           contact: appt[:contact],
-          referralID: appt.dig(:referral, :referralNumber),
+          referral_id: appt.dig(:referral, :referral_number),
           referral: {
-            referralNumber: appt.dig(:referral, :referralNumber).to_s
+            referral_number: appt.dig(:referral, :referral_number).to_s
           }
         }.compact
       end
 
       private
-
-      def prepare_requested_periods(details)
-        [
-          {
-            start: details[:start]
-          }
-        ].compact
-      end
 
       def calculate_end_time(start_time)
         return nil unless start_time
