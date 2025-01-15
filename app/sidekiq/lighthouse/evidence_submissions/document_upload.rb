@@ -23,7 +23,7 @@ module Lighthouse
       sidekiq_retries_exhausted do |msg, _ex|
         verify_msg(msg)
 
-        if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
+        if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
           update_evidence_submission_for_failure(msg)
         else
           call_failure_notification(msg)
@@ -38,7 +38,7 @@ module Lighthouse
         Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
           span.set_tag('Document File Size', file_body.size)
           response = client.upload_document(file_body, document) # returns upload response which includes requestId
-          if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
+          if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
             update_evidence_submission_for_success(jid, response)
           end
         end
