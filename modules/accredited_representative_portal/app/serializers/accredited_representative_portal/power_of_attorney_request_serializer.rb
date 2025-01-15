@@ -8,9 +8,7 @@ module AccreditedRepresentativePortal
       poa_request.created_at.utc.strftime('%Y-%m-%dT%H:%M:%SZ')
     end
 
-    attribute :expires_at do |poa_request|
-      poa_request.expires_at
-    end
+    attribute :expires_at, &:expires_at
 
     attribute :power_of_attorney_form do |poa_request|
       poa_request.power_of_attorney_form.parsed_data.tap do |form|
@@ -21,8 +19,8 @@ module AccreditedRepresentativePortal
           when AccreditedRepresentativePortal::PowerOfAttorneyRequest::ClaimantTypes::VETERAN
             'veteran'
           end
-    
-        form.delete("dependent") if claimant_key == "veteran"
+
+        form.delete('dependent') if claimant_key == 'veteran'
         form['claimant'] = form.delete(claimant_key)
       end
     end
