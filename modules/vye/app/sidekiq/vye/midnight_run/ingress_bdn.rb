@@ -8,7 +8,7 @@ module Vye
 
       def perform
         if Vye::CloudTransfer.holiday?
-          logger.info('Vye::MidnightRun::IngressBdn: holiday detected, skipping')
+          logger.info("Vye::MidnightRun::IngressBdn: holiday detected, job run at: #{Time.zone.now}")
           return
         end
         Rails.logger.info('Vye::MidnightRun::IngressBdn: starting')
