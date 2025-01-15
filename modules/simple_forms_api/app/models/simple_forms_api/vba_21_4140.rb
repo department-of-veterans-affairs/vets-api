@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require_relative '../form_engine/address'
+require_rel '../form_engine'
 
 module SimpleFormsApi
   class VBA214140 < BaseForm
@@ -28,6 +28,14 @@ module SimpleFormsApi
       trimmed_dob = data['date_of_birth']&.tr('-', '')
 
       [trimmed_dob&.[](0..3), trimmed_dob&.[](4..5), trimmed_dob&.[](6..7)]
+    end
+
+    def employed?
+      data['employers'] ? data['employers'].size.positive? : false
+    end
+
+    def employment_history
+      [*0..3].map { |i| FormEngine::EmploymentHistory.new(data['employers'][i]) }
     end
 
     def first_name

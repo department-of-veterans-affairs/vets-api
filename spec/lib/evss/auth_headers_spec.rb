@@ -7,7 +7,7 @@ describe EVSS::AuthHeaders do
   subject { described_class.new(current_user) }
 
   context 'with an LoA3 user' do
-    let(:current_user) { FactoryBot.build(:user, :loa3) }
+    let(:current_user) { build(:user, :loa3) }
 
     it 'has the right LoA' do
       expect(subject.to_h['va_eauth_assurancelevel']).to eq '3'
@@ -24,7 +24,7 @@ describe EVSS::AuthHeaders do
   end
 
   context 'with an LoA1 user' do
-    let(:current_user) { FactoryBot.build(:user, :loa1) }
+    let(:current_user) { build(:user, :loa1) }
 
     it 'has the right LoA' do
       expect(subject.to_h['va_eauth_assurancelevel']).to eq '1'
@@ -32,7 +32,7 @@ describe EVSS::AuthHeaders do
   end
 
   describe '#to_h' do
-    let(:current_user) { FactoryBot.build(:user, :loa3) }
+    let(:current_user) { build(:user, :loa3) }
     let(:headers) { subject.to_h }
 
     context 'with some nil values' do
@@ -91,7 +91,7 @@ describe EVSS::AuthHeaders do
       end
 
       context 'when user is a dependent' do
-        let(:current_user) { FactoryBot.build(:dependent_user_with_relationship, :loa3) }
+        let(:current_user) { build(:dependent_user_with_relationship, :loa3) }
         let(:head_of_family) { authorization_response['headOfFamily'] }
         let(:expected_status) { 'DEPENDENT' }
 

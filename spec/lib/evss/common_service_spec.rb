@@ -6,7 +6,7 @@ require 'evss/common_service'
 describe EVSS::CommonService do
   subject { described_class.new(auth_headers) }
 
-  let(:current_user) { FactoryBot.build(:evss_user) }
+  let(:current_user) { build(:evss_user) }
   let(:auth_headers) { EVSS::AuthHeaders.new(current_user).to_h }
   let(:transaction_id) { auth_headers['va_eauth_service_transaction_id'] }
 

@@ -69,7 +69,7 @@ features:
     actor_type: user
     description: Requires that all requests made to endpoints in appeals_api and vba_documents be made through the gateway
   caregiver_use_facilities_API:
-    actor_type: user
+    actor_type: cookie_id
     description: Allow list of caregiver facilites to be fetched by way of the Facilities API.
   caregiver_browser_monitoring_enabled:
     actor_type: user
@@ -126,9 +126,6 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
-  hca_log_email_diff_in_progress_form:
-    actor_type: user
-    description: Enable using database instead of redis to log email differences between va_profile and in progress forms.
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
@@ -354,33 +351,6 @@ features:
   communication_preferences:
     actor_type: user
     description: Allow user to access backend communication_preferences API
-  covid_vaccine_registration:
-    actor_type: user
-    description: Toggles availability of covid vaccine form API.
-  covid_vaccine_registration_expanded:
-    actor_type: user
-    description: Toggles availability of covid vaccine expanded registration form API.
-    enable_in_development: true
-  covid_vaccine_registration_frontend:
-    actor_type: user
-    description: Toggles the availability of the frontend form on va.gov for the covid-19 vaccine sign-up
-  covid_vaccine_registration_frontend_cta:
-    actor_type: user
-    description: >
-      Toggles the availability of the call-to-action prompt (cta) on "va.gov/health-care/covid-19-vaccine/"
-      leading to the frontend form on va.gov for the covid-19 vaccine sign-up
-  covid_vaccine_registration_frontend_enable_expanded_eligibility:
-    actor_type: user
-    description: Toggles the 'continue' button to launch the new expanded eligibility VAFS app
-  covid_vaccine_registration_frontend_hide_auth:
-    actor_type: user
-    description: >
-      Toggles the availability of the sign-in button on the covid-19 vaccine sign-up form on va.gov.
-      Note: When this is enabled, the 'Sign in' button will be hidden
-  covid_vaccine_scheduling_frontend:
-    actor_type: user
-    description: Toggles the availability of covid-19 vaccine scheduling links in the facility locator frontend
-    enable_in_development: true
   claims_claim_uploader_use_bd:
     actor_type: user
     description: Use BDS instead of EVSS to upload to VBMS.
@@ -419,6 +389,9 @@ features:
   debts_copay_logging:
     actor_type: user
     description: Logs copay request data
+  debts_silent_failure_mailer:
+    actor_type: user
+    description: Enables silent failure mailer for the 5655
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
@@ -548,18 +521,6 @@ features:
     actor_type: user
     description: enables adding applicable flashes to disability_526 prior to submission.
     enable_in_development: true
-  disability_526_toxic_exposure:
-    actor_type: user
-    description: enables new pages, processing, and submission of toxic exposure claims
-  disability_526_toxic_exposure_ipf:
-    actor_type: user
-    description: enables new pages, processing, and submission of toxic exposure claims for in progress forms (ipf)
-  disability_526_new_confirmation_page:
-    actor_type: user
-    description: enables new confirmation page for form 526 submission confirmation page
-  disability_526_toxic_exposure_document_upload_polling:
-    actor_type: user
-    description: enables the poll_form526_pdf call during the perform_ancillary_jobs step of submissions
   disability_526_call_received_email_from_polling:
     actor_type: user
     description: enables received email in poll_form526_pdf job and disables calling from form526_submission
@@ -1810,10 +1771,6 @@ features:
   sc_confirmation_update:
     actor_type: user
     description: Show updated confirmation page with form data & downloadable PDF
-    enable_in_development: true
-  hlr_updateed_contnet:
-    actor_type: user
-    description: HLR show form content updates
     enable_in_development: true
   sc_new_form:
     actor_type: user

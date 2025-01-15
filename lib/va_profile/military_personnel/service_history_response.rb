@@ -64,7 +64,7 @@ module VAProfile
       end
 
       def self.sort_by_begin_date(service_episodes)
-        service_episodes.sort_by { |se| se.begin_date || Time.zone.today + 3650 }
+        service_episodes.sort_by { |se| se.begin_date || (Time.zone.today + 3650) }
       end
 
       def self.include_academy_attendance?(current_user)

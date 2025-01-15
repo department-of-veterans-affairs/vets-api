@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe Flipper::Instrumentation::EventSubscriber do
-  let(:test_user) { FactoryBot.build(:user) }
+  let(:test_user) { build(:user) }
 
   context 'logs changes to toggle values' do
     it 'logs feature calls with result after operation for disable' do

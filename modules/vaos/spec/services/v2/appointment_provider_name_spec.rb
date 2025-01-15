@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe VAOS::V2::AppointmentProviderName do
-  let(:user) { FactoryBot.build(:user) }
+  let(:user) { build(:user) }
   let(:provider_names) { described_class.new(user) }
   let(:practitioner_list) do
     [
