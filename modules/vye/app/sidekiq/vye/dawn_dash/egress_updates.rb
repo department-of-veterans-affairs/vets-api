@@ -9,7 +9,6 @@ module Vye
       def perform
         if Vye::CloudTransfer.holiday?
           logger.info("Vye::DawnDash::EgressUpdates: holiday detected, job run at: #{Time.zone.now}")
-          return
         end
 
         Vye::BatchTransfer::EgressFiles.address_changes_upload

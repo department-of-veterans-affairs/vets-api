@@ -9,7 +9,6 @@ module Vye
       def perform
         if Vye::CloudTransfer.holiday?
           logger.info("Vye::DawnDash::ActivateBdn: holiday detected, job run at: #{Time.zone.now}")
-          return
         end
 
         BdnClone.activate_injested!

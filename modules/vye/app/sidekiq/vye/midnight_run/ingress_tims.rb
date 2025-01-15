@@ -9,7 +9,6 @@ module Vye
       def perform
         if Vye::CloudTransfer.holiday?
           logger.info("Vye::MidnightRun::IngressTims: holiday detected, job run at: #{Time.zone.now}")
-          return
         end
 
         Vye::PendingDocument.delete_all
