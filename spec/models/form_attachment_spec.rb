@@ -41,7 +41,7 @@ RSpec.describe FormAttachment do
       preneed_attachment2 = Preneeds::PreneedAttachment.find(preneed_attachment.id)
       file = preneed_attachment2.get_file
 
-      expect(file.exists?).to eq(true)
+      expect(file.exists?).to be(true)
     end
   end
 end

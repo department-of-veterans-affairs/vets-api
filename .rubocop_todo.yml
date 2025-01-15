@@ -368,8 +368,8 @@ Naming/VariableNumber:
 
 # Offense count: 1075
 # This cop supports unsafe autocorrection (--autocorrect-all).
-RSpec/BeEq:
-  Enabled: false
+# RSpec/BeEq:
+#   Enabled: false
 
 # Offense count: 45
 # This cop supports safe autocorrection (--autocorrect).

@@ -44,7 +44,7 @@ RSpec.describe TokenStorageService, type: :service do
       end
 
       it 'returns true when when payload is hash and the upload to S3 was successful' do
-        expect(subject.store_tokens(current_user, @device_key, @token_hash)).to eq(true)
+        expect(subject.store_tokens(current_user, @device_key, @token_hash)).to be(true)
       end
     end
 
@@ -59,7 +59,7 @@ RSpec.describe TokenStorageService, type: :service do
         allow_any_instance_of(File).to receive(:write).with(any_args).and_return(@token_json)
         allow_any_instance_of(File).to receive(:read).with(any_args).and_return(@token_json)
 
-        expect(subject.store_tokens(current_user, @device_key, @token_hash)).to eq(true)
+        expect(subject.store_tokens(current_user, @device_key, @token_hash)).to be(true)
       end
 
       it 'returns error when token was not stored locally' do
@@ -178,7 +178,7 @@ RSpec.describe TokenStorageService, type: :service do
       it 'deletes token from S3' do
         allow_any_instance_of(TokenStorageService).to receive(:delete_device_token_files).with(any_args).and_return(nil)
         allow_any_instance_of(TokenStorageService).to receive(:delete_icn_folder).with(any_args).and_return(nil)
-        expect(subject.delete_token(current_user, @device_key)).to eq(nil)
+        expect(subject.delete_token(current_user, @device_key)).to be_nil
       end
 
       it 'raises TokenDeletionError when the token is not deleted' do
@@ -195,7 +195,7 @@ RSpec.describe TokenStorageService, type: :service do
 
       it 'deletes token locally when token file is present' do
         allow(File).to receive(:delete).and_return(1)
-        expect(subject.delete_token(current_user, @device_key)).to eq(true)
+        expect(subject.delete_token(current_user, @device_key)).to be(true)
       end
 
       it 'returns TokenDeletionError when token file is not present' do
@@ -220,7 +220,7 @@ RSpec.describe TokenStorageService, type: :service do
       allow_any_instance_of(TokenStorageService).to receive(:get_s3_bucket_objects).with(any_args).and_return(@contents)
 
       expect(@contents).to receive(:batch_delete!).once
-      expect(subject.send(:delete_icn_folder, current_user)).to eq(nil)
+      expect(subject.send(:delete_icn_folder, current_user)).to be_nil
     end
 
     it 'doesn\'t delete icn folder from S3 when folder is not empty' do
@@ -228,14 +228,14 @@ RSpec.describe TokenStorageService, type: :service do
       allow_any_instance_of(TokenStorageService).to receive(:get_s3_bucket_objects).with(any_args).and_return(@contents)
 
       expect(@contents).not_to receive(:batch_delete!)
-      expect(subject.send(:delete_icn_folder, current_user)).to eq(nil)
+      expect(subject.send(:delete_icn_folder, current_user)).to be_nil
     end
 
     it 'doesn\'t delete the folder when the contents is nil' do
       allow_any_instance_of(TokenStorageService).to receive(:get_s3_bucket_objects).with(any_args).and_return([])
 
       expect(@contents).not_to receive(:batch_delete!)
-      expect(subject.send(:delete_icn_folder, current_user)).to eq(nil)
+      expect(subject.send(:delete_icn_folder, current_user)).to be_nil
     end
 
     it 'raises TokenDeletionError when error occurs while deleting ICN folder' do

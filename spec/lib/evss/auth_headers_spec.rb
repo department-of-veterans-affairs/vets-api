@@ -41,7 +41,7 @@ describe EVSS::AuthHeaders do
       end
 
       it 'does not return nil header values' do
-        expect(headers.values.include?(nil)).to eq false
+        expect(headers.values.include?(nil)).to be false
       end
 
       it 'sets any nil headers values to an empty string', :aggregate_failures do
@@ -86,7 +86,7 @@ describe EVSS::AuthHeaders do
         end
 
         it 'does not return additional authorization response fields' do
-          expect(authorization_response['headOfFamily']).to eq nil
+          expect(authorization_response['headOfFamily']).to be nil
         end
       end
 
@@ -130,7 +130,7 @@ describe EVSS::AuthHeaders do
           end
 
           it 'does not return additional authorization response fields' do
-            expect(head_of_family).to eq nil
+            expect(head_of_family).to be nil
           end
         end
       end

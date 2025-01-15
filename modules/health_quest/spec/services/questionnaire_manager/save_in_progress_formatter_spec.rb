@@ -19,7 +19,7 @@ describe HealthQuest::QuestionnaireManager::SaveInProgressFormatter do
 
   describe 'attributes' do
     it 'responds to sip_array' do
-      expect(subject.build([]).respond_to?(:sip_array)).to eq(true)
+      expect(subject.build([]).respond_to?(:sip_array)).to be(true)
     end
   end
 

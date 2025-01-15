@@ -15,7 +15,7 @@ describe Forms::SubmissionStatuses::PdfUrls, feature: :form_submission,
         form_id: '21-10210',
         submission_guid: 'some-uuid'
       ).supported?
-      expect(supported).to eq(true)
+      expect(supported).to be(true)
     end
 
     it 'returns false for unsupported forms' do
@@ -23,7 +23,7 @@ describe Forms::SubmissionStatuses::PdfUrls, feature: :form_submission,
         form_id: '666-bad-id',
         submission_guid: 'some-uuid'
       ).supported?
-      expect(supported).to eq(false)
+      expect(supported).to be(false)
     end
   end
 end

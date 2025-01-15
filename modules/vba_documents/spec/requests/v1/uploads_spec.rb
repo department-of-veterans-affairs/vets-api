@@ -157,7 +157,7 @@ RSpec.describe 'VBADocument::V1::Uploads', retry: 3, type: :request do
         json = JSON.parse(response.body)
         pdf_data = json['data']['attributes']['uploaded_pdf']
         expect(pdf_data['line_of_business']).to eq('CMP')
-        expect(pdf_data['submitted_line_of_business']).to eq(nil)
+        expect(pdf_data['submitted_line_of_business']).to be_nil
       end
 
       # for ticket: https://vajira.max.gov/browse/API-5293

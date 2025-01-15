@@ -97,7 +97,7 @@ describe MPIData, :skip_mvi do
       end
 
       it 'returns the successful response' do
-        expect(subject.ok?).to eq(true)
+        expect(subject.ok?).to be(true)
       end
     end
 
@@ -126,7 +126,7 @@ describe MPIData, :skip_mvi do
         expect_any_instance_of(MPIData).not_to receive(:add_ids)
         expect_any_instance_of(MPIData).not_to receive(:cache)
         response = subject
-        expect(response.server_error?).to eq(true)
+        expect(response.server_error?).to be(true)
       end
     end
   end
@@ -140,7 +140,7 @@ describe MPIData, :skip_mvi do
       let(:user) { build(:user) }
 
       it 'returns nil' do
-        expect(subject).to eq(nil)
+        expect(subject).to be(nil)
       end
     end
 
