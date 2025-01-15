@@ -457,17 +457,17 @@ RSpec/PendingWithoutReason:
 
 # Offense count: 10
 # This cop supports safe autocorrection (--autocorrect).
-RSpec/SortMetadata:
-  Exclude:
-    - 'spec/lib/sftp_writer/factory_spec.rb'
-    - 'spec/requests/authentication/standard_authentication_spec.rb'
-    - 'spec/requests/swagger_spec.rb'
-    - 'spec/sidekiq/education_form/create10203_applicant_decision_letters_spec.rb'
-    - 'spec/sidekiq/education_form/create_daily_spool_files_spec.rb'
-    - 'spec/sidekiq/education_form/forms/base_spec.rb'
-    - 'spec/sidekiq/education_form/forms/va1990_spec.rb'
-    - 'spec/sidekiq/education_form/process10203_submissions_spec.rb'
-    - 'spec/sidekiq/education_form/send_school_certifying_officials_email_spec.rb'
+# RSpec/SortMetadata:
+#   Exclude:
+#     - 'spec/lib/sftp_writer/factory_spec.rb'
+#     - 'spec/requests/authentication/standard_authentication_spec.rb'
+#     - 'spec/requests/swagger_spec.rb'
+#     - 'spec/sidekiq/education_form/create10203_applicant_decision_letters_spec.rb'
+#     - 'spec/sidekiq/education_form/create_daily_spool_files_spec.rb'
+#     - 'spec/sidekiq/education_form/forms/base_spec.rb'
+#     - 'spec/sidekiq/education_form/forms/va1990_spec.rb'
+#     - 'spec/sidekiq/education_form/process10203_submissions_spec.rb'
+#     - 'spec/sidekiq/education_form/send_school_certifying_officials_email_spec.rb'
 
 # Offense count: 715
 RSpec/StubbedMock:

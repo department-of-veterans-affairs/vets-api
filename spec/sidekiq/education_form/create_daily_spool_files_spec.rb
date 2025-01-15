@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :education_benefits do
+RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, type: :model do
   subject { described_class.new }
 
   let!(:application_1606) do

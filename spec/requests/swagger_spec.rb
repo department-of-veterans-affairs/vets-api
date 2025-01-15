@@ -27,7 +27,7 @@ RSpec.describe 'API doc validations', type: :request do
   end
 end
 
-RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :defined do
+RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore request] do
   include AuthenticatedSessionHelper
 
   subject { Apivore::SwaggerChecker.instance_for('/v0/apidocs.json') }
@@ -2784,7 +2784,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         Flipper.disable(:remove_pciu)
       end
 
-      describe 'profiles v2', :skip_vet360, :initiate_vaprofile do
+      describe 'profiles v2', :initiate_vaprofile, :skip_vet360 do
         let(:mhv_user) { build(:user, :loa3) }
 
         before do
@@ -3056,7 +3056,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
         end
       end
 
-      describe 'profile/status v2', :skip_vet360, :initiate_vaprofile do
+      describe 'profile/status v2', :initiate_vaprofile, :skip_vet360 do
         let(:user) { build(:user, :loa3) }
 
         before do
@@ -3835,7 +3835,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
   end
 end
 
-RSpec.describe 'the v1 API documentation', type: %i[apivore request], order: :defined do
+RSpec.describe 'the v1 API documentation', order: :defined, type: %i[apivore request] do
   include AuthenticatedSessionHelper
 
   subject { Apivore::SwaggerChecker.instance_for('/v1/apidocs.json') }
