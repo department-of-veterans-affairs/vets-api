@@ -19,7 +19,7 @@ describe Common::RedisStore do
 
   describe 'configuration' do
     it 'has a configured redis namespace instance' do
-      expect(klass.redis_namespace).to be_kind_of(Redis::Namespace)
+      expect(klass.redis_namespace).to be_a(Redis::Namespace)
       expect(klass.redis_namespace.namespace).to eq('my_namespace')
     end
   end

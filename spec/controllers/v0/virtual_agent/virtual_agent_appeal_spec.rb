@@ -15,7 +15,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(JSON.parse(response.body)['data'].size).to equal(1)
           expect(res_body[0]).to include({
                                            'appeal_type' => 'Compensation',
@@ -37,7 +37,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(JSON.parse(response.body)['data'].size).to equal(1)
           expect(res_body[0]).to include({
                                            'appeal_type' => 'Compensation',
@@ -58,7 +58,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.size).to equal(0)
         end
       end
@@ -69,7 +69,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.size).to equal(1)
           expect(res_body[0]).to include({
                                            'appeal_type' => 'Compensation',
@@ -90,7 +90,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
 
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.size).to equal(0)
         end
       end
@@ -102,7 +102,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.size).to equal(0)
         end
       end
@@ -114,7 +114,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           get '/v0/virtual_agent/appeal'
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.size).to equal(1)
           expect(res_body[0]).to include(
             {
@@ -137,7 +137,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
             get '/v0/virtual_agent/appeal'
             res_body = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
-            expect(res_body).to be_kind_of(Array)
+            expect(res_body).to be_a(Array)
             expect(JSON.parse(response.body)['data'].size).to equal(1)
             expect(res_body[0]).to include({
                                              'appeal_type' => 'Compensation',
@@ -157,7 +157,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
             get '/v0/virtual_agent/appeal'
             res_body = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
-            expect(res_body).to be_kind_of(Array)
+            expect(res_body).to be_a(Array)
             expect(JSON.parse(response.body)['data'].size).to equal(1)
             expect(res_body[0]).to include({
                                              'appeal_type' => 'Compensation',
@@ -177,7 +177,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
             get '/v0/virtual_agent/appeal'
             res_body = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
-            expect(res_body).to be_kind_of(Array)
+            expect(res_body).to be_a(Array)
             expect(JSON.parse(response.body)['data'].size).to equal(1)
             expect(res_body[0]).to include({
                                              'appeal_type' => 'Compensation',
@@ -197,7 +197,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
             get '/v0/virtual_agent/appeal'
             res_body = JSON.parse(response.body)['data']
             expect(response).to have_http_status(:ok)
-            expect(res_body).to be_kind_of(Array)
+            expect(res_body).to be_a(Array)
             expect(JSON.parse(response.body)['data'].size).to equal(1)
             expect(res_body[0]).to include({
                                              'appeal_type' => 'Compensation',
@@ -218,7 +218,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
               get '/v0/virtual_agent/appeal'
               res_body = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
-              expect(res_body).to be_kind_of(Array)
+              expect(res_body).to be_a(Array)
               expect(res_body.length).to equal(2)
               expect(res_body).to eq([{
                                        'appeal_type' => 'Compensation',
@@ -245,7 +245,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
               get '/v0/virtual_agent/appeal'
               res_body = JSON.parse(response.body)['data']
               expect(response).to have_http_status(:ok)
-              expect(res_body).to be_kind_of(Array)
+              expect(res_body).to be_a(Array)
               expect(res_body.length).to equal(5)
               expect(res_body).to eq([{
                                        'appeal_type' => 'Compensation',
@@ -306,7 +306,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.length).to equal(1)
           expect(res_body).to eq([{
                                    'appeal_type' => 'Compensation',
@@ -330,7 +330,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.length).to equal(1)
           expect(res_body).to eq([{
                                    'appeal_type' => 'Compensation',
@@ -356,7 +356,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.length).to equal(0)
           expect(res_body).to eq([])
         end
@@ -374,7 +374,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.length).to equal(3)
           expect(res_body).to eq([{
                                    'appeal_type' => 'Compensation',
@@ -416,7 +416,7 @@ RSpec.describe 'VirtualAgentAppeals', type: :request do
           end
           res_body = JSON.parse(response.body)['data']
           expect(response).to have_http_status(:ok)
-          expect(res_body).to be_kind_of(Array)
+          expect(res_body).to be_a(Array)
           expect(res_body.length).to equal(0)
           expect(res_body).to eq([])
         end

@@ -381,12 +381,12 @@ Naming/VariableNumber:
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: EnforcedStyle.
 # SupportedStyles: be_a, be_kind_of
-RSpec/ClassCheck:
-  Exclude:
-    - 'spec/controllers/v0/virtual_agent/virtual_agent_appeal_spec.rb'
-    - 'spec/controllers/v0/virtual_agent/virtual_agent_claim_spec.rb'
-    - 'spec/lib/common/models/redis_store_spec.rb'
-    - 'spec/lib/iam_ssoe_oauth/session_manager_spec.rb'
+# RSpec/ClassCheck:
+#   Exclude:
+#     - 'spec/controllers/v0/virtual_agent/virtual_agent_appeal_spec.rb'
+#     - 'spec/controllers/v0/virtual_agent/virtual_agent_claim_spec.rb'
+#     - 'spec/lib/common/models/redis_store_spec.rb'
+#     - 'spec/lib/iam_ssoe_oauth/session_manager_spec.rb'
 
 # Offense count: 17
 # This cop supports safe autocorrection (--autocorrect).
