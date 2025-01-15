@@ -24,13 +24,6 @@ module AccreditedRepresentativePortal
       end
 
       def index
-        includes = [
-          :power_of_attorney_form,
-          :power_of_attorney_holder,
-          :accredited_individual,
-          { resolution: :resolving }
-        ]
-
         rel = poa_request_scope
         status = params[:status].presence
 
@@ -44,13 +37,13 @@ module AccreditedRepresentativePortal
             rel
           else
             # Throw 400 for unexpected, non-blank statuses
-            raise ActionController::BadRequest.new(<<~MSG.squish)
+            raise ActionController::BadRequest, <<~MSG.squish
               Invalid status parameter.
               Must be one of (#{Statuses::ALL.join(', ')})
             MSG
           end
 
-        poa_requests = rel.includes(includes).limit(100)
+        poa_requests = rel.includes(scope_includes).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
         render json: serializer.serializable_hash, status: :ok
       end
@@ -58,6 +51,17 @@ module AccreditedRepresentativePortal
       def show
         serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
         render json: serializer.serializable_hash, status: :ok
+      end
+
+      private
+
+      def scope_includes
+        [
+          :power_of_attorney_form,
+          :power_of_attorney_holder,
+          :accredited_individual,
+          { resolution: :resolving }
+        ]
       end
     end
   end
