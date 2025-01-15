@@ -225,9 +225,9 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
   # Engine version: Sync non-final DR SavedClaims to LH status
-  mgr.register('10 0,4,8,12,16,20 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
-  mgr.register('15 1,5,9,13,17,21 * * *', 'DecisionReviews::NodStatusUpdaterJob')
-  mgr.register('30 2,6,10,14,18,22 * * *', 'DecisionReviews::ScStatusUpdaterJob')
+  mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
+  mgr.register('15 1-21/4 * * *', 'DecisionReviews::NodStatusUpdaterJob')
+  mgr.register('30 2-22/4 * * *', 'DecisionReviews::ScStatusUpdaterJob')
 
   # Engine version: Clean SavedClaim records that are past delete date
   mgr.register('0 5 * * *', 'DecisionReviews::DeleteSavedClaimRecordsJob')
