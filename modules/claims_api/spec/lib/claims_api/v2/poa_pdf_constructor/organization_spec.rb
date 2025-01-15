@@ -20,6 +20,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
           zipCode: '92264'
         },
         phone: {
+          countryCode: '1',
           areaCode: '555',
           phoneNumber: '5551337'
         },
@@ -40,7 +41,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
           zipCode: '92264'
         },
         phone: {
-          areaCode: '555',
+          countryCode: '44',
           phoneNumber: '5551337'
         }
       },
@@ -104,7 +105,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
 
     constructor = ClaimsApi::V2::PoaPdfConstructor::Organization.new
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22', 'v2',
-                                   'signed_filled_final.pdf')
+                                   'signed_filled_phone_country_codes.pdf')
     generated_pdf = constructor.construct(data, id: power_of_attorney.id)
     expect(generated_pdf).to match_pdf_content_of(expected_pdf)
   end
