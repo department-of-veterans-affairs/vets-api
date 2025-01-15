@@ -196,14 +196,14 @@ Lint/RedundantSafeNavigation:
 
 # Offense count: 1
 # This cop supports safe autocorrection (--autocorrect).
-Lint/RedundantStringCoercion:
-  Exclude:
-    - 'rakelib/form526.rake'
+# Lint/RedundantStringCoercion:
+#   Exclude:
+#     - 'rakelib/form526.rake'
 
 # Offense count: 1
-Lint/RequireRangeParentheses:
-  Exclude:
-    - 'rakelib/form526.rake'
+# Lint/RequireRangeParentheses:
+#   Exclude:
+#     - 'rakelib/form526.rake'
 
 # Offense count: 976
 # This cop supports safe autocorrection (--autocorrect).
@@ -253,10 +253,10 @@ Lint/SymbolConversion:
     - 'spec/lib/lighthouse/veterans_health/client_spec.rb'
 
 # Offense count: 3
-Lint/UselessRescue:
-  Exclude:
-    - 'app/controllers/v0/contact_us/inquiries_controller.rb'
-    - 'lib/lgy/service.rb'
+# Lint/UselessRescue:
+#   Exclude:
+#     - 'app/controllers/v0/contact_us/inquiries_controller.rb'
+#     - 'lib/lgy/service.rb'
 
 # Offense count: 1074
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.
