@@ -390,18 +390,18 @@ Naming/VariableNumber:
 
 # Offense count: 17
 # This cop supports safe autocorrection (--autocorrect).
-RSpec/ExcessiveDocstringSpacing:
-  Exclude:
-    - 'modules/check_in/spec/services/v2/lorota/service_spec.rb'
-    - 'modules/claims_api/spec/models/auto_establish_claim_spec.rb'
-    - 'modules/dhp_connected_devices/spec/services/dhp_connected_devices/token_storage_service_spec.rb'
-    - 'modules/va_forms/spec/lib/regex_helper_spec.rb'
-    - 'spec/controllers/v0/virtual_agent/virtual_agent_appeal_spec.rb'
-    - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
-    - 'spec/lib/generators/module/module_generator_spec.rb'
-    - 'spec/mailers/veteran_readiness_employment_mailer_spec.rb'
-    - 'spec/models/facilities_query_spec.rb'
-    - 'spec/sidekiq/vre/create_ch31_submissions_report_job_spec.rb'
+# RSpec/ExcessiveDocstringSpacing:
+#   Exclude:
+#     - 'modules/check_in/spec/services/v2/lorota/service_spec.rb'
+#     - 'modules/claims_api/spec/models/auto_establish_claim_spec.rb'
+#     - 'modules/dhp_connected_devices/spec/services/dhp_connected_devices/token_storage_service_spec.rb'
+#     - 'modules/va_forms/spec/lib/regex_helper_spec.rb'
+#     - 'spec/controllers/v0/virtual_agent/virtual_agent_appeal_spec.rb'
+#     - 'spec/lib/evss/disability_compensation_form/data_translation_all_claim_spec.rb'
+#     - 'spec/lib/generators/module/module_generator_spec.rb'
+#     - 'spec/mailers/veteran_readiness_employment_mailer_spec.rb'
+#     - 'spec/models/facilities_query_spec.rb'
+#     - 'spec/sidekiq/vre/create_ch31_submissions_report_job_spec.rb'
 
 # Offense count: 57
 # Configuration parameters: AllowedPatterns.

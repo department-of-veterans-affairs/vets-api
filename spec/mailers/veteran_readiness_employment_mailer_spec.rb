@@ -45,7 +45,7 @@ RSpec.describe VeteranReadinessEmploymentMailer, type: [:mailer] do
       end
     end
 
-    context 'user has no participant id ' do
+    context 'user has no participant id' do
       let(:user) { create(:unauthorized_evss_user) }
 
       context 'PDF is uploaded to Central Mail' do
