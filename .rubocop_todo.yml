@@ -253,10 +253,10 @@ Lint/SymbolConversion:
     - 'spec/lib/lighthouse/veterans_health/client_spec.rb'
 
 # Offense count: 3
-Lint/UselessRescue:
-  Exclude:
-    - 'app/controllers/v0/contact_us/inquiries_controller.rb'
-    - 'lib/lgy/service.rb'
+# Lint/UselessRescue:
+#   Exclude:
+#     - 'app/controllers/v0/contact_us/inquiries_controller.rb'
+#     - 'lib/lgy/service.rb'
 
 # Offense count: 1074
 # Configuration parameters: AllowedMethods, AllowedPatterns, CountRepeatedAttributes.
