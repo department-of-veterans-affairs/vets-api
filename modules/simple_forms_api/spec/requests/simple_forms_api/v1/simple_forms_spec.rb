@@ -607,9 +607,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
 
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response['compensation_intent']).to eq nil
-        expect(parsed_response['pension_intent']).to eq nil
-        expect(parsed_response['survivor_intent']).to eq nil
+        expect(parsed_response['compensation_intent']).to be_nil
+        expect(parsed_response['pension_intent']).to be_nil
+        expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
     end
@@ -628,8 +628,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         parsed_response = JSON.parse(response.body)
         expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
-        expect(parsed_response['pension_intent']).to eq nil
-        expect(parsed_response['survivor_intent']).to eq nil
+        expect(parsed_response['pension_intent']).to be_nil
+        expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
     end
@@ -647,9 +647,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
 
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response['compensation_intent']).to eq nil
+        expect(parsed_response['compensation_intent']).to be_nil
         expect(parsed_response['pension_intent']['type']).to eq 'pension'
-        expect(parsed_response['survivor_intent']).to eq nil
+        expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
     end
@@ -671,7 +671,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         parsed_response = JSON.parse(response.body)
         expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
         expect(parsed_response['pension_intent']['type']).to eq 'pension'
-        expect(parsed_response['survivor_intent']).to eq nil
+        expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
     end
@@ -685,9 +685,9 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
 
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response['compensation_intent']).to eq nil
-        expect(parsed_response['pension_intent']).to eq nil
-        expect(parsed_response['survivor_intent']).to eq nil
+        expect(parsed_response['compensation_intent']).to be_nil
+        expect(parsed_response['pension_intent']).to be_nil
+        expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
     end

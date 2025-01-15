@@ -264,20 +264,20 @@ describe VAOS::UserService do
 
     context 'when the token is valid and not expiring soon' do
       it 'returns false' do
-        expect(subject.send(:expiring_soon?, valid_token)).to eq false
+        expect(subject.send(:expiring_soon?, valid_token)).to be false
       end
     end
 
     context 'when the token is valid but expiring soon' do
       it 'returns true' do
-        expect(subject.send(:expiring_soon?, expiring_token)).to eq true
+        expect(subject.send(:expiring_soon?, expiring_token)).to be true
       end
     end
 
     context 'when the token is not valid' do
       it 'logs an error and returns true' do
         expect(Rails.logger).to receive(:error).with(/VAOS Error decoding JWT/)
-        expect(subject.send(:expiring_soon?, falsely_encoded_token)).to eq true
+        expect(subject.send(:expiring_soon?, falsely_encoded_token)).to be true
       end
     end
   end
