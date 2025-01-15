@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe V0::Profile::AddressValidationController, type: :controller do
   describe 'contact information v1', :skip_va_profile_user do
-    let(:user) { FactoryBot.build(:user) }
+    let(:user) { build(:user) }
     let(:multiple_match_addr) { build(:va_profile_address, :multiple_matches) }
     let(:invalid_address) { build(:va_profile_validation_address).to_h }
 
@@ -126,7 +126,7 @@ RSpec.describe V0::Profile::AddressValidationController, type: :controller do
   end
 
   describe 'contact information v2' do
-    let(:user) { FactoryBot.build(:user) }
+    let(:user) { build(:user) }
     let(:multiple_match_addr) { build(:va_profile_v3_address, :multiple_matches) }
     let(:invalid_address) { build(:va_profile_v3_validation_address).to_h }
 

@@ -12,7 +12,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -71,7 +71,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
 
     subject.new.perform(supporting_document.id)
     supporting_document.reload
-    expect(auto_claim.uploader.blank?).to eq(false)
+    expect(auto_claim.uploader.blank?).to be(false)
   end
 
   # relates to API-14302 and API-14303
@@ -83,7 +83,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
 
     subject.new.perform(supporting_document.id)
     supporting_document.reload
-    expect(supporting_document.uploader.blank?).to eq(false)
+    expect(supporting_document.uploader.blank?).to be(false)
   end
 
   it 'if an evss_id is nil, it reschedules the sidekiq job to the future' do
@@ -93,7 +93,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
 
     subject.new.perform(supporting_document_failed_submission.id)
     supporting_document_failed_submission.reload
-    expect(supporting_document.uploader.blank?).to eq(false)
+    expect(supporting_document.uploader.blank?).to be(false)
   end
 
   it 'transforms a claim document to the right properties for EVSS' do
@@ -110,7 +110,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     subject.new.perform(supporting_document.id)
 
     supporting_document.reload
-    expect(supporting_document.uploader.blank?).to eq(false)
+    expect(supporting_document.uploader.blank?).to be(false)
   end
 
   it 'transforms a 526 claim form to the right properties for EVSS' do
@@ -128,7 +128,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     subject.new.perform(auto_claim.id)
 
     auto_claim.reload
-    expect(auto_claim.uploader.blank?).to eq(false)
+    expect(auto_claim.uploader.blank?).to be(false)
   end
 
   describe 'BD document type' do

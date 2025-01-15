@@ -22,7 +22,7 @@ describe HealthQuest::QuestionnaireManager::QuestionnaireResponseCollector do
 
   describe 'attributes' do
     it 'responds to groups' do
-      expect(basic_structure.respond_to?(:groups)).to eq(true)
+      expect(basic_structure.respond_to?(:groups)).to be(true)
     end
   end
 
