@@ -7,7 +7,7 @@ RSpec.describe Auth::ClientCredentials::AccessTokenTracker, type: :model do
   describe '#get_access_token' do
     context 'with blank service_name' do
       it 'returns nil' do
-        expect(described_class.get_access_token('')).to eq(nil)
+        expect(described_class.get_access_token('')).to be_nil
       end
     end
 
@@ -21,7 +21,7 @@ RSpec.describe Auth::ClientCredentials::AccessTokenTracker, type: :model do
 
     context 'cache miss' do
       it 'returns nil' do
-        expect(described_class.get_access_token('fake_service')).to eq(nil)
+        expect(described_class.get_access_token('fake_service')).to be_nil
       end
     end
   end

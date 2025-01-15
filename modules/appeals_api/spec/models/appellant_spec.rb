@@ -104,7 +104,7 @@ describe AppealsApi::Appellant, type: :model do
     end
 
     describe '#homeless?' do
-      it { expect(veteran_appellant.homeless?).to eq true }
+      it { expect(veteran_appellant.homeless?).to be true }
       #  TODO: determine how to handle for non-veteran claimant in future
     end
 
@@ -115,23 +115,23 @@ describe AppealsApi::Appellant, type: :model do
       end
 
       describe '#number_and_street' do
-        it { expect(claimant_appellant.number_and_street).to eq nil }
+        it { expect(claimant_appellant.number_and_street).to be_nil }
       end
 
       describe '#city' do
-        it { expect(claimant_appellant.city).to eq nil }
+        it { expect(claimant_appellant.city).to be_nil }
       end
 
       describe '#state_code' do
-        it { expect(claimant_appellant.state_code).to eq nil }
+        it { expect(claimant_appellant.state_code).to be_nil }
       end
 
       describe '#country_code' do
-        it { expect(claimant_appellant.country_code).to eq nil }
+        it { expect(claimant_appellant.country_code).to be_nil }
       end
 
       describe '#zip_code_5' do
-        it { expect(claimant_appellant.zip_code_5).to eq nil }
+        it { expect(claimant_appellant.zip_code_5).to be_nil }
       end
     end
 
@@ -161,8 +161,8 @@ describe AppealsApi::Appellant, type: :model do
     end
 
     describe '#signing_appellant?' do
-      it { expect(veteran_appellant.signing_appellant?).to eq false }
-      it { expect(claimant_appellant.signing_appellant?).to eq true }
+      it { expect(veteran_appellant.signing_appellant?).to be false }
+      it { expect(claimant_appellant.signing_appellant?).to be true }
     end
   end
 

@@ -21,7 +21,7 @@ RSpec.describe DebtsApi::V0::Form5655::VBASubmissionJob, type: :worker do
 
       it 'updates submission on success' do
         described_class.new.perform(form_submission.id, user.uuid)
-        expect(form_submission.submitted?).to eq(true)
+        expect(form_submission.submitted?).to be(true)
       end
     end
 

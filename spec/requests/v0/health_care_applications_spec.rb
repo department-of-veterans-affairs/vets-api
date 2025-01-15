@@ -295,7 +295,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
         VCR.use_cassette('lighthouse/facilities/v1/200_facilities_facility_ids', match_requests_on: %i[method uri]) do
           get(facilities_v0_health_care_applications_path(facilityIds: %w[vha_757 vha_358]))
         end
-        expect(StdInstitutionFacility.all.any?).to eq(true)
+        expect(StdInstitutionFacility.all.any?).to be(true)
         expect(response).to have_http_status(:ok)
         expect(response.parsed_body[0]).to be_nil
       end
@@ -343,7 +343,7 @@ RSpec.describe 'V0::HealthCareApplications', type: %i[request serializer] do
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             "The property '#/' did not contain a required property of 'privacyAgreementAccepted'"
           )
-        ).to eq(true)
+        ).to be(true)
       end
     end
 

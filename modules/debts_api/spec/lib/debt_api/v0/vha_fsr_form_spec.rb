@@ -29,7 +29,7 @@ RSpec.describe DebtsApi::V0::VhaFsrForm, type: :service do
       it 'leaves ipf data nil' do
         vha_form = builder.vha_forms.first
         submission = vha_form.persist_form_submission
-        expect(submission.ipf_data).to eq(nil)
+        expect(submission.ipf_data).to be_nil
       end
     end
   end

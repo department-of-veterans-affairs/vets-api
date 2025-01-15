@@ -29,14 +29,14 @@ RSpec.describe MHVLoggingService do
     it 'posts audit log when not logged in' do
       VCR.use_cassette('mhv_logging_client/audits/submits_an_audit_log_for_signing_in') do
         expect(mhv_user.mhv_last_signed_in).to be_nil
-        expect(login_service).to eq(true)
+        expect(login_service).to be(true)
         expect(User.find(mhv_user.uuid).mhv_last_signed_in).to be_a(Time)
       end
     end
 
     it 'does not logout when not logged in' do
       expect(mhv_user.mhv_last_signed_in).to be_nil
-      expect(logout_service).to eq(false)
+      expect(logout_service).to be(false)
       expect(mhv_user.mhv_last_signed_in).to be_nil
     end
   end
@@ -46,14 +46,14 @@ RSpec.describe MHVLoggingService do
 
     it 'posts audit log when not logged in' do
       expect(mhv_user.mhv_last_signed_in).to be_a(Time)
-      expect(login_service).to eq(false)
+      expect(login_service).to be(false)
       expect(mhv_user.mhv_last_signed_in).to be_a(Time)
     end
 
     it 'does not logout when not logged in' do
       VCR.use_cassette('mhv_logging_client/audits/submits_an_audit_log_for_signing_out') do
         expect(mhv_user.mhv_last_signed_in).to be_a(Time)
-        expect(logout_service).to eq(true)
+        expect(logout_service).to be(true)
         expect(User.find(mhv_user.uuid).mhv_last_signed_in).to be_nil
       end
     end

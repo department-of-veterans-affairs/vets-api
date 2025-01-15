@@ -15,7 +15,7 @@ describe EVSS::AuthHeaders do
 
     it 'has only lowercase first letters in key names' do
       # EVSS requires us to pass the HTTP headers as lowercase
-      expect(subject.to_h.find { |k, _| k.match(/^[[:upper:]]/) }).to be nil
+      expect(subject.to_h.find { |k, _| k.match(/^[[:upper:]]/) }).to be_nil
     end
 
     it 'includes the users birls id' do
@@ -41,7 +41,7 @@ describe EVSS::AuthHeaders do
       end
 
       it 'does not return nil header values' do
-        expect(headers.values.include?(nil)).to eq false
+        expect(headers.values.include?(nil)).to be false
       end
 
       it 'sets any nil headers values to an empty string', :aggregate_failures do
@@ -86,7 +86,7 @@ describe EVSS::AuthHeaders do
         end
 
         it 'does not return additional authorization response fields' do
-          expect(authorization_response['headOfFamily']).to eq nil
+          expect(authorization_response['headOfFamily']).to be_nil
         end
       end
 
@@ -111,7 +111,7 @@ describe EVSS::AuthHeaders do
           end
 
           it 'returns head of family hash' do
-            expect(head_of_family).not_to be nil
+            expect(head_of_family).not_to be_nil
           end
 
           it 'returns expected values inside head of family hash' do
@@ -130,7 +130,7 @@ describe EVSS::AuthHeaders do
           end
 
           it 'does not return additional authorization response fields' do
-            expect(head_of_family).to eq nil
+            expect(head_of_family).to be_nil
           end
         end
       end

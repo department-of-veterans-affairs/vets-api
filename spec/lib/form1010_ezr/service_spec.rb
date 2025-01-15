@@ -96,7 +96,7 @@ RSpec.describe Form1010Ezr::Service do
         service.send(:post_fill_required_fields, form)
 
         expect(form.keys).to include('isEssentialAcaCoverage', 'vaMedicalFacility')
-        expect(form['isEssentialAcaCoverage']).to eq(false)
+        expect(form['isEssentialAcaCoverage']).to be(false)
         expect(form['vaMedicalFacility']).to eq('988')
       end
     end
@@ -277,13 +277,13 @@ RSpec.describe Form1010Ezr::Service do
                 personal_information_log =
                   PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
 
-                expect(personal_information_log.present?).to eq(true)
-                expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
-                expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
-              end
+              expect(personal_information_log.present?).to be(true)
+              expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
+              expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
             end
           end
         end
+      end
 
         context 'any other error' do
           before do
