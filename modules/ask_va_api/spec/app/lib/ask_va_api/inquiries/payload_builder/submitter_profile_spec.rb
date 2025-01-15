@@ -123,8 +123,8 @@ RSpec.describe AskVAApi::Inquiries::PayloadBuilder::SubmitterProfile do
       it 'builds the correct payload' do
         expect(subject.call[:BusinessPhone]).to eq('987-654-3210')
         expect(subject.call[:BusinessEmail]).to eq('test@example.com')
-        expect(subject.call[:PersonalPhone]).to eq(nil)
-        expect(subject.call[:PersonalEmail]).to eq(nil)
+        expect(subject.call[:PersonalPhone]).to be_nil
+        expect(subject.call[:PersonalEmail]).to be_nil
       end
     end
 

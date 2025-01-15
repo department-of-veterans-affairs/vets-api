@@ -85,9 +85,7 @@ describe HCA::EnrollmentEligibility::Service do
 
         expect(
           service.send(:parse_es_date, 'f')
-        ).to eq(
-          nil
-        )
+        ).to be_nil
 
         expect(
           PersonalInformationLog.where(error_class: 'Form1010Ezr DateError').last.data

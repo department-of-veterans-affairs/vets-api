@@ -78,7 +78,7 @@ RSpec.describe V0::UsersController, type: :controller do
       expect(response).to be_successful
 
       claims = json.dig('attributes', 'profile', 'claims')
-      expect(claims).to be(nil)
+      expect(claims).to be_nil
     end
 
     context 'onboarding' do
@@ -98,7 +98,7 @@ RSpec.describe V0::UsersController, type: :controller do
         json = json_body_for(response)
         expect(response).to be_successful
         onboarding = json.dig('attributes', 'onboarding')
-        expect(onboarding['show']).to be(nil)
+        expect(onboarding['show']).to be_nil
       end
     end
 
@@ -178,6 +178,24 @@ RSpec.describe V0::UsersController, type: :controller do
       get :credential_emails
       expect(response).to be_successful
       expect(JSON.parse(response.body)).to eq(expected_response)
+    end
+
+    context 'when a user verification does not have a credential email' do
+      let!(:logingov_user_verification) do
+        create(:user_verification,
+               logingov_uuid: user.logingov_uuid,
+               user_credential_email: nil,
+               user_account_id: user_account.id)
+      end
+      let(:expected_response) do
+        { idme_user_verification.credential_type => user_credential_email1.credential_email }
+      end
+
+      it 'returns the users credential emails that are not nil' do
+        get :credential_emails
+        expect(response).to be_successful
+        expect(JSON.parse(response.body)).to eq(expected_response)
+      end
     end
   end
 end

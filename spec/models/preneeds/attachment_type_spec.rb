@@ -6,7 +6,7 @@ RSpec.describe Preneeds::AttachmentType do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { attributes_for :preneeds_attachment_type }
+    let(:params) { attributes_for(:preneeds_attachment_type) }
     let(:other) { described_class.new(attributes_for(:preneeds_attachment_type)) }
 
     it 'populates attributes' do

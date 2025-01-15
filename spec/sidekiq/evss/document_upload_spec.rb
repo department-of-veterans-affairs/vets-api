@@ -8,13 +8,13 @@ require 'va_notify/service'
 RSpec.describe EVSS::DocumentUpload, type: :job do
   subject { described_class }
 
-  let(:client_stub) { instance_double('EVSS::DocumentsService') }
+  let(:client_stub) { instance_double(EVSS::DocumentsService) }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
-  let(:uploader_stub) { instance_double('EVSSClaimDocumentUploader') }
+  let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
 
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:filename) { 'doctors-note.pdf' }
   let(:document_data) do
     EVSSClaimDocument.new(

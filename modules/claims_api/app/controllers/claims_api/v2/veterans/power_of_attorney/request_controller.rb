@@ -36,8 +36,30 @@ module ClaimsApi
           raise Common::Exceptions::Lighthouse::BadGateway unless poa_list
 
           render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(
-            poa_list, view: :index, root: :data
+            poa_list, view: :index_or_show, root: :data
           ), status: :ok
+        end
+
+        def show
+          poa_request = ClaimsApi::PowerOfAttorneyRequest.find_by(id: params[:id])
+
+          unless poa_request
+            raise Common::Exceptions::Lighthouse::ResourceNotFound.new(
+              detail: "Could not find Power of Attorney Request with id: #{params[:id]}"
+            )
+          end
+
+          params[:veteranId] = poa_request.veteran_icn # needed for target_veteran
+          participant_id = target_veteran.participant_id
+
+          service = ClaimsApi::PowerOfAttorneyRequestService::Show.new(participant_id)
+
+          res = service.get_poa_request
+          res['id'] = poa_request.id
+
+          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(res, view: :index_or_show,
+                                                                                              root: :data),
+                 status: :ok
         end
 
         def decide
@@ -102,9 +124,18 @@ module ClaimsApi
           end
 
           # return only the form information consumers provided
-          render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes, view: :create,
-                                                                                                          root: :data),
-                 status: :created
+          if form_attributes['id'].present?
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
+                                                                                           view: :create,
+                                                                                           root: :data),
+                   status: :created,
+                   location: url_for(controller: 'base', action: 'status', id: form_attributes['id'])
+          else
+            render json: ClaimsApi::V2::Blueprints::PowerOfAttorneyRequestBlueprint.render(form_attributes,
+                                                                                           view: :create,
+                                                                                           root: :data),
+                   status: :created
+          end
         end
 
         private
