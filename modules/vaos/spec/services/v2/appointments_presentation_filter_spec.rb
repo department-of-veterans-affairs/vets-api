@@ -60,8 +60,8 @@ describe VAOS::V2::AppointmentsPresentationFilter do
         expect(filterer.user_facing?(request)).to be false
       end
 
-      it 'returns false if it was created more than a day from now' do
-        request[:created] = 2.days.from_now.to_s
+      it 'returns false if it was created more than 2 days from now' do
+        request[:created] = 3.days.from_now.to_s
         expect(filterer.user_facing?(request)).to be false
       end
 
