@@ -92,7 +92,7 @@ RSpec.describe TokenStorageService, type: :service do
       expect(subject.send(:select_token_file, file_list)).to eq(@json_file)
     end
 
-    it 'throws an error if there is no file with extension .json  in folder' do
+    it 'throws an error if there is no file with extension .json in folder' do
       expect { subject.send(:select_token_file, [@non_json_file]) }.to raise_error(TokenRetrievalError)
     end
   end

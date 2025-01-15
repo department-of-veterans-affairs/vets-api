@@ -34,7 +34,7 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
     end
 
     it 'does not create an additional Form526JobStatus record (meaning it returned right away)' do
-      expect { subject.perform_async(submission.id) }.to change(Form526JobStatus.all.count, :size).by(0)
+      expect { subject.perform_async(submission.id) }.not_to change(Form526JobStatus.all.count, :size)
     end
   end
 

@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'pager_duty/poll_maintenance_windows'
 
 RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
-  let(:client_stub) { instance_double('PagerDuty::MaintenanceClient') }
+  let(:client_stub) { instance_double(PagerDuty::MaintenanceClient) }
   let(:maint_hash) { build(:maintenance_hash) }
   let(:maint_hash_updated) { build(:maintenance_hash_updated) }
   let(:maint_hash_multi1) { build(:maintenance_hash_multi1) }
