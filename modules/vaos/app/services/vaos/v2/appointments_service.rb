@@ -52,9 +52,7 @@ module VAOS
             cnp_count += 1 if cnp?(appt)
           end
 
-          if include[:eps]
-            appointments = merge_appointments(eps_appointments, appointments)
-          end
+          appointments = merge_appointments(eps_appointments, appointments) if include[:eps]
 
           if Flipper.enabled?(:appointments_consolidation, user)
             filterer = AppointmentsPresentationFilter.new
@@ -211,7 +209,7 @@ module VAOS
 
       def merge_appointments(eps_appointments, appointments)
         normalized_new = eps_appointments.map { |appt| eps_serializer.serialize(appt) }
-        existing_referral_ids = appointments.map { |a| a.dig(:referral, :referral_number) }.to_set
+        existing_referral_ids = appointments.to_set { |a| a.dig(:referral, :referral_number) }
         merged_data = appointments + normalized_new.reject do |a|
           existing_referral_ids.include?(a.dig(:referral, :referral_number))
         end
