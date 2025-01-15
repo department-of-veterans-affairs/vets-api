@@ -7,7 +7,7 @@ require './lib/webhooks/utilities'
 require_relative 'registrations'
 
 RSpec.describe Webhooks::CallbackUrlJob, type: :job do
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:consumer_id) { 'f7d83733-a047-413b-9cce-e89269dcb5b1' }
   let(:consumer_name) { 'tester' }
   let(:api_guid) { SecureRandom.uuid }

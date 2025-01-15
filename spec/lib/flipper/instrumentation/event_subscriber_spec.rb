@@ -67,7 +67,7 @@ RSpec.describe Flipper::Instrumentation::EventSubscriber do
     it 'something' do
       expect do
         Flipper.enabled?(:this_is_only_a_test, @current_user)
-      end.to change(FeatureToggleEvent, :count).by(0)
+      end.not_to change(FeatureToggleEvent, :count)
     end
   end
 end

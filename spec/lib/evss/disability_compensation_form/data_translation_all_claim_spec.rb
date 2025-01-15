@@ -1459,7 +1459,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
     end
 
-    context 'when there is an  `NONE` action type disability but it has a new secondary disability' do
+    context 'when there is an `NONE` action type disability but it has a new secondary disability' do
       let(:form_content) do
         {
           'form526' => {

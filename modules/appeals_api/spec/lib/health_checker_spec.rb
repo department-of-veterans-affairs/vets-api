@@ -12,7 +12,7 @@ describe AppealsApi::HealthChecker do
     caseflow
   end
 
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double(Faraday::Response) }
 
   describe '#appeals_services_are_healthy?' do
     context 'when caseflow is healthy' do

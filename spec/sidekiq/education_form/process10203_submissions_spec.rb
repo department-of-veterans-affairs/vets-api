@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'fugit'
 require 'feature_flipper'
 
-RSpec.describe EducationForm::Process10203Submissions, type: :model, form: :education_benefits do
+RSpec.describe EducationForm::Process10203Submissions, form: :education_benefits, type: :model do
   subject { described_class.new }
 
   sidekiq_file = Rails.root.join('lib', 'periodic_jobs.rb')
