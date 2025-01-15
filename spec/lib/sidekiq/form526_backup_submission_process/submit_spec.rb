@@ -135,7 +135,6 @@ RSpec.describe Sidekiq::Form526BackupSubmissionProcess::Submit, type: :job do
             end
 
             it 'submits' do
-              require 'pry'; binding.pry;
               new_form_data = submission.saved_claim.parsed_form
               new_form_data['startedFormVersion'] = nil
               submission.saved_claim.form = new_form_data.to_json
