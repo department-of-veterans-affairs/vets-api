@@ -295,7 +295,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
       end
 
       it 'logs exception to sentry' do
-        local_mock = instance_double('SFTPWriter::Local')
+        local_mock = instance_double(SFTPWriter::Local)
 
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
         expect(SFTPWriter::Local).to receive(:new).exactly(6).and_return(local_mock)
@@ -318,8 +318,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, 
       # any readable file will work for this spec
       key_path = ::Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
       with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
-        sftp_session_mock = instance_double('Net::SSH::Connection::Session')
-        sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
+        sftp_session_mock = instance_double(Net::SSH::Connection::Session)
+        sftp_mock = instance_double(Net::SFTP::Session, session: sftp_session_mock)
 
         expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
         expect(sftp_mock).to receive(:open?).once.and_return(true)

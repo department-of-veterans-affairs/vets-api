@@ -19,7 +19,7 @@ shared_examples 'a monitored worker' do |_options|
   end
 
   it 'calls SidekiqRetryNotifer' do
-    messager_instance = instance_double('AppealsApi::Slack::Messager')
+    messager_instance = instance_double(AppealsApi::Slack::Messager)
     allow(AppealsApi::Slack::Messager).to receive(:new).and_return(messager_instance)
     allow(messager_instance).to receive(:notify!)
     described_class.new.notify({})
