@@ -2,6 +2,7 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequest < ApplicationRecord
+    EXPIRY_DURATION = 60.days
     module ClaimantTypes
       ALL = [
         DEPENDENT = 'dependent',
@@ -30,7 +31,15 @@ module AccreditedRepresentativePortal
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
 
     def expires_at
-      created_at + 60.days
+      created_at + EXPIRY_DURATION if unresolved?
+    end
+
+    def unresolved?
+      !resolved?
+    end
+
+    def resolved?
+      resolution.present?
     end
 
     private
