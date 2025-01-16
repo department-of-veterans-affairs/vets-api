@@ -582,7 +582,7 @@ features:
     actor_type: user
     description: Enables the Dispute Debt feature
     enable_in_development: true
-  facilities_autosuggest_enabled:
+  facilities_autosuggest_vamc_services_enabled:
     actor_type: user
     description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
     enable_in_development: true
