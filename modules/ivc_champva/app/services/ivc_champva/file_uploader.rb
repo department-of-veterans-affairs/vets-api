@@ -132,7 +132,7 @@ module IvcChampva
     # @param [String] file_path Path of file to be uploaded
     # @param [Hash] metadata Optional file metadata hash to be associated with the file in S3
     #
-    # @return [Array] List containing either a single HTTP response code or a reponse code and an error message.
+    # @return [Array<Integer, String>] List containing either a single HTTP response code or a reponse code and an error message.
     def upload(file_name, file_path, metadata = {})
       case client.put_object(file_name, file_path, metadata)
       in { success: true }
