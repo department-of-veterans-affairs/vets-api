@@ -28,7 +28,6 @@ module ClaimsApi
         # @return [JSON] Record in pending state
         def submit_form_2122 # rubocop:disable Metrics/MethodLength
           validate_json_schema
-          validate_phone
 
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
@@ -150,7 +149,6 @@ module ClaimsApi
         def validate
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
           validate_json_schema
-          validate_phone
 
           poa_code = form_attributes.dig('serviceOrganization', 'poaCode')
           validate_poa_code!(poa_code)
