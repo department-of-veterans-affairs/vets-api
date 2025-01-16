@@ -46,7 +46,7 @@ describe ClaimsApi::IntentToFileWebService do
 
     context 'sad path' do
       it 'returns the correct error message when incorrect params are provided' do
-        VCR.use_cassette('spec/support/vcr_cassettes/claims_api/bgs/intent_to_file_web_service/sad_path') do
+        VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/sad_path') do
           subject.insert_intent_to_file(erroneous_options:)
         rescue => e
           expect(e).to be_a(Common::Exceptions::ServiceError)
@@ -62,7 +62,7 @@ describe ClaimsApi::IntentToFileWebService do
 
     context 'happy path' do
       it 'returns an object with the appropriate attributes' do
-        VCR.use_cassette('spec/support/vcr_cassettes/claims_api/bgs/intent_to_file_web_service/happy_path') do
+        VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/happy_path') do
           res = subject.find_intent_to_file_by_ptcpnt_id_itf_type_cd(participant_id, type)
           expect(res[0][:intent_to_file_id]).to eq('287002')
         end
@@ -71,7 +71,7 @@ describe ClaimsApi::IntentToFileWebService do
 
     context 'sad path' do
       it 'returns the correct error message when incorrect params are provided' do
-        VCR.use_cassette('spec/support/vcr_cassettes/claims_api/bgs/intent_to_file_web_service/sad_path') do
+        VCR.use_cassette('claims_api/bgs/intent_to_file_web_service/sad_path') do
           subject.find_intent_to_file_by_ptcpnt_id_itf_type_cd(participant_id, type)
         rescue => e
           expect(e).to be_a(Common::Exceptions::ServiceError)

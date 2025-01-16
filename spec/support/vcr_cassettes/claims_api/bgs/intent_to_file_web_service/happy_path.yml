@@ -47,7 +47,7 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Wed, 15 Jan 2025 19:53:17 GMT
+      - Thu, 16 Jan 2025 16:08:36 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -64,5 +64,5 @@ http_interactions:
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
         xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdTAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTMuNS4yAAA=</work:WorkContext></env:Header><S:Body><ns0:findIntentToFileByPtcpntIdItfTypeCdResponse
         xmlns:ns0="http://intenttofile.services.vetsnet.vba.va.gov/"><IntentToFileDTO><createDt>2024-11-12T09:59:30-06:00</createDt><exprtnDt>2025-11-12T09:59:29-06:00</exprtnDt><intentToFileId>287002</intentToFileId><itfStatusTypeCd>Active</itfStatusTypeCd><itfTypeCd>C</itfTypeCd><jrnDt>2024-11-12T09:59:30-06:00</jrnDt><jrnExtnlKeyTxt>piv.beatrice.stroud44.va.gov</jrnExtnlKeyTxt><jrnExtnlUserId>piv.beatrice.stroud44.va.gov</jrnExtnlUserId><jrnLctnId>281</jrnLctnId><jrnObjId>eBenefits</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAEBENEFITS</jrnUserId><ptcpntClmantId>600061742</ptcpntClmantId><ptcpntVetId>600061742</ptcpntVetId><rcvdDt>2024-11-12T09:59:29-06:00</rcvdDt><statusDt>2024-11-12T09:59:30-06:00</statusDt><submtrApplcnTypeCd>SEP</submtrApplcnTypeCd></IntentToFileDTO></ns0:findIntentToFileByPtcpntIdItfTypeCdResponse></S:Body></S:Envelope>
-  recorded_at: Wed, 15 Jan 2025 19:53:17 GMT
+  recorded_at: Thu, 16 Jan 2025 16:08:36 GMT
 recorded_with: VCR 6.3.1
