@@ -160,7 +160,7 @@ module IvcChampva
     #
     # @param [String] email An email address to validate
     #
-    # @return [String | nil] Email is returned if valid, else nil is returned
+    # @return [String, nil] Email is returned if valid, else nil is returned
     def validate_email(email)
       return nil unless email.present? && email.match?(/\A[\w+\-.]+@[a-z\d\-]+(\.[a-z]+)*\.[a-z]+\z/i)
 
