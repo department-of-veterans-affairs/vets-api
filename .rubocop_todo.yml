@@ -376,34 +376,6 @@ Rails/I18nLocaleTexts:
     - 'lib/va_profile/models/preferred_name.rb'
     - 'modules/claims_api/app/mailers/claims_api/unsuccessful_report_mailer.rb'
 
-# Offense count: 76
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/RootPathnameMethods:
-  Exclude:
-    - 'app/sidekiq/facilities/state_cemetery_reload_job.rb'
-    - 'config/initializers/flipper.rb'
-    - 'lib/decision_review/schemas.rb'
-    - 'modules/appeals_api/app/models/appeals_api/notice_of_disagreement.rb'
-    - 'modules/appeals_api/spec/support/schema_helpers.rb'
-    - 'modules/claims_api/spec/requests/v2/veterans/rswag_intent_to_file_request_spec.rb'
-    - 'modules/claims_api/spec/requests/v2/veterans/rswag_power_of_attorney_spec.rb'
-    - 'modules/claims_api/spec/support/swagger_shared_components/v1.rb'
-    - 'modules/claims_api/spec/support/swagger_shared_components/v2.rb'
-    - 'modules/mobile/spec/models/adapters/appointments_vaos_v2_adapter_spec.rb'
-    - 'modules/va_forms/app/sidekiq/va_forms/form_reloader.rb'
-    - 'modules/va_forms/lib/tasks/va_forms.rake'
-    - 'rakelib/connectivity.rake'
-    - 'spec/factories/health_care_application.rb'
-    - 'spec/factories/va0994.rb'
-    - 'spec/factories/va10203.rb'
-    - 'spec/factories/va1990s.rb'
-    - 'spec/factories/va1995.rb'
-    - 'spec/lib/decision_review/schemas_spec.rb'
-    - 'spec/lib/decision_review/service_spec.rb'
-    - 'spec/lib/hca/enrollment_system_spec.rb'
-    - 'spec/models/form_profile_spec.rb'
-    - 'spec/requests/swagger_spec.rb'
-
 # Offense count: 2
 # Configuration parameters: ForbiddenMethods, AllowedMethods.
 # ForbiddenMethods: decrement!, decrement_counter, increment!, increment_counter, insert, insert!, insert_all, insert_all!, toggle!, touch, touch_all, update_all, update_attribute, update_column, update_columns, update_counters, upsert, upsert_all
