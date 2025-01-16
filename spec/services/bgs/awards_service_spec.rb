@@ -20,7 +20,7 @@ RSpec.describe BGS::AwardsService do
       it 'does not return rewards amounts' do
         service = BGS::AwardsService.new(user)
         response = service.get_awards
-        expect(response).to eq(false)
+        expect(response).to be(false)
       end
     end
   end

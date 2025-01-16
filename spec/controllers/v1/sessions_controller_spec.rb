@@ -21,7 +21,7 @@ RSpec.describe V1::SessionsController, type: :controller do
   let(:saml_user_attributes) { user.attributes.merge(user.identity.attributes) }
   let(:user_attributes) { double('user_attributes', saml_user_attributes) }
   let(:saml_user) do
-    instance_double('SAML::User',
+    instance_double(SAML::User,
                     changing_multifactor?: false,
                     user_attributes:,
                     to_hash: saml_user_attributes,

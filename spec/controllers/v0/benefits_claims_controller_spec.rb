@@ -126,7 +126,7 @@ RSpec.describe V0::BenefitsClaimsController, type: :controller do
 
         expect(response).to have_http_status(:ok)
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body['data']['attributes']['canUpload']).to eq(true)
+        expect(parsed_body['data']['attributes']['canUpload']).to be(true)
       end
 
       it 'logs the claim type details' do
