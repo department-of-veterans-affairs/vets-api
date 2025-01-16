@@ -25,7 +25,15 @@ module AccreditedRepresentativePortal
     end
 
     attribute :power_of_attorney_holder do |poa_request|
-      PowerOfAttorneyHolderSerializer
+      serializer =
+        case poa_request.power_of_attorney_holder
+        when AccreditedIndividual
+          IndividualPowerOfAttorneyHolderSerializer
+        when AccreditedOrganization
+          OrganizationPowerOfAttorneyHolderSerializer
+        end
+
+      serializer
         .new(poa_request.power_of_attorney_holder)
         .serializable_hash
     end
