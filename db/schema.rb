@@ -1404,7 +1404,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_15_180319) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["uuid"], name: "index_user_actions_on_uuid", unique: true
-    t.check_constraint "status::text = ANY (ARRAY['initial'::character varying, 'success'::character varying, 'error'::character varying]::text[])", name: "check_status"
+    t.check_constraint "status::text = ANY (ARRAY['initial'::character varying::text, 'success'::character varying::text, 'error'::character varying::text])", name: "check_status"
   end
 
   create_table "user_credential_emails", force: :cascade do |t|
