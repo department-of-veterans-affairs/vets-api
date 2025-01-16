@@ -14,10 +14,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Runs at midnight every Tuesday
   mgr.register('0 0 * * 2', 'LoadAverageDaysForClaimCompletionJob')
 
-  # TODO: Document these jobs
-  mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
-  mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
-
   # Update HigherLevelReview statuses with their Central Mail status
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
 
@@ -171,7 +167,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 16 * * *', 'VANotify::InProgressForms')
   mgr.register('0 1 * * *', 'VANotify::ClearStaleInProgressRemindersSent')
   mgr.register('0 * * * *', 'VANotify::InProgress1880Form')
-  mgr.register('0 * * * *', 'CovidVaccine::ExpandedSubmissionStateJob')
   mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
   mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
   mgr.register('0 2 * * *', 'InProgressFormCleaner')

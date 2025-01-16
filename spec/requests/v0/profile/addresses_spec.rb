@@ -248,7 +248,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
       it 'effective_end_date is NOT included in the request body', :aggregate_failures do
         expect_any_instance_of(VAProfile::ContactInformation::Service).to receive(:put_address) do |_, address|
-          expect(address.effective_end_date).to eq(nil)
+          expect(address.effective_end_date).to be_nil
         end
 
         put('/v0/profile/addresses', params: address.to_json, headers:)
@@ -561,7 +561,7 @@ RSpec.describe 'V0::Profile::Addresses', type: :request do
 
         it 'effective_end_date is NOT included in the request body', :aggregate_failures do
           expect_any_instance_of(VAProfile::V2::ContactInformation::Service).to receive(:put_address) do |_, address|
-            expect(address.effective_end_date).to eq(nil)
+            expect(address.effective_end_date).to be_nil
           end
 
           put('/v0/profile/addresses', params: address.to_json, headers:)

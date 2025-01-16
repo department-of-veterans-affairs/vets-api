@@ -20,7 +20,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Flipper.disable(:disability_compensation_fail_submission)
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -35,7 +35,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
       describe '.perform_async' do
         define_negated_matcher :not_change, :change
 
-        let(:saved_claim) { FactoryBot.create(:va526ez) }
+        let(:saved_claim) { create(:va526ez) }
         let(:submitted_claim_id) { 600_130_094 }
         let(:user_account) { create(:user_account, icn: '123498767V234859') }
         let(:submission) do
@@ -504,7 +504,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
             it 'returns false to skip classification and continue other jobs' do
               subject.perform_async(submission.id)
-              expect(submission.update_contention_classification_all!).to eq false
+              expect(submission.update_contention_classification_all!).to be false
               expect(Rails.logger).to have_received(:info).with(
                 "No disabilities found for classification on claim #{submission.id}"
               )
@@ -775,7 +775,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             described_class.drain
             job_status = Form526JobStatus.where(job_id: values[:job_id]).first
             expect(job_status.status).to eq 'success'
-            expect(job_status.error_class).to eq nil
+            expect(job_status.error_class).to be_nil
             expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
             expect(Form526JobStatus.count).to eq 1
           end

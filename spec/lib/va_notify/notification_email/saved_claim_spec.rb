@@ -32,7 +32,7 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
     )
   end
 
-  let(:fake_claim) { FactoryBot.build(:fake_saved_claim) }
+  let(:fake_claim) { build(:fake_saved_claim) }
   let(:fake_email) { fake_claim.email }
   let(:notification) { described_class.new(fake_claim.id) }
 

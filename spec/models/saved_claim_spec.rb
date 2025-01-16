@@ -41,7 +41,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
         end
 
         it 'returns true' do
-          expect(saved_claim.validate).to eq true
+          expect(saved_claim.validate).to be true
         end
       end
 
@@ -51,7 +51,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
         end
 
         it 'returns true' do
-          expect(saved_claim.validate).to eq(true)
+          expect(saved_claim.validate).to be(true)
         end
       end
     end
@@ -70,7 +70,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
             expect(Rails.logger).to receive(:error)
               .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
 
-            expect(saved_claim.validate).to eq true
+            expect(saved_claim.validate).to be true
           end
         end
 
@@ -142,7 +142,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
             expect(Rails.logger).to receive(:error)
               .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
 
-            expect(saved_claim.validate).to eq(true)
+            expect(saved_claim.validate).to be(true)
           end
         end
 

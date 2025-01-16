@@ -5,7 +5,7 @@ require 'common/client/middleware/request/soap_headers'
 
 describe Common::Client::Middleware::Request::SOAPHeaders do
   context 'with a request without headers' do
-    let(:env) { instance_double('Faraday::Env') }
+    let(:env) { instance_double(Faraday::Env) }
     let(:request_headers) { { 'User-Agent' => 'Faraday v0.9.2', 'Soapaction' => 'PRPA_IN201305UV02' } }
     let(:app) { proc { |n| n } }
 
