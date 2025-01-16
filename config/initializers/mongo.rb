@@ -4,7 +4,7 @@ require 'mongo'
 
 Mongo::Logger.logger.level = Logger::INFO
 
-uri = 'mongodb://localhost:27017/mongodb-audit-db'
+uri = 'mongodb://localhost:27017/audit-db'
 
 client = Mongo::Client.new(uri)
 
