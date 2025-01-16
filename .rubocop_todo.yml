@@ -412,13 +412,6 @@ RSpecRails/HaveHttpStatus:
 RSpecRails/InferredSpecType:
   Enabled: false
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: Severity.
-Rails/DeprecatedActiveModelErrorsMethods:
-  Exclude:
-    - 'modules/mobile/lib/mobile/v0/exceptions/validation_errors.rb'
-
 # Offense count: 36
 # This cop supports safe autocorrection (--autocorrect).
 Rails/DurationArithmetic:

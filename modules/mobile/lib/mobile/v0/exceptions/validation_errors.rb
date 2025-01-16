@@ -5,7 +5,7 @@ module Mobile
     module Exceptions
       class ValidationErrors < Common::Exceptions::ValidationErrors
         def errors
-          @resource.errors.to_h.map do |k, v|
+          @resource.errors.details.map do |k, v|
             Common::Exceptions::SerializableError.new(
               i18n_data.merge(
                 detail: "#{k} #{v.first}"
