@@ -70,20 +70,33 @@ module IvcChampva
         end
       end
 
+      def construct_email_payload(form)
+        {
+          email: form.email,
+          first_name: form.first_name,
+          last_name: form.last_name,
+          form_number: form.form_number,
+          file_count: fetch_forms_by_uuid(form_uuid).where('file_name LIKE ?', '%supporting_doc%').count,
+          pega_status: form.pega_status,
+          created_at: form.created_at.strftime('%B %d, %Y'),
+          form_uuid: form.form_uuid
+        }
+      end
+
       def send_email(form_uuid, form)
         return if form.email_sent
 
-        form_data =
-          {
-            email: form.email,
-            first_name: form.first_name,
-            last_name: form.last_name,
-            form_number: form.form_number,
-            file_count: fetch_forms_by_uuid(form_uuid).where('file_name LIKE ?', '%supporting_doc%').count,
-            pega_status: form.pega_status,
-            created_at: form.created_at.strftime('%B %d, %Y'),
-            form_uuid: form.form_uuid
-          }
+        form_data = construct_email_payload(form).merge(
+          { callback_klass: 'IvcChampva::EmailNotificationCallback',
+            callback_metadata: {
+              statsd_tags: { service: 'veteran-ivc-champva-forms', function: 'IVC CHAMPVA send_email' },
+              additional_context: {
+                form_id: form.form_number,
+                form_uuid: form.form_uuid,
+                notification_type: 'confirmation'
+              }
+            } }
+        )
 
         ActiveRecord::Base.transaction do
           if IvcChampva::Email.new(form_data).send_email
