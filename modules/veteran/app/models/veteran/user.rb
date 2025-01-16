@@ -27,7 +27,7 @@ module Veteran
     end
 
     def current_poa_information
-      @current_poa_information ||= local_bgs_service.find_poa_by_participant_id(@user.participant_id)
+      @current_poa_information ||= claimant_web_service.find_poa_by_participant_id(@user.participant_id)
     end
 
     def previous_poa_code
@@ -53,9 +53,9 @@ module Veteran
       )
     end
 
-    def local_bgs_service
+    def claimant_web_service
       external_key = "#{@user.first_name} #{@user.last_name}"
-      @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+      @claimant_web_service ||= ClaimsApi::ClaimantWebService.new(
         external_uid: @user.mpi_icn,
         external_key: external_key.presence || @user.mpi_icn
       )

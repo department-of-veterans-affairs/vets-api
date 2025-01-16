@@ -28,12 +28,8 @@ module ClaimsApi
 
     def find_poa_by_participant_id(id)
       body = Nokogiri::XML::DocumentFragment.parse <<~EOXML
-        <ptcpntId />
+        <ptcpntId>#{id}</ptcpntId>
       EOXML
-
-      { ptcpntId: id }.each do |k, v|
-        body.xpath("./*[local-name()='#{k}']")[0].content = v
-      end
 
       make_request(endpoint: 'ClaimantServiceBean/ClaimantWebService', action: 'findPOAByPtcpntId', body:,
                    key: 'return')
