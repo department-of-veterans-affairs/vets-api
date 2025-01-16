@@ -3,11 +3,11 @@
 require 'net/http'
 require 'uri'
 require 'erb'
-require 'datadog_logging_module'
+require 'datadog_logging'
 
 module V0
   class VirtualAgentSpeechTokenController < ApplicationController
-    include DatadogLoggingModule
+    include DatadogLogging
     service_tag 'virtual-agent'
     skip_before_action :authenticate, only: [:create]
 
@@ -39,7 +39,7 @@ module V0
     def service_exception_handler(exception)
       context = 'An error occurred with the Microsoft service that issues chatbot tokens'
       log_exception_to_sentry(exception, 'context' => context)
-      datadog_logging_module(context, exception.message, exception.backtrace)
+      log_to_datadog(context, exception.message, exception.backtrace)
       render nothing: true, status: :service_unavailable
     end
 
