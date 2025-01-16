@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_15_180319) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -996,6 +996,33 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
     t.index ["status_last_polled_at"], name: "index_lighthouse526_document_uploads_on_status_last_polled_at"
   end
 
+  create_table "load_testing_test_sessions", force: :cascade do |t|
+    t.string "status", null: false
+    t.integer "concurrent_users", null: false
+    t.jsonb "configuration"
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "error_message"
+    t.string "csrf_token"
+    t.index ["status"], name: "index_load_testing_test_sessions_on_status"
+  end
+
+  create_table "load_testing_test_tokens", force: :cascade do |t|
+    t.bigint "test_session_id", null: false
+    t.string "access_token", null: false
+    t.string "refresh_token", null: false
+    t.string "device_secret"
+    t.datetime "expires_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "status", default: "available"
+    t.index ["expires_at"], name: "index_load_testing_test_tokens_on_expires_at"
+    t.index ["status"], name: "index_load_testing_test_tokens_on_status"
+    t.index ["test_session_id"], name: "index_load_testing_test_tokens_on_test_session_id"
+  end
+
   create_table "maintenance_windows", id: :serial, force: :cascade do |t|
     t.string "pagerduty_id"
     t.string "external_service"
@@ -1357,6 +1384,27 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["icn"], name: "index_user_accounts_on_icn", unique: true
+  end
+
+  create_table "user_action_events", force: :cascade do |t|
+    t.string "details"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "user_actions", force: :cascade do |t|
+    t.string "uuid", null: false
+    t.uuid "acting_user_account_id", null: false
+    t.uuid "subject_user_account_id", null: false
+    t.bigint "user_action_event_id"
+    t.string "status", default: "initial"
+    t.boolean "user_verified", default: false
+    t.string "ip_address"
+    t.jsonb "device_info"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["uuid"], name: "index_user_actions_on_uuid", unique: true
+    t.check_constraint "status::text = ANY (ARRAY['initial'::character varying, 'success'::character varying, 'error'::character varying]::text[])", name: "check_status"
   end
 
   create_table "user_credential_emails", force: :cascade do |t|
@@ -1777,6 +1825,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_13_173113) do
   add_foreign_key "in_progress_forms", "user_accounts"
   add_foreign_key "lighthouse526_document_uploads", "form526_submissions"
   add_foreign_key "lighthouse526_document_uploads", "form_attachments"
+  add_foreign_key "load_testing_test_tokens", "load_testing_test_sessions", column: "test_session_id"
   add_foreign_key "mhv_opt_in_flags", "user_accounts"
   add_foreign_key "oauth_sessions", "user_accounts"
   add_foreign_key "oauth_sessions", "user_verifications"

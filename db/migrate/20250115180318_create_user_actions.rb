@@ -19,11 +19,13 @@ class CreateUserActions < ActiveRecord::Migration[7.2]
     # Add check constraint for status values
     reversible do |dir|
       dir.up do
-        execute <<-SQL
-          ALTER TABLE user_actions
-            ADD CONSTRAINT check_status
-            CHECK (status IN ('initial', 'success', 'error'));
-        SQL
+        safety_assured do
+          execute <<-SQL
+            ALTER TABLE user_actions
+              ADD CONSTRAINT check_status
+              CHECK (status IN ('initial', 'success', 'error'));
+          SQL
+        end
       end
     end
   end
