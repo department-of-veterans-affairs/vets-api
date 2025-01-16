@@ -45,9 +45,9 @@ RSpec.describe HealthCareApplication, type: :model do
 
       context 'without a user' do
         it 'does nothing' do
-          expect(health_care_application.send(:prefill_fields)).to eq(nil)
+          expect(health_care_application.send(:prefill_fields)).to be_nil
 
-          expect(health_care_application.valid?).to eq(false)
+          expect(health_care_application.valid?).to be(false)
         end
       end
 
@@ -60,9 +60,9 @@ RSpec.describe HealthCareApplication, type: :model do
           let(:user) { create(:user) }
 
           it 'does nothing' do
-            expect(health_care_application.send(:prefill_fields)).to eq(nil)
+            expect(health_care_application.send(:prefill_fields)).to be_nil
 
-            expect(health_care_application.valid?).to eq(false)
+            expect(health_care_application.valid?).to be(false)
           end
         end
 
@@ -85,9 +85,9 @@ RSpec.describe HealthCareApplication, type: :model do
           end
 
           it 'sets uneditable fields using user data' do
-            expect(health_care_application.valid?).to eq(false)
+            expect(health_care_application.valid?).to be(false)
             health_care_application.send(:prefill_fields)
-            expect(health_care_application.valid?).to eq(true)
+            expect(health_care_application.valid?).to be(true)
 
             parsed_form = health_care_application.parsed_form
 
@@ -220,7 +220,7 @@ RSpec.describe HealthCareApplication, type: :model do
           create(:find_profile_not_found_response)
         )
 
-        expect(described_class.user_icn(described_class.user_attributes(form))).to eq(nil)
+        expect(described_class.user_icn(described_class.user_attributes(form))).to be_nil
       end
     end
 
@@ -296,7 +296,7 @@ RSpec.describe HealthCareApplication, type: :model do
         end
 
         it 'doesnt require the long form fields' do
-          expect(health_care_application.valid?).to eq(true)
+          expect(health_care_application.valid?).to be(true)
         end
       end
 
@@ -473,7 +473,7 @@ RSpec.describe HealthCareApplication, type: :model do
           expect(user_identifier).to eq({ 'icn' => user.icn, 'edipi' => user.edipi })
           expect(HCA::BaseSubmissionJob.decrypt_form(encrypted_form)).to eq(health_care_application.parsed_form)
           expect(health_care_application_id).to eq(1)
-          expect(google_analytics_client_id).to eq(nil)
+          expect(google_analytics_client_id).to be_nil
         end
 
         expect(health_care_application.process!).to eq(health_care_application)
@@ -831,8 +831,8 @@ RSpec.describe HealthCareApplication, type: :model do
       health_care_application = build(:health_care_application)
       health_care_application.set_result_on_success!(result)
 
-      expect(health_care_application.id.present?).to eq(true)
-      expect(health_care_application.success?).to eq(true)
+      expect(health_care_application.id.present?).to be(true)
+      expect(health_care_application.success?).to be(true)
       expect(health_care_application.form_submission_id).to eq(result[:formSubmissionId])
       expect(health_care_application.timestamp).to eq(result[:timestamp])
     end
@@ -874,7 +874,7 @@ RSpec.describe HealthCareApplication, type: :model do
         end
 
         it 'returns nil' do
-          expect(subject).to eq nil
+          expect(subject).to be_nil
         end
       end
     end

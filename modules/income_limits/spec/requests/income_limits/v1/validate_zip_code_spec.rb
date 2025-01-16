@@ -23,7 +23,7 @@ RSpec.describe 'IncomeLimits::V1::ValidateZipCode', type: :request do
 
       it 'Validates a valid zip code' do
         data = parse_response(response)
-        expect(data['zip_is_valid']).to eq(true)
+        expect(data['zip_is_valid']).to be(true)
       end
     end
 
@@ -41,7 +41,7 @@ RSpec.describe 'IncomeLimits::V1::ValidateZipCode', type: :request do
 
       it 'Returns false when given an invalid zip code' do
         data = parse_response(response)
-        expect(data['zip_is_valid']).to eq(false)
+        expect(data['zip_is_valid']).to be(false)
       end
     end
   end
