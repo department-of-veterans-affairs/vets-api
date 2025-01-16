@@ -6,7 +6,7 @@ RSpec.describe EVSSClaimService do
   subject { service }
 
   let(:user) { create(:user, :loa3) }
-  let(:client_stub) { instance_double('EVSS::ClaimsService') }
+  let(:client_stub) { instance_double(EVSS::ClaimsService) }
   let(:service) { described_class.new(user) }
 
   context 'when EVSS client times out' do

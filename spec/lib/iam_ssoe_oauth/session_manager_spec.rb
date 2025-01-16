@@ -28,7 +28,7 @@ describe 'IAMSSOeOAuth::SessionManager' do
       end
 
       it 'last_signed_in is set and is a time' do
-        expect(@user.last_signed_in).to be_a_kind_of(Time)
+        expect(@user.last_signed_in).to be_a(Time)
       end
     end
 

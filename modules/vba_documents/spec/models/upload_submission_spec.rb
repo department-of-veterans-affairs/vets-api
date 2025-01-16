@@ -10,8 +10,8 @@ describe VBADocuments::UploadSubmission, type: :model do
   let(:upload_success) { create(:upload_submission, status: 'success') }
   let(:upload_vbms) { create(:upload_submission, status: 'vbms') }
   let(:upload_error) { create(:upload_submission, status: 'error') }
-  let(:client_stub) { instance_double('CentralMail::Service') }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
+  let(:faraday_response) { instance_double(Faraday::Response) }
 
   let(:received_body) do
     [[{ uuid: 'ignored',

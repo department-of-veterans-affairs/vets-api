@@ -6,7 +6,7 @@ require 'pager_duty/cache_global_downtime'
 RSpec.describe PagerDuty::CacheGlobalDowntime, type: %i[job aws_helpers] do
   let(:subject) { described_class.new }
 
-  let(:client_stub) { instance_double('PagerDuty::MaintenanceClient') }
+  let(:client_stub) { instance_double(PagerDuty::MaintenanceClient) }
   let(:mw_hash) { build(:maintenance_hash) }
 
   before do

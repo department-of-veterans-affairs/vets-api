@@ -46,7 +46,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         with_settings(
           Settings.vanotify.services.va_gov, { api_key: test_service_api_key }
         ) do
-          mocked_notification_service = instance_double('VaNotify::Service')
+          mocked_notification_service = instance_double(VaNotify::Service)
           allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
           allow(mocked_notification_service).to receive(:send_email).and_return(email_response)
           subject.perform('')
