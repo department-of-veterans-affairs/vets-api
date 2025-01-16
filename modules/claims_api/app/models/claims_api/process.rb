@@ -11,6 +11,18 @@ module ClaimsApi
     validates :step_status, presence: true
     validate :validate_step_type_and_status
 
+    def next_step
+      case processable_type
+      when 'ClaimsApi::PowerOfAttorney'
+        step_map = {
+          'PDF_SUBMISSION' => 'POA_UPDATE',
+          'POA_UPDATE' => 'POA_ACCESS_UPDATE',
+          'POA_ACCESS_UPDATE' => 'CLAIMANT_NOTIFICATION'
+        }
+        step_map[step_type]
+      end
+    end
+
     private
 
     def validate_step_type_and_status

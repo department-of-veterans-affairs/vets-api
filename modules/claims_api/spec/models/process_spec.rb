@@ -24,5 +24,23 @@ RSpec.describe ClaimsApi::Process, type: :model do
         end.to raise_error(ActiveRecord::RecordInvalid)
       end
     end
+
+    context 'when there is a next step' do
+      it 'returns the next step' do
+        process = ClaimsApi::Process.create!(processable: power_of_attorney,
+                                             step_type: 'PDF_SUBMISSION',
+                                             step_status: 'IN_PROGRESS')
+        expect(process.next_step).to eq('POA_UPDATE')
+      end
+    end
+
+    context 'when there is no next step' do
+      it 'returns nil' do
+        process = ClaimsApi::Process.create!(processable: power_of_attorney,
+                                             step_type: 'CLAIMANT_NOTIFICATION',
+                                             step_status: 'IN_PROGRESS')
+        expect(process.next_step).to be_nil
+      end
+    end
   end
 end
