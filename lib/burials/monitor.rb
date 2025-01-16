@@ -12,7 +12,7 @@ module Burials
     CLAIM_STATS_KEY = 'api.burial_claim'
 
     # statsd key for sidekiq
-    SUBMISSION_STATS_KEY = 'worker.lighthouse.submit_benefits_intake_claim'
+    SUBMISSION_STATS_KEY = 'app.burial.submit_benefits_intake_claim'
 
     attr_reader :tags
 

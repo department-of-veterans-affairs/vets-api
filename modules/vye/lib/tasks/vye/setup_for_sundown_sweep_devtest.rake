@@ -32,15 +32,15 @@ namespace :vye do
     Vye.settings.scrypt.salt = '1'
 
     puts 'Creating BdnClone row that will be deleted'
-    FactoryBot.create(:vye_bdn_clone_with_user_info_children, transact_date: Time.Zone.today - 2.days)
+    create(:vye_bdn_clone_with_user_info_children, transact_date: Time.Zone.today - 2.days)
 
     puts 'Creating active BdnClone row'
-    FactoryBot.create(
+    create(
       :vye_bdn_clone_with_user_info_children, :active, transact_date: Time.Zone.today - 1.day
     )
 
     puts 'Creating freshly imported BdnClone row'
-    FactoryBot.create(:vye_bdn_clone_with_user_info_children, is_active: false)
+    create(:vye_bdn_clone_with_user_info_children, is_active: false)
 
     puts 'BdnClones created'
     Vye::BdnClone.all.find_each { |bdn_clone| puts bdn_clone.inspect }

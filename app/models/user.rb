@@ -460,7 +460,7 @@ class User < Common::RedisStore
   # @return [Boolean]
   #
   def served_in_military?
-    edipi.present? && veteran? || military_person?
+    (edipi.present? && veteran?) || military_person?
   end
 
   def power_of_attorney

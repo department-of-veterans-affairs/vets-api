@@ -10,10 +10,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Runs at midnight every Tuesday
   mgr.register('0 0 * * 2', 'LoadAverageDaysForClaimCompletionJob')
 
-  # TODO: Document these jobs
-  mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
-  mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
-
   # Update HigherLevelReview statuses with their Central Mail status
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
 
@@ -166,7 +162,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('0 16 * * *', 'VANotify::InProgressForms')
   mgr.register('0 1 * * *', 'VANotify::ClearStaleInProgressRemindersSent')
   mgr.register('0 * * * *', 'VANotify::InProgress1880Form')
-  mgr.register('0 * * * *', 'CovidVaccine::ExpandedSubmissionStateJob')
   mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
   mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
@@ -214,6 +209,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
   mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
+  mgr.register('0 3 * * *', 'Organizations::QueueUpdates')
 
   # Updates veteran service organization names
   mgr.register('0 5 * * *', 'Organizations::UpdateNames')

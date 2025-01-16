@@ -292,13 +292,13 @@ RSpec.describe Login::UserVerifier do
 
                 it 'creates a locked UserVerification object and logs the event' do
                   expect(Rails.logger).to receive(:info).with(expected_log, { icn: })
-                  expect(subject.locked).to eq(true)
+                  expect(subject.locked).to be(true)
                 end
               end
 
               context 'and the linked user verification is not locked' do
                 it 'creates an unlocked UserVerification object' do
-                  expect(subject.locked).to eq(false)
+                  expect(subject.locked).to be(false)
                 end
               end
             end
