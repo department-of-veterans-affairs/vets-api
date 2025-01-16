@@ -412,26 +412,6 @@ RSpecRails/HaveHttpStatus:
 RSpecRails/InferredSpecType:
   Enabled: false
 
-# Offense count: 36
-# This cop supports safe autocorrection (--autocorrect).
-Rails/DurationArithmetic:
-  Exclude:
-    - 'app/serializers/dependents_verifications_serializer.rb'
-    - 'modules/claims_api/spec/models/auto_establish_claim_spec.rb'
-    - 'modules/claims_api/spec/models/veteran/service/user_spec.rb'
-    - 'modules/vaos/spec/services/user_service_spec.rb'
-    - 'modules/vba_documents/app/sidekiq/vba_documents/upload_scanner.rb'
-    - 'modules/vba_documents/spec/lib/object_store_spec.rb'
-    - 'modules/vba_documents/spec/sidekiq/upload_scanner_spec.rb'
-    - 'modules/veteran/spec/models/veteran/user_spec.rb'
-    - 'spec/controllers/sign_in/application_controller_spec.rb'
-    - 'spec/controllers/v1/sessions_controller_spec.rb'
-    - 'spec/lib/iam_ssoe_oauth/session_manager_spec.rb'
-    - 'spec/services/login/user_verifier_spec.rb'
-    - 'spec/services/sign_in/access_token_jwt_decoder_spec.rb'
-    - 'spec/services/sign_in/session_refresher_spec.rb'
-    - 'spec/services/sign_in/session_revoker_spec.rb'
-
 # Offense count: 2
 # This cop supports safe autocorrection (--autocorrect).
 Rails/ExpandedDateRange:
