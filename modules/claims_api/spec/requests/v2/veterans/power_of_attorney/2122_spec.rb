@@ -855,7 +855,7 @@ RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::2122', type: :request do
                     }
                   }
                 end
-                let(:error_msg) { "If country code is blank or 1 'areaCode' must be filled in" }
+                let(:error_msg) { 'The property /claimant/phone did not contain the required key areaCode' }
 
                 it 'returns a meaningful 422' do
                   VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
