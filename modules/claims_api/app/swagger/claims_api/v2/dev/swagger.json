@@ -1590,7 +1590,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "81c65880-c78d-48cf-be7b-0f4b8ab0d46e",
+                        "id": "fd634ec6-4456-4971-a049-d02b4742cb6c",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -1821,7 +1821,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "39f95925-63f3-45a5-9f2b-163ddd8b259b",
+                        "id": "b63d3bb3-e8e1-460a-a8e5-89af6ff35f6b",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -12199,7 +12199,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "7d80b0e6-e682-4277-b1eb-6caa687f74b5",
+                    "id": "953ea419-7db7-40c4-b1a5-21a3b5c2c817",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -12591,6 +12591,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -12686,6 +12719,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -12974,7 +13040,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "31d9d121-4455-499f-9280-bd2ec22d755d",
+                    "id": "7a2688af-b388-4df8-b511-74c7a411ab9c",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -13349,6 +13415,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -13458,6 +13557,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -14042,6 +14174,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -14137,6 +14302,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -14712,6 +14910,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -14821,6 +15052,39 @@
                                     "type": "string",
                                     "pattern": "^[a-zA-Z0-9]{1,10}$"
                                   }
+                                },
+                                "if": {
+                                  "properties": {
+                                    "countryCode": {
+                                      "anyOf": [
+                                        {
+                                          "type": "string",
+                                          "enum": [
+                                            "1"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  }
+                                },
+                                "then": {
+                                  "required": [
+                                    "areaCode"
+                                  ]
+                                },
+                                "else": {
+                                  "anyOf": [
+                                    {
+                                      "required": [
+                                        "countryCode"
+                                      ]
+                                    },
+                                    {
+                                      "required": [
+                                        "areaCode"
+                                      ]
+                                    }
+                                  ]
                                 }
                               },
                               "email": {
@@ -14977,7 +15241,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "18b0e1cb-f67a-4fba-a4af-73f8ba6d0d7b",
+                    "id": "8b13e184-800a-4e56-9fad-1989b5b01388",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2025-01-16",
@@ -15237,7 +15501,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "a301adf2-15f7-4873-89bf-c8fffb84fcb2",
+                    "id": "8430ed21-25c2-4f4c-bcb8-29e8451990a4",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
