@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_16_155354) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_16_192421) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -539,42 +539,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_16_155354) do
     t.string "service_levels", default: ["ial1", "ial2", "loa1", "loa3", "min"], array: true
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
-  end
-
-  create_table "covid_vaccine_expanded_registration_submissions", id: :serial, force: :cascade do |t|
-    t.string "submission_uuid", null: false
-    t.string "vetext_sid"
-    t.boolean "sequestered", default: true, null: false
-    t.string "state"
-    t.string "email_confirmation_id"
-    t.string "enrollment_id"
-    t.string "batch_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.text "raw_form_data_ciphertext"
-    t.text "eligibility_info_ciphertext"
-    t.text "form_data_ciphertext"
-    t.text "encrypted_kms_key"
-    t.index ["batch_id"], name: "index_covid_vaccine_expanded_reg_submissions_on_batch_id"
-    t.index ["state"], name: "index_covid_vaccine_expanded_registration_submissions_on_state"
-    t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
-    t.index ["vetext_sid"], name: "index_covid_vaccine_expanded_on_vetext_sid", unique: true
-  end
-
-  create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
-    t.string "sid"
-    t.uuid "account_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "expanded", default: false, null: false
-    t.boolean "sequestered", default: false, null: false
-    t.string "email_confirmation_id"
-    t.string "enrollment_id"
-    t.text "form_data_ciphertext"
-    t.text "raw_form_data_ciphertext"
-    t.text "encrypted_kms_key"
-    t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
-    t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
   end
 
   create_table "decision_review_notification_audit_logs", force: :cascade do |t|
@@ -1541,6 +1505,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_16_155354) do
     t.string "address_line1"
     t.string "address_line2"
     t.string "address_line3"
+    t.boolean "can_accept_digital_poa_requests", default: false
     t.index ["location"], name: "index_veteran_organizations_on_location", using: :gist
     t.index ["name"], name: "index_veteran_organizations_on_name"
     t.index ["poa"], name: "index_veteran_organizations_on_poa", unique: true

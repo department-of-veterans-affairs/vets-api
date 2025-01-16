@@ -92,7 +92,7 @@ RSpec.describe Login::UserVerifier do
                                      verified_at:,
                                      locked:)
           end
-          let(:verified_at) { Time.zone.now - 1.day }
+          let(:verified_at) { 1.day.ago }
 
           it 'does not make new user log to rails logger' do
             expect(Rails.logger).not_to receive(:info).with(expected_log, { icn: })
@@ -188,7 +188,7 @@ RSpec.describe Login::UserVerifier do
 
               context 'and the current user_verification is verified' do
                 let(:user_account) { UserAccount.new(icn: 'some-other-icn') }
-                let(:verified_at) { Time.zone.now - 1.day }
+                let(:verified_at) { 1.day.ago }
                 let(:expected_message) do
                   "[Login::UserVerifier] User Account Mismatch for UserVerification id=#{user_verification.id}, " \
                     "UserAccount id=#{user_account.id}, icn=#{user_account.icn}, " \
