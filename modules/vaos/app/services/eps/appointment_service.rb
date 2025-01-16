@@ -2,7 +2,6 @@
 
 module Eps
   class AppointmentService < BaseService
-
     STATSD_KEY = 'api.eps.response'
 
     ##
@@ -14,7 +13,7 @@ module Eps
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, headers)
       StatsDMetric.new(key: STATSD_KEY).save
-      StatsD.increment(STATSD_KEY, tags: ["get_appointments call completed"])
+      StatsD.increment(STATSD_KEY, tags: ['get_appointments call completed'])
       unless response.status == 200
         # log failures
         StatsD.increment(STATSD_KEY, tags: ["failures:#{response.body}"])
@@ -31,7 +30,7 @@ module Eps
       response = perform(:post, "/#{config.base_path}/appointments",
                          { patientId: patient_id, referralId: referral_id }, headers)
       StatsDMetric.new(key: STATSD_KEY).save
-      StatsD.increment(STATSD_KEY, tags: ["create_draft_appointment call completed"])
+      StatsD.increment(STATSD_KEY, tags: ['create_draft_appointment call completed'])
       unless response.status == 200
         # log failures
         StatsD.increment(STATSD_KEY, tags: ["failures:#{response.body}"])
@@ -64,7 +63,7 @@ module Eps
 
       response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, headers)
       StatsDMetric.new(key: STATSD_KEY).save
-      StatsD.increment(STATSD_KEY, tags: ["submit_appointment call completed"])
+      StatsD.increment(STATSD_KEY, tags: ['submit_appointment call completed'])
       unless response.status == 200
         # log failures
         StatsD.increment(STATSD_KEY, tags: ["failures:#{response.body}"])
