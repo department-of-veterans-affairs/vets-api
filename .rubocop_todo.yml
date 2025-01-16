@@ -535,14 +535,6 @@ Style/HashEachMethods:
   Exclude:
     - 'lib/common/hash_helpers.rb'
 
-# Offense count: 3
-# This cop supports safe autocorrection (--autocorrect).
-Style/NegatedIfElseCondition:
-  Exclude:
-    - 'app/controllers/v0/virtual_agent/report_to_cxdw.rb'
-    - 'modules/dhp_connected_devices/app/serializers/device_serializer.rb'
-    - 'modules/vaos/app/controllers/vaos/v2/appointments_controller.rb'
-
 # Offense count: 476
 Style/OpenStructUse:
   Enabled: false
