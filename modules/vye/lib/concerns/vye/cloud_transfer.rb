@@ -201,9 +201,7 @@ module Vye
     # Created_at has an index.
     def purge_stale_verifications
       Rails.logger.info('Vye::SundownSweep::PurgeStaleVerifications#purge_stale_verifications: starting')
-
       Vye::Verification.where('created_at < ?', 5.years.ago).delete_all
-
       Rails.logger.info('Vye::SundownSweep::PurgeStaleVerifications#purge_stale_verifications: complete')
     end
   end
