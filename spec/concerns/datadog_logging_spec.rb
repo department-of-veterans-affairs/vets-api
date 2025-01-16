@@ -21,7 +21,7 @@ RSpec.describe DatadogLogging do
     allow(dummy_class).to receive(:current_user).and_return(current_user)
   end
 
-  describe '#log_to_datadog' do
+  describe '#datadog_logging' do
     let(:context) { 'some_context' }
     let(:message) { 'some_message' }
     let(:stack_trace) { 'some_stack_trace' }
