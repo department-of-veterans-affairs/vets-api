@@ -86,7 +86,8 @@ class SavedClaim < ApplicationRecord
 
     schema_errors = validate_schema(schema)
     unless schema_errors.empty?
-      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.', { form_id:, errors: schema_errors })
+      Rails.logger.error('SavedClaim schema failed validation! Attempting to clear cache.',
+                         { form_id:, errors: schema_errors })
       clear_cache = true
     end
 
