@@ -535,15 +535,6 @@ Style/HashEachMethods:
   Exclude:
     - 'lib/common/hash_helpers.rb'
 
-# Offense count: 4
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/MapToHash:
-  Exclude:
-    - 'app/models/base_facility.rb'
-    - 'lib/common/exceptions/base_error.rb'
-    - 'lib/common/exceptions/detailed_schema_errors.rb'
-    - 'lib/common/models/base.rb'
-
 # Offense count: 3
 # This cop supports safe autocorrection (--autocorrect).
 Style/NegatedIfElseCondition:
