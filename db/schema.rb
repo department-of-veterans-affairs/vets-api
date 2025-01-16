@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_16_192421) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1483,6 +1483,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.string "address_line1"
     t.string "address_line2"
     t.string "address_line3"
+    t.boolean "can_accept_digital_poa_requests", default: false
     t.index ["location"], name: "index_veteran_organizations_on_location", using: :gist
     t.index ["name"], name: "index_veteran_organizations_on_name"
     t.index ["poa"], name: "index_veteran_organizations_on_poa", unique: true
