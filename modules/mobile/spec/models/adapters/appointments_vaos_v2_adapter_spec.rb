@@ -212,14 +212,14 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
     let(:practitioner_list) do
       [
         {
-          "identifier": [{ "system": 'dfn-983', "value": '520647609' }],
-          "name": { "family": 'ENGHAUSER', "given": ['MATTHEW'] },
-          "practice_name": 'Site #983'
+          identifier: [{ system: 'dfn-983', value: '520647609' }],
+          name: { family: 'ENGHAUSER', given: ['MATTHEW'] },
+          practice_name: 'Site #983'
         },
         {
-          "identifier": [{ "system": 'dfn-983', "value": '520647609' }],
-          "name": { "family": 'FORTH', "given": ['SALLY'] },
-          "practice_name": 'Site #983'
+          identifier: [{ system: 'dfn-983', value: '520647609' }],
+          name: { family: 'FORTH', given: ['SALLY'] },
+          practice_name: 'Site #983'
         }
       ]
     end
@@ -262,21 +262,21 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
       let(:practitioner_list) do
         [
           {
-            "identifier": [
+            identifier: [
               {
-                "system": 'http://hl7.org/fhir/sid/us-npi',
-                "value": '1780671644'
+                system: 'http://hl7.org/fhir/sid/us-npi',
+                value: '1780671644'
               }
             ],
-            "address": {
-              "type": 'physical',
-              "line": [
+            address: {
+              type: 'physical',
+              line: [
                 '161 MADISON AVE STE 7SW'
               ],
-              "city": 'NEW YORK',
-              "state": 'NY',
-              "postal_code": '10016-5448',
-              "text": '161 MADISON AVE STE 7SW,NEW YORK,NY,10016-5448'
+              city: 'NEW YORK',
+              state: 'NY',
+              postal_code: '10016-5448',
+              text: '161 MADISON AVE STE 7SW,NEW YORK,NY,10016-5448'
             }
           }
         ]
