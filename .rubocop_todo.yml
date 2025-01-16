@@ -475,12 +475,6 @@ Rails/UniqueValidationWithoutIndex:
     - 'app/models/invalid_letter_address_edipi.rb'
     - 'modules/va_forms/app/models/va_forms/form.rb'
 
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/ConcatArrayLiterals:
-  Exclude:
-    - 'spec/factories/form526_submissions.rb'
-
 # Offense count: 31
 # This cop supports safe autocorrection (--autocorrect).
 # Configuration parameters: AllowedVars.
