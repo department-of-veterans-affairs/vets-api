@@ -89,9 +89,9 @@ module ClaimsApi
           phone_number = phone['phoneNumber']
 
           if country_code.blank?
-            area_code + phone_number
+            "#{area_code} #{phone_number}"
           else
-            "+#{country_code} #{area_code}#{phone_number}"
+            "+#{country_code} #{area_code} #{phone_number}"
           end
         end
 
