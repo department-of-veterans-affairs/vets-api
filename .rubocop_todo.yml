@@ -376,12 +376,6 @@ Rails/I18nLocaleTexts:
     - 'lib/va_profile/models/preferred_name.rb'
     - 'modules/claims_api/app/mailers/claims_api/unsuccessful_report_mailer.rb'
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/IgnoredColumnsAssignment:
-  Exclude:
-    - 'modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb'
-
 # Offense count: 20
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Rails/Pluck:
