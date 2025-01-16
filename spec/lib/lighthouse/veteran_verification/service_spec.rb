@@ -98,7 +98,7 @@ RSpec.describe VeteranVerification::Service do
           VCR.use_cassette('lighthouse/veteran_verification/status/200_person_not_found_response') do
             response = @service.get_vet_verification_status('1012667145V762141', '', '')
 
-            expect(response['data']['id']).to eq(nil)
+            expect(response['data']['id']).to be_nil
             expect(response['data']['attributes']['veteran_status']).to eq('not confirmed')
             expect(response['data']['attributes']).to have_key('not_confirmed_reason')
             expect(response['data']['message']).to eq(VeteranVerification::Constants::NOT_FOUND_MESSAGE)

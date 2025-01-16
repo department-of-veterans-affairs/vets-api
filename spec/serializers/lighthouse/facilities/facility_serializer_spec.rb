@@ -77,7 +77,7 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, team: :facilities do
   end
 
   it 'includes mobile' do
-    expect(data['attributes']['mobile']).to eq(false)
+    expect(data['attributes']['mobile']).to be(false)
   end
 
   it 'includes active_status' do
