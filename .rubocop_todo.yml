@@ -376,26 +376,6 @@ Rails/I18nLocaleTexts:
     - 'lib/va_profile/models/preferred_name.rb'
     - 'modules/claims_api/app/mailers/claims_api/unsuccessful_report_mailer.rb'
 
-# Offense count: 20
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/Pluck:
-  Exclude:
-    - 'app/models/saved_claim/coe_claim.rb'
-    - 'app/models/saved_claim/dependency_claim.rb'
-    - 'app/services/medical_copays/zero_balance_statements.rb'
-    - 'app/sidekiq/facilities/access_data_download.rb'
-    - 'app/sidekiq/facilities/dental_service_reload_job.rb'
-    - 'app/sidekiq/facilities/mental_health_reload_job.rb'
-    - 'lib/decision_review/utilities/pdf_validation/service.rb'
-    - 'lib/webhooks/utilities.rb'
-    - 'modules/health_quest/app/services/health_quest/questionnaire_manager/questionnaire_formatter.rb'
-    - 'modules/mobile/lib/scripts/appointments_list_validation.rb'
-    - 'rakelib/decision_review_repl.rb'
-    - 'spec/controllers/v0/onsite_notifications_controller_spec.rb'
-    - 'spec/lib/lighthouse/veterans_health/integration/client_spec.rb'
-    - 'spec/services/users/profile_spec.rb'
-    - 'spec/support/request_helper.rb'
-
 # Offense count: 9
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Rails/RedundantPresenceValidationOnBelongsTo:
