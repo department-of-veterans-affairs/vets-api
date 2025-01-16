@@ -537,12 +537,6 @@ Style/HashEachMethods:
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
-Style/HashExcept:
-  Exclude:
-    - 'app/models/gi_bill_feedback.rb'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: AllowedMethods.
 # AllowedMethods: nonzero?
 Style/IfWithBooleanLiteralBranches:
