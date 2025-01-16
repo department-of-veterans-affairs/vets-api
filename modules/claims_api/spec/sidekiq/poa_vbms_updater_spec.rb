@@ -120,14 +120,14 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
       allow_poa_access: 'Y',
       allow_poa_c_add:
     ).and_return({ return_code: 'GUIE50000' })
-    service_double = instance_double('BGS::Services')
+    service_double = instance_double(BGS::Services)
     expect(service_double).to receive(:corporate_update).and_return(@corporate_update_stub)
     expect(BGS::Services).to receive(:new).and_return(service_double)
   end
 
   def create_mock_lighthouse_service_bgs_failure
     allow_any_instance_of(@clazz).to receive(:corporate_update) do |_instance|
-      corporate_update_stub = instance_double('BGS::CorporateUpdate')
+      corporate_update_stub = instance_double(BGS::CorporateUpdate)
       allow(corporate_update_stub).to receive(:update_poa_access)
         .with(
           participant_id: user.participant_id,
@@ -139,7 +139,7 @@ RSpec.describe ClaimsApi::PoaVBMSUpdater, type: :job do
     end
 
     allow(@clazz).to receive(:new) do
-      services_double = instance_double('BGS::Services')
+      services_double = instance_double(BGS::Services)
       allow(services_double).to receive(:corporate_update)
         .and_raise(BGS::ShareError.new('updatePoaAccess: No POA found on system of record'))
       services_double
