@@ -70,7 +70,7 @@ module Mobile
         end
 
         def cleanup_after_upload
-          (FileUtils.rm_rf(@base_path) if File.exist?(@base_path)) if @base_path
+          FileUtils.rm_rf(@base_path) if @base_path
         end
 
         def get_all_claims

@@ -17,7 +17,7 @@ RSpec.describe DirectDepositMailer, feature: :direct_deposit,
       expect(subject.subject).to eq('Confirmation - Your direct deposit information changed on VA.gov')
       expect(subject.to).to eq(['foo@example.com'])
       expect(subject.body.raw_source).to include(
-        "We're sending this email to confirm that you've recently changed your direct deposit "\
+        "We're sending this email to confirm that you've recently changed your direct deposit " \
         'information in your VA.gov account profile.'
       )
     end
@@ -25,7 +25,7 @@ RSpec.describe DirectDepositMailer, feature: :direct_deposit,
     context 'comp and pen email' do
       it 'includes the right text' do
         expect(subject.body.raw_source).to include(
-          "We'll use your updated information to deposit any disability compensation or pension benefits "\
+          "We'll use your updated information to deposit any disability compensation or pension benefits " \
           'you may receive'
         )
       end

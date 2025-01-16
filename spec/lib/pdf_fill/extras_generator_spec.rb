@@ -78,7 +78,7 @@ describe PdfFill::ExtrasGenerator do
 
       expect(
         FileUtils.compare_file(file_path, 'spec/fixtures/pdf_fill/extras.pdf')
-      ).to eq(true)
+      ).to be(true)
 
       File.delete(file_path)
     end
