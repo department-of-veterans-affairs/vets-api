@@ -1,12 +1,14 @@
 class CreateUserActions < ActiveRecord::Migration[7.2]
   def change
+    # Create the enum type first
+    create_enum :user_action_status, ['initial', 'success', 'error']
+
     create_table :user_actions, id: :uuid do |t|
       # Core fields
-      t.references :user_account, type: :uuid, null: false, foreign_key: true
       t.uuid :acting_user_account_id, null: false
       t.uuid :subject_user_account_id, null: false
       t.references :user_action_event, null: false, foreign_key: true
-      t.string :status, default: 'initial' # initial, success, error
+      t.enum :status, enum_type: :user_action_status, default: 'initial', null: false
 
       # Additional columns from ticket
       t.boolean :user_verified, default: false
@@ -17,19 +19,6 @@ class CreateUserActions < ActiveRecord::Migration[7.2]
 
       # Add index for status queries
       t.index :status
-    end
-
-    # Add check constraint for status values
-    reversible do |dir|
-      dir.up do
-        safety_assured do
-          execute <<-SQL
-            ALTER TABLE user_actions
-              ADD CONSTRAINT check_status
-              CHECK (status IN ('initial', 'success', 'error'));
-          SQL
-        end
-      end
     end
 
     # Add foreign key for acting_user_account_id
