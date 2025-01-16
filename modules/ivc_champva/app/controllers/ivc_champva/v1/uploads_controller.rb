@@ -81,9 +81,8 @@ module IvcChampva
 
       private
 
-      if Flipper.enabled?(:champva_multiple_stamp_retry, @current_user)
-
-        def handle_file_uploads(form_id, parsed_form_data)
+      def handle_file_uploads(form_id, parsed_form_data)
+        if Flipper.enabled?(:champva_multiple_stamp_retry, @current_user)
           attempt = 0
           max_attempts = 1
 
@@ -107,9 +106,7 @@ module IvcChampva
           end
 
           [statuses, error_message]
-        end
-      else
-        def handle_file_uploads(form_id, parsed_form_data)
+        else
           file_paths, metadata = get_file_paths_and_metadata(parsed_form_data)
           statuses, error_message = FileUploader.new(form_id, metadata, file_paths, true).handle_uploads
           statuses = Array(statuses)
