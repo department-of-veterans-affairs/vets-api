@@ -76,7 +76,7 @@ describe VRE::CreateCh31SubmissionsReportJob do
         subject
       end
 
-      it 'does not send if FeatureFlipper.staging_email?  is true' do
+      it 'does not send if FeatureFlipper.staging_email? is true' do
         RSpec::Mocks.space.proxy_for(Ch31SubmissionsReportMailer).reset
         RSpec::Mocks.space.proxy_for(FeatureFlipper).reset
         expect(FeatureFlipper).to receive(:staging_email?).once.and_return(true)

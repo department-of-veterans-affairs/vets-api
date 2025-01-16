@@ -30,10 +30,12 @@ module ClaimFastTracking
 
     def self.log_hyphenated_diagnostic_codes(rated_disabilities)
       rated_disabilities.each do |dis|
-        Rails.logger.info('Max CFI rated disability',
-                          diagnostic_code: dis&.diagnostic_code,
-                          diagnostic_code_type: diagnostic_code_type(dis),
-                          hyphenated_diagnostic_code: dis&.hyphenated_diagnostic_code)
+        StatsD.increment('api.max_cfi.rated_disability',
+                         tags: [
+                           "diagnostic_code:#{dis&.diagnostic_code}",
+                           "diagnostic_code_type:#{diagnostic_code_type(dis)}",
+                           "hyphenated_diagnostic_code:#{dis&.hyphenated_diagnostic_code}"
+                         ])
       end
     end
 

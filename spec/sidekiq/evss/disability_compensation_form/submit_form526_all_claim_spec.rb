@@ -13,16 +13,20 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
   # This needs to be modernized (using allow)
   before do
     Sidekiq::Job.clear_all
+    Flipper.disable(:validate_saved_claims_with_json_schemer)
     Flipper.disable(:disability_526_expanded_contention_classification)
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_compensation_production_tester)
     Flipper.disable(:disability_compensation_fail_submission)
-    allow(Flipper).to receive(:enabled?).and_call_original
   end
 
   let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
+  end
+
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
   end
 
   describe '.perform_async' do
@@ -497,7 +501,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
         it 'returns false to skip classification and continue other jobs' do
           subject.perform_async(submission.id)
-          expect(submission.update_contention_classification_all!).to eq false
+          expect(submission.update_contention_classification_all!).to be false
           expect(Rails.logger).to have_received(:info).with(
             "No disabilities found for classification on claim #{submission.id}"
           )
@@ -710,6 +714,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               .to(receive(:enabled?))
               .with('disability_compensation_lighthouse_rated_disabilities_provider_background', anything)
               .and_return(true)
+            allow_any_instance_of(Flipper)
+              .to(receive(:enabled?))
+              .with(:validate_saved_claims_with_json_schemer)
+              .and_return(false)
             allow_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm526)
               .to(receive(:fail_submission_feature_enabled?))
               .and_return(false)
@@ -764,7 +772,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
         described_class.drain
         job_status = Form526JobStatus.where(job_id: values[:job_id]).first
         expect(job_status.status).to eq 'success'
-        expect(job_status.error_class).to eq nil
+        expect(job_status.error_class).to be_nil
         expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
         expect(Form526JobStatus.count).to eq 1
       end
