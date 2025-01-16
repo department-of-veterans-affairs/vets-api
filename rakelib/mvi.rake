@@ -145,7 +145,7 @@ namespace :mvi do
     xml = yaml[:body].dup.prepend('<?xml version="1.0" encoding="UTF-8"?>') unless xml.match?(/^<\?xml/)
 
     yaml[:body] = update_ids(xml, ids)
-    File.open(path, 'w') { |f| f.write(yaml.to_yaml) }
+    File.write(path, yaml.to_yaml)
 
     puts 'ids updated!'
   end
@@ -242,7 +242,7 @@ def create_cache_from_profile(cache_file, profile, template)
     status: 200
   }
 
-  File.open(cache_file, 'w') { |f| f.write(response.to_yaml) }
+  File.write(cache_file, response.to_yaml)
 end
 
 def valid_user_vars

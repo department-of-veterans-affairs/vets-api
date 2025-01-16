@@ -170,9 +170,7 @@ class TokenStorageService
     begin
       dirname = File.dirname(token_file_path)
       FileUtils.mkdir_p(dirname) unless File.directory?(dirname)
-      File.open(token_file_path, 'w+') do |file|
-        file.write(payload_json)
-      end
+      File.write(token_file_path, payload_json)
       true
     rescue => e
       raise TokenStorageError, "Error with storing locally: #{payload_json}, #{e}"
