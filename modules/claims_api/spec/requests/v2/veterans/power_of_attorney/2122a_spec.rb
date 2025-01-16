@@ -313,7 +313,8 @@ RSpec.describe 'ClaimsApi::V2::PowerOfAttorney::2122a', type: :request do
                 mock_ccg(scopes) do |auth_header|
                   claimant_data[:data][:attributes][:representative][:address][:zipCode] = ''
                   claimant_data[:data][:attributes][:representative][:address][:countryCode] = 'AL'
-                  allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+                  allow_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id)
+                    .and_return(bgs_poa)
                   allow_any_instance_of(org_web_service)
                     .to receive(:find_poa_history_by_ptcpnt_id).and_return({ person_poa_history: nil })
                   VCR.use_cassette('claims_api/mpi/find_candidate/valid_icn_full') do
