@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require_relative '../../../lib/burials/monitor'
 
 RSpec.describe Burials::Monitor do
   let(:monitor) { described_class.new }
