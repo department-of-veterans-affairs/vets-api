@@ -107,7 +107,7 @@ module IvcChampva
     # is what the downstream PEGA service uses to trigger a lambda job that ingests the uploads.
     # See IvcChampva::VHA1010d.metadata for an example of metadata.
     #
-    # @return [Array] a two-item list containing an HTTP response code and an error or nil. e.g.,
+    # @return [Array<Integer, String, nil>] a two-item list containing an HTTP response code and an error or nil. e.g.,
     # [200, nil]
     # [400, '... No such file or directory ...']
     # [500, 'Unexpected response from S3 upload']
