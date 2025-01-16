@@ -288,5 +288,46 @@ RSpec.describe ClaimsApi::SpecialIssueUpdater, type: :job do
         end
       end
     end
+
+    describe '#existing_special_issues' do
+      let(:contention) {
+        {
+          :call_id=>"17", :special_issues=>{
+            :call_id=>"17", :spis_tc=>"VDC", 
+          },
+        }
+      }
+
+      let(:contentions) {
+        [
+          {
+            :call_id=>"16", :special_issues=>{
+              :call_id=>"16", :spis_tc=>"ABC", 
+            },
+          },
+          {
+            :call_id=>"17", :special_issues=>{
+              :call_id=>"17", :spis_tc=>"VDC", 
+            },
+          }
+        ]
+      }
+
+      let(:special_issues) { [] }
+      context 'with a single contention object' do
+        it 'returns the expected mapping' do
+          res = subject.new.existing_special_issues(contention, special_issues)
+
+          expect(res).to eq([{:spis_tc=>"VDC"}])
+        end
+      end
+      context 'with an array contention objects' do
+        it 'returns the expected mapping' do
+          res = subject.new.existing_special_issues(contention, special_issues)
+byebug
+          expect(res).to eq([{:spis_tc=>"VDC"}])
+        end
+      end
+    end
   end
 end
