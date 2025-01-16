@@ -88,7 +88,7 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
         it 'returns the correct status when the e-benefits-bnft-claim-status-web-service is not healthy' do
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
-          expect(result['e_benefits_bnft_claim_status_web_service']['success']).to eq(false)
+          expect(result['e_benefits_bnft_claim_status_web_service']['success']).to be(false)
         end
 
         it 'returns the correct status when the intenttofile is not healthy' do
@@ -112,13 +112,13 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
         it 'returns the correct status when the bgs standard_data_service is not healthy' do
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
-          expect(result['standard_data_service']['success']).to eq(false)
+          expect(result['standard_data_service']['success']).to be(false)
         end
 
         it 'returns the correct status when the bgs standard_data_web_service is not healthy' do
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
-          expect(result['standard_data_web_service']['success']).to eq(false)
+          expect(result['standard_data_web_service']['success']).to be(false)
         end
 
         it 'returns the correct status when the bgs trackeditem is not healthy' do
@@ -130,13 +130,13 @@ RSpec.describe 'ClaimsApi::Metadata', type: :request do
         it 'returns the correct status when the manage rep service is not healthy' do
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
-          expect(result['vdc_manage_representative_service']['success']).to eq(false)
+          expect(result['vdc_manage_representative_service']['success']).to be(false)
         end
 
         it 'returns the correct status when the vet rep service is not healthy' do
           get "/services/claims/#{version}/upstream_healthcheck"
           result = JSON.parse(response.body)
-          expect(result['vdc_veteran_representative_service']['success']).to eq(false)
+          expect(result['vdc_veteran_representative_service']['success']).to be(false)
         end
 
         it 'returns the correct status when the bgs vet_record service is not healthy' do
