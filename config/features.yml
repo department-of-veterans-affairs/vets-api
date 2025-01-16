@@ -1404,6 +1404,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_metadata_statsd_tags:
+    actor_type: user
+    description: Allow statsd tags in callback metadata to be a hash or array
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments

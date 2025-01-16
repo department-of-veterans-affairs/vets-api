@@ -52,10 +52,10 @@ module ClaimsApi
     end
 
     # EVSS Claims attributes with defaults
-    attribute :data, default: {}
+    attribute :data, default: -> { {} }
     attribute :claim_type, default: 'Compensation'
-    attribute :contention_list, default: []
-    attribute :events_timeline, default: []
+    attribute :contention_list, default: -> { [] }
+    attribute :events_timeline, default: -> { [] }
     attribute :validation_method
 
     alias token id
