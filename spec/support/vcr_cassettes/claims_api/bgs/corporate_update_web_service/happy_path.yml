@@ -24,8 +24,8 @@ http_interactions:
         </env:Header>
 
           <env:Body>
-            <tns:updatePoaAccess><ptcpntId>38429</ptcpntId>
-        <poa>001</poa>
+            <tns:updatePoaAccess><ptcpntId>600061742</ptcpntId>
+        <poa>074</poa>
         <allowPoaAccess>Y</allowPoaAccess>
         <allowPoaCadd>Y</allowPoaCadd>
         </tns:updatePoaAccess>
@@ -46,17 +46,17 @@ http_interactions:
       - "*/*"
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 200
+      message: OK
     headers:
       Date:
-      - Wed, 15 Jan 2025 16:48:46 GMT
+      - Thu, 16 Jan 2025 15:40:24 GMT
       Server:
       - Apache
       X-Frame-Options:
       - SAMEORIGIN
       X-Oracle-Dms-Ecid:
-      - 61065c22-0439-405f-9dd5-1c4f96c4f275-00018b84
+      - 61065c22-0439-405f-9dd5-1c4f96c4f275-0001cd5b
       X-Oracle-Dms-Rid:
       - '0'
       Transfer-Encoding:
@@ -67,12 +67,10 @@ http_interactions:
       - max-age=16000000; includeSubDomains; preload;
     body:
       encoding: UTF-8
-      string: '<?xml version=''1.0'' encoding=''UTF-8''?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+      string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
-        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdTAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTMuNS4yAAA=</work:WorkContext></env:Header><S:Body><ns0:Fault
-        xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"><faultcode>ns0:Server</faultcode><faultstring>updatePoaAccess:
-        No POA found on system of record</faultstring><detail><ns0:ShareException
-        xmlns:ns0="http://services.share.benefits.vba.va.gov/"><message>updatePoaAccess:
-        No POA found on system of record</message></ns0:ShareException></detail></ns0:Fault></S:Body></S:Envelope>'
-  recorded_at: Wed, 15 Jan 2025 16:48:46 GMT
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdTAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTMuNS4yAAA=</work:WorkContext></env:Header><S:Body><ns0:updatePoaAccessResponse
+        xmlns:ns0="http://services.share.benefits.vba.va.gov/"><return><allowPoaAccess>Y</allowPoaAccess><allowPoaCadd>Y</allowPoaCadd><auditRelatedAR></auditRelatedAR><awardBeneIndicator>X</awardBeneIndicator><emailAddress></emailAddress><fileNumber>796043735</fileNumber><firstName>WESLEY</firstName><gender>F</gender><igIdentifier></igIdentifier><lastName>FORD</lastName><middleName>WATSON</middleName><poa>074</poa><poaName>074
+        - AMERICAN LEGION</poaName><ptcpntId>600061742</ptcpntId><rcvblIndicator>Y</rcvblIndicator><returnCode>GUIE50000</returnCode><returnMessage>Success</returnMessage><sensitive>U</sensitive><ssn>796043735</ssn><suffix></suffix><taxAbatementIndicator></taxAbatementIndicator><title></title><verifiedSSN>N</verifiedSSN></return></ns0:updatePoaAccessResponse></S:Body></S:Envelope>
+  recorded_at: Thu, 16 Jan 2025 15:40:24 GMT
 recorded_with: VCR 6.3.1
