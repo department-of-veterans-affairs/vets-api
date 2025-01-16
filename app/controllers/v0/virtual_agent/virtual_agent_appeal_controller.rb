@@ -3,10 +3,9 @@
 require 'date'
 require 'datadog_logging_module'
 
-include DatadogLoggingModule
-
 module V0
   module VirtualAgent
+    include DatadogLoggingModule
     class VirtualAgentAppealController < AppealsBaseController
       service_tag 'virtual-agent'
 

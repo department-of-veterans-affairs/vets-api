@@ -3,9 +3,8 @@
 require 'erb'
 require 'datadog_logging_module'
 
-include DatadogLoggingModule
-
 module V0
+  include DatadogLoggingModule
   class VirtualAgentTokenMsftController < ApplicationController
     service_tag 'virtual-agent'
     skip_before_action :authenticate, only: [:create]

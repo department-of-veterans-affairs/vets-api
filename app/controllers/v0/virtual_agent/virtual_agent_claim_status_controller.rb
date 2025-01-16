@@ -5,10 +5,9 @@ require 'concurrent'
 require 'lighthouse/benefits_claims/service'
 require 'datadog_logging_module'
 
-include DatadogLoggingModule
-
 module V0
   module VirtualAgent
+    include DatadogLoggingModule
     class VirtualAgentClaimStatusController < ApplicationController
       include IgnoreNotFound
       service_tag 'virtual-agent'
