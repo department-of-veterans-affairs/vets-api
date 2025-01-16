@@ -28,7 +28,7 @@ describe AppealsApi::PdfConstruction::Generator do
             generated_pdf = described_class.new(notice_of_disagreement).generate
             expected_pdf = fixture_filepath('decision_reviews/v1/pdfs/v1/expected_10182_minimum.pdf')
             expect(generated_pdf).to match_pdf expected_pdf
-            File.delete(generated_pdf) if File.exist?(generated_pdf)
+            FileUtils.rm_f(generated_pdf)
           end
         end
 
@@ -39,7 +39,7 @@ describe AppealsApi::PdfConstruction::Generator do
             generated_pdf = described_class.new(notice_of_disagreement).generate
             expected_pdf = fixture_filepath('decision_reviews/v1/pdfs/v1/expected_10182_extra.pdf')
             expect(generated_pdf).to match_pdf expected_pdf
-            File.delete(generated_pdf) if File.exist?(generated_pdf)
+            FileUtils.rm_f(generated_pdf)
           end
         end
       end
@@ -122,7 +122,7 @@ describe AppealsApi::PdfConstruction::Generator do
         let(:fixture_name) { 'expected_200995.pdf' }
         let(:sc) { create(:supplemental_claim, evidence_submission_indicated: true, created_at:) }
 
-        after { File.delete(generated_pdf) if File.exist?(generated_pdf) }
+        after { FileUtils.rm_f(generated_pdf) }
 
         it 'generates the expected pdf' do
           expect(generated_pdf).to match_pdf(expected_pdf)

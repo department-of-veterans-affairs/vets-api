@@ -67,9 +67,11 @@ module BenefitsDocuments
       # The uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
       job_id = document_upload(user_icn, document_data.to_serializable_hash)
-      if Flipper.enabled?('cst_send_evidence_submission_failure_emails') && !job_id.nil?
+      if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) &&
+         !Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
         record_evidence_submission(document_data, job_id)
       end
+      job_id
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)
       raise e
@@ -78,7 +80,6 @@ module BenefitsDocuments
     def document_upload(user_icn, document_hash)
       if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
         Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_hash)
-        nil
       else
         Lighthouse::EvidenceSubmissions::DocumentUpload.perform_async(user_icn, document_hash)
       end
@@ -129,7 +130,8 @@ module BenefitsDocuments
         file_name: file.original_filename,
         # We pull the string out of the array for the tracked item since lighthouse gives us an array
         # NOTE there will only be one tracked item here
-        tracked_item_id: tracked_item_ids[0],
+        # TODO update this so that we only pass a tracked item instead of an array of tracked items
+        tracked_item_id: tracked_item_ids,
         document_type:,
         password:
       )

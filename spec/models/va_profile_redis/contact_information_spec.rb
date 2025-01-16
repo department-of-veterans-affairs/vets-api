@@ -48,18 +48,18 @@ describe VAProfileRedis::ContactInformation do
       end
 
       it 'caches the empty response' do
-        expect(contact_info.email).to eq(nil)
-        expect(contact_info.home_phone).to eq(nil)
+        expect(contact_info.email).to be_nil
+        expect(contact_info.home_phone).to be_nil
       end
 
       context 'when the cache is destroyed' do
         let(:get_person_calls) { 'twice' }
 
         it 'makes a new request' do
-          expect(contact_info.email).to eq(nil)
+          expect(contact_info.email).to be_nil
           VAProfileRedis::Cache.invalidate(user)
 
-          expect(VAProfileRedis::ContactInformation.for_user(user).email).to eq(nil)
+          expect(VAProfileRedis::ContactInformation.for_user(user).email).to be_nil
         end
       end
     end

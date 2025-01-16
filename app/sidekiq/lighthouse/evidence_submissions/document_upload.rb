@@ -23,7 +23,7 @@ module Lighthouse
       sidekiq_retries_exhausted do |msg, _ex|
         verify_msg(msg)
 
-        if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
+        if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
           update_evidence_submission_for_failure(msg)
         else
           call_failure_notification(msg)
@@ -38,7 +38,7 @@ module Lighthouse
         Datadog::Tracing.trace('Sidekiq Upload Document') do |span|
           span.set_tag('Document File Size', file_body.size)
           response = client.upload_document(file_body, document) # returns upload response which includes requestId
-          if Flipper.enabled?('cst_send_evidence_submission_failure_emails')
+          if Flipper.enabled?(:cst_send_evidence_submission_failure_emails)
             update_evidence_submission_for_success(jid, response)
           end
         end
@@ -115,7 +115,6 @@ module Lighthouse
         document_type = msg['args'][1]['document_type']
         # Obscure the file name here since this will be used to generate a failed email
         file_name = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][1]['file_name'])
-        # file_name = msg['args'][1]['file_name']
         date_submitted = format_issue_instant_for_mailers(msg['created_at'])
         date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 

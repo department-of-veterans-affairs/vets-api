@@ -466,8 +466,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
               expect(data.size).to eq(16)
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
-              expect(data[0]['attributes']['location']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
+              expect(data[0]['attributes']['location']).to be_nil
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -522,7 +522,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
               expect(data.size).to eq(1)
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
 
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
@@ -536,7 +536,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
 
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end

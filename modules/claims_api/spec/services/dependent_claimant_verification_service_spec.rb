@@ -27,7 +27,7 @@ Rspec.describe ClaimsApi::DependentClaimantVerificationService do
         VCR.use_cassette('claims_api/bgs/person_web_service/find_dependents_by_ptcpnt_id_one_dependent') do
           expect do
             ret = subject.validate_dependent_by_participant_id!
-            expect(ret).to eq(nil)
+            expect(ret).to be_nil
           end.not_to raise_error
         end
       end
@@ -61,7 +61,7 @@ Rspec.describe ClaimsApi::DependentClaimantVerificationService do
         VCR.use_cassette('claims_api/bgs/person_web_service/find_dependents_by_ptcpnt_id_two_dependents') do
           expect do
             ret = subject.validate_dependent_by_participant_id!
-            expect(ret).to eq(nil)
+            expect(ret).to be_nil
           end.not_to raise_error
         end
       end
@@ -94,7 +94,7 @@ Rspec.describe ClaimsApi::DependentClaimantVerificationService do
         VCR.use_cassette('claims_api/bgs/person_web_service/find_dependents_by_ptcpnt_id_one_dependent') do
           expect do
             ret = subject.validate_dependent_by_participant_id!
-            expect(ret).to eq(nil)
+            expect(ret).to be_nil
           end.not_to raise_error
         end
       end
@@ -133,7 +133,7 @@ Rspec.describe ClaimsApi::DependentClaimantVerificationService do
           VCR.use_cassette('claims_api/bgs/person_web_service/find_dependents_by_ptcpnt_id_one_dependent') do
             expect do
               ret = subject.validate_dependent_by_participant_id!
-              expect(ret).to eq(nil)
+              expect(ret).to be_nil
             end.not_to raise_error
           end
         end
@@ -189,7 +189,7 @@ Rspec.describe ClaimsApi::DependentClaimantVerificationService do
         VCR.use_cassette('claims_api/bgs/standard_data_web_service/find_poas') do
           expect do
             ret = subject.validate_poa_code_exists!
-            expect(ret).to eq(nil)
+            expect(ret).to be_nil
           end.not_to raise_error
         end
       end

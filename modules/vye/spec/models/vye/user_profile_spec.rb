@@ -152,7 +152,7 @@ RSpec.describe Vye::UserProfile, type: :model do
     let!(:user_profile) { user_info.user_profile }
 
     it 'returns true' do
-      expect(user_profile.confirm_active_user_info_present?).to eq(true)
+      expect(user_profile.confirm_active_user_info_present?).to be(true)
     end
   end
 
