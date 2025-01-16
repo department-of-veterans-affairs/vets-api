@@ -126,9 +126,6 @@ features:
   hca_log_form_attachment_create:
     actor_type: user
     description: Enable logging all successful-looking attachment creation calls to Sentry at info-level
-  hca_log_email_diff_in_progress_form:
-    actor_type: user
-    description: Enable using database instead of redis to log email differences between va_profile and in progress forms.
   hca_retrieve_facilities_without_repopulating:
     actor_type: user
     description: Constrain facilities endpoint to only return existing facilities values - even if the table is empty, do not rerun the Job to populate it.
@@ -392,6 +389,9 @@ features:
   debts_copay_logging:
     actor_type: user
     description: Logs copay request data
+  debts_silent_failure_mailer:
+    actor_type: user
+    description: Enables silent failure mailer for the 5655
   decision_review_hlr_email:
     actor_type: user
     description: Send email notification for successful HLR submission
@@ -521,9 +521,6 @@ features:
     actor_type: user
     description: enables adding applicable flashes to disability_526 prior to submission.
     enable_in_development: true
-  disability_526_new_confirmation_page:
-    actor_type: user
-    description: enables new confirmation page for form 526 submission confirmation page
   disability_526_call_received_email_from_polling:
     actor_type: user
     description: enables received email in poll_form526_pdf job and disables calling from form526_submission
@@ -1407,6 +1404,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_metadata_statsd_tags:
+    actor_type: user
+    description: Allow statsd tags in callback metadata to be a hash or array
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments

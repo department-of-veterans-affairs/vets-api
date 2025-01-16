@@ -77,7 +77,7 @@ describe PdfFill::Forms::Va21p530ez do
 
     context 'with no location of death' do
       it 'returns nil' do
-        expect(subject).to eq(nil)
+        expect(subject).to be_nil
       end
     end
 

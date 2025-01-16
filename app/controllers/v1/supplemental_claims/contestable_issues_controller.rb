@@ -4,6 +4,7 @@ module V1
   module SupplementalClaims
     class ContestableIssuesController < AppealsBaseControllerV1
       service_tag 'appeal-application'
+      before_action { log_non_module_controller(action: "SC contestable issues #{action_name}", form_id: '995') }
 
       def index
         ci = decision_review_service
