@@ -6,7 +6,7 @@ RSpec.describe Users::Services do
   describe '#authorizations' do
     subject { Users::Services.new(user).authorizations }
 
-    let(:user) { build :user, :loa3 }
+    let(:user) { build(:user, :loa3) }
 
     context 'with initialized user' do
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_non_premium_user',
@@ -35,7 +35,7 @@ RSpec.describe Users::Services do
     end
 
     context 'with an loa1 user' do
-      let(:user) { build :user }
+      let(:user) { build(:user) }
 
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_non_premium_user',
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do

@@ -52,7 +52,7 @@ describe DecisionReview::Service do
     let(:user) do
       name = 'x' * 100
       icn = 123
-      build :user, first_name: name, middle_name: name, last_name: name, icn:
+      build(:user, first_name: name, middle_name: name, last_name: name, icn:)
     end
 
     it 'returns a properly formatted 200 response' do

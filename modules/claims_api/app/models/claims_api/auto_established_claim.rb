@@ -8,7 +8,7 @@ require 'claims_api/service_branch_mapper'
 require 'claims_api/claim_logger'
 
 module ClaimsApi
-  class AutoEstablishedClaim < ApplicationRecord
+  class AutoEstablishedClaim < ApplicationRecord # rubocop:disable Metrics/ClassLength
     include FileData
     serialize :auth_headers, coder: JsonMarshal::Marshaller
     serialize :bgs_flash_responses, coder: JsonMarshal::Marshaller
@@ -52,10 +52,10 @@ module ClaimsApi
     end
 
     # EVSS Claims attributes with defaults
-    attribute :data, default: {}
+    attribute :data, default: -> { {} }
     attribute :claim_type, default: 'Compensation'
-    attribute :contention_list, default: []
-    attribute :events_timeline, default: []
+    attribute :contention_list, default: -> { [] }
+    attribute :events_timeline, default: -> { [] }
     attribute :validation_method
 
     alias token id
@@ -216,11 +216,34 @@ module ClaimsApi
       end
     end
 
-    def transform_homelessness_point_of_contact_primary_phone!
-      return if form_data['veteran']['homelessness'].blank?
+    def clean_phone_number!(phone_number)
+      phone_number.gsub!(/\D/, '') if phone_number.present?
+    end
 
-      phone_number = form_data&.dig('veteran', 'homelessness', 'pointOfContact', 'primaryPhone', 'phoneNumber')
-      phone_number.delete!('-') if phone_number.present? && phone_number.include?('-')
+    def add_overflow_text(text)
+      form_data['overflowText'] = (form_data['overflowText'] || '').dup
+      form_data['overflowText'] << text
+    end
+
+    def phone_number_valid?(phone_number)
+      phone_number['areaCode'].present? && phone_number['phoneNumber'].present? &&
+        phone_number['areaCode'].length == 3 && phone_number['phoneNumber'].length == 7
+    end
+
+    def transform_homelessness_point_of_contact_primary_phone!
+      primary_phone = form_data.dig('veteran', 'homelessness', 'pointOfContact', 'primaryPhone')
+
+      return if primary_phone.blank?
+
+      original_area_code = primary_phone['areaCode'].dup
+      original_phone_number = primary_phone['phoneNumber'].dup
+      clean_phone_number!(primary_phone['areaCode'])
+      clean_phone_number!(primary_phone['phoneNumber'])
+
+      return if phone_number_valid?(primary_phone)
+
+      add_overflow_text("14F. pointOfContact.primaryPhone - #{original_area_code}#{original_phone_number}\n")
+      form_data.dig('veteran', 'homelessness', 'pointOfContact').delete('primaryPhone')
     end
 
     def cast_claim_date!
@@ -434,16 +457,23 @@ module ClaimsApi
 
       form_data['serviceInformation']['servicePeriods'] = transformed_service_periods
 
-      unit_phone = form_data&.dig('serviceInformation', 'reservesNationalGuardService', 'unitPhone')
-      transformed_reserves_national_guard_service(unit_phone) if unit_phone.present?
+      unit_phone = form_data.dig('serviceInformation', 'reservesNationalGuardService', 'unitPhone')
+      transform_reserves_national_guard_service_phone!(unit_phone) if unit_phone.present?
 
       form_data['serviceInformation']
     end
 
-    def transformed_reserves_national_guard_service(unit_phone)
-      # both of the below are required in the schema for unitPhone
-      unit_phone['phoneNumber'].gsub!(/[-\s]/, '')
-      unit_phone['areaCode'].gsub!(/\s/, '')
+    def transform_reserves_national_guard_service_phone!(unit_phone)
+      original_area_code = unit_phone['areaCode'].dup
+      original_phone_number = unit_phone['phoneNumber'].dup
+
+      clean_phone_number!(unit_phone['areaCode'])
+      clean_phone_number!(unit_phone['phoneNumber'])
+
+      return if phone_number_valid?(unit_phone)
+
+      add_overflow_text("21E. unitPhone - #{original_area_code}#{original_phone_number}\n")
+      form_data.dig('serviceInformation', 'reservesNationalGuardService').delete('unitPhone')
     end
 
     # Legacy claimsApi code previously allowed servicePay-related service branch
