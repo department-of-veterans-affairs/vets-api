@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-form_data = {
+dependent_claimant_data_hash = {
   authorizations: {
     record_disclosure: true,
     record_disclosure_limitations: [],
@@ -51,12 +51,47 @@ form_data = {
   }
 }
 
+veteran_claimant_data_hash = {
+  authorizations: {
+    record_disclosure: true,
+    record_disclosure_limitations: %w[
+      HIV
+      DRUG_ABUSE
+    ],
+    address_change: true
+  },
+  dependent: nil,
+  veteran: {
+    name: {
+      first: 'John',
+      middle: 'Middle',
+      last: 'Doe'
+    },
+    address: {
+      address_line1: '123 Main St',
+      address_line2: 'Apt 1',
+      city: 'Springfield',
+      state_code: 'IL',
+      country: 'US',
+      zip_code: '62704',
+      zip_code_suffix: '6789'
+    },
+    ssn: '123456789',
+    va_file_number: '123456789',
+    date_of_birth: '1980-12-31',
+    service_number: '123456789',
+    service_branch: 'ARMY',
+    phone: '1234567890',
+    email: 'veteran@example.com'
+  }
+}
+
 FactoryBot.define do
   factory :power_of_attorney_form, class: 'AccreditedRepresentativePortal::PowerOfAttorneyForm' do
-    data { form_data.to_json }
+    data { data_hash.to_json }
 
-    factory :dynamic_power_of_attorney_form do
-      data do
+    transient do
+      data_hash do
         {
           authorizations: {
             record_disclosure: Faker::Boolean.boolean,
@@ -101,46 +136,19 @@ FactoryBot.define do
             phone: Faker::PhoneNumber.phone_number,
             email: Faker::Internet.email
           }
-        }.to_json
+        }
       end
     end
 
-    factory :veteran_type_form do
-      data do
-        {
-          authorizations: {
-            record_disclosure: true,
-            record_disclosure_limitations: %w[
-              HIV
-              DRUG_ABUSE
-            ],
-            address_change: true
-          },
-          dependent: nil,
-          veteran: {
-            name: {
-              first: 'John',
-              middle: 'Middle',
-              last: 'Doe'
-            },
-            address: {
-              address_line1: '123 Main St',
-              address_line2: 'Apt 1',
-              city: 'Springfield',
-              state_code: 'IL',
-              country: 'US',
-              zip_code: '62704',
-              zip_code_suffix: '6789'
-            },
-            ssn: '123456789',
-            va_file_number: '123456789',
-            date_of_birth: '1980-12-31',
-            service_number: '123456789',
-            service_branch: 'ARMY',
-            phone: '1234567890',
-            email: 'veteran@example.com'
-          }
-        }.to_json
+    trait :with_veteran_claimant do
+      transient do
+        data_hash { veteran_claimant_data_hash }
+      end
+    end
+
+    trait :with_dependent_claimant do
+      transient do
+        data_hash { dependent_claimant_data_hash }
       end
     end
   end
