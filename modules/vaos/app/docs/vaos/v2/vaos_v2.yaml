@@ -840,6 +840,61 @@ paths:
           $ref: "#/components/responses/ServiceUnavailable"
         "504":
           $ref: "#/components/responses/GatewayTimeout"
+  "/referral_appointments":
+    post:
+      tags:
+        - referral_appointments
+      summary: Creates a referral appointment
+      operationId: postReferralAppointments
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitDraftAppointmentRequest"
+      responses:
+        "201":
+          description: Retrieves a list of clinics for a given facility
+          content:
+            application/json:
+              schema:
+                required:
+                  - data
+                properties:
+                  data:
+                    required:
+                      - id
+                      - type
+                      - attributes
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                      attributes:
+                        $ref: "#/components/schemas/DraftAppointment"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/Unprocessable"
+        "500":
+          $ref: "#/components/responses/InternalServerError"
+        "501":
+          $ref: "#/components/responses/NotImplemented"
+        "502":
+          $ref: "#/components/responses/BadGateway"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        "504":
+          $ref: "#/components/responses/GatewayTimeout"
   "/relationships":
     parameters:
       - in: query
@@ -1303,6 +1358,44 @@ components:
           type: string
         preferredLanguage:
           type: string
+    SubmitDraftAppointmentRequest:
+      description: A request to create a new referral appointment.
+      type: object
+      properties:
+        id:
+          description: The EPS appointment ID
+          type: string
+          nullable: false
+        networkId:
+          description: The EPS network ID
+          type: string
+          nullable: false
+        providerServiceId:
+          description: The EPS provider service ID
+          type: string
+          nullable: false
+        referralNumber:
+          description: The appointment referral number
+          type: string
+          nullable: false
+        slotId:
+          description: The EPS slot ID
+          type: string
+          nullable: false
+        name:
+          $ref: "#/components/schemas/HumanName"
+        address:
+          $ref: '#/components/schemas/Address'
+        birthDate:
+          description: The birth date of the patient.
+          type: string
+          format: date
+        email:
+          type: string
+        gender:
+          type: string
+        phoneNumber:
+          type: string
     HumanName:
       type: object
       properties:
@@ -1647,6 +1740,19 @@ components:
         enrollmentCoordinator:
           type: string
           example: 202-555-1212
+    DraftAppointment:
+      type: object
+      description: 'Draft appointment'
+      properties:
+        appointment:
+          type: object
+          properties:
+            id:
+              description: 'The EPS ID of the appointment.'
+              type: string
+            state:
+              description: 'The state of the EPS appointment.'
+              type: string
     SchedulingConfiguration:
       type: object
       required:
