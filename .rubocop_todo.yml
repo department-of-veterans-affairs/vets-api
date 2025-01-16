@@ -487,15 +487,6 @@ Rails/ExpandedDateRange:
     - 'modules/va_notify/app/services/va_notify/find_in_progress_forms.rb'
     - 'modules/va_notify/lib/va_notify/in_progress_form_helper.rb'
 
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: slashes, arguments
-Rails/FilePath:
-  Exclude:
-    - 'modules/dhp_connected_devices/app/services/token_storage_service.rb'
-    - 'spec/sidekiq/evss/document_upload_spec.rb'
-
 # Offense count: 14
 Rails/I18nLocaleTexts:
   Exclude:
