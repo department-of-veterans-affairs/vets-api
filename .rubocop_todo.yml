@@ -535,14 +535,6 @@ Style/HashEachMethods:
   Exclude:
     - 'lib/common/hash_helpers.rb'
 
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowedMethods.
-# AllowedMethods: nonzero?
-Style/IfWithBooleanLiteralBranches:
-  Exclude:
-    - 'app/sidekiq/form1095/new1095_bs_job.rb'
-
 # Offense count: 4
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/MapToHash:
