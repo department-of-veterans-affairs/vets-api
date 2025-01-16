@@ -3,23 +3,9 @@ services:
     image: mongo:5.0
     container_name: mongodb-audit-db
     environment:
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: changemebro
+      MONGO_INITDB_DATABASE: mongodb-audit-db
+      MONGO_URI: mongodb://localhost:27017/mongodb-audit-db
     ports:
-      - "27017:27017"
+      - 27017:27017
     volumes:
-      - mongo_auditdb_data:/data/db
-  rails:
-    build: .
-    container_name: vets-api
-    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b '0.0.0.0'"
-    ports:
-      - "3000:3000"
-    depends_on:
-      - mongodb
-    environment:
-      MONGO_URI: mongodb://mongodb-audit-db:27017/mongodb-audit-db
-
-volumes:
- mongo_auditdb_data:
-  driver: local
+      - ./data:/data/db
