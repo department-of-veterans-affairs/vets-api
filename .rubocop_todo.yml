@@ -376,19 +376,6 @@ Rails/I18nLocaleTexts:
     - 'lib/va_profile/models/preferred_name.rb'
     - 'modules/claims_api/app/mailers/claims_api/unsuccessful_report_mailer.rb'
 
-# Offense count: 9
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/RedundantPresenceValidationOnBelongsTo:
-  Exclude:
-    - 'app/models/account_login_stat.rb'
-    - 'app/models/appeal_submission_upload.rb'
-    - 'app/models/central_mail_submission.rb'
-    - 'app/models/deprecated_user_account.rb'
-    - 'app/models/education_benefits_submission.rb'
-    - 'app/models/mhv_opt_in_flag.rb'
-    - 'modules/claims_api/app/models/claims_api/supporting_document.rb'
-    - 'modules/dhp_connected_devices/app/models/veteran_device_record.rb'
-
 # Offense count: 76
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Rails/RootPathnameMethods:
