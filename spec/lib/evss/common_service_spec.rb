@@ -19,7 +19,7 @@ describe EVSS::CommonService do
       # once it is possible.
       allow_any_instance_of(EVSS::BaseService).to receive(:post).and_return(true)
       response = subject.get_current_info
-      expect(response).to eq true
+      expect(response).to be true
     end
   end
 

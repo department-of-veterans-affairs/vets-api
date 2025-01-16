@@ -93,7 +93,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
     context 'with no form submissions' do
       it 'returns false' do
-        expect(job.send(:form_submission_pending_or_success)).to eq(false).or be_nil
+        expect(job.send(:form_submission_pending_or_success)).to be(false).or be_nil
       end
     end
 
@@ -101,7 +101,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       let(:claim) { create(:pensions_module_pension_claim, :pending) }
 
       it 'return true' do
-        expect(job.send(:form_submission_pending_or_success)).to eq(true)
+        expect(job.send(:form_submission_pending_or_success)).to be(true)
       end
     end
 
@@ -109,7 +109,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       let(:claim) { create(:pensions_module_pension_claim, :success) }
 
       it 'return true' do
-        expect(job.send(:form_submission_pending_or_success)).to eq(true)
+        expect(job.send(:form_submission_pending_or_success)).to be(true)
       end
     end
 
@@ -117,7 +117,7 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
       let(:claim) { create(:pensions_module_pension_claim, :failure) }
 
       it 'return false' do
-        expect(job.send(:form_submission_pending_or_success)).to eq(false)
+        expect(job.send(:form_submission_pending_or_success)).to be(false)
       end
     end
   end

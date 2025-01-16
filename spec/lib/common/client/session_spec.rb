@@ -59,7 +59,7 @@ describe Common::Client::Session do
 
     context 'inherited methods' do
       it 'responds to original_json but overridden to return nil since not loaded via json' do
-        expect(subject.original_json).to eq(nil)
+        expect(subject.original_json).to be_nil
       end
 
       it 'responds to to_json' do

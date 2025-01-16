@@ -11,24 +11,17 @@
         "required": [
           "title",
           "detail",
-          "code",
           "status"
         ],
         "properties": {
           "title": {
             "type": "string",
             "enum": [
-              "Record not found"
+              "Resource not found"
             ]
           },
           "detail": {
             "type": "string"
-          },
-          "code": {
-            "type": "string",
-            "enum": [
-              "404"
-            ]
           },
           "status": {
             "type": "string",
