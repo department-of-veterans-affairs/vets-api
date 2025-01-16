@@ -412,17 +412,6 @@ RSpecRails/HaveHttpStatus:
 RSpecRails/InferredSpecType:
   Enabled: false
 
-# Offense count: 8
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/CompactBlank:
-  Exclude:
-    - 'app/models/form_profile.rb'
-    - 'app/models/user.rb'
-    - 'lib/evss/disability_compensation_form/form0781.rb'
-    - 'lib/evss/pciu/request_body.rb'
-    - 'lib/hca/enrollment_system.rb'
-    - 'modules/vba_documents/app/sidekiq/vba_documents/report_unsuccessful_submissions.rb'
-
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Severity.
