@@ -498,6 +498,18 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_16_155354) do
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
+  create_table "claims_api_processes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "processable_id", null: false
+    t.string "processable_type", null: false
+    t.string "step_type"
+    t.string "step_status"
+    t.datetime "completed_at"
+    t.jsonb "error_messages", default: []
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["processable_id", "processable_type"], name: "idx_on_processable_id_processable_type_91e46b55a4"
+  end
+
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
