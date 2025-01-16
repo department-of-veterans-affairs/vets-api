@@ -551,39 +551,6 @@ Style/OptionalBooleanParameter:
     - 'lib/pdf_fill/hash_converter.rb'
     - 'spec/support/authenticated_session_helper.rb'
 
-# Offense count: 271
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: same_as_string_literals, single_quotes, double_quotes
-Style/QuotedSymbols:
-  Exclude:
-    - 'app/controllers/v1/higher_level_reviews/contestable_issues_controller.rb'
-    - 'app/controllers/v1/supplemental_claims/contestable_issues_controller.rb'
-    - 'app/models/form1095_b.rb'
-    - 'lib/decision_review_v1/utilities/helpers.rb'
-    - 'lib/slack/service.rb'
-    - 'modules/appeals_api/spec/models/supplemental_claim_spec.rb'
-    - 'modules/appeals_api/spec/support/rswag_config.rb'
-    - 'modules/claims_api/lib/claims_api/evidence_waiver_pdf/pdf.rb'
-    - 'modules/dhp_connected_devices/app/services/token_storage_service.rb'
-    - 'modules/dhp_connected_devices/spec/lib/fitbit_client_spec.rb'
-    - 'modules/meb_api/lib/dgi/enrollment/service.rb'
-    - 'modules/meb_api/lib/dgi/forms/service/letter_service.rb'
-    - 'modules/meb_api/lib/dgi/forms/service/sponsor_service.rb'
-    - 'modules/meb_api/lib/dgi/forms/service/submission_service.rb'
-    - 'modules/meb_api/lib/dgi/fry_dea/service.rb'
-    - 'modules/meb_api/lib/dgi/letters/service.rb'
-    - 'modules/meb_api/lib/dgi/submission/service.rb'
-    - 'modules/meb_api/lib/dgi/toe/service.rb'
-    - 'modules/meb_api/lib/dgi/toe/sponsors_service.rb'
-    - 'modules/meb_api/spec/dgi/enrollment/service_spec.rb'
-    - 'modules/meb_api/spec/requests/meb_api/v0/education_benefits_spec.rb'
-    - 'modules/mobile/spec/models/adapters/appointments_vaos_v2_adapter_spec.rb'
-    - 'spec/factories/coe_claim.rb'
-    - 'spec/factories/form526_submissions.rb'
-    - 'spec/factories/in_progress_forms/in_progress_forms.rb'
-    - 'spec/lib/github_authentication/coverband_reporters_web_spec.rb'
-
 # Offense count: 3
 # This cop supports unsafe autocorrection (--autocorrect-all).
 # Configuration parameters: Methods.
