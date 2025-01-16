@@ -551,14 +551,6 @@ Style/OptionalBooleanParameter:
     - 'lib/pdf_fill/hash_converter.rb'
     - 'spec/support/authenticated_session_helper.rb'
 
-# Offense count: 3
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: Methods.
-Style/RedundantArgument:
-  Exclude:
-    - 'lib/va_profile/models/base_address.rb'
-    - 'modules/appeals_api/spec/support/pdf_matcher.rb'
-
 # Offense count: 100
 # This cop supports safe autocorrection (--autocorrect).
 Style/RedundantConstantBase:
