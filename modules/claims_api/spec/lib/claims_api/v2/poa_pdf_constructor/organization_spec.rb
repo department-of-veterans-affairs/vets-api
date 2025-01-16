@@ -21,7 +21,6 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
           zipCode: '92264'
         },
         phone: {
-          countryCode: '1',
           areaCode: '555',
           phoneNumber: '5551337'
         },
@@ -42,7 +41,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
           zipCode: '92264'
         },
         phone: {
-          countryCode: '44',
+          areaCode: '555',
           phoneNumber: '5551337'
         }
       },
@@ -160,13 +159,13 @@ describe ClaimsApi::V2::PoaPdfConstructor::Organization do
 
     constructor = ClaimsApi::V2::PoaPdfConstructor::Organization.new
     expected_pdf = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', '21-22', 'v2',
-                                   'signed_filled_phone_country_codes.pdf')
+                                   'signed_filled_final.pdf')
     generated_pdf = constructor.construct(data, id: power_of_attorney.id)
     expect(generated_pdf).to match_pdf_content_of(expected_pdf)
   end
 
   it 'constructs the pdf when phone country codes are present on form' do
-    power_of_attorney = ClaimsApi::PowerOfAttorney.find(temp.id)
+    power_of_attorney = ClaimsApi::PowerOfAttorney.find(phone_country_codes_temp.id)
     data = power_of_attorney.form_data.deep_merge(
       {
         'veteran' => {
