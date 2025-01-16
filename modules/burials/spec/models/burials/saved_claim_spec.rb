@@ -131,4 +131,40 @@ RSpec.describe Burials::SavedClaim do
       expect(subject.business_line).to eq('NCA')
     end
   end
+
+  describe '#veteran_first_name' do
+    it 'returns the first name of the veteran from parsed_form' do
+      allow(instance).to receive(:parsed_form).and_return({ 'veteranFullName' => { 'first' => 'WESLEY' } })
+      expect(instance.veteran_first_name).to eq('WESLEY')
+    end
+
+    it 'returns nil if the key does not exist' do
+      allow(instance).to receive(:parsed_form).and_return({})
+      expect(instance.veteran_first_name).to be_nil
+    end
+  end
+
+  describe '#veteran_last_name' do
+    it 'returns the last name of the veteran from parsed_form' do
+      allow(instance).to receive(:parsed_form).and_return({ 'veteranFullName' => { 'last' => 'FORD' } })
+      expect(instance.veteran_last_name).to eq('FORD')
+    end
+
+    it 'returns nil if the key does not exist' do
+      allow(instance).to receive(:parsed_form).and_return({})
+      expect(instance.veteran_last_name).to be_nil
+    end
+  end
+
+  describe '#claimaint_first_name' do
+    it 'returns the first name of the claimant from parsed_form' do
+      allow(instance).to receive(:parsed_form).and_return({ 'claimantFullName' => { 'first' => 'Derrick' } })
+      expect(instance.claimaint_first_name).to eq('Derrick')
+    end
+
+    it 'returns nil if the key does not exist' do
+      allow(instance).to receive(:parsed_form).and_return({})
+      expect(instance.claimaint_first_name).to be_nil
+    end
+  end
 end
