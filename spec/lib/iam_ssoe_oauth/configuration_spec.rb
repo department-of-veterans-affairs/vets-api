@@ -8,7 +8,7 @@ describe 'IAMSSOeOAuth::Configuration' do
 
   before do
     allow(IAMSSOeOAuth::Configuration.instance).to receive_messages(
-      ssl_cert: instance_double('OpenSSL::X509::Certificate'), ssl_key: instance_double('OpenSSL::PKey::RSA')
+      ssl_cert: instance_double(OpenSSL::X509::Certificate), ssl_key: instance_double(OpenSSL::PKey::RSA)
     )
   end
 

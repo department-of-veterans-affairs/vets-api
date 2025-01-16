@@ -3,22 +3,31 @@
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequest < ApplicationRecord
     module ClaimantTypes
-      DEPENDENT = 'dependent'
-      VETERAN = 'veteran'
+      ALL = [
+        DEPENDENT = 'dependent',
+        VETERAN = 'veteran'
+      ].freeze
     end
 
     belongs_to :claimant, class_name: 'UserAccount'
 
     has_one :power_of_attorney_form,
-            class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyForm',
             inverse_of: :power_of_attorney_request,
             required: true
 
     has_one :resolution,
-            class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution',
+            class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
 
+    belongs_to :power_of_attorney_holder,
+               inverse_of: :power_of_attorney_requests,
+               polymorphic: true
+
+    belongs_to :accredited_individual
+
     before_validation :set_claimant_type
+
+    validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
 
     private
 

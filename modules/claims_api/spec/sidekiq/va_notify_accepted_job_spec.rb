@@ -176,19 +176,19 @@ describe ClaimsApi::VANotifyAcceptedJob, type: :job do
     it 'properly selects the org template when the filing is 2122' do
       res = subject.send(:organization_filing?, org_poa.form_data)
 
-      expect(res).not_to eq(nil)
+      expect(res).not_to be_nil
     end
 
     it 'properly selects the rep template when the filing is 2122a' do
       res = subject.send(:organization_filing?, rep_poa.form_data)
 
-      expect(res).to eq(nil)
+      expect(res).to be_nil
     end
 
     it 'properly selects the rep template when the filing is 2122 for dependent claimant' do
       res = subject.send(:organization_filing?, rep_dep_poa.form_data)
 
-      expect(res).to eq(nil)
+      expect(res).to be_nil
     end
   end
 

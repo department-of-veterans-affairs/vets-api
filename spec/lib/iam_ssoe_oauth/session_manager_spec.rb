@@ -7,12 +7,6 @@ describe 'IAMSSOeOAuth::SessionManager' do
   let(:access_token) { 'ypXeAwQedpmAy5xFD2u5' }
   let(:session_manager) { IAMSSOeOAuth::SessionManager.new(access_token) }
 
-  before do
-    allow(IAMSSOeOAuth::Configuration.instance).to receive_messages(
-      ssl_cert: instance_double('OpenSSL::X509::Certificate'), ssl_key: instance_double('OpenSSL::PKey::RSA')
-    )
-  end
-
   describe '#find_or_create_user' do
     context 'with a valid access token' do
       before do
@@ -34,7 +28,7 @@ describe 'IAMSSOeOAuth::SessionManager' do
       end
 
       it 'last_signed_in is set and is a time' do
-        expect(@user.last_signed_in).to be_a_kind_of(Time)
+        expect(@user.last_signed_in).to be_a(Time)
       end
     end
 

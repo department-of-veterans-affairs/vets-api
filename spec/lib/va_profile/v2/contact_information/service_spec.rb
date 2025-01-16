@@ -34,7 +34,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       it 'has a bad address' do
         VCR.use_cassette('va_profile/v2/contact_information/person', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
-          expect(response.person.addresses[0].bad_address).to eq(true)
+          expect(response.person.addresses[0].bad_address).to be(true)
         end
       end
     end
@@ -355,7 +355,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
             subject.get_email_transaction_status(transaction_id)
 
-            expect(OldEmail.find(transaction_id)).to eq(nil)
+            expect(OldEmail.find(transaction_id)).to be_nil
           end
         end
       end
@@ -437,7 +437,7 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
 
               subject.send(:send_contact_change_notification, transaction_status, :email)
 
-              expect(TransactionNotification.find(transaction_id).present?).to eq(true)
+              expect(TransactionNotification.find(transaction_id).present?).to be(true)
             end
           end
         end
