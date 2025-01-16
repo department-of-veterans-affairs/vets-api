@@ -145,7 +145,7 @@ RSpec.describe Users::Profile do
               allow(user).to receive(:participant_id).and_return(nil)
 
               identifiers = profile[:claims][:form526_required_identifier_presence]
-              expect(identifiers['participant_id']).to eq(false)
+              expect(identifiers['participant_id']).to be(false)
             end
           end
 
@@ -154,7 +154,7 @@ RSpec.describe Users::Profile do
               allow(user).to receive(:participant_id).and_return('8675309')
 
               identifiers = profile[:claims][:form526_required_identifier_presence]
-              expect(identifiers['participant_id']).to eq(true)
+              expect(identifiers['participant_id']).to be(true)
             end
           end
         end
@@ -165,7 +165,7 @@ RSpec.describe Users::Profile do
           end
 
           it 'does not include the identifiers in the claims section of the user profile' do
-            expect(profile[:claims][:form526_required_identifier_presence]).to eq(nil)
+            expect(profile[:claims][:form526_required_identifier_presence]).to be_nil
           end
         end
       end

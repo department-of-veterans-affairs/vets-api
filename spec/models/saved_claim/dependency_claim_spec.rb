@@ -59,13 +59,13 @@ RSpec.describe SavedClaim::DependencyClaim do
 
     describe '#submittable_686?' do
       it 'checks if there are 686 flows to process' do
-        expect(subject.submittable_686?).to eq(true)
+        expect(subject.submittable_686?).to be(true)
       end
     end
 
     describe '#submittable_674?' do
       it 'checks if there are 674 to process' do
-        expect(subject.submittable_674?).to eq(true)
+        expect(subject.submittable_674?).to be(true)
       end
     end
   end
@@ -75,7 +75,7 @@ RSpec.describe SavedClaim::DependencyClaim do
 
     describe '#submittable_686?' do
       it 'returns false if there is no 686 to process' do
-        expect(subject.submittable_686?).to eq(false)
+        expect(subject.submittable_686?).to be(false)
       end
     end
   end
@@ -85,7 +85,7 @@ RSpec.describe SavedClaim::DependencyClaim do
 
     describe '#submittable_674?' do
       it 'returns false if there is no 674 to process' do
-        expect(subject.submittable_674?).to eq(false)
+        expect(subject.submittable_674?).to be(false)
       end
     end
 
