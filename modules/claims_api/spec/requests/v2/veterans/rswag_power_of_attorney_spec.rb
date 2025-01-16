@@ -598,7 +598,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/power-of-attorney-requests/decide', production: false do
+  path '/veterans/power-of-attorney-requests/{id}/decide', production: false do
     post 'Submit the decision for Power of Attorney requests.' do
       tags 'Power of Attorney'
       operationId 'createPowerOfAttorneyRequestDecisions'
@@ -611,8 +611,16 @@ describe 'PowerOfAttorney',
       consumes 'application/json'
       description 'Create the decision for Power of Attorney requests'
 
+      parameter name: :id,
+                in: :path,
+                required: true,
+                type: :string,
+                example: '348fa995-5b29-4819-91af-13f1bb3c7d77',
+                description: 'The ID of the request for representation'
+
       let(:Authorization) { 'Bearer token' }
       let(:scopes) { %w[system/claim.read system/claim.write] }
+      let(:id) { '348fa995-5b29-4819-91af-13f1bb3c7d77' }
 
       body_schema =
         JSON.load_file(
@@ -627,8 +635,8 @@ describe 'PowerOfAttorney',
       body_schema[:example] = {
         'data' => {
           'attributes' => {
-            'procId' => '76529',
             'decision' => 'ACCEPTED',
+            'representativeId' => '12345678',
             'declinedReason' => nil
           }
         }
@@ -641,10 +649,24 @@ describe 'PowerOfAttorney',
           schema JSON.load_file(File.expand_path('rswag/create/200.json', __dir__))
 
           let(:data) { body_schema[:example] }
+          let(:request_response) do
+            ClaimsApi::PowerOfAttorneyRequest.new(
+              id: '348fa995-5b29-4819-91af-13f1bb3c7d77',
+              proc_id: '3858322',
+              veteran_icn: '1012667169V030190',
+              claimant_icn: '',
+              poa_code: '067',
+              metadata: {},
+              power_of_attorney_id: nil
+            )
+          end
 
           before do |example|
             allow(ClaimsApi::PowerOfAttorneyRequestService::UpdatePowerOfAttorney).to(
               receive(:perform)
+            )
+            allow(ClaimsApi::PowerOfAttorneyRequest).to(
+              receive(:find_by).and_return(request_response)
             )
 
             mock_ccg(scopes) do
@@ -662,15 +684,15 @@ describe 'PowerOfAttorney',
             }
           end
 
-          it 'returns a valid 200 response', run_at: '2024-06-13T19:31:03Z' do |example|
+          it 'returns a valid 200 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
       end
 
-      describe 'Getting a 400 response' do
-        response '400', 'Invalid request' do
-          schema JSON.load_file(File.expand_path('rswag/create/400.json', __dir__))
+      describe 'Getting a 404 response' do
+        response '404', 'Resource not found' do
+          schema JSON.load_file(File.expand_path('rswag/create/404.json', __dir__))
 
           let(:data) do
             {
@@ -681,21 +703,28 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
+            allow(ClaimsApi::PowerOfAttorneyRequest).to(
+              receive(:find_by).and_return(nil)
+            )
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
           end
 
           after do |example|
-            example.metadata[:response][:content] ||= { 'application/json' => { examples: {} } }
-            examples = example.metadata.dig(:response, :content, 'application/json', :examples)
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+            examples = example.metadata.dig(:response, :content, 'application/json', :example)
             examples[:schema_validation_error] = {
               summary: 'Schema validation error',
               value: JSON.parse(response.body, symbolize_names: true)
             }
           end
 
-          it 'returns a 400 response', run_at: '2024-06-13T19:31:03Z' do |example|
+          it 'returns a 404 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -722,7 +751,7 @@ describe 'PowerOfAttorney',
             }
           end
 
-          it 'returns a 422 response', run_at: '2024-06-13T19:31:03Z' do |example|
+          it 'returns a 422 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -746,7 +775,7 @@ describe 'PowerOfAttorney',
             }
           end
 
-          it 'returns a 401 response', run_at: '2024-06-13T19:31:03Z' do |example|
+          it 'returns a 401 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end

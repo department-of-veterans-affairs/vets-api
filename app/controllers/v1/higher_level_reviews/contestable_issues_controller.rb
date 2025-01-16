@@ -4,6 +4,7 @@ module V1
   module HigherLevelReviews
     class ContestableIssuesController < AppealsBaseControllerV1
       service_tag 'higher-level-review'
+      before_action { log_non_module_controller(action: "HLR contestable issues #{action_name}", form_id: '996') }
 
       def index
         ci = decision_review_service

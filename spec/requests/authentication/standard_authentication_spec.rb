@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 # Note these specs MUST be run in order
-RSpec.describe 'authenticating loa3 user', type: :request, order: :defined do
+RSpec.describe 'authenticating loa3 user', order: :defined, type: :request do
   OUTBOUND_CASSETTE = 'complex_interaction/external_interactions'
   # rubocop:disable Lint/StructNewOverride
   Episode = Struct.new(:method, :uri, :body, :headers, :recorded_at, :response)

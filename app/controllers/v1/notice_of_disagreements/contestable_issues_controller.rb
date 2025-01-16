@@ -4,6 +4,7 @@ module V1
   module NoticeOfDisagreements
     class ContestableIssuesController < AppealsBaseControllerV1
       service_tag 'board-appeal'
+      before_action { log_non_module_controller(action: "NOD contestable issues #{action_name}", form_id: '10182') }
 
       def index
         render json: decision_review_service
