@@ -277,13 +277,13 @@ RSpec.describe Form1010Ezr::Service do
                 personal_information_log =
                   PersonalInformationLog.find_by(error_class: "Form1010Ezr 'veteranDateOfBirth' schema failure")
 
-              expect(personal_information_log.present?).to be(true)
-              expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
-              expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
+                expect(personal_information_log.present?).to be(true)
+                expect(personal_information_log.data).to eq(form['veteranDateOfBirth'])
+                expect(e).to be_a(Common::Exceptions::SchemaValidationErrors)
+              end
             end
           end
         end
-      end
 
         context 'any other error' do
           before do
