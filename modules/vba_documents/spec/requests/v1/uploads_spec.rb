@@ -7,7 +7,7 @@ require 'vba_documents/document_request_validator'
 require 'vba_documents/multipart_parser'
 require 'vba_documents/object_store'
 
-RSpec.describe 'VBADocument::V1::Uploads', retry: 3, type: :request do
+RSpec.describe 'VBADocument::V1::Uploads', retry: 3 do
   include VBADocuments::Fixtures
 
   let(:test_caller) { { 'caller' => 'tester' } }

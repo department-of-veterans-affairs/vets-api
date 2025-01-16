@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'nokogiri'
 
-RSpec.describe 'flipper', type: :request do
+RSpec.describe 'flipper' do
   def bypass_flipper_authenticity_token
     Rails.application.routes.draw do
       mount Flipper::UI.app(

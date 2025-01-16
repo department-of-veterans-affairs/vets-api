@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Mobile::V0::LighthouseAssertion, type: :model do
+RSpec.describe Mobile::V0::LighthouseAssertion do
   describe '.jwt' do
     let(:uuid) { '84c939ec-b7c5-4f51-94a0-d6755b682216' }
     let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }

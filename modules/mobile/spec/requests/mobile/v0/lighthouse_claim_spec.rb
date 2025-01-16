@@ -6,7 +6,7 @@ require_relative '../../../support/helpers/committee_helper'
 require 'lighthouse/benefits_claims/configuration'
 require 'lighthouse/benefits_claims/service'
 
-RSpec.describe 'Mobile::V0::Claim', type: :request do
+RSpec.describe 'Mobile::V0::Claim' do
   include JsonSchemaMatchers
   include CommitteeHelper
 

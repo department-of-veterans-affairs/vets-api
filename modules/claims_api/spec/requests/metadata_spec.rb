@@ -5,7 +5,7 @@ require 'bgs/services'
 require 'mpi/service'
 require 'bgs_service/local_bgs'
 
-RSpec.describe 'ClaimsApi::Metadata', type: :request do
+RSpec.describe 'ClaimsApi::Metadata' do
   describe '#get /metadata' do
     it 'returns metadata JSON' do
       get '/services/claims/metadata'

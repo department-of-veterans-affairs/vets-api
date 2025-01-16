@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe IvcChampvaForm, type: :model do
+RSpec.describe IvcChampvaForm do
   describe 'validations' do
     it { is_expected.to validate_presence_of(:form_uuid) }
 

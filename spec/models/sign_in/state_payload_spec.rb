@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::StatePayload, type: :model do
+RSpec.describe SignIn::StatePayload do
   let(:state_payload) do
     create(:state_payload,
            code_challenge:,

@@ -3,7 +3,7 @@
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
 
-RSpec.describe 'Mobile::V0::Claim::RequestDecision', :skip_json_api_validation, type: :request do
+RSpec.describe 'Mobile::V0::Claim::RequestDecision', :skip_json_api_validation do
   include CommitteeHelper
 
   describe 'GET /v0/claim/:id/request-decision' do

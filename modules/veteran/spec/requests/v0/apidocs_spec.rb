@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Veteran::V0::Apidocs', type: :request do
+RSpec.describe 'Veteran::V0::Apidocs' do
   let(:openapi_version) { %w[openapi 3.0.0] }
 
   describe 'GET `index`' do

@@ -7,7 +7,7 @@ require 'lighthouse/benefits_intake/service'
 require 'lgy/service'
 require 'benefits_intake_service/service'
 
-RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
+RSpec.describe 'SimpleFormsApi::V1::SimpleForms' do
   forms = [
     'vba_20_10206.json',
     'vba_20_10207-non-veteran.json',

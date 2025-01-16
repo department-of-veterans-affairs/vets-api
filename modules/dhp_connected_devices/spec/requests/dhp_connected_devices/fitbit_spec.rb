@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'DhpConnectedDevices::Fitbit', type: :request do
+RSpec.describe 'DhpConnectedDevices::Fitbit' do
   let(:current_user) { build(:user, :loa1) }
   let(:user_without_icn) { build(:user, :loa1, icn: '') }
 

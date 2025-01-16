@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VAOS::V2::Patients', :skip_mvi, type: :request do
+RSpec.describe 'VAOS::V2::Patients', :skip_mvi do
   include SchemaMatchers
 
   before do

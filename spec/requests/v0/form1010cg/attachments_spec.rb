@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Form1010CG::Attachments', type: :request do
+RSpec.describe 'V0::Form1010CG::Attachments' do
   let(:endpoint) { 'http://localhost:3000/v0/form1010cg/attachments' }
   let(:headers) do
     {

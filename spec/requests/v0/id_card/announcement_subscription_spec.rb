@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::IdCard::AnnouncementSubscription', type: :request do
+RSpec.describe 'V0::IdCard::AnnouncementSubscription' do
   def email
     params[:id_card_announcement_subscription][:email]
   end

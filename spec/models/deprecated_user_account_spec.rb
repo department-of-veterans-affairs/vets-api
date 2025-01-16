@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DeprecatedUserAccount, type: :model do
+RSpec.describe DeprecatedUserAccount do
   let(:deprecated_user_account) do
     create(:deprecated_user_account, user_verification:, user_account:)
   end

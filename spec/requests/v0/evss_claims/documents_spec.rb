@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::EVSSClaimsDocuments', type: :request do
+RSpec.describe 'V0::EVSSClaimsDocuments' do
   let(:file) { fixture_file_upload('doctors-note.pdf', 'application/pdf') }
   let(:tracked_item_id) { 33 }
   let(:document_type) { 'L023' }

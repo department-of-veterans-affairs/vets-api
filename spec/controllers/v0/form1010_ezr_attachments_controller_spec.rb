@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/1010_forms/shared_examples/form_attachment'
 
-RSpec.describe V0::Form1010EzrAttachmentsController, type: :controller do
+RSpec.describe V0::Form1010EzrAttachmentsController do
   let(:current_user) { build(:evss_user, :loa3, icn: '1013032368V065534') }
   let(:file) { fixture_file_upload('spec/fixtures/files/empty_file.txt', 'text/plain') }
   let(:params) { { 'form1010_ezr_attachment' => { 'file_data' => file } } }

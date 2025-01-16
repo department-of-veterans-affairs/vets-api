@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 require 'claims_api/vbms_uploader'
 
-RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller do
+RSpec.describe V0::VeteranReadinessEmploymentClaimsController do
   let(:loa3_user) { create(:evss_user) }
   let(:user_no_pid) { create(:unauthorized_evss_user) }
 
@@ -28,18 +28,18 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
       it 'validates successfully' do
         form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
         expect { post(:create, params: form_params) }.to change(VRE::Submit1900Job.jobs, :size).by(1)
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
 
       it 'fails validation when no veteran_info is passed in' do
         form_params = { veteran_readiness_employment_claim: { form: no_veteran_info } }
         post(:create, params: form_params)
-        expect(response.code).to eq('422')
+        expect(response).to have_http_status(:unprocessable_content)
       end
 
       it 'shows the validation errors' do
         post(:create, params: { veteran_readiness_employment_claim: { form: { not_valid: 'not valid' } } })
-        expect(response.code).to eq('422')
+        expect(response).to have_http_status(:unprocessable_content)
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             'form - can\'t be blank'
@@ -53,7 +53,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
         sign_in_as(user_no_pid)
         form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
         expect { post(:create, params: form_params) }.to change(VRE::Submit1900Job.jobs, :size).by(1)
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
     end
 
@@ -61,7 +61,7 @@ RSpec.describe V0::VeteranReadinessEmploymentClaimsController, type: :controller
       it 'returns a 401' do
         form_params = { veteran_readiness_employment_claim: { form: test_form.form } }
         post(:create, params: form_params)
-        expect(response.code).to eq('401')
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end

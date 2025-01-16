@@ -75,7 +75,7 @@ RSpec.shared_examples 'sso logging' do |type|
   end
 end
 
-RSpec.describe Mobile::V0::ProfileBaseController, type: :controller do
+RSpec.describe Mobile::V0::ProfileBaseController do
   include JsonSchemaMatchers
 
   controller do

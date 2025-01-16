@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::SessionContainer, type: :model do
+RSpec.describe SignIn::SessionContainer do
   let(:session_container) do
     create(:session_container,
            session:,

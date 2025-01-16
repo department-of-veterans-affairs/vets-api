@@ -2,7 +2,7 @@
 
 require './modules/decision_reviews/spec/dr_spec_helper'
 
-RSpec.describe DecisionReviews::V1::DecisionReviewNotificationCallbacksController, type: :controller do
+RSpec.describe DecisionReviews::V1::DecisionReviewNotificationCallbacksController do
   routes { DecisionReviews::Engine.routes }
 
   let(:notification_id) { SecureRandom.uuid }

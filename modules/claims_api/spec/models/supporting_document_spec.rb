@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::SupportingDocument, type: :model do
+RSpec.describe ClaimsApi::SupportingDocument do
   describe 'encrypted attribute' do
     it 'does the thing' do
       expect(subject).to encrypt_attr(:file_data)

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::RefreshToken, type: :model do
+RSpec.describe SignIn::RefreshToken do
   let(:refresh_token) do
     create(:refresh_token,
            user_uuid:,

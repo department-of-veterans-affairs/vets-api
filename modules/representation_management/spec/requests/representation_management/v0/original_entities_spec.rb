@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'RepresentationManagement::V0::OriginalEntities', type: :request do
+RSpec.describe 'RepresentationManagement::V0::OriginalEntities' do
   let(:path) { '/representation_management/v0/original_entities' }
   let!(:bob_law) do
     create(:representative, :with_address, representative_id: '00001', first_name: 'Bob', last_name: 'Law')

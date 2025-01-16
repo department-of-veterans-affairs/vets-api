@@ -6,7 +6,7 @@ require 'token_validation/v2/client'
 require 'bgs_service/local_bgs'
 require 'bgs/power_of_attorney_verifier'
 
-RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney', type: :request do
+RSpec.describe 'ClaimsApi::V1::PowerOfAttorney::PowerOfAttorney' do
   let(:veteran_id) { '1013062086V794840' }
   let(:get_poa_path) { "/services/claims/v2/veterans/#{veteran_id}/power-of-attorney" }
   let(:scopes) { %w[system/claim.write system/claim.read] }

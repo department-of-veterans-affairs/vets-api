@@ -4,7 +4,7 @@ require_relative '../../../../support/helpers/rails_helper'
 
 require 'va_profile/demographics/service'
 
-RSpec.describe 'Mobile::V0::User::PreferredName', type: :request do
+RSpec.describe 'Mobile::V0::User::PreferredName' do
   include SchemaMatchers
 
   describe 'logingov user' do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequest, type: :model do
+RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequest do
   it 'validates its form and claimant type' do
     poa_request =
       build(

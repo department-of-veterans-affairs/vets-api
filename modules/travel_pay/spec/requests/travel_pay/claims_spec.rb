@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'securerandom'
 
-RSpec.describe TravelPay::V0::ClaimsController, type: :request do
+RSpec.describe TravelPay::V0::ClaimsController do
   let(:user) { build(:user) }
 
   before do

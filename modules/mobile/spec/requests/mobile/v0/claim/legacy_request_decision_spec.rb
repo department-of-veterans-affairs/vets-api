@@ -2,7 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 
-RSpec.describe 'legacy Mobile::V0::Claim::RequestDecision', :skip_json_api_validation, type: :request do
+RSpec.describe 'legacy Mobile::V0::Claim::RequestDecision', :skip_json_api_validation do
   describe 'GET /v0/claim/:id/request-decision' do
     let!(:user) { sis_user(icn: '1008596379V859838') }
 

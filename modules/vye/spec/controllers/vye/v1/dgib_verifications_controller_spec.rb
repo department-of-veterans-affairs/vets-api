@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/controller_spec_helper'
 require 'vye/vye_serializer'
 
-RSpec.describe Vye::V1::DgibVerificationsController, type: :controller do
+RSpec.describe Vye::V1::DgibVerificationsController do
   routes { Vye::Engine.routes }
 
   let!(:current_user) { create(:user, :accountable) }

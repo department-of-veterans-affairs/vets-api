@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe FacilitiesApi::V2::Lighthouse::Service, team: :facilities, type: :model do
+describe FacilitiesApi::V2::Lighthouse::Service, team: :facilities do
   context 'Creating' do
     let(:attributes) do
       {

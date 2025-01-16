@@ -2,7 +2,7 @@
 
 require_relative '../../../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile::V0::Claim', type: :request do
+RSpec.describe 'Mobile::V0::Claim' do
   include JsonSchemaMatchers
 
   describe 'GET /v0/claim/:id' do

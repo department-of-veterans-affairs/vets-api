@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mhv/account_creation/service'
 
-RSpec.describe User, type: :model do
+RSpec.describe User do
   subject { described_class.new(build(:user, loa:)) }
 
   let(:loa) { loa_one }

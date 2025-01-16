@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::DocumentsController, type: :controller do
+RSpec.describe V0::DocumentsController do
   context 'with no file param' do
     it 'returns bad request' do
       sign_in

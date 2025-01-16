@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe MHVUserAccount, type: :model do
+RSpec.describe MHVUserAccount do
   subject(:mhv_user_account) { described_class.new(attributes) }
 
   let(:attributes) do

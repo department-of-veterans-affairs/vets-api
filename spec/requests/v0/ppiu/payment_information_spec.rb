@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::PPIU::PaymentInformation', type: :request do
+RSpec.describe 'V0::PPIU::PaymentInformation' do
   include SchemaMatchers
 
   let(:user) { create(:user, :loa3) }

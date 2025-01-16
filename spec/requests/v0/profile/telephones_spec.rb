@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Profile::Telephones', type: :request do
+RSpec.describe 'V0::Profile::Telephones' do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3) }

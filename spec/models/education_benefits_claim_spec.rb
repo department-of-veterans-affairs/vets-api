@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationBenefitsClaim, type: :model do
+RSpec.describe EducationBenefitsClaim do
   let(:education_benefits_claim) do
     create(:va1990).education_benefits_claim
   end

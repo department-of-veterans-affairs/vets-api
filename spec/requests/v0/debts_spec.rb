@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Debts', type: :request do
+RSpec.describe 'V0::Debts' do
   include SchemaMatchers
 
   let(:user_details) do

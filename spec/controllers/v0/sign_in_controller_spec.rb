@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'sign_in/logingov/service'
 require 'sign_in/idme/service'
 
-RSpec.describe V0::SignInController, type: :controller do
+RSpec.describe V0::SignInController do
   describe 'GET authorize' do
     subject do
       get(:authorize, params: authorize_params)

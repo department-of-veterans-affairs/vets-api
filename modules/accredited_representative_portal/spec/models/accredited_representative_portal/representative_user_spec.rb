@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::RepresentativeUser, type: :model do
+RSpec.describe AccreditedRepresentativePortal::RepresentativeUser do
   describe 'validations' do
     context 'valid'
     context 'when all required attributes are present' do

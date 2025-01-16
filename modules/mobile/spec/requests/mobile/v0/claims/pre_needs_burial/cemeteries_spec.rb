@@ -3,7 +3,7 @@
 require_relative '../../../../../support/helpers/rails_helper'
 require_relative '../../../../../support/helpers/committee_helper'
 
-RSpec.describe 'Mobile::V0::Claims::PreNeedsBurial::Cemeteries', type: :request do
+RSpec.describe 'Mobile::V0::Claims::PreNeedsBurial::Cemeteries' do
   include JsonSchemaMatchers
   include CommitteeHelper
 

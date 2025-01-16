@@ -5,7 +5,7 @@ require 'decision_review/schemas'
 require 'disability_compensation/factories/api_provider_factory'
 require 'gi/client'
 
-RSpec.describe FormProfile, type: :model do
+RSpec.describe FormProfile do
   include SchemaMatchers
 
   before do

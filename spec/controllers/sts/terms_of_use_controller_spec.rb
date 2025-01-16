@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Sts::TermsOfUseController, type: :controller do
+RSpec.describe Sts::TermsOfUseController do
   let(:service_account_config) { create(:service_account_config, scopes:) }
   let(:service_account_id) { service_account_config.service_account_id }
   let(:scopes) { ['http://www.example.com/sts/terms_of_use'] }

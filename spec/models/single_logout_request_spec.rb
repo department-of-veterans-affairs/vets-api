@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SingleLogoutRequest, type: :model do
+RSpec.describe SingleLogoutRequest do
   it 'requires the presence of token' do
     slr = SingleLogoutRequest.new(uuid: '1234')
     expect(slr).to be_invalid

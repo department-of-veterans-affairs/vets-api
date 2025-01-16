@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V0::VirtualAgentSpeechTokenController, type: :controller do
+RSpec.describe V0::VirtualAgentSpeechTokenController do
   describe '#create' do
     let(:recorded_token) do
       'fake_token'

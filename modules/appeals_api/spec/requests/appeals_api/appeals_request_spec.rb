@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-RSpec.describe 'Claim Appeals API endpoint', type: :request do
+RSpec.describe 'Claim Appeals API endpoint' do
   context 'when requesting the healthcheck route' do
     it 'returns a successful response' do
       VCR.use_cassette('caseflow/health-check') do

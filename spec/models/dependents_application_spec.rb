@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe DependentsApplication, type: :model do
+RSpec.describe DependentsApplication do
   let(:dependents_application) { create(:dependents_application) }
 
   describe '.filter_children' do

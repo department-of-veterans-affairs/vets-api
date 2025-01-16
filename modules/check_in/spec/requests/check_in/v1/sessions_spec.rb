@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'CheckIn::V1::Sessions', type: :request do
+RSpec.describe 'CheckIn::V1::Sessions' do
   describe 'GET `show`' do
     it 'returns not implemented' do
       get '/check_in/v1/sessions/1234'

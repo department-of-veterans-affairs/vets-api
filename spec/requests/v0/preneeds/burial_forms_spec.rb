@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Preneeds::BurialForm', type: :request do
+RSpec.describe 'V0::Preneeds::BurialForm' do
   include SchemaMatchers
 
   let(:params) do

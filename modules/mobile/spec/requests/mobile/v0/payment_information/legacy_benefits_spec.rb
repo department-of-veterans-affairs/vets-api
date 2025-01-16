@@ -2,7 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 
-RSpec.describe 'legacy Mobile::V0::PaymentInformation::Benefits', type: :request do
+RSpec.describe 'legacy Mobile::V0::PaymentInformation::Benefits' do
   include JsonSchemaMatchers
 
   let(:rsa_key) { OpenSSL::PKey::RSA.generate(2048) }

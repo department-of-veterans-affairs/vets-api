@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
-RSpec.describe Vye::UserInfo, type: :model do
+RSpec.describe Vye::UserInfo do
   describe 'create' do
     let!(:bdn_clone) { create(:vye_bdn_clone) }
     let!(:user_profile) { create(:vye_user_profile) }

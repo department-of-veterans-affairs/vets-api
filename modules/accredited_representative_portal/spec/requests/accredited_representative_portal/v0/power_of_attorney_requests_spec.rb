@@ -2,7 +2,7 @@
 
 require_relative '../../../rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
+RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController do
   let(:test_user) { create(:representative_user) }
   let(:poa_request) { create(:power_of_attorney_request_resolution, :declination).power_of_attorney_request }
   let(:time) { '2024-12-21T04:45:37.458Z' }

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Veteran::Service::Representative, type: :model do
+describe Veteran::Service::Representative do
   let(:identity) { create(:user_identity) }
 
   describe 'individual record' do

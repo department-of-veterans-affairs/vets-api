@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Mobile::V0::UserAccessibleServices, :aggregate_failures, type: :model do
+describe Mobile::V0::UserAccessibleServices, :aggregate_failures do
   let(:user) { build(:user, :loa3, vha_facility_ids: [402, 555]) }
   let(:non_evss_user) { build(:user, :loa3, edipi: nil, ssn: nil, participant_id: nil) }
   let(:non_lighthouse_user) { build(:user, :loa3, icn: nil, participant_id: nil) }

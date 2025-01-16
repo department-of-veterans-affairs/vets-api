@@ -2,7 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi, type: :request do
+RSpec.describe 'Mobile::V0::Appointments#create', :skip_mvi do
   include SchemaMatchers
   mock_clinic = {
     service_name: 'service_name',

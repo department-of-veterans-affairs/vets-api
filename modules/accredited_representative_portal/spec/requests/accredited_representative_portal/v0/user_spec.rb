@@ -2,7 +2,7 @@
 
 require_relative '../../../rails_helper'
 
-RSpec.describe 'AccreditedRepresentativePortal::V0::User', type: :request do
+RSpec.describe 'AccreditedRepresentativePortal::V0::User' do
   describe '#show' do
     context 'when not authenticated' do
       it 'responds with unauthorized' do

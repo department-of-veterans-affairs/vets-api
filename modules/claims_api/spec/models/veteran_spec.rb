@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::Veteran, type: :model do
+RSpec.describe ClaimsApi::Veteran do
   before do
     @veteran = ClaimsApi::Veteran.new
     @veteran.va_profile = ClaimsApi::Veteran.build_profile('1990-01-01')

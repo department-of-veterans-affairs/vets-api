@@ -3,7 +3,7 @@
 require_relative '../../support/helpers/rails_helper'
 require_relative '../../support/helpers/committee_helper'
 
-RSpec.describe 'Mobile', type: :request do
+RSpec.describe 'Mobile' do
   include CommitteeHelper
 
   describe 'GET /mobile' do

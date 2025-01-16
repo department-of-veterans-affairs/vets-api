@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VBADocuments::MonthlyStat, type: :model do
+describe VBADocuments::MonthlyStat do
   describe 'validations' do
     context 'when constructed with a valid month and year' do
       let(:monthly_stat) { build(:monthly_stat, month: 12, year: 2023) }

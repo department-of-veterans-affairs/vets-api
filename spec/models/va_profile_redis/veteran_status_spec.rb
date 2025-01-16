@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'va_profile/models/veteran_status'
 require 'va_profile_redis/veteran_status'
 
-RSpec.describe VAProfileRedis::VeteranStatus, type: :model do
+RSpec.describe VAProfileRedis::VeteranStatus do
   subject { described_class.for_user(user) }
 
   let(:user) { build(:user, :loa3) }

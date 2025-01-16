@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/error_details'
 
-RSpec.describe 'V0::Profile::ServiceHistory', type: :request do
+RSpec.describe 'V0::Profile::ServiceHistory' do
   include SchemaMatchers
   include ErrorDetails
 

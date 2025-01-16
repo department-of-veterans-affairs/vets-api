@@ -2,7 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 
-RSpec.describe 'legacy Mobile::V0::Claim::Document', :skip_json_api_validation, type: :request do
+RSpec.describe 'legacy Mobile::V0::Claim::Document', :skip_json_api_validation do
   include JsonSchemaMatchers
 
   before do

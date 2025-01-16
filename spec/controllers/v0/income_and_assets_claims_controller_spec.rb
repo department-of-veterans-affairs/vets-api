@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/controller_spec_helper'
 
-RSpec.describe V0::IncomeAndAssetsClaimsController, type: :controller do
+RSpec.describe V0::IncomeAndAssetsClaimsController do
   let(:monitor) { double('IncomeAndAssets::Claims::Monitor') }
   let(:user) { create(:user) }
 

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'mhv/account_creation/service'
 
-describe V0::User::MHVUserAccountsController, type: :controller do
+describe V0::User::MHVUserAccountsController do
   let(:user) { build(:user, :loa3, icn:) }
   let(:icn) { '10101V964144' }
 

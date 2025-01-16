@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe FormSubmissionAttempt, type: :model do
+RSpec.describe FormSubmissionAttempt do
   describe 'associations' do
     it { is_expected.to belong_to(:form_submission) }
   end

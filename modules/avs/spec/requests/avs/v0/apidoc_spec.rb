@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'apivore'
 
-RSpec.describe 'Avs::V0::Apidocs', type: :request do
+RSpec.describe 'Avs::V0::Apidocs' do
   include AuthenticatedSessionHelper
 
   before(:all) do

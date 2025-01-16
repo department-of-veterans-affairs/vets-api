@@ -6,7 +6,7 @@ require 'rails_helper'
 # Within that, the scenarios of 1) including non-JSON body, 2) JSON body that
 # does not pass schema, 3) and happy path are all tested in actual request specs
 # currently. Also, these scenarios are onerous to test here.
-describe ClaimsApi::V2::PowerOfAttorneyRequests::JsonValidation, type: :controller do
+describe ClaimsApi::V2::PowerOfAttorneyRequests::JsonValidation do
   controller(ActionController::API) do
     include ClaimsApi::V2::PowerOfAttorneyRequests::JsonValidation
 

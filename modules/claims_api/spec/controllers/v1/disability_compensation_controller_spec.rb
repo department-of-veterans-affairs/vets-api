@@ -4,7 +4,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController, type: :controller do
+RSpec.describe ClaimsApi::V1::Forms::DisabilityCompensationController do
   describe '#format_526_errors' do
     it 'formats errors correctly' do
       error = [

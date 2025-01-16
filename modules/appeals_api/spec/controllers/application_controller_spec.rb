@@ -6,7 +6,7 @@ class FakeModel
   include ActiveModel::Validations
 end
 
-describe AppealsApi::ApplicationController, type: :controller do
+describe AppealsApi::ApplicationController do
   controller do
     skip_before_action :authenticate
 
@@ -31,7 +31,7 @@ describe AppealsApi::ApplicationController, type: :controller do
       it 'returns a 404' do
         allow(controller).to receive(:sunset_date).and_return(Date.yesterday)
         get :index
-        expect(response.status).to eq(404)
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -39,7 +39,7 @@ describe AppealsApi::ApplicationController, type: :controller do
       it 'hits the endpoint' do
         allow(controller).to receive(:sunset_date).and_return(Date.tomorrow)
         get :index
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
       end
     end
   end

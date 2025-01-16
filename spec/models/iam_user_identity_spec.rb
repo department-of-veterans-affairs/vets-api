@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe IAMUserIdentity, type: :model do
+RSpec.describe IAMUserIdentity do
   let(:idme_attrs) { build(:idme_loa3_introspection_payload) }
   let(:dslogon_attrs) { build(:dslogon_level2_introspection_payload) }
   let(:mhv_attrs) { build(:mhv_premium_introspection_payload) }

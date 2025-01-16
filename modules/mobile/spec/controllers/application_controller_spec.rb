@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../support/helpers/iam_session_helper'
 
-RSpec.describe Mobile::ApplicationController, type: :controller do
+RSpec.describe Mobile::ApplicationController do
   controller do
     attr_reader :payload
 

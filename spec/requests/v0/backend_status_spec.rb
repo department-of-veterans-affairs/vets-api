@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/pagerduty/services/spec_setup'
 
-RSpec.describe 'V0::BackendStatus', type: :request do
+RSpec.describe 'V0::BackendStatus' do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3) }

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe 'AppealsApi::V2::DecisionReviews::HigherLevelReviews', type: :request do
+describe 'AppealsApi::V2::DecisionReviews::HigherLevelReviews' do
   include FixtureHelpers
 
   def base_path(path)

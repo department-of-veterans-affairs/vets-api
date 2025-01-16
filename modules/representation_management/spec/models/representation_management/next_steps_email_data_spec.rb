@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RepresentationManagement::NextStepsEmailData, type: :model do
+RSpec.describe RepresentationManagement::NextStepsEmailData do
   describe 'validations' do
     subject { described_class.new }
 

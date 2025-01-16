@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationStemAutomatedDecision, type: :model do
+RSpec.describe EducationStemAutomatedDecision do
   subject { described_class.new }
 
   describe 'auth_headers' do

@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
-RSpec.describe Vye::DirectDepositChange, type: :model do
+RSpec.describe Vye::DirectDepositChange do
   let(:user_info) { create(:vye_user_info) }
 
   describe 'create' do

@@ -5,7 +5,7 @@ require 'support/saml/form_validation_helpers'
 require 'support/saml/response_builder'
 require 'support/url_service_helpers'
 
-RSpec.describe V1::SessionsController, type: :controller do
+RSpec.describe V1::SessionsController do
   include SAML::ResponseBuilder
   include SAML::ValidationHelpers
 

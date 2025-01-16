@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'rx/client' # used to stub Rx::Client in tests
 
-RSpec.describe ApplicationController, type: :controller do
+RSpec.describe ApplicationController do
   controller do
     attr_reader :payload
 
@@ -405,7 +405,7 @@ RSpec.describe ApplicationController, type: :controller do
         it 'renders json object with developer attributes' do
           get :not_authorized
 
-          expect(response.status).to eq(403)
+          expect(response).to have_http_status(:forbidden)
           expect(subject.keys).to eq(keys_for_all_env)
         end
 
@@ -432,7 +432,7 @@ RSpec.describe ApplicationController, type: :controller do
             get :not_authorized
           end
 
-          expect(response.status).to eq(403)
+          expect(response).to have_http_status(:forbidden)
           expect(subject.keys).to eq(keys_for_all_env)
         end
       end
@@ -444,7 +444,7 @@ RSpec.describe ApplicationController, type: :controller do
             .and_return(ActiveSupport::StringInquirer.new('production'))
 
           get :not_authorized
-          expect(response.status).to eq(403)
+          expect(response).to have_http_status(:forbidden)
           expect(subject.keys)
             .to eq(keys_for_all_env)
         end

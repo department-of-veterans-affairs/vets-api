@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe UserRelationship, type: :model do
+RSpec.describe UserRelationship do
   describe '.from_bgs_dependent' do
     let(:user_relationship) { described_class.from_bgs_dependent(bgs_dependent) }
     let(:bgs_dependent) do

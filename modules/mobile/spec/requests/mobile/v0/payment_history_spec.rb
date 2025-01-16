@@ -2,7 +2,7 @@
 
 require_relative '../../../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile::V0::PaymentHistory', type: :request do
+RSpec.describe 'Mobile::V0::PaymentHistory' do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(email: nil) }

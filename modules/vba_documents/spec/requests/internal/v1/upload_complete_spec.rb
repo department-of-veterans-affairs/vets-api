@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VBADocument::Internal::V1::UploadComplete', type: :request do
+RSpec.describe 'VBADocument::Internal::V1::UploadComplete' do
   context 'with a subscriptionconfirmation message type' do
     # rubocop:disable Layout/LineLength
     let(:headers) do

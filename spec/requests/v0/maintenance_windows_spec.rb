@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::MaintenanceWindows', type: :request do
+RSpec.describe 'V0::MaintenanceWindows' do
   context 'with no upcoming windows' do
     it 'returns an empty list' do
       get '/v0/maintenance_windows'

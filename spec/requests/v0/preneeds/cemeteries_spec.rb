@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Preneeds::Cemeteries', type: :request do
+RSpec.describe 'V0::Preneeds::Cemeteries' do
   include SchemaMatchers
 
   it 'responds to GET #index' do

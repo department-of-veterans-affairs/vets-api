@@ -4,8 +4,7 @@ require 'rails_helper'
 require 'va_profile/models/preferred_name'
 
 RSpec.describe 'V0::Profile::PreferredNames', feature: :personal_info,
-                                              team_owner: :vfs_authenticated_experience_backend,
-                                              type: :request do
+                                              team_owner: :vfs_authenticated_experience_backend do
   include SchemaMatchers
 
   let(:user) { build(:user, :loa3) }

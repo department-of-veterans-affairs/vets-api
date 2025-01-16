@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe VeteranOnboarding, type: :model do
+RSpec.describe VeteranOnboarding do
   let(:user_verification) { create(:user_verification) }
   let(:user_account) { user_verification.user_account }
   let(:user) { build(:user, :loa3, idme_uuid: user_verification.idme_uuid) }

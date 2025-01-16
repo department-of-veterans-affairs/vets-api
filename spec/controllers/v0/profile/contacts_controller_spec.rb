@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Profile::ContactsController, type: :controller do
+RSpec.describe V0::Profile::ContactsController do
   include SchemaMatchers
 
   let(:idme_uuid) { 'dd681e7d6dea41ad8b80f8d39284ef29' }

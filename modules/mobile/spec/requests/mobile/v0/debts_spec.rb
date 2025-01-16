@@ -5,7 +5,7 @@ require_relative '../../../support/helpers/committee_helper'
 
 require 'debt_management_center/models/debt_store'
 
-RSpec.describe 'Mobile::V0::Debts', type: :request do
+RSpec.describe 'Mobile::V0::Debts' do
   include JsonSchemaMatchers
   include CommitteeHelper
 

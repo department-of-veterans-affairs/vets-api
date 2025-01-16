@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::ServiceAccountAccessToken, type: :model do
+RSpec.describe SignIn::ServiceAccountAccessToken do
   let(:service_account_access_token) do
     create(:service_account_access_token,
            service_account_id:,

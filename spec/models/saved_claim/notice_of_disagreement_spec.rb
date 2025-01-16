@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'decision_review_v1/service'
 
-RSpec.describe SavedClaim::NoticeOfDisagreement, type: :model do
+RSpec.describe SavedClaim::NoticeOfDisagreement do
   subject { described_class.new }
 
   describe 'AppealSubmission association' do

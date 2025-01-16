@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AppealsApi::Veteran, type: :model do
+RSpec.describe AppealsApi::Veteran do
   describe '#initialize' do
     it 'instantiates a claims veteran' do
       allow(ClaimsApi::Veteran).to receive(:new)

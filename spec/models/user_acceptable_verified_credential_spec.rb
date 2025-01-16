@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe UserAcceptableVerifiedCredential, type: :model do
+RSpec.describe UserAcceptableVerifiedCredential do
   subject do
     create(:user_acceptable_verified_credential,
            user_account:,

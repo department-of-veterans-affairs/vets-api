@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe VAOS::V2::UpdateAppointmentForm, type: :model do
+describe VAOS::V2::UpdateAppointmentForm do
   describe 'valid object' do
     subject { described_class.new(status: 'pending') }
 

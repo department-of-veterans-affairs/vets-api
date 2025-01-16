@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeUsersController, type: :routing do
+RSpec.describe AccreditedRepresentativePortal::V0::RepresentativeUsersController do
   describe 'routing' do
     it 'routes to #show' do
       expect(get: '/accredited_representative_portal/v0/user').to route_to(

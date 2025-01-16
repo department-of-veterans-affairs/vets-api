@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :request do
+RSpec.describe AccreditedRepresentativePortal::ApplicationController do
   describe 'GET /accredited_representative_portal/arbitrary' do
     subject do
       get '/accredited_representative_portal/arbitrary'

@@ -3,7 +3,7 @@
 require_relative '../../../support/helpers/rails_helper'
 require_relative '../../../support/helpers/committee_helper'
 
-RSpec.describe 'Mobile::V0::Dependents', type: :request do
+RSpec.describe 'Mobile::V0::Dependents' do
   include CommitteeHelper
 
   let!(:user) { sis_user(ssn: '796043735') }

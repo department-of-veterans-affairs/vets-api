@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe IdCardAnnouncementSubscription, type: :model do
+RSpec.describe IdCardAnnouncementSubscription do
   describe 'when validating' do
     it 'requires a valid email address' do
       subscription = described_class.new(email: 'invalid')

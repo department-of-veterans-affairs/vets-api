@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SpoolFileEvent, type: :model do
+RSpec.describe SpoolFileEvent do
   subject { described_class.new }
 
   it 'validates rpo' do

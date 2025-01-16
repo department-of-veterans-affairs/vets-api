@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/saml/response_builder'
 
-RSpec.describe UserSessionForm, type: :model do
+RSpec.describe UserSessionForm do
   include SAML::ResponseBuilder
 
   let(:loa3_user) do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::OpenidConnectCertificatesController, type: :controller do
+RSpec.describe SignIn::OpenidConnectCertificatesController do
   describe 'GET index' do
     subject { get(:index) }
 

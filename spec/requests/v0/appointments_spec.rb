@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/error_details'
 
-RSpec.describe 'V0::Appointments', type: :request do
+RSpec.describe 'V0::Appointments' do
   include SchemaMatchers
   include ErrorDetails
 

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Avs', type: :request do
+RSpec.describe 'V0::Avs' do
   before do
     sign_in_as(current_user)
   end

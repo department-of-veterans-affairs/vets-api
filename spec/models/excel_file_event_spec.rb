@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ExcelFileEvent, type: :model do
+RSpec.describe ExcelFileEvent do
   subject { described_class.new }
 
   it 'validates filename uniqueness' do

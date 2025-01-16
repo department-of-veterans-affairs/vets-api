@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::EVSSClaims', type: :request do
+RSpec.describe 'V0::EVSSClaims' do
   include SchemaMatchers
 
   let(:user) { create(:user, :loa3, edipi: nil) }

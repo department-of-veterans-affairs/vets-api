@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'CheckIn::V2::Sessions::Appointments', type: :request do
+RSpec.describe 'CheckIn::V2::Sessions::Appointments' do
   let(:id) { 'd602d9eb-9a31-484f-9637-13ab0b507e0d' }
   let(:memory_store) { ActiveSupport::Cache.lookup_store(:memory_store) }
 

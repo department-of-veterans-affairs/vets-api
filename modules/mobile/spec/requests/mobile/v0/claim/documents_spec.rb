@@ -4,7 +4,7 @@ require_relative '../../../../support/helpers/rails_helper'
 
 require 'lighthouse/benefits_documents/service'
 
-RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation, type: :request do
+RSpec.describe 'Mobile::V0::Claim::Document', :skip_json_api_validation do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user(icn: '24811694708759028') }

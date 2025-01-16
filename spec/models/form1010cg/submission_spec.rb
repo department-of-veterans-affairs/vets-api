@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Form1010cg::Submission, type: :model do
+RSpec.describe Form1010cg::Submission do
   let(:sample_data) do
     {
       carma_case_id: 'aB9r00000004GW9CAK',

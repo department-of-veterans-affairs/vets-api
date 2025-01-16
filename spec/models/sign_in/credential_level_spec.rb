@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::CredentialLevel, type: :model do
+RSpec.describe SignIn::CredentialLevel do
   let(:credential_level) do
     create(:credential_level,
            requested_acr:,

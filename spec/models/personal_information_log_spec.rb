@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe PersonalInformationLog, type: :model do
+RSpec.describe PersonalInformationLog do
   let(:personal_information_log) { build(:personal_information_log) }
 
   describe 'validations' do

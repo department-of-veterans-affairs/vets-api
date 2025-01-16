@@ -4,8 +4,7 @@ require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 require_relative '../../../support/swagger_shared_components/v0'
 
-RSpec.describe 'PDF Generator 21-22a', openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json',
-                                       type: :request do
+RSpec.describe 'PDF Generator 21-22a', openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json' do
   before do
     create(:accredited_individual,
            id: SwaggerSharedComponents::V0.representative[:id],

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::RatedDisabilitiesDiscrepanciesController, type: :controller do
+RSpec.describe V0::RatedDisabilitiesDiscrepanciesController do
   let(:user) { create(:user, :loa3, icn: '123498767V234859') }
 
   before do

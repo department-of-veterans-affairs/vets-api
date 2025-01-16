@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Form1010Ezrs', type: :request do
+RSpec.describe 'V0::Form1010Ezrs' do
   let(:form) do
     File.read('spec/fixtures/form1010_ezr/valid_form.json')
   end

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::Profile::VetVerificationStatusesController, type: :controller do
+RSpec.describe V0::Profile::VetVerificationStatusesController do
   let(:user) { create(:user, :loa3, icn: '1012667145V762142') }
 
   before do

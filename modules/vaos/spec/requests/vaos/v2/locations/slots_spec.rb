@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'VAOS::V2::Locations::Slots', type: :request do
+RSpec.describe 'VAOS::V2::Locations::Slots' do
   include SchemaMatchers
 
   before do

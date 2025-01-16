@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
-RSpec.describe Vye::UserProfile, type: :model do
+RSpec.describe Vye::UserProfile do
   describe '::find_and_update_icn' do
     before do
       allow(StatsD).to receive(:increment)

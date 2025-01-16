@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Mobile::V0::LighthouseSession, type: :model do
+RSpec.describe Mobile::V0::LighthouseSession do
   context 'with valid attributes' do
     let(:session) { Mobile::V0::LighthouseSession.new(access_token: 'abc123', expires_in: 300) }
 

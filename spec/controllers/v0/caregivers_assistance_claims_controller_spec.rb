@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'saved_claim/caregivers_assistance_claim'
 require 'lighthouse/facilities/v1/client'
 
-RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
+RSpec.describe V0::CaregiversAssistanceClaimsController do
   describe '::auditor' do
     it 'is an instance of Form1010cg::Auditor' do
       expect(described_class::AUDITOR).to be_an_instance_of(Form1010cg::Auditor)
@@ -92,7 +92,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
 
       res_body = JSON.parse(response.body)
 
-      expect(response.status).to eq(422)
+      expect(response).to have_http_status(:unprocessable_content)
 
       expect(res_body['errors']).to be_present
       expect(res_body['errors'].size).to eq(4)
@@ -197,7 +197,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       )
 
       post :create, params: { caregivers_assistance_claim: { form: claim.form } }
-      expect(response.code).to eq('503')
+      expect(response).to have_http_status(:service_unavailable)
       expect(JSON.parse(response.body)['errors'][0]['detail']).to eq(
         'Backend Service Outage'
       )

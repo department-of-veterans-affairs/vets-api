@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SupportingEvidenceAttachment, type: :model do
+RSpec.describe SupportingEvidenceAttachment do
   describe '#obscured_filename' do
     context 'for a filename longer than five characters' do
       context 'for a filename containing letters' do

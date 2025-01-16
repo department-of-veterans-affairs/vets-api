@@ -2,7 +2,7 @@
 
 require_relative '../../../../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile::V0::User::Phones', type: :request do
+RSpec.describe 'Mobile::V0::User::Phones' do
   include JsonSchemaMatchers
 
   let!(:user) { sis_user }

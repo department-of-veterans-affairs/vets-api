@@ -3,7 +3,7 @@
 require 'rails_helper'
 require Vye::Engine.root / 'spec/rails_helper'
 
-RSpec.describe Vye::PendingDocument, type: :model do
+RSpec.describe Vye::PendingDocument do
   describe 'create' do
     let(:user_profile) { create(:vye_user_profile) }
 

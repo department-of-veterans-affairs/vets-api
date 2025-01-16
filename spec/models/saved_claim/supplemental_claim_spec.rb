@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'decision_review_v1/service'
 
-RSpec.describe SavedClaim::SupplementalClaim, type: :model do
+RSpec.describe SavedClaim::SupplementalClaim do
   subject { described_class.new }
 
   describe 'AppealSubmission association' do

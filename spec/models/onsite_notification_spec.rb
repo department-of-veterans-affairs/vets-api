@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe OnsiteNotification, type: :model do
+RSpec.describe OnsiteNotification do
   let(:onsite_notification) { described_class.new }
 
   describe 'validations' do

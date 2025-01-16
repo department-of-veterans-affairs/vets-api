@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::Profile::FullName', type: :request do
+RSpec.describe 'V0::Profile::FullName' do
   include SchemaMatchers
 
   before do

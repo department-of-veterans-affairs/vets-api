@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe InProgressForm, type: :model do
+RSpec.describe InProgressForm do
   let(:in_progress_form) { build(:in_progress_form) }
 
   describe '#log_hca_email_diff' do

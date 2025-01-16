@@ -20,7 +20,7 @@ RSpec.describe V0::DependentsApplicationsController do
       it 'returns a list of dependents' do
         VCR.use_cassette('bgs/claimant_web_service/dependents') do
           get(:show, params: { id: user.participant_id })
-          expect(response.code).to eq('200')
+          expect(response).to have_http_status(:ok)
           expect(response).to have_http_status(:ok)
           expect(JSON.parse(response.body)['data']['type']).to eq('dependents')
         end
@@ -33,7 +33,7 @@ RSpec.describe V0::DependentsApplicationsController do
       it 'returns no content' do
         allow_any_instance_of(BGS::DependentService).to receive(:get_dependents).and_raise(BGS::ShareError)
         get(:show, params: { id: user.participant_id })
-        expect(response.code).to eq('400')
+        expect(response).to have_http_status(:bad_request)
         expect(response).to have_http_status(:bad_request)
       end
     end
@@ -53,7 +53,7 @@ RSpec.describe V0::DependentsApplicationsController do
           post(:create, params: test_form)
         end
 
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
       end
     end
 
@@ -67,7 +67,7 @@ RSpec.describe V0::DependentsApplicationsController do
       it 'shows the validation errors' do
         post(:create, params:)
 
-        expect(response.code).to eq('422')
+        expect(response).to have_http_status(:unprocessable_content)
         expect(
           JSON.parse(response.body)['errors'][0]['detail'].include?(
             'Veteran address can\'t be blank'
@@ -81,7 +81,7 @@ RSpec.describe V0::DependentsApplicationsController do
     it "returns the user's disability rating" do
       VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
         get(:disability_rating)
-        expect(response.code).to eq('200')
+        expect(response).to have_http_status(:ok)
         expect(JSON.parse(response.body)['has30_percent']).to be true
       end
     end

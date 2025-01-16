@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Mobile::V0::LighthouseParamsFactory, type: :model do
+RSpec.describe Mobile::V0::LighthouseParamsFactory do
   describe '#params' do
     context 'with a user' do
       let(:user) { build(:user) }

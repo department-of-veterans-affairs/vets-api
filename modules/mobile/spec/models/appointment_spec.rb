@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Mobile::V0::Appointment, type: :model do
+RSpec.describe Mobile::V0::Appointment do
   describe '.convert_from_non_prod_id!' do
     it 'converts mocked ids to real ones' do
       expect(Mobile::V0::Appointment.convert_from_non_prod_id!('983')).to eq('442')

@@ -4,7 +4,7 @@ require_relative '../../../support/helpers/rails_helper'
 require 'support/stub_efolder_documents'
 require_relative '../../../support/helpers/committee_helper'
 
-RSpec.describe 'Mobile::V0::Efolder', type: :request do
+RSpec.describe 'Mobile::V0::Efolder' do
   include JsonSchemaMatchers
   include CommitteeHelper
 

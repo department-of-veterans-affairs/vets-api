@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe UserAccount, type: :model do
+RSpec.describe UserAccount do
   let(:user_account) { create(:user_account, icn:) }
   let(:icn) { nil }
 

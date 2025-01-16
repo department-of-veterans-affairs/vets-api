@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'Appeals Documentation Endpoints', type: :request do
+RSpec.describe 'Appeals Documentation Endpoints' do
   # @param [Hash] opts
   # @option opts [String] :path - Path to openapi docs
   # @option opts [String] :path_template - Path template to expect in generated docs where not standards-compliant

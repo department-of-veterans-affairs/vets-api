@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe RepresentationManagement::Form2122Data, type: :model do
+RSpec.describe RepresentationManagement::Form2122Data do
   describe '#limitations_of_consent_checkbox' do
     context 'when record_consent is false' do
       it 'returns 0' do

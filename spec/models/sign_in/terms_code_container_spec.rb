@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::TermsCodeContainer, type: :model do
+RSpec.describe SignIn::TermsCodeContainer do
   let(:terms_code_container) { create(:terms_code_container, user_account_uuid:, code:) }
 
   let(:code) { SecureRandom.hex }

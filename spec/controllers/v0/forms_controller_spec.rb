@@ -6,7 +6,7 @@ def type_of_response(response)
   JSON.parse(response.body)['data'][0]['type']
 end
 
-RSpec.describe V0::FormsController, type: :controller do
+RSpec.describe V0::FormsController do
   context 'with query param' do
     it 'returns forms' do
       VCR.use_cassette('forms/200_form_query') do

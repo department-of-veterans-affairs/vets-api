@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::MedicalCopaysController, type: :controller do
+RSpec.describe V0::MedicalCopaysController do
   let(:user) { build(:user, :loa3) }
 
   context 'when not logged in' do

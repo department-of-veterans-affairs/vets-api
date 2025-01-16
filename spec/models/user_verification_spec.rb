@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe UserVerification, type: :model do
+RSpec.describe UserVerification do
   let(:user_verification) do
     create(:user_verification,
            idme_uuid:,

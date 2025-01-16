@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V0::UploadSupportingEvidence', type: :request do
+RSpec.describe 'V0::UploadSupportingEvidence' do
   include SchemaMatchers
   let(:user) { build(:disabilities_compensation_user) }
 

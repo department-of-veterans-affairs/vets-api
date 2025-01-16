@@ -5,7 +5,7 @@ require 'support/rx_client_helpers'
 require 'statsd_middleware'
 
 # TODO: possibly refactor this spec to be generic, not dependent on PrescriptionsController
-RSpec.describe StatsdMiddleware, type: :request do
+RSpec.describe StatsdMiddleware do
   include Rx::ClientHelpers
 
   let(:active_rxs) { File.read('spec/fixtures/json/get_active_rxs.json') }

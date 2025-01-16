@@ -3,7 +3,7 @@
 require 'rails_helper'
 require_relative '../../../../app/controllers/apps_api/v0/directory_controller'
 
-RSpec.describe 'AppsApi::V0::Directory', type: :request do
+RSpec.describe 'AppsApi::V0::Directory' do
   let(:auth_string) { 'blah' }
   let(:valid_headers) do
     { 'Authorization' => auth_string }

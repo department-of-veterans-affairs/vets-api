@@ -3,7 +3,7 @@
 require 'rails_helper'
 require 'support/stub_efolder_documents'
 
-RSpec.describe 'VO::Efolder', type: :request do
+RSpec.describe 'VO::Efolder' do
   let(:user) { build(:user, :loa3) }
 
   before do

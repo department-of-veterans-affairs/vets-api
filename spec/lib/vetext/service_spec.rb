@@ -207,7 +207,7 @@ describe 'VEText::Service' do
 
       it 'returns successfully with a 200 status' do
         expect(response.body).to eq(response_body)
-        expect(response.status).to eq(200)
+        expect(response).to have_http_status(:ok)
       end
     end
 

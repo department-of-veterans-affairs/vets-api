@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::EvidenceWaiverSubmission, type: :model do
+RSpec.describe ClaimsApi::EvidenceWaiverSubmission do
   describe 'requiring fields' do
     context "when 'auth_headers' is not provided" do
       it 'fails validation' do

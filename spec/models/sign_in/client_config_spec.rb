@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::ClientConfig, type: :model do
+RSpec.describe SignIn::ClientConfig do
   let(:client_config) do
     create(:client_config,
            client_id:,

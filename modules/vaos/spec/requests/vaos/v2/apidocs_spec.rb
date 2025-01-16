@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-RSpec.describe 'VAOS::V2::Apidocs', type: :request do
+RSpec.describe 'VAOS::V2::Apidocs' do
   describe 'GET /vaos/v2/apidocs' do
     it 'renders the apidocs as json' do
       get '/vaos/v2/apidocs'

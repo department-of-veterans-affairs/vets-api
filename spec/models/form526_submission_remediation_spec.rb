@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Form526SubmissionRemediation, type: :model do
+RSpec.describe Form526SubmissionRemediation do
   subject do
     described_class.new(form526_submission:, lifecycle: [])
   end

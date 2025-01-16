@@ -9,7 +9,7 @@ require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 require 'bgs_service/tracked_item_service'
 require 'concerns/claims_api/v2/claims_requests/supporting_documents'
 
-RSpec.describe 'ClaimsApi::V2::Veterans::Claims', type: :request do
+RSpec.describe 'ClaimsApi::V2::Veterans::Claims' do
   let(:veteran_id) { '1013062086V794840' }
   let(:file_number) { '796111863' }
   let(:claimant_on_behalf_of_veteran_id) { '8675309' }

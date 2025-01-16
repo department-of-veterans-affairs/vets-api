@@ -72,7 +72,7 @@ vcr_options = {
   allow_playback_repeats: true
 }
 
-RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, type: :request, vcr: vcr_options do
+RSpec.describe 'FacilitiesApi::V2::Va', team: :facilities, vcr: vcr_options do
   subject(:parsed_body) { JSON.parse(response.body).with_indifferent_access }
 
   describe 'POST #search' do

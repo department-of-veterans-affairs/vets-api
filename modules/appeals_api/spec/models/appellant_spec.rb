@@ -3,7 +3,7 @@
 require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'spec_helper.rb')
 
-describe AppealsApi::Appellant, type: :model do
+describe AppealsApi::Appellant do
   include FixtureHelpers
 
   shared_examples 'appellant attributes' do |opts|

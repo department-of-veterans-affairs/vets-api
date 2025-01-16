@@ -2,7 +2,7 @@
 
 require_relative '../../../../../support/helpers/rails_helper'
 
-RSpec.describe 'Mobile::V0::Messaging::Health::MessageDrafts', type: :request do
+RSpec.describe 'Mobile::V0::Messaging::Health::MessageDrafts' do
   include SchemaMatchers
 
   let!(:user) { sis_user(:mhv, mhv_account_type: 'Premium') }

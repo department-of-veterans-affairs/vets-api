@@ -3,7 +3,7 @@
 require './modules/decision_reviews/spec/dr_spec_helper'
 require './modules/decision_reviews/spec/support/vcr_helper'
 
-RSpec.describe DecisionReviews::V1::DecisionReviewEvidencesController, type: :controller do
+RSpec.describe DecisionReviews::V1::DecisionReviewEvidencesController do
   routes { DecisionReviews::Engine.routes }
 
   describe '::FORM_ATTACHMENT_MODEL' do

@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe SignIn::ValidatedCredential, type: :model do
+RSpec.describe SignIn::ValidatedCredential do
   let(:validated_credential) do
     create(:validated_credential,
            user_verification:,

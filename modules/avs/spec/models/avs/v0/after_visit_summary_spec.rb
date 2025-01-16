@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-describe Avs::V0::AfterVisitSummary, type: :model do
+describe Avs::V0::AfterVisitSummary do
   context 'Creating' do
     let(:attributes) do
       {

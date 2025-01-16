@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe Form1010cg::Attachment, type: :model do
+RSpec.describe Form1010cg::Attachment do
   let(:guid) { 'cdbaedd7-e268-49ed-b714-ec543fbb1fb8' }
   let(:subject) { described_class.new(guid:) }
   let(:vcr_options) do

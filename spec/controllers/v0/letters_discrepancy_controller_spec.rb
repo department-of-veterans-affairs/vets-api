@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe V0::LettersDiscrepancyController, type: :controller do
+RSpec.describe V0::LettersDiscrepancyController do
   # These users are from Lighthouse API sandbox
   # https://github.com/department-of-veterans-affairs/vets-api-clients/blob/master/test_accounts/letter_generator_test_accounts.md
   let(:user) { build(:user, :loa3, icn: '1012845630V900607') }

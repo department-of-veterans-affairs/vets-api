@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe ClaimsApi::PowerOfAttorney, type: :model do
+RSpec.describe ClaimsApi::PowerOfAttorney do
   let(:pending_record) { create(:power_of_attorney) }
 
   describe 'encrypted attributes' do

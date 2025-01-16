@@ -3,8 +3,7 @@
 require 'swagger_helper'
 require Rails.root.join('spec', 'rswag_override.rb').to_s
 
-RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json',
-                                        type: :request do
+RSpec.describe 'Power of Attorney API', openapi_spec: 'modules/representation_management/app/swagger/v0/swagger.json' do
   let(:user) { create(:user, :loa3) }
 
   # rubocop:disable RSpec/ScatteredSetup

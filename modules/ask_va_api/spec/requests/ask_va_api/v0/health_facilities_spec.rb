@@ -74,7 +74,7 @@ vcr_options = {
   allow_playback_repeats: true
 }
 
-RSpec.describe AskVAApi::V0::HealthFacilitiesController, team: :facilities, type: :request, vcr: vcr_options do
+RSpec.describe AskVAApi::V0::HealthFacilitiesController, team: :facilities, vcr: vcr_options do
   subject(:parsed_body) { JSON.parse(response.body).with_indifferent_access }
 
   let(:cache_data_instance) { Crm::CacheData.new }

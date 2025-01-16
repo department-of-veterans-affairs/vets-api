@@ -3,7 +3,7 @@
 require_relative '../../../../support/helpers/rails_helper'
 require_relative '../../../../support/helpers/committee_helper'
 
-RSpec.describe 'Mobile::V0::User::AuthorizedServices', type: :request do
+RSpec.describe 'Mobile::V0::User::AuthorizedServices' do
   include CommitteeHelper
 
   let!(:user) { sis_user(vha_facility_ids: [402, 555]) }

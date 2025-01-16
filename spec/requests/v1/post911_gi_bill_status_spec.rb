@@ -2,7 +2,7 @@
 
 require 'rails_helper'
 
-RSpec.describe 'V1::Post911GIBillStatus', type: :request do
+RSpec.describe 'V1::Post911GIBillStatus' do
   include SchemaMatchers
 
   let(:user) { create(:user, icn: '1012667145V762142') }

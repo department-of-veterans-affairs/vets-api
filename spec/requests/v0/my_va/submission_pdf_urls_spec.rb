@@ -9,8 +9,7 @@ MOCK_GUID = '3b03b5a0-3ad9-4207-b61e-3a13ed1c8b80'
 VALID_FORM_ID = '20-10206'
 
 RSpec.describe 'V0::MyVA::SubmissionPdfUrls', feature: :form_submission,
-                                              team_owner: :vfs_authenticated_experience_backend,
-                                              type: :request do
+                                              team_owner: :vfs_authenticated_experience_backend do
   let(:user) { build(:user, :loa1) }
   let(:mock_config) { instance_double(SimpleFormsApi::FormRemediation::Configuration::VffConfig) }
 
