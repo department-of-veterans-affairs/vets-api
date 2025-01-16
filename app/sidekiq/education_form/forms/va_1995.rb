@@ -21,7 +21,7 @@ module EducationForm::Forms
     def header_abbreviated_form_type(header_form_type)
       return 'CH33' if header_form_type.eql?('transferOfEntitlement')
 
-      FORM_TYPES[header_form_type.to_sym]
+      FORM_TYPES[header_form_type&.to_sym]
     end
 
     def form_type
