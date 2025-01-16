@@ -2,13 +2,14 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequest < ApplicationRecord
-    EXPIRY_DURATION = 60.days
     module ClaimantTypes
       ALL = [
         DEPENDENT = 'dependent',
         VETERAN = 'veteran'
       ].freeze
     end
+
+    EXPIRY_DURATION = 60.days
 
     belongs_to :claimant, class_name: 'UserAccount'
 
@@ -45,11 +46,12 @@ module AccreditedRepresentativePortal
     private
 
     def set_claimant_type
-      self.claimant_type = if power_of_attorney_form.parsed_data['dependent']
-                             ClaimantTypes::DEPENDENT
-                           elsif power_of_attorney_form.parsed_data['veteran']
-                             ClaimantTypes::VETERAN
-                           end
+      self.claimant_type =
+        if power_of_attorney_form.parsed_data['dependent']
+          ClaimantTypes::DEPENDENT
+        elsif power_of_attorney_form.parsed_data['veteran']
+          ClaimantTypes::VETERAN
+        end
     end
   end
 end

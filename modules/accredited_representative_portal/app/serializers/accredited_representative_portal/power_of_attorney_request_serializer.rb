@@ -2,26 +2,20 @@
 
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequestSerializer < ApplicationSerializer
-    attributes :claimant_id
-
-    attribute :created_at do |poa_request|
-      poa_request.created_at.utc.strftime('%Y-%m-%dT%H:%M:%SZ')
-    end
-
-    attribute :expires_at, &:expires_at
+    attributes :claimant_id, :created_at, :expires_at
 
     attribute :power_of_attorney_form do |poa_request|
       poa_request.power_of_attorney_form.parsed_data.tap do |form|
         claimant_key =
           case poa_request.claimant_type
-          when AccreditedRepresentativePortal::PowerOfAttorneyRequest::ClaimantTypes::DEPENDENT
+          when PowerOfAttorneyRequest::ClaimantTypes::DEPENDENT
             'dependent'
-          when AccreditedRepresentativePortal::PowerOfAttorneyRequest::ClaimantTypes::VETERAN
+          when PowerOfAttorneyRequest::ClaimantTypes::VETERAN
             'veteran'
           end
 
-        form.delete('dependent') if claimant_key == 'veteran'
         form['claimant'] = form.delete(claimant_key)
+        form.delete('dependent')
       end
     end
 
@@ -38,7 +32,7 @@ module AccreditedRepresentativePortal
 
       serializer
         .new(poa_request.resolution)
-        .serializable_hash.merge(created_at: poa_request.resolution.created_at.utc.strftime('%Y-%m-%dT%H:%M:%SZ'))
+        .serializable_hash
     end
 
     attribute :power_of_attorney_holder do |poa_request|
