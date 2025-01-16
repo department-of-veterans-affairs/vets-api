@@ -37,7 +37,7 @@ module IvcChampva
     #   E.g., for two documents uploaded, one successful and one failed, it returns:
     #   [[200], [400, 'No such file or directory']]
     #
-    # @return [Array] Either an array of arrays, or an array with a status code and an optional error message string.
+    # @return [Array<Integer, String>, Array<Array<Integer, String>>] Either an array of arrays, or an array with a status code and an optional error message string.
     def handle_uploads
       results = @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
         next if file_path.blank?
