@@ -236,6 +236,7 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
         VCR.use_cassette('dgi/submit_claim_lighthouse') do
           Settings.mobile_lighthouse.rsa_key = OpenSSL::PKey::RSA.generate(2048).to_s
           Settings.lighthouse.direct_deposit.use_mocks = true
+          Settings.lighthouse.benefits_claims.use_mocks = true
           post '/meb_api/v0/submit_claim', params: claimant_params
           expect(response).to have_http_status(:ok)
         end
