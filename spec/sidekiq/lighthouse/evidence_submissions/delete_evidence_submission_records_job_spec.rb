@@ -21,7 +21,7 @@ RSpec.describe Lighthouse::EvidenceSubmissions::DeleteEvidenceSubmissionRecordsJ
           .with('worker.cst.delete_evidence_submission_records.count', 2).exactly(1).time
         expect(Rails.logger)
           .to receive(:info)
-          .with("#{described_class} deleted 2 of 3 EvidenceSubmission records")
+          .with("#{subject} deleted 2 of 3 EvidenceSubmission records")
         subject.new.perform
         expect(EvidenceSubmission.where(id: es_no_delete.id).count).to eq(1)
         expect(EvidenceSubmission.where(id: es_delete_one.id).count).to eq(0)
