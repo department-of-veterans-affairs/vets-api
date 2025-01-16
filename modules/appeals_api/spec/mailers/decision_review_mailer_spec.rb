@@ -32,8 +32,8 @@ RSpec.describe AppealsApi::DecisionReviewMailer, type: [:mailer] do
     end
 
     it 'displays totals on weekly report' do
-      create :notice_of_disagreement, status: 'complete', created_at: 3.weeks.ago
-      create_list :supplemental_claim, 2, status: 'complete', created_at: 3.weeks.ago
+      create(:notice_of_disagreement, status: 'complete', created_at: 3.weeks.ago)
+      create_list(:supplemental_claim, 2, status: 'complete', created_at: 3.weeks.ago)
 
       mail = described_class.build(date_from: 7.days.ago, date_to: Time.zone.now, friendly_duration: 'Weekly',
                                    recipients:).deliver_now
@@ -45,7 +45,7 @@ RSpec.describe AppealsApi::DecisionReviewMailer, type: [:mailer] do
     end
 
     it 'displays more useful info on faulty evidence submissions' do
-      es = create :evidence_submission_with_error
+      es = create(:evidence_submission_with_error)
       mail = described_class.build(date_from: 7.days.ago, date_to: Time.zone.now, friendly_duration: 'Weekly',
                                    recipients:).deliver_now
       body = mail.body.to_s

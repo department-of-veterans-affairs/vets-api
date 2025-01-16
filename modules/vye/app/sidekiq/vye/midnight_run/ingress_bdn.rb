@@ -7,7 +7,9 @@ module Vye
       sidekiq_options retry: 5
 
       def perform
-        return if Vye::CloudTransfer.holiday?
+        if Vye::CloudTransfer.holiday?
+          logger.info("Vye::MidnightRun::IngressBdn: holiday detected, job run at: #{Time.zone.now}")
+        end
 
         Rails.logger.info('Vye::MidnightRun::IngressBdn: starting')
 

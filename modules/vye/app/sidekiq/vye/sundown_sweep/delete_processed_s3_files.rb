@@ -5,7 +5,9 @@ module Vye
     class DeleteProcessedS3Files
       include Sidekiq::Worker
       def perform
-        return if Vye::CloudTransfer.holiday?
+        if Vye::CloudTransfer.holiday?
+          logger.info("Vye::SundownSweep::DeleteProcessedS3Files: holiday detected, job run at: #{Time.zone.now}")
+        end
 
         logger.info('Vye::SundownSweep::DeleteProcessedS3Files: starting remove_aws_files_from_s3_buckets')
         Vye::CloudTransfer.remove_aws_files_from_s3_buckets

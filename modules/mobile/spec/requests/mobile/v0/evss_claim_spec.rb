@@ -10,8 +10,8 @@ RSpec.describe 'Mobile::V0::Claim', type: :request do
 
     before do
       Flipper.disable(:mobile_lighthouse_claims)
-      FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
-      FactoryBot.create(:evss_claim, id: 2, evss_id: 111_222_333, user_uuid: '1234567890')
+      create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
+      create(:evss_claim, id: 2, evss_id: 111_222_333, user_uuid: '1234567890')
     end
 
     context 'when the claim is found' do

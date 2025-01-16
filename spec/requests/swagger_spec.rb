@@ -170,7 +170,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports getting an in-progress form' do
-      FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      create(:in_progress_form, user_uuid: mhv_user.uuid)
       stub_evss_pciu(mhv_user)
       expect(subject).to validate(
         :get,
@@ -201,7 +201,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports deleting an in-progress form' do
-      form = FactoryBot.create(:in_progress_form, user_uuid: mhv_user.uuid)
+      form = create(:in_progress_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :delete,
         '/v0/in_progress_forms/{id}',
@@ -212,7 +212,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports getting an disability_compensation_in_progress form' do
-      FactoryBot.create(:in_progress_526_form, user_uuid: mhv_user.uuid)
+      create(:in_progress_526_form, user_uuid: mhv_user.uuid)
       stub_evss_pciu(mhv_user)
       VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
         expect(subject).to validate(
@@ -249,7 +249,7 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
     end
 
     it 'supports deleting an disability_compensation_in_progress form' do
-      form = FactoryBot.create(:in_progress_526_form, user_uuid: mhv_user.uuid)
+      form = create(:in_progress_526_form, user_uuid: mhv_user.uuid)
       expect(subject).to validate(
         :delete,
         '/v0/disability_compensation_in_progress_forms/{id}',
@@ -3578,8 +3578,8 @@ RSpec.describe 'the v0 API documentation', type: %i[apivore request], order: :de
 
     describe 'claim status tool' do
       let!(:claim) do
-        FactoryBot.create(:evss_claim, id: 1, evss_id: 189_625,
-                                       user_uuid: mhv_user.uuid, data: {})
+        create(:evss_claim, id: 1, evss_id: 189_625,
+                            user_uuid: mhv_user.uuid, data: {})
       end
 
       it 'uploads a document to support a claim' do

@@ -7,7 +7,9 @@ module Vye
       sidekiq_options retry: 0
 
       def perform
-        return if Vye::CloudTransfer.holiday?
+        if Vye::CloudTransfer.holiday?
+          logger.info("Vye::MidnightRun::IngressTims: holiday detected, job run at: #{Time.zone.now}")
+        end
 
         Vye::PendingDocument.delete_all
 
