@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_31_213045) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -307,7 +307,12 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_31_213045) do
     t.uuid "claimant_id", null: false
     t.datetime "created_at", null: false
     t.string "claimant_type", null: false
+    t.string "power_of_attorney_holder_type", null: false
+    t.uuid "power_of_attorney_holder_id", null: false
+    t.uuid "accredited_individual_id", null: false
+    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_a0a1fab1e0"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
+    t.index ["power_of_attorney_holder_type", "power_of_attorney_holder_id"], name: "index_ar_power_of_attorney_requests_on_power_of_attorney_holder"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -493,6 +498,18 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_31_213045) do
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
   end
 
+  create_table "claims_api_processes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "processable_id", null: false
+    t.string "processable_type", null: false
+    t.string "step_type"
+    t.string "step_status"
+    t.datetime "completed_at"
+    t.jsonb "error_messages", default: []
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["processable_id", "processable_type"], name: "idx_on_processable_id_processable_type_91e46b55a4"
+  end
+
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -522,42 +539,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_31_213045) do
     t.string "service_levels", default: ["ial1", "ial2", "loa1", "loa3", "min"], array: true
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
-  end
-
-  create_table "covid_vaccine_expanded_registration_submissions", id: :serial, force: :cascade do |t|
-    t.string "submission_uuid", null: false
-    t.string "vetext_sid"
-    t.boolean "sequestered", default: true, null: false
-    t.string "state"
-    t.string "email_confirmation_id"
-    t.string "enrollment_id"
-    t.string "batch_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.text "raw_form_data_ciphertext"
-    t.text "eligibility_info_ciphertext"
-    t.text "form_data_ciphertext"
-    t.text "encrypted_kms_key"
-    t.index ["batch_id"], name: "index_covid_vaccine_expanded_reg_submissions_on_batch_id"
-    t.index ["state"], name: "index_covid_vaccine_expanded_registration_submissions_on_state"
-    t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
-    t.index ["vetext_sid"], name: "index_covid_vaccine_expanded_on_vetext_sid", unique: true
-  end
-
-  create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
-    t.string "sid"
-    t.uuid "account_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "expanded", default: false, null: false
-    t.boolean "sequestered", default: false, null: false
-    t.string "email_confirmation_id"
-    t.string "enrollment_id"
-    t.text "form_data_ciphertext"
-    t.text "raw_form_data_ciphertext"
-    t.text "encrypted_kms_key"
-    t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
-    t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
   end
 
   create_table "decision_review_notification_audit_logs", force: :cascade do |t|
@@ -1744,6 +1725,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_31_213045) do
   add_foreign_key "ar_power_of_attorney_forms", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_request_decisions", "user_accounts", column: "creator_id"
   add_foreign_key "ar_power_of_attorney_request_resolutions", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
+  add_foreign_key "ar_power_of_attorney_requests", "accredited_individuals"
   add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claim_va_notifications", "saved_claims"

@@ -25,10 +25,9 @@ module Common
     def generate_clamav_temp_file(file_body, file_name = nil)
       file_name = SecureRandom.hex if file_name.nil?
       clamav_directory = Rails.root.join('clamav_tmp')
-      unless Dir.exist?(clamav_directory)
-        # Create the directory if it doesn't exist
-        Dir.mkdir(clamav_directory)
-      end
+
+      # Create the directory if it doesn't exist
+      FileUtils.mkdir_p(clamav_directory)
 
       file_path = "clamav_tmp/#{file_name}"
 
