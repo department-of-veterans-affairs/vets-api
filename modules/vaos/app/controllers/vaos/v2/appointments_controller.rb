@@ -90,6 +90,29 @@ module VAOS
         render json: { data: serialized }
       end
 
+      def submit_referral_appointment
+        params = submit_params
+        appointment = eps_appointment_service.submit_appointment(
+          params[:id],
+          { referral_number: params[:referral_number],
+            network_id: params[:network_id],
+            provider_service_id: params[:provider_service_id],
+            slot_ids: [params[:slot_id]],
+            additional_patient_attributes: patient_attributes(params) }
+        )
+
+        render json: {
+          id: params[:id],
+          type: 'draft_appointments',
+          attributes: {
+            appointment: {
+              id: appointment[:id],
+              state: appointment[:state]
+            }
+          }
+        }, status: :created
+      end
+
       private
 
       def set_facility_error_msg(appointment)
@@ -366,6 +389,57 @@ module VAOS
         else
           APPT_CREATE_VAOS
         end
+      end
+
+      # rubocop:disable Metrics/MethodLength
+      def submit_params
+        params.require(%i[id network_id provider_service_id slot_id referral_number])
+        params.permit(
+          :id,
+          :network_id,
+          :provider_service_id,
+          :slot_id,
+          :referral_number,
+          :birth_date,
+          :email,
+          :phone_number,
+          :gender,
+          address: [
+            :type,
+            { line: [] },
+            :city,
+            :state,
+            :postal_code,
+            :country,
+            :text
+          ],
+          name: [
+            :family,
+            { given: [] }
+          ]
+        )
+      end
+      # rubocop:enable Metrics/MethodLength
+
+      def patient_attributes(params)
+        {
+          name: {
+            family: params.dig(:name, :family),
+            given: params.dig(:name, :given)
+          },
+          phone: params[:phone_number],
+          email: params[:email],
+          birthDate: params[:birth_date],
+          gender: params[:gender],
+          address: {
+            line: params.dig(:address, :line),
+            city: params.dig(:address, :city),
+            state: params.dig(:address, :state),
+            country: params.dig(:address, :country),
+            postalCode: params.dig(:address, :postal_code),
+            type: params.dig(:address, :type)
+          }
+        }
       end
 
       def fetch_provider_slots

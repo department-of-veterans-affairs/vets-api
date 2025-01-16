@@ -21,5 +21,6 @@ VAOS::Engine.routes.draw do
     get '/relationships', to: 'relationships#index'
     post '/appointments', to: 'appointments#create'
     post '/appointments/draft', to: 'appointments#create_draft'
+    post '/appointments/submit', to: 'appointments#submit_referral_appointment'
   end
 end
