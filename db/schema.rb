@@ -541,42 +541,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
   end
 
-  create_table "covid_vaccine_expanded_registration_submissions", id: :serial, force: :cascade do |t|
-    t.string "submission_uuid", null: false
-    t.string "vetext_sid"
-    t.boolean "sequestered", default: true, null: false
-    t.string "state"
-    t.string "email_confirmation_id"
-    t.string "enrollment_id"
-    t.string "batch_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.text "raw_form_data_ciphertext"
-    t.text "eligibility_info_ciphertext"
-    t.text "form_data_ciphertext"
-    t.text "encrypted_kms_key"
-    t.index ["batch_id"], name: "index_covid_vaccine_expanded_reg_submissions_on_batch_id"
-    t.index ["state"], name: "index_covid_vaccine_expanded_registration_submissions_on_state"
-    t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
-    t.index ["vetext_sid"], name: "index_covid_vaccine_expanded_on_vetext_sid", unique: true
-  end
-
-  create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
-    t.string "sid"
-    t.uuid "account_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "expanded", default: false, null: false
-    t.boolean "sequestered", default: false, null: false
-    t.string "email_confirmation_id"
-    t.string "enrollment_id"
-    t.text "form_data_ciphertext"
-    t.text "raw_form_data_ciphertext"
-    t.text "encrypted_kms_key"
-    t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
-    t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
-  end
-
   create_table "decision_review_notification_audit_logs", force: :cascade do |t|
     t.text "notification_id"
     t.text "status"
