@@ -187,7 +187,7 @@ class TokenStorageService
   def get_locally(current_user, device_key)
     token_file_path = token_file_path(generate_prefix(current_user, device_key))
     begin
-      token = File.open(token_file_path, 'r').read
+      token = File.read(token_file_path)
       JSON.parse(token).deep_symbolize_keys!
     rescue => e
       raise TokenRetrievalError, "Error retrieving token locally for icn: #{current_user.icn}, #{e}"
