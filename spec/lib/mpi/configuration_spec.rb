@@ -17,8 +17,8 @@ describe MPI::Configuration do
     end
 
     context 'when there are SSL options' do
-      let(:cert) { instance_double('OpenSSL::X509::Certificate') }
-      let(:key) { instance_double('OpenSSL::PKey::RSA') }
+      let(:cert) { instance_double(OpenSSL::X509::Certificate) }
+      let(:key) { instance_double(OpenSSL::PKey::RSA) }
 
       before do
         allow(MPI::Configuration.instance).to receive(:ssl_cert) { cert }

@@ -11,13 +11,13 @@ describe VAProfile::Concerns::Defaultable do
 
     it 'sets the default attributes', :aggregate_failures do
       default_attrs.each do |attr|
-        expect(email.send(attr).present?).to eq false
+        expect(email.send(attr).present?).to be false
       end
 
       email.set_defaults user
 
       default_attrs.each do |attr|
-        expect(email.send(attr).present?).to eq true
+        expect(email.send(attr).present?).to be true
       end
     end
   end

@@ -6,7 +6,7 @@ RSpec.describe EVSSClaimService do
   subject { service }
 
   let(:user) { create(:user, :loa3) }
-  let(:client_stub) { instance_double('EVSS::ClaimsService') }
+  let(:client_stub) { instance_double(EVSS::ClaimsService) }
   let(:service) { described_class.new(user) }
 
   context 'when EVSS client times out' do
@@ -17,7 +17,7 @@ RSpec.describe EVSSClaimService do
         claim = create(:evss_claim, user_uuid: user.uuid)
         claims, synchronized = subject.all
         expect(claims).to eq([claim])
-        expect(synchronized).to eq(false)
+        expect(synchronized).to be(false)
       end
     end
 
@@ -30,7 +30,7 @@ RSpec.describe EVSSClaimService do
         claim = build(:evss_claim, user_uuid: user.uuid)
         updated_claim, synchronized = subject.update_from_remote(claim)
         expect(updated_claim).to eq(claim)
-        expect(synchronized).to eq(false)
+        expect(synchronized).to be(false)
       end
     end
   end
@@ -154,7 +154,7 @@ RSpec.describe EVSSClaimService do
         claim = create(:evss_claim, user_uuid: user.uuid)
         claims, synchronized = subject
         expect(claims).to eq([claim])
-        expect(synchronized).to eq(false)
+        expect(synchronized).to be(false)
       end
     end
 
@@ -168,7 +168,7 @@ RSpec.describe EVSSClaimService do
       it 'returns claim' do
         updated_claim, synchronized = subject
         expect(updated_claim).to eq(claim)
-        expect(synchronized).to eq(false)
+        expect(synchronized).to be(false)
       end
     end
   end
