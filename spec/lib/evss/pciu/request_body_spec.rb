@@ -41,7 +41,7 @@ describe EVSS::PCIU::RequestBody do
       request_body = EVSS::PCIU::RequestBody.new(phone, pciu_key: 'phone')
       extension    = JSON.parse(request_body.set).dig('phone', 'extension')
 
-      expect(extension).to be nil
+      expect(extension).to be_nil
     end
   end
 end

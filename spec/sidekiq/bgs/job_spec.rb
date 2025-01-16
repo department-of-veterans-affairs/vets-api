@@ -12,7 +12,7 @@ RSpec.describe BGS::Job, type: :job do
       job = described_class.new
 
       in_progress_form = job.in_progress_form_copy(nil)
-      expect(in_progress_form).to eq(nil)
+      expect(in_progress_form).to be_nil
     end
 
     it 'returns an object with metadata and formdata' do
@@ -34,7 +34,7 @@ RSpec.describe BGS::Job, type: :job do
       job = described_class.new
 
       in_progress_form = job.salvage_save_in_progress_form('686C-674', user.uuid, nil)
-      expect(in_progress_form).to eq(nil)
+      expect(in_progress_form).to be_nil
     end
 
     it 'upserts an InProgressForm' do
@@ -45,7 +45,7 @@ RSpec.describe BGS::Job, type: :job do
       job = described_class.new
 
       in_progress_form = job.salvage_save_in_progress_form('686C-674', user.uuid, in_progress_form)
-      expect(in_progress_form).to eq(true)
+      expect(in_progress_form).to be(true)
     end
   end
 
