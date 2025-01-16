@@ -623,20 +623,6 @@ Style/RedundantArgument:
     - 'lib/va_profile/models/base_address.rb'
     - 'modules/appeals_api/spec/support/pdf_matcher.rb'
 
-# Offense count: 10
-# This cop supports safe autocorrection (--autocorrect).
-Style/RedundantSelfAssignmentBranch:
-  Exclude:
-    - 'app/controllers/concerns/accountable.rb'
-    - 'app/controllers/v0/messages_controller.rb'
-    - 'app/controllers/v0/prescriptions_controller.rb'
-    - 'modules/meb_api/lib/dgi/status/service.rb'
-    - 'modules/mobile/app/controllers/mobile/v0/messages_controller.rb'
-    - 'modules/mobile/app/controllers/mobile/v0/prescriptions_controller.rb'
-    - 'modules/my_health/app/controllers/my_health/v1/messages_controller.rb'
-    - 'modules/my_health/app/controllers/my_health/v1/prescriptions_controller.rb'
-    - 'spec/support/authenticated_session_helper.rb'
-
 # Offense count: 18
 # This cop supports safe autocorrection (--autocorrect).
 Style/RedundantStringEscape:
