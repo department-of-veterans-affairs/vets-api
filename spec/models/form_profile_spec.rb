@@ -1275,7 +1275,7 @@ RSpec.describe FormProfile, type: :model do
           schema_data.deep_transform_keys { |key| key.camelize(:lower) }, validate_schema: true
         )
 
-        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+        expect(errors.empty?).to be(true), "schema errors: #{errors}"
       end
 
       expect(prefilled_data).to eq(
@@ -1420,7 +1420,7 @@ RSpec.describe FormProfile, type: :model do
       before do
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
         expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
-        expect(user.authorize(:mdot, :access?)).to eq(true)
+        expect(user.authorize(:mdot, :access?)).to be(true)
       end
 
       it 'returns a prefilled MDOT form', :skip_va_profile do
@@ -1527,20 +1527,20 @@ RSpec.describe FormProfile, type: :model do
                          allow_playback_repeats: true, match_requests_on: %i[method body]) do
           can_prefill_vaprofile(true)
           output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
-          expect(output['currently_active_duty']).to eq(false)
+          expect(output['currently_active_duty']).to be(false)
           expect(output['currently_active_duty_hash']).to eq({ yes: false })
-          expect(output['discharge_type']).to eq(nil)
+          expect(output['discharge_type']).to be_nil
           expect(output['guard_reserve_service_history']).to eq([])
           expect(output['hca_last_service_branch']).to eq('other')
-          expect(output['last_discharge_date']).to eq(nil)
-          expect(output['last_entry_date']).to eq(nil)
-          expect(output['last_service_branch']).to eq(nil)
-          expect(output['latest_guard_reserve_service_period']).to eq(nil)
-          expect(output['post_nov111998_combat']).to eq(false)
+          expect(output['last_discharge_date']).to be_nil
+          expect(output['last_entry_date']).to be_nil
+          expect(output['last_service_branch']).to be_nil
+          expect(output['latest_guard_reserve_service_period']).to be_nil
+          expect(output['post_nov111998_combat']).to be(false)
           expect(output['service_branches']).to eq([])
           expect(output['service_episodes_by_date']).to eq([])
           expect(output['service_periods']).to eq([])
-          expect(output['sw_asia_combat']).to eq(false)
+          expect(output['sw_asia_combat']).to be(false)
           expect(output['tours_of_duty']).to eq([])
         end
       end
@@ -1967,7 +1967,7 @@ RSpec.describe FormProfile, type: :model do
           test_data,
           validate_schema: true
         )
-        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+        expect(errors.empty?).to be(true), "schema errors: #{errors}"
       end
     end
 
@@ -2009,7 +2009,7 @@ RSpec.describe FormProfile, type: :model do
           test_data,
           validate_schema: true
         )
-        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+        expect(errors.empty?).to be(true), "schema errors: #{errors}"
       end
     end
 

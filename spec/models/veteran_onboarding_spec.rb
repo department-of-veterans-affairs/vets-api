@@ -41,10 +41,10 @@ RSpec.describe VeteranOnboarding, type: :model do
       allow_any_instance_of(UserVerification).to receive(:verified_at).and_return(verified_at_date)
 
       veteran_onboarding = VeteranOnboarding.for_user(user)
-      expect(veteran_onboarding.show_onboarding_flow_on_login).to eq(false)
+      expect(veteran_onboarding.show_onboarding_flow_on_login).to be(false)
 
       veteran_onboarding.reload
-      expect(veteran_onboarding.display_onboarding_flow).to eq(false)
+      expect(veteran_onboarding.display_onboarding_flow).to be(false)
     end
 
     [
