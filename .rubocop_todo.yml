@@ -623,15 +623,6 @@ Style/RedundantArgument:
     - 'lib/va_profile/models/base_address.rb'
     - 'modules/appeals_api/spec/support/pdf_matcher.rb'
 
-# Offense count: 18
-# This cop supports safe autocorrection (--autocorrect).
-Style/RedundantStringEscape:
-  Exclude:
-    - 'app/swagger/swagger/schemas/sign_in.rb'
-    - 'app/swagger/swagger/v1/requests/appeals/appeals.rb'
-    - 'modules/claims_api/spec/models/auto_establish_claim_spec.rb'
-    - 'spec/lib/search_click_tracking/service_spec.rb'
-
 # Offense count: 2
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/SelectByRegexp:
