@@ -210,8 +210,10 @@ module VAOS
       def merge_appointments(eps_appointments, appointments)
         normalized_new = eps_appointments.map { |appt| eps_serializer.serialize(appt) }
         existing_referral_ids = appointments.to_set { |a| a.dig(:referral, :referral_number) }
+        date_and_time_for_referral_list = appointments.map { |a| a[:start] }
         merged_data = appointments + normalized_new.reject do |a|
-          existing_referral_ids.include?(a.dig(:referral, :referral_number))
+          existing_referral_ids.include?(a.dig(:referral,
+                                               :referral_number)) && date_and_time_for_referral_list.include?(a[:start])
         end
         merged_data.sort_by { |appt| appt[:start] || '' }
       end
