@@ -168,7 +168,8 @@ module V0
           appeal_status_description = 'Unknown Status'
           unknown_status_error = StandardError.new("Unknown status: #{appeal_status} with AOJ: #{aoj}")
           log_exception_to_sentry(unknown_status_error, { appeal_status => appeal_status, aoj => aoj })
-          datadog_logging_module(appeal_status_description, unknown_status_error.message, unknown_status_error.backtrace)
+          datadog_logging_module(appeal_status_description, unknown_status_error.message,
+                                 unknown_status_error.backtrace)
         end
 
         if appeal_status_description.include? '{aoj_desc}'

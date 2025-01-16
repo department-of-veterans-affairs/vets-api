@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # spec/lib/datadog_logging_module_spec.rb
 require 'rails_helper'
 require 'datadog_logging_module'

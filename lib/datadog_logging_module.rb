@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DatadogLoggingModule
   def datadog_logging_module(context, message, stack_trace)
     if Flipper.enabled?(:virtual_agent_enable_datadog_logging, current_user)
