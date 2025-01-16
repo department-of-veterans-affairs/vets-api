@@ -91,6 +91,24 @@
               "example": "555-5555"
             },
             "phoneNumberExt": { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
+          },
+          "if": {
+            "properties": {
+              "countryCode": {
+                "anyOf": [
+                  { "type": "string", "enum": ["1"] }
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": ["areaCode"]
+          },
+          "else": {
+            "anyOf": [
+              { "required": ["countryCode"] },
+              { "required": ["areaCode"] }
+            ]
           }
         },
         "email": {
@@ -193,6 +211,24 @@
               "example": "555-5555"
             },
             "phoneNumberExt": { "type": "string", "pattern": "^[a-zA-Z0-9]{1,10}$" }
+          },
+          "if": {
+            "properties": {
+              "countryCode": {
+                "anyOf": [
+                  { "type": "string", "enum": ["1"] }
+                ]
+              }
+            }
+          },
+          "then": {
+            "required": ["areaCode"]
+          },
+          "else": {
+            "anyOf": [
+              { "required": ["countryCode"] },
+              { "required": ["areaCode"] }
+            ]
           }
         },
         "email": {
