@@ -475,14 +475,6 @@ Rails/UniqueValidationWithoutIndex:
     - 'app/models/invalid_letter_address_edipi.rb'
     - 'modules/va_forms/app/models/va_forms/form.rb'
 
-# Offense count: 3
-# This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowedReceivers.
-# AllowedReceivers: params
-Style/CollectionCompact:
-  Exclude:
-    - 'lib/saml/user_attributes/ssoe.rb'
-
 # Offense count: 2
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/ConcatArrayLiterals:
