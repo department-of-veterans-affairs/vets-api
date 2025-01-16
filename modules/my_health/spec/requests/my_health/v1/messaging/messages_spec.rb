@@ -72,7 +72,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
       end
 
       result = JSON.parse(response.body)
-      expect(result['data']['includeSignature']).to eq(true)
+      expect(result['data']['includeSignature']).to be(true)
       expect(result['data']['signatureTitle']).to eq('test-api title')
       expect(result['data']['signatureName']).to eq('test-api Name')
     end
@@ -250,7 +250,7 @@ RSpec.describe 'MyHealth::V1::Messaging::Messages', type: :request do
         expect(first_message['sent_date']).to be_nil
         expect(first_message['draft_date']).to eq('2023-12-19T17:21:47.000+00:00')
         expect(first_message['triage_group_name']).to eq('TG API TESTING')
-        expect(first_message['has_attachments']).to eq(false)
+        expect(first_message['has_attachments']).to be(false)
         expect(first_message['subject']).to eq('Test Inquiry')
         expect(first_message['category']).to eq('TEST_RESULTS')
         expect(first_message['folder_id']).to eq(-2)

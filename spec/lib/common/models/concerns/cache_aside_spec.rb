@@ -31,13 +31,13 @@ describe Common::CacheAside do
         it 'sets the attributes needed to perform redis actions', :aggregate_failures do
           instance1 = VAProfileRedis::ContactInformation.for_user(user)
           instance1.do_cached_with(key: 'test') { person_response }
-          expect(instance1.attributes[:uuid]).not_to be(nil)
-          expect(instance1.attributes[:response]).not_to be(nil)
+          expect(instance1.attributes[:uuid]).not_to be_nil
+          expect(instance1.attributes[:response]).not_to be_nil
 
           instance2 = VAProfileRedis::ContactInformation.for_user(user)
           instance2.do_cached_with(key: 'test') { raise 'value was not cached!' }
-          expect(instance2.attributes[:uuid]).not_to be(nil)
-          expect(instance2.attributes[:response]).not_to be(nil)
+          expect(instance2.attributes[:uuid]).not_to be_nil
+          expect(instance2.attributes[:response]).not_to be_nil
         end
       end
     end
@@ -61,13 +61,13 @@ describe Common::CacheAside do
         it 'sets the attributes needed to perform redis actions', :aggregate_failures do
           instance1 = VAProfileRedis::V2::ContactInformation.for_user(user)
           instance1.do_cached_with(key: 'test') { person_response }
-          expect(instance1.attributes[:uuid]).not_to be(nil)
-          expect(instance1.attributes[:response]).not_to be(nil)
+          expect(instance1.attributes[:uuid]).not_to be_nil
+          expect(instance1.attributes[:response]).not_to be_nil
 
           instance2 = VAProfileRedis::V2::ContactInformation.for_user(user)
           instance2.do_cached_with(key: 'test') { raise 'value was not cached!' }
-          expect(instance2.attributes[:uuid]).not_to be(nil)
-          expect(instance2.attributes[:response]).not_to be(nil)
+          expect(instance2.attributes[:uuid]).not_to be_nil
+          expect(instance2.attributes[:response]).not_to be_nil
         end
       end
     end
