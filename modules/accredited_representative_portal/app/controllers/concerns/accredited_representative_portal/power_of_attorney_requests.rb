@@ -24,9 +24,9 @@ module AccreditedRepresentativePortal
           )
         end
 
-        rescue_from Common::Exceptions::BadRequest do |e|
+        rescue_from ActionController::BadRequest do |e|
           render(
-            json: { errors: e.errors },
+            json: { errors: [e.message] },
             status: :bad_request
           )
         end
