@@ -63,7 +63,7 @@ module IvcChampva
     ##
     # Creates a modified metadata hash to be attached to individual files upon upload to S3.
     #
-    # @param [Integer | String] attachment_id Either a number or a string describing the file,
+    # @param [Integer, String] attachment_id Either a number or a string describing the file,
     # e.g., 'Social Security card'
     #
     # @return [Hash] modified metadata object
