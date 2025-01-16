@@ -97,16 +97,13 @@ module VAOS
 
         response_data = OpenStruct.new(
           id: draft_appointment.id,
-          appointment: draft_appointment,
           provider: provider_response,
           slots: slots,
           drive_time: drive_time
         )
 
-        # (@randomsync) TODO: create and use a new serializer
-        serializer = VAOS::V2::VAOSSerializer.new
-        serialized = serializer.serialize(response_data, 'draft_appointments')
-        render json: { data: serialized }, status: :created
+        serialized = Eps::DraftAppointmentSerializer.new(response_data)
+        render json: serialized, status: :created
       end
 
       def update

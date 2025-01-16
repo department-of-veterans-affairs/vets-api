@@ -945,10 +945,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               'isDigital' => true,
               'directBooking' => {
                 'isEnabled' => true,
-                'requiredFields' => ['phone', 'address', 'name', 'birthdate', 'gender']
+                'requiredFields' => %w[phone address name birthdate gender]
               }
             }
-          }        end
+          }
+        end
 
         let(:slots_response) do
           {
@@ -983,8 +984,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
             'destinations' => {
               '9mN718pH' => {
                 'distanceInMiles' => 313,
-                'driveTimeInSecondsWithoutTraffic' => 19096,
-                'driveTimeInSecondsWithTraffic' => 19561,
+                'driveTimeInSecondsWithoutTraffic' => 19_096,
+                'driveTimeInSecondsWithTraffic' => 19_561,
                 'latitude' => 44.475883,
                 'longitude' => -73.212074
               }
@@ -996,12 +997,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
           {
             'data' => {
               'id' => draft_appointment_response[:id],
-              'type' => 'draft_appointments',
+              'type' => 'draft_appointment',
               'attributes' => {
-                'appointment' => draft_appointment_response,
                 'provider' => provider_response,
-                'slots' => slots_response,
-                'drive_time' => drive_times_response
+                'slots' => slots_response['slots'],
+                'drivetime' => drive_times_response
               }
             }
           }
