@@ -72,7 +72,7 @@ module ClaimsApi
       ##
       # ContentionServiceBean
       #
-      module ContentionServiceBean
+      module ContentionService
         DEFINITION =
           Bean.new(
             path: 'ContentionService',
@@ -86,7 +86,7 @@ module ClaimsApi
       module ContentionService
         DEFINITION =
           Service.new(
-            bean: ContentionServiceBean::DEFINITION,
+            bean: ContentionService::DEFINITION,
             path: 'ContentionService'
           )
       end
