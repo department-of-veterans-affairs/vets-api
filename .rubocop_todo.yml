@@ -477,14 +477,6 @@ Rails/UniqueValidationWithoutIndex:
 
 # Offense count: 1
 # This cop supports unsafe autocorrection (--autocorrect-all).
-# Configuration parameters: AllowedReceivers.
-# AllowedReceivers: Thread.current
-Style/HashEachMethods:
-  Exclude:
-    - 'lib/common/hash_helpers.rb'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
 Style/HashExcept:
   Exclude:
     - 'app/models/gi_bill_feedback.rb'
