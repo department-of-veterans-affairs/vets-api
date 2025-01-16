@@ -56,6 +56,16 @@ module BenefitsClaims
       raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
     end
 
+    def get_2122_submission(
+      id, lighthouse_client_id = nil, lighthouse_rsa_key_path = nil, options = {}
+    )
+      config.get("#{@icn}/power-of-attorney/#{id}", lighthouse_client_id, lighthouse_rsa_key_path, options).body
+    rescue Faraday::TimeoutError
+      raise BenefitsClaims::ServiceException.new({ status: 504 }), 'Lighthouse Error'
+    rescue Faraday::ClientError, Faraday::ServerError => e
+      raise BenefitsClaims::ServiceException.new(e.response), 'Lighthouse Error'
+    end
+
     def submit5103(id, tracked_item_id = nil, options = {})
       config.post("#{@icn}/claims/#{id}/5103", {
                     data: {
