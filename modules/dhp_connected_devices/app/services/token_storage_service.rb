@@ -147,12 +147,12 @@ class TokenStorageService
   # @raise TokenStorageError
   def unpack_payload(tokens_hash)
     unpacked_token = {
-      "payload": {
-        "access_token": tokens_hash[:access_token],
-        "refresh_token": tokens_hash[:refresh_token],
-        "scope": tokens_hash[:scope].gsub(' ', ','),
-        "expires_in": tokens_hash[:expires_in],
-        "received_at": Time.now.utc.strftime('%s%L')
+      payload: {
+        access_token: tokens_hash[:access_token],
+        refresh_token: tokens_hash[:refresh_token],
+        scope: tokens_hash[:scope].gsub(' ', ','),
+        expires_in: tokens_hash[:expires_in],
+        received_at: Time.now.utc.strftime('%s%L')
       }
     }
     JSON.dump(unpacked_token)
