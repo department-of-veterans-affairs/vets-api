@@ -67,9 +67,6 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
   end
 
   before do
-    AccreditedRepresentativePortal::PowerOfAttorneyForm.delete_all
-    AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution.delete_all
-    AccreditedRepresentativePortal::PowerOfAttorneyRequest.delete_all
     Flipper.enable(:accredited_representative_portal_pilot)
     login_as(test_user)
     travel_to(time)
@@ -207,7 +204,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       it 'throws an error if any other status filter provided' do
         get('/accredited_representative_portal/v0/power_of_attorney_requests?status=delete_all')
-        expect(response).to have_http_status(:internal_server_error)
+        expect(response).to have_http_status(:bad_request)
       end
     end
   end
