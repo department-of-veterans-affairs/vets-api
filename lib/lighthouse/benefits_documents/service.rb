@@ -3,10 +3,13 @@
 require 'common/client/base'
 require 'lighthouse/benefits_documents/configuration'
 require 'lighthouse/service_exception'
+require 'lighthouse/benefits_documents/constants'
+require 'lighthouse/benefits_documents/utilities/helpers'
 
 module BenefitsDocuments
   class Service < Common::Client::Base
     configuration BenefitsDocuments::Configuration
+
     STATSD_KEY_PREFIX = 'api.benefits_documents'
     STATSD_UPLOAD_LATENCY = 'lighthouse.api.benefits.documents.latency'
 
@@ -22,12 +25,6 @@ module BenefitsDocuments
       Rails.logger.info('Parameters for document upload', loggable_params)
 
       start_timer = Time.zone.now
-      claim_id = params[:claimId] || params[:claim_id]
-
-      unless claim_id
-        raise Common::Exceptions::InternalServerError,
-              ArgumentError.new("Claim with id #{claim_id} not found")
-      end
 
       jid = submit_document(params[:file], params, lighthouse_client_id)
       StatsD.measure(STATSD_UPLOAD_LATENCY, Time.zone.now - start_timer, tags: ['is_multifile:false'])
@@ -40,11 +37,6 @@ module BenefitsDocuments
       Rails.logger.info('Parameters for document multi image upload', loggable_params)
 
       start_timer = Time.zone.now
-      claim_id = params[:claimId] || params[:claim_id]
-      unless claim_id
-        raise Common::Exceptions::InternalServerError,
-              ArgumentError.new("Claim with id #{claim_id} not found")
-      end
 
       file_to_upload = generate_multi_image_pdf(params[:files])
       jid = submit_document(file_to_upload, params, lighthouse_client_id)
@@ -61,21 +53,66 @@ module BenefitsDocuments
     def submit_document(file, file_params, lighthouse_client_id = nil)
       user_icn = @user.icn
       document_data = build_lh_doc(file, file_params)
+      claim_id = file_params[:claimId] || file_params[:claim_id]
+
+      unless claim_id
+        raise Common::Exceptions::InternalServerError,
+              ArgumentError.new('Claim id is required')
+      end
 
       raise Common::Exceptions::ValidationErrors, document_data unless document_data.valid?
 
       uploader = LighthouseDocumentUploader.new(user_icn, document_data.uploader_ids)
       uploader.store!(document_data.file_obj)
-      # the uploader sanitizes the filename before storing, so set our doc to match
+      # The uploader sanitizes the filename before storing, so set our doc to match
       document_data.file_name = uploader.final_filename
-      if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
-        Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_data.to_serializable_hash)
-      else
-        Lighthouse::DocumentUpload.perform_async(user_icn, document_data.to_serializable_hash)
+      job_id = document_upload(user_icn, document_data.to_serializable_hash)
+      if Flipper.enabled?(:cst_send_evidence_submission_failure_emails) &&
+         !Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
+        record_evidence_submission(document_data, job_id)
       end
+      job_id
     rescue CarrierWave::IntegrityError => e
       handle_error(e, lighthouse_client_id, uploader.store_dir)
       raise e
+    end
+
+    def document_upload(user_icn, document_hash)
+      if Flipper.enabled?(:cst_synchronous_evidence_uploads, @user)
+        Lighthouse::DocumentUploadSynchronous.upload(user_icn, document_hash)
+      else
+        Lighthouse::EvidenceSubmissions::DocumentUpload.perform_async(user_icn, document_hash)
+      end
+    end
+
+    def record_evidence_submission(document, job_id)
+      user_account = UserAccount.find(@user.user_account_uuid)
+      EvidenceSubmission.create(
+        claim_id: document.claim_id,
+        tracked_item_id: document.tracked_item_id,
+        job_id:,
+        job_class: self.class,
+        upload_status: BenefitsDocuments::Constants::UPLOAD_STATUS[:PENDING],
+        user_account:,
+        template_metadata_ciphertext: { personalisation: create_personalisation(document) }.to_json
+      )
+    end
+
+    def create_personalisation(document)
+      { first_name: document.first_name.titleize,
+        document_type: document.document_type,
+        file_name: document.file_name,
+        obfuscated_file_name: BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(document.file_name),
+        date_submitted: format_issue_instant_for_mailers(Time.zone.now),
+        date_failed: nil }
+    end
+
+    def format_issue_instant_for_mailers(issue_instant)
+      # We want to return all times in EDT
+      timestamp = Time.at(issue_instant).in_time_zone('America/New_York')
+
+      # We display dates in mailers in the format "May 1, 2024 3:01 p.m. EDT"
+      timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
     end
 
     def build_lh_doc(file, file_params)
@@ -91,6 +128,9 @@ module BenefitsDocuments
         file_obj: file,
         uuid: SecureRandom.uuid,
         file_name: file.original_filename,
+        # We pull the string out of the array for the tracked item since lighthouse gives us an array
+        # NOTE there will only be one tracked item here
+        # TODO update this so that we only pass a tracked item instead of an array of tracked items
         tracked_item_id: tracked_item_ids,
         document_type:,
         password:
