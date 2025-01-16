@@ -37,9 +37,8 @@ module Organizations
       address_validation_api_response = nil
 
       if org_data['address_changed']
-
         api_response = if Flipper.enabled?(:va_v3_contact_information_service)
-                         get_best_address_candidate(org_data)
+                         get_best_address_candidate(org_data['address'])
                        else
                          get_best_address_candidate(org_data['address'])
                        end
@@ -73,8 +72,8 @@ module Organizations
     def build_validation_address(address)
       if Flipper.enabled?(:va_v3_contact_information_service)
         validation_model = VAProfile::Models::V3::ValidationAddress
-        state_code = address['state']['state_code']
-        city = address['city_name']
+        state_code = address['state_province']['state_code']
+        city = address['city']
       else
         validation_model = VAProfile::Models::ValidationAddress
         state_code = address['state_province']['code']
