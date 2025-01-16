@@ -6,8 +6,8 @@ require 'erb'
 require 'datadog_logging_module'
 
 module V0
-  include DatadogLoggingModule
   class VirtualAgentSpeechTokenController < ApplicationController
+    include DatadogLoggingModule
     service_tag 'virtual-agent'
     skip_before_action :authenticate, only: [:create]
 

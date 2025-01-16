@@ -7,8 +7,8 @@ require 'datadog_logging_module'
 
 module V0
   module VirtualAgent
-    include DatadogLoggingModule
     class VirtualAgentClaimStatusController < ApplicationController
+      include DatadogLoggingModule
       include IgnoreNotFound
       service_tag 'virtual-agent'
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler

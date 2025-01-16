@@ -5,8 +5,8 @@ require 'datadog_logging_module'
 
 module V0
   module VirtualAgent
-    include DatadogLoggingModule
     class VirtualAgentAppealController < AppealsBaseController
+      include DatadogLoggingModule
       service_tag 'virtual-agent'
 
       def index
