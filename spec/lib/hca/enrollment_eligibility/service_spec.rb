@@ -41,8 +41,6 @@ describe HCA::EnrollmentEligibility::Service do
       VCR.use_cassette('example1', :record => :once) do
         ezr_data = described_class.new.get_ezr_data('1012830022V956566')
 
-        debugger
-
         expect(ezr_data).to be_a(Object)
       end
     end
