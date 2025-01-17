@@ -4,37 +4,61 @@
 
 # Configure sensitive parameters which will be filtered from the log file.
 ALLOWLIST = %w[
-  controller
   action
-  id
-  from_date
-  to_date
-  qqtotalfilesize
-  type
-  folder_id
-  startDate
-  endDate
-  included
-  page
-  useCache
-  number
-  size
-  sort
-  showCompleted
-  excludeProvidedMessage
+  category
+  code
+  controller
+  cookie_id
   document_id
   document_type
-  category
-  cookie_id
-  reply_id
-  ids
-  code
+  endDate
   endpoint_sid
-  message_id
-  os_name
+  excludeProvidedMessage
   filter
+  folder_id
+  from_date
+  id
+  ids
+  included
+  message_id
+  number
+  os_name
+  page
+  qqtotalfilesize
+  reply_id
+  showCompleted
+  size
+  sort
+  startDate
   startedFormVersion
+  to_date
+  type
+  useCache
 ].freeze
-Rails.application.config.filter_parameters = [lambda do |k, v|
-  v.replace('FILTERED') if v.is_a?(String) && ALLOWLIST.exclude?(k)
-end]
+
+Rails.application.config.filter_parameters = [
+  lambda do |key, value|
+    # If the parameter key is not allowed, filter the value.
+    if ALLOWLIST.include?(key)
+      # Key is in allowlist, so leave value as is.
+      value
+    else
+      case value
+      when String
+        # For strings, we can mutate in place.
+        value.replace 'FILTERED'
+      when Numeric
+        # Numbers are immutable; return a filtered string.
+        'FILTERED'
+      when ActionDispatch::Http::UploadedFile
+        # For uploaded files, filter out the filename.
+        'FILTERED FILE'
+      else
+        # For other objects (arrays, hashes), Rails will recurse and call this
+        # lambda for each element/key/value pair. If there's something else you
+        # want to filter, you can handle it similarly.
+        value
+      end
+    end
+  end
+]
