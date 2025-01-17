@@ -96,7 +96,7 @@ describe 'PowerOfAttorney', metadata do
           }
         end
 
-        xit 'No expectation in this example' do |example|
+        it do |example|
           assert_response_matches_metadata(example.metadata)
         end
       end
