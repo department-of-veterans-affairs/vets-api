@@ -129,6 +129,16 @@ describe VAProfile::V2::ContactInformation::Service, :skip_vet360 do
       end
     end
 
+    context 'when the address_pou is invalid' do
+      it 'returns a status of 200' do
+        VCR.use_cassette('va_profile/v2/contact_information/post_address_success_invalid_pou', VCR::MATCH_EVERYTHING) do
+          address = build(:va_profile_v3_address, :incorrect_address_pou)
+          response = subject.post_address(address)
+          expect(response).to be_ok
+        end
+      end
+    end
+
     context 'when an ID is included' do
       it 'raises an exception' do
         VCR.use_cassette('va_profile/v2/contact_information/post_address_w_id_error', VCR::MATCH_EVERYTHING) do

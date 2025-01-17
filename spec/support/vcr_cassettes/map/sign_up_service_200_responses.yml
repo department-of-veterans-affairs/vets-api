@@ -74,7 +74,7 @@ http_interactions:
     uri: https://cerner.apps-staging.va.gov/signup/v1/patients/10101V964144/agreements
     body:
       encoding: US-ASCII
-      string: '{"responseDate":"2023-01-01T12:00:00.000Z","icn":"10101V964144","signatureName":"some-signature-name","version":3,"legalDisplayVersion":1.0}'
+      string: '{"responseDate":"2024-09-01T12:00:00.000Z","icn":"10101V964144","signatureName":"some-signature-name","version":3,"legalDisplayVersion":1.0}'
     headers:
       Accept:
       - application/json

@@ -3782,6 +3782,33 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     end
   end
 
+  describe 'banners' do
+    describe 'GET /v0/banners' do
+      it 'requires path parameter' do
+        expect(subject).to validate(:get, '/v0/banners', 422, '_query_string' => 'type=full_width_banner_alert')
+      end
+
+      context 'when the service successfully returns banners' do
+        it 'supports getting banners without type parameter' do
+          VCR.use_cassette('banners/get_banners_success') do
+            expect(subject).to validate(:get, '/v0/banners', 200, '_query_string' => 'path=/some-va-path')
+          end
+        end
+
+        it 'supports getting banners with path and type parameters' do
+          VCR.use_cassette('banners/get_banners_with_type_success') do
+            expect(subject).to validate(
+              :get,
+              '/v0/banners',
+              200,
+              '_query_string' => 'path=full-va-path&type=full_width_banner_alert'
+            )
+          end
+        end
+      end
+    end
+  end
+
   describe 'submission statuses' do
     context 'loa3 user' do
       let(:user) { build(:user, :loa3, :with_terms_of_use_agreement) }

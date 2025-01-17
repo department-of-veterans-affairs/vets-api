@@ -460,6 +460,7 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
