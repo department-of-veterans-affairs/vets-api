@@ -102,7 +102,6 @@ class BenefitsIntakeStatusJob
         # submission was successfully uploaded into a Veteran's eFolder within VBMS
         form_submission_attempt.update(lighthouse_updated_at:)
         form_submission_attempt.vbms!
-        monitor_success(form_id, saved_claim_id, uuid)
         log_result('success', form_id, uuid, time_to_transition)
         monitor_success(form_id, saved_claim_id, uuid)
       elsif time_to_transition > STALE_SLA.days
