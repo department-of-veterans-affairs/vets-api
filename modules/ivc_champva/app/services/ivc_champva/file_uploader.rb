@@ -33,6 +33,7 @@ module IvcChampva
     # If any uploads yield non-200 statuses when submitted to S3, it raise a StandardError.
     #
     # @return [Array<Integer, String>] An array with a status code and an optional error message string.
+    # rubocop:disable Metrics/MethodLength
     def handle_uploads
       results = @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
         next if file_path.blank?
@@ -52,12 +53,16 @@ module IvcChampva
 
       if all_success
         generate_and_upload_meta_json
-      else
+      elsif Flipper.enabled?(:champva_require_all_s3_success, @current_user)
         # Stop this submission in its tracks - entries will still be added to database
         # for these files, but user will see error on the FE saying submission failed.
         raise StandardError, "IVC ChampVa Forms - failed to upload all documents for submission: #{s3_err}"
+      else
+        # array of arrays, e.g.: [[200], [400, 'S3 error']]
+        results
       end
     end
+    # rubocop:enable Metrics/MethodLength
 
     private
 

@@ -24,9 +24,10 @@ describe IvcChampva::FileUploader do
       end
     end
 
-    context 'when at least one PDF upload fails' do
+    context 'when at least one PDF upload fails and champva_require_all_s3_success flipper is enabled:' do
       before do
         allow(uploader).to receive(:upload).and_return([400, 'Upload failed'])
+        allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(true)
       end
 
       it 'raises an error' do
@@ -34,6 +35,17 @@ describe IvcChampva::FileUploader do
         # from completing if any files fail to make it to S3. Formerly, the expectation was:
         # `expect(uploader.handle_uploads).to eq([[400, 'Upload failed'], [400, 'Upload failed']])`
         expect { uploader.handle_uploads }.to raise_error(StandardError, /Upload failed/)
+      end
+    end
+
+    context 'when at least one PDF upload fails and champva_require_all_s3_success flipper is disabled:' do
+      before do
+        allow(uploader).to receive(:upload).and_return([400, 'Upload failed'])
+        allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(false)
+      end
+
+      it 'returns an array of upload results' do
+        expect(uploader.handle_uploads).to eq([[400, 'Upload failed'], [400, 'Upload failed']])
       end
     end
   end
