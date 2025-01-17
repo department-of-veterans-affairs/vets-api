@@ -31,19 +31,15 @@ module Organizations
     # If the address validation fails or an error occurs during the update, the error is logged and the process
     # is halted for the current organization.
     # @param org_data [Hash] The organization data including id and address.
-    def process_org_data(org_data) # rubocop:disable Metrics/MethodLength
+    def process_org_data(org_data)
       return unless record_can_be_updated?(org_data)
 
       address_validation_api_response = nil
 
       if org_data['address_changed']
-        api_response = if Flipper.enabled?(:va_v3_contact_information_service)
-                         get_best_address_candidate(org_data['address'])
-                       else
-                         get_best_address_candidate(org_data['address'])
-                       end
+        api_response = get_best_address_candidate(org_data['address'])
 
-        # don't update the record if there is not a valid address with non-zero lat and long at this point
+        # Don't update the record if there is not a valid address with non-zero lat and long at this point
         if api_response.nil?
           return
         else
@@ -70,23 +66,19 @@ module Organizations
     # @param address [Hash] A hash containing the details of the organization's address.
     # @return [VAProfile::Models::ValidationAddress] A validation address object ready for address validation service.
     def build_validation_address(address)
-      if Flipper.enabled?(:va_v3_contact_information_service)
-        validation_model = VAProfile::Models::V3::ValidationAddress
-        state_code = address['state_province']['state_code']
-        city = address['city']
-      else
-        validation_model = VAProfile::Models::ValidationAddress
-        state_code = address['state_province']['code']
-        city = address['city']
-      end
+      validation_model = if Flipper.enabled?(:va_v3_contact_information_service)
+                           VAProfile::Models::V3::ValidationAddress
+                         else
+                           VAProfile::Models::ValidationAddress
+                         end
 
       validation_model.new(
         address_pou: address['address_pou'],
         address_line1: address['address_line1'],
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
-        city: city,
-        state_code: state_code,
+        city: address['city'],
+        state_code: address['state_code']['code'],
         zip_code: address['zip_code5'],
         zip_code_suffix: address['zip_code4'],
         country_code_iso3: address['country_code_iso3']
@@ -137,6 +129,7 @@ module Organizations
         address = api_response['candidate_addresses'].first['address']
         geocode = api_response['candidate_addresses'].first['geocode']
         meta = api_response['candidate_addresses'].first['address_meta_data']
+
         build_address(address, geocode, meta).merge({ raw_address: org_data['address'].to_json })
       end
     end
@@ -277,6 +270,9 @@ module Organizations
       else
         original_response
       end
+    rescue => e
+      log_error("In #get_best_address_candidate, address: #{org_address}, error message: #{e.message}")
+      # puts("In #get_best_address_candidate, address: #{org_address}, error message: #{e.message}")
     end
   end
 end
