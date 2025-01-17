@@ -138,7 +138,6 @@ module Organizations
           address_line2: get_value(row, column_map, 'OrganizationAddressLine2'),
           address_line3: get_value(row, column_map, 'OrganizationAddressLine3'),
           city: get_value(row, column_map, 'OrganizationCity'),
-          # state_province: { code: get_value(row, column_map, 'OrganizationState') },
           state_code: { code: get_value(row, column_map, 'OrganizationState') },
           zip_code5:,
           zip_code4:,

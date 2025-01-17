@@ -272,7 +272,6 @@ module Organizations
       end
     rescue => e
       log_error("In #get_best_address_candidate, address: #{org_address}, error message: #{e.message}")
-      # puts("In #get_best_address_candidate, address: #{org_address}, error message: #{e.message}")
     end
   end
 end
