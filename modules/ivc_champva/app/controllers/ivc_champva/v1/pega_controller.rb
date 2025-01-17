@@ -70,19 +70,6 @@ module IvcChampva
         end
       end
 
-      def construct_email_payload(form)
-        {
-          email: form.email,
-          first_name: form.first_name,
-          last_name: form.last_name,
-          form_number: form.form_number,
-          file_count: fetch_forms_by_uuid(form_uuid).where('file_name LIKE ?', '%supporting_doc%').count,
-          pega_status: form.pega_status,
-          created_at: form.created_at.strftime('%B %d, %Y'),
-          form_uuid: form.form_uuid
-        }
-      end
-
       # Temporary rubocop disabling due to feature flag. Will refactor this method
       # once the functionality is demonstrated in staging.
       # rubocop:disable Metrics/MethodLength
