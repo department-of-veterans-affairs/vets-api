@@ -86,7 +86,6 @@ sign_in:
 
 terms_of_use:
   current_version: v1
-  enabled_clients: vaweb, mhv, myvahealth
 
 lockbox:
   master_key: "0d78eaf0e90d4e7b8910c9112e16e66d8b00ec4054a89aa426e32712a13371e9"
