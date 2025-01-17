@@ -74,8 +74,8 @@ RSpec.describe Organizations::Update do
             address_line2: 'abc',
             address_line3: 'abc',
             city: 'abc',
-            state_code: {
-              code: 'abc'
+            state: {
+              state_code: 'abc'
             },
             zip_code5: 'abc',
             zip_code4: 'abc',
@@ -483,17 +483,19 @@ RSpec.describe Organizations::Update do
         [
           {
             id:,
-            address_pou: 'abc',
-            address_line1: 'abc',
-            address_line2: 'abc',
-            address_line3: 'abc',
-            city_name: 'abc',
-            state: {
-              state_code: 'abc'
+            address: {
+              address_pou: 'abc',
+              address_line1: 'abc',
+              address_line2: 'abc',
+              address_line3: 'abc',
+              city_name: 'abc',
+              state: {
+                state_code: 'abc'
+              },
+              zip_code5: 'abc',
+              zip_code4: 'abc',
+              country_code_iso3: 'abc'
             },
-            zip_code5: 'abc',
-            zip_code4: 'abc',
-            country_code_iso3: 'abc',
             email: 'test@example.com',
             phone_number: '999-999-9999',
             address_exists:,

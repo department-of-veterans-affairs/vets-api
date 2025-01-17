@@ -78,7 +78,7 @@ module Organizations
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
         city: address['city'],
-        state_code: address['state_code']['code'],
+        state_code: address['state']['state_code'],
         zip_code: address['zip_code5'],
         zip_code_suffix: address['zip_code4'],
         country_code_iso3: address['country_code_iso3']
@@ -146,8 +146,8 @@ module Organizations
         address_line2: address['address_line2'],
         address_line3: address['address_line3'],
         city: address['city'],
-        province: address['state_province']['name'],
-        state_code: address['state_province']['code'],
+        province: address['state_code']['name'],
+        state_code: address['state_code']['code'],
         zip_code: address['zip_code5'],
         zip_suffix: address['zip_code4'],
         country_code_iso3: address['country']['iso3_code'],
@@ -253,6 +253,11 @@ module Organizations
     # @param org_address [Hash] the address provided by OGC
     # @return [Hash, Nil] the response from the address validation service
     def get_best_address_candidate(org_address)
+      if org_address.nil?
+        log_error('In #get_best_address_candidate, org_address is nil')
+        return nil
+      end
+
       candidate_address = build_validation_address(org_address)
       original_response = validate_address(candidate_address)
       return nil unless address_valid?(original_response)
