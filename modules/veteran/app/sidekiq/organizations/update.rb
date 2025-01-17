@@ -15,14 +15,26 @@ module Organizations
     include Sidekiq::Job
     include SentryLogging
 
+    attr_accessor :slack_messages, :orgs_data
+
+    def initialize
+      p 'slack_messages initialized'
+      @slack_messages = []
+      p "slack_messages.size: #{@slack_messages.size}"
+    end
+
     # Processes each organization's data provided in JSON format.
     # This method parses the JSON, validates each organization's address, and updates the database records.
     # @param orgs_json [String] JSON string containing an array of organization data.
     def perform(orgs_json)
-      orgs_data = JSON.parse(orgs_json)
-      orgs_data.each { |org_data| process_org_data(org_data) }
+      @orgs_data = JSON.parse(orgs_json)
+      @orgs_data.each { |org_data| process_org_data(org_data) }
     rescue => e
       log_error("Error processing job: #{e.message}")
+    ensure
+      p "slack_messages.size: #{@slack_messages.size}"
+      # p "@orgs_data: #{@orgs_data}", "@orgs_data.size: #{@orgs_data.size}"
+      log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?
     end
 
     private
@@ -184,7 +196,9 @@ module Organizations
     # Logs an error to Sentry.
     # @param error [Exception] The error string to be logged.
     def log_error(error)
-      log_message_to_sentry("Organizations::Update: #{error}", :error)
+      message = "Organizations::Update: #{error}"
+      log_message_to_sentry(message, :error)
+      @slack_messages << message
     end
 
     # Checks if the latitude and longitude of an address are both set to zero, which are the default values
@@ -277,6 +291,13 @@ module Organizations
       end
     rescue => e
       log_error("In #get_best_address_candidate, address: #{org_address}, error message: #{e.message}")
+    end
+
+    def log_to_slack(message)
+      client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
+                                       channel: '#benefits-representation-management-notifications',
+                                       username: 'Organizations::Update Bot')
+      client.notify(message)
     end
   end
 end
