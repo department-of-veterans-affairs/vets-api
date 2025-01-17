@@ -1389,11 +1389,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_173507) do
     t.bigint "user_action_event_id", null: false
     t.enum "status", default: "initial", null: false, enum_type: "user_action_status"
     t.boolean "user_verified", default: false, null: false
-    t.string "ip_address"
-    t.jsonb "device_info"
+    t.text "ip_address"
+    t.text "device_info"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["acting_user_account_id"], name: "index_user_actions_on_acting_user_account_id"
     t.index ["status"], name: "index_user_actions_on_status"
+    t.index ["subject_user_account_id"], name: "index_user_actions_on_subject_user_account_id"
     t.index ["user_action_event_id"], name: "index_user_actions_on_user_action_event_id"
   end
 

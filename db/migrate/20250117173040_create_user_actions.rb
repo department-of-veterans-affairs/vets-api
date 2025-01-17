@@ -13,7 +13,7 @@ class CreateUserActions < ActiveRecord::Migration[7.2]
       # Additional columns from ticket
       t.boolean :user_verified, default: false, null: false
       t.text :ip_address
-      t.jsonb :device_info
+      t.text :device_info
 
       t.timestamps null: false
     end
