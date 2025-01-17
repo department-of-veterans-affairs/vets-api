@@ -76,7 +76,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
       end
     end
 
-    context 'processes status response' do
+    context 'processes the status response' do
       let(:pending) { FormSubmissionAttempt.find_by(aasm_state: 'pending') }
       let(:form_id) { pending.form_submission.form_type }
 
@@ -188,6 +188,67 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         expect(updated.aasm_state).to eq 'pending'
         expect(updated.lighthouse_updated_at).to eq updated_at
         expect(updated.error_message).to eq nil
+      end
+    end
+
+    context 'handles the attempt result' do
+      let(:pending) { FormSubmissionAttempt.find_by(aasm_state: 'pending') }
+      let(:handler) { double(new: nil, handle: true) }
+
+      before do
+        stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', {
+          'TEST' => handler
+        })
+      end
+
+      it 'does nothing if there is no handler' do
+        data = [{ 'id' => pending.benefits_intake_uuid, 'attributes' => { 'status' => 'vbms' } }]
+        response = double(body: { 'data' => data }, success?: true)
+        expect(service).to receive(:bulk_status).and_return(response)
+
+        expect(job).to receive(:update_attempt_record).once.with(pending.benefits_intake_uuid, 'vbms', data.first)
+        expect(job).to receive(:monitor_attempt_status).once.with(pending.benefits_intake_uuid, 'vbms')
+        expect(job).to receive(:handle_attempt_result).once.with(pending.benefits_intake_uuid, 'vbms').and_call_original
+
+        expect(handler).not_to receive(:new)
+
+        job.perform
+      end
+
+      it 'calls the handler with the result' do
+        data = [{ 'id' => pending.benefits_intake_uuid, 'attributes' => { 'status' => 'error' } }]
+        response = double(body: { 'data' => data }, success?: true)
+        expect(service).to receive(:bulk_status).and_return(response)
+
+        expect(job).to receive(:update_attempt_record).once.with(pending.benefits_intake_uuid, 'error', data.first)
+        expect(job).to receive(:monitor_attempt_status).once.with(pending.benefits_intake_uuid, 'error')
+        expect(job).to receive(:handle_attempt_result).once.with(pending.benefits_intake_uuid, 'error').and_call_original
+
+        expect_any_instance_of(FormSubmission).to receive(:form_type).and_return('TEST')
+        expect_any_instance_of(FormSubmission).to receive(:saved_claim_id).and_return(42)
+        expect(handler).to receive(:new).with(42).and_return(handler)
+        expect(handler).to receive(:handle).with('failure', anything)
+
+        job.perform
+      end
+
+      it 'logs a handler error' do
+        data = [{ 'id' => pending.benefits_intake_uuid, 'attributes' => { 'status' => 'pending' } }]
+        response = double(body: { 'data' => data }, success?: true)
+        expect(service).to receive(:bulk_status).and_return(response)
+
+        expect(job).to receive(:update_attempt_record).once.with(pending.benefits_intake_uuid, 'pending', data.first)
+        expect(job).to receive(:monitor_attempt_status).once.with(pending.benefits_intake_uuid, 'pending')
+        expect(job).to receive(:handle_attempt_result).once.with(pending.benefits_intake_uuid, 'pending').and_call_original
+
+        allow_any_instance_of(FormSubmissionAttempt).to receive(:created_at).and_return(Time.zone.now - 99.days)
+        expect_any_instance_of(FormSubmission).to receive(:form_type).and_return('TEST')
+        expect_any_instance_of(FormSubmission).to receive(:saved_claim_id).and_return(42)
+        expect(handler).to receive(:new).with(42).and_return(handler)
+        expect(handler).to receive(:handle).with('stale', anything).and_raise(StandardError, 'raise handler error')
+        expect(Rails.logger).to receive(:error).with("#{job.class}: ERROR handling result", anything)
+
+        job.perform
       end
     end
 
