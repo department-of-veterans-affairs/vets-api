@@ -5,7 +5,6 @@ module ClaimsApi
     include FileData
 
     belongs_to :auto_established_claim
-    validates :auto_established_claim_id, presence: true
 
     alias_attribute :tracked_item_id, :id
 

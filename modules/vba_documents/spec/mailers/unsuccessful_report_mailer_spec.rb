@@ -6,8 +6,8 @@ require './modules/vba_documents/spec/support/vba_document_fixtures'
 RSpec.describe VBADocuments::UnsuccessfulReportMailer, type: [:mailer] do
   include VBADocuments::Fixtures
 
-  let(:error_upload) { FactoryBot.create(:upload_submission, :status_error) }
-  let(:uploaded_upload) { FactoryBot.create(:upload_submission, :status_uploaded) }
+  let(:error_upload) { create(:upload_submission, :status_error) }
+  let(:uploaded_upload) { create(:upload_submission, :status_uploaded) }
   let(:totals) do
     { 'vetraspec' => {
         'error' => 1,

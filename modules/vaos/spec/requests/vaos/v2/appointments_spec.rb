@@ -117,11 +117,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       describe 'CREATE cc appointment' do
         let(:community_cares_request_body) do
-          FactoryBot.build(:appointment_form_v2, :community_cares, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares, user: current_user).attributes
         end
 
         let(:community_cares_request_body2) do
-          FactoryBot.build(:appointment_form_v2, :community_cares2, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares2, user: current_user).attributes
         end
 
         it 'creates the cc appointment' do
@@ -157,11 +157,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       describe 'CREATE va appointment' do
         let(:va_booked_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_booked, user: current_user).attributes
+          build(:appointment_form_v2, :va_booked, user: current_user).attributes
         end
 
         let(:va_proposed_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
+          build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
         end
 
         it 'creates the va appointment - proposed' do
@@ -218,11 +218,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       describe 'CREATE cc appointment' do
         let(:community_cares_request_body) do
-          FactoryBot.build(:appointment_form_v2, :community_cares, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares, user: current_user).attributes
         end
 
         let(:community_cares_request_body2) do
-          FactoryBot.build(:appointment_form_v2, :community_cares2, user: current_user).attributes
+          build(:appointment_form_v2, :community_cares2, user: current_user).attributes
         end
 
         it 'creates the cc appointment' do
@@ -259,11 +259,11 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
       describe 'CREATE va appointment' do
         let(:va_booked_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_booked, user: current_user).attributes
+          build(:appointment_form_v2, :va_booked, user: current_user).attributes
         end
 
         let(:va_proposed_request_body) do
-          FactoryBot.build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
+          build(:appointment_form_v2, :va_proposed_clinic, user: current_user).attributes
         end
 
         it 'creates the va appointment - proposed' do
@@ -466,8 +466,8 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
               expect(data.size).to eq(16)
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
-              expect(data[0]['attributes']['location']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
+              expect(data[0]['attributes']['location']).to be_nil
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end
@@ -522,7 +522,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
               expect(data.size).to eq(1)
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
 
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
@@ -536,7 +536,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               expect(response).to have_http_status(:ok)
               expect(response.body).to be_a(String)
 
-              expect(data[0]['attributes']['serviceName']).to eq(nil)
+              expect(data[0]['attributes']['serviceName']).to be_nil
               expect(response).to match_camelized_response_schema('vaos/v2/appointments', { strict: false })
             end
           end

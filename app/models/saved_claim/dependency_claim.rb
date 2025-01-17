@@ -113,7 +113,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     # add the two arrays together but also account for nil arrays
     supporting_documents = [child_documents, spouse_documents].compact.reduce([], :|)
     if supporting_documents.present?
-      files = PersistentAttachment.where(guid: supporting_documents.map { |doc| doc['confirmation_code'] })
+      files = PersistentAttachment.where(guid: supporting_documents.pluck('confirmation_code'))
       files.find_each { |f| f.update(saved_claim_id: id) }
     end
   end
