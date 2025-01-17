@@ -18,30 +18,30 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
     let(:pdf_path) { 'random/path/to/pdf' }
     let(:location) { 'test_location' }
 
+    before do
+      allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
+
+      job.instance_variable_set(:@claim, claim)
+      allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
+      allow(claim).to receive_messages(to_pdf: pdf_path, persistent_attachments: [])
+
+      job.instance_variable_set(:@intake_service, service)
+      allow(BenefitsIntake::Service).to receive(:new).and_return(service)
+      allow(service).to receive(:uuid)
+      allow(service).to receive(:request_upload)
+      allow(service).to receive_messages(location:, perform_upload: response)
+      allow(response).to receive(:success?).and_return true
+
+      job.instance_variable_set(:@pension_monitor, monitor)
+      allow(monitor).to receive :track_submission_begun
+      allow(monitor).to receive :track_submission_attempted
+      allow(monitor).to receive :track_submission_success
+      allow(monitor).to receive :track_submission_retry
+    end
+
     context 'Feature pension_submitted_email_notification=false' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:pension_submitted_email_notification).and_return(false)
-
-        job.instance_variable_set(:@claim, claim)
-        allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
-        allow(claim).to receive_messages(to_pdf: pdf_path, persistent_attachments: [])
-
-        job.instance_variable_set(:@intake_service, service)
-        allow(BenefitsIntake::Service).to receive(:new).and_return(service)
-        allow(service).to receive(:uuid)
-        allow(service).to receive(:request_upload)
-        allow(service).to receive_messages(location:, perform_upload: response)
-        allow(response).to receive(:success?).and_return true
-
-        job.instance_variable_set(:@pension_monitor, monitor)
-        allow(monitor).to receive :track_submission_begun
-        allow(monitor).to receive :track_submission_attempted
-        allow(monitor).to receive :track_submission_success
-        allow(monitor).to receive :track_submission_retry
-      end
-
       it 'submits the saved claim successfully' do
+        allow(Flipper).to receive(:enabled?).with(:pension_submitted_email_notification).and_return(false)
         allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
 
         expect(FormSubmission).to receive(:create)
@@ -59,65 +59,11 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
         job.perform(claim.id, :user_uuid)
       end
-
-      it 'is unable to find user_account' do
-        expect(Pensions::SavedClaim).not_to receive(:find)
-        expect(BenefitsIntake::Service).not_to receive(:new)
-        expect(claim).not_to receive(:to_pdf)
-
-        expect(job).not_to receive(:send_confirmation_email)
-        expect(job).not_to receive(:send_submitted_email)
-        expect(job).to receive(:cleanup_file_paths)
-
-        expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-          ActiveRecord::RecordNotFound,
-          "Couldn't find UserAccount with 'id'=user_account_uuid"
-        )
-      end
-
-      it 'is unable to find saved_claim_id' do
-        allow(Pensions::SavedClaim).to receive(:find).and_return(nil)
-
-        expect(UserAccount).to receive(:find)
-
-        expect(BenefitsIntake::Service).not_to receive(:new)
-        expect(claim).not_to receive(:to_pdf)
-
-        expect(job).not_to receive(:send_confirmation_email)
-        expect(job).not_to receive(:send_submitted_email)
-        expect(job).to receive(:cleanup_file_paths)
-
-        expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-          Pensions::PensionBenefitIntakeJob::PensionBenefitIntakeError,
-          "Unable to find SavedClaim::Pension #{claim.id}"
-        )
-      end
     end
 
     context 'Feature pension_submitted_email_notification=true' do
-      before do
-        allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(true)
-        allow(Flipper).to receive(:enabled?).with(:pension_submitted_email_notification).and_return(true)
-
-        job.instance_variable_set(:@claim, claim)
-        allow(Pensions::SavedClaim).to receive(:find).and_return(claim)
-        allow(claim).to receive_messages(to_pdf: pdf_path, persistent_attachments: [])
-
-        job.instance_variable_set(:@intake_service, service)
-        allow(BenefitsIntake::Service).to receive(:new).and_return(service)
-        allow(service).to receive(:uuid)
-        allow(service).to receive(:request_upload)
-        allow(service).to receive_messages(location:, perform_upload: response)
-        allow(response).to receive(:success?).and_return true
-
-        job.instance_variable_set(:@pension_monitor, monitor)
-        allow(monitor).to receive :track_submission_begun
-        allow(monitor).to receive :track_submission_attempted
-        allow(monitor).to receive :track_submission_success
-        allow(monitor).to receive :track_submission_retry
-      end
-
       it 'submits the saved claim successfully' do
+        allow(Flipper).to receive(:enabled?).with(:pension_submitted_email_notification).and_return(true)
         allow(job).to receive_messages(process_document: pdf_path, form_submission_pending_or_success: false)
 
         expect(FormSubmission).to receive(:create)
@@ -135,39 +81,39 @@ RSpec.describe Pensions::PensionBenefitIntakeJob, :uploader_helpers do
 
         job.perform(claim.id, :user_uuid)
       end
+    end
 
-      it 'is unable to find user_account' do
-        expect(Pensions::SavedClaim).not_to receive(:find)
-        expect(BenefitsIntake::Service).not_to receive(:new)
-        expect(claim).not_to receive(:to_pdf)
+    it 'is unable to find user_account' do
+      expect(Pensions::SavedClaim).not_to receive(:find)
+      expect(BenefitsIntake::Service).not_to receive(:new)
+      expect(claim).not_to receive(:to_pdf)
 
-        expect(job).not_to receive(:send_confirmation_email)
-        expect(job).not_to receive(:send_submitted_email)
-        expect(job).to receive(:cleanup_file_paths)
+      expect(job).not_to receive(:send_confirmation_email)
+      expect(job).not_to receive(:send_submitted_email)
+      expect(job).to receive(:cleanup_file_paths)
 
-        expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-          ActiveRecord::RecordNotFound,
-          "Couldn't find UserAccount with 'id'=user_account_uuid"
-        )
-      end
+      expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
+        ActiveRecord::RecordNotFound,
+        "Couldn't find UserAccount with 'id'=user_account_uuid"
+      )
+    end
 
-      it 'is unable to find saved_claim_id' do
-        allow(Pensions::SavedClaim).to receive(:find).and_return(nil)
+    it 'is unable to find saved_claim_id' do
+      allow(Pensions::SavedClaim).to receive(:find).and_return(nil)
 
-        expect(UserAccount).to receive(:find)
+      expect(UserAccount).to receive(:find)
 
-        expect(BenefitsIntake::Service).not_to receive(:new)
-        expect(claim).not_to receive(:to_pdf)
+      expect(BenefitsIntake::Service).not_to receive(:new)
+      expect(claim).not_to receive(:to_pdf)
 
-        expect(job).not_to receive(:send_confirmation_email)
-        expect(job).not_to receive(:send_submitted_email)
-        expect(job).to receive(:cleanup_file_paths)
+      expect(job).not_to receive(:send_confirmation_email)
+      expect(job).not_to receive(:send_submitted_email)
+      expect(job).to receive(:cleanup_file_paths)
 
-        expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
-          Pensions::PensionBenefitIntakeJob::PensionBenefitIntakeError,
-          "Unable to find SavedClaim::Pension #{claim.id}"
-        )
-      end
+      expect { job.perform(claim.id, :user_account_uuid) }.to raise_error(
+        Pensions::PensionBenefitIntakeJob::PensionBenefitIntakeError,
+        "Unable to find SavedClaim::Pension #{claim.id}"
+      )
     end
 
     # perform
