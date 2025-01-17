@@ -29,8 +29,11 @@ describe IvcChampva::FileUploader do
         allow(uploader).to receive(:upload).and_return([400, 'Upload failed'])
       end
 
-      it 'returns an array of upload results' do
-        expect(uploader.handle_uploads).to eq([[400, 'Upload failed'], [400, 'Upload failed']])
+      it 'raises an error' do
+        # Updated this test to account for new error being raised. This is so submissions are blocked
+        # from completing if any files fail to make it to S3. Formerly, the expectation was:
+        # `expect(uploader.handle_uploads).to eq([[400, 'Upload failed'], [400, 'Upload failed']])`
+        expect { uploader.handle_uploads }.to raise_error(StandardError, /Upload failed/)
       end
     end
   end

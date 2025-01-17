@@ -50,12 +50,18 @@ module IvcChampva
         response_status
       end.compact
 
-      all_success = results.all? { |(status, _)| status == 200 }
+      s3_err = nil
+      all_success = results.all? do |(status, err)|
+        s3_err = err if err # Collect last error present for logging purposes
+        status == 200
+      end
 
       if all_success
         generate_and_upload_meta_json
       else
-        results
+        # Stop this submission in its tracks - entries will still be added to database
+        # for these files, but user will see error on the FE saying submission failed.
+        raise StandardError, "IVC ChampVa Forms - failed to upload all documents for submission: #{s3_err}"
       end
     end
 
