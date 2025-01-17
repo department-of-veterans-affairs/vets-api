@@ -237,7 +237,7 @@ GEM
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.1038.0)
+    aws-partitions (1.1039.0)
     aws-sdk-core (3.216.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
@@ -246,8 +246,8 @@ GEM
     aws-sdk-kms (1.97.0)
       aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.177.0)
-      aws-sdk-core (~> 3, >= 3.210.0)
+    aws-sdk-s3 (1.178.0)
+      aws-sdk-core (~> 3, >= 3.216.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
     aws-sdk-sns (1.93.0)
@@ -1049,7 +1049,7 @@ GEM
       ffi
     ssrf_filter (1.2.0)
     staccato (0.5.3)
-    statsd-instrument (3.9.9)
+    statsd-instrument (3.9.8)
     stringio (3.1.2)
     strong_migrations (2.1.0)
       activerecord (>= 6.1)
@@ -1322,7 +1322,7 @@ DEPENDENCIES
   slack-notify
   socksify
   staccato
-  statsd-instrument
+  statsd-instrument (= 3.9.8)
   strong_migrations
   super_diff
   swagger-blocks

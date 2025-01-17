@@ -377,7 +377,7 @@ describe 'Supplemental Claims', openapi_spec:, type: :request do
 
         schema type: :object,
                description: 'Document upload failed',
-               xml: { 'name': 'Error' },
+               xml: { name: 'Error' },
                properties: {
                  Code: {
                    type: :string, description: 'Error code', example: 'Bad Digest'
