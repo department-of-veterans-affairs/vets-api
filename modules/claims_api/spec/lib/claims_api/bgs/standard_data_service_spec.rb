@@ -8,7 +8,9 @@ describe ClaimsApi::StandardDataService do
 
   describe '#get_contention_classification_type_code_list' do
     it 'responds as expected' do
-      VCR.use_cassette('claims_api/bgs/standard_data_service/happy_path') do
+      VCR.use_cassette(
+        'claims_api/bgs/standard_data_service/get_contention_classification_type_code_list'
+      ) do
         result = subject.get_contention_classification_type_code_list
 
         expect(result).to be_a Array
