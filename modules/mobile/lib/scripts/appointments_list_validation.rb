@@ -63,7 +63,7 @@ class AppointmentsListValidation
     @mobile_ids ||= begin
       response = get_mobile_appointments
       parsed = JSON.parse(response.body)
-      parsed['data'].collect { |appt| appt['id'] }
+      parsed['data'].pluck('id')
     end
   end
 

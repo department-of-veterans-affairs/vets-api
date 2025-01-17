@@ -6,6 +6,6 @@ class AccountLoginStat < ApplicationRecord
   VERIFICATION_LEVELS = %w[loa1 loa3 ial1 ial2].freeze
 
   belongs_to :account, inverse_of: :login_stats
-  validates :account_id, presence: true, uniqueness: true
+  validates :account_id, uniqueness: true
   validates :current_verification, inclusion: { in: VERIFICATION_LEVELS, allow_nil: true }
 end

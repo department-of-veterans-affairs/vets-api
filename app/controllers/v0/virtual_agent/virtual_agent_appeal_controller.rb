@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require 'date'
+require 'datadog_logging'
 
 module V0
   module VirtualAgent
     class VirtualAgentAppealController < AppealsBaseController
+      include DatadogLogging
       service_tag 'virtual-agent'
 
       def index
@@ -165,6 +167,8 @@ module V0
           appeal_status_description = 'Unknown Status'
           unknown_status_error = StandardError.new("Unknown status: #{appeal_status} with AOJ: #{aoj}")
           log_exception_to_sentry(unknown_status_error, { appeal_status => appeal_status, aoj => aoj })
+          log_to_datadog(appeal_status_description, unknown_status_error.message,
+                         unknown_status_error.backtrace)
         end
 
         if appeal_status_description.include? '{aoj_desc}'
@@ -192,6 +196,7 @@ module V0
       def service_exception_handler(exception)
         context = 'An error occurred while attempting to retrieve the appeal(s)'
         log_exception_to_sentry(exception, 'context' => context)
+        log_to_datadog(context, exception.message, exception.backtrace)
         render nothing: true, status: :internal_server_error
       end
     end

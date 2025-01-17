@@ -2,7 +2,7 @@
 
 module TestUserDashboard
   class TudAccount < ApplicationRecord
-    self.ignored_columns = %w[standard available account_type id_type]
+    self.ignored_columns += %w[standard available account_type id_type]
 
     ID_PROVIDERS = %w[idme dslogon mhv logingov].freeze
 

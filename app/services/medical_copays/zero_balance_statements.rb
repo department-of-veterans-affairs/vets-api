@@ -65,7 +65,7 @@ module MedicalCopays
     # @return [Array<String>]
     #
     def statements_facilities_ids
-      statements.map { |i| i['pS_FACILITY_NUM'] }
+      statements.pluck('pS_FACILITY_NUM')
     end
 
     ##

@@ -735,9 +735,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     context 'HCA tests' do
       let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
       let(:test_veteran) do
-        json_string = File.read(
-          Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
-        )
+        json_string = Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json').read
         json = JSON.parse(json_string)
         json.delete('email')
         json.to_json
@@ -880,9 +878,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     context 'Form1010Ezr tests' do
       let(:form) do
-        json_string = File.read(
-          Rails.root.join('spec', 'fixtures', 'form1010_ezr', 'valid_form.json')
-        )
+        json_string = Rails.root.join('spec', 'fixtures', 'form1010_ezr', 'valid_form.json').read
         json = JSON.parse(json_string)
         json.to_json
       end
@@ -1140,9 +1136,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       let(:form526v2) do
-        File.read(
-          Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json')
-        )
+        Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json').read
       end
 
       it 'supports getting rated disabilities' do

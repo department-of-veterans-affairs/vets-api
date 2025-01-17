@@ -104,7 +104,7 @@ class TokenStorageService
   end
 
   def token_file_path(prefix)
-    "#{::Rails.root}/modules/dhp_connected_devices/tmp/#{prefix}tokens.json"
+    Rails.root.join("modules/dhp_connected_devices/tmp/#{prefix}tokens.json").to_s
   end
 
   ##

@@ -15,7 +15,7 @@ RSpec.describe DeprecatedUserAccount, type: :model do
 
       context 'when user_account is nil' do
         let(:user_account) { nil }
-        let(:expected_error_message) { "Validation failed: User account must exist, User account can't be blank" }
+        let(:expected_error_message) { 'Validation failed: User account must exist' }
 
         it 'raises a validation error' do
           expect { subject }.to raise_error(ActiveRecord::RecordInvalid, expected_error_message)
@@ -37,7 +37,7 @@ RSpec.describe DeprecatedUserAccount, type: :model do
       context 'when user_verification is nil' do
         let(:user_verification) { nil }
         let(:expected_error_message) do
-          "Validation failed: User verification must exist, User verification can't be blank"
+          'Validation failed: User verification must exist'
         end
 
         it 'raises a validation error' do

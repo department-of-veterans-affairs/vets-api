@@ -68,7 +68,8 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
           it 'logs schema failed error and calls fully_validate' do
             expect(Rails.logger).to receive(:error)
-              .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
+              .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors,
+                                                                                         form_id: saved_claim.form_id })
 
             expect(saved_claim.validate).to be true
           end
@@ -80,6 +81,9 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
           end
 
           it 'adds validation errors to the form' do
+            expect(Rails.logger).to receive(:error)
+              .with('SavedClaim form did not pass validation',
+                    { guid: saved_claim.guid, form_id: saved_claim.form_id, errors: schema_errors })
             saved_claim.validate
             expect(saved_claim.errors.full_messages).not_to be_empty
           end
@@ -138,15 +142,18 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
             allow(JSONSchemer).to receive_messages(validate_schema: schema_errors)
           end
 
-          it 'logs schema faild error' do
+          it 'logs schema failed error' do
             expect(Rails.logger).to receive(:error)
-              .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors })
+              .with('SavedClaim schema failed validation! Attempting to clear cache.', { errors: schema_errors,
+                                                                                         form_id: saved_claim.form_id })
 
             expect(saved_claim.validate).to be(true)
           end
         end
 
         context 'when form validation returns errors' do
+          let(:form_errors) { [{ data_pointer: 'error', fragment: 'error', message: nil }] }
+
           before do
             allow(JSONSchemer).to receive_messages(validate_schema: [])
             allow(JSONSchemer).to receive(:schema).and_return(double(:fake_schema,
@@ -154,6 +161,9 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
           end
 
           it 'adds validation errors to the form' do
+            expect(Rails.logger).to receive(:error)
+              .with('SavedClaim form did not pass validation',
+                    { guid: saved_claim.guid, form_id: saved_claim.form_id, errors: form_errors })
             saved_claim.validate
             expect(saved_claim.errors.full_messages).not_to be_empty
           end
