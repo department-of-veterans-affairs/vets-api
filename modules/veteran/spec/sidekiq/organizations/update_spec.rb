@@ -133,6 +133,7 @@ RSpec.describe Organizations::Update do
     before do
       Flipper.disable(:va_v3_contact_information_service)
       allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response)
+      allow_any_instance_of(Faraday::Connection).to receive(:post)
     end
 
     context 'when JSON parsing fails' do
