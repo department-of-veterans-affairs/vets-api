@@ -1685,12 +1685,16 @@ describe VAOS::V2::AppointmentsService do
       expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
     end
 
-    it 'is vaVideoCareOnGfe for patient with GFE' do
-      appt = build(:appointment_form_v2, :telehealth).attributes
-      appt[:telehealth][:vvs_kind] = 'ADHOC'
-      appt[:extension][:patient_has_mobile_gfe] = true
-      subject.send(:set_modality, appt)
-      expect(appt[:modality]).to eq('vaVideoCareOnGfe')
+    describe 'is vaVideoCareOnGfe for' do
+      [nil, 'MOBILE_ANY', 'ADHOC'].each do |input|
+        it "#{input} and patient has GFE" do
+          appt = build(:appointment_form_v2, :telehealth).attributes
+          appt[:telehealth][:vvs_kind] = input
+          appt[:extension][:patient_has_mobile_gfe] = true
+          subject.send(:set_modality, appt)
+          expect(appt[:modality]).to eq('vaVideoCareOnGfe')
+        end
+      end
     end
 
     describe 'is vaVideoCareAtHome for' do
@@ -1698,11 +1702,17 @@ describe VAOS::V2::AppointmentsService do
         it "#{input} and patient does not have GFE" do
           appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
           appt[:telehealth][:vvs_kind] = input
-          appt[:extension][:patient_has_mobile_gfe] = false
           subject.send(:set_modality, appt)
           expect(appt[:modality]).to eq('vaVideoCareAtHome')
         end
       end
+    end
+
+    it 'is nil for unrecognized vvsKind' do
+      appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
+      appt[:telehealth][:vvs_kind] = 'MOBILE_GFE'
+      subject.send(:set_modality, appt)
+      expect(appt[:modality]).to be_nil
     end
 
     it 'is vaVideoCareAtAnAtlasLocation for telehealth appointment with atlas' do
