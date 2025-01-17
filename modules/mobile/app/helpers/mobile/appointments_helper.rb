@@ -42,30 +42,25 @@ module Mobile
     end
 
     def create_params(params)
-      params.permit(:kind,
-                    :status,
-                    :location_id,
-                    :cancellable,
-                    :clinic,
-                    :comment,
-                    :reason,
-                    :service_type,
-                    :preferred_language,
-                    :minutes_duration,
-                    :patient_instruction,
-                    :priority,
-                    reason_code: [
-                      :text, { coding: %i[system code display] }
-                    ],
-                    slot: %i[id start end],
-                    contact: [telecom: %i[type value]],
-                    practitioner_ids: %i[system value],
-                    requested_periods: %i[start end],
-                    practitioners: practitioners_params,
-                    preferred_location: %i[city state],
-                    preferred_times_for_phone_call: [],
-                    telehealth: telehealth_params,
-                    extension: %i[desired_date])
+      base_params = %i[
+        kind status location_id cancellable clinic comment reason service_type
+        preferred_language minutes_duration patient_instruction priority
+      ]
+
+      nested_params = [
+        reason_code: [:text, { coding: %i[system code display] }],
+        slot: %i[id start end],
+        contact: [telecom: %i[type value]],
+        practitioner_ids: %i[system value],
+        requested_periods: %i[start end],
+        practitioners: practitioners_params,
+        preferred_location: %i[city state],
+        preferred_times_for_phone_call: [],
+        telehealth: telehealth_params,
+        extension: %i[desired_date]
+      ]
+
+      params.permit(*base_params, *nested_params)
     end
 
     def practitioners_params
