@@ -2000,8 +2000,8 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills an object that passes the schema' do
-        full_example = JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements',
-                                                            'valid_NOD_create_request.json'
+        full_example = JSON.parse Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
+                                                  'valid_NOD_create_request.json').read
 
         test_data = full_example.deep_merge prefill.except('nonPrefill')
         errors = JSON::Validator.fully_validate(
