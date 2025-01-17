@@ -1121,6 +1121,9 @@ features:
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
+  pension_submitted_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Submission in Progress email notification
   pension_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
