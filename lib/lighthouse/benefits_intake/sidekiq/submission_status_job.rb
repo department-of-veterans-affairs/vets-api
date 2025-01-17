@@ -135,7 +135,7 @@ module BenefitsIntake
     end
 
     def monitor_attempt_status(uuid, status)
-      form_submission_attempt, result = attempt_status_result(uuid, status)
+      form_submission_attempt, result, queue_time = attempt_status_result(uuid, status)
       form_id = form_submission_attempt.form_submission.form_type
 
       metric = "#{STATS_KEY}.#{form_id}.#{result}"
@@ -147,20 +147,29 @@ module BenefitsIntake
         statsd: metric,
         form_id:,
         uuid:,
-        result:,
         status:,
-        time_to_transition: (Time.zone.now - form_submission_attempt.created_at).truncate,
+        result:,
+        queue_time:,
         error_message: form_submission_attempt.error_message
       }
       log(level, "UUID: #{uuid}, status: #{status}, result: #{result}", **payload)
     end
 
     def handle_attempt_result(uuid, status)
-      form_submission_attempt, result = attempt_status_result(uuid, status)
+      form_submission_attempt, result, queue_time = attempt_status_result(uuid, status)
+      form_id = form_submission_attempt.form_submission.form_type
       saved_claim_id = form_submission_attempt.form_submission.saved_claim_id
 
       call_location = caller_locations.first
-      context = { benefits_intake_uuid: uuid }
+      context = {
+        form_id:,
+        uuid:,
+        status:,
+        result:,
+        queue_time:,
+        error_message: form_submission_attempt.error_message
+      }
+
       FORM_HANDLERS[form_id]&.new(saved_claim_id)&.handle(result, call_location:, **context)
     rescue => e
       log(:error, 'ERROR handling result', message: e.message)
@@ -173,7 +182,7 @@ module BenefitsIntake
       result = STATUS_RESULT_MAP[status.to_sym] || 'pending'
       result = 'stale' if queue_time > STALE_SLA.days && result == 'pending'
 
-      [form_submission_attempt, result]
+      [form_submission_attempt, result, queue_time]
     end
 
     # end class SubmissionStatusJob

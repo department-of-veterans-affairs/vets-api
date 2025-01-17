@@ -14,7 +14,9 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
       end
 
       it 'does nothing' do
-        expect(Rails.logger).not_to receive(:info).with('BenefitsIntakeStatusJob started')
+        expect(Rails.logger).not_to receive(:info)
+        expect(Rails.logger).not_to receive(:error)
+        expect(BenefitsIntake::Service).not_to receive(:new)
         BenefitsIntakeStatusJob.new.perform
       end
     end
