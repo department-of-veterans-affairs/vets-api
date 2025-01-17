@@ -16,7 +16,7 @@ describe ClaimsApi::CorporateUpdateWebService do
 
     context 'happy path' do
       it 'returns an object with the appropriate attributes' do
-        VCR.use_cassette('claims_api/bgs/corporate_update_web_service/happy_path') do
+        VCR.use_cassette('claims_api/bgs/corporate_update_web_service/update_poa_access') do
           res = subject.update_poa_access(participant_id:, poa_code:)
 
           expect(res[:return_code]).to eq('GUIE50000')
@@ -28,7 +28,7 @@ describe ClaimsApi::CorporateUpdateWebService do
 
     context 'sad path' do
       it 'returns the correct error message when incorrect params are provided' do
-        VCR.use_cassette('claims_api/bgs/corporate_update_web_service/sad_path') do
+        VCR.use_cassette('claims_api/bgs/corporate_update_web_service/update_poa_access_500') do
           subject.update_poa_access(participant_id: '38429', poa_code: '001')
         rescue => e
           expect(e).to be_a(Common::Exceptions::ServiceError)
