@@ -18,15 +18,11 @@ module ClaimsApi
       # @param power_of_attorney_id [String] Unique identifier of the submitted POA
       def perform(power_of_attorney_id, form_number, rep_id, action) # rubocop:disable Metrics/MethodLength
         power_of_attorney = ClaimsApi::PowerOfAttorney.find(power_of_attorney_id)
-        process = ClaimsApi::Process.find_by(processable: power_of_attorney,
-                                             step_type: 'PDF_SUBMISSION')
-        if process.nil?
-          process = ClaimsApi::Process.create!(processable: power_of_attorney,
-                                               step_type: 'PDF_SUBMISSION',
-                                               step_status: 'IN_PROGRESS')
-        else
-          process.update!(step_status: 'IN_PROGRESS')
-        end
+
+        process = ClaimsApi::Process.find_or_create_by(processable: power_of_attorney,
+                                                       step_type: 'PDF_SUBMISSION')
+        process.update!(step_status: 'IN_PROGRESS')
+
         rep = ::Veteran::Service::Representative.where(representative_id: rep_id).order(created_at: :desc).first
 
         output_path = pdf_constructor(form_number).construct(data(power_of_attorney, form_number, rep),
