@@ -75,7 +75,7 @@ Mitigation:
 - Code freeze, except for urgent bugs: Background jobs and Utilities
 - The old jobs will still be running, so no functionality will be lost if the new jobs run into errors
 
-### Phase 3: Delete Old Background Jobs
+### COMPLETE - Phase 3: Delete Old Background Jobs
 
 Remove the old job classes from the schedule file. Add logging to those old classes so we know right away if anyone else is calling them somehow. After 2 weeks with no calls to the old job code, delete it.
 
