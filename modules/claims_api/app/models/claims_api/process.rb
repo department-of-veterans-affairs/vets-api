@@ -5,10 +5,9 @@ module ClaimsApi
     belongs_to :processable, polymorphic: true
 
     VALID_POA_STEP_TYPES = %w[PDF_SUBMISSION POA_UPDATE POA_ACCESS_UPDATE CLAIMANT_NOTIFICATION].freeze
-    VALID_POA_STEP_STATUSES = %w[NOT_STARTED IN_PROGRESS SUCCESS FAILED].freeze
+    VALID_POA_STEP_STATUSES = %w[IN_PROGRESS SUCCESS FAILED].freeze
 
     validates :step_type, presence: true
-    validates :step_status, presence: true
     validate :validate_step_type_and_status
 
     def next_step
@@ -36,7 +35,9 @@ module ClaimsApi
 
     def validate_power_of_attorney_enums
       errors.add(:step_type, 'is not recognized') unless VALID_POA_STEP_TYPES.include?(step_type)
-      errors.add(:step_status, 'is not recognized') unless VALID_POA_STEP_STATUSES.include?(step_status)
+      unless step_status.nil? || VALID_POA_STEP_STATUSES.include?(step_status)
+        errors.add(:step_status, 'is not recognized')
+      end
     end
   end
 end
