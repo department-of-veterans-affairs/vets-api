@@ -101,7 +101,7 @@ module V0
       end
     end
 
-    def validate_file_size(size)
+    def validate_min_file_size(size)
       unless size.to_i >= PersistentAttachment::MINIMUM_FILE_SIZE
         detail = 'File size must not be less than 1.0 KB'
         source = 'PersistentAttachment.stamped_pdf_valid?'
