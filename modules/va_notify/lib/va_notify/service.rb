@@ -82,11 +82,7 @@ module VaNotify
       case error
       when Common::Client::Errors::ClientError
         save_error_details(error)
-        if Flipper.enabled?(:va_notify_custom_errors) && error.status >= 400
-          raise VANotify::Error.from_generic_error(error)
-        elsif error.status >= 400
-          raise_backend_exception("VANOTIFY_#{error.status}", self.class, error)
-        end
+        raise VANotify::Error.from_generic_error(error) if error.status >= 400
       else
         raise error
       end
