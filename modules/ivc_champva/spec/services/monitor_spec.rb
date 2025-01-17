@@ -81,5 +81,29 @@ RSpec.describe IvcChampva::Monitor do
         monitor.track_failed_send_zsf_notification_to_pega(payload[:form_uuid], 'fake-template')
       end
     end
+
+    describe '#track_email_sent' do
+      it 'logs sidekiq success' do
+        payload = {
+          form_id: '10-10d',
+          form_uuid: '12345678-1234-5678-1234-567812345678',
+          delivery_status: 'delivered',
+          notification_type: 'confirmation'
+        }
+
+        expect(monitor).to receive(:track_email_sent).with(
+          payload[:form_id],
+          payload[:form_uuid],
+          payload[:delivery_status],
+          payload[:notification_type]
+        )
+        monitor.track_email_sent(
+          payload[:form_id],
+          payload[:form_uuid],
+          payload[:delivery_status],
+          payload[:notification_type]
+        )
+      end
+    end
   end
 end
