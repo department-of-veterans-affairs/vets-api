@@ -40,6 +40,8 @@ spec:
       securityContext:
         fsGroup: {{ $root.Values.fsGroup }}
       volumes:
+        - name: imagemagick-shared-volume # Shared writable volume for merged policy
+          emptyDir: {}
         {{- if $root.Values.mockData.enabled }}
         - name: vets-api-mockdata
           emptyDir: {}
