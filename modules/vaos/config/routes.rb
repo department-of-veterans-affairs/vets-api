@@ -20,5 +20,6 @@ VAOS::Engine.routes.draw do
     get '/facilities/:facility_id', to: 'facilities#show'
     get '/relationships', to: 'relationships#index'
     post '/appointments', to: 'appointments#create'
+    post '/appointments/submit', to: 'appointments#submit_referral_appointment'
   end
 end

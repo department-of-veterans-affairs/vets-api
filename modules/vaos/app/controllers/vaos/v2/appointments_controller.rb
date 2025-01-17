@@ -71,6 +71,24 @@ module VAOS
         render json: { data: serialized }
       end
 
+      def submit_referral_appointment
+        params = submit_params
+        appointment = appointment_service.submit_appointment(
+          params[:id],
+          { referral_number: params[:referral_number],
+            network_id: params[:network_id],
+            provider_service_id: params[:provider_service_id],
+            slot_ids: [params[:slot_id]],
+            additional_patient_attributes: patient_attributes(params) }
+        )
+
+        render json: {
+          id: appointment[:id],
+          type: 'draft_appointment',
+          attributes: {}
+        }, status: :created
+      end
+
       private
 
       def set_facility_error_msg(appointment)
@@ -85,6 +103,11 @@ module VAOS
       def mobile_facility_service
         @mobile_facility_service ||=
           VAOS::V2::MobileFacilityService.new(current_user)
+      end
+
+      def appointment_service
+        @appointments_service ||=
+          Eps::AppointmentService.new(current_user)
       end
 
       def appointments
@@ -322,6 +345,59 @@ module VAOS
         else
           APPT_CREATE_VAOS
         end
+      end
+
+      def submit_params
+        params.require(%i[id network_id provider_service_id slot_id referral_number])
+        params.permit(
+          :id,
+          :network_id,
+          :provider_service_id,
+          :slot_id,
+          :referral_number,
+          :birth_date,
+          :email,
+          :phone_number,
+          :gender,
+          address: submit_address_params,
+          name: [
+            :family,
+            { given: [] }
+          ]
+        )
+      end
+
+      def submit_address_params
+        [
+          :type,
+          { line: [] },
+          :city,
+          :state,
+          :postal_code,
+          :country,
+          :text
+        ]
+      end
+
+      def patient_attributes(params)
+        {
+          name: {
+            family: params.dig(:name, :family),
+            given: params.dig(:name, :given)
+          },
+          phone: params[:phone_number],
+          email: params[:email],
+          birthDate: params[:birth_date],
+          gender: params[:gender],
+          address: {
+            line: params.dig(:address, :line),
+            city: params.dig(:address, :city),
+            state: params.dig(:address, :state),
+            country: params.dig(:address, :country),
+            postalCode: params.dig(:address, :postal_code),
+            type: params.dig(:address, :type)
+          }
+        }
       end
     end
   end
