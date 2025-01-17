@@ -4,6 +4,8 @@ require 'sm/client'
 
 MHVMessagingPolicy = Struct.new(:user, :mhv_messaging) do
   def access?
+    Rails.logger.info('SM ACCESS ATTEMPT IN MOBILE POLICY with id: ', user.mhv_correlation_id)
+    puts "SM ACCESS ATTEMPT IN MOBILE POLICY with id: #{user.mhv_correlation_id}"
     return false unless user.mhv_correlation_id
 
     client = SM::Client.new(session: { user_id: user.mhv_correlation_id })
