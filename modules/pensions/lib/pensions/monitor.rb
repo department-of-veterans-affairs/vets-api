@@ -300,6 +300,30 @@ module Pensions
     end
 
     ##
+    # Tracks the failure to send a Submission in Progress email for a claim.
+    # @see PensionBenefitIntakeJob
+    #
+    # @param claim [Pension::SavedClaim]
+    # @param lighthouse_service [LighthouseService]
+    # @param user_account_uuid [String]
+    # @param e [Exception]
+    #
+    def track_send_submitted_email_failure(claim, lighthouse_service, user_account_uuid, e)
+      additional_context = {
+        confirmation_number: claim&.confirmation_number,
+        user_account_uuid:,
+        claim_id: claim&.id,
+        benefits_intake_uuid: lighthouse_service&.uuid,
+        message: e&.message,
+        tags:
+      }
+
+      track_request('warn', 'Lighthouse::PensionBenefitIntakeJob send_submitted_email failed',
+                    "#{SUBMISSION_STATS_KEY}.send_submitted_failed",
+                    call_location: caller_locations.first, **additional_context)
+    end
+
+    ##
     # log Sidkiq job cleanup error occurred, this can occur post success or failure
     # @see PensionBenefitIntakeJob
     #
