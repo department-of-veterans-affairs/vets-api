@@ -4,10 +4,6 @@ module ClaimsApi
   module PowerOfAttorneyRequestService
     module Search
       module Query
-        Filter = PowerOfAttorneyRequest::Summary::Search::Query::Filter
-        Page = PowerOfAttorneyRequest::Summary::Search::Query::Page
-        Sort = PowerOfAttorneyRequest::Summary::Search::Query::Sort
-
         # TODO: If keeping `dry-schema`, consider a good point to load these
         # extensions. The `hints` extension has to load before our `Schema`
         # definition, otherwise it won't do its thing. And that may be true for
