@@ -149,7 +149,7 @@ describe LGY::Service do
               },
               { team: 'vfs-ebenefits' }
             )
-            expect(subject.coe_status).to eq(nil)
+            expect(subject.coe_status).to be_nil
           end
         end
       end

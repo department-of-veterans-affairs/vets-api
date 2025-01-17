@@ -34,7 +34,7 @@ RSpec.describe VRE::Ch31Form do
       it 'successfully sends to VRE' do
         VCR.use_cassette 'veteran_readiness_employment/send_to_vre' do
           response = service.submit
-          expect(response['error_occurred']).to eq(false)
+          expect(response['error_occurred']).to be(false)
         end
       end
 
@@ -54,7 +54,7 @@ RSpec.describe VRE::Ch31Form do
 
           response = service.submit
 
-          expect(response['error_occurred']).to eq(true)
+          expect(response['error_occurred']).to be(true)
         end
       end
 
@@ -65,7 +65,7 @@ RSpec.describe VRE::Ch31Form do
 
           response = nil_claim_service.submit
 
-          expect(response['error_occurred']).to eq(true)
+          expect(response['error_occurred']).to be(true)
         end
       end
     end

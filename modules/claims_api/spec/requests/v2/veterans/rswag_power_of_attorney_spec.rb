@@ -53,13 +53,13 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '200', 'Successful response with a current Power of Attorney' do
-          schema JSON.parse(File.read(Rails.root.join('spec',
-                                                      'support',
-                                                      'schemas',
-                                                      'claims_api',
-                                                      'veterans',
-                                                      'power-of-attorney',
-                                                      'get.json')))
+          schema JSON.parse(Rails.root.join('spec',
+                                            'support',
+                                            'schemas',
+                                            'claims_api',
+                                            'veterans',
+                                            'power-of-attorney',
+                                            'get.json').read)
 
           before do |example|
             expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
@@ -91,8 +91,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           let(:Authorization) { nil }
 
@@ -150,8 +150,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable Entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           before do |example|
             expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
@@ -456,8 +456,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '202', 'Valid request response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
-                                                      'power_of_attorney', '2122', 'submit.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
+                                            'power_of_attorney', '2122', 'submit.json').read)
 
           before do |example|
             expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
@@ -494,8 +494,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           let(:Authorization) { nil }
 
@@ -519,8 +519,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable Entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -944,8 +944,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '200', 'Valid request response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2',
-                                                      'veterans', 'power_of_attorney', 'status.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2',
+                                            'veterans', 'power_of_attorney', 'status.json').read)
 
           before do |example|
             mock_ccg(scopes) do
@@ -1051,8 +1051,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '201', 'Valid request response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
-                                                      'power_of_attorney', 'request_representative', 'submit.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
+                                            'power_of_attorney', 'request_representative', 'submit.json').read)
 
           before do |example|
             allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return false
@@ -1085,8 +1085,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           let(:Authorization) { nil }
 
@@ -1110,8 +1110,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable Entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
