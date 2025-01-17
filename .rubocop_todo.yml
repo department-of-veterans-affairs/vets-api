@@ -623,12 +623,6 @@ Style/RedundantArgument:
     - 'lib/va_profile/models/base_address.rb'
     - 'modules/appeals_api/spec/support/pdf_matcher.rb'
 
-# Offense count: 5
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/StringChars:
-  Exclude:
-    - 'modules/claims_api/app/controllers/claims_api/v2/veterans/claims_controller.rb'
-
 # Offense count: 60
 ThreadSafety/ClassInstanceVariable:
   Exclude:
