@@ -50,10 +50,10 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
 
   describe '#perform' do
     let(:poa) do
-      FactoryBot.create(:power_of_attorney,
-                        auth_headers: auth_headers,
-                        form_data: claimant_form_data,
-                        status: ClaimsApi::PowerOfAttorney::SUBMITTED)
+      create(:power_of_attorney,
+             auth_headers: auth_headers,
+             form_data: claimant_form_data,
+             status: ClaimsApi::PowerOfAttorney::SUBMITTED)
     end
 
     it "marks the POA status as 'updated'" do
@@ -82,10 +82,10 @@ RSpec.describe ClaimsApi::PoaAssignDependentClaimantJob, type: :job do
     end
 
     let(:poa) do
-      FactoryBot.create(:power_of_attorney,
-                        auth_headers: auth_headers,
-                        form_data: claimant_form_data,
-                        status: ClaimsApi::PowerOfAttorney::SUBMITTED)
+      create(:power_of_attorney,
+             auth_headers: auth_headers,
+             form_data: claimant_form_data,
+             status: ClaimsApi::PowerOfAttorney::SUBMITTED)
     end
     let(:header_key) { ClaimsApi::V2::Veterans::PowerOfAttorney::BaseController::VA_NOTIFY_KEY }
 

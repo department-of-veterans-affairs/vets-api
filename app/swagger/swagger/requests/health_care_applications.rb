@@ -101,8 +101,8 @@ module Swagger
 
       swagger_path '/v0/health_care_applications/enrollment_status' do
         operation :get do
-          key :description, 'Check the status of a health care application.'\
-                            ' Non-logged in users must pass query parameters with user attributes.'\
+          key :description, 'Check the status of a health care application.' \
+                            ' Non-logged in users must pass query parameters with user attributes.' \
                             ' No parameters needed for logged in loa3 users.'
           key :operationId, 'enrollmentStatusHealthCareApplication'
           key :tags, %w[benefits_forms]

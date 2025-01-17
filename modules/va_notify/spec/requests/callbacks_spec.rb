@@ -24,7 +24,7 @@ RSpec.describe 'VANotify Callbacks', type: :request do
                                                    source_location: 'some_location',
                                                    callback_metadata: 'some_callback_metadata',
                                                    template_id: template_id)
-      expect(notification.status).to eq(nil)
+      expect(notification.status).to be_nil
       allow(Rails.logger).to receive(:info)
       callback_obj = double('VANotify::DefaultCallback')
       allow(VANotify::DefaultCallback).to receive(:new).and_return(callback_obj)

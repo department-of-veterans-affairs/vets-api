@@ -10,7 +10,7 @@ class ModuleGenerator < Rails::Generators::NamedBase
   def create_directory_structure
     # create the dir structure here
     %w[controllers models serializers services].each do |dir|
-      FileUtils.mkdir_p "modules/#{file_name}/app/#{dir}" unless Dir.exist?("modules/#{file_name}/app/#{dir}")
+      FileUtils.mkdir_p "modules/#{file_name}/app/#{dir}"
     end
   end
 

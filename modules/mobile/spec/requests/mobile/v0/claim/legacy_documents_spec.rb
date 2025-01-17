@@ -16,7 +16,7 @@ RSpec.describe 'legacy Mobile::V0::Claim::Document', :skip_json_api_validation, 
   let(:tracked_item_id) { 33 }
   let(:document_type) { 'L023' }
   let!(:claim) do
-    FactoryBot.create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
+    create(:evss_claim, id: 1, evss_id: 600_117_255, user_uuid: user.uuid)
   end
   let(:json_body_headers) { { 'Content-Type' => 'application/json', 'Accept' => 'application/json' } }
 
@@ -86,7 +86,7 @@ RSpec.describe 'legacy Mobile::V0::Claim::Document', :skip_json_api_validation, 
     args = EVSS::DocumentUpload.jobs.first['args'][2]
     expect(response).to have_http_status(:accepted)
     expect(response.parsed_body.dig('data', 'jobId')).to eq(EVSS::DocumentUpload.jobs.first['jid'])
-    expect(args.key?('tracked_item_id')).to eq(true)
+    expect(args.key?('tracked_item_id')).to be(true)
     expect(args['tracked_item_id']).to be_nil
   end
 

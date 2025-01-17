@@ -3,9 +3,14 @@
 module AccreditedRepresentativePortal
   class PowerOfAttorneyForm < ApplicationRecord
     belongs_to :power_of_attorney_request,
-               class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequest',
+               class_name: 'PowerOfAttorneyRequest',
                inverse_of: :power_of_attorney_form
 
+    ##
+    # If we had a regular ID column, we could use `eager_encrypt` which would be
+    # more performant:
+    # https://github.com/ankane/kms_encrypted/blob/master/README.md?plain=1#L155
+    #
     has_kms_key
 
     has_encrypted(
@@ -26,8 +31,10 @@ module AccreditedRepresentativePortal
     validate :data_must_comply_with_schema
     before_validation :set_location
 
+    ##
     # Maybe can manage interdepencies between this and the POA reqeust without
     # exposing this.
+    #
     def parsed_data
       @parsed_data ||= JSON.parse(data)
     end
