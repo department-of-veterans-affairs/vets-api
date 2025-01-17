@@ -12,8 +12,9 @@ module Eps
     def get_appointments
       response = perform(:get, "/#{config.base_path}/appointments?patientId=#{patient_id}",
                          {}, headers)
-      StatsDMetric.new(key: STATSD_KEY).save
-      StatsD.increment(STATSD_KEY, tags: ['get_appointments call completed'])
+                         
+      track_metric(STATSD_KEY, 'get_appointments call completed')
+      
       unless response.status == 200
         # log failures
         StatsD.increment(STATSD_KEY, tags: ["failures:#{response.body}"])
@@ -29,8 +30,9 @@ module Eps
     def create_draft_appointment(referral_id:)
       response = perform(:post, "/#{config.base_path}/appointments",
                          { patientId: patient_id, referralId: referral_id }, headers)
-      StatsDMetric.new(key: STATSD_KEY).save
-      StatsD.increment(STATSD_KEY, tags: ['create_draft_appointment call completed'])
+
+      track_metric(STATSD_KEY, 'create_draft_appointment call completed')
+      
       unless response.status == 200
         # log failures
         StatsD.increment(STATSD_KEY, tags: ["failures:#{response.body}"])
@@ -62,8 +64,9 @@ module Eps
       payload = build_submit_payload(params)
 
       response = perform(:post, "/#{config.base_path}/appointments/#{appointment_id}/submit", payload, headers)
-      StatsDMetric.new(key: STATSD_KEY).save
-      StatsD.increment(STATSD_KEY, tags: ['submit_appointment call completed'])
+      
+      track_metric(STATSD_KEY, 'submit_appointment call completed')
+      
       unless response.status == 200
         # log failures
         StatsD.increment(STATSD_KEY, tags: ["failures:#{response.body}"])
@@ -72,6 +75,11 @@ module Eps
     end
 
     private
+
+    def track_metric(key, tag)
+      StatsDMetric.new(key: key).save
+      StatsD.increment(key, tags: [tag])
+    end
 
     def build_submit_payload(params)
       payload = {
