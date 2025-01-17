@@ -27,18 +27,12 @@ module IvcChampva
     #
     # The return value reflects whether or not all files were successfully uploaded.
     #
-    # If successful, it will return:
-    # - An array containing a single HTTP status code and an optional error message,
-    #   e.g. [200] | [400, 'No such file']
+    # If successful, it will return an array containing a single HTTP status code and an
+    # optional error message, e.g. [200] | [400, 'No such file']
     #
-    # If any uploads yield non-200 statuses when submitted to S3, it will return:
-    # - An array of arrays of statuses and optional error messages corresponding to the individual
-    #   uploads.
-    #   E.g., for two documents uploaded, one successful and one failed, it returns:
-    #   [[200], [400, 'No such file or directory']]
+    # If any uploads yield non-200 statuses when submitted to S3, it raise a StandardError.
     #
-    # @return [Array<Integer, String>, Array<Array<Integer, String>>] Either an array of arrays, or
-    # an array with a status code and an optional error message string.
+    # @return [Array<Integer, String>] An array with a status code and an optional error message string.
     def handle_uploads
       results = @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
         next if file_path.blank?
