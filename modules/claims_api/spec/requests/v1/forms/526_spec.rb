@@ -1317,7 +1317,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
                 VCR.use_cassette('claims_api/mpi/add_person/add_person_success') do
-                  VCR.use_cassette('claims_api/mpi/find_candidate/orch_search_with_attributes') do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/orch_search_with_identifier') do
                     allow_any_instance_of(MPIData)
                       .to receive(:mvi_response).and_return(multi_profile)
 
@@ -1336,7 +1336,7 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
             VCR.use_cassette('claims_api/bgs/claims/claims') do
               VCR.use_cassette('claims_api/brd/countries') do
                 VCR.use_cassette('claims_api/mpi/add_person/add_person_success') do
-                  VCR.use_cassette('claims_api/mpi/find_candidate/orch_search_with_attributes') do
+                  VCR.use_cassette('claims_api/mpi/find_candidate/orch_search_with_identifier') do
                     allow_any_instance_of(ClaimsApi::Veteran).to receive(:mpi_record?).and_return(true)
                     allow_any_instance_of(MPIData).to receive(:mvi_response)
                       .and_return(profile_with_edipi)
