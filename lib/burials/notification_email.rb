@@ -36,7 +36,7 @@ module Burials
         # confirmation, error
         'first_name' => claim.claimaint_first_name&.upcase,
         # received
-        'date_received' => claim.updated_at
+        'date_received' => claim.form_submissions&.last&.form_submission_attempts&.last&.lighthouse_updated_at
       }
 
       default.merge(burials)
