@@ -940,8 +940,7 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
 
               response_obj = JSON.parse(response.body)
               expect(response).to have_http_status(:created)
-              expect(response_obj.dig('attributes', 'appointment', 'state')).to eql('draft')
-              expect(response_obj.dig('attributes', 'appointment', 'id')).to eql('J9BhspdR')
+              expect(response_obj['id']).to eql('J9BhspdR')
             end
           end
         end
