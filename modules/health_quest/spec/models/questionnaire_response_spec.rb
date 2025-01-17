@@ -34,27 +34,27 @@ describe HealthQuest::QuestionnaireResponse do
 
   describe 'object initialization' do
     it 'responds to appointment_id' do
-      expect(subject.respond_to?(:appointment_id)).to eq(true)
+      expect(subject.respond_to?(:appointment_id)).to be(true)
     end
 
     it 'responds to user_uuid' do
-      expect(subject.respond_to?(:user_uuid)).to eq(true)
+      expect(subject.respond_to?(:user_uuid)).to be(true)
     end
 
     it 'responds to questionnaire_response_id' do
-      expect(subject.respond_to?(:questionnaire_response_id)).to eq(true)
+      expect(subject.respond_to?(:questionnaire_response_id)).to be(true)
     end
 
     it 'responds to questionnaire_response_data' do
-      expect(subject.respond_to?(:questionnaire_response_data)).to eq(true)
+      expect(subject.respond_to?(:questionnaire_response_data)).to be(true)
     end
 
     it 'responds to user_demographics_data' do
-      expect(subject.respond_to?(:user_demographics_data)).to eq(true)
+      expect(subject.respond_to?(:user_demographics_data)).to be(true)
     end
 
     it 'responds to user' do
-      expect(subject.respond_to?(:user)).to eq(true)
+      expect(subject.respond_to?(:user)).to be(true)
     end
   end
 
@@ -62,13 +62,13 @@ describe HealthQuest::QuestionnaireResponse do
     it 'is not valid without questionnaire_response_data' do
       subject.questionnaire_response_data = nil
 
-      expect(subject.valid?).to eq(false)
+      expect(subject.valid?).to be(false)
     end
 
     it 'is valid with questionnaire_response_data' do
       subject.questionnaire_response_data = { 'foo' => 'bar' }
 
-      expect(subject.valid?).to eq(true)
+      expect(subject.valid?).to be(true)
     end
   end
 

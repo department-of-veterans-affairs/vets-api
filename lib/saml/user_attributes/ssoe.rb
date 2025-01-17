@@ -241,9 +241,7 @@ module SAML
       def edipi_ids
         @edipi_ids ||= begin
           gcids = safe_attr('va_eauth_gcIds')
-          return {} unless gcids
-
-          parse_string_gcids(gcids, DOD_ROOT_OID)
+          gcids ? parse_string_gcids(gcids, DOD_ROOT_OID) : {}
         end
       end
 

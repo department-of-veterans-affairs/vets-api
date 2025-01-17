@@ -79,7 +79,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
       describe 'by default' do
         subject { supplemental_claim.soc_opt_in }
 
-        it('is true') { is_expected.to eq(true) }
+        it('is true') { is_expected.to be(true) }
       end
 
       describe 'if a false value is provided' do
@@ -88,7 +88,7 @@ describe AppealsApi::SupplementalClaim, type: :model do
           supplemental_claim.soc_opt_in
         end
 
-        it('ignores the user-provided value') { is_expected.to eq(true) }
+        it('ignores the user-provided value') { is_expected.to be(true) }
       end
     end
 

@@ -11,7 +11,7 @@ describe AppealsApi::EvidenceSubmission, type: :model do
   end
 
   it 'responds to supportable' do
-    expect(evidence_submission.respond_to?(:supportable)).to eq(true)
+    expect(evidence_submission.respond_to?(:supportable)).to be(true)
   end
 
   it 'has an association with the supportable' do

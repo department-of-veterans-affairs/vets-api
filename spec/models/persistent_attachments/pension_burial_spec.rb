@@ -24,7 +24,7 @@ RSpec.describe PersistentAttachments::PensionBurial, :uploader_helpers do
   describe '#can_upload_to_api?' do
     it 'returns true if email is right' do
       instance.saved_claim = SavedClaim::Burial.new(form: { claimantEmail: 'lihan@adhocteam.us' }.to_json)
-      expect(instance.can_upload_to_api?).to eq(true)
+      expect(instance.can_upload_to_api?).to be(true)
     end
   end
 
@@ -42,9 +42,9 @@ RSpec.describe PersistentAttachments::PensionBurial, :uploader_helpers do
       instance.file = file.open
       instance.save!
       shrine_file = instance.file
-      expect(shrine_file.exists?).to eq(true)
+      expect(shrine_file.exists?).to be(true)
       instance.destroy
-      expect(shrine_file.exists?).to eq(false)
+      expect(shrine_file.exists?).to be(false)
     end
   end
 end

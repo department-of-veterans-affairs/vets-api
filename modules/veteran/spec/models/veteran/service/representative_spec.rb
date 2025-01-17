@@ -47,7 +47,7 @@ describe Veteran::Service::Representative, type: :model do
         expect(Veteran::Service::Representative.for_user(
                  first_name: identity.first_name,
                  last_name: nil
-               )).to eq(nil)
+               )).to be_nil
       end
     end
 

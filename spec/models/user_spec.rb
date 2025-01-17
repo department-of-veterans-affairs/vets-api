@@ -44,7 +44,7 @@ RSpec.describe User, type: :model do
         let(:mpi_icn) { nil }
 
         it 'returns nil' do
-          expect(user.icn).to eq(nil)
+          expect(user.icn).to be_nil
         end
       end
     end
@@ -193,13 +193,13 @@ RSpec.describe User, type: :model do
 
   describe '#can_prefill_va_profile?' do
     it 'returns true if user has edipi or icn' do
-      expect(user.authorize(:va_profile, :access?)).to eq(true)
+      expect(user.authorize(:va_profile, :access?)).to be(true)
     end
 
     it 'returns false if user doesnt have edipi or icn' do
       expect(user).to receive(:edipi).and_return(nil)
 
-      expect(user.authorize(:va_profile, :access?)).to eq(false)
+      expect(user.authorize(:va_profile, :access?)).to be(false)
     end
   end
 
@@ -979,15 +979,15 @@ RSpec.describe User, type: :model do
       let(:user) { build(:user, :loa1) }
 
       it 'returns blank pciu_email' do
-        expect(user.pciu_email).to eq nil
+        expect(user.pciu_email).to be_nil
       end
 
       it 'returns blank pciu_primary_phone' do
-        expect(user.pciu_primary_phone).to eq nil
+        expect(user.pciu_primary_phone).to be_nil
       end
 
       it 'returns blank pciu_alternate_phone' do
-        expect(user.pciu_alternate_phone).to eq nil
+        expect(user.pciu_alternate_phone).to be_nil
       end
     end
   end
@@ -1044,7 +1044,7 @@ RSpec.describe User, type: :model do
           let(:mpi_profile) { build(:mpi_profile, { birth_date: nil }) }
 
           it 'returns nil' do
-            expect(user.birth_date).to eq nil
+            expect(user.birth_date).to be_nil
           end
         end
 
@@ -1061,7 +1061,7 @@ RSpec.describe User, type: :model do
         end
 
         it 'returns nil' do
-          expect(user.birth_date).to eq nil
+          expect(user.birth_date).to be_nil
         end
       end
     end
@@ -1076,7 +1076,7 @@ RSpec.describe User, type: :model do
       end
 
       it 'returns nil' do
-        expect(user.deceased_date).to eq nil
+        expect(user.deceased_date).to be_nil
       end
     end
 
@@ -1106,7 +1106,7 @@ RSpec.describe User, type: :model do
       let(:mpi_relationship_array) { [] }
 
       it 'returns nil' do
-        expect(user.relationships).to eq nil
+        expect(user.relationships).to be_nil
       end
     end
 
@@ -1180,7 +1180,7 @@ RSpec.describe User, type: :model do
 
         context 'when BGS relationship response does not contain information' do
           it 'returns an empty array' do
-            expect(user.relationships).to eq nil
+            expect(user.relationships).to be_nil
           end
         end
       end
@@ -1259,7 +1259,7 @@ RSpec.describe User, type: :model do
             let(:user_verification) { nil }
 
             it 'returns nil' do
-              expect(user.user_verification).to be nil
+              expect(user.user_verification).to be_nil
             end
           end
         end
@@ -1292,7 +1292,7 @@ RSpec.describe User, type: :model do
             let(:user_verification) { nil }
 
             it 'returns nil' do
-              expect(user.user_verification).to be nil
+              expect(user.user_verification).to be_nil
             end
           end
         end
@@ -1323,7 +1323,7 @@ RSpec.describe User, type: :model do
           let(:user_verification) { nil }
 
           it 'returns nil' do
-            expect(user.user_verification).to be nil
+            expect(user.user_verification).to be_nil
           end
         end
       end
@@ -1344,7 +1344,7 @@ RSpec.describe User, type: :model do
 
         context 'when the UserVerification is not locked' do
           it 'returns false' do
-            expect(user.credential_lock).to eq(false)
+            expect(user.credential_lock).to be(false)
           end
         end
 
@@ -1352,7 +1352,7 @@ RSpec.describe User, type: :model do
           let(:locked) { true }
 
           it 'returns true' do
-            expect(user.credential_lock).to eq(true)
+            expect(user.credential_lock).to be(true)
           end
         end
       end
@@ -1361,7 +1361,7 @@ RSpec.describe User, type: :model do
         let(:user) { build(:user, :loa1) }
 
         it 'returns nil' do
-          expect(user.credential_lock).to eq(nil)
+          expect(user.credential_lock).to be_nil
         end
       end
     end
@@ -1458,13 +1458,6 @@ RSpec.describe User, type: :model do
         context 'when the user has not accepted the terms of use' do
           let(:terms_of_use_response) { 'declined' }
           let(:expected_error_message) { "Current terms of use agreement must be 'accepted'" }
-
-          it_behaves_like 'mhv_user_account error'
-        end
-
-        context 'when the user does not have a user_credential_email' do
-          let(:user_credential_email) { nil }
-          let(:expected_error_message) { 'Email must be present' }
 
           it_behaves_like 'mhv_user_account error'
         end

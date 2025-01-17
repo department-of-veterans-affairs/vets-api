@@ -94,7 +94,7 @@ RSpec.describe 'VBADocument::V2::Uploads::Report', type: :request do
         inspector = VBADocuments::PDFInspector.new(pdf: valid_doc, add_file_key: false)
         pdf_controller_data = json['data'].first['attributes']['uploaded_pdf']
         pdf_data = VBADocuments::UploadSerializer.scrub_unnecessary_keys(inspector.pdf_data.as_json)
-        expect(pdf_controller_data.eql?(pdf_data)).to eq(true)
+        expect(pdf_controller_data.eql?(pdf_data)).to be(true)
       end
     end
   end
