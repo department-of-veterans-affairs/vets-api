@@ -54,6 +54,7 @@ module IvcChampva
       if all_success
         generate_and_upload_meta_json
       elsif Flipper.enabled?(:champva_require_all_s3_success, @current_user)
+        monitor.track_s3_upload_error(@metadata['uuid'], s3_err)
         # Stop this submission in its tracks - entries will still be added to database
         # for these files, but user will see error on the FE saying submission failed.
         raise StandardError, "IVC ChampVa Forms - failed to upload all documents for submission: #{s3_err}"
