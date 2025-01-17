@@ -74,7 +74,7 @@ RSpec.describe Organizations::Update do
             address_line2: 'abc',
             address_line3: 'abc',
             city: 'abc',
-            state_province: {
+            state_code: {
               code: 'abc'
             },
             zip_code5: 'abc',
@@ -97,7 +97,7 @@ RSpec.describe Organizations::Update do
                 'name' => 'Kings',
                 'county_fips_code' => '36047'
               },
-              'state_province' => {
+              'state_code' => {
                 'name' => 'New York',
                 'code' => 'NY'
               },
@@ -212,7 +212,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_province' => {
+                'state_code' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
@@ -253,7 +253,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_province' => {
+                'state_code' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
@@ -294,7 +294,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_province' => {
+                'state_code' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
@@ -335,7 +335,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_province' => {
+                'state_code' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
