@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_16_192421) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -661,6 +661,28 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_account_id"], name: "index_education_stem_automated_decisions_on_user_account_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
+  end
+
+  create_table "evidence_submissions", force: :cascade do |t|
+    t.string "job_id"
+    t.string "job_class"
+    t.string "request_id"
+    t.string "claim_id"
+    t.uuid "user_account_id", null: false
+    t.json "template_metadata_ciphertext"
+    t.text "encrypted_kms_key"
+    t.string "upload_status"
+    t.string "va_notify_id"
+    t.string "va_notify_status"
+    t.datetime "va_notify_date"
+    t.datetime "delete_date"
+    t.datetime "acknowledgement_date"
+    t.datetime "failed_date"
+    t.string "error_message"
+    t.string "tracked_item_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_evidence_submissions_on_user_account_id"
   end
 
   create_table "evss_claims", id: :serial, force: :cascade do |t|
@@ -1483,6 +1505,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
     t.string "address_line1"
     t.string "address_line2"
     t.string "address_line3"
+    t.boolean "can_accept_digital_poa_requests", default: false
     t.index ["location"], name: "index_veteran_organizations_on_location", using: :gist
     t.index ["name"], name: "index_veteran_organizations_on_name"
     t.index ["poa"], name: "index_veteran_organizations_on_poa", unique: true
@@ -1733,6 +1756,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_14_223139) do
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
+  add_foreign_key "evidence_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "form526_submission_remediations", "form526_submissions"
   add_foreign_key "form526_submissions", "user_accounts"

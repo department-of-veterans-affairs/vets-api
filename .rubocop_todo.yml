@@ -384,12 +384,6 @@ Rails/SkipsModelValidations:
     - 'spec/models/form526_job_status_spec.rb'
     - 'spec/sidekiq/evss/disability_compensation_form/submit_form526_all_claim_spec.rb'
 
-# Offense count: 1
-# This cop supports safe autocorrection (--autocorrect).
-Rails/StripHeredoc:
-  Exclude:
-    - 'lib/common/exceptions/backend_service_exception.rb'
-
 # Offense count: 3
 # Configuration parameters: Include.
 # Include: app/models/**/*.rb
