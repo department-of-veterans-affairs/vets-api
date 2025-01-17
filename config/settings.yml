@@ -662,7 +662,7 @@ claims_api:
       lighthouse:
         api_key: ~
   bgs:
-    mock_responses: ~
+    mock_responses: false
 
 connected_apps_api:
   connected_apps:

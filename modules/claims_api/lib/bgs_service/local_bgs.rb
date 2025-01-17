@@ -13,7 +13,6 @@ require 'bgs_service/find_definition'
 
 module ClaimsApi
   class LocalBGS
-    MOCKED_ACTIONS = %(readPOARequest)
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
       @client_ip =
@@ -307,11 +306,7 @@ module ClaimsApi
     end
 
     def use_mocks?(use_mocks)
-      if use_mocks && Settings.claims_api.bgs.mock_responses
-        true
-      else
-        false
-      end
+      use_mocks && Settings.claims_api.bgs.mock_responses
     end
   end
 end
