@@ -6,16 +6,8 @@ require 'bgs_service/find_definition'
 describe ClaimsApi::FindDefinition do
   subject { described_class }
 
-  before do
-    Flipper.disable(:lighthouse_claims_api_hardcode_wsdl)
-  end
-
   describe '#for_service' do
     context 'hardcoded WSDL' do
-      before do
-        Flipper.enable(:lighthouse_claims_api_hardcode_wsdl)
-      end
-
       context 'TrackedItemService' do
         let(:endpoint) { 'TrackedItemService/TrackedItemService' }
 
