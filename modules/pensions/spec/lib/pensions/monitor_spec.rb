@@ -360,6 +360,30 @@ RSpec.describe Pensions::Monitor do
       end
     end
 
+    describe '#track_send_submitted_email_failure' do
+      it 'logs sidekiq job send_submitted_email error' do
+        log = 'Lighthouse::PensionBenefitIntakeJob send_submitted_email failed'
+        payload = {
+          claim_id: claim.id,
+          benefits_intake_uuid: lh_service.uuid,
+          confirmation_number: claim.confirmation_number,
+          user_account_uuid: current_user.uuid,
+          message: monitor_error.message,
+          tags: monitor.tags
+        }
+
+        expect(monitor).to receive(:track_request).with(
+          'warn',
+          log,
+          "#{submission_stats_key}.send_submitted_failed",
+          call_location: anything,
+          **payload
+        )
+
+        monitor.track_send_submitted_email_failure(claim, lh_service, current_user.uuid, monitor_error)
+      end
+    end
+
     describe '#track_file_cleanup_error' do
       it 'logs sidekiq job ensure file cleanup error' do
         log = 'Lighthouse::PensionBenefitIntakeJob cleanup failed'
