@@ -33,7 +33,6 @@ module IvcChampva
     # If any uploads yield non-200 statuses when submitted to S3, it raise a StandardError.
     #
     # @return [Array<Integer, String>] An array with a status code and an optional error message string.
-    # rubocop:disable Metrics/MethodLength
     def handle_uploads
       results = @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
         next if file_path.blank?
@@ -63,7 +62,6 @@ module IvcChampva
         results
       end
     end
-    # rubocop:enable Metrics/MethodLength
 
     private
 
