@@ -48,6 +48,8 @@ module HCA
         dependents = parse_dependents(response)
         spouse = parse_spouse(response)
 
+        debugger
+
         OpenStruct.new(
           income.merge(
             convert_insurance_hash(response, providers)
@@ -137,11 +139,15 @@ module HCA
       end
 
       def get_income(response, xpath)
+        debugger
+
         income = {}
 
         response.locate(xpath)&.each do |i|
           income_type = i.nodes.select { |node| node.value == 'type' }.first&.nodes&.first
           income_amount = i.nodes.select { |node| node.value == 'amount' }.first[0]&.nodes&.first
+
+          debugger
 
           case income_type
           when 'Total Employment Income'
@@ -153,13 +159,15 @@ module HCA
           end
         end
 
+        debugger
+
         income
       end
 
       def parse_income(response)
         income_xpath = "#{XPATH_PREFIX}financialsInfo/financialStatement/"
 
-        Common::HashHelpers.deep_compact(
+        testing = Common::HashHelpers.deep_compact(
           {
             veteranIncome: get_income(
               response,
@@ -171,6 +179,10 @@ module HCA
             )
           }
         )
+
+        debugger
+
+        testing
       end
 
 
