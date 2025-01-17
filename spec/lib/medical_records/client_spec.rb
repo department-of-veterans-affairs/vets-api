@@ -445,7 +445,7 @@ describe MedicalRecords::Client do
     end
   end
 
-  context 'when the patient is not found', :vcr do
+  context 'when the patient is not found', :vcr, :skip_va_profile_user do
     # Here we test using list_allergies instead of get_patient_by_identifier directly because the PatientNotFound
     # exception is eaten while creating the session and later re-thrown if no patient ID exists while trying to
     # access FHIR resources.
@@ -470,7 +470,7 @@ describe MedicalRecords::Client do
       end
     end
 
-    it 'does not find a patient by identifer (202)', :vcr do
+    it 'does not find a patient by identifer (202)', :vcr, :skip_va_profile_user do
       VCR.use_cassette('user_eligibility_client/perform_an_eligibility_check_for_premium_user',
                        match_requests_on: %i[method sm_user_ignoring_path_param]) do
         VCR.use_cassette 'mr_client/session' do
