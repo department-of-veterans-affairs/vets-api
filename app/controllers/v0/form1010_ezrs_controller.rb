@@ -19,7 +19,7 @@ module V0
       render(json: result)
     end
 
-    def enrollment_system_data
+    def veteran_prefill_data
       render(json: HCA::EnrollmentEligibility::Service.new.get_ezr_data(current_user.icn))
     end
 

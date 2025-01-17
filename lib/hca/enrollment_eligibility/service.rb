@@ -43,13 +43,14 @@ module HCA
           lookup_user_req(icn)
         end
 
+        income = parse_income(response)
         providers = parse_insurance_providers(response)
         dependents = parse_dependents(response)
         spouse = parse_spouse(response)
 
         OpenStruct.new(
-          convert_insurance_hash(
-            response, providers
+          income.merge(
+            convert_insurance_hash(response, providers)
           ).merge(
             dependents.present? ? { dependents: } : {}
           ).merge(spouse)
@@ -135,23 +136,43 @@ module HCA
         marital_status
       end
 
-      def get_income(xpath, response)
-        debugger
+      def get_income(response, xpath)
         income = {}
 
-        response.locate(xpath).first&.each do |i|
-          case i['type']
+        response.locate(xpath)&.each do |i|
+          income_type = i.nodes.select { |node| node.value == 'type' }.first&.nodes&.first
+          income_amount = i.nodes.select { |node| node.value == 'amount' }.first[0]&.nodes&.first
+
+          case income_type
           when 'Total Employment Income'
-            income[:grossIncome] = i['amount']
+            income[:grossIncome] = income_amount
           when 'Net Income from Farm, Ranch, Property, Business'
-            income[:netIncome] = i['amount']
+            income[:netIncome] = income_amount
           when 'All Other Income'
-            income[:otherIncome] = i['amount']
+            income[:otherIncome] = income_amount
           end
         end
 
         income
       end
+
+      def parse_income(response)
+        income_xpath = "#{XPATH_PREFIX}financialsInfo/financialStatement/"
+
+        Common::HashHelpers.deep_compact(
+          {
+            veteranIncome: get_income(
+              response,
+              "#{income_xpath}incomes/income"
+            ),
+            spouseIncome: get_income(
+              response,
+              "#{income_xpath}spouseFinancialsList/spouseFinancials/incomes/income"
+            )
+          }
+        )
+      end
+
 
       # rubocop:disable Metrics/MethodLength
       def parse_spouse(response)
@@ -194,10 +215,6 @@ module HCA
             spouseIncomeYear: get_locate_value(
               response,
               "#{spouse_financials_xpath}incomeYear"
-            ),
-            spouseIncome: get_income(
-              "#{XPATH_PREFIX}financialsInfo/financialStatement/spouseFinancialsList/spouseFinancials/incomes/income",
-              response
             )
           }
         )
