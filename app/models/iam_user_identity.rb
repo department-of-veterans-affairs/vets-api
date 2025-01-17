@@ -6,7 +6,7 @@ require 'sentry_logging'
 # Like the it's base model it acts as an adapter for the attributes from the IAMSSOeOAuth::Service's
 # introspect endpoint.Adds IAM sourced versions of ICN, EDIPI, and SEC ID to pass to the IAMUser model.
 #
-class IAMUserIdentity < ::UserIdentity
+class IAMUserIdentity < UserIdentity
   extend SentryLogging
   extend Identity::Parsers::GCIdsHelper
 

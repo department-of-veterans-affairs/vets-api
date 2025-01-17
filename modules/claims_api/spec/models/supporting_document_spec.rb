@@ -14,7 +14,7 @@ RSpec.describe ClaimsApi::SupportingDocument, type: :model do
       attachment = build(:supporting_document)
 
       file = Rack::Test::UploadedFile.new(
-        ::Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
+        Rails.root.join(*'/modules/claims_api/spec/fixtures/extras.pdf'.split('/')).to_s
       )
       attachment.set_file_data!(file, 'docType', 'description')
       attachment.save!
