@@ -71,35 +71,13 @@ module VAOS
         # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
 
-        provider_response = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
-
-        slots = eps_provider_service.get_provider_slots(
-          draft_params[:provider_id],
-          {
-            appointmentTypeId: draft_params[:appointment_type_id],
-            startOnOrAfter: draft_params[:start_date],
-            startBefore: draft_params[:end_date]
-          }
-        )
-
-        drive_time = eps_provider_service.get_drive_times(
-          destinations: {
-            provider_response.id => {
-              latitude: provider_response.location['latitude'],
-              longitude: provider_response.location['longitude']
-            }
-          },
-          origin: {
-            latitude: current_user.address['latitude'],
-            longitude: current_user.address['longitude']
-          }
-        )
+        provider = eps_provider_service.get_provider_service(provider_id: draft_params[:provider_id])
 
         response_data = OpenStruct.new(
           id: draft_appointment.id,
-          provider: provider_response,
-          slots: slots,
-          drive_time: drive_time
+          provider: provider,
+          slots: fetch_provider_slots(provider),
+          drive_time: fetch_drive_times(provider)
         )
 
         serialized = Eps::DraftAppointmentSerializer.new(response_data)
@@ -391,6 +369,40 @@ module VAOS
         else
           APPT_CREATE_VAOS
         end
+      end
+
+      def fetch_provider_slots(provider)
+        eps_provider_service.get_provider_slots(
+          draft_params[:provider_id],
+          {
+            appointmentTypeId: draft_params[:appointment_type_id],
+            startOnOrAfter: draft_params[:start_date],
+            startBefore: draft_params[:end_date]
+          }
+        )
+      end
+
+      def fetch_drive_times(provider)
+        eps_provider_service.get_drive_times(
+          destinations: eps_provider_coordinates(provider),
+          origin: user_coordinates
+        )
+      end
+
+      def eps_provider_coordinates(provider)
+        {
+          provider.id => {
+            latitude: provider.location['latitude'],
+            longitude: provider.location['longitude']
+          }
+        }
+      end
+
+      def user_coordinates
+        {
+          latitude: current_user.address['latitude'],
+          longitude: current_user.address['longitude']
+        }
       end
     end
   end
