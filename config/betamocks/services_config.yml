@@ -1,6 +1,14 @@
 ---
 :services:
 
+# BGS
+- :name: "BGS"
+  :base_uri: <%= "#{URI(Settings.bgs.url).host}:#{URI(Settings.bgs.url).port}" %>
+  :endpoints:
+    - :method: :post
+      :path: "/VDC/ManageRepresentativeService"
+      :file_path: "/bgs/manage_representative_service/read_poa_request/default"
+
 #CRM API GET endpoint
 - :name: "CRM API GET endpoint"
   :base_uri: <%= "#{URI(Settings.ask_va_api.crm_api.base_url).host}:#{URI(Settings.ask_va_api.crm_api.base_url).port}" %>

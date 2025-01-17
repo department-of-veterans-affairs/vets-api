@@ -13,6 +13,7 @@ require 'bgs_service/find_definition'
 
 module ClaimsApi
   class LocalBGS
+    MOCKED_ACTIONS = %(readPOARequest)
     # rubocop:disable Metrics/MethodLength
     def initialize(external_uid:, external_key:)
       @client_ip =
@@ -156,10 +157,11 @@ module ClaimsApi
       end
     end
 
-    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
+    def make_request(endpoint:, action:, body:, key: nil, namespaces: {}, transform_response: true, use_mocks: false) # rubocop:disable Metrics/MethodLength, Metrics/ParameterLists
       connection = log_duration event: 'establish_ssl_connection' do
         Faraday::Connection.new(ssl: { verify_mode: @ssl_verify_mode }) do |f|
           f.use :breakers
+          f.response :betamocks if use_mocks?(use_mocks)
           f.adapter Faraday.default_adapter
         end
       end
@@ -302,6 +304,14 @@ module ClaimsApi
       result = Hash.from_xml(response.body).dig(*keys)
 
       result.is_a?(Array) ? result : result.to_h
+    end
+
+    def use_mocks?(use_mocks)
+      if use_mocks && Settings.claims_api.bgs.mock_responses
+        true
+      else
+        false
+      end
     end
   end
 end
