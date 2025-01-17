@@ -950,7 +950,6 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
                            match_requests_on: %i[method path]) do
             VCR.use_cassette('vaos/v2/eps/post_submit_appointment_400',
                              match_requests_on: %i[method path]) do
-              params[:phone_number] = nil
               post '/vaos/v2/appointments/submit', params: { ** params, phone_number: nil }, headers: inflection_header
 
               response_obj = JSON.parse(response.body)

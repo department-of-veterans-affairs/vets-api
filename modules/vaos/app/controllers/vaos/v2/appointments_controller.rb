@@ -386,7 +386,6 @@ module VAOS
         end
       end
 
-      # rubocop:disable Metrics/MethodLength
       def submit_params
         params.require(%i[id network_id provider_service_id slot_id referral_number])
         params.permit(
@@ -399,22 +398,25 @@ module VAOS
           :email,
           :phone_number,
           :gender,
-          address: [
-            :type,
-            { line: [] },
-            :city,
-            :state,
-            :postal_code,
-            :country,
-            :text
-          ],
+          address: submit_address_params,
           name: [
             :family,
             { given: [] }
           ]
         )
       end
-      # rubocop:enable Metrics/MethodLength
+
+      def submit_address_params
+        [
+          :type,
+          { line: [] },
+          :city,
+          :state,
+          :postal_code,
+          :country,
+          :text
+        ]
+      end
 
       def patient_attributes(params)
         {
