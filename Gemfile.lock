@@ -351,8 +351,8 @@ GEM
       activerecord (>= 5.a)
       database_cleaner-core (~> 2.0.0)
     database_cleaner-core (2.0.1)
-    datadog (2.8.0)
-      datadog-ruby_core_source (~> 3.3)
+    datadog (2.9.0)
+      datadog-ruby_core_source (~> 3.3, >= 3.3.7)
       libdatadog (~> 14.3.1.1.0)
       libddwaf (~> 1.18.0.0.0)
       msgpack
