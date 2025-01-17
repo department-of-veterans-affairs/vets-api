@@ -211,7 +211,7 @@ module Form1095
           Rails.logger.info "Successfully read #{@form_count} 1095B forms from #{file_name}, deleting file from S3"
           bucket.delete_objects(delete: { objects: [{ key: file_name }] })
         else
-          Rails.logger.error  "failed to save #{@error_count} forms from file: #{file_name};"\
+          Rails.logger.error  "failed to save #{@error_count} forms from file: #{file_name};" \
                               " successfully saved #{@form_count} forms"
         end
       end

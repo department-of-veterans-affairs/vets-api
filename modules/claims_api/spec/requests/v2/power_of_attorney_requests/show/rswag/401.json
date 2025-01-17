@@ -1,0 +1,27 @@
+{
+  "type": "object",
+  "required": ["errors"],
+  "properties": {
+    "errors": {
+      "type": "array",
+      "items": {
+        "additionalProperties": false,
+        "required": ["title", "detail", "status"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "enum": ["Not authorized"]
+          },
+          "detail": {
+            "type": "string",
+            "enum": ["Not authorized"]
+          },
+          "status": {
+            "type": "string",
+            "enum": ["401"]
+          }
+        }
+      }
+    }
+  }
+}

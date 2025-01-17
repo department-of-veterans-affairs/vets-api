@@ -1,10 +1,23 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
-  class PowerOfAttorneyRequestSerializer
-    include JSONAPI::Serializer
+  class PowerOfAttorneyRequestSerializer < ApplicationSerializer
+    attributes :claimant_id, :created_at, :expires_at
 
-    attributes :claimant_id, :created_at
+    attribute :power_of_attorney_form do |poa_request|
+      poa_request.power_of_attorney_form.parsed_data.tap do |form|
+        claimant_key =
+          case poa_request.claimant_type
+          when PowerOfAttorneyRequest::ClaimantTypes::DEPENDENT
+            'dependent'
+          when PowerOfAttorneyRequest::ClaimantTypes::VETERAN
+            'veteran'
+          end
+
+        form['claimant'] = form.delete(claimant_key)
+        form.delete('dependent')
+      end
+    end
 
     attribute :resolution do |poa_request|
       next unless poa_request.resolution
@@ -12,12 +25,34 @@ module AccreditedRepresentativePortal
       serializer =
         case poa_request.resolution.resolving
         when PowerOfAttorneyRequestDecision
-          PowerOfAttorneyRequestDecisionSerializer
+          DecisionSerializer
         when PowerOfAttorneyRequestExpiration
-          PowerOfAttorneyRequestExpirationSerializer
+          ExpirationSerializer
         end
 
-      serializer.new(poa_request.resolution)
+      serializer
+        .new(poa_request.resolution)
+        .serializable_hash
+    end
+
+    attribute :power_of_attorney_holder do |poa_request|
+      serializer =
+        case poa_request.power_of_attorney_holder
+        when AccreditedIndividual
+          IndividualPowerOfAttorneyHolderSerializer
+        when AccreditedOrganization
+          OrganizationPowerOfAttorneyHolderSerializer
+        end
+
+      serializer
+        .new(poa_request.power_of_attorney_holder)
+        .serializable_hash
+    end
+
+    attribute :accredited_individual do |poa_request|
+      AccreditedIndividualSerializer
+        .new(poa_request.accredited_individual)
+        .serializable_hash
     end
   end
 end

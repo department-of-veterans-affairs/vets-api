@@ -120,6 +120,10 @@ describe BBInternal::Client do
   end
 
   describe '#get_generate_ccd' do
+    let(:icn) { '1000000000V000000' }
+    let(:last_name_with_space) { 'DOE SMITH' }
+    let(:expected_escaped_last_name) { 'DOE%20SMITH' }
+
     it 'requests a CCD be generated and returns the correct structure' do
       VCR.use_cassette 'mr_client/bb_internal/generate_ccd' do
         ccd_list = client.get_generate_ccd(client.session.icn, 'DOE')
@@ -135,6 +139,20 @@ describe BBInternal::Client do
         expect(first_ccd).to have_key('status')
         expect(first_ccd['status']).to be_a(String)
       end
+    end
+
+    it 'ensures the URL contains no spaces by escaping them' do
+      # Mock the `perform` method to intercept the URL
+      allow(client).to receive(:perform).and_wrap_original do |_original_method, _method, url, _body, _headers|
+        # Verify the URL contains no spaces
+        expect(url).to include(expected_escaped_last_name)
+        expect(url).not_to include(' ')
+        # Return a mock response to satisfy the method call
+        double('Response', body: [])
+      end
+
+      # Call the method
+      client.get_generate_ccd(icn, last_name_with_space)
     end
   end
 
@@ -199,7 +217,7 @@ describe BBInternal::Client do
 
         expect(notification_setting).to be_a(Hash)
         expect(notification_setting).to have_key('flag')
-        expect(notification_setting['flag']).to eq(true)
+        expect(notification_setting['flag']).to be(true)
       end
     end
   end
@@ -421,10 +439,21 @@ describe BBInternal::Client do
   end
 
   describe '#invalid?' do
-    let(:session_data) { OpenStruct.new(patient_id: patient_id, expired?: session_expired) }
+    let(:session_data) { OpenStruct.new(icn: icn, patient_id: patient_id, expired?: session_expired) }
 
     context 'when session is expired' do
       let(:session_expired) { true }
+      let(:icn) { '1000000000V000000' }
+      let(:patient_id) { '12345' }
+
+      it 'returns true' do
+        expect(client.send(:invalid?, session_data)).to be true
+      end
+    end
+
+    context 'when session has no icn' do
+      let(:session_expired) { false }
+      let(:icn) { nil }
       let(:patient_id) { '12345' }
 
       it 'returns true' do
@@ -434,6 +463,7 @@ describe BBInternal::Client do
 
     context 'when session has no patient_id' do
       let(:session_expired) { false }
+      let(:icn) { '1000000000V000000' }
       let(:patient_id) { nil }
 
       it 'returns true' do
@@ -443,6 +473,7 @@ describe BBInternal::Client do
 
     context 'when session is valid' do
       let(:session_expired) { false }
+      let(:icn) { '1000000000V000000' }
       let(:patient_id) { '12345' }
 
       it 'returns false' do
