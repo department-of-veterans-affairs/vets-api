@@ -150,9 +150,7 @@ module ClaimsApi
     def existing_special_issues(contention, special_issues = [])
       contention[:special_issues] = [] if contention[:special_issues].blank?
 
-      # Let's just always know it is an array
-      contentions =
-        contention[:special_issues].is_a?(Hash) ? [contention[:special_issues]] : contention[:special_issues]
+      contentions = Array.wrap(contention[:special_issues])
 
       unique_special_issues = (special_issues + contentions.pluck(:spis_tc)).uniq
       unique_special_issues.map do |special_issue|
