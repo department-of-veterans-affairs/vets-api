@@ -840,27 +840,25 @@ describe MPI::Service do
     end
   end
 
-  describe '#find_profile_by_attributes_with_orch_search' do
+  describe '#find_profile_by_identifier_with_orch_search' do
     subject do
-      mpi_service.find_profile_by_attributes_with_orch_search(first_name:,
-                                                              last_name:,
-                                                              birth_date:,
-                                                              ssn:,
-                                                              edipi:)
+      mpi_service.find_profile_by_identifier_with_orch_search(identifier:,
+                                                              identifier_type:,
+                                                              edipi:,
+                                                              search_type:)
     end
 
-    let(:statsd_caller) { 'find_profile_by_attributes_with_orch_search' }
-    let(:first_name) { 'some-first-name' }
-    let(:last_name) { 'some-last-name' }
-    let(:birth_date) { '19700101' }
-    let(:ssn) { 'some-ssn' }
+    let(:statsd_caller) { 'find_profile_by_identifier_with_orch_search' }
+    let(:identifier) { 'some-icn' }
+    let(:identifier_type) { MPI::Constants::ICN }
     let(:edipi) { 'some-edipi' }
+    let(:search_type) { 'some-search-type' }
 
     context 'malformed request' do
       let(:edipi) { nil }
       let(:missing_keys) { [:edipi] }
       let(:expected_error) { MPI::Errors::ArgumentError }
-      let(:expected_error_message) { "Required values missing: #{missing_keys}" }
+      let(:expected_error_message) { 'EDIPI is required for orch_search' }
 
       it 'raises a required values missing error' do
         expect { subject }.to raise_error(expected_error, expected_error_message)
