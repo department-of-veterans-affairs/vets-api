@@ -18,7 +18,7 @@ module AskVAApi
           @inquiry_details = InquiryDetails.new(inquiry_params).call
           @user = user
           @submitter_profile = SubmitterProfile.new(inquiry_params:, user:, inquiry_details:)
-          @veteran_profile = VeteranProfile.new(inquiry_params:, inquiry_details:)
+          @veteran_profile = VeteranProfile.new(inquiry_params:, user:, inquiry_details:)
           @translator = Translator.new
         end
 
