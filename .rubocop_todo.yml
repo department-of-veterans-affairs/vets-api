@@ -365,15 +365,6 @@ RSpecRails/HaveHttpStatus:
 RSpecRails/InferredSpecType:
   Enabled: false
 
-# Offense count: 2
-# This cop supports safe autocorrection (--autocorrect).
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: slashes, arguments
-Rails/FilePath:
-  Exclude:
-    - 'modules/dhp_connected_devices/app/services/token_storage_service.rb'
-    - 'spec/sidekiq/evss/document_upload_spec.rb'
-
 # Offense count: 14
 Rails/I18nLocaleTexts:
   Exclude:
@@ -384,73 +375,6 @@ Rails/I18nLocaleTexts:
     - 'lib/va_profile/models/communication_permission.rb'
     - 'lib/va_profile/models/preferred_name.rb'
     - 'modules/claims_api/app/mailers/claims_api/unsuccessful_report_mailer.rb'
-
-# Offense count: 1
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/IgnoredColumnsAssignment:
-  Exclude:
-    - 'modules/test_user_dashboard/app/models/test_user_dashboard/tud_account.rb'
-
-# Offense count: 20
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/Pluck:
-  Exclude:
-    - 'app/models/saved_claim/coe_claim.rb'
-    - 'app/models/saved_claim/dependency_claim.rb'
-    - 'app/services/medical_copays/zero_balance_statements.rb'
-    - 'app/sidekiq/facilities/access_data_download.rb'
-    - 'app/sidekiq/facilities/dental_service_reload_job.rb'
-    - 'app/sidekiq/facilities/mental_health_reload_job.rb'
-    - 'lib/decision_review/utilities/pdf_validation/service.rb'
-    - 'lib/webhooks/utilities.rb'
-    - 'modules/health_quest/app/services/health_quest/questionnaire_manager/questionnaire_formatter.rb'
-    - 'modules/mobile/lib/scripts/appointments_list_validation.rb'
-    - 'rakelib/decision_review_repl.rb'
-    - 'spec/controllers/v0/onsite_notifications_controller_spec.rb'
-    - 'spec/lib/lighthouse/veterans_health/integration/client_spec.rb'
-    - 'spec/services/users/profile_spec.rb'
-    - 'spec/support/request_helper.rb'
-
-# Offense count: 9
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/RedundantPresenceValidationOnBelongsTo:
-  Exclude:
-    - 'app/models/account_login_stat.rb'
-    - 'app/models/appeal_submission_upload.rb'
-    - 'app/models/central_mail_submission.rb'
-    - 'app/models/deprecated_user_account.rb'
-    - 'app/models/education_benefits_submission.rb'
-    - 'app/models/mhv_opt_in_flag.rb'
-    - 'modules/claims_api/app/models/claims_api/supporting_document.rb'
-    - 'modules/dhp_connected_devices/app/models/veteran_device_record.rb'
-
-# Offense count: 76
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Rails/RootPathnameMethods:
-  Exclude:
-    - 'app/sidekiq/facilities/state_cemetery_reload_job.rb'
-    - 'config/initializers/flipper.rb'
-    - 'lib/decision_review/schemas.rb'
-    - 'modules/appeals_api/app/models/appeals_api/notice_of_disagreement.rb'
-    - 'modules/appeals_api/spec/support/schema_helpers.rb'
-    - 'modules/claims_api/spec/requests/v2/veterans/rswag_intent_to_file_request_spec.rb'
-    - 'modules/claims_api/spec/requests/v2/veterans/rswag_power_of_attorney_spec.rb'
-    - 'modules/claims_api/spec/support/swagger_shared_components/v1.rb'
-    - 'modules/claims_api/spec/support/swagger_shared_components/v2.rb'
-    - 'modules/mobile/spec/models/adapters/appointments_vaos_v2_adapter_spec.rb'
-    - 'modules/va_forms/app/sidekiq/va_forms/form_reloader.rb'
-    - 'modules/va_forms/lib/tasks/va_forms.rake'
-    - 'rakelib/connectivity.rake'
-    - 'spec/factories/health_care_application.rb'
-    - 'spec/factories/va0994.rb'
-    - 'spec/factories/va10203.rb'
-    - 'spec/factories/va1990s.rb'
-    - 'spec/factories/va1995.rb'
-    - 'spec/lib/decision_review/schemas_spec.rb'
-    - 'spec/lib/decision_review/service_spec.rb'
-    - 'spec/lib/hca/enrollment_system_spec.rb'
-    - 'spec/models/form_profile_spec.rb'
-    - 'spec/requests/swagger_spec.rb'
 
 # Offense count: 2
 # Configuration parameters: ForbiddenMethods, AllowedMethods.

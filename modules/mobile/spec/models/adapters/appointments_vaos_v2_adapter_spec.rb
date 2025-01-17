@@ -22,7 +22,7 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
   end
 
   let(:appointment_fixtures) do
-    File.read(Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json'))
+    Rails.root.join('modules', 'mobile', 'spec', 'support', 'fixtures', 'VAOS_v2_appointments.json').read
   end
   let(:raw_data) { JSON.parse(appointment_fixtures, symbolize_names: true) }
 
