@@ -13,7 +13,6 @@ module AccreditedRepresentativePortal
 
     has_one :power_of_attorney_form,
             inverse_of: :power_of_attorney_request,
-            validate: true,
             required: true
 
     has_one :resolution,
@@ -29,6 +28,8 @@ module AccreditedRepresentativePortal
     before_validation :set_claimant_type
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
+
+    delegate :poa_code, to: :accredited_individual
 
     private
 

@@ -38,10 +38,10 @@ module AppealsApi
     # @raise [::Common::Exceptions::Unauthorized] if the token is rejected by the auth server
     # @raise [::Common::Exceptions::Forbidden] if the token has the wrong scope(s)
     def validate_token!(audience:, token:, scopes:)
-      params = { 'aud': audience }
+      params = { aud: audience }
       headers = {
-        'apiKey': @api_key,
-        'Authorization': "Bearer #{token}",
+        apiKey: @api_key,
+        Authorization: "Bearer #{token}",
         'Content-Type': 'application/x-www-form-urlencoded'
       }
 
