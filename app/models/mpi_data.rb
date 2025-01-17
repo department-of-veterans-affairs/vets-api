@@ -173,13 +173,10 @@ class MPIData < Common::RedisStore
   end
 
   # The status of the MPI Add Person Proxy Add call. An Orchestrated MVI Search needs to be made before an
-  # MPI add person proxy addcall is made. The response is recached afterwards so the new ids can be accessed
-  # on the next call.
+  # MPI add person proxy add call is made.
   def add_person_proxy
-    search_response = mpi_service.find_profile_by_attributes_with_orch_search(first_name: user_first_name,
-                                                                              last_name: user_last_name,
-                                                                              birth_date: user_birth_date,
-                                                                              ssn: user_ssn,
+    search_response = mpi_service.find_profile_by_identifier_with_orch_search(identifier: user_icn,
+                                                                              identifier_type: MPI::Constants::ICN,
                                                                               edipi: user_edipi)
     if search_response.ok?
       @mvi_response = search_response

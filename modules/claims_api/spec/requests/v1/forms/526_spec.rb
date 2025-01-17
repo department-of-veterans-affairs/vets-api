@@ -1320,10 +1320,6 @@ RSpec.describe 'ClaimsApi::V1::Forms::526', type: :request do
                   VCR.use_cassette('claims_api/mpi/find_candidate/orch_search_with_attributes') do
                     allow_any_instance_of(MPIData)
                       .to receive(:mvi_response).and_return(multi_profile)
-                    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier)
-                      .and_return(mpi_profile_response)
-                    allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
-                      .and_return(mpi_profile_response)
 
                     post path, params: data, headers: auth_header
 

@@ -75,7 +75,7 @@ describe MPIData, :skip_mvi do
       end
 
       before do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier_with_orch_search)
           .and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier).and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response)
@@ -110,7 +110,7 @@ describe MPIData, :skip_mvi do
 
     context 'with a failed search' do
       before do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier_with_orch_search)
           .and_return(profile_response_error)
       end
 
@@ -124,7 +124,7 @@ describe MPIData, :skip_mvi do
       let(:add_response_error) { create(:add_person_server_error_response) }
 
       before do
-        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_attributes_with_orch_search)
+        allow_any_instance_of(MPI::Service).to receive(:find_profile_by_identifier_with_orch_search)
           .and_return(profile_response)
         allow_any_instance_of(MPI::Service).to receive(:add_person_proxy).and_return(add_response_error)
       end
