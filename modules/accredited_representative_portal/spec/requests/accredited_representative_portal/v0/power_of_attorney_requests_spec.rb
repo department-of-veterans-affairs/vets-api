@@ -3,7 +3,7 @@
 require_relative '../../../rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
-  let(:test_user) { create(:representative_user) }
+  let(:test_user) { create(:representative_user, email: 'test@va.gov') }
   let(:poa_request) { create(:power_of_attorney_request_resolution, :declination).power_of_attorney_request }
   let(:time) { '2024-12-21T04:45:37.458Z' }
 
@@ -28,9 +28,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       get('/accredited_representative_portal/v0/power_of_attorney_requests')
 
-      parsed_response = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
-
       expect(parsed_response).to eq(
         [
           {
@@ -335,9 +333,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
     it 'returns the details of a specific power of attorney request' do
       get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
 
-      parsed_response = JSON.parse(response.body)
       expect(response).to have_http_status(:ok)
-
       expect(parsed_response).to eq(
         {
           'id' => poa_request.id,

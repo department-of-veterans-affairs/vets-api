@@ -24,7 +24,7 @@ RSpec.describe SignIn::StatePayloadVerifier do
       before { SignIn::StateCode.new(code:).save! }
 
       it 'returns nil' do
-        expect(subject).to eq(nil)
+        expect(subject).to be_nil
       end
 
       it 'deletes the existing state code' do

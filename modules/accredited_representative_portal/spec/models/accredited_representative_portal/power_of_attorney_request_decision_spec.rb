@@ -10,8 +10,7 @@ RSpec.describe AccreditedRepresentativePortal::PowerOfAttorneyRequestDecision, t
     expect(decision).not_to be_valid
     expect(decision.errors.full_messages).to eq(
       [
-        'Type is not included in the list',
-        'Resolution is invalid'
+        'Type is not included in the list'
       ]
     )
   end

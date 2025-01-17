@@ -231,9 +231,9 @@ FactoryBot.define do
       json = JSON.parse json_string
       disabilities = json.dig('form526', 'form526', 'disabilities')
       disabilities.concat([{
-                            "name": 'hypertension',
-                            "classificationCode": '3460',
-                            "disabilityActionType": 'NEW'
+                            name: 'hypertension',
+                            classificationCode: '3460',
+                            disabilityActionType: 'NEW'
                           }, {
                             'name' => 'Rhinitis',
                             'classificationCode' => 'string',
