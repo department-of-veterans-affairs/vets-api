@@ -102,14 +102,9 @@ module VAOS
         )
 
         render json: {
-          id: params[:id],
-          type: 'draft_appointments',
-          attributes: {
-            appointment: {
-              id: appointment[:id],
-              state: appointment[:state]
-            }
-          }
+          id: appointment[:id],
+          type: 'draft_appointment',
+          attributes: {}
         }, status: :created
       end
 
