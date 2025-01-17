@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe Eps::DraftAppointmentSerializer do
   let(:provider) do
     double(
-      id: 1,
+      id: '1',
       name: 'Dr. Smith',
       isActive: true,
       individualProviders: ['Dr. Jones', 'Dr. Williams'],
@@ -53,6 +53,13 @@ RSpec.describe Eps::DraftAppointmentSerializer do
           driveTimeInSecondsWithTraffic: 19_561,
           latitude: 44.475883,
           longitude: -73.212074
+        },
+        '456' => {
+          distanceInMiles: 456,
+          driveTimeInSecondsWithoutTraffic: 25_000,
+          driveTimeInSecondsWithTraffic: 27_000,
+          latitude: 45.123456,
+          longitude: -74.123456
         }
       }
     )
@@ -77,7 +84,7 @@ RSpec.describe Eps::DraftAppointmentSerializer do
           type: :draft_appointment,
           attributes: {
             provider: {
-              id: 1,
+              id: '1',
               name: 'Dr. Smith',
               isActive: true,
               individualProviders: ['Dr. Jones', 'Dr. Williams'],
@@ -109,14 +116,12 @@ RSpec.describe Eps::DraftAppointmentSerializer do
             ],
             drivetime: {
               origin: { latitude: 37.7749, longitude: -122.4194 },
-              destinations: {
-                '123' => {
-                  distanceInMiles: 123,
-                  driveTimeInSecondsWithoutTraffic: 19_096,
-                  driveTimeInSecondsWithTraffic: 19_561,
-                  latitude: 44.475883,
-                  longitude: -73.212074
-                }
+              destination: {
+                distanceInMiles: 123,
+                driveTimeInSecondsWithoutTraffic: 19_096,
+                driveTimeInSecondsWithTraffic: 19_561,
+                latitude: 44.475883,
+                longitude: -73.212074
               }
             }
           }
@@ -124,26 +129,89 @@ RSpec.describe Eps::DraftAppointmentSerializer do
       )
     end
 
-    it 'includes provider details' do
-      provider_data = serialized_json.dig(:data, :attributes, :provider)
-      expect(provider_data).to include(
-        id: 1,
-        name: 'Dr. Smith',
-        isActive: true
-      )
+    describe 'provider' do
+      context 'when provider is nil' do
+        let(:provider) { nil }
+
+        it 'returns nil for provider' do
+          provider_data = serialized_json.dig(:data, :attributes, :provider)
+          expect(provider_data).to be_nil
+        end
+      end
+
+      it 'includes provider details' do
+        provider_data = serialized_json.dig(:data, :attributes, :provider)
+        expect(provider_data).to include(
+          id: '1',
+          name: 'Dr. Smith',
+          isActive: true,
+          individualProviders: [
+            'Dr. Jones',
+            'Dr. Williams'
+          ]
+        )
+      end
     end
 
-    it 'includes slots array' do
-      slots_data = serialized_json.dig(:data, :attributes, :slots)
-      expect(slots_data).to be_an(Array)
-      expect(slots_data.length).to eq(2)
+    describe 'slots' do
+      context 'when slots is nil' do
+        let(:slots) { nil }
+
+        it 'returns nil for slots' do
+          slots_data = serialized_json.dig(:data, :attributes, :slots)
+          expect(slots_data).to be_nil
+        end
+      end
+
+      it 'includes slots array' do
+        slots_data = serialized_json.dig(:data, :attributes, :slots)
+        expect(slots_data).to be_an(Array)
+        expect(slots_data.length).to eq(2)
+      end
     end
 
-    it 'includes drivetime information' do
-      drivetime_data = serialized_json.dig(:data, :attributes, :drivetime)
-      expect(drivetime_data).to include(
-        origin: { latitude: 37.7749, longitude: -122.4194 }
-      )
+    describe 'drivetime' do
+      it 'includes first destination when multiple destinations exist' do
+        drivetime_data = serialized_json.dig(:data, :attributes, :drivetime)
+        expect(drivetime_data[:destination]).to eq(
+          distanceInMiles: 123,
+          driveTimeInSecondsWithoutTraffic: 19_096,
+          driveTimeInSecondsWithTraffic: 19_561,
+          latitude: 44.475883,
+          longitude: -73.212074
+        )
+        # Verify the second destination is not included
+        expect(drivetime_data[:destination]).not_to include(
+          distanceInMiles: 456,
+          driveTimeInSecondsWithoutTraffic: 25_000,
+          driveTimeInSecondsWithTraffic: 27_000,
+          latitude: 45.123456,
+          longitude: -74.123456
+        )
+      end
+
+      context 'when destinations is empty' do
+        let(:drive_time) do
+          double(
+            origin: { latitude: 37.7749, longitude: -122.4194 },
+            destinations: {}
+          )
+        end
+
+        it 'returns nil for destinations' do
+          drivetime_data = serialized_json.dig(:data, :attributes, :drivetime)
+          expect(drivetime_data[:destination]).to be_nil
+        end
+      end
+
+      context 'when drive_time is nil' do
+        let(:drive_time) { nil }
+
+        it 'returns nil for drivetime' do
+          drivetime_data = serialized_json.dig(:data, :attributes, :drivetime)
+          expect(drivetime_data).to be_nil
+        end
+      end
     end
   end
 end

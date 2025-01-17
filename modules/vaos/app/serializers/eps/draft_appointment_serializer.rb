@@ -3,9 +3,10 @@
 module Eps
   class DraftAppointmentSerializer
     include JSONAPI::Serializer
-    set_id :id
 
     attribute :provider do |object|
+      next if object.provider.nil?
+
       {
         id: object.provider.id,
         name: object.provider.name,
@@ -23,13 +24,15 @@ module Eps
     end
 
     attribute :slots do |object|
-      object.slots.slots
+      object.slots&.slots
     end
 
     attribute :drivetime do |object|
+      next if object.drive_time.nil?
+
       {
         origin: object.drive_time.origin,
-        destinations: object.drive_time.destinations
+        destination: object.drive_time.destinations&.values&.first
       }
     end
   end
