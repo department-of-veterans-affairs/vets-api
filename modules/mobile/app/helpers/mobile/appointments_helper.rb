@@ -41,7 +41,6 @@ module Mobile
       VAOS::V2::MobileFacilityService.new(@current_user)
     end
 
-    # rubocop:disable Metrics/MethodLength
     def create_params(params)
       params.permit(:kind,
                     :status,
@@ -62,42 +61,49 @@ module Mobile
                     contact: [telecom: %i[type value]],
                     practitioner_ids: %i[system value],
                     requested_periods: %i[start end],
-                    practitioners: [
-                      :first_name,
-                      :last_name,
-                      :practice_name,
-                      {
-                        name: %i[family given]
-                      },
-                      {
-                        identifier: %i[system value]
-                      },
-                      {
-                        address: %i[type line city state postal_code country text]
-                      }
-                    ],
+                    practitioners: practitioners_params,
                     preferred_location: %i[city state],
                     preferred_times_for_phone_call: [],
-                    telehealth: [
-                      :url,
-                      :group,
-                      :vvs_kind,
-                      {
-                        atlas: [
-                          :site_code,
-                          :confirmation_code,
-                          {
-                            address: %i[
-                              street_address city state
-                              zip country latitude longitude
-                              additional_details
-                            ]
-                          }
-                        ]
-                      }
-                    ],
+                    telehealth: telehealth_params,
                     extension: %i[desired_date])
     end
-    # rubocop:enable Metrics/MethodLength
+
+    def practitioners_params
+      [
+        :first_name,
+        :last_name,
+        :practice_name,
+        {
+          name: %i[family given]
+        },
+        {
+          identifier: %i[system value]
+        },
+        {
+          address: %i[type line city state postal_code country text]
+        }
+      ]
+    end
+
+    def telehealth_params
+      [
+        :url,
+        :group,
+        :vvs_kind,
+        {
+          atlas: [
+            :site_code,
+            :confirmation_code,
+            {
+              address: %i[
+                street_address city state
+                zip country latitude longitude
+                additional_details
+              ]
+            }
+          ]
+        }
+      ]
+    end
   end
 end
