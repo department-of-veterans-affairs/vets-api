@@ -16,6 +16,7 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
     let(:access_token_cookie) { SignIn::AccessTokenJwtEncoder.new(access_token: valid_access_token).perform }
 
     before do
+      cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] = access_token_cookie
       AccreditedRepresentativePortal::Engine.routes.draw do
         get 'arbitrary', to: 'arbitrary#arbitrary'
       end
@@ -29,10 +30,6 @@ RSpec.describe AccreditedRepresentativePortal::ApplicationController, type: :req
     end
 
     context 'when authenticated' do
-      before do
-        cookies[SignIn::Constants::Auth::ACCESS_TOKEN_COOKIE_NAME] = access_token_cookie
-      end
-
       context 'with a valid audience' do
         it 'allows access' do
           expect(subject).to have_http_status(:ok)
@@ -65,6 +62,8 @@ end
 
 module AccreditedRepresentativePortal
   class ArbitraryController < ApplicationController
+    skip_after_action :verify_pundit_authorization
+
     def arbitrary = head :ok
   end
 end

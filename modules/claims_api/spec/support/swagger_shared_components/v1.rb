@@ -90,15 +90,11 @@ module SwaggerSharedComponents
                 required: ['attributes'],
                 example:
                 JSON.parse(
-                  File.read(
-                    Rails.root.join('modules', 'claims_api', 'config', 'post_examples', '0966.json')
-                  )
+                  Rails.root.join('modules', 'claims_api', 'config', 'post_examples', '0966.json').read
                 ),
                 properties: {
                   attributes: JSON.parse(
-                    File.read(
-                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '0966.json')
-                    )
+                    Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '0966.json').read
                   )
                 }
               }
@@ -118,15 +114,11 @@ module SwaggerSharedComponents
                 required: ['attributes'],
                 example:
                 JSON.parse(
-                  File.read(
-                    Rails.root.join('modules', 'claims_api', 'config', 'post_examples', '526.json')
-                  )
+                  Rails.root.join('modules', 'claims_api', 'config', 'post_examples', '526.json').read
                 ),
                 properties: {
                   attributes: JSON.parse(
-                    File.read(
-                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '526.json')
-                    )
+                    Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '526.json').read
                   )
                 }
               }
@@ -146,15 +138,11 @@ module SwaggerSharedComponents
                 required: ['attributes'],
                 example:
                 JSON.parse(
-                  File.read(
-                    Rails.root.join('modules', 'claims_api', 'config', 'post_examples', '2122.json')
-                  )
+                  Rails.root.join('modules', 'claims_api', 'config', 'post_examples', '2122.json').read
                 ),
                 properties: {
                   attributes: JSON.parse(
-                    File.read(
-                      Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '2122.json')
-                    )
+                    Rails.root.join('modules', 'claims_api', 'config', 'schemas', 'v1', '2122.json').read
                   )
                 }
               }
