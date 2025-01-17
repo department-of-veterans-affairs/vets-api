@@ -207,7 +207,7 @@ RSpec.describe 'MyHealth::V1::Prescriptions', type: :request do
                            expired_date.present? &&
                            DateTime.parse(expired_date) != zero_date &&
                            DateTime.parse(expired_date) >= cut_off_date)
-          expect(meets_criteria).to eq(true)
+          expect(meets_criteria).to be(true)
         end
       end
 

@@ -1,7 +1,24 @@
 # frozen_string_literal: true
 
+require_rel '../form_engine'
+
 module SimpleFormsApi
   class VBA214140 < BaseForm
+    attr_reader :address
+
+    def initialize(data)
+      super
+
+      @address = FormEngine::Address.new(
+        address_line1: data.dig('address', 'street'),
+        address_line2: data.dig('address', 'street2'),
+        city: data.dig('address', 'city'),
+        country_code_iso3: data.dig('address', 'country'),
+        state_code: data.dig('address', 'state'),
+        zip_code: data.dig('address', 'postal_code')
+      )
+    end
+
     def desired_stamps
       []
     end
@@ -11,6 +28,14 @@ module SimpleFormsApi
       trimmed_dob = data['date_of_birth']&.tr('-', '')
 
       [trimmed_dob&.[](0..3), trimmed_dob&.[](4..5), trimmed_dob&.[](6..7)]
+    end
+
+    def employed?
+      data['employers'] ? data['employers'].size.positive? : false
+    end
+
+    def employment_history
+      [*0..3].map { |i| FormEngine::EmploymentHistory.new(data['employers'][i]) }
     end
 
     def first_name
@@ -59,7 +84,7 @@ module SimpleFormsApi
     def track_user_identity(confirmation_number); end
 
     def zip_code_is_us_based
-      data.dig('address', 'country') == 'USA'
+      address.country_code_iso3 == 'USA'
     end
   end
 end
