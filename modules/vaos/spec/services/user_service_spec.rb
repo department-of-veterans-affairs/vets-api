@@ -63,7 +63,7 @@ describe VAOS::UserService do
       'SsYaPmZQ_bghzI1W1MXtUJWVOOTgJIAcESsfquXGj7-0QXxTT4rHSaL8oBRVt6UqfI9exEPmfjM58ibJY2ECVTUdaScJaT1BXShiwTDEqC5bn' \
       'ApUvAMUzEHi8dx48EIMbqNLYgUZT3GCtMs0xIP9wGjt6JK0l-UDOn0aK3b-fJUF-ZcerYdY2opUJuu5oQrDaOocbRqrwBlCFqa1oUTCxLYLV6' \
       '9cuaSOQfXqTIoWuvbj-7FSFhF1nc2lhgjOWckJ740vzINYZ_uQNA',
-      expiration: Time.zone.now + 15.minutes
+      expiration: 15.minutes.from_now
     }
   end
 
@@ -158,7 +158,7 @@ describe VAOS::UserService do
         context 'with one call outside the lock (> 60s)' do
           it 'triggers the extend session job' do
             VCR.use_cassette('vaos/users/get_user_jwts') do
-              Timecop.travel(Time.zone.now + 2.minutes)
+              Timecop.travel(2.minutes.from_now)
               expect(VAOS::ExtendSessionJob).to receive(:perform_async).with(user.account_uuid).once
               subject.extend_session(user.account_uuid)
             end
@@ -168,7 +168,7 @@ describe VAOS::UserService do
         context 'with multiple calls outside the original lock (> 60s)' do
           it 'triggers the extend session job only once' do
             VCR.use_cassette('vaos/users/get_user_jwts') do
-              Timecop.travel(Time.zone.now + 2.minutes)
+              Timecop.travel(2.minutes.from_now)
               expect(VAOS::ExtendSessionJob).to receive(:perform_async).with(user.account_uuid).once
               subject.extend_session(user.account_uuid)
               subject.extend_session(user.account_uuid)

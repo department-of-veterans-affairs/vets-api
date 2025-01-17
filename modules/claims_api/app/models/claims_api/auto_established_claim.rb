@@ -52,10 +52,10 @@ module ClaimsApi
     end
 
     # EVSS Claims attributes with defaults
-    attribute :data, default: {}
+    attribute :data, default: -> { {} }
     attribute :claim_type, default: 'Compensation'
-    attribute :contention_list, default: []
-    attribute :events_timeline, default: []
+    attribute :contention_list, default: -> { [] }
+    attribute :events_timeline, default: -> { [] }
     attribute :validation_method
 
     alias token id
@@ -350,9 +350,9 @@ module ClaimsApi
       temp = Date.parse(date)
 
       {
-        'year': temp.year.to_s,
-        'month': temp.month.to_s,
-        'day': temp.day.to_s
+        year: temp.year.to_s,
+        month: temp.month.to_s,
+        day: temp.day.to_s
       }
     end
 
