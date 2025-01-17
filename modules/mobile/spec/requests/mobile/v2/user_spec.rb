@@ -57,7 +57,7 @@ RSpec.describe 'Mobile::V2::User', type: :request do
 
         it 'sets hasFacilityTransitioningToCerner to false' do
           get_user
-          expect(attributes['hasFacilityTransitioningToCerner']).to eq(false)
+          expect(attributes['hasFacilityTransitioningToCerner']).to be(false)
         end
       end
 
@@ -68,7 +68,7 @@ RSpec.describe 'Mobile::V2::User', type: :request do
 
         it 'sets hasFacilityTransitioningToCerner to true' do
           get_user
-          expect(attributes['hasFacilityTransitioningToCerner']).to eq(true)
+          expect(attributes['hasFacilityTransitioningToCerner']).to be(true)
         end
       end
 
@@ -79,7 +79,7 @@ RSpec.describe 'Mobile::V2::User', type: :request do
 
         it 'sets hasFacilityTransitioningToCerner to false' do
           get_user
-          expect(attributes['hasFacilityTransitioningToCerner']).to eq(false)
+          expect(attributes['hasFacilityTransitioningToCerner']).to be(false)
         end
       end
     end

@@ -12,7 +12,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     allow(Flipper).to receive(:enabled?).with(:claims_load_testing).and_return false
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
@@ -71,33 +71,33 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
 
     subject.new.perform(supporting_document.id)
     supporting_document.reload
-    expect(auto_claim.uploader.blank?).to eq(false)
+    expect(auto_claim.uploader.blank?).to be(false)
   end
 
   # relates to API-14302 and API-14303
   # do not remove uploads from S3 until we feel that uploads to EVSS are stable
   it 'on successful call it does not delete the file from S3' do
-    evss_service_stub = instance_double('EVSS::DocumentsService')
+    evss_service_stub = instance_double(EVSS::DocumentsService)
     allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
     allow(evss_service_stub).to receive(:upload) { OpenStruct.new(response: 200) }
 
     subject.new.perform(supporting_document.id)
     supporting_document.reload
-    expect(supporting_document.uploader.blank?).to eq(false)
+    expect(supporting_document.uploader.blank?).to be(false)
   end
 
   it 'if an evss_id is nil, it reschedules the sidekiq job to the future' do
-    evss_service_stub = instance_double('EVSS::DocumentsService')
+    evss_service_stub = instance_double(EVSS::DocumentsService)
     allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
     allow(evss_service_stub).to receive(:upload) { OpenStruct.new(response: 200) }
 
     subject.new.perform(supporting_document_failed_submission.id)
     supporting_document_failed_submission.reload
-    expect(supporting_document.uploader.blank?).to eq(false)
+    expect(supporting_document.uploader.blank?).to be(false)
   end
 
   it 'transforms a claim document to the right properties for EVSS' do
-    evss_service_stub = instance_double('EVSS::DocumentsService')
+    evss_service_stub = instance_double(EVSS::DocumentsService)
     allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
     expect(evss_service_stub).to receive(:upload).with(any_args, OpenStruct.new(
                                                                    file_name: supporting_document.file_name,
@@ -110,11 +110,11 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     subject.new.perform(supporting_document.id)
 
     supporting_document.reload
-    expect(supporting_document.uploader.blank?).to eq(false)
+    expect(supporting_document.uploader.blank?).to be(false)
   end
 
   it 'transforms a 526 claim form to the right properties for EVSS' do
-    evss_service_stub = instance_double('EVSS::DocumentsService')
+    evss_service_stub = instance_double(EVSS::DocumentsService)
     allow(EVSS::DocumentsService).to receive(:new) { evss_service_stub }
 
     expect(evss_service_stub).to receive(:upload).with(any_args, OpenStruct.new(
@@ -128,7 +128,7 @@ RSpec.describe ClaimsApi::ClaimUploader, type: :job do
     subject.new.perform(auto_claim.id)
 
     auto_claim.reload
-    expect(auto_claim.uploader.blank?).to eq(false)
+    expect(auto_claim.uploader.blank?).to be(false)
   end
 
   describe 'BD document type' do

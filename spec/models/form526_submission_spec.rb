@@ -20,7 +20,7 @@ RSpec.describe Form526Submission do
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
-  let(:saved_claim) { FactoryBot.create(:va526ez) }
+  let(:saved_claim) { create(:va526ez) }
   let(:form_json) do
     File.read('spec/support/disability_compensation_form/submissions/only_526.json')
   end
@@ -592,8 +592,8 @@ RSpec.describe Form526Submission do
             expect(subject.birls_ids.count).to eq 1
             subject.birls_ids_tried = { subject.birls_id => ['some timestamp'] }.to_json
             subject.save!
-            expect { subject.submit_with_birls_id_that_hasnt_been_tried_yet! }.to(
-              change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size).by(0)
+            expect { subject.submit_with_birls_id_that_hasnt_been_tried_yet! }.not_to(
+              change(EVSS::DisabilityCompensationForm::SubmitForm526AllClaim.jobs, :size)
             )
             next_birls_id = "#{subject.birls_id}cat"
             subject.add_birls_ids next_birls_id
@@ -1005,7 +1005,7 @@ RSpec.describe Form526Submission do
             it 'queues flashes job' do
               expect do
                 subject.perform_ancillary_jobs(first_name)
-              end.to change(BGS::FlashUpdater.jobs, :size).by(0)
+              end.not_to change(BGS::FlashUpdater.jobs, :size)
             end
           end
         end
@@ -1026,8 +1026,6 @@ RSpec.describe Form526Submission do
           before do
             allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
             allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester).and_return(false)
-            allow(Flipper).to receive(:enabled?).with(:disability_526_toxic_exposure_document_upload_polling,
-                                                      anything).and_return(false)
             allow(Flipper).to receive(:enabled?).with(:disability_compensation_production_tester,
                                                       anything).and_return(false)
           end
@@ -1072,28 +1070,14 @@ RSpec.describe Form526Submission do
             File.read('spec/support/disability_compensation_form/submissions/with_uploads.json')
           end
 
-          context 'when feature enabled' do
-            before { Flipper.enable(:disability_526_toxic_exposure_document_upload_polling) }
-
-            it 'queues polling job' do
-              expect do
-                form = subject.saved_claim.parsed_form
-                form['startedFormVersion'] = '2022'
-                subject.update(submitted_claim_id: 1)
-                subject.saved_claim.update(form: form.to_json)
-                subject.perform_ancillary_jobs(first_name)
-              end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
-            end
-          end
-
-          context 'when feature disabled' do
-            before { Flipper.disable(:disability_526_toxic_exposure_document_upload_polling) }
-
-            it 'does not queue polling job' do
-              expect do
-                subject.perform_ancillary_jobs(first_name)
-              end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(0)
-            end
+          it 'queues polling job' do
+            expect do
+              form = subject.saved_claim.parsed_form
+              form['startedFormVersion'] = '2022'
+              subject.update(submitted_claim_id: 1)
+              subject.saved_claim.update(form: form.to_json)
+              subject.perform_ancillary_jobs(first_name)
+            end.to change(Lighthouse::PollForm526Pdf.jobs, :size).by(1)
           end
         end
       end
@@ -1139,7 +1123,7 @@ RSpec.describe Form526Submission do
             subject { build(:form526_submission, :with_empty_auth_headers) }
 
             it 'returns nil' do
-              expect(subject.get_first_name).to be nil
+              expect(subject.get_first_name).to be_nil
             end
           end
         end
@@ -1302,7 +1286,7 @@ RSpec.describe Form526Submission do
               Flipper.enable(:disability_526_call_received_email_from_polling)
               expect do
                 subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
-              end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
+              end.not_to change(Form526ConfirmationEmailJob.jobs, :size)
             end
 
             it 'returns one job triggered when disability_526_call_received_email_from_polling disabled' do
@@ -1343,7 +1327,7 @@ RSpec.describe Form526Submission do
             it 'returns zero jobs triggered' do
               expect do
                 subject.workflow_complete_handler(nil, 'submission_id' => subject.id)
-              end.to change(Form526ConfirmationEmailJob.jobs, :size).by(0)
+              end.not_to change(Form526ConfirmationEmailJob.jobs, :size)
             end
           end
 
@@ -1487,7 +1471,7 @@ RSpec.describe Form526Submission do
 
         context 'when there are form526_submission_remediations' do
           let(:remediation) do
-            FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+            create(:form526_submission_remediation, form526_submission: subject)
           end
 
           it 'returns true if the most recent remediation was successful' do
@@ -1511,7 +1495,7 @@ RSpec.describe Form526Submission do
 
         context 'when there are form526_submission_remediations' do
           let(:remediation) do
-            FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+            create(:form526_submission_remediation, form526_submission: subject)
           end
 
           it 'returns true if the most recent remediation_type is ignored_as_duplicate' do
@@ -1528,7 +1512,7 @@ RSpec.describe Form526Submission do
 
       describe '#success_type?' do
         let(:remediation) do
-          FactoryBot.create(:form526_submission_remediation, form526_submission: subject)
+          create(:form526_submission_remediation, form526_submission: subject)
         end
 
         context 'when submitted_claim_id is present and backup_submitted_claim_status is nil' do
@@ -1622,7 +1606,7 @@ RSpec.describe Form526Submission do
 
       describe 'ICN retrieval' do
         context 'various ICN retrieval scenarios' do
-          let(:user) { FactoryBot.create(:user, :loa3) }
+          let(:user) { create(:user, :loa3) }
           let(:auth_headers) do
             EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
           end

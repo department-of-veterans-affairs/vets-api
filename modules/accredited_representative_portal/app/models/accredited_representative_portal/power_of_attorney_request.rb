@@ -3,8 +3,10 @@
 module AccreditedRepresentativePortal
   class PowerOfAttorneyRequest < ApplicationRecord
     module ClaimantTypes
-      DEPENDENT = 'dependent'
-      VETERAN = 'veteran'
+      ALL = [
+        DEPENDENT = 'dependent',
+        VETERAN = 'veteran'
+      ].freeze
     end
 
     belongs_to :claimant, class_name: 'UserAccount'
@@ -14,7 +16,7 @@ module AccreditedRepresentativePortal
             required: true
 
     has_one :resolution,
-            class_name: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution',
+            class_name: 'PowerOfAttorneyRequestResolution',
             inverse_of: :power_of_attorney_request
 
     belongs_to :power_of_attorney_holder,
@@ -24,6 +26,10 @@ module AccreditedRepresentativePortal
     belongs_to :accredited_individual
 
     before_validation :set_claimant_type
+
+    validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
+
+    delegate :poa_code, to: :accredited_individual
 
     private
 

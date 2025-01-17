@@ -15,8 +15,6 @@ path 'modules' do
   gem 'burials'
   gem 'check_in'
   gem 'claims_api'
-  gem 'covid_research'
-  gem 'covid_vaccine'
   gem 'debts_api'
   gem 'decision_reviews'
   gem 'dhp_connected_devices'
@@ -155,7 +153,7 @@ gem 'sign_in_service'
 gem 'slack-notify'
 gem 'socksify'
 gem 'staccato'
-gem 'statsd-instrument'
+gem 'statsd-instrument', '3.9.8' # 3.9.9 breaking change - Address Family IPv6
 gem 'strong_migrations'
 gem 'swagger-blocks'
 # Include the IANA Time Zone Database on Windows, where Windows doesn't ship with a timezone database.
