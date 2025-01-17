@@ -111,7 +111,7 @@ module IvcChampva
           end
         end
       end
-      # rubocop:enable
+      # rubocop:enable Metrics/MethodLength
 
       def valid_keys?(data)
         true if VALID_KEYS.all? { |key| data.key?(key) }
