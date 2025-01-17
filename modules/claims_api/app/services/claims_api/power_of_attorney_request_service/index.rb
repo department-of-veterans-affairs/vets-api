@@ -30,7 +30,8 @@ module ClaimsApi
 
       def poa_list
         @poa_list ||= manage_representative_service.read_poa_request(poa_codes: @poa_codes, page_size: @page_size,
-                                                                     page_index: @page_index, filter: @filter)
+                                                                     page_index: @page_index, filter: @filter,
+                                                                     use_mocks: true)
 
         @poa_list['poaRequestRespondReturnVOList']
       end
