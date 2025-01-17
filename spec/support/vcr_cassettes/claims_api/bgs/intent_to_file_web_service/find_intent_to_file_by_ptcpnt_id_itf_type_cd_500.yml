@@ -24,9 +24,8 @@ http_interactions:
         </env:Header>
 
           <env:Body>
-            <tns:insertIntentToFile><intentToFileDTO>
-        <itfTypeCd/><ptcpntVetId/><rcvdDt/><signtrInd/><submtrApplcnTypeCd/></intentToFileDTO>
-        </tns:insertIntentToFile>
+            <tns:findIntentToFileByPtcpntIdItfTypeCd><ptcpntId>600061742</ptcpntId><itfTypeCd>C</itfTypeCd>
+        </tns:findIntentToFileByPtcpntIdItfTypeCd>
           </env:Body>
           </env:Envelope>
     headers:
@@ -37,18 +36,18 @@ http_interactions:
       Host:
       - ".vba.va.gov"
       Soapaction:
-      - '"insertIntentToFile"'
+      - '"findIntentToFileByPtcpntIdItfTypeCd"'
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
   response:
     status:
-      code: 500
-      message: Internal Server Error
+      code: 200
+      message: OK
     headers:
       Date:
-      - Thu, 16 Jan 2025 16:08:36 GMT
+      - Fri, 17 Jan 2025 17:42:45 GMT
       Server:
       - Apache
       X-Frame-Options:
@@ -63,10 +62,7 @@ http_interactions:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
         xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><env:Header><work:WorkContext
-        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdTAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTMuNS4yAAA=</work:WorkContext></env:Header><S:Body><ns0:Fault
-        xmlns:ns0="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns1="http://www.w3.org/2003/05/soap-envelope"><faultcode>ns0:Server</faultcode><faultstring>IntentToFileWebService-->insertIntentToFile-->IntentToFileWebService-->insertIntentToFile-->Veteran
-        with ID 0 not found in database</faultstring><detail><ns0:MessageException
-        xmlns:ns0="http://intenttofile.services.vetsnet.vba.va.gov/"><message>IntentToFileWebService-->insertIntentToFile-->IntentToFileWebService-->insertIntentToFile-->Veteran
-        with ID 0 not found in database</message></ns0:MessageException></detail></ns0:Fault></S:Body></S:Envelope>
-  recorded_at: Thu, 16 Jan 2025 16:08:36 GMT
+        xmlns:work="http://oracle.com/weblogic/soap/workarea/">rO0ABXdTAB13ZWJsb2dpYy5hcHAuQ29ycG9yYXRlRGF0YUVBUgAAANYAAAAjd2VibG9naWMud29ya2FyZWEuU3RyaW5nV29ya0NvbnRleHQABTMuNS4yAAA=</work:WorkContext></env:Header><S:Body><ns0:findIntentToFileByPtcpntIdItfTypeCdResponse
+        xmlns:ns0="http://intenttofile.services.vetsnet.vba.va.gov/"><IntentToFileDTO><createDt>2024-11-12T09:59:30-06:00</createDt><exprtnDt>2025-11-12T09:59:29-06:00</exprtnDt><intentToFileId>287002</intentToFileId><itfStatusTypeCd>Active</itfStatusTypeCd><itfTypeCd>C</itfTypeCd><jrnDt>2024-11-12T09:59:30-06:00</jrnDt><jrnExtnlKeyTxt>piv.beatrice.stroud44.va.gov</jrnExtnlKeyTxt><jrnExtnlUserId>piv.beatrice.stroud44.va.gov</jrnExtnlUserId><jrnLctnId>281</jrnLctnId><jrnObjId>eBenefits</jrnObjId><jrnStatusTypeCd>I</jrnStatusTypeCd><jrnUserId>VAEBENEFITS</jrnUserId><ptcpntClmantId>600061742</ptcpntClmantId><ptcpntVetId>600061742</ptcpntVetId><rcvdDt>2024-11-12T09:59:29-06:00</rcvdDt><statusDt>2024-11-12T09:59:30-06:00</statusDt><submtrApplcnTypeCd>SEP</submtrApplcnTypeCd></IntentToFileDTO></ns0:findIntentToFileByPtcpntIdItfTypeCdResponse></S:Body></S:Envelope>
+  recorded_at: Fri, 17 Jan 2025 17:42:45 GMT
 recorded_with: VCR 6.3.1
