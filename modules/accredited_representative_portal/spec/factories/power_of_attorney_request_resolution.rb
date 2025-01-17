@@ -5,12 +5,23 @@ FactoryBot.define do
           class: 'AccreditedRepresentativePortal::PowerOfAttorneyRequestResolution' do
     power_of_attorney_request
 
+    transient do
+      skip_poa_request { false }
+    end
+
+    after(:build) do |resolution, evaluator|
+      unless evaluator.skip_poa_request || resolution.power_of_attorney_request.present?
+        resolution.power_of_attorney_request ||= build(:power_of_attorney_request, :with_acceptance,
+                                                       :with_veteran_type_form, skip_resolution: true)
+      end
+    end
+
     trait :acceptance do
       after(:build) do |resolution|
         resolution.resolving =
           build(
             :power_of_attorney_request_decision, :acceptance,
-            resolution:
+            resolution: resolution
           )
       end
     end
@@ -20,7 +31,7 @@ FactoryBot.define do
         resolution.resolving =
           build(
             :power_of_attorney_request_decision, :declination,
-            resolution:
+            resolution: resolution
           )
       end
 
@@ -32,7 +43,7 @@ FactoryBot.define do
         resolution.resolving =
           build(
             :power_of_attorney_request_expiration,
-            resolution:
+            resolution: resolution
           )
       end
     end

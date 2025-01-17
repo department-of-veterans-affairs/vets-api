@@ -1,18 +1,23 @@
 # frozen_string_literal: true
 
 require_relative '../../../rails_helper'
+require_relative './support/poa_requests_responses'
 
 RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
   let(:test_user) { create(:representative_user, email: 'test@va.gov') }
-  let(:poa_request) { create(:power_of_attorney_request_resolution, :declination).power_of_attorney_request }
-  let(:time) { '2024-12-21T04:45:37.458Z' }
+  let(:poa_request) { create(:power_of_attorney_request, :with_declination) }
+  let(:time) { '2024-12-21T04:45:37Z' }
+  let(:time_plus_one_day) { '2024-12-22T04:45:37Z' }
+  let(:expires_at) { '2025-02-19T04:45:37.000Z' }
 
   let(:poa_requests) do
     [].tap do |memo|
-      memo << create(:power_of_attorney_request)
-      memo << create(:power_of_attorney_request_resolution, :acceptance).power_of_attorney_request
-      memo << create(:power_of_attorney_request_resolution, :declination).power_of_attorney_request
-      memo << create(:power_of_attorney_request_resolution, :expiration).power_of_attorney_request
+      memo << create(:power_of_attorney_request, skip_resolution: true)
+      memo << create(:power_of_attorney_request, :with_acceptance)
+      memo << create(:power_of_attorney_request, :with_acceptance, :with_veteran_type_form,
+                     created_at: time_plus_one_day)
+      memo << create(:power_of_attorney_request, :with_declination)
+      memo << create(:power_of_attorney_request, :with_expiration)
     end
   end
 
@@ -31,299 +36,12 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
       expect(response).to have_http_status(:ok)
       expect(parsed_response).to eq(
         [
-          {
-            'id' => poa_requests[0].id,
-            'claimant_id' => poa_requests[0].claimant_id,
-            'claimant_type' => 'dependent',
-            'created_at' => time,
-            'power_of_attorney_form' => {
-              'authorizations' => {
-                'record_disclosure' => true,
-                'record_disclosure_limitations' => [],
-                'address_change' => true
-              },
-              'dependent' => {
-                'name' => {
-                  'first' => 'John',
-                  'middle' => 'Middle',
-                  'last' => 'Doe'
-                },
-                'address' => {
-                  'address_line1' => '123 Main St',
-                  'address_line2' => 'Apt 1',
-                  'city' => 'Springfield',
-                  'state_code' => 'IL',
-                  'country' => 'US',
-                  'zip_code' => '62704',
-                  'zip_code_suffix' => '6789'
-                },
-                'date_of_birth' => '1980-12-31',
-                'relationship' => 'Spouse',
-                'phone' => '1234567890',
-                'email' => 'veteran@example.com'
-              },
-              'veteran' => {
-                'name' => {
-                  'first' => 'John',
-                  'middle' => 'Middle',
-                  'last' => 'Doe'
-                },
-                'address' => {
-                  'address_line1' => '123 Main St',
-                  'address_line2' => 'Apt 1',
-                  'city' => 'Springfield',
-                  'state_code' => 'IL',
-                  'country' => 'US',
-                  'zip_code' => '62704',
-                  'zip_code_suffix' => '6789'
-                },
-                'ssn' => '123456789',
-                'va_file_number' => '123456789',
-                'date_of_birth' => '1980-12-31',
-                'service_number' => '123456789',
-                'service_branch' => 'ARMY',
-                'phone' => '1234567890',
-                'email' => 'veteran@example.com'
-              }
-            },
-            'power_of_attorney_holder' => {
-              'id' => poa_requests[0].power_of_attorney_holder.id,
-              'type' => 'veteran_service_organization',
-              'name' => poa_requests[0].power_of_attorney_holder.name
-            },
-            'accredited_individual' => {
-              'id' => poa_requests[0].accredited_individual.id,
-              'full_name' => [
-                poa_requests[0].accredited_individual.first_name,
-                poa_requests[0].accredited_individual.last_name
-              ].join(' ')
-            },
-            'resolution' => nil
-          },
-          {
-            'id' => poa_requests[1].id,
-            'claimant_id' => poa_requests[1].claimant_id,
-            'claimant_type' => 'dependent',
-            'created_at' => time,
-            'power_of_attorney_form' => {
-              'authorizations' => {
-                'record_disclosure' => true,
-                'record_disclosure_limitations' => [],
-                'address_change' => true
-              },
-              'dependent' => {
-                'name' => {
-                  'first' => 'John',
-                  'middle' => 'Middle',
-                  'last' => 'Doe'
-                },
-                'address' => {
-                  'address_line1' => '123 Main St',
-                  'address_line2' => 'Apt 1',
-                  'city' => 'Springfield',
-                  'state_code' => 'IL',
-                  'country' => 'US',
-                  'zip_code' => '62704',
-                  'zip_code_suffix' => '6789'
-                },
-                'date_of_birth' => '1980-12-31',
-                'relationship' => 'Spouse',
-                'phone' => '1234567890',
-                'email' => 'veteran@example.com'
-              },
-              'veteran' => {
-                'name' => {
-                  'first' => 'John',
-                  'middle' => 'Middle',
-                  'last' => 'Doe'
-                },
-                'address' => {
-                  'address_line1' => '123 Main St',
-                  'address_line2' => 'Apt 1',
-                  'city' => 'Springfield',
-                  'state_code' => 'IL',
-                  'country' => 'US',
-                  'zip_code' => '62704',
-                  'zip_code_suffix' => '6789'
-                },
-                'ssn' => '123456789',
-                'va_file_number' => '123456789',
-                'date_of_birth' => '1980-12-31',
-                'service_number' => '123456789',
-                'service_branch' => 'ARMY',
-                'phone' => '1234567890',
-                'email' => 'veteran@example.com'
-              }
-            },
-            'power_of_attorney_holder' => {
-              'id' => poa_requests[1].power_of_attorney_holder.id,
-              'type' => 'veteran_service_organization',
-              'name' => poa_requests[1].power_of_attorney_holder.name
-            },
-            'accredited_individual' => {
-              'id' => poa_requests[1].accredited_individual.id,
-              'full_name' => [
-                poa_requests[1].accredited_individual.first_name,
-                poa_requests[1].accredited_individual.last_name
-              ].join(' ')
-            },
-            'resolution' => {
-              'id' => poa_requests[1].resolution.id,
-              'type' => 'decision',
-              'created_at' => time,
-              'creator_id' => poa_requests[1].resolution.resolving.creator_id,
-              'decision_type' => 'acceptance'
-            }
-          },
-          {
-            'id' => poa_requests[2].id,
-            'claimant_id' => poa_requests[2].claimant_id,
-            'claimant_type' => 'dependent',
-            'created_at' => time,
-            'power_of_attorney_form' => {
-              'authorizations' => {
-                'record_disclosure' => true,
-                'record_disclosure_limitations' => [],
-                'address_change' => true
-              },
-              'dependent' => {
-                'name' => {
-                  'first' => 'John',
-                  'middle' => 'Middle',
-                  'last' => 'Doe'
-                },
-                'address' => {
-                  'address_line1' => '123 Main St',
-                  'address_line2' => 'Apt 1',
-                  'city' => 'Springfield',
-                  'state_code' => 'IL',
-                  'country' => 'US',
-                  'zip_code' => '62704',
-                  'zip_code_suffix' => '6789'
-                },
-                'date_of_birth' => '1980-12-31',
-                'relationship' => 'Spouse',
-                'phone' => '1234567890',
-                'email' => 'veteran@example.com'
-              },
-              'veteran' => {
-                'name' => {
-                  'first' => 'John',
-                  'middle' => 'Middle',
-                  'last' => 'Doe'
-                },
-                'address' => {
-                  'address_line1' => '123 Main St',
-                  'address_line2' => 'Apt 1',
-                  'city' => 'Springfield',
-                  'state_code' => 'IL',
-                  'country' => 'US',
-                  'zip_code' => '62704',
-                  'zip_code_suffix' => '6789'
-                },
-                'ssn' => '123456789',
-                'va_file_number' => '123456789',
-                'date_of_birth' => '1980-12-31',
-                'service_number' => '123456789',
-                'service_branch' => 'ARMY',
-                'phone' => '1234567890',
-                'email' => 'veteran@example.com'
-              }
-            },
-            'power_of_attorney_holder' => {
-              'id' => poa_requests[2].power_of_attorney_holder.id,
-              'type' => 'veteran_service_organization',
-              'name' => poa_requests[2].power_of_attorney_holder.name
-            },
-            'accredited_individual' => {
-              'id' => poa_requests[2].accredited_individual.id,
-              'full_name' => [
-                poa_requests[2].accredited_individual.first_name,
-                poa_requests[2].accredited_individual.last_name
-              ].join(' ')
-            },
-            'resolution' => {
-              'id' => poa_requests[2].resolution.id,
-              'type' => 'decision',
-              'created_at' => time,
-              'creator_id' => poa_requests[2].resolution.resolving.creator_id,
-              'reason' => 'Didn\'t authorize treatment record disclosure',
-              'decision_type' => 'declination'
-            }
-          },
-          {
-            'id' => poa_requests[3].id,
-            'claimant_id' => poa_requests[3].claimant_id,
-            'claimant_type' => 'dependent',
-            'created_at' => time,
-            'power_of_attorney_form' => {
-              'authorizations' => {
-                'record_disclosure' => true,
-                'record_disclosure_limitations' => [],
-                'address_change' => true
-              },
-              'dependent' => {
-                'name' => {
-                  'first' => 'John',
-                  'middle' => 'Middle',
-                  'last' => 'Doe'
-                },
-                'address' => {
-                  'address_line1' => '123 Main St',
-                  'address_line2' => 'Apt 1',
-                  'city' => 'Springfield',
-                  'state_code' => 'IL',
-                  'country' => 'US',
-                  'zip_code' => '62704',
-                  'zip_code_suffix' => '6789'
-                },
-                'date_of_birth' => '1980-12-31',
-                'relationship' => 'Spouse',
-                'phone' => '1234567890',
-                'email' => 'veteran@example.com'
-              },
-              'veteran' => {
-                'name' => {
-                  'first' => 'John',
-                  'middle' => 'Middle',
-                  'last' => 'Doe'
-                },
-                'address' => {
-                  'address_line1' => '123 Main St',
-                  'address_line2' => 'Apt 1',
-                  'city' => 'Springfield',
-                  'state_code' => 'IL',
-                  'country' => 'US',
-                  'zip_code' => '62704',
-                  'zip_code_suffix' => '6789'
-                },
-                'ssn' => '123456789',
-                'va_file_number' => '123456789',
-                'date_of_birth' => '1980-12-31',
-                'service_number' => '123456789',
-                'service_branch' => 'ARMY',
-                'phone' => '1234567890',
-                'email' => 'veteran@example.com'
-              }
-            },
-            'power_of_attorney_holder' => {
-              'id' => poa_requests[3].power_of_attorney_holder.id,
-              'type' => 'veteran_service_organization',
-              'name' => poa_requests[3].power_of_attorney_holder.name
-            },
-            'accredited_individual' => {
-              'id' => poa_requests[3].accredited_individual.id,
-              'full_name' => [
-                poa_requests[3].accredited_individual.first_name,
-                poa_requests[3].accredited_individual.last_name
-              ].join(' ')
-            },
-            'resolution' => {
-              'id' => poa_requests[3].resolution.id,
-              'type' => 'expiration',
-              'created_at' => time
-            }
-          }
+          PoaRequestResponses.pending_poa_response(poa_requests[0], time, expires_at),
+          PoaRequestResponses.accepted_poa_response(poa_requests[1], time),
+          PoaRequestResponses.veteran_poa_response_with_extra_day(poa_requests[2], time, time_plus_one_day),
+          PoaRequestResponses.declined_poa_response(poa_requests[3], time),
+          PoaRequestResponses.expired_poa_response(poa_requests[4], time)
+
         ]
       )
     end
@@ -335,82 +53,7 @@ RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsContro
 
       expect(response).to have_http_status(:ok)
       expect(parsed_response).to eq(
-        {
-          'id' => poa_request.id,
-          'claimant_id' => poa_request.claimant_id,
-          'claimant_type' => 'dependent',
-          'created_at' => time,
-          'power_of_attorney_form' => {
-            'authorizations' => {
-              'record_disclosure' => true,
-              'record_disclosure_limitations' => [],
-              'address_change' => true
-            },
-            'dependent' => {
-              'name' => {
-                'first' => 'John',
-                'middle' => 'Middle',
-                'last' => 'Doe'
-              },
-              'address' => {
-                'address_line1' => '123 Main St',
-                'address_line2' => 'Apt 1',
-                'city' => 'Springfield',
-                'state_code' => 'IL',
-                'country' => 'US',
-                'zip_code' => '62704',
-                'zip_code_suffix' => '6789'
-              },
-              'date_of_birth' => '1980-12-31',
-              'relationship' => 'Spouse',
-              'phone' => '1234567890',
-              'email' => 'veteran@example.com'
-            },
-            'veteran' => {
-              'name' => {
-                'first' => 'John',
-                'middle' => 'Middle',
-                'last' => 'Doe'
-              },
-              'address' => {
-                'address_line1' => '123 Main St',
-                'address_line2' => 'Apt 1',
-                'city' => 'Springfield',
-                'state_code' => 'IL',
-                'country' => 'US',
-                'zip_code' => '62704',
-                'zip_code_suffix' => '6789'
-              },
-              'ssn' => '123456789',
-              'va_file_number' => '123456789',
-              'date_of_birth' => '1980-12-31',
-              'service_number' => '123456789',
-              'service_branch' => 'ARMY',
-              'phone' => '1234567890',
-              'email' => 'veteran@example.com'
-            }
-          },
-          'resolution' => {
-            'id' => poa_request.resolution.id,
-            'type' => 'decision',
-            'created_at' => time,
-            'creator_id' => poa_request.resolution.resolving.creator_id,
-            'reason' => 'Didn\'t authorize treatment record disclosure',
-            'decision_type' => 'declination'
-          },
-          'power_of_attorney_holder' => {
-            'id' => poa_request.power_of_attorney_holder.id,
-            'type' => 'veteran_service_organization',
-            'name' => poa_request.power_of_attorney_holder.name
-          },
-          'accredited_individual' => {
-            'id' => poa_request.accredited_individual.id,
-            'full_name' => [
-              poa_request.accredited_individual.first_name,
-              poa_request.accredited_individual.last_name
-            ].join(' ')
-          }
-        }
+        PoaRequestResponses.declined_poa_response(poa_request, time)
       )
     end
   end

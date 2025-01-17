@@ -31,6 +31,10 @@ module AccreditedRepresentativePortal
 
     delegate :poa_code, to: :accredited_individual
 
+    def expires_at
+      created_at + 60.days
+    end
+
     private
 
     def set_claimant_type
