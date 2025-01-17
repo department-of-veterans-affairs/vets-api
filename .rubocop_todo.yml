@@ -623,13 +623,6 @@ Style/RedundantArgument:
     - 'lib/va_profile/models/base_address.rb'
     - 'modules/appeals_api/spec/support/pdf_matcher.rb'
 
-# Offense count: 2
-# This cop supports unsafe autocorrection (--autocorrect-all).
-Style/SelectByRegexp:
-  Exclude:
-    - 'modules/vba_documents/lib/vba_documents/upload_validator.rb'
-    - 'rakelib/form526.rake'
-
 # Offense count: 5
 # This cop supports unsafe autocorrection (--autocorrect-all).
 Style/StringChars:
