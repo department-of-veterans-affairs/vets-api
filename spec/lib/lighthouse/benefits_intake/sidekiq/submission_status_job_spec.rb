@@ -154,7 +154,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         updated = pending.reload
         expect(updated.aasm_state).to eq 'vbms'
         expect(updated.lighthouse_updated_at).to eq updated_at
-        expect(updated.error_message).to eq nil
+        expect(updated.error_message).to be_nil
       end
 
       it 'handles any other status' do
@@ -170,13 +170,13 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         updated = pending.reload
         expect(updated.aasm_state).to eq 'pending'
         expect(updated.lighthouse_updated_at).to eq updated_at
-        expect(updated.error_message).to eq nil
+        expect(updated.error_message).to be_nil
       end
 
       it 'handles a stale attempt' do
         expect(service).to receive(:bulk_status).and_return(mock_response(:any_other_status))
 
-        allow_any_instance_of(FormSubmissionAttempt).to receive(:created_at).and_return(Time.zone.now - 99.days)
+        allow_any_instance_of(FormSubmissionAttempt).to receive(:created_at).and_return(99.days.ago)
         expect(StatsD).to receive(:increment).with("#{stats_key}.#{form_id}.stale").once
         expect(StatsD).to receive(:increment).with("#{stats_key}.all_forms.stale").once
 
@@ -187,7 +187,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
         updated = pending.reload
         expect(updated.aasm_state).to eq 'pending'
         expect(updated.lighthouse_updated_at).to eq updated_at
-        expect(updated.error_message).to eq nil
+        expect(updated.error_message).to be_nil
       end
     end
 
@@ -197,8 +197,8 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
       before do
         stub_const('BenefitsIntake::SubmissionStatusJob::FORM_HANDLERS', {
-          'TEST' => handler
-        })
+                     'TEST' => handler
+                   })
       end
 
       it 'does nothing if there is no handler' do
@@ -222,7 +222,8 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
         expect(job).to receive(:update_attempt_record).once.with(pending.benefits_intake_uuid, 'error', data.first)
         expect(job).to receive(:monitor_attempt_status).once.with(pending.benefits_intake_uuid, 'error')
-        expect(job).to receive(:handle_attempt_result).once.with(pending.benefits_intake_uuid, 'error').and_call_original
+        expect(job).to receive(:handle_attempt_result).once.with(pending.benefits_intake_uuid,
+                                                                 'error').and_call_original
 
         expect_any_instance_of(FormSubmission).to receive(:form_type).and_return('TEST')
         expect_any_instance_of(FormSubmission).to receive(:saved_claim_id).and_return(42)
@@ -239,9 +240,10 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
         expect(job).to receive(:update_attempt_record).once.with(pending.benefits_intake_uuid, 'pending', data.first)
         expect(job).to receive(:monitor_attempt_status).once.with(pending.benefits_intake_uuid, 'pending')
-        expect(job).to receive(:handle_attempt_result).once.with(pending.benefits_intake_uuid, 'pending').and_call_original
+        expect(job).to receive(:handle_attempt_result).once.with(pending.benefits_intake_uuid,
+                                                                 'pending').and_call_original
 
-        allow_any_instance_of(FormSubmissionAttempt).to receive(:created_at).and_return(Time.zone.now - 99.days)
+        allow_any_instance_of(FormSubmissionAttempt).to receive(:created_at).and_return(99.days.ago)
         expect_any_instance_of(FormSubmission).to receive(:form_type).and_return('TEST')
         expect_any_instance_of(FormSubmission).to receive(:saved_claim_id).and_return(42)
         expect(handler).to receive(:new).with(42).and_return(handler)
