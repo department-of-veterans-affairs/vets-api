@@ -7,7 +7,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
   describe 'annotate_disabilities' do
     subject { described_class.annotate_disabilities(disabilities_response, user) }
 
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:disabilities_response) do
       DisabilityCompensation::ApiProvider::RatedDisabilitiesResponse.new(rated_disabilities:)
     end
@@ -116,7 +116,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
   describe 'log_hyphenated_diagnostic_codes' do
     subject { described_class.log_hyphenated_diagnostic_codes(rated_disabilities) }
 
-    before { allow(Rails.logger).to receive(:info) }
+    before { allow(StatsD).to receive(:increment) }
 
     let(:rated_disabilities) do
       disabilities_data.map { |dis| DisabilityCompensation::ApiProvider::RatedDisability.new(**dis) }
@@ -129,19 +129,34 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
       ]
     end
 
-    it 'sends the correct output to Rails log' do
+    it 'increments StatsD metrics for each rated disability' do
       subject
-      expect(Rails.logger).to have_received(:info).with(
-        'Max CFI rated disability',
-        { diagnostic_code: 6260, diagnostic_code_type: :primary_max_rating, hyphenated_diagnostic_code: nil }
+
+      expect(StatsD).to have_received(:increment).with(
+        'api.max_cfi.rated_disability',
+        tags: [
+          'diagnostic_code:6260',
+          'diagnostic_code_type:primary_max_rating',
+          'hyphenated_diagnostic_code:'
+        ]
       )
-      expect(Rails.logger).to have_received(:info).with(
-        'Max CFI rated disability',
-        { diagnostic_code: 7347, diagnostic_code_type: :digestive_system, hyphenated_diagnostic_code: nil }
+
+      expect(StatsD).to have_received(:increment).with(
+        'api.max_cfi.rated_disability',
+        tags: [
+          'diagnostic_code:7347',
+          'diagnostic_code_type:digestive_system',
+          'hyphenated_diagnostic_code:'
+        ]
       )
-      expect(Rails.logger).to have_received(:info).with(
-        'Max CFI rated disability',
-        { diagnostic_code: 6516, diagnostic_code_type: :analogous_code, hyphenated_diagnostic_code: 6599 }
+
+      expect(StatsD).to have_received(:increment).with(
+        'api.max_cfi.rated_disability',
+        tags: [
+          'diagnostic_code:6516',
+          'diagnostic_code_type:analogous_code',
+          'hyphenated_diagnostic_code:6599'
+        ]
       )
     end
   end
@@ -212,7 +227,7 @@ RSpec.describe ClaimFastTracking::MaxRatingAnnotator do
 
   describe 'get ratings' do
     let(:diagnostic_codes) { [6260, 7347, 6516] }
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
 
     context 'when the feature flag disability_526_max_cfi_service_switch is enabled' do
       before do

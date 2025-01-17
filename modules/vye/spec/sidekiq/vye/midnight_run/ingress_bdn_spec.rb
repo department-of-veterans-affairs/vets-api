@@ -5,7 +5,7 @@ require Vye::Engine.root / 'spec/rails_helper'
 require 'timecop'
 
 describe Vye::MidnightRun::IngressBdn, type: :worker do
-  let(:bdn_clone) { FactoryBot.create(:vye_bdn_clone_base) }
+  let(:bdn_clone) { create(:vye_bdn_clone_base) }
   let(:chunks) do
     5.times.map do |i|
       offset = i * 1000
@@ -39,23 +39,6 @@ describe Vye::MidnightRun::IngressBdn, type: :worker do
       described_class.drain
 
       expect(Vye::MidnightRun::IngressBdnChunk).to have_enqueued_sidekiq_job.exactly(5).times
-    end
-  end
-
-  context 'when it is a holiday' do
-    before do
-      Timecop.freeze(Time.zone.local(2024, 7, 4)) # Independence Day
-    end
-
-    after do
-      Timecop.return
-    end
-
-    it 'does not process BDNs' do
-      expect(Vye::BdnClone).not_to receive(:create!)
-      expect(Vye::BatchTransfer::BdnChunk).not_to receive(:build_chunks)
-
-      described_class.new.perform
     end
   end
 

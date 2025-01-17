@@ -217,7 +217,7 @@ describe BBInternal::Client do
 
         expect(notification_setting).to be_a(Hash)
         expect(notification_setting).to have_key('flag')
-        expect(notification_setting['flag']).to eq(true)
+        expect(notification_setting['flag']).to be(true)
       end
     end
   end

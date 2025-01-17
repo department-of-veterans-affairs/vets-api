@@ -15,6 +15,28 @@ module VBADocuments
       skip_before_action(:authenticate)
       before_action :verify_settings, only: [:download]
 
+      def show
+        submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
+
+        if submission.nil?
+          raise Common::Exceptions::RecordNotFound, params[:id]
+        elsif Settings.vba_documents.enable_status_override && request.headers['Status-Override']
+          submission.status = request.headers['Status-Override']
+          submission.save
+        else
+          begin
+            submission.refresh_status! unless submission.status == 'expired'
+          rescue Common::Exceptions::GatewayTimeout, Common::Exceptions::BadGateway => e
+            # Rescue and log (but don't raise exception), so that last cached status is returned
+            message = "Status refresh failed for submission on #{controller_name}##{action_name}, GUID: #{params[:id]}"
+            Rails.logger.warn(message, e)
+          end
+        end
+
+        options = { params: { render_location: false } }
+        render json: VBADocuments::V2::UploadSerializer.new(submission, options)
+      end
+
       #  rubocop:disable Metrics/MethodLength
       def create
         submission = nil
@@ -45,29 +67,6 @@ module VBADocuments
       rescue JSON::ParserError => e
         raise Common::Exceptions::SchemaValidationErrors, ["invalid JSON. #{e.message}"] if e.is_a? JSON::ParserError
       end
-      # rubocop:enable Metrics/MethodLength
-
-      def show
-        submission = VBADocuments::UploadSubmission.find_by(guid: params[:id])
-
-        if submission.nil?
-          raise Common::Exceptions::RecordNotFound, params[:id]
-        elsif Settings.vba_documents.enable_status_override && request.headers['Status-Override']
-          submission.status = request.headers['Status-Override']
-          submission.save
-        else
-          begin
-            submission.refresh_status! unless submission.status == 'expired'
-          rescue Common::Exceptions::GatewayTimeout, Common::Exceptions::BadGateway => e
-            # Rescue and log (but don't raise exception), so that last cached status is returned
-            message = "Status refresh failed for submission on #{controller_name}##{action_name}, GUID: #{params[:id]}"
-            Rails.logger.warn(message, e)
-          end
-        end
-
-        options = { params: { render_location: false } }
-        render json: VBADocuments::V2::UploadSerializer.new(submission, options)
-      end
 
       def download
         submission = VBADocuments::UploadSubmission.find_by(guid: params[:upload_id])
@@ -81,7 +80,6 @@ module VBADocuments
         File.delete(zip_file_name)
       end
 
-      # rubocop:disable Metrics/MethodLength
       def submit
         upload_model = UploadFile.new
         begin
