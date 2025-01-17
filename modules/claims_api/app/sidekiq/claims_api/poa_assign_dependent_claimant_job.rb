@@ -4,7 +4,7 @@ module ClaimsApi
   class PoaAssignDependentClaimantJob < ClaimsApi::ServiceBase
     LOG_TAG = 'poa_assign_dependent_claimant_job'
 
-    def perform(poa_id, rep_id)
+    def perform(poa_id, rep_id = nil)
       poa = ClaimsApi::PowerOfAttorney.find(poa_id)
 
       service = dependent_claimant_poa_assignment_service(

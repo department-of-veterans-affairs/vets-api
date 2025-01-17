@@ -22,11 +22,11 @@ describe HealthQuest::Resource::Factory do
     let(:factory) { described_class.manufacture(questionnaire_type) }
 
     it 'responds to attributes' do
-      expect(factory.respond_to?(:session_service)).to eq(true)
-      expect(factory.respond_to?(:user)).to eq(true)
-      expect(factory.respond_to?(:query)).to eq(true)
-      expect(factory.respond_to?(:resource_identifier)).to eq(true)
-      expect(factory.respond_to?(:options_builder)).to eq(true)
+      expect(factory.respond_to?(:session_service)).to be(true)
+      expect(factory.respond_to?(:user)).to be(true)
+      expect(factory.respond_to?(:query)).to be(true)
+      expect(factory.respond_to?(:resource_identifier)).to be(true)
+      expect(factory.respond_to?(:options_builder)).to be(true)
     end
   end
 

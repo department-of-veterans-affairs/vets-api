@@ -37,8 +37,8 @@ RSpec.describe 'Vye::V1 UserInfo', type: :request do
         end
 
         describe 'where current_user is in VYE' do
-          let!(:user_profile) { FactoryBot.create(:vye_user_profile, icn: current_user.icn) }
-          let!(:user_info) { FactoryBot.create(:vye_user_info, user_profile:) }
+          let!(:user_profile) { create(:vye_user_profile, icn: current_user.icn) }
+          let!(:user_info) { create(:vye_user_info, user_profile:) }
 
           it 'returns the user_info' do
             get '/vye/v1'

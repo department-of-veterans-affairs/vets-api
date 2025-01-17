@@ -27,7 +27,7 @@ RSpec.describe BGS::People::Response do
       let(:response) { nil }
 
       it 'returns nil' do
-        expect(subject).to eq(nil)
+        expect(subject).to be_nil
       end
     end
   end
@@ -45,7 +45,7 @@ RSpec.describe BGS::People::Response do
       let(:response) { nil }
 
       it 'returns nil' do
-        expect(subject).to eq(nil)
+        expect(subject).to be_nil
       end
     end
   end
@@ -63,7 +63,7 @@ RSpec.describe BGS::People::Response do
       let(:response) { nil }
 
       it 'returns nil' do
-        expect(subject).to eq(nil)
+        expect(subject).to be_nil
       end
     end
   end
@@ -75,7 +75,7 @@ RSpec.describe BGS::People::Response do
       let(:status) { :ok }
 
       it 'returns true' do
-        expect(subject).to eq(true)
+        expect(subject).to be(true)
       end
     end
 
@@ -83,7 +83,7 @@ RSpec.describe BGS::People::Response do
       let(:status) { :error }
 
       it 'returns false' do
-        expect(subject).to eq(false)
+        expect(subject).to be(false)
       end
     end
   end
