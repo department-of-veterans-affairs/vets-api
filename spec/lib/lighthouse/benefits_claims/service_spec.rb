@@ -87,6 +87,31 @@ RSpec.describe BenefitsClaims::Service do
         end
       end
 
+      describe "when retrieving a user's power of attorney request status" do
+        context 'when the user has submitted the form' do
+          it 'retrieves the power of attorney request status from the Lighthouse API' do
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_status/200_response') do
+              response = @service.get_2122_submission('29b7c214-4a61-425e-97f2-1a56de869524')
+              expect(response.dig('data', 'type')).to eq('claimsApiPowerOfAttorneys')
+              expect(response.dig('data', 'attributes', 'dateRequestAccepted')).to eq '2025-01-16'
+              expect(response.dig(
+                       'data', 'attributes', 'representative', 'representative', 'poaCode'
+                     )).to eq '067'
+            end
+          end
+        end
+
+        context 'when the id does not exist' do
+          it 'returns an 404 error' do
+            VCR.use_cassette('lighthouse/benefits_claims/power_of_attorney_status/404_response') do
+              expect do
+                @service.get_2122_submission('491b878a-d977-40b8-8de9-7ba302307a48')
+              end.to raise_error(Common::Exceptions::ResourceNotFound)
+            end
+          end
+        end
+      end
+
       describe 'when posting a form526' do
         it 'has formatted request body data correctly' do
           transaction_id = 'vagov'
