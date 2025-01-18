@@ -20,7 +20,7 @@ describe PdfInfo::Metadata do
       JavaScript:     no
       Pages:          4
       Encrypted:      no
-      Page size:      612 x 792 pts (letter)
+      Page    1 size: 612 x 792 pts (letter)
       Page rot:       0
       File size:      1099807 bytes
       Optimized:      no
@@ -51,7 +51,7 @@ describe PdfInfo::Metadata do
   describe '::read' do
     context 'when passed a string' do
       it 'shells out with the string as the file path' do
-        expect(Open3).to receive(:popen2e).with('pdfinfo', '/tmp/file.pdf').and_yield('', result, good_exit)
+        expect(Open3).to receive(:popen2e).with('pdfinfo', '-l', '-1', '/tmp/file.pdf').and_yield('', result, good_exit)
         described_class.read('/tmp/file.pdf')
       end
     end
@@ -60,14 +60,14 @@ describe PdfInfo::Metadata do
       it 'shells out with the file object path' do
         file = double(File)
         allow(file).to receive(:path).and_return('/tmp/file.pdf')
-        expect(Open3).to receive(:popen2e).with('pdfinfo', '/tmp/file.pdf').and_yield('', result, good_exit)
+        expect(Open3).to receive(:popen2e).with('pdfinfo', '-l', '-1', '/tmp/file.pdf').and_yield('', result, good_exit)
         described_class.read(file)
       end
     end
 
     context 'when the command errors' do
       it 'raises a PdfInfo::MetadataReadError' do
-        expect(Open3).to receive(:popen2e).with('pdfinfo', '/tmp/file.pdf').and_yield('', result, bad_exit)
+        expect(Open3).to receive(:popen2e).with('pdfinfo', '-l', '-1', '/tmp/file.pdf').and_yield('', result, bad_exit)
         expect { described_class.read('/tmp/file.pdf') }.to raise_error(PdfInfo::MetadataReadError, /pdfinfo exited/)
       end
     end
