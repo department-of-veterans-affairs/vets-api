@@ -17,10 +17,13 @@ module SimpleFormsApi
         state_code: data.dig('address', 'state'),
         zip_code: data.dig('address', 'postal_code')
       )
+      @signature = data['statement_of_truth_signature']
+      @signature_date_formatted = signature_date.strftime('%m/%d/%Y')
     end
 
     def desired_stamps
-      []
+      coords = employed? ? [[50, 410]] : [[50, 275]]
+      [{ coords:, text: signature, page: 1 }]
     end
 
     def dob
@@ -31,11 +34,15 @@ module SimpleFormsApi
     end
 
     def employed?
-      data['employers'] ? data['employers'].size.positive? : false
+      employers.any?
+    end
+
+    def employers
+      data['employers']&.delete_if(&:empty?) || []
     end
 
     def employment_history
-      [*0..3].map { |i| FormEngine::EmploymentHistory.new(data['employers'][i]) }
+      [*0..3].map { |i| FormEngine::EmploymentHistory.new(employers[i]) }
     end
 
     def first_name
@@ -70,21 +77,66 @@ module SimpleFormsApi
       data['home_phone'].insert(-8, '-').insert(-5, '-')
     end
 
+    def signature_date_employed
+      employed? ? signature_date_formatted : nil
+    end
+
+    def signature_date_unemployed
+      employed? ? nil : signature_date_formatted
+    end
+
+    def signature_employed
+      employed? ? signature : nil
+    end
+
+    def signature_unemployed
+      employed? ? nil : signature
+    end
+
     def ssn
       trimmed_ssn = data.dig('veteran_id', 'ssn')&.tr('-', '')
 
       [trimmed_ssn&.[](0..2), trimmed_ssn&.[](3..4), trimmed_ssn&.[](5..8)]
     end
 
-    def submission_date_stamps(_timestamp)
-      []
+    def submission_date_stamps(timestamp = Time.current)
+      [
+        {
+          coords: [450, 670],
+          text: 'Application Submitted:',
+          page: 0,
+          font_size: 12
+        },
+        {
+          coords: [450, 650],
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 0,
+          font_size: 12
+        }
+      ]
     end
 
     # At the moment, we only allow veterans to submit Form Engine forms.
     def track_user_identity(confirmation_number); end
 
+    def words_to_remove
+      ssn + dob + address_to_remove + contact_info
+    end
+
     def zip_code_is_us_based
       address.country_code_iso3 == 'USA'
+    end
+
+    private
+
+    attr_reader :signature, :signature_date_formatted
+
+    def address_to_remove
+      [address.address_line1, address.address_line2, address.zip_code]
+    end
+
+    def contact_info
+      [phone_primary, phone_alternate, data['email_address']]
     end
   end
 end
