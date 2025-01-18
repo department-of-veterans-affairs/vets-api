@@ -20,6 +20,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
   let(:form_data) { { some_key: 'some_value' }.to_json }
   let(:schema) { { some_key: 'some_value' }.to_json }
+  let(:user_account) { FactoryBot.create(:user_account) }
 
   before do
     allow(Flipper).to receive(:enabled?).with(:validate_saved_claims_with_json_schemer).and_return(false)
@@ -31,6 +32,7 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
     it { is_expected.to have_many(:persistent_attachments).dependent(:destroy) }
     it { is_expected.to have_many(:form_submissions).dependent(:nullify) }
     it { is_expected.to have_many(:claim_va_notifications).dependent(:destroy) }
+    it { is_expected.to belong_to(:user_account).optional }
   end
 
   describe 'validations' do
@@ -282,6 +284,13 @@ RSpec.describe TestSavedClaim, type: :model do # rubocop:disable RSpec/SpecFileP
 
     it 'returns nil if the notification does not exist' do
       expect(saved_claim.va_notification?('non_existent_template')).to be_nil
+    end
+  end
+
+  describe 'user_account assignment' do
+    it 'assigns a user_account to the saved claim' do
+      saved_claim.user_account = user_account
+      expect(saved_claim.user_account).to eq(user_account)
     end
   end
 end
