@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_01_16_192421) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_17_063915) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -1416,7 +1416,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_16_192421) do
   create_table "va_notify_notifications", force: :cascade do |t|
     t.uuid "notification_id", null: false
     t.text "reference"
-    t.text "to"
     t.text "status"
     t.datetime "completed_at"
     t.datetime "sent_at"
