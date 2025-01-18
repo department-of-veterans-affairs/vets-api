@@ -5,7 +5,7 @@ class FormProfiles::VA1010ez < FormProfile
     {
       version: 0,
       prefill: true,
-      returnUrl: '/veteran-information/personal-information'
+      returnUrl: '/check-your-personal-information'
     }
   end
 end
