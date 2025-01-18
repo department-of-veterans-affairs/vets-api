@@ -170,9 +170,7 @@ class TokenStorageService
     begin
       dirname = File.dirname(token_file_path)
       FileUtils.mkdir_p(dirname) unless File.directory?(dirname)
-      File.open(token_file_path, 'w+') do |file|
-        file.write(payload_json)
-      end
+      File.write(token_file_path, payload_json)
       true
     rescue => e
       raise TokenStorageError, "Error with storing locally: #{payload_json}, #{e}"
@@ -187,7 +185,7 @@ class TokenStorageService
   def get_locally(current_user, device_key)
     token_file_path = token_file_path(generate_prefix(current_user, device_key))
     begin
-      token = File.open(token_file_path, 'r').read
+      token = File.read(token_file_path)
       JSON.parse(token).deep_symbolize_keys!
     rescue => e
       raise TokenRetrievalError, "Error retrieving token locally for icn: #{current_user.icn}, #{e}"

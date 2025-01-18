@@ -88,9 +88,7 @@ module ClaimsApi
 
     def create_signature_image(signature_type)
       path = "/tmp/#{signature_type}_#{id}_signature.png"
-      File.open(path, 'wb') do |f|
-        f.write(Base64.decode64(form_data.dig('signatures', signature_type)))
-      end
+      File.binwrite(path, Base64.decode64(form_data.dig('signatures', signature_type)))
       signature_image_paths[signature_type] = path
     end
 

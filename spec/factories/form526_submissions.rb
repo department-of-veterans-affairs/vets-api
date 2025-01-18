@@ -200,21 +200,21 @@ FactoryBot.define do
       json_string = File.read("#{submissions_path}/only_526.json")
       json = JSON.parse json_string
       disabilities = json.dig('form526', 'form526', 'disabilities')
-      disabilities.concat([{
-                            'name' => 'Sleep Apnea',
-                            'classificationCode' => '8935',
-                            'disabilityActionType' => 'INCREASE',
-                            'ratedDisabilityId' => '2',
-                            'diagnosticCode' => 6847,
-                            'secondaryDisabilities' => []
-                          }, {
-                            'name' => 'Rhinitis',
-                            'classificationCode' => '8935',
-                            'disabilityActionType' => 'INCREASE',
-                            'ratedDisabilityId' => '3',
-                            'diagnosticCode' => 6522,
-                            'secondaryDisabilities' => []
-                          }])
+      disabilities.push({
+                          'name' => 'Sleep Apnea',
+                          'classificationCode' => '8935',
+                          'disabilityActionType' => 'INCREASE',
+                          'ratedDisabilityId' => '2',
+                          'diagnosticCode' => 6847,
+                          'secondaryDisabilities' => []
+                        }, {
+                          'name' => 'Rhinitis',
+                          'classificationCode' => '8935',
+                          'disabilityActionType' => 'INCREASE',
+                          'ratedDisabilityId' => '3',
+                          'diagnosticCode' => 6522,
+                          'secondaryDisabilities' => []
+                        })
       json.to_json
     end
   end
@@ -230,18 +230,18 @@ FactoryBot.define do
       json_string = File.read("#{submissions_path}/only_526.json")
       json = JSON.parse json_string
       disabilities = json.dig('form526', 'form526', 'disabilities')
-      disabilities.concat([{
-                            name: 'hypertension',
-                            classificationCode: '3460',
-                            disabilityActionType: 'NEW'
-                          }, {
-                            'name' => 'Rhinitis',
-                            'classificationCode' => 'string',
-                            'disabilityActionType' => 'INCREASE',
-                            'ratedDisabilityId' => '2',
-                            'diagnosticCode' => 6522,
-                            'secondaryDisabilities' => []
-                          }])
+      disabilities.push({
+                          name: 'hypertension',
+                          classificationCode: '3460',
+                          disabilityActionType: 'NEW'
+                        }, {
+                          'name' => 'Rhinitis',
+                          'classificationCode' => 'string',
+                          'disabilityActionType' => 'INCREASE',
+                          'ratedDisabilityId' => '2',
+                          'diagnosticCode' => 6522,
+                          'secondaryDisabilities' => []
+                        })
       json.to_json
     end
   end
