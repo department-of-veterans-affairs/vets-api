@@ -76,7 +76,7 @@ module VAOS
         response_data = OpenStruct.new(
           id: draft_appointment.id,
           provider: provider,
-          slots: fetch_provider_slots(provider),
+          slots: fetch_provider_slots,
           drive_time: fetch_drive_times(provider)
         )
 
@@ -371,7 +371,7 @@ module VAOS
         end
       end
 
-      def fetch_provider_slots(provider)
+      def fetch_provider_slots
         eps_provider_service.get_provider_slots(
           draft_params[:provider_id],
           {
@@ -384,25 +384,17 @@ module VAOS
 
       def fetch_drive_times(provider)
         eps_provider_service.get_drive_times(
-          destinations: eps_provider_coordinates(provider),
-          origin: user_coordinates
-        )
-      end
-
-      def eps_provider_coordinates(provider)
-        {
-          provider.id => {
-            latitude: provider.location['latitude'],
-            longitude: provider.location['longitude']
+          destinations: {
+            provider.id => {
+              latitude: provider.location['latitude'],
+              longitude: provider.location['longitude']
+            }
+          },
+          origin: {
+            latitude: current_user.address['latitude'],
+            longitude: current_user.address['longitude']
           }
-        }
-      end
-
-      def user_coordinates
-        {
-          latitude: current_user.address['latitude'],
-          longitude: current_user.address['longitude']
-        }
+        )
       end
     end
   end
