@@ -74,8 +74,8 @@ RSpec.describe Organizations::Update do
             address_line2: 'abc',
             address_line3: 'abc',
             city: 'abc',
-            state_province: {
-              code: 'abc'
+            state: {
+              state_code: 'abc'
             },
             zip_code5: 'abc',
             zip_code4: 'abc',
@@ -97,7 +97,7 @@ RSpec.describe Organizations::Update do
                 'name' => 'Kings',
                 'county_fips_code' => '36047'
               },
-              'state_province' => {
+              'state_code' => {
                 'name' => 'New York',
                 'code' => 'NY'
               },
@@ -133,6 +133,7 @@ RSpec.describe Organizations::Update do
     before do
       Flipper.disable(:va_v3_contact_information_service)
       allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response)
+      allow_any_instance_of(Faraday::Connection).to receive(:post)
     end
 
     context 'when JSON parsing fails' do
@@ -212,7 +213,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_province' => {
+                'state_code' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
@@ -253,7 +254,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_province' => {
+                'state_code' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
@@ -294,7 +295,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_province' => {
+                'state_code' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
@@ -335,7 +336,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_province' => {
+                'state_code' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
@@ -483,17 +484,19 @@ RSpec.describe Organizations::Update do
         [
           {
             id:,
-            address_pou: 'abc',
-            address_line1: 'abc',
-            address_line2: 'abc',
-            address_line3: 'abc',
-            city_name: 'abc',
-            state: {
-              state_code: 'abc'
+            address: {
+              address_pou: 'abc',
+              address_line1: 'abc',
+              address_line2: 'abc',
+              address_line3: 'abc',
+              city_name: 'abc',
+              state: {
+                state_code: 'abc'
+              },
+              zip_code5: 'abc',
+              zip_code4: 'abc',
+              country_code_iso3: 'abc'
             },
-            zip_code5: 'abc',
-            zip_code4: 'abc',
-            country_code_iso3: 'abc',
             email: 'test@example.com',
             phone_number: '999-999-9999',
             address_exists:,
