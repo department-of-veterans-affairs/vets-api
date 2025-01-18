@@ -15,22 +15,22 @@ module ClaimsApi
 
       begin
         service.assign_poa_to_dependent!
+
+        poa.status = ClaimsApi::PowerOfAttorney::UPDATED
+        # Clear out the error message if there were previous failures
+        poa.vbms_error_message = nil if poa.vbms_error_message.present?
+
+        poa.save
+
+        log_job_progress(
+          poa.id,
+          'POA assigned for dependent'
+        )
+
+        ClaimsApi::VANotifyAcceptedJob.perform_async(poa.id, rep_id) if vanotify?(poa.auth_headers, rep_id)
       rescue => e
         handle_error(poa, e)
       end
-
-      poa.status = ClaimsApi::PowerOfAttorney::UPDATED
-      # Clear out the error message if there were previous failures
-      poa.vbms_error_message = nil if poa.vbms_error_message.present?
-
-      poa.save
-
-      log_job_progress(
-        poa.id,
-        'POA assigned for dependent'
-      )
-
-      ClaimsApi::VANotifyAcceptedJob.perform_async(poa.id, rep_id) if vanotify?(poa.auth_headers, rep_id)
     end
 
     private

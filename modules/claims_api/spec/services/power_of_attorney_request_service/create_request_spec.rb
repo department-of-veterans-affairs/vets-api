@@ -139,7 +139,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
 
           response = subject.call
 
-          expect(response).to eq(expected_response)
+          expect(response).to match(expected_response)
         end
       end
     end
@@ -252,7 +252,7 @@ describe ClaimsApi::PowerOfAttorneyRequestService::CreateRequest do
 
           response = subject.call
 
-          expect(response).to eq(expected_response)
+          expect(response).to match(expected_response)
         end
       end
     end
