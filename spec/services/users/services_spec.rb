@@ -28,6 +28,7 @@ RSpec.describe Users::Services do
               form-prefill
               identity-proofed
               vet360
+              dgi
             ]
           )
         end
