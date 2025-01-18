@@ -4,38 +4,41 @@ module Logging
   # generic monitoring class
   class Monitor
     # create a monitor
+    #
+    # @param service [String] the service name for this monitor; will be included with each log message
     def initialize(service)
       @service = service
     end
 
-    ##
-    # monitor application
+    # perform monitoring actions - StatsD.increment and Rails.logger
     #
-    # @param error_level [String]
-    # @param message [String]
-    # @param metric [String]
+    # @param error_level [String|Symbol] the log level to Rails.logger
+    # @param message [String] the message to be logged
+    # @param metric [String] the metric to be incremented
     # @param call_location [Logging::CallLocation | Thread::Backtrace::Location] location to be logged as failure point
-    # @param context [Hash] additional parameters to pass to log
-    def track_request(error_level, message, metric, call_location: nil, **additional_context)
+    # @param **context [Hash] additional parameters to pass to log; if `tags` is provided it will be included in StatsD
+    def track_request(error_level, message, metric, call_location: nil, **context)
       function, file, line = parse_caller(call_location)
 
-      StatsD.increment(metric, tags: additional_context[:tags])
+      tags = (["service:#{service}", "function:#{function}"] + (context[:tags] || [])).uniq
+      StatsD.increment(metric, tags:)
 
-      if %w[debug info warn error fatal unknown].include?(error_level)
+      if %w[debug info warn error fatal unknown].include?(error_level.to_s)
         payload = {
           statsd: metric,
           service:,
-          user_account_uuid: additional_context[:user_account_uuid],
           function:,
           file:,
           line:,
-          additional_context:
+          context:
         }
         Rails.logger.public_send(error_level, message.to_s, payload)
       else
         Rails.logger.error("Invalid log error_level: #{error_level}")
       end
     end
+
+    alias track track_request
 
     private
 
