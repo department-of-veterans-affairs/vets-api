@@ -30,12 +30,12 @@ module VAOS
         serializer = VAOS::V2::VAOSSerializer.new
         serialized = serializer.serialize(appointments[:data], 'appointments')
 
-        if !appointments[:meta][:failures]&.empty?
+        if appointments[:meta][:failures] && appointments[:meta][:failures].empty?
+          render json: { data: serialized, meta: appointments[:meta] }, status: :ok
+        else
           StatsDMetric.new(key: STATSD_KEY).save
           StatsD.increment(STATSD_KEY, tags: ["failures:#{appointments[:meta][:failures]}"])
           render json: { data: serialized, meta: appointments[:meta] }, status: :multi_status
-        else
-          render json: { data: serialized, meta: appointments[:meta] }, status: :ok
         end
       end
 
