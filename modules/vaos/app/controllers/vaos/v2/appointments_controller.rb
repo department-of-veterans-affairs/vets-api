@@ -63,11 +63,8 @@ module VAOS
       end
 
       def create_draft
-        ## scenarios to consider:
-        # 1. user reloads the page before the appointment is created ->> create a new draft appointment
-        # 2. user reloads the page after the appointment is created ->> return with 'already created' response
-
-        # TODO: validate referral_id from the cache from prior referrals response
+        # TODO: validate referral_id from the cache from prior referrals response,
+        # TODO: validate that the referral doesn't already have a confirmed appointment #
         # TODO: cache provider_id, appointment_type_id, end_date from prior referrals response and use here
         draft_appointment = eps_appointment_service.create_draft_appointment(referral_id: draft_params[:referral_id])
 
