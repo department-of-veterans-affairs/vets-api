@@ -391,13 +391,14 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       before do
         sign_in
-        post '/simple_forms_api/v1/simple_forms', params: data
       end
 
       describe 'unhandled form' do
         let(:form) { 'form_with_dangerous_characters_unhandled.json' }
 
         it 'makes the request and expects a failure' do
+          post '/simple_forms_api/v1/simple_forms', params: data
+
           expect(response).to have_http_status(:error)
           expect(response.body).to include('something has gone wrong with your form')
 
@@ -413,6 +414,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         let(:form) { 'form_with_dangerous_characters_21_4140.json' }
 
         it 'makes the request and expects a failure' do
+          post '/simple_forms_api/v1/simple_forms', params: data
+
           expect(response).to have_http_status(:error)
           expect(response.body).to include('unexpected token at')
 
@@ -431,6 +434,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         let(:form) { 'form_with_dangerous_characters_21_4142.json' }
 
         it 'makes the request and expects a failure' do
+          post '/simple_forms_api/v1/simple_forms', params: data
+
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected ken at')
@@ -449,6 +454,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         let(:form) { 'form_with_dangerous_characters_21_10210.json' }
 
         it 'makes the request and expects a failure' do
+          post '/simple_forms_api/v1/simple_forms', params: data
+
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected token t')
@@ -469,6 +476,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         it 'makes the request and expects a failure' do
           skip 'restore this test when we release the form to production'
 
+          post '/simple_forms_api/v1/simple_forms', params: data
+
           expect(response).to have_http_status(:error)
           expect(response.body).to include('unexpected token at')
 
@@ -484,6 +493,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         let(:form) { 'form_with_dangerous_characters_21P_0847.json' }
 
         it 'makes the request and expects a failure' do
+          post '/simple_forms_api/v1/simple_forms', params: data
+
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected token t')
@@ -503,6 +514,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         let(:form) { 'form_with_dangerous_characters_21_0845.json' }
 
         it 'makes the request and expects a failure' do
+          post '/simple_forms_api/v1/simple_forms', params: data
+
           expect(response).to have_http_status(:error)
           # 'unexpected token at' gets mangled by our scrubbing but this indicates that we're getting the right message
           expect(response.body).to include('unexpected token t')
