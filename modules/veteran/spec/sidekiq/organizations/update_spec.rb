@@ -13,7 +13,7 @@ RSpec.shared_examples 'a organization email or phone update process' do |flag_ty
     before do
       Flipper.disable(:va_v3_contact_information_service)
       allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
-      expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+      # expect_any_instance_of(SlackNotify::Client).to receive(:notify)
     end
 
     it 'does not call validate_address or VAProfile::AddressValidation::Service.new' do
@@ -29,7 +29,7 @@ RSpec.shared_examples 'a organization email or phone update process' do |flag_ty
     before do
       Flipper.enable(:va_v3_contact_information_service)
       allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::V3::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
-      expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+      # expect_any_instance_of(SlackNotify::Client).to receive(:notify)
     end
 
     after do
@@ -135,7 +135,7 @@ RSpec.describe Organizations::Update do
     before do
       Flipper.disable(:va_v3_contact_information_service)
       allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response)
-      expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+      # expect_any_instance_of(SlackNotify::Client).to receive(:notify)
     end
 
     context 'when JSON parsing fails' do
@@ -545,7 +545,7 @@ RSpec.describe Organizations::Update do
       before do
         Flipper.enable(:va_v3_contact_information_service)
         allow_any_instance_of(VAProfile::V3::AddressValidation::Service).to receive(:candidate).and_return(api_response)
-        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+        # expect_any_instance_of(SlackNotify::Client).to receive(:notify)
       end
 
       after do

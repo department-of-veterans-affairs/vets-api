@@ -18,9 +18,7 @@ module Organizations
     attr_accessor :slack_messages, :orgs_data
 
     def initialize
-      p 'slack_messages initialized'
       @slack_messages = []
-      p "slack_messages.size: #{@slack_messages.size}"
     end
 
     # Processes each organization's data provided in JSON format.
@@ -32,7 +30,6 @@ module Organizations
     rescue => e
       log_error("Error processing job: #{e.message}")
     ensure
-      p "slack_messages.size: #{@slack_messages.size}"
       @slack_messages.unshift("Orgs processed: #{@orgs_data.size}") if @orgs_data&.any?
       @slack_messages.unshift('Organizations::Update')
       log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?
@@ -295,10 +292,10 @@ module Organizations
     end
 
     def log_to_slack(message)
-      client = SlackNotify::Client.new(webhook_url: Settings.claims_api.slack.webhook_url,
-                                       channel: '#benefits-representation-management-notifications',
-                                       username: 'Organizations::Update Bot')
-      client.notify(message)
+      # client = SlackNotify::Client.new(webhook_url: WE_NEED_A_WEBHOOK_URL),
+      #                                  channel: '#benefits-representation-management-notifications',
+      #                                  username: 'Organizations::Update Bot')
+      # client.notify(message)
     end
   end
 end
