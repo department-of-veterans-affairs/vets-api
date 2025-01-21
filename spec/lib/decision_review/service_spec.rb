@@ -52,7 +52,7 @@ describe DecisionReview::Service do
     let(:user) do
       name = 'x' * 100
       icn = 123
-      build :user, first_name: name, middle_name: name, last_name: name, icn:
+      build(:user, first_name: name, middle_name: name, last_name: name, icn:)
     end
 
     it 'returns a properly formatted 200 response' do
@@ -106,10 +106,8 @@ describe DecisionReview::Service do
     subject { described_class.new.create_notice_of_disagreement(request_body: body.to_json, user:) }
 
     let(:body) do
-      full_body = JSON.parse(File.read(
-                               Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
-                                               'valid_NOD_create_request.json')
-                             ))
+      full_body = JSON.parse(Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
+                                             'valid_NOD_create_request.json').read)
       full_body.delete('nodUploads')
       full_body
     end

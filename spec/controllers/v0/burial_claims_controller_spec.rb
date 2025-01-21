@@ -93,7 +93,7 @@ RSpec.describe V0::BurialClaimsController, type: :controller do
       ['', [], {}, nil].each do |blank|
         expect(in_progress_form).not_to receive(:update)
         result = subject.send(:log_validation_error_to_metadata, blank, claim)
-        expect(result).to eq(nil)
+        expect(result).to be_nil
       end
     end
 

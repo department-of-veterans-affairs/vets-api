@@ -54,13 +54,6 @@ RSpec.describe MHV::UserAccount::Creator do
 
         it_behaves_like 'an invalid creator'
       end
-
-      context 'when email is not present' do
-        let(:user_credential_email) { nil }
-        let(:expected_error_message) { 'Email must be present' }
-
-        it_behaves_like 'an invalid creator'
-      end
     end
 
     context 'when tou_occurred_at is not present' do

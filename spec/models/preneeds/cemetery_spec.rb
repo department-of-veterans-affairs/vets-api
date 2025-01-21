@@ -6,7 +6,7 @@ RSpec.describe Preneeds::Cemetery do
   context 'with valid attributes' do
     subject { described_class.new(params) }
 
-    let(:params) { attributes_for :cemetery }
+    let(:params) { attributes_for(:cemetery) }
     let(:other) { described_class.new(attributes_for(:cemetery)) }
 
     it 'populates attributes' do

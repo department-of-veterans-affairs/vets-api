@@ -3,6 +3,7 @@
 module V1
   class NoticeOfDisagreementsController < AppealsBaseControllerV1
     service_tag 'board-appeal'
+    before_action { log_non_module_controller(action: "NOD #{action_name}", form_id: '10182') }
 
     def show
       render json: decision_review_service.get_notice_of_disagreement(params[:id]).body
