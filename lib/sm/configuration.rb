@@ -23,6 +23,13 @@ module SM
     end
 
     ##
+    # @return [String] API key for AWS API Gateway
+    #
+    def x_api_key
+      Settings.mhv.sm.mhv_sm_x_api_key
+    end
+
+    ##
     # @return [String] Base path for dependent URLs
     #
     def base_path
