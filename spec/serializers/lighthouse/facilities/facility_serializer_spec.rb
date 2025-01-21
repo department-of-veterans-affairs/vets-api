@@ -6,7 +6,7 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, team: :facilities do
   # subject { serialize(facility, serializer_class: described_class) }
   subject { described_class.new(facility) }
 
-  let(:facility) { build :lighthouse_facility }
+  let(:facility) { build(:lighthouse_facility) }
   let(:data) { subject.serializable_hash.with_indifferent_access['data'] }
   let(:attributes) { data['attributes'] }
 
@@ -77,7 +77,7 @@ RSpec.describe Lighthouse::Facilities::FacilitySerializer, team: :facilities do
   end
 
   it 'includes mobile' do
-    expect(data['attributes']['mobile']).to eq(false)
+    expect(data['attributes']['mobile']).to be(false)
   end
 
   it 'includes active_status' do

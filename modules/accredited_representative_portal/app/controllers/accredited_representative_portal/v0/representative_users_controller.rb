@@ -3,6 +3,8 @@
 module AccreditedRepresentativePortal
   module V0
     class RepresentativeUsersController < ApplicationController
+      skip_after_action :verify_pundit_authorization
+
       def show
         # TODO: Once we figure out how we're handling serialization and which
         # library we're using, moving this serialization logic out to to a

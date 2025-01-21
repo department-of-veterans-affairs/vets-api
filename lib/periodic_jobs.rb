@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'holidays'
+
 # @see https://crontab.guru/
 # @see https://en.wikipedia.org/wiki/Cron
 PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
@@ -7,10 +9,6 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Runs at midnight every Tuesday
   mgr.register('0 0 * * 2', 'LoadAverageDaysForClaimCompletionJob')
-
-  # TODO: Document these jobs
-  mgr.register('*/15 * * * *', 'CovidVaccine::ScheduledBatchJob')
-  mgr.register('*/15 * * * *', 'CovidVaccine::ExpandedScheduledSubmissionJob')
 
   # Update HigherLevelReview statuses with their Central Mail status
   mgr.register('5 * * * *', 'AppealsApi::HigherLevelReviewUploadStatusBatch')
@@ -48,11 +46,17 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
   mgr.register('0 2,9,16 * * 1-5', 'AppealsApi::FlipperStatusAlert')
 
+  # Update alternative Banners data every 5 minutes
+  mgr.register('*/5 * * * *', 'Banners::UpdateAllJob')
+
   # Update static data cache
   mgr.register('0 0 * * *', 'Crm::TopicsDataJob')
 
   # Update Optionset data cache
   mgr.register('0 0 * * *', 'Crm::OptionsetDataJob')
+
+  # Update Facilities data cache
+  mgr.register('0 0 * * *', 'Crm::FacilitiesDataJob')
 
   # Update FormSubmissionAttempt status from Lighthouse Benefits Intake API
   mgr.register('0 0 * * *', 'BenefitsIntakeStatusJob')
@@ -107,6 +111,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # TODO: Document this job
   mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailySpoolFiles')
+  mgr.register('0 3 * * MON-FRI', 'EducationForm::CreateDailyExcelFiles')
 
   # Deletes old, completed AsyncTransaction records
   mgr.register('0 3 * * *', 'DeleteOldTransactionsJob')
@@ -153,17 +158,10 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # TODO: Document this job
   mgr.register('30 2 * * *', 'Identity::UserAcceptableVerifiedCredentialTotalsJob')
 
-  # Fetches latest VA forms from Drupal database and updates vets-api forms database
-  mgr.register('0 2 * * *', 'VAForms::FormReloader')
-
-  # Checks status of Flipper features expected to be enabled and alerts to Slack if any are not enabled
-  mgr.register('0 2,9,16 * * 1-5', 'VAForms::FlipperStatusAlert')
-
   # TODO: Document these jobs
   mgr.register('0 16 * * *', 'VANotify::InProgressForms')
   mgr.register('0 1 * * *', 'VANotify::ClearStaleInProgressRemindersSent')
   mgr.register('0 * * * *', 'VANotify::InProgress1880Form')
-  mgr.register('0 * * * *', 'CovidVaccine::ExpandedSubmissionStateJob')
   mgr.register('0 * * * *', 'PagerDuty::CacheGlobalDowntime')
   mgr.register('*/3 * * * *', 'PagerDuty::PollMaintenanceWindows')
   mgr.register('0 2 * * *', 'InProgressFormCleaner')
@@ -189,7 +187,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   mgr.register('*/3 * * * *', 'VBADocuments::UploadScanner')
 
   # Clean up submitted documents from S3
-  mgr.register('*/5 * * * *', 'VBADocuments::UploadRemover')
+  mgr.register('2-59/5 * * * *', 'VBADocuments::UploadRemover')
 
   # Daily/weekly report of unsuccessful benefits intake submissions
   mgr.register('0 0 * * 1-5', 'VBADocuments::ReportUnsuccessfulSubmissions')
@@ -211,6 +209,7 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
 
   # Updates veteran representatives address attributes (including lat, long, location, address fields, email address, phone number) # rubocop:disable Layout/LineLength
   mgr.register('0 3 * * *', 'Representatives::QueueUpdates')
+  mgr.register('0 3 * * *', 'Organizations::QueueUpdates')
 
   # Updates veteran service organization names
   mgr.register('0 5 * * *', 'Organizations::UpdateNames')
@@ -221,24 +220,22 @@ PERIODIC_JOBS = lambda { |mgr| # rubocop:disable Metrics/BlockLength
   # Every 15min job that sends missing Pega statuses to DataDog
   mgr.register('*/15 * * * *', 'IvcChampva::MissingFormStatusJob')
 
-  # Hourly jobs that update DR SavedClaims with delete_date
-  mgr.register('20 * * * *', 'DecisionReview::HlrStatusUpdaterJob')
-  mgr.register('30 * * * *', 'DecisionReview::NodStatusUpdaterJob')
-  mgr.register('50 * * * *', 'DecisionReview::ScStatusUpdaterJob')
+  # Engine version: Sync non-final DR SavedClaims to LH status
+  mgr.register('10 */4 * * *', 'DecisionReviews::HlrStatusUpdaterJob')
+  mgr.register('15 1-21/4 * * *', 'DecisionReviews::NodStatusUpdaterJob')
+  mgr.register('30 2-22/4 * * *', 'DecisionReviews::ScStatusUpdaterJob')
 
-  # Clean SavedClaim records that are past delete date
-  mgr.register('0 7 * * *', 'DecisionReview::DeleteSavedClaimRecordsJob')
+  # Engine version: Clean SavedClaim records that are past delete date
+  mgr.register('0 5 * * *', 'DecisionReviews::DeleteSavedClaimRecordsJob')
 
-  # Send Decision Review emails to Veteran for failed form/evidence submissions
-  mgr.register('5 1 * * *', 'DecisionReview::FailureNotificationEmailJob')
+  # Engine version: Send Decision Review emails to Veteran for failed form/evidence submissions
+  mgr.register('5 0 * * *', 'DecisionReviews::FailureNotificationEmailJob')
 
   # Daily 0000 hrs job for Vye: performs ingress of state from BDN & TIMS.
   mgr.register('15 00 * * 1-5', 'Vye::MidnightRun::IngressBdn')
   mgr.register('45 03 * * 1-5', 'Vye::MidnightRun::IngressTims')
-
   # Daily 0600 hrs job for Vye: activates ingressed state, and egresses the changes for the day.
   mgr.register('45 05 * * 1-5', 'Vye::DawnDash')
-
-  # Daily job for Vye: clears deactivated BDNs every evening.
-  mgr.register('00 20 * * 1-5', 'Vye::SundownSweep::ClearDeactivatedBdns')
+  # Daily 1900 job for Vye: clears deactivated BDNs every evening.
+  mgr.register('00 19 * * 1-5', 'Vye::SundownSweep')
 }

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'claims_api/v2/params_validation/intent_to_file'
-require 'bgs_service/local_bgs'
+require 'bgs_service/intent_to_file_web_service'
 
 module ClaimsApi
   module V2
@@ -18,7 +18,7 @@ module ClaimsApi
           validate_request!(ClaimsApi::V2::ParamsValidation::IntentToFile)
 
           type = get_bgs_type(params)
-          response = local_bgs_service.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
+          response = bgs_itf_service.find_intent_to_file_by_ptcpnt_id_itf_type_cd(
             target_veteran.participant_id,
             type
           )
@@ -54,7 +54,7 @@ module ClaimsApi
 
           options = build_options_and_validate(type)
 
-          bgs_response = local_bgs_service.insert_intent_to_file(options)
+          bgs_response = bgs_itf_service.insert_intent_to_file(options)
           if bgs_response.empty?
             ClaimsApi::IntentToFile.create!(status: ClaimsApi::IntentToFile::ERRORED, cid: token.payload['cid'])
             raise ::Common::Exceptions::ResourceNotFound.new(detail: 'Veteran ID not found')
@@ -177,6 +177,14 @@ module ClaimsApi
             status: bgs_itf[:itf_status_type_cd],
             type: bgs_itf[:itf_type_cd]
           }
+        end
+
+        def bgs_itf_service
+          external_key = target_veteran.participant_id.to_s
+          @bgs_itf_service ||= ClaimsApi::IntentToFileWebService.new(
+            external_uid: external_key,
+            external_key:
+          )
         end
       end
     end

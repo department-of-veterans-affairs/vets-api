@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+begin
+  require 'bundler/setup'
+rescue LoadError
+  puts 'You must `gem install bundler` and `bundle install` to run rake tasks'
+end
+
+require 'bundler/gem_tasks'
+
+unless Rails.env.production?
+  require 'rspec/core/rake_task'
+  task(spec: :environment).clear
+  RSpec::Core::RakeTask.new(:spec) do |t|
+    t.pattern = Dir.glob(['spec/**/*_spec.rb'])
+    t.verbose = false
+  end
+end

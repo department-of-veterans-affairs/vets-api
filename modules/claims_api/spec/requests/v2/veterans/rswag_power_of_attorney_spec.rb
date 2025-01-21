@@ -6,11 +6,24 @@ require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
 require 'bgs_service/local_bgs'
+require 'bgs_service/org_web_service'
 
-# doc generation for V2 ITFs temporarily disabled by API-13879
 describe 'PowerOfAttorney',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
   let(:local_bgs) { ClaimsApi::LocalBGS }
+  let(:org_web_service) { ClaimsApi::OrgWebService }
+
+  claimant_data = {
+    'claimantId' => '1013093331V548481',
+    'address' => {
+      'addressLine1' => '123 anystreet',
+      'city' => 'anytown',
+      'stateCode' => 'OR',
+      'countryCode' => 'US',
+      'zipCode' => '12345'
+    },
+    'relationship' => 'Spouse'
+  }
 
   path '/veterans/{veteranId}/power-of-attorney' do
     get 'Find current Power of Attorney for a Veteran.' do
@@ -40,23 +53,23 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '200', 'Successful response with a current Power of Attorney' do
-          schema JSON.parse(File.read(Rails.root.join('spec',
-                                                      'support',
-                                                      'schemas',
-                                                      'claims_api',
-                                                      'veterans',
-                                                      'power-of-attorney',
-                                                      'get.json')))
+          schema JSON.parse(Rails.root.join('spec',
+                                            'support',
+                                            'schemas',
+                                            'claims_api',
+                                            'veterans',
+                                            'power-of-attorney',
+                                            'get.json').read)
 
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
-            FactoryBot.create(:veteran_representative, representative_id: '12345',
-                                                       poa_codes: [poa_code],
-                                                       first_name: 'Firstname',
-                                                       last_name: 'Lastname',
-                                                       phone: '555-555-5555')
+            create(:veteran_representative, representative_id: '12345',
+                                            poa_codes: [poa_code],
+                                            first_name: 'Firstname',
+                                            last_name: 'Lastname',
+                                            phone: '555-555-5555')
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -78,8 +91,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           let(:Authorization) { nil }
 
@@ -108,14 +121,14 @@ describe 'PowerOfAttorney',
 
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
 
-            FactoryBot.create(:veteran_representative, representative_id: '12345',
-                                                       poa_codes: ['H1A'],
-                                                       first_name: 'Firstname',
-                                                       last_name: 'Lastname',
-                                                       phone: '555-555-5555')
+            create(:veteran_representative, representative_id: '12345',
+                                            poa_codes: ['H1A'],
+                                            first_name: 'Firstname',
+                                            last_name: 'Lastname',
+                                            phone: '555-555-5555')
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -137,23 +150,23 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable Entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
-            FactoryBot.create(:veteran_representative, representative_id: '12345',
-                                                       poa_codes: [poa_code],
-                                                       first_name: 'Firstname',
-                                                       last_name: 'Lastname',
-                                                       phone: '555-555-5555')
-            FactoryBot.create(:veteran_representative, representative_id: '54321',
-                                                       poa_codes: [poa_code],
-                                                       first_name: 'Another',
-                                                       last_name: 'Name',
-                                                       phone: '222-222-2222')
+            create(:veteran_representative, representative_id: '12345',
+                                            poa_codes: [poa_code],
+                                            first_name: 'Firstname',
+                                            last_name: 'Lastname',
+                                            phone: '555-555-5555')
+            create(:veteran_representative, representative_id: '54321',
+                                            poa_codes: [poa_code],
+                                            first_name: 'Another',
+                                            last_name: 'Name',
+                                            phone: '222-222-2222')
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -212,6 +225,27 @@ describe 'PowerOfAttorney',
       let(:poa_code) { '067' }
       let(:bgs_poa) { { person_org_name: "#{poa_code} name-here" } }
 
+      request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                                    'power_of_attorney', '2122a', 'valid.json').read)
+
+      request_template_with_dependent = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
+                                                                   'veterans', 'power_of_attorney', '2122a',
+                                                                   'valid.json').read)
+
+      request_template_with_dependent['data']['attributes']['claimant'] = claimant_data
+
+      parameter name: :power_of_attorney_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a][:schema]
+
+      parameter in: :body, examples: {
+        'POA for Veteran' => {
+          value: request_template
+        },
+        'POA for Dependent Claimant' => {
+          value: request_template_with_dependent
+        }
+      }
+
       describe 'Getting a successful response' do
         response '202', 'Valid request response' do
           schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
@@ -224,15 +258,19 @@ describe 'PowerOfAttorney',
             temp
           end
 
+          let(:power_of_attorney_request) do
+            data
+          end
+
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
-            FactoryBot.create(:veteran_representative, representative_id: '999999999999',
-                                                       poa_codes: [poa_code],
-                                                       first_name: 'Firstname',
-                                                       last_name: 'Lastname',
-                                                       phone: '555-555-5555')
+            create(:veteran_representative, representative_id: '999999999999',
+                                            poa_codes: [poa_code],
+                                            first_name: 'Firstname',
+                                            last_name: 'Lastname',
+                                            phone: '555-555-5555')
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
@@ -388,6 +426,28 @@ describe 'PowerOfAttorney',
       let(:scopes) { %w[system/claim.write] }
       let(:organization_poa_code) { '083' }
       let(:bgs_poa) { { person_org_name: "#{organization_poa_code} name-here" } }
+
+      request_template = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
+                                                    'power_of_attorney', '2122', 'valid.json').read)
+
+      request_template_with_dependent = JSON.parse(Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2',
+                                                                   'veterans', 'power_of_attorney', '2122',
+                                                                   'valid.json').read)
+
+      request_template_with_dependent['data']['attributes']['claimant'] = claimant_data
+
+      parameter name: :power_of_attorney_request, in: :body,
+                schema: SwaggerSharedComponents::V2.body_examples[:power_of_attorney_2122a][:schema]
+
+      parameter in: :body, examples: {
+        'POA for Veteran' => {
+          value: request_template
+        },
+        'POA for Dependent Claimant' => {
+          value: request_template_with_dependent
+        }
+      }
+
       let(:data) do
         temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
                                'power_of_attorney', '2122', 'valid.json').read
@@ -396,22 +456,26 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '202', 'Valid request response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
-                                                      'power_of_attorney', '2122', 'submit.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
+                                            'power_of_attorney', '2122', 'submit.json').read)
 
           before do |example|
             expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
-            allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+            allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
-            FactoryBot.create(:veteran_organization, poa: organization_poa_code,
-                                                     name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS",
-                                                     phone: '555-555-5555')
-            FactoryBot.create(:veteran_representative, representative_id: '999999999999',
-                                                       poa_codes: [organization_poa_code], phone: '555-555-5555')
+            create(:veteran_organization, poa: organization_poa_code,
+                                          name: "#{organization_poa_code} - DISABLED AMERICAN VETERANS",
+                                          phone: '555-555-5555')
+            create(:veteran_representative, representative_id: '999999999999',
+                                            poa_codes: [organization_poa_code], phone: '555-555-5555')
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
             end
+          end
+
+          let(:power_of_attorney_request) do
+            data
           end
 
           after do |example|
@@ -430,8 +494,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           let(:Authorization) { nil }
 
@@ -455,8 +519,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable Entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',
@@ -466,7 +530,7 @@ describe 'PowerOfAttorney',
 
           before do |example|
             mock_ccg(scopes) do
-              allow_any_instance_of(local_bgs).to receive(:find_poa_history_by_ptcpnt_id)
+              allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
                 .and_return({ person_poa_history: nil })
               submit_request(example.metadata)
             end
@@ -563,11 +627,11 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
-            FactoryBot.create(:veteran_representative, representative_id: '999999999999',
-                                                       poa_codes: [poa_code],
-                                                       first_name: 'Firstname',
-                                                       last_name: 'Lastname',
-                                                       phone: '555-555-5555')
+            create(:veteran_representative, representative_id: '999999999999',
+                                            poa_codes: [poa_code],
+                                            first_name: 'Firstname',
+                                            last_name: 'Lastname',
+                                            phone: '555-555-5555')
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
@@ -731,8 +795,8 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
-            FactoryBot.create(:veteran_organization, poa: poa_code)
-            FactoryBot.create(:veteran_representative, representative_id: '999999999999', poa_codes: [poa_code])
+            create(:veteran_organization, poa: poa_code)
+            create(:veteran_representative, representative_id: '999999999999', poa_codes: [poa_code])
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
@@ -880,8 +944,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '200', 'Valid request response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2',
-                                                      'veterans', 'power_of_attorney', 'status.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2',
+                                            'veterans', 'power_of_attorney', 'status.json').read)
 
           before do |example|
             mock_ccg(scopes) do
@@ -987,17 +1051,18 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a successful response' do
         response '201', 'Valid request response' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
-                                                      'power_of_attorney', 'request_representative', 'submit.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'veterans',
+                                            'power_of_attorney', 'request_representative', 'submit.json').read)
 
           before do |example|
+            allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_v2_poa_requests_skip_bgs).and_return false
             allow_any_instance_of(ClaimsApi::PowerOfAttorneyRequestService::Orchestrator)
               .to receive(:submit_request)
-              .and_return(true)
-            FactoryBot.create(:veteran_representative, representative_id: '999999999999', poa_codes: ['067'],
-                                                       first_name: 'Abraham', last_name: 'Lincoln',
-                                                       user_types: ['veteran_service_officer'])
-            FactoryBot.create(:veteran_organization, poa: '067', name: 'DISABLED AMERICAN VETERANS')
+              .and_return({ 'procId' => '12345' })
+            create(:veteran_representative, representative_id: '999999999999', poa_codes: ['067'],
+                                            first_name: 'Abraham', last_name: 'Lincoln',
+                                            user_types: ['veteran_service_officer'])
+            create(:veteran_organization, poa: '067', name: 'DISABLED AMERICAN VETERANS')
 
             mock_ccg(scopes) do
               submit_request(example.metadata)
@@ -1007,10 +1072,7 @@ describe 'PowerOfAttorney',
           after do |example|
             example.metadata[:response][:content] = {
               'application/json' => {
-                example: JSON.parse(response.body, symbolize_names: true).tap do |json|
-                  json[:data][:attributes]
-                    .merge!(procId: '3857415')
-                end
+                example: JSON.parse(response.body, symbolize_names: true)
               }
             }
           end
@@ -1023,8 +1085,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           let(:Authorization) { nil }
 
@@ -1048,8 +1110,8 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 422 response' do
         response '422', 'Unprocessable Entity' do
-          schema JSON.parse(File.read(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
-                                                      'power_of_attorney', 'default.json')))
+          schema JSON.parse(Rails.root.join('spec', 'support', 'schemas', 'claims_api', 'v2', 'errors',
+                                            'power_of_attorney', 'default.json').read)
 
           let(:data) do
             temp = Rails.root.join('modules', 'claims_api', 'spec', 'fixtures', 'v2', 'veterans',

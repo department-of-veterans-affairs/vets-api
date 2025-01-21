@@ -105,6 +105,8 @@ Rails.application.routes.draw do
       resource :mhv_user_account, only: [:show], controller: 'user/mhv_user_accounts'
     end
 
+    resource :test_account_user_email, only: [:create]
+
     resource :veteran_onboarding, only: %i[show update]
 
     resource :education_benefits_claims, only: %i[create show] do
@@ -128,7 +130,7 @@ Rails.application.routes.draw do
 
     resources :caregivers_assistance_claims, only: :create do
       collection do
-        get(:facilities)
+        post(:facilities)
         post(:download_pdf)
       end
     end
@@ -284,6 +286,7 @@ Rails.application.routes.draw do
 
     namespace :my_va do
       resource :submission_statuses, only: :show
+      resource :submission_pdf_urls, only: :create
     end
 
     namespace :profile do
@@ -409,16 +412,9 @@ Rails.application.routes.draw do
 
       resources :zipcode_rates, only: :show, defaults: { format: :json }
 
-      resources :lce, only: :index, defaults: { format: :json }
-
-      namespace :lce do
-        resources :certifications, only: :show, defaults: { format: :json }
-
-        resources :exams, only: :show, defaults: { format: :json }
-
-        resources :licenses, only: :show, defaults: { format: :json }
-
-        resources :preps, only: :show, defaults: { format: :json }
+      namespace :lcpe do
+        resources :lacs, only: %i[index show], defaults: { format: :json }
+        resources :exams, only: %i[index show], defaults: { format: :json }
       end
     end
 
@@ -427,7 +423,6 @@ Rails.application.routes.draw do
     namespace :higher_level_reviews do
       get 'contestable_issues(/:benefit_type)', to: 'contestable_issues#index'
     end
-    resources :higher_level_reviews, only: %i[create show]
 
     namespace :notice_of_disagreements do
       get 'contestable_issues', to: 'contestable_issues#index'
@@ -458,7 +453,6 @@ Rails.application.routes.draw do
     mount AppealsApi::Engine, at: '/appeals'
     mount ClaimsApi::Engine, at: '/claims'
     mount Veteran::Engine, at: '/veteran'
-    mount VAForms::Engine, at: '/va_forms'
     mount VeteranConfirmation::Engine, at: '/veteran_confirmation'
   end
 
@@ -466,9 +460,8 @@ Rails.application.routes.draw do
   mount AccreditedRepresentativePortal::Engine, at: '/accredited_representative_portal'
   mount AskVAApi::Engine, at: '/ask_va_api'
   mount Avs::Engine, at: '/avs'
+  mount Burials::Engine, at: '/burials'
   mount CheckIn::Engine, at: '/check_in'
-  mount CovidResearch::Engine, at: '/covid-research'
-  mount CovidVaccine::Engine, at: '/covid_vaccine'
   mount DebtsApi::Engine, at: '/debts_api'
   mount DhpConnectedDevices::Engine, at: '/dhp_connected_devices'
   mount FacilitiesApi::Engine, at: '/facilities_api'
@@ -485,6 +478,7 @@ Rails.application.routes.draw do
   mount VAOS::Engine, at: '/vaos'
   mount Vye::Engine, at: '/vye'
   mount Pensions::Engine, at: '/pensions'
+  mount DecisionReviews::Engine, at: '/decision_reviews'
   # End Modules
 
   require 'sidekiq/web'

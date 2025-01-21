@@ -8,13 +8,13 @@ require 'va_notify/service'
 RSpec.describe EVSS::DocumentUpload, type: :job do
   subject { described_class }
 
-  let(:client_stub) { instance_double('EVSS::DocumentsService') }
+  let(:client_stub) { instance_double(EVSS::DocumentsService) }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
-  let(:uploader_stub) { instance_double('EVSSClaimDocumentUploader') }
+  let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
 
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:filename) { 'doctors-note.pdf' }
   let(:document_data) do
     EVSSClaimDocument.new(
@@ -44,7 +44,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   it 'retrieves the file and uploads to EVSS' do
     allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
     allow(EVSS::DocumentsService).to receive(:new) { client_stub }
-    file = File.read("#{::Rails.root}/spec/fixtures/files/#{filename}")
+    file = File.read(Rails.root.join("spec/fixtures/files/#{filename}").to_s)
     allow(uploader_stub).to receive(:retrieve_from_store!).with(filename) { file }
     allow(uploader_stub).to receive(:read_for_upload) { file }
     expect(uploader_stub).to receive(:remove!).once
@@ -65,26 +65,19 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       timestamp.strftime('%B %-d, %Y %-l:%M %P %Z').sub(/([ap])m/, '\1.m.')
     end
 
-    it 'enqueues a failure notification mailer to send to the veteran' do
-      allow(VaNotify::Service).to receive(:new) { notify_client_stub }
-
+    it 'calls EVSS::FailureNotification' do
       subject.within_sidekiq_retries_exhausted_block(args) do
-        expect(notify_client_stub).to receive(:send_email).with(
-          {
-            recipient_identifier: { id_value: user_account.icn, id_type: 'ICN' },
-            template_id: 'fake_template_id',
-            personalisation: {
-              first_name: 'Bob',
-              filename: 'docXXXX-XXte.pdf',
-              date_submitted: formatted_submit_date,
-              date_failed: formatted_submit_date
-            }
-          }
+        expect(EVSS::FailureNotification).to receive(:perform_async).with(
+          user_account.icn,
+          'Bob', # first_name
+          'docXXXX-XXte.pdf', # filename
+          formatted_submit_date, # date_submitted
+          formatted_submit_date # date_failed
         )
 
         expect(Rails.logger)
           .to receive(:info)
-          .with('EVSS::DocumentUpload exhaustion handler email sent')
+          .with('EVSS::DocumentUpload exhaustion handler email queued')
         expect(StatsD).to receive(:increment).with('silent_failure_avoided_no_confirmation', tags:)
       end
     end
@@ -95,13 +88,9 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
       Flipper.disable(:cst_send_evidence_failure_emails)
     end
 
-    let(:issue_instant) { Time.now.to_i }
-
-    it 'does not enqueue a failure notification mailer to send to the veteran' do
-      allow(VaNotify::Service).to receive(:new) { notify_client_stub }
-
+    it 'does not call Lighthouse::Failure Notification' do
       subject.within_sidekiq_retries_exhausted_block(args) do
-        expect(notify_client_stub).not_to receive(:send_email)
+        expect(EVSS::FailureNotification).not_to receive(:perform_async)
       end
     end
   end

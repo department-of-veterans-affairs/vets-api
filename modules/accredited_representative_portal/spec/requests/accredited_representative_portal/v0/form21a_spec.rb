@@ -5,6 +5,19 @@ require_relative '../../../rails_helper'
 RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
   let(:valid_json) { { field: 'value' }.to_json }
   let(:invalid_json) { 'invalid json' }
+  let(:mock_schema) do
+    {
+      '$schema' => 'http://json-schema.org/draft-04/schema#',
+      'title' => 'Apply to become a VA-accredited attorney or claims agent',
+      'type' => 'object',
+      'properties' => {
+        'firstName' => {
+          'type' => 'string'
+        }
+      }
+    }
+  end
+  let(:invalid_form) { { 'firstName' => 1234 }.to_json }
   let(:representative_user) { create(:representative_user) }
 
   before do
@@ -45,11 +58,31 @@ RSpec.describe 'AccreditedRepresentativePortal::V0::Form21a', type: :request do
     context 'with invalid JSON' do
       it 'logs the error and returns a bad request status' do
         expect(Rails.logger).to receive(:error).with(
-          "Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}"
+          "Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}."
         )
 
         headers = { 'Content-Type' => 'application/json' }
         post('/accredited_representative_portal/v0/form21a', params: invalid_json, headers:)
+
+        expect(response).to have_http_status(:bad_request)
+        expect(parsed_response).to eq('errors' => 'Invalid JSON')
+      end
+    end
+
+    context 'form doestn match schema' do
+      it 'logs the error and returns a bad request status' do
+        allow(VetsJsonSchema::SCHEMAS).to receive(:[]).with('21A').and_return(mock_schema)
+
+        expect(Rails.logger).to receive(:error).with(
+          matching(
+            %r{Form21aController: Invalid JSON in request body for user with user_uuid=#{representative_user.uuid}. \
+Errors: The property '#/firstName' of type integer did not match the following type: string in schema \
+[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}}
+          )
+        )
+
+        headers = { 'Content-Type' => 'application/json' }
+        post('/accredited_representative_portal/v0/form21a', params: invalid_form, headers:)
 
         expect(response).to have_http_status(:bad_request)
         expect(parsed_response).to eq('errors' => 'Invalid JSON')

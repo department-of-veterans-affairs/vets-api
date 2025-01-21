@@ -17,6 +17,11 @@ class ClaimsBaseController < ApplicationController
   skip_before_action(:authenticate)
   before_action :load_user, only: :create
 
+  def show
+    submission = CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
+    render json: BenefitsIntakeSubmissionSerializer.new(submission)
+  end
+
   # Creates and validates an instance of the class, removing any copies of
   # the form that had been previously saved by the user.
   def create
@@ -37,11 +42,6 @@ class ClaimsBaseController < ApplicationController
 
     clear_saved_form(claim.form_id)
     render json: SavedClaimSerializer.new(claim)
-  end
-
-  def show
-    submission = CentralMailSubmission.joins(:central_mail_claim).find_by(saved_claims: { guid: params[:id] })
-    render json: CentralMailSubmissionSerializer.new(submission)
   end
 
   private
