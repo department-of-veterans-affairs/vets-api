@@ -69,23 +69,75 @@ RSpec.describe 'V0::Form1010Ezrs', type: :request do
     end
   end
 
-  # describe 'GET veteran_prefill_data' do
-  #   context 'while authenticated', :skip_mvi do
-  #     let(:current_user) { build(:evss_user, :loa3, icn: '1012830022V956566') }
-  #
-  #     before do
-  #       sign_in_as(current_user)
-  #     end
-  #
-  #     context 'when no error occurs' do
-  #       it 'renders a successful JSON response' do
-  #         VCR.use_cassette('example_1', :record => :once) do
-  #           get(veteran_prefill_data_v0_form1010_ezrs_path)
-  #
-  #           expect(response.body.present?).to be(true)
-  #         end
-  #       end
-  #     end
-  #   end
-  # end
+  describe 'GET veteran_prefill_data' do
+    context 'while authenticated', :skip_mvi do
+      let(:body) do
+        {
+          'veteranIncome' => {
+            'otherIncome' => '6405',
+            'grossIncome' => '49728',
+            'netIncome' => '3962'
+          },
+          'spouseIncome'=>{
+            'otherIncome'=>'1376',
+            'grossIncome'=>'38911',
+            'netIncome'=>'743'
+          },
+          'providers' =>[
+            {
+              'insuranceName' => 'Insurance1',
+              'insurancePolicyHolderName' => 'Test Testerson',
+              'insurancePolicyNumber' => '6476334672674'
+            }
+          ],
+          'medicareClaimNumber' => '5465477564',
+          'isEnrolledMedicarePartA' => true,
+          'medicarePartAEffectiveDate' => '1997-03-04',
+          'isMedicaidEligible' => false,
+          'dependents' => [
+            {
+              'fullName' => {
+                'first' => 'Jeffery',
+                'middle' => 'Joseph',
+                'last' => 'Payne'
+              },
+              'socialSecurityNumber' => '666937777',
+              'becameDependent' => '1991-05-06',
+              'dependentRelation' => 'Son',
+              'disabledBefore18' => false,
+              'attendedSchoolLastYear' => true,
+              'cohabitedLastYear' => true,
+              'dateOfBirth' => '1991-05-06'
+            }
+          ],
+          'spouseFullName' => {
+            'first' => 'Nancy',
+            'middle' => 'Heather',
+            'last' => 'Payne'
+          },
+          'dateOfMarriage' => '1989-09-16',
+          'cohabitedLastYear' => true,
+          'spouseDateOfBirth' => '1970-02-21',
+          'spouseSocialSecurityNumber' => '666740192',
+          'spouseIncomeYear' => '2024'}
+      end
+      let(:current_user) { build(:evss_user, :loa3, icn: '1012830022V956566') }
+
+      before do
+        sign_in_as(current_user)
+      end
+
+      context 'when no error occurs' do
+        it 'renders a successful JSON response' do
+          VCR.use_cassette('example_1', :record => :once) do
+            get(veteran_prefill_data_v0_form1010_ezrs_path)
+
+            debugger
+
+            expect(response.body.present?).to be(true)
+          end
+        end
+      end
+    end
+  end
 end
