@@ -3,7 +3,6 @@
 require 'rails_helper'
 
 RSpec.describe Eps::DraftAppointmentSerializer do
-
   subject { serialize(draft_appointment, serializer_class: described_class) }
 
   let(:provider) do
