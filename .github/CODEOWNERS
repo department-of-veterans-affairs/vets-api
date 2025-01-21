@@ -2160,7 +2160,7 @@ spec/support/vcr_cassettes/shared @department-of-veterans-affairs/va-api-enginee
 spec/support/vcr_cassettes/sign_in_service @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/slack/slack_bot_notify.yml @department-of-veterans-affairs/octo-identity
 spec/support/vcr_cassettes/sm_client @department-of-veterans-affairs/vfs-mhv-secure-messaging @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-spec/support/vcr_cassettes/spec/support @department-of-veterans-affairs/octo-identity
+spec/support/vcr_cassettes/spec/support @department-of-veterans-affairs/backend-review-group
 spec/support/vcr_cassettes/spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_document_upload_200_jpg.yml @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 spec/support/vcr_cassettes/spec/support/vcr_cassettes/lighthouse/benefits_claims/documents/lighthouse_document_upload_200_pdf.yml @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 spec/support/vcr_cassettes/staccato @department-of-veterans-affairs/vfs-10-10 @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
