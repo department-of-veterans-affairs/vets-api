@@ -22,8 +22,11 @@ module AccreditedRepresentativePortal
         has_one :resolution,
                 as: :resolving,
                 inverse_of: :resolving,
-                class_name: 'PowerOfAttorneyRequestResolution',
-                required: true
+                class_name: 'PowerOfAttorneyRequestResolution'
+      end
+
+      def accepts_reasons?
+        false
       end
     end
 
@@ -37,5 +40,6 @@ module AccreditedRepresentativePortal
     has_encrypted :reason, key: :kms_key, **lockbox_options
 
     validates :power_of_attorney_request, uniqueness: true
+    validates :reason, absence: true, unless: -> { resolving.accepts_reasons? }
   end
 end
