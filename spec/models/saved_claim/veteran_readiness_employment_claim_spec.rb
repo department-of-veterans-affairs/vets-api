@@ -76,6 +76,14 @@ RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   describe '#send_to_vre' do
     subject { claim.send_to_vre(user_object) }
 
+    it 'propagates errors from send_to_lighthouse!' do
+      allow(claim).to receive(:process_attachments!).and_raise(StandardError, "Attachment error")
+
+      expect {
+        claim.send_to_lighthouse!(user_object)
+      }.to raise_error(StandardError, "Attachment error")
+    end
+
     context 'when VBMS response is VBMSDownForMaintenance' do
       before do
         allow(OpenSSL::PKCS12).to receive(:new).and_return(double.as_null_object)
