@@ -123,7 +123,21 @@ http_interactions:
                           "endProductCode":"010",
                           "evidenceWaiverSubmitted5103":false,
                           "lighthouseId":null,
-                          "status":"CLAIM_RECEIVED"
+                          "status":"CLAIM_RECEIVED",
+                          "trackedItems":[
+                            {
+                              "displayName": "Attorney Fee",
+                              "status": "INITIAL_REVIEW_COMPLETE"
+                            },
+                            {
+                              "displayName": "Secondary Action Required",
+                              "status": "SUBMITTED_AWAITING_REVIEW"
+                            },
+                            {
+                              "displayName": "Stage 2 Development",
+                              "status": "INITIAL_REVIEW_COMPLETE"
+                            }
+                          ]
                        }
                     },
                     {
