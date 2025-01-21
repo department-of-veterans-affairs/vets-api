@@ -182,7 +182,7 @@ paths:
               $ref: "#/components/schemas/SubmitDraftAppointmentRequest"
       responses:
         "201":
-          description: Retrieves a list of clinics for a given facility
+          description: The submitted draft appointment
           content:
             application/json:
               schema:
