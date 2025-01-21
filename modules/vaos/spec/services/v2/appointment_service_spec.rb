@@ -1685,25 +1685,25 @@ describe VAOS::V2::AppointmentsService do
       expect(appt[:modality]).to eq('vaVideoCareAtAVaLocation')
     end
 
-    describe 'is vaVideoCareOnGfe for' do
+    describe 'for vvsKind' do
       [nil, 'MOBILE_ANY', 'ADHOC'].each do |input|
-        it "#{input} and patient has GFE" do
-          appt = build(:appointment_form_v2, :telehealth).attributes
-          appt[:telehealth][:vvs_kind] = input
-          appt[:extension][:patient_has_mobile_gfe] = true
-          subject.send(:set_modality, appt)
-          expect(appt[:modality]).to eq('vaVideoCareOnGfe')
+        context "#{input} when patient has GFE" do
+          it 'returns vaVideoCareOnGfe' do
+            appt = build(:appointment_form_v2, :telehealth).attributes
+            appt[:telehealth][:vvs_kind] = input
+            appt[:extension][:patient_has_mobile_gfe] = true
+            subject.send(:set_modality, appt)
+            expect(appt[:modality]).to eq('vaVideoCareOnGfe')
+          end
         end
-      end
-    end
 
-    describe 'is vaVideoCareAtHome for' do
-      [nil, 'MOBILE_ANY', 'ADHOC'].each do |input|
-        it "#{input} and patient does not have GFE" do
-          appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
-          appt[:telehealth][:vvs_kind] = input
-          subject.send(:set_modality, appt)
-          expect(appt[:modality]).to eq('vaVideoCareAtHome')
+        context "#{input} when patient does not have GFE" do
+          it 'returns vaVideoCareAtHome' do
+            appt = build(:appointment_form_v2, :va_proposed_valid_reason_code_text, :telehealth).attributes
+            appt[:telehealth][:vvs_kind] = input
+            subject.send(:set_modality, appt)
+            expect(appt[:modality]).to eq('vaVideoCareAtHome')
+          end
         end
       end
     end
