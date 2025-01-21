@@ -11,7 +11,7 @@ module BenefitsClaims
     STATSD_KEY_PREFIX = 'api.benefits_claims'
 
     FILTERED_STATUSES = %w[CANCELED ERRORED PENDING].freeze
-    SUPPRESSED_EVIDENCE_REQUESTS = ["Attorney Fee", "Secondary Action Required", "Stage 2 Development"].freeze
+    SUPPRESSED_EVIDENCE_REQUESTS = ['Attorney Fee', 'Secondary Action Required', 'Stage 2 Development'].freeze
 
     def initialize(icn)
       @icn = icn
@@ -286,7 +286,7 @@ module BenefitsClaims
       tracked_items = claim['attributes']['trackedItems']
       return unless tracked_items
 
-      tracked_items.select! {|i| !SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
+      tracked_items.reject! { |i| SUPPRESSED_EVIDENCE_REQUESTS.include?(i['displayName']) }
     end
 
     def handle_error(error, lighthouse_client_id, endpoint)
