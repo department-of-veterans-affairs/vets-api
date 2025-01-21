@@ -77,10 +77,10 @@ spec:
               File.write("/tmp_workspace/policy.xml", policy1.to_xml)
               '
           volumeMounts:
-            - name: imagemagick-policy-volume
+            - name: imagemagick-policy-volume #ConfigMap
               mountPath: /tmp_policy/new-policy.xml
               subPath: new-policy.xml
-            - name: imagemagick-shared-volume
+            - name: imagemagick-shared-volume # Shared volume for merged policies
               mountPath: /tmp_workspace
         - name: vets-api-mockdata
           image: "{{ $root.Values.git_container_repo }}:{{ $root.Values.git_container_version }}"
