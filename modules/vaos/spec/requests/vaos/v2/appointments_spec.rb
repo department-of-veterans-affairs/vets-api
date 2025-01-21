@@ -981,14 +981,12 @@ RSpec.describe 'VAOS::V2::Appointments', :skip_mvi, type: :request do
               'latitude' => 40.7128,
               'longitude' => -74.006
             },
-            'destinations' => {
-              '9mN718pH' => {
-                'distanceInMiles' => 313,
-                'driveTimeInSecondsWithoutTraffic' => 19_096,
-                'driveTimeInSecondsWithTraffic' => 19_561,
-                'latitude' => 44.475883,
-                'longitude' => -73.212074
-              }
+            'destination' => {
+              'distanceInMiles' => 313,
+              'driveTimeInSecondsWithoutTraffic' => 19_096,
+              'driveTimeInSecondsWithTraffic' => 19_561,
+              'latitude' => 44.475883,
+              'longitude' => -73.212074
             }
           }
         end
