@@ -350,9 +350,9 @@ module ClaimsApi
       temp = Date.parse(date)
 
       {
-        'year': temp.year.to_s,
-        'month': temp.month.to_s,
-        'day': temp.day.to_s
+        year: temp.year.to_s,
+        month: temp.month.to_s,
+        day: temp.day.to_s
       }
     end
 

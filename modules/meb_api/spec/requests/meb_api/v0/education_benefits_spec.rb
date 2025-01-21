@@ -143,14 +143,14 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
         VCR.use_cassette('dgi/submit_enrollment_verification') do
           post '/meb_api/v0/submit_enrollment_verification',
                params: {
-                 "education_benefit": {
+                 education_benefit: {
                    enrollment_verifications: {
                      enrollment_certify_requests: [{
-                       'certified_period_begin_date': '2022-08-01',
-                       'certified_period_end_date': '2022-08-31',
-                       'certified_through_date': '2022-08-31',
-                       'certification_method': 'MEB',
-                       'app_communication': { 'response_type': 'Y' }
+                       certified_period_begin_date: '2022-08-01',
+                       certified_period_end_date: '2022-08-31',
+                       certified_through_date: '2022-08-31',
+                       certification_method: 'MEB',
+                       app_communication: { response_type: 'Y' }
                      }]
                    }
                  }
@@ -166,7 +166,7 @@ Rspec.describe 'MebApi::V0 EducationBenefits', type: :request do
       it 'returns a 200 status' do
         VCR.use_cassette('dgi/post_contact_info') do
           post '/meb_api/v0/duplicate_contact_info',
-               params: { "emails": [], "phones": [] }
+               params: { emails: [], phones: [] }
           expect(response).to have_http_status(:ok)
         end
       end
