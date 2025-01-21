@@ -224,7 +224,7 @@ module Pensions
     end
 
     ##
-    # VANotify job to send Submission in Prorgess email to veteran
+    # VANotify job to send Submission in Progress email to veteran
     #
     def send_submitted_email
       Pensions::NotificationEmail.new(@claim.id).deliver(:submitted)
