@@ -86,5 +86,17 @@ module IvcChampva
                     "#{STATS_KEY}.failed_send_zsf_notification_to_pega",
                     call_location: caller_locations.first, **additional_context)
     end
+
+    ##
+    # Logs UUID and S3 error message when supporting docs fail to reach S3.
+    #
+    # @param [String] form_uuid UUID of the form submission with failed uploads
+    # @param [String] s3_err Error message received from a failed upload to S3
+    def track_s3_upload_error(form_uuid, s3_err)
+      additional_context = { form_uuid:, s3_err: }
+      track_request('warn', "IVC ChampVa Forms - failed to upload all documents for submission: #{form_uuid}",
+                    "#{STATS_KEY}.s3_upload_error",
+                    call_location: caller_locations.first, **additional_context)
+    end
   end
 end
