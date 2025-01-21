@@ -41,6 +41,8 @@ spec:
         - name: imagemagick-policy-volume # ConfigMap volume with new policy
           configMap:
             name: {{ $root.Release.Namespace }}-imagemagick-policy
+        - name: imagemagick-shared-volume # Shared writable volume for merged policy
+          emptyDir: {}
         {{- if $root.Values.mockData.enabled }}
         - name: vets-api-mockdata
           emptyDir: {}
