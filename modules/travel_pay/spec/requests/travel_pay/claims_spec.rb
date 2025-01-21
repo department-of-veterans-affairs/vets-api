@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'securerandom'
 
 RSpec.describe TravelPay::V0::ClaimsController, type: :request do
-  let(:user) { build(:user) }
+  let(:user) { build(:user, :loa3) }
 
   before do
     sign_in(user)
@@ -27,6 +27,15 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
           claim_ids = JSON.parse(response.body)['data'].pluck('id')
 
           expect(claim_ids).to eq(expected_claim_ids)
+        end
+      end
+
+      it 'responds with 403 if not identity verified to loa3' do
+        sign_in(user = build(:user, :loa1))
+
+        VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[method path]) do
+          get '/travel_pay/v0/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
+          expect(response).to have_http_status(:forbidden)
         end
       end
 
