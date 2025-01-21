@@ -196,13 +196,5 @@ module Vye
         Vye::BdnClone.find(bdn_clone_id).destroy
       end
     end
-
-    # The Specs stated: Every day delete anything that the created_on (timestamp) is older than 5 years.
-    # Created_at has an index.
-    def purge_stale_verifications
-      Rails.logger.info('Vye::SundownSweep::PurgeStaleVerifications#purge_stale_verifications: starting')
-      Vye::Verification.where('created_at < ?', 5.years.ago).delete_all
-      Rails.logger.info('Vye::SundownSweep::PurgeStaleVerifications#purge_stale_verifications: complete')
-    end
   end
 end

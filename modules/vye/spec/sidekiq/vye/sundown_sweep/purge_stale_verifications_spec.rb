@@ -18,8 +18,6 @@ describe Vye::SundownSweep::PurgeStaleVerifications, type: :worker do
     end
 
     it 'checks the existence of described_class' do
-      expect(Vye::CloudTransfer).to receive(:purge_stale_verifications)
-
       expect do
         described_class.perform_async
       end.to change { Sidekiq::Worker.jobs.size }.by(1)
