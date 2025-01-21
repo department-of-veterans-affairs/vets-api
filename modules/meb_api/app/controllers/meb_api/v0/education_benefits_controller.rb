@@ -83,7 +83,9 @@ module MebApi
         clear_saved_form(params[:form_id]) if params[:form_id]
 
         render json: {
-          data: { 'status': response.status }
+          data: {
+            status: response.status
+          }
         }
       end
 

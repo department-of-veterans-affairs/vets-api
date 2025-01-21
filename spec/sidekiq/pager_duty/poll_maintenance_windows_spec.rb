@@ -4,12 +4,12 @@ require 'rails_helper'
 require 'pager_duty/poll_maintenance_windows'
 
 RSpec.describe PagerDuty::PollMaintenanceWindows, type: :job do
-  let(:client_stub) { instance_double('PagerDuty::MaintenanceClient') }
-  let(:maint_hash) { FactoryBot.build(:maintenance_hash) }
-  let(:maint_hash_updated) { FactoryBot.build(:maintenance_hash_updated) }
-  let(:maint_hash_multi1) { FactoryBot.build(:maintenance_hash_multi1) }
-  let(:maint_hash_multi2) { FactoryBot.build(:maintenance_hash_multi2) }
-  let(:maint_hash_message) { FactoryBot.build(:maintenance_hash_with_message) }
+  let(:client_stub) { instance_double(PagerDuty::MaintenanceClient) }
+  let(:maint_hash) { build(:maintenance_hash) }
+  let(:maint_hash_updated) { build(:maintenance_hash_updated) }
+  let(:maint_hash_multi1) { build(:maintenance_hash_multi1) }
+  let(:maint_hash_multi2) { build(:maintenance_hash_multi2) }
+  let(:maint_hash_message) { build(:maintenance_hash_with_message) }
 
   before do
     allow(PagerDuty::MaintenanceClient).to receive(:new) { client_stub }

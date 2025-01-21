@@ -10,6 +10,7 @@ RSpec.describe DebtsApi::V0::Form5655::VHA::SharepointSubmissionJob, type: :work
 
     before do
       allow(DebtsApi::V0::Form5655Submission).to receive(:find).and_return(form_submission)
+      allow(Flipper).to receive(:enabled?).and_return(false)
     end
 
     context 'with retries exhausted' do
