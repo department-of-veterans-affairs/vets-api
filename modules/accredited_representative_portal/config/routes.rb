@@ -10,5 +10,6 @@ AccreditedRepresentativePortal::Engine.routes.draw do
     resources :power_of_attorney_requests, only: %i[index show] do
       resource :decision, only: :create, controller: 'power_of_attorney_request_decisions'
     end
+    resources :intent_to_file, only: %i[show create]
   end
 end

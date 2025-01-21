@@ -448,4 +448,4 @@ va_notify:
     bearer_token: 'va_notify_bearer_token'
 
 accredited_representative_portal:
-  pilot_user_email_poa_codes:
+  pilot_user_email_poa_codes: { 'j2@example.com': ['067'] }
