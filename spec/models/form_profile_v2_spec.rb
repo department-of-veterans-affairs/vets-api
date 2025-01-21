@@ -840,7 +840,6 @@ RSpec.describe FormProfile, type: :model do
       'identityValidation' => {
         'hasICN' => true,
         'hasParticipantId' => true,
-        'isVeteran' => true,
         'isLoa3' => true
       }
     }
@@ -871,7 +870,6 @@ RSpec.describe FormProfile, type: :model do
       'identityValidation' => {
         'hasICN' => true,
         'hasParticipantId' => true,
-        'isVeteran' => true,
         'isLoa3' => true
       }
     }

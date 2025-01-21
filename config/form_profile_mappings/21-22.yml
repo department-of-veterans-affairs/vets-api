@@ -14,5 +14,4 @@ militaryInformation:
 identityValidation:
   hasICN: [identity_validation, has_icn]
   hasParticipantId: [identity_validation, has_participant_id]
-  isVeteran: [identity_validation, is_veteran]
   isLoa3: [identity_validation, is_loa3]
