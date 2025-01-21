@@ -33,7 +33,8 @@ module Organizations
       log_error("Error processing job: #{e.message}")
     ensure
       p "slack_messages.size: #{@slack_messages.size}"
-      # p "@orgs_data: #{@orgs_data}", "@orgs_data.size: #{@orgs_data.size}"
+      @slack_messages.unshift("Orgs processed: #{@orgs_data.size}") if @orgs_data&.any?
+      @slack_messages.unshift('Organizations::Update')
       log_to_slack(@slack_messages.join("\n")) unless @slack_messages.empty?
     end
 

@@ -13,6 +13,7 @@ RSpec.shared_examples 'a organization email or phone update process' do |flag_ty
     before do
       Flipper.disable(:va_v3_contact_information_service)
       allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
+      expect_any_instance_of(SlackNotify::Client).to receive(:notify)
     end
 
     it 'does not call validate_address or VAProfile::AddressValidation::Service.new' do
@@ -28,6 +29,7 @@ RSpec.shared_examples 'a organization email or phone update process' do |flag_ty
     before do
       Flipper.enable(:va_v3_contact_information_service)
       allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(double('VAProfile::V3::AddressValidation::Service', candidate: nil)) # rubocop:disable Layout/LineLength
+      expect_any_instance_of(SlackNotify::Client).to receive(:notify)
     end
 
     after do
@@ -133,13 +135,13 @@ RSpec.describe Organizations::Update do
     before do
       Flipper.disable(:va_v3_contact_information_service)
       allow_any_instance_of(VAProfile::AddressValidation::Service).to receive(:candidate).and_return(api_response)
+      expect_any_instance_of(SlackNotify::Client).to receive(:notify)
     end
 
     context 'when JSON parsing fails' do
       let(:invalid_json_data) { 'invalid json' }
 
-      it 'logs an error to Slack and Sentry' do
-        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+      it 'logs an error to Sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
           "Organizations::Update: Error processing job: unexpected token at 'invalid json'", :error
         )
@@ -153,8 +155,7 @@ RSpec.describe Organizations::Update do
       let(:address_exists) { false }
       let(:address_changed) { true }
 
-      it 'logs an error to Slack and Sentry' do
-        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+      it 'logs an error to Sentry' do
         expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
           'Organizations::Update: Update failed for Org id: not_found: Organization not found.', :error
         )
@@ -544,6 +545,7 @@ RSpec.describe Organizations::Update do
       before do
         Flipper.enable(:va_v3_contact_information_service)
         allow_any_instance_of(VAProfile::V3::AddressValidation::Service).to receive(:candidate).and_return(api_response)
+        expect_any_instance_of(SlackNotify::Client).to receive(:notify)
       end
 
       after do
@@ -553,8 +555,7 @@ RSpec.describe Organizations::Update do
       context 'when JSON parsing fails' do
         let(:invalid_json_data) { 'invalid json' }
 
-        it 'logs an error to Slack and Sentry' do
-          expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+        it 'logs an error to Sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
             "Organizations::Update: Error processing job: unexpected token at 'invalid json'", :error
           )
@@ -568,8 +569,7 @@ RSpec.describe Organizations::Update do
         let(:address_exists) { false }
         let(:address_changed) { true }
 
-        it 'logs an error to Slack and Sentry' do
-          expect_any_instance_of(SlackNotify::Client).to receive(:notify)
+        it 'logs an error to Sentry' do
           expect_any_instance_of(SentryLogging).to receive(:log_message_to_sentry).with(
             'Organizations::Update: Update failed for Org id: not_found: Organization not found.', :error
           )
