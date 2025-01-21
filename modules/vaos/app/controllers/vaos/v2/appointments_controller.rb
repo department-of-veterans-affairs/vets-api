@@ -101,11 +101,7 @@ module VAOS
             additional_patient_attributes: patient_attributes(params) }
         )
 
-        render json: {
-          id: appointment[:id],
-          type: 'draft_appointment',
-          attributes: {}
-        }, status: :created
+        render json: Eps::DraftAppointmentSerializer.new(appointment), status: :created
       end
 
       private
