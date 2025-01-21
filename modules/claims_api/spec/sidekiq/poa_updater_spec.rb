@@ -12,7 +12,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
     allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     headers = EVSS::DisabilityCompensationAuthHeaders.new(user).add_headers(EVSS::AuthHeaders.new(user).to_h)
     headers['va_eauth_pnid'] = '796104437'
@@ -21,7 +21,7 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
 
   context "when call to BGS 'update_birls_record' is successful" do
     context 'and the poaCode is retrieved successfully from the V2 2122a form data' do
-      it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
+      it "does not update the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
         allow(Flipper).to receive(:enabled?).with(:claims_api_use_person_web_service).and_return false
         create_mock_lighthouse_service
         expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
@@ -43,16 +43,17 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
           recordConsent: true,
           consentLimits: []
         }
+        poa.status = 'pending'
         poa.save!
 
         subject.new.perform(poa.id)
         poa.reload
-        expect(poa.status).to eq('updated')
+        expect(poa.status).to eq('pending')
       end
     end
 
     context 'and record consent is granted' do
-      it "updates the form's status and creates 'ClaimsApi::PoaVBMSUpdater' job" do
+      it "creates 'ClaimsApi::PoaVBMSUpdater' job" do
         create_mock_lighthouse_service
         expect(ClaimsApi::PoaVBMSUpdater).to receive(:perform_async)
 
@@ -61,8 +62,6 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
         poa.save!
 
         subject.new.perform(poa.id)
-        poa.reload
-        expect(poa.status).to eq('updated')
       end
     end
   end
@@ -99,13 +98,14 @@ RSpec.describe ClaimsApi::PoaUpdater, type: :job, vcr: 'bgs/person_web_service/f
                                 })
         poa.save!
 
+        allow_any_instance_of(ClaimsApi::ServiceBase).to receive(:vanotify?).and_return true
         expect(ClaimsApi::VANotifyAcceptedJob).to receive(:perform_async)
 
         subject.new.perform(poa.id, 'Rep Data')
       end
     end
 
-    context 'when the flipper is on' do
+    context 'when the flipper is off' do
       it 'does not send the vanotify job' do
         allow(Flipper).to receive(:enabled?).with(:lighthouse_claims_api_v2_poa_va_notify).and_return false
         Flipper.disable(:lighthouse_claims_api_v2_poa_va_notify)

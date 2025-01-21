@@ -49,7 +49,7 @@ Models
 
 Each of these categories includes tests
 
-### Phase 1: Duplicate Background Jobs and Primary Utilities
+### COMPLETE - Phase 1: Duplicate Background Jobs and Primary Utilities
 
 Create copies of all our background jobs inside the engine, including tests. Create copies of any primary utilities in the engine, but allow them to reference secondary utilities that stay in the main application. Any model references should point to original models in the main application. Mount the engine in the main application (it should not do anything).
 
@@ -61,7 +61,7 @@ Mitigation:
 
 - Code freeze, except for urgent bugs: Background jobs and Utilities
 
-### Phase 2: Transition to Engine Scheduled Background Jobs
+### COMPLETE - Phase 2: Transition to Engine Scheduled Background Jobs
 
 Update the schedule file to ALSO reference the engine version of each job. All these jobs are idempotent (can be run multiple times with no overlapping effects) so this should be safe. Exclude any jobs that are not scheduled (form4142_submit and submit_upload), they are not safe to run multiple times.
 
@@ -87,7 +87,7 @@ Mitigation:
 
 - Code freeze, except for urgent bugs: Background jobs and Utilities
 
-### Phase 4: Duplicate Controllers and Necessary Utilities
+### COMPLETE - Phase 4: Duplicate Controllers and Necessary Utilities
 
 Duplicate all controllers, tests, and any primary utilities they reference. Allow them to reference secondary utilities that stay in the main application. Any model references should point to original models in the main application. Add routes to the engine that preserve the original routes but namespace them to the engine.
 

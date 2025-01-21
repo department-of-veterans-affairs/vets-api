@@ -34,22 +34,6 @@ RSpec.describe Rack::Attack do
     end
   end
 
-  describe 'covid_vaccine' do
-    it 'limits requests for any post and put endpoints to 4 in 5 minutes' do
-      post('/covid_vaccine/v0/registration', headers:)
-      expect(last_response.status).not_to eq(429)
-      put('/covid_vaccine/v0/registration/opt_out', headers:)
-      expect(last_response.status).not_to eq(429)
-      put('/covid_vaccine/v0/registration/opt_in', headers:)
-      expect(last_response.status).not_to eq(429)
-      put('/covid_vaccine/v0/registration/unauthenticated', headers:)
-      expect(last_response.status).not_to eq(429)
-
-      put('/covid_vaccine/v0/registration/opt_out', headers:)
-      expect(last_response.status).to eq(429)
-    end
-  end
-
   describe 'check_in/ip' do
     let(:data) { { data: 'foo', status: 200 } }
 

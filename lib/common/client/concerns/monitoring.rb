@@ -7,7 +7,7 @@ module Common
         extend ActiveSupport::Concern
 
         def with_monitoring(trace_location = 1)
-          caller = caller_locations(trace_location, 1)[0].label
+          caller = caller_locations(trace_location, 1)[0].base_label
           yield
         rescue => e
           increment_failure(caller, e)

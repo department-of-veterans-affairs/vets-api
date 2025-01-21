@@ -70,14 +70,11 @@ module VAProfile
         # @return [VAProfile::Models::V3::Address] the model built from the response body
         # rubocop:disable Metrics/MethodLength
         def self.build_from(body)
-          # Ensure address_pou is RESIDENCE OR CORRESPONDENCE. RESIDENCE/CHOICE is no longer valid.
-          address_pou = body['address_pou'].include?('RESIDENCE') ? 'RESIDENCE' : 'CORRESPONDENCE'
-
           VAProfile::Models::V3::Address.new(
             address_line1: body['address_line1'],
             address_line2: body['address_line2'],
             address_line3: body['address_line3'],
-            address_pou: address_pou,
+            address_pou: body['address_pou'],
             address_type: body['address_type'].upcase,
             bad_address: body['bad_address'],
             city: body['city_name'],

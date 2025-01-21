@@ -334,12 +334,12 @@
                     "areaCode": {
                       "description": "Area code of Point of Contact.",
                       "type": "string",
-                      "example": "123"
+                      "example": "555"
                     },
                     "phoneNumber": {
                       "description": "Primary phone of Point of Contact.",
                       "type": "string",
-                      "example": "1231234"
+                      "example": "5555555"
                     }
                   }
                 }
@@ -549,10 +549,12 @@
               "required": ["areaCode", "phoneNumber"],
               "properties": {
                 "areaCode": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "555"
                 },
                 "phoneNumber": {
-                  "type": "string"
+                  "type": "string",
+                  "example": "5555555"
                 }
               }
             },
