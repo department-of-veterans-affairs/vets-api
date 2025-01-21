@@ -208,7 +208,7 @@ module VAOS
       end
 
       def merge_appointments(eps_appointments, appointments)
-        normalized_new = eps_appointments.map { |appt| eps_serializer.serialize(appt) }
+        normalized_new = eps_appointments.map(&:serializable_hash)
         existing_referral_ids = appointments.to_set { |a| a.dig(:referral, :referral_number) }
         date_and_time_for_referral_list = appointments.map { |a| a[:start] }
         merged_data = appointments + normalized_new.reject do |a|
@@ -939,12 +939,16 @@ module VAOS
       end
 
       def eps_appointments
-        @eps_appointments ||=
-          eps_appointments_service.get_appointments
+        @eps_appointments ||= begin
+                                appointments = eps_appointments_service.get_appointments
+                                appointments = [] if appointments.nil? || appointments.empty? || appointments.all?(&:empty?)
+                                appointments.reject! { |appt| appt.dig(:appointment_details, :start).nil? }
+                                appointments.map { |appt| VAOS::V2::EpsAppointment.new(appt) }
+                              end
       end
 
       def eps_serializer
-        @eps_serializer ||= VAOS::V2::EpsAppointmentSerializer.new
+        @eps_serializer ||= VAOS::V2::EpsAppointment.new
       end
     end
   end

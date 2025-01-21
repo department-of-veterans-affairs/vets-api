@@ -60,7 +60,7 @@ describe VAOS::V2::AppointmentsService do
         ],
         appointment_details: {
           status: 'booked',
-          start: '2024-12-01T10:00:00Z',
+          start: nil,
           is_latest: false,
           last_retrieved: '2024-12-01T10:00:00Z'
         }
@@ -1151,6 +1151,42 @@ describe VAOS::V2::AppointmentsService do
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
           result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
           expect(result[:data].map { |appt| appt[:id].to_s }).not_to include('thedupe')
+        end
+      end
+
+      it 'handles no matching referral number' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).not_to include('nonexistent_referral')
+        end
+      end
+
+      it 'handles nil start date in eps appointments' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:id].to_s }).not_to include('123')
+        end
+      end
+
+      it 'handles empty eps_appointments' do
+        VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to include('0987654321', '1234567890', '1122334455', '6677889900', '1234567890')
+        end
+      end
+
+      it 'handles empty appointment data' do
+        VCR.use_cassette('vaos/eps/get_appointments_empty_data',
+                         match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
+          allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([{}])
+          result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
+          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to be_empty
         end
       end
     end
