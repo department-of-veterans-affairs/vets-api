@@ -56,7 +56,9 @@ describe VAOS::V2::AppointmentsService do
         provider_service_id: 'DBKQ-H0a',
         network_id: 'random-sandbox-network-id',
         slot_ids: [
-          '5vuTac8v-practitioner-8-role-1|9783e46c-efe2-462c-84a1-7af5f5f6613a|2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
         ],
         appointment_details: {
           status: 'booked',
@@ -75,7 +77,9 @@ describe VAOS::V2::AppointmentsService do
         provider_service_id: 'DBKQ-H0a',
         network_id: 'random-sandbox-network-id',
         slot_ids: [
-          '5vuTac8v-practitioner-8-role-1|9783e46c-efe2-462c-84a1-7af5f5f6613a|2024-12-02T10:00:00Z|30m0s|1733338893365|ov'
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
         ],
         appointment_details: {
           status: 'booked',
@@ -94,7 +98,9 @@ describe VAOS::V2::AppointmentsService do
         provider_service_id: 'DBKQ-H0a',
         network_id: 'random-sandbox-network-id',
         slot_ids: [
-          '5vuTac8v-practitioner-8-role-1|9783e46c-efe2-462c-84a1-7af5f5f6613a|2024-12-03T10:00:00Z|30m0s|1733338893365|ov'
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
         ],
         appointment_details: {
           status: 'booked',
@@ -113,7 +119,9 @@ describe VAOS::V2::AppointmentsService do
         provider_service_id: 'DBKQ-H0a',
         network_id: 'random-sandbox-network-id',
         slot_ids: [
-          '5vuTac8v-practitioner-8-role-1|9783e46c-efe2-462c-84a1-7af5f5f6613a|2024-11-18T13:30:00Z|30m0s|1733338893365|ov'
+          '5vuTac8v-practitioner-8-role-1|' \
+          '9783e46c-efe2-462c-84a1-7af5f5f6613a|' \
+          '2024-12-01T10:00:00Z|30m0s|1733338893365|ov'
         ],
         appointment_details: {
           status: 'booked',
@@ -1145,7 +1153,8 @@ describe VAOS::V2::AppointmentsService do
         end
       end
 
-      it 'merges eps appointments with vaos appointments and removes eps appointment with duplicate referralNumbers but not the vaos appointment' do
+      it 'merges eps appointments with vaos appointments and removes eps appointment with duplicate referralNumbers ' \
+         'but not the vaos appointment' do
         VCR.use_cassette('vaos/eps/get_appointments_200_with_merge',
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return(eps_appointments)
