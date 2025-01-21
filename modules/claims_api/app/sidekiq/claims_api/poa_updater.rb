@@ -19,7 +19,6 @@ module ClaimsApi
       response = update_birls_record(file_number, ssn, poa_code, poa_form)
 
       if response[:return_code] == 'BMOD0001'
-        poa_form.status = ClaimsApi::PowerOfAttorney::UPDATED
         # Clear out the error message if there were previous failures
         poa_form.vbms_error_message = nil if poa_form.vbms_error_message.present?
 
