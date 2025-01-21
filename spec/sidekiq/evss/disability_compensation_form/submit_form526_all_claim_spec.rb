@@ -17,6 +17,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_compensation_production_tester)
     Flipper.disable(:disability_compensation_fail_submission)
+
   end
 
   let(:user) { create(:user, :loa3) }
@@ -63,6 +64,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           cassettes.each { |cassette| VCR.insert_cassette(cassette) }
           Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
           Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
+          #Flipper.disable(:disability_526_migrate_contention_classification)
+          user = OpenStruct.new({flipper_id: submission.user_uuid})
+          allow(Flipper).to receive(:enabled?).and_call_original
+          allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
+                                                    user).and_return(false)
         end
 
         after do
@@ -452,12 +458,11 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           end
 
           context 'when the expanded classification endpoint is enabled' do
-
             it 'calls the expanded classification endpoint' do
               vro_client_mock = instance_double(VirtualRegionalOffice::Client)
               allow(VirtualRegionalOffice::Client).to receive(:new).and_return(vro_client_mock)
               allow(vro_client_mock).to receive_messages(
-                classify_vagov_contentions_expanded: OpenStruct.new(body: 'expanded classification'),
+                classify_vagov_contentions_expanded: OpenStruct.new(body: 'expanded classification')
               )
 
               expect_any_instance_of(Form526Submission).to receive(:classify_vagov_contentions).and_call_original
