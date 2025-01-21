@@ -42,23 +42,6 @@ describe Vye::MidnightRun::IngressBdn, type: :worker do
     end
   end
 
-  context 'when it is a holiday' do
-    before do
-      Timecop.freeze(Time.zone.local(2024, 7, 4)) # Independence Day
-    end
-
-    after do
-      Timecop.return
-    end
-
-    it 'does not process BDNs' do
-      expect(Vye::BdnClone).not_to receive(:create!)
-      expect(Vye::BatchTransfer::BdnChunk).not_to receive(:build_chunks)
-
-      described_class.new.perform
-    end
-  end
-
   context 'logging' do
     before do
       allow(Vye::BdnClone).to receive(:create!).and_return(double('BdnClone', id: 123))

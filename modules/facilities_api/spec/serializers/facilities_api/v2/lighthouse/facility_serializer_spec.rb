@@ -73,7 +73,7 @@ describe FacilitiesApi::V2::Lighthouse::FacilitySerializer, team: :facilities, t
   end
 
   it 'includes mobile' do
-    expect(attributes['mobile']).to eq(false)
+    expect(attributes['mobile']).to be(false)
   end
 
   it 'includes operating status' do

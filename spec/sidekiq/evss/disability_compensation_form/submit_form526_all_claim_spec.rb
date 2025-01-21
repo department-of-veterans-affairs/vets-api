@@ -504,7 +504,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
             it 'returns false to skip classification and continue other jobs' do
               subject.perform_async(submission.id)
-              expect(submission.update_contention_classification_all!).to eq false
+              expect(submission.update_contention_classification_all!).to be false
               expect(Rails.logger).to have_received(:info).with(
                 "No disabilities found for classification on claim #{submission.id}"
               )
@@ -775,7 +775,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             described_class.drain
             job_status = Form526JobStatus.where(job_id: values[:job_id]).first
             expect(job_status.status).to eq 'success'
-            expect(job_status.error_class).to eq nil
+            expect(job_status.error_class).to be_nil
             expect(job_status.job_class).to eq 'SubmitForm526AllClaim'
             expect(Form526JobStatus.count).to eq 1
           end

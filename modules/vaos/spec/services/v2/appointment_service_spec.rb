@@ -471,17 +471,17 @@ describe VAOS::V2::AppointmentsService do
                            allow_playback_repeats: true, match_requests_on: %i[method path query], tag: :force_utf8) do
             response = subject.get_appointments(start_date2, end_date2, 'proposed')
             # telehealth appointments, cancellable changed to false
-            expect(response[:data][0][:cancellable]).to eq(false)
+            expect(response[:data][0][:cancellable]).to be(false)
             # non CC, telehealth, CnP, covid appointment, cancellable left as is
-            expect(response[:data][1][:cancellable]).to eq(true)
-            expect(response[:data][2][:cancellable]).to eq(true)
-            expect(response[:data][3][:cancellable]).to eq(true)
+            expect(response[:data][1][:cancellable]).to be(true)
+            expect(response[:data][2][:cancellable]).to be(true)
+            expect(response[:data][3][:cancellable]).to be(true)
             # CnP appointments, cancellable changed to false
-            expect(response[:data][4][:cancellable]).to eq(false)
+            expect(response[:data][4][:cancellable]).to be(false)
             # covid appointments, cancellable changed to false
-            expect(response[:data][5][:cancellable]).to eq(false)
-            expect(response[:data][6][:cancellable]).to eq(false)
-            expect(response[:data][7][:cancellable]).to eq(false)
+            expect(response[:data][5][:cancellable]).to be(false)
+            expect(response[:data][6][:cancellable]).to be(false)
+            expect(response[:data][7][:cancellable]).to be(false)
           end
         end
       end
@@ -531,10 +531,10 @@ describe VAOS::V2::AppointmentsService do
             response = subject.get_appointments(start_date2, end_date2)
             expect(response[:data][0][:kind]).to eq('cc')
             expect(response[:data][0][:status]).to eq('booked')
-            expect(response[:data][0][:cancellable]).to eq(false)
+            expect(response[:data][0][:cancellable]).to be(false)
             expect(response[:data][1][:kind]).to eq('cc')
             expect(response[:data][1][:status]).to eq('booked')
-            expect(response[:data][1][:cancellable]).to eq(false)
+            expect(response[:data][1][:cancellable]).to be(false)
           end
         end
       end
@@ -879,7 +879,7 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_CnP',
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
-            expect(response[:cancellable]).to eq(false)
+            expect(response[:cancellable]).to be(false)
           end
         end
       end
@@ -891,7 +891,7 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc',
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
-            expect(response[:cancellable]).not_to eq(false)
+            expect(response[:cancellable]).not_to be(false)
           end
         end
       end
@@ -903,7 +903,7 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_telehealth',
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
-            expect(response[:cancellable]).to eq(false)
+            expect(response[:cancellable]).to be(false)
           end
         end
       end
@@ -973,7 +973,7 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_CnP_vpg',
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
-            expect(response[:cancellable]).to eq(false)
+            expect(response[:cancellable]).to be(false)
           end
         end
       end
@@ -985,7 +985,7 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_telehealth_vpg',
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
-            expect(response[:cancellable]).to eq(false)
+            expect(response[:cancellable]).to be(false)
           end
         end
       end
@@ -997,7 +997,7 @@ describe VAOS::V2::AppointmentsService do
           VCR.use_cassette('vaos/v2/appointments/get_appointment_200_cc_vpg',
                            match_requests_on: %i[method path query]) do
             response = subject.get_appointment('159472')
-            expect(response[:cancellable]).not_to eq(false)
+            expect(response[:cancellable]).not_to be(false)
           end
         end
       end
@@ -1128,7 +1128,7 @@ describe VAOS::V2::AppointmentsService do
         allow_any_instance_of(VAOS::V2::MobileFacilityService).to receive(:get_facility!)
           .and_raise(Common::Exceptions::BackendServiceException)
         timezone = subject.send(:get_facility_timezone, facility_location_id)
-        expect(timezone).to eq(nil)
+        expect(timezone).to be_nil
       end
     end
   end
@@ -1331,11 +1331,11 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'returns true for medical appointments' do
-      expect(subject.send(:medical?, appt_med)).to eq(true)
+      expect(subject.send(:medical?, appt_med)).to be(true)
     end
 
     it 'returns false for non-medical appointments' do
-      expect(subject.send(:medical?, appt_non)).to eq(false)
+      expect(subject.send(:medical?, appt_non)).to be(false)
     end
   end
 
@@ -1345,11 +1345,11 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'returns true for appointments with a "CERN" prefix' do
-      expect(subject.send(:cerner?, { id: 'CERN99999' })).to eq(true)
+      expect(subject.send(:cerner?, { id: 'CERN99999' })).to be(true)
     end
 
     it 'returns false for appointments without a "CERN" prefix' do
-      expect(subject.send(:cerner?, { id: '99999' })).to eq(false)
+      expect(subject.send(:cerner?, { id: '99999' })).to be(false)
     end
   end
 
@@ -1359,11 +1359,11 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'returns true for appointments without a service category' do
-      expect(subject.send(:no_service_cat?, appt_no_service_cat)).to eq(true)
+      expect(subject.send(:no_service_cat?, appt_no_service_cat)).to be(true)
     end
 
     it 'returns false for appointments with a service category' do
-      expect(subject.send(:no_service_cat?, appt_non)).to eq(false)
+      expect(subject.send(:no_service_cat?, appt_non)).to be(false)
     end
   end
 
@@ -1373,11 +1373,11 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'returns true for compensation and pension appointments' do
-      expect(subject.send(:cnp?, appt_cnp)).to eq(true)
+      expect(subject.send(:cnp?, appt_cnp)).to be(true)
     end
 
     it 'returns false for non compensation and pension appointments' do
-      expect(subject.send(:cnp?, appt_non)).to eq(false)
+      expect(subject.send(:cnp?, appt_non)).to be(false)
     end
   end
 
@@ -1387,11 +1387,11 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'returns true for community care appointments' do
-      expect(subject.send(:cc?, appt_cc)).to eq(true)
+      expect(subject.send(:cc?, appt_cc)).to be(true)
     end
 
     it 'returns false for non community care appointments' do
-      expect(subject.send(:cc?, appt_non)).to eq(false)
+      expect(subject.send(:cc?, appt_non)).to be(false)
     end
   end
 
@@ -1401,11 +1401,11 @@ describe VAOS::V2::AppointmentsService do
     end
 
     it 'returns true for telehealth appointments' do
-      expect(subject.send(:telehealth?, appt_telehealth)).to eq(true)
+      expect(subject.send(:telehealth?, appt_telehealth)).to be(true)
     end
 
     it 'returns false for telehealth appointments' do
-      expect(subject.send(:telehealth?, appt_non)).to eq(false)
+      expect(subject.send(:telehealth?, appt_non)).to be(false)
     end
   end
 
@@ -1428,7 +1428,7 @@ describe VAOS::V2::AppointmentsService do
         status: 'booked'
       }
 
-      expect(subject.send(:booked?, appt)).to eq(true)
+      expect(subject.send(:booked?, appt)).to be(true)
     end
 
     it 'returns false when the appointment status is not booked' do
@@ -1436,13 +1436,13 @@ describe VAOS::V2::AppointmentsService do
         status: 'cancelled'
       }
 
-      expect(subject.send(:booked?, appt)).to eq(false)
+      expect(subject.send(:booked?, appt)).to be(false)
     end
 
     it 'returns false when the appointment does not contain status' do
       appt = {}
 
-      expect(subject.send(:booked?, appt)).to eq(false)
+      expect(subject.send(:booked?, appt)).to be(false)
     end
 
     it 'raises an ArgumentError when the appointment nil' do
@@ -1542,20 +1542,20 @@ describe VAOS::V2::AppointmentsService do
   describe '#icns_match?' do
     context 'when either icn is nil' do
       it 'returns false' do
-        expect(subject.send(:icns_match?, nil, '1234567890V123456')).to eq(false)
-        expect(subject.send(:icns_match?, '1234567890V123456', nil)).to eq(false)
+        expect(subject.send(:icns_match?, nil, '1234567890V123456')).to be(false)
+        expect(subject.send(:icns_match?, '1234567890V123456', nil)).to be(false)
       end
     end
 
     context 'when both icns are not nil and match' do
       it 'returns true' do
-        expect(subject.send(:icns_match?, '1234567890V654321', '1234567890V654321')).to eq(true)
+        expect(subject.send(:icns_match?, '1234567890V654321', '1234567890V654321')).to be(true)
       end
     end
 
     context 'when both icns are not nil and do not match' do
       it 'returns false' do
-        expect(subject.send(:icns_match?, '1234567890V123456', '1234567899V123456')).to eq(false)
+        expect(subject.send(:icns_match?, '1234567890V123456', '1234567899V123456')).to be(false)
       end
     end
   end
@@ -1605,7 +1605,7 @@ describe VAOS::V2::AppointmentsService do
     context 'with non-hash body' do
       it 'returns nil' do
         VCR.use_cassette('vaos/v2/appointments/avs-search-error', match_requests_on: %i[method path query]) do
-          expect(subject.send(:get_avs_link, appt)).to eq(nil)
+          expect(subject.send(:get_avs_link, appt)).to be_nil
         end
       end
     end

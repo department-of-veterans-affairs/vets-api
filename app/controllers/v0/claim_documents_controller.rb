@@ -19,7 +19,7 @@ module V0
       # add the file after so that we have a form_id and guid for the uploader to use
       @attachment.file = unlock_file(params['file'], params['password'])
 
-      if %w[21P-527EZ 21P-530 21P-530V2].include?(form_id) &&
+      if %w[21P-527EZ 21P-530EZ 21P-530V2].include?(form_id) &&
          Flipper.enabled?(:document_upload_validation_enabled) && !stamped_pdf_valid?
 
         raise Common::Exceptions::ValidationErrors, @attachment

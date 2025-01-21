@@ -237,23 +237,23 @@ GEM
     attr_extras (7.1.0)
     awesome_print (1.9.2)
     aws-eventstream (1.3.0)
-    aws-partitions (1.1031.0)
-    aws-sdk-core (3.214.1)
+    aws-partitions (1.1039.0)
+    aws-sdk-core (3.216.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
       jmespath (~> 1, >= 1.6.1)
-    aws-sdk-kms (1.96.0)
-      aws-sdk-core (~> 3, >= 3.210.0)
+    aws-sdk-kms (1.97.0)
+      aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.177.0)
-      aws-sdk-core (~> 3, >= 3.210.0)
+    aws-sdk-s3 (1.178.0)
+      aws-sdk-core (~> 3, >= 3.216.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
-    aws-sdk-sns (1.92.0)
-      aws-sdk-core (~> 3, >= 3.210.0)
+    aws-sdk-sns (1.93.0)
+      aws-sdk-core (~> 3, >= 3.216.0)
       aws-sigv4 (~> 1.5)
-    aws-sigv4 (1.10.1)
+    aws-sigv4 (1.11.0)
       aws-eventstream (~> 1, >= 1.0.2)
     axiom-types (0.1.1)
       descendants_tracker (~> 0.0.4)
@@ -316,7 +316,7 @@ GEM
       activesupport (>= 6.0)
       committee (>= 5.1.0)
       railties (>= 6.0)
-    concurrent-ruby (1.3.4)
+    concurrent-ruby (1.3.5)
     config (5.5.2)
       deep_merge (~> 1.2, >= 1.2.1)
       ostruct
@@ -508,7 +508,7 @@ GEM
     google-api-client (0.53.0)
       google-apis-core (~> 0.1)
       google-apis-generator (~> 0.1)
-    google-apis-core (0.15.1)
+    google-apis-core (0.16.0)
       addressable (~> 2.5, >= 2.5.1)
       googleauth (~> 1.9)
       httpclient (>= 2.8.3, < 3.a)
@@ -584,7 +584,7 @@ GEM
       mutex_m
       nkf
       rack (>= 2.0, < 4)
-    i18n (1.14.6)
+    i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     ice_nine (0.11.2)
     image_processing (1.13.0)
@@ -634,9 +634,9 @@ GEM
       ffi (~> 1.0)
     libddwaf (1.18.0.0.0-x86_64-linux)
       ffi (~> 1.0)
-    liquid (5.6.0)
+    liquid (5.7.0)
       bigdecimal
-      strscan
+      strscan (>= 3.1.1)
     listen (3.8.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
       rb-inotify (~> 0.9, >= 0.9.10)
@@ -697,14 +697,14 @@ GEM
     nio4r (2.7.4-java)
     nkf (0.2.0)
     nkf (0.2.0-java)
-    nokogiri (1.18.1)
+    nokogiri (1.18.2)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
-    nokogiri (1.18.1-aarch64-linux-gnu)
+    nokogiri (1.18.2-aarch64-linux-gnu)
       racc (~> 1.4)
-    nokogiri (1.18.1-java)
+    nokogiri (1.18.2-java)
       racc (~> 1.4)
-    nokogiri (1.18.1-x86_64-linux-gnu)
+    nokogiri (1.18.2-x86_64-linux-gnu)
       racc (~> 1.4)
     nori (2.7.1)
       bigdecimal
@@ -744,7 +744,7 @@ GEM
     parallel (1.26.3)
     parallel_tests (4.9.0)
       parallel
-    parser (3.3.6.0)
+    parser (3.3.7.0)
       ast (~> 2.4.1)
       racc
     patience_diff (1.2.0)
@@ -964,12 +964,12 @@ GEM
     rubocop-factory_bot (2.26.1)
       rubocop (~> 1.61)
     rubocop-junit-formatter (0.1.4)
-    rubocop-rails (2.28.0)
+    rubocop-rails (2.29.0)
       activesupport (>= 4.2.0)
       rack (>= 1.1)
       rubocop (>= 1.52.0, < 2.0)
       rubocop-ast (>= 1.31.1, < 2.0)
-    rubocop-rspec (3.3.0)
+    rubocop-rspec (3.4.0)
       rubocop (~> 1.61)
     rubocop-rspec_rails (2.30.0)
       rubocop (~> 1.61)
@@ -1049,7 +1049,7 @@ GEM
       ffi
     ssrf_filter (1.2.0)
     staccato (0.5.3)
-    statsd-instrument (3.9.9)
+    statsd-instrument (3.9.8)
     stringio (3.1.2)
     strong_migrations (2.1.0)
       activerecord (>= 6.1)
@@ -1322,7 +1322,7 @@ DEPENDENCIES
   slack-notify
   socksify
   staccato
-  statsd-instrument
+  statsd-instrument (= 3.9.8)
   strong_migrations
   super_diff
   swagger-blocks
