@@ -1996,3 +1996,6 @@ features:
   virtual_agent_enable_datadog_logging:
     actor_type: user
     description: If enabled, allows for the use of Datadog logging for the chatbot
+  kafka_producer:
+    actor_type: cookie_id
+    description: Enables the Kafka producer for the VA.gov platform

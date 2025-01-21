@@ -12,3 +12,7 @@ on_worker_boot do
   SemanticLogger.reopen
   ActiveRecord::Base.establish_connection
 end
+
+on_worker_shutdown do
+  KAFKA_PRODUCER.close if Flipper.enabled?(:kafka_producer)
+end
