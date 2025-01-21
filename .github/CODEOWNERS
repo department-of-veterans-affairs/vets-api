@@ -636,7 +636,7 @@ app/sidekiq/evss/delete_old_claims.rb @department-of-veterans-affairs/mbs-core-t
 app/sidekiq/evss/dependents_application_job.rb @department-of-veterans-affairs/benefits-dependents-management @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/evss/disability_compensation_form @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/evss/document_upload.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group
-app/sidekiq/evss/failure_notification.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/benefits-management-tools-be
+app/sidekiq/evss/failure_notification.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/backend-review-group @department-of-veterans-affairs/va-api-engineers
 app/sidekiq/evss/disability_compensation_form/form526_document_upload_failure_email.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/evss/retrieve_claims_from_remote_job.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 app/sidekiq/evss/request_decision.rb @department-of-veterans-affairs/benefits-management-tools-be @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
