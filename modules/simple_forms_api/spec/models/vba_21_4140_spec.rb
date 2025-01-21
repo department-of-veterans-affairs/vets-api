@@ -184,7 +184,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     context 'when unemployed' do
       let(:fixture_file) { 'vba_21_4140-min.json' }
 
-      it { is_expected.to eq nil }
+      it { is_expected.to be_nil }
     end
   end
 
@@ -192,7 +192,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     subject { form.signature_date_unemployed }
 
     context 'when employed' do
-      it { is_expected.to eq nil }
+      it { is_expected.to be_nil }
     end
 
     context 'when unemployed' do
@@ -212,7 +212,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     context 'when unemployed' do
       let(:fixture_file) { 'vba_21_4140-min.json' }
 
-      it { is_expected.to eq nil }
+      it { is_expected.to be_nil }
     end
   end
 
@@ -220,7 +220,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     subject { form.signature_unemployed }
 
     context 'when employed' do
-      it { is_expected.to eq nil }
+      it { is_expected.to be_nil }
     end
 
     context 'when unemployed' do
