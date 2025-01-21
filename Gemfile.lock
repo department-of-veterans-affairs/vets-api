@@ -133,6 +133,7 @@ PATH
     vye (0.1.0)
 
 GEM
+<<<<<<< HEAD
   remote: https://enterprise.contribsys.com/
   specs:
     sidekiq-ent (7.3.4)
@@ -144,6 +145,8 @@ GEM
       sidekiq (>= 7.3.7, < 8)
 
 GEM
+=======
+>>>>>>> fc03495581 (Removes Sidekiq Enterprise and Pro dependencies)
   remote: https://rubygems.org/
   specs:
     Ascii85 (2.0.1)
@@ -432,7 +435,6 @@ GEM
       dry-initializer (~> 3.2)
       dry-schema (~> 1.14)
       zeitwerk (~> 2.6)
-    einhorn (1.0.0)
     erubi (1.13.1)
     et-orbi (1.2.11)
       tzinfo
@@ -554,7 +556,6 @@ GEM
       multi_json (~> 1.11)
       os (>= 0.9, < 2.0)
       signet (>= 0.16, < 2.a)
-    gserver (0.0.1)
     guard (2.18.1)
       formatador (>= 0.2.4)
       listen (>= 2.7, < 4.0)
@@ -1362,8 +1363,6 @@ DEPENDENCIES
   shoulda-matchers
   shrine
   sidekiq
-  sidekiq-ent!
-  sidekiq-pro!
   sign_in_service
   simple_forms_api!
   simplecov
