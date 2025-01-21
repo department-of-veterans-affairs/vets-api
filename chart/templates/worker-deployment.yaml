@@ -38,6 +38,9 @@ spec:
       securityContext:
         fsGroup: {{ $root.Values.fsGroup }}
       volumes:
+        - name: imagemagick-policy-volume # ConfigMap volume with new policy
+          configMap:
+            name: {{ $root.Release.Namespace }}-imagemagick-policy
         {{- if $root.Values.mockData.enabled }}
         - name: vets-api-mockdata
           emptyDir: {}
@@ -50,6 +53,31 @@ spec:
 {{ toYaml .Values.common.volumes | indent 8 }}
       {{- if .Values.mockData.enabled }}
       initContainers:
+        - name: merge-imagemagick-policy
+           # need Imagemagick policy file from Vets API
+          image: "{{ $root.Values.image.value }}:{{ $root.Values.image.tag }}"
+          command:
+            - /bin/sh
+            - -c
+            - |
+              ruby -e '
+              require "nokogiri"
+              # Read the original and new policy files
+              policy1 = Nokogiri::XML(File.read("/etc/ImageMagick-6/policy.xml"))
+              policy2 = Nokogiri::XML(File.read("/tmp_workspace/new-policy.xml"))
+              # Merge the policies by appending from the new file
+              policy2.xpath("//policy").each do |policy|
+                policy1.root.add_child(policy)
+              end
+              # Write the merged policy to shared volume
+              File.write("/tmp_workspace/policy.xml", policy1.to_xml)
+              '
+          volumeMounts:
+            - name: imagemagick-policy-volume
+              mountPath: /tmp_workspace/new-policy.xml
+              subPath: new-policy.xml
+            - name: imagemagick-shared-volume
+              mountPath: /tmp_workspace
         - name: vets-api-mockdata
           image: "{{ $root.Values.git_container_repo }}:{{ $root.Values.git_container_version }}"
           args:
@@ -105,6 +133,9 @@ spec:
           resources:
 {{ toYaml .Values.worker.resources | indent 12 }}
           volumeMounts:
+            - name: imagemagick-shared-volume
+              mountPath: /etc/ImageMagick-6/policy.xml
+              subPath: policy.xml
             - name: clamav-volume
               mountPath: /app/clamav_tmp
               {{- if $root.Values.mockData.enabled }}
