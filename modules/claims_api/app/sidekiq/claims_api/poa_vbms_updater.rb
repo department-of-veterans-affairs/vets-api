@@ -32,10 +32,9 @@ module ClaimsApi
         ClaimsApi::Logger.log('poa_vbms_updater', poa_id: power_of_attorney_id, detail: 'VBMS Success')
       else
         poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
+        process.update!(step_status: 'FAILED')
         poa_form.vbms_error_message = 'update_poa_access failed with code ' \
                                       "#{response[:return_code]}: #{response[:return_message]}"
-        poa_form.status = ClaimsApi::PowerOfAttorney::ERRORED
-        process.update!(step_status: 'FAILED')
         ClaimsApi::Logger.log('poa_vbms_updater',
                               poa_id: power_of_attorney_id,
                               detail: 'VBMS Failed',
