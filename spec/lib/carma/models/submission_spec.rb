@@ -25,16 +25,16 @@ RSpec.describe CARMA::Models::Submission, type: :model do
   describe '#submitted?' do
     it 'returns true if :carma_case_id is set' do
       subject.carma_case_id = 'aB935000000A9GoCAK'
-      expect(subject.submitted?).to eq(true)
+      expect(subject.submitted?).to be(true)
     end
 
     it 'returns true if :submitted_at is set' do
       subject.submitted_at = DateTime.now.iso8601
-      expect(subject.submitted?).to eq(true)
+      expect(subject.submitted?).to be(true)
     end
 
     it 'returns false if :carma_case_id and :submitted_at are falsy' do
-      expect(subject.submitted?).to eq(false)
+      expect(subject.submitted?).to be(false)
     end
   end
 
@@ -74,7 +74,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       # metadata.veteran
       expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.metadata.veteran.icn).to eq('VET1234')
-      expect(subject.metadata.veteran.is_veteran).to eq(true)
+      expect(subject.metadata.veteran.is_veteran).to be(true)
       # metadata.primary_caregiver
       expect(subject.metadata.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.metadata.primary_caregiver.icn).to eq('PC1234')
@@ -89,23 +89,23 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
   describe '::new' do
     it 'initializes with defaults' do
-      expect(subject.carma_case_id).to eq(nil)
-      expect(subject.submitted_at).to eq(nil)
-      expect(subject.data).to eq(nil)
+      expect(subject.carma_case_id).to be_nil
+      expect(subject.submitted_at).to be_nil
+      expect(subject.data).to be_nil
       # metadata
       expect(subject.metadata).to be_instance_of(CARMA::Models::Metadata)
-      expect(subject.metadata.claim_id).to eq(nil)
-      expect(subject.metadata.claim_guid).to eq(nil)
+      expect(subject.metadata.claim_id).to be_nil
+      expect(subject.metadata.claim_guid).to be_nil
       # metadata.veteran
       expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
-      expect(subject.metadata.veteran.icn).to eq(nil)
-      expect(subject.metadata.veteran.is_veteran).to eq(nil)
+      expect(subject.metadata.veteran.icn).to be_nil
+      expect(subject.metadata.veteran.is_veteran).to be_nil
       # metadata.primary_caregiver
-      expect(subject.metadata.primary_caregiver).to eq(nil)
+      expect(subject.metadata.primary_caregiver).to be_nil
       # metadata.secondary_caregiver_one
-      expect(subject.metadata.secondary_caregiver_one).to eq(nil)
+      expect(subject.metadata.secondary_caregiver_one).to be_nil
       # metadata.secondary_caregiver_two
-      expect(subject.metadata.secondary_caregiver_two).to eq(nil)
+      expect(subject.metadata.secondary_caregiver_two).to be_nil
     end
 
     it 'accepts :carma_case_id, :submitted_at, :data, and :metadata' do
@@ -150,7 +150,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       # metadata.veteran
       expect(subject.metadata.veteran).to be_instance_of(CARMA::Models::Veteran)
       expect(subject.metadata.veteran.icn).to eq('VET1234')
-      expect(subject.metadata.veteran.is_veteran).to eq(true)
+      expect(subject.metadata.veteran.is_veteran).to be(true)
       # metadata.primary_caregiver
       expect(subject.metadata.primary_caregiver).to be_instance_of(CARMA::Models::Caregiver)
       expect(subject.metadata.primary_caregiver.icn).to eq('PC1234')
@@ -174,7 +174,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
         expect(submission).to be_instance_of(described_class)
         expect(submission.data).to eq(claim.parsed_form)
-        expect(submission.carma_case_id).to eq(nil)
+        expect(submission.carma_case_id).to be_nil
 
         expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
         expect(submission.metadata.claim_id).to eq(claim.id)
@@ -193,12 +193,12 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
         expect(submission).to be_instance_of(described_class)
         expect(submission.data).to eq(claim.parsed_form)
-        expect(submission.carma_case_id).to eq(nil)
+        expect(submission.carma_case_id).to be_nil
 
         expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
         expect(submission.metadata.claim_id).to eq(claim.id)
         expect(submission.metadata.claim_guid).to eq(claim.guid)
-        expect(submission.metadata.submitted_at).to eq(nil)
+        expect(submission.metadata.submitted_at).to be_nil
       end
     end
 
@@ -209,8 +209,8 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
       expect(submission).to be_instance_of(described_class)
       expect(submission.data).to eq(claim.parsed_form)
-      expect(submission.carma_case_id).to eq(nil)
-      expect(submission.submitted_at).to eq(nil)
+      expect(submission.carma_case_id).to be_nil
+      expect(submission.submitted_at).to be_nil
 
       expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(submission.metadata.claim_id).to eq(claim.id)
@@ -224,8 +224,8 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
       expect(submission).to be_instance_of(described_class)
       expect(submission.data).to eq(claim.parsed_form)
-      expect(submission.carma_case_id).to eq(nil)
-      expect(submission.submitted_at).to eq(nil)
+      expect(submission.carma_case_id).to be_nil
+      expect(submission.submitted_at).to be_nil
 
       expect(submission.metadata).to be_instance_of(CARMA::Models::Metadata)
       expect(submission.metadata.claim_guid).not_to eq('not-this-claims-guid')
@@ -342,10 +342,10 @@ RSpec.describe CARMA::Models::Submission, type: :model do
 
       carma_client = double
 
-      expect(submission.carma_case_id).to eq(nil)
-      expect(submission.submitted_at).to eq(nil)
-      expect(submission.request_body).to eq(nil)
-      expect(submission.submitted?).to eq(false)
+      expect(submission.carma_case_id).to be_nil
+      expect(submission.submitted_at).to be_nil
+      expect(submission.request_body).to be_nil
+      expect(submission.submitted?).to be(false)
 
       expect(carma_client).to receive(:create_submission).and_return(
         expected_response
@@ -356,7 +356,7 @@ RSpec.describe CARMA::Models::Submission, type: :model do
       expect(submission.carma_case_id).to eq(expected_response['data']['carmacase']['id'])
       expect(submission.submitted_at).to eq(expected_response['data']['carmacase']['createdAt'])
       expect(submission.request_body).to eq(:REQUEST_PAYLOAD)
-      expect(submission.submitted?).to eq(true)
+      expect(submission.submitted?).to be(true)
     end
   end
 end
