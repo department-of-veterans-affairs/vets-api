@@ -72,9 +72,9 @@ RSpec.describe SimpleFormsApi::VBA214140 do
       let(:fixture_file) { 'vba_21_4140-min.json' }
 
       it 'returns an array with empty values' do
-        expect(year).to eq nil
-        expect(month).to eq nil
-        expect(day).to eq nil
+        expect(year).to be_nil
+        expect(month).to be_nil
+        expect(day).to be_nil
       end
     end
   end
@@ -83,13 +83,13 @@ RSpec.describe SimpleFormsApi::VBA214140 do
     subject { form.employed? }
 
     context 'when employers exist' do
-      it { is_expected.to eq true }
+      it { is_expected.to be true }
     end
 
     context 'when employers do not exist' do
       let(:fixture_file) { 'vba_21_4140-min.json' }
 
-      it { is_expected.to eq false }
+      it { is_expected.to be false }
     end
   end
 
@@ -101,7 +101,7 @@ RSpec.describe SimpleFormsApi::VBA214140 do
       expect(employment_history[0]).to be_a FormEngine::EmploymentHistory
       expect(employment_history[0].lost_time).to eq data['employers'][0]['lost_time']
       expect(employment_history[3]).to be_a FormEngine::EmploymentHistory
-      expect(employment_history[3].lost_time).to eq nil
+      expect(employment_history[3].lost_time).to be_nil
     end
   end
 
@@ -249,9 +249,9 @@ RSpec.describe SimpleFormsApi::VBA214140 do
       let(:fixture_file) { 'vba_21_4140-min.json' }
 
       it 'returns an array with empty values' do
-        expect(first_three).to eq nil
-        expect(second_two).to eq nil
-        expect(last_four).to eq nil
+        expect(first_three).to be_nil
+        expect(second_two).to be_nil
+        expect(last_four).to be_nil
       end
     end
   end
