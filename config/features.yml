@@ -177,6 +177,9 @@ features:
   champva_vanotify_custom_callback:
     actor_type: user
     description: Enables the custom callback_klass when sending IVC CHAMPVA failure emails with VA Notify
+  champva_vanotify_custom_confirmation_callback:
+    actor_type: user
+    description: Enables the custom callback_klass when sending IVC CHAMPVA confirmation emails with VA Notify
   champva_multiple_stamp_retry:
     actor_type: user
     description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
@@ -581,6 +584,10 @@ features:
   dispute_debt:
     actor_type: user
     description: Enables the Dispute Debt feature
+    enable_in_development: true
+  facilities_autosuggest_vamc_services_enabled:
+    actor_type: user
+    description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
     enable_in_development: true
   facilities_ppms_suppress_all:
     actor_type: user
@@ -1404,6 +1411,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_metadata_statsd_tags:
+    actor_type: user
+    description: Allow statsd tags in callback metadata to be a hash or array
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments

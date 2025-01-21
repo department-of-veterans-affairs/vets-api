@@ -442,7 +442,7 @@ class User < Common::RedisStore
       end
 
     [the_va_profile_email, email]
-      .reject(&:blank?)
+      .compact_blank
       .map(&:downcase)
       .uniq
   end
