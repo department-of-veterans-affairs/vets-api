@@ -6,7 +6,7 @@ module SimpleFormsApi
 
     def metadata
       {
-        'veteranFirstName' => @data.dig('full_name', 'first'),
+        'veteranFirstName' => first_name,
         'veteranLastName' => @data.dig('full_name', 'last'),
         'fileNumber' => @data.dig(
           'citizen_id',
@@ -23,6 +23,10 @@ module SimpleFormsApi
         'docType' => @data['form_number'],
         'businessLine' => 'CMP'
       }
+    end
+
+    def first_name
+      data.dig('full_name', 'first')
     end
 
     def zip_code_is_us_based

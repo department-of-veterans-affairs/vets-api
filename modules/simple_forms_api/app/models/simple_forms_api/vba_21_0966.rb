@@ -39,6 +39,14 @@ module SimpleFormsApi
       }
     end
 
+    def first_name
+      if @data['preparer_identification'] == 'SURVIVING_DEPENDENT'
+        @data.dig('surviving_dependent_full_name', 'first')
+      else
+        @data.dig('veteran_full_name', 'first')
+      end
+    end
+
     def zip_code_is_us_based
       @data.dig('veteran_mailing_address',
                 'country') == 'USA' || @data.dig('surviving_dependent_mailing_address', 'country') == 'USA'

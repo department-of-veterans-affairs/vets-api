@@ -12,5 +12,9 @@ module SimpleFormsApi
       @data = data
       @signature_date = Time.current.in_time_zone('America/Chicago')
     end
+
+    def first_name
+      data.dig('veteran_full_name', 'first')
+    end
   end
 end

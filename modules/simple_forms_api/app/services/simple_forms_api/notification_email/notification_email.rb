@@ -218,23 +218,13 @@ module SimpleFormsApi
 
       def get_personalization(first_name)
         personalization = if @form_number.start_with? 'vba_21_0966'
-                            default_personalization(first_name).merge(form21_0966_personalization)
+                            Personalization.new(config).as_hash(first_name).merge(form21_0966_personalization)
                           else
-                            default_personalization(first_name)
+                            Personalization.new(config).as_hash(first_name)
                           end
         personalization.except!('lighthouse_updated_at') unless lighthouse_updated_at
         personalization.except!('confirmation_number') unless confirmation_number
         personalization
-      end
-
-      # personalization hash shared by all simple form confirmation emails
-      def default_personalization(first_name)
-        {
-          'first_name' => first_name&.titleize,
-          'date_submitted' => date_submitted,
-          'confirmation_number' => confirmation_number,
-          'lighthouse_updated_at' => lighthouse_updated_at
-        }
       end
 
       # email and first name for form 20-10206
