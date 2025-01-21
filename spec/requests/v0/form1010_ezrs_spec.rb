@@ -78,12 +78,12 @@ RSpec.describe 'V0::Form1010Ezrs', type: :request do
             'grossIncome' => '49728',
             'netIncome' => '3962'
           },
-          'spouseIncome'=>{
-            'otherIncome'=>'1376',
-            'grossIncome'=>'38911',
-            'netIncome'=>'743'
+          'spouseIncome' => {
+            'otherIncome' => '1376',
+            'grossIncome' => '38911',
+            'netIncome' => '743'
           },
-          'providers' =>[
+          'providers' => [
             {
               'insuranceName' => 'Insurance1',
               'insurancePolicyHolderName' => 'Test Testerson',
