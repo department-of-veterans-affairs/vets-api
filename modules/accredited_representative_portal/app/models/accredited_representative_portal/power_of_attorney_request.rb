@@ -25,8 +25,6 @@ module AccreditedRepresentativePortal
                inverse_of: :power_of_attorney_requests,
                polymorphic: true
 
-    belongs_to :accredited_individual
-
     before_validation :set_claimant_type
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }
