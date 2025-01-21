@@ -19,7 +19,8 @@ module AskVAApi
             return general_inquiry(inquiry_params, inquiry_details)
           end
 
-          if inquiry_params[:who_is_your_question_about] == 'Myself'
+          if inquiry_params[:who_is_your_question_about] == 'Myself' ||
+             inquiry_params[:who_is_your_question_about].nil?
             return handle_self_inquiry(inquiry_params, inquiry_details)
           end
 
