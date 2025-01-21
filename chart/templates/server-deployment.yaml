@@ -68,7 +68,7 @@ spec:
               require "nokogiri"
               # Read the original and new policy files
               policy1 = Nokogiri::XML(File.read("/etc/ImageMagick-6/policy.xml"))
-              policy2 = Nokogiri::XML(File.read("/tmp_workspace/new-policy.xml"))
+              policy2 = Nokogiri::XML(File.read("/tmp_policy/new-policy.xml"))
               # Merge the policies by appending from the new file
               policy2.xpath("//policy").each do |policy|
                 policy1.root.add_child(policy)
@@ -78,7 +78,7 @@ spec:
               '
           volumeMounts:
             - name: imagemagick-policy-volume
-              mountPath: /tmp_workspace/new-policy.xml
+              mountPath: /tmp_policy/new-policy.xml
               subPath: new-policy.xml
             - name: imagemagick-shared-volume
               mountPath: /tmp_workspace
