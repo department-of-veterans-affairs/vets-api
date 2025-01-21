@@ -111,7 +111,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
             post '/simple_forms_api/v1/simple_forms', params: data
 
             expect(mock_s3_client).to have_received(:upload)
-            expect(JSON.parse(response.body)['pdf_url']).to be(pdf_url)
+            expect(JSON.parse(response.body)['pdf_url']).to eq pdf_url
           end
         end
       end
@@ -168,7 +168,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
                 parsed_response_body = JSON.parse(response.body)
                 parsed_expiration_date = Time.zone.parse(parsed_response_body['expiration_date'])
-                expect(parsed_expiration_date.to_s).to be (expiration_date + 1.year).to_s
+                expect(parsed_expiration_date.to_s).to eq (expiration_date + 1.year).to_s
               end
             end
           end
@@ -378,8 +378,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         expect(response).to have_http_status(:ok)
         parsed_body = JSON.parse(response.body)
-        expect(parsed_body['reference_number']).to be reference_number
-        expect(parsed_body['status']).to be body_status
+        expect(parsed_body['reference_number']).to eq reference_number
+        expect(parsed_body['status']).to eq body_status
       end
     end
 
@@ -558,7 +558,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         expect(response).to have_http_status(:ok)
         resp = JSON.parse(response.body)
-        expect(resp['data']['attributes'].keys.sort).to be(%w[confirmation_code name size])
+        expect(resp['data']['attributes'].keys.sort).to eq(%w[confirmation_code name size])
         expect(PersistentAttachment.last).to be_a(PersistentAttachments::MilitaryRecords)
       end
     end
@@ -581,7 +581,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
       expect(response).to have_http_status(:unprocessable_entity)
       resp = JSON.parse(response.body)
-      expect(resp['error']).to be('Document validation failed: Invalid file format')
+      expect(resp['error']).to eq 'Document validation failed: Invalid file format'
     end
 
     it 'returns an error when the attachment is invalid' do
@@ -640,7 +640,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
 
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response['compensation_intent']['type']).to be 'compensation'
+        expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
         expect(parsed_response['pension_intent']).to be_nil
         expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
@@ -661,7 +661,7 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
 
         parsed_response = JSON.parse(response.body)
         expect(parsed_response['compensation_intent']).to be_nil
-        expect(parsed_response['pension_intent']['type']).to be 'pension'
+        expect(parsed_response['pension_intent']['type']).to eq 'pension'
         expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
@@ -682,8 +682,8 @@ RSpec.describe 'SimpleFormsApi::V1::SimpleForms', type: :request do
         get '/simple_forms_api/v1/simple_forms/get_intents_to_file'
 
         parsed_response = JSON.parse(response.body)
-        expect(parsed_response['compensation_intent']['type']).to be 'compensation'
-        expect(parsed_response['pension_intent']['type']).to be 'pension'
+        expect(parsed_response['compensation_intent']['type']).to eq 'compensation'
+        expect(parsed_response['pension_intent']['type']).to eq 'pension'
         expect(parsed_response['survivor_intent']).to be_nil
         expect(response).to have_http_status(:ok)
       end
