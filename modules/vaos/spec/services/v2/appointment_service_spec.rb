@@ -1177,7 +1177,9 @@ describe VAOS::V2::AppointmentsService do
                          match_requests_on: %i[method path query], allow_playback_repeats: true, tag: :force_utf8) do
           allow_any_instance_of(Eps::AppointmentService).to receive(:get_appointments).and_return([])
           result = subject.get_appointments(start_date, end_date, nil, {}, { eps: true })
-          expect(result[:data].map { |appt| appt[:referral][:referral_number] }).to include('0987654321', '1234567890', '1122334455', '6677889900', '1234567890')
+          expect(result[:data].map do |appt|
+            appt[:referral][:referral_number]
+          end).to include('0987654321', '1234567890', '1122334455', '6677889900', '1234567890')
         end
       end
 

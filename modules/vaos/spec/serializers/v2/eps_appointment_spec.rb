@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # spec/serializers/vaos/v2/eps_appointment_spec.rb
 require 'rails_helper'
 
