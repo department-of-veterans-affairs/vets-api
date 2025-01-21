@@ -597,13 +597,13 @@ module PdfFill
                 'was_married_no' => { key: 'form1[0].#subform[0].NO[0]' }
               },
               'address' => { # Update logic to remap fields - street, postalCode address_line1 = street
-                'address_line1' => {
+                'street' => {
                   key: 'form1[0].#subform[0].AddressofStudentStreet[0]',
                   limit: 30,
                   question_num: 8,
                   question_text: 'Address of Student > No & Street'
                 },
-                'address_line2' => {
+                'street2' => {
                   key: 'form1[0].#subform[0].AddressofStudentAptNumber[0]',
                   limit: 5,
                   question_num: 8,
@@ -665,7 +665,7 @@ module PdfFill
                   question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > SOCIAL SECURITY NUMBER'
                 }
               },
-              'full_name' => { # Question is middle inital no longer being provided?
+              'full_name' => { # Question is middle inital no longer being provided? Is now middle
                 'first' => {
                   key: 'form1[0].#subform[0].FirstNameofStudent[0]',
                   limit: 12,
@@ -759,29 +759,6 @@ module PdfFill
               }
             }
           ], # end of student information
-          'program_information' => { # Question - Does not appear to be on the v2 form
-            'course_of_study' => {
-              key: 'form1[0].#subform[0].Subject[0]',
-              limit: 40,
-              question_num: 10,
-              question_suffix: 'C',
-              question_text: 'SUBJECT FOR WHICH STUDENT IS ENROLLED'
-            },
-            'classes_per_week' => {
-              key: 'form1[0].#subform[0].NumberofSession[0]',
-              limit: 25,
-              question_num: 10,
-              question_suffix: 'C',
-              question_text: 'NUMBER OF SESSIONS PER WEEK'
-            },
-            'hours_per_week' => {
-              key: 'form1[0].#subform[0].HoursPerWeek[0]',
-              limit: 25,
-              question_num: 10,
-              question_suffix: 'D',
-              question_text: 'HOURS PER WEEK'
-            }
-          }, # end program_information
           'child_stopped_attending_school' => {
             'date_child_left_school' => {
               'month' => {
