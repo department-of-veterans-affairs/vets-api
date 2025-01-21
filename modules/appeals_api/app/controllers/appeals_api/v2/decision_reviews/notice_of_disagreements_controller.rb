@@ -33,6 +33,11 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
     render json: AppealsApi::NoticeOfDisagreementSerializer.new(veteran_nods).serializable_hash
   end
 
+  def show
+    @notice_of_disagreement = with_status_simulation(@notice_of_disagreement) if status_requested_and_allowed?
+    render_notice_of_disagreement
+  end
+
   def create
     @notice_of_disagreement.save
     AppealsApi::PdfSubmitJob.perform_async(
@@ -40,11 +45,6 @@ class AppealsApi::V2::DecisionReviews::NoticeOfDisagreementsController < Appeals
       'AppealsApi::NoticeOfDisagreement',
       'v3'
     )
-    render_notice_of_disagreement
-  end
-
-  def show
-    @notice_of_disagreement = with_status_simulation(@notice_of_disagreement) if status_requested_and_allowed?
     render_notice_of_disagreement
   end
 
