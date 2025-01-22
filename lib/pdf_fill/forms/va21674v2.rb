@@ -33,7 +33,7 @@ module PdfFill
               question_text: 'VETERAN/CLAIMANT\'S IDENTIFICATION INFORMATION > VETERAN\'S NAME'
             }
           },
-          'va_file_number' => { # Question where is vaFileNumber now
+          'va_file_number' => {
             key: 'form1[0].#subform[0].VAFileNumber[0]',
             limit: 9,
             question_num: 2,
@@ -665,7 +665,7 @@ module PdfFill
                   question_text: 'STUDENT\'S IDENTIFICATION INFORMATION > SOCIAL SECURITY NUMBER'
                 }
               },
-              'full_name' => { # Question is middle inital no longer being provided? Is now middle
+              'full_name' => {
                 'first' => {
                   key: 'form1[0].#subform[0].FirstNameofStudent[0]',
                   limit: 12,
@@ -836,12 +836,14 @@ module PdfFill
         dependents_application = @form_data['dependents_application']
         current_term_dates = dependents_application['current_term_dates']
         child_stopped_attending_school = dependents_application['child_stopped_attending_school']
-        last_term_school_information = dependents_application['last_term_school_information']
+        # last_term_school_information = dependents_application['last_term_school_information']
+        school_information = dependents_application['school_information']
+        last_term_school_information = school_information['last_term_school_information'] if school_information
         student_address_marriage_tuition = dependents_application['student_address_marriage_tuition']
         agency_or_program = dependents_application['agency_or_program']
 
-        dependents_application['student_name_and_ssn']['birth_date'] =
-          split_date(dependents_application['student_name_and_ssn']['birth_date'])
+        dependents_application['student_information']['birth_date'] =
+          split_date(dependents_application['student_information']['birth_date'])
 
         if current_term_dates.present?
           current_term_dates['official_school_start_date'] =
@@ -891,8 +893,10 @@ module PdfFill
 
       def merge_student_helpers
         dependents_application = @form_data['dependents_application']
-        dependents_application['student_name_and_ssn']['ssn'] =
-          split_ssn(dependents_application['student_name_and_ssn']['ssn'])
+        student_information = dependents_application['student_information']
+        extract_middle_i(student_information, 'full_name')
+        student_information['ssn'] =
+          split_ssn(student_information['ssn'])
 
         dependents_application['student_address_marriage_tuition']['address']['zip_code'] =
           split_postal_code(dependents_application['student_address_marriage_tuition']['address'])
