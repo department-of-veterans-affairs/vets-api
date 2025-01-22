@@ -12,11 +12,15 @@ class CreateUserActions < ActiveRecord::Migration[7.2]
       t.references :user_action_event, null: false, foreign_key: true
       t.enum :status, enum_type: :user_action_status, default: 'initial', null: false, index: true
 
+      # Reference to UserVerification to track the CSP (idme, logingov, mhv, dslogon)
+      # and verification status of the subject at the time of the action
+      t.references :subject_user_verification, foreign_key: { to_table: :user_verifications }
+
       # Note: SubjectUserVerification will be added in a future enhancement
       # when the UserVerification table is implemented. This will provide
       # information about the CSP used and verification status.
       t.string :acting_user_ip_address
-      t.string :acting_user_device
+      t.text :user_agent
 
       t.timestamps null: false
     end

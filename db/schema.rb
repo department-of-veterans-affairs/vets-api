@@ -1388,13 +1388,15 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.uuid "subject_user_account_id", null: false
     t.bigint "user_action_event_id", null: false
     t.enum "status", default: "initial", null: false, enum_type: "user_action_status"
+    t.bigint "subject_user_verification_id"
     t.string "acting_user_ip_address"
-    t.string "acting_user_device"
+    t.text "user_agent"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["acting_user_account_id"], name: "index_user_actions_on_acting_user_account_id"
     t.index ["status"], name: "index_user_actions_on_status"
     t.index ["subject_user_account_id"], name: "index_user_actions_on_subject_user_account_id"
+    t.index ["subject_user_verification_id"], name: "index_user_actions_on_subject_user_verification_id"
     t.index ["user_action_event_id"], name: "index_user_actions_on_user_action_event_id"
   end
 
@@ -1798,6 +1800,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
   add_foreign_key "user_actions", "user_accounts", column: "acting_user_account_id"
   add_foreign_key "user_actions", "user_accounts", column: "subject_user_account_id"
   add_foreign_key "user_actions", "user_action_events"
+  add_foreign_key "user_actions", "user_verifications", column: "subject_user_verification_id"
   add_foreign_key "user_credential_emails", "user_verifications"
   add_foreign_key "user_verifications", "user_accounts"
   add_foreign_key "va_notify_in_progress_reminders_sent", "user_accounts"
