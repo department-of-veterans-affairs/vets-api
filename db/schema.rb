@@ -1378,7 +1378,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
   end
 
   create_table "user_action_events", force: :cascade do |t|
-    t.text "details", null: false
+    t.string "details", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -1388,9 +1388,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.uuid "subject_user_account_id", null: false
     t.bigint "user_action_event_id", null: false
     t.enum "status", default: "initial", null: false, enum_type: "user_action_status"
-    t.boolean "user_verified", default: false, null: false
-    t.text "ip_address"
-    t.text "device_info"
+    t.string "acting_user_ip_address"
+    t.string "acting_user_device"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["acting_user_account_id"], name: "index_user_actions_on_acting_user_account_id"

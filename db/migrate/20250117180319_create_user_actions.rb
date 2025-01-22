@@ -12,10 +12,11 @@ class CreateUserActions < ActiveRecord::Migration[7.2]
       t.references :user_action_event, null: false, foreign_key: true
       t.enum :status, enum_type: :user_action_status, default: 'initial', null: false, index: true
 
-      # Additional columns from ticket
-      t.boolean :user_verified, default: false, null: false
-      t.text :ip_address
-      t.text :device_info
+      # Note: SubjectUserVerification will be added in a future enhancement
+      # when the UserVerification table is implemented. This will provide
+      # information about the CSP used and verification status.
+      t.string :acting_user_ip_address
+      t.string :acting_user_device
 
       t.timestamps null: false
     end
