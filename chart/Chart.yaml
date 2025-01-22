@@ -112,7 +112,8 @@ type: application
 # 0.15.8  - adjust ImageMagick default Policy via volumes/volumeMount approach
 # 0.15.9  - Fix issue with ImageMagick initContainers command
 # 0.15.10  - Fix issue with ImageMagick initContainers command bin/rails
-version: 0.15.10
+# 0.15.11  - Reformat initContainers command and args
+version: 0.15.11
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
