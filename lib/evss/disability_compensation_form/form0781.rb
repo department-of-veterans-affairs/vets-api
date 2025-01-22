@@ -94,7 +94,7 @@ module EVSS
           location['state'],
           location['country'],
           location['additionalDetails']
-        ].reject(&:blank?).join(', ')
+        ].compact_blank.join(', ')
       end
 
       def full_name
