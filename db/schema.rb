@@ -1389,8 +1389,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_01_17_180319) do
     t.bigint "user_action_event_id", null: false
     t.enum "status", default: "initial", null: false, enum_type: "user_action_status"
     t.bigint "subject_user_verification_id"
-    t.string "acting_user_ip_address"
-    t.text "user_agent"
+    t.text "acting_ip_address"
+    t.text "acting_user_agent"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["acting_user_account_id"], name: "index_user_actions_on_acting_user_account_id"

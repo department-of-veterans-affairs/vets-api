@@ -10,8 +10,8 @@ class CreateUserActions < ActiveRecord::Migration[7.2]
       t.enum :status, enum_type: :user_action_status, default: 'initial', null: false, index: true
       # Tracks the CSP (idme, logingov, mhv, dslogon) and verification status at time of action
       t.references :subject_user_verification, foreign_key: { to_table: :user_verifications }
-      t.string :acting_user_ip_address
-      t.text :user_agent
+      t.text :acting_ip_address
+      t.text :acting_user_agent
       t.timestamps null: false
     end
   end
