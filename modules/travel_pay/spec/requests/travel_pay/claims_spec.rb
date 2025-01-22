@@ -4,9 +4,8 @@ require 'rails_helper'
 require 'securerandom'
 
 RSpec.describe TravelPay::V0::ClaimsController, type: :request do
-
   before do
-    sign_in(user = build(:user, :loa3))
+    sign_in(build(:user, :loa3))
   end
 
   describe '#index' do
@@ -30,7 +29,7 @@ RSpec.describe TravelPay::V0::ClaimsController, type: :request do
       end
 
       it 'responds with 403 if not identity verified to loa3' do
-        sign_in(user = build(:user, :loa1))
+        sign_in(build(:user, :loa1))
 
         VCR.use_cassette('travel_pay/200_claims', match_requests_on: %i[method path]) do
           get '/travel_pay/v0/claims', params: nil, headers: { 'Authorization' => 'Bearer vagov_token' }
