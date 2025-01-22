@@ -62,7 +62,7 @@ module VeteranFacingServices
       def initialize(notification)
         unless klass == notification.callback_klass
           raise VeteranFacingServices::NotificationCallback::CallbackClassMismatch.new(notification.callback_klass,
-                                                                          klass)
+                                                                                       klass)
         end
 
         @notification = notification
