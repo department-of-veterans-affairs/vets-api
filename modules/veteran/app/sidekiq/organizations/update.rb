@@ -25,7 +25,6 @@ module Organizations
     # This method parses the JSON, validates each organization's address, and updates the database records.
     # @param orgs_json [String] JSON string containing an array of organization data.
     def perform(orgs_json)
-      # binding.pry
       @orgs_data = JSON.parse(orgs_json)
       @orgs_data.each { |org_data| process_org_data(org_data) }
     rescue => e
@@ -43,7 +42,6 @@ module Organizations
     # is halted for the current organization.
     # @param org_data [Hash] The organization data including id and address.
     def process_org_data(org_data)
-      # binding.pry
       return unless record_can_be_updated?(org_data)
 
       address_validation_api_response = nil
@@ -121,7 +119,6 @@ module Organizations
     # @param org_data [Hash] Original org_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def update_org_record(org_data, api_response)
-      # binding.pry
       record =
         Veteran::Service::Organization.find_by(poa: org_data['id'])
       if record.nil?
@@ -136,7 +133,6 @@ module Organizations
     # @param org_data [Hash] Original org_data containing the address and other details.
     # @param api_response [Hash] The response from the address validation service.
     def build_address_attributes(org_data, api_response)
-      # binding.pry
       if Flipper.enabled?(:va_v3_contact_information_service)
         build_v3_address(api_response['candidate_addresses'].first)
       else
@@ -154,7 +150,6 @@ module Organizations
     # @param meta [Hash] Metadata about the address from the validation response.
     # @return [Hash] The attributes to update the record with.
     def build_address(address, geocode, meta)
-      # binding.pry
       {
         address_type: meta['address_type'],
         address_line1: address['address_line1'],
@@ -176,7 +171,6 @@ module Organizations
     end
 
     def build_v3_address(address)
-      # binding.pry
       {
         address_type: address['address_type'],
         address_line1: address['address_line1'],
@@ -271,7 +265,6 @@ module Organizations
     # @param org_address [Hash] the address provided by OGC
     # @return [Hash, Nil] the response from the address validation service
     def get_best_address_candidate(org_address)
-      # binding.pry
       if org_address.nil?
         log_error('In #get_best_address_candidate, org_address is nil')
         return nil
