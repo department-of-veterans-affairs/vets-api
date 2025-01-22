@@ -17,7 +17,7 @@ RSpec.describe MebApi::DGI::ExclusionPeriod::Service do
     end
 
     let(:claimant_id) { 600_010_259 }
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:service) { MebApi::DGI::ExclusionPeriod::Service.new(user) }
 
     describe '#get_exclusion_periods' do

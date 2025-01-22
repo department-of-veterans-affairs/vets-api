@@ -17,7 +17,7 @@ module VANotify
     #         error:
     #           template_id: form527ez_error_email_template_id,
     #           flipper_id: form527ez_error_email_flipper_id
-    #         received: null
+    #         received: form527ez_received_email_template_id
     #     pensions: *vanotify_services_pension
     #
     class SavedClaim
@@ -27,8 +27,8 @@ module VANotify
       # @param service_name [String] alternative serivce name listed in Settings
       #   default will be the formatted claim.form_id
       #   @see #vanotify_service
-      def initialize(saved_claim, service_name: nil)
-        @claim = saved_claim
+      def initialize(saved_claim_id, service_name: nil)
+        @claim = claim_class.find(saved_claim_id)
         @vanotify_service = service_name
       end
 
@@ -61,6 +61,11 @@ module VANotify
       private
 
       attr_reader :claim, :email_type, :email_template_id
+
+      # the type of SavedClaim to be queried
+      def claim_class
+        ::SavedClaim
+      end
 
       # return or default the service_name to be used
       def vanotify_service

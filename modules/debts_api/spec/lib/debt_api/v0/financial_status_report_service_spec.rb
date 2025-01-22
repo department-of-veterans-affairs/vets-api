@@ -330,7 +330,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
       expect { service.submit_combined_fsr(builder) }.to change(
         DebtsApi::V0::Form5655Submission, :count
       ).by(copay_count)
-      expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to eq(true)
+      expect(DebtsApi::V0::Form5655Submission.last.in_progress?).to be(true)
       form = service.send(:add_vha_specific_data, DebtsApi::V0::Form5655Submission.last)
       expect(form.class).to be(Hash)
     end
@@ -345,7 +345,7 @@ RSpec.describe DebtsApi::V0::FinancialStatusReportService, type: :service do
         expect do
           service.submit_combined_fsr(builder)
         end.to change(DebtsApi::V0::Form5655Submission, :count).by(needed_count)
-        expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to eq(true)
+        expect(DebtsApi::V0::Form5655Submission.last.public_metadata['combined']).to be(true)
         debt_amounts = DebtsApi::V0::Form5655Submission.with_debt_type('DEBT').last.public_metadata['debt_amounts']
         expect(debt_amounts).to eq(['541.67', '1134.22'])
       end

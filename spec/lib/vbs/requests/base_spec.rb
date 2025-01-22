@@ -122,7 +122,7 @@ describe VBS::Requests::Base do
       end
 
       it 'returns false' do
-        expect(subject.valid?).to eq(false)
+        expect(subject.valid?).to be(false)
         expect(subject.errors.size).to eq(2)
       end
     end
@@ -136,7 +136,7 @@ describe VBS::Requests::Base do
       end
 
       it 'returns true' do
-        expect(subject.valid?).to eq(true)
+        expect(subject.valid?).to be(true)
         expect(subject.errors).to eq([])
       end
     end

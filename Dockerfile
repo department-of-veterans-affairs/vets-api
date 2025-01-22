@@ -1,4 +1,4 @@
-FROM public.ecr.aws/docker/library/ruby:3.3.3-slim-bookworm AS rubyimg
+FROM public.ecr.aws/docker/library/ruby:3.3.6-slim-bookworm AS rubyimg
 FROM rubyimg AS modules
 
 WORKDIR /tmp
@@ -16,7 +16,7 @@ ARG BUNDLE_ENTERPRISE__CONTRIBSYS__COM \
   USER_ID=1000
 ENV RAILS_ENV=$RAILS_ENV \
   BUNDLE_ENTERPRISE__CONTRIBSYS__COM=$BUNDLE_ENTERPRISE__CONTRIBSYS__COM \
-  BUNDLER_VERSION=2.5.14
+  BUNDLER_VERSION=2.5.23
 
 RUN groupadd --gid $USER_ID nonroot \
   && useradd --uid $USER_ID --gid nonroot --shell /bin/bash --create-home nonroot --home-dir /app
@@ -24,7 +24,7 @@ RUN groupadd --gid $USER_ID nonroot \
 WORKDIR /app
 
 RUN apt-get update --fix-missing
-RUN apt-get install -y poppler-utils build-essential libpq-dev git curl wget ca-certificates-java file \
+RUN apt-get install -y poppler-utils build-essential libpq-dev libffi-dev libyaml-dev git curl wget ca-certificates-java file \
   imagemagick pdftk tesseract-ocr \
   && apt-get clean \
   && rm -rf /var/cache/apt/archives/* /var/lib/apt/lists/* /tmp/* /var/tmp/*

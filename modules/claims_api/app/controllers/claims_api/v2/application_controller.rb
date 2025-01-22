@@ -1,14 +1,15 @@
 # frozen_string_literal: true
 
-require 'evss/disability_compensation_auth_headers'
+require 'bd/bd'
 require 'evss/auth_headers'
+require 'bgs_service/local_bgs'
+require 'claims_api/claim_logger'
+require 'claims_api/form_schemas'
 require 'token_validation/v2/client'
 require 'claims_api/error/error_handler'
-require 'claims_api/claim_logger'
-require 'bgs_service/local_bgs'
-require 'claims_api/form_schemas'
 require 'claims_api/v2/benefits_documents/service'
-require 'bd/bd'
+require 'evss/disability_compensation_auth_headers'
+require 'bgs_service/e_benefits_bnft_claim_status_web_service'
 
 module ClaimsApi
   module V2
@@ -22,7 +23,9 @@ module ClaimsApi
       skip_after_action :set_csrf_header
       before_action :authenticate, except: %i[schema]
       before_action { permit_scopes %w[system/claim.read] if request.get? }
-      before_action except: %i[generate_pdf] do
+      before_action do
+        next if action_name == 'generate_pdf'
+
         permit_scopes %w[system/claim.write] if request.post? || request.put?
       end
 
@@ -82,6 +85,13 @@ module ClaimsApi
 
       def local_bgs_service
         @local_bgs_service ||= ClaimsApi::LocalBGS.new(
+          external_uid: target_veteran.participant_id,
+          external_key: target_veteran.participant_id
+        )
+      end
+
+      def bgs_claim_status_service
+        @e_benefits_bnt_claim_status_service ||= ClaimsApi::EbenefitsBnftClaimStatusWebService.new(
           external_uid: target_veteran.participant_id,
           external_key: target_veteran.participant_id
         )

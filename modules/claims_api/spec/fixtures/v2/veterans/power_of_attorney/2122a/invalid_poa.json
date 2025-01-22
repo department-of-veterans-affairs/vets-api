@@ -6,7 +6,7 @@
           "addressLine1": "123",
           "city": "city",
           "stateCode": "OR",
-          "country": "US",
+          "countryCode": "US",
           "zipCode": "12345"
         }
       },
@@ -17,7 +17,7 @@
         "address": {
           "addressLine1":  "123",
           "city": "city",
-          "country":  "US",
+          "countryCode":  "US",
           "zipCode": "12345"
         }
       }

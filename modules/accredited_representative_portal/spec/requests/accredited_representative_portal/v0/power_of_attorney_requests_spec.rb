@@ -2,49 +2,220 @@
 
 require_relative '../../../rails_helper'
 
+def load_response_fixture(path_suffix)
+  dir = './power_of_attorney_requests_spec/responses'
+  File.expand_path("#{dir}/#{path_suffix}", __dir__)
+      .then { |path| File.read(path) }
+      .then { |json| JSON.parse(json) }
+end
+
+dependent_claimant_power_of_attorney_form =
+  load_response_fixture('dependent_claimant_power_of_attorney_form.json')
+
+veteran_claimant_power_of_attorney_form =
+  load_response_fixture('veteran_claimant_power_of_attorney_form.json')
+
 RSpec.describe AccreditedRepresentativePortal::V0::PowerOfAttorneyRequestsController, type: :request do
-  let(:test_user) { create(:representative_user) }
-  let(:poa_request_details_id) { '123' }
-  let(:poa_request_details_mock_data) do
-    {
-      'status' => 'Pending',
-      'declinedReason' => nil,
-      'powerOfAttorneyCode' => '091',
-      'submittedAt' => '2024-04-30T11:03:17Z',
-      'acceptedOrDeclinedAt' => nil,
-      'isAddressChangingAuthorized' => false,
-      'isTreatmentDisclosureAuthorized' => true,
-      'veteran' => { 'firstName' => 'Jon', 'middleName' => nil, 'lastName' => 'Smith',
-                     'participantId' => '6666666666666' },
-      'representative' => { 'email' => 'j2@example.com', 'firstName' => 'Jane', 'lastName' => 'Doe' },
-      'claimant' => { 'firstName' => 'Sam', 'lastName' => 'Smith', 'participantId' => '777777777777777',
-                      'relationshipToVeteran' => 'Child' },
-      'claimantAddress' => { 'city' => 'Hartford', 'state' => 'CT', 'zip' => '06107', 'country' => 'GU',
-                             'militaryPostOffice' => nil, 'militaryPostalCode' => nil }
-    }
+  let(:test_user) { create(:representative_user, email: 'test@va.gov') }
+  let(:time) { '2024-12-21T04:45:37.458Z' }
+
+  let(:poa_request) do
+    resolution =
+      create(
+        :power_of_attorney_request_resolution,
+        :declination,
+        :with_veteran_claimant
+      )
+
+    resolution.power_of_attorney_request
   end
-  let(:poa_request_list_mock_data) do
-    [poa_request_details_mock_data, poa_request_details_mock_data, poa_request_details_mock_data]
+
+  let(:poa_requests) do
+    [].tap do |memo|
+      memo <<
+        create(
+          :power_of_attorney_request,
+          :with_veteran_claimant
+        )
+
+      resolution_a =
+        create(
+          :power_of_attorney_request_resolution,
+          :acceptance,
+          :with_dependent_claimant
+        )
+
+      resolution_b =
+        create(
+          :power_of_attorney_request_resolution,
+          :declination,
+          :with_dependent_claimant
+        )
+
+      resolution_c =
+        create(
+          :power_of_attorney_request_resolution,
+          :expiration,
+          :with_dependent_claimant
+        )
+
+      memo << resolution_a.power_of_attorney_request
+      memo << resolution_b.power_of_attorney_request
+      memo << resolution_c.power_of_attorney_request
+    end
   end
 
   before do
     Flipper.enable(:accredited_representative_portal_pilot)
     login_as(test_user)
+    travel_to(time)
   end
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests' do
-    it 'returns the list of a power of attorney request' do
+    it 'returns the list of power of attorney requests' do
+      poa_requests
+
       get('/accredited_representative_portal/v0/power_of_attorney_requests')
+
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)).to eq(poa_request_list_mock_data)
+      expect(parsed_response).to eq(
+        [
+          {
+            'id' => poa_requests[0].id,
+            'claimant_id' => poa_requests[0].claimant_id,
+            'created_at' => time,
+            'expires_at' => (Time.zone.parse(time) + 60.days).iso8601(3),
+            'power_of_attorney_form' => veteran_claimant_power_of_attorney_form,
+            'power_of_attorney_holder' => {
+              'id' => poa_requests[0].power_of_attorney_holder.id,
+              'type' => 'veteran_service_organization',
+              'name' => poa_requests[0].power_of_attorney_holder.name
+            },
+            'accredited_individual' => {
+              'id' => poa_requests[0].accredited_individual.id,
+              'full_name' => [
+                poa_requests[0].accredited_individual.first_name,
+                poa_requests[0].accredited_individual.last_name
+              ].join(' ')
+            },
+            'resolution' => nil
+          },
+          {
+            'id' => poa_requests[1].id,
+            'claimant_id' => poa_requests[1].claimant_id,
+            'created_at' => time,
+            'expires_at' => nil,
+            'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
+            'power_of_attorney_holder' => {
+              'id' => poa_requests[1].power_of_attorney_holder.id,
+              'type' => 'veteran_service_organization',
+              'name' => poa_requests[1].power_of_attorney_holder.name
+            },
+            'accredited_individual' => {
+              'id' => poa_requests[1].accredited_individual.id,
+              'full_name' => [
+                poa_requests[1].accredited_individual.first_name,
+                poa_requests[1].accredited_individual.last_name
+              ].join(' ')
+            },
+            'resolution' => {
+              'id' => poa_requests[1].resolution.id,
+              'type' => 'decision',
+              'created_at' => time,
+              'creator_id' => poa_requests[1].resolution.resolving.creator_id,
+              'decision_type' => 'acceptance'
+            }
+          },
+          {
+            'id' => poa_requests[2].id,
+            'claimant_id' => poa_requests[2].claimant_id,
+            'created_at' => time,
+            'expires_at' => nil,
+            'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
+            'power_of_attorney_holder' => {
+              'id' => poa_requests[2].power_of_attorney_holder.id,
+              'type' => 'veteran_service_organization',
+              'name' => poa_requests[2].power_of_attorney_holder.name
+            },
+            'accredited_individual' => {
+              'id' => poa_requests[2].accredited_individual.id,
+              'full_name' => [
+                poa_requests[2].accredited_individual.first_name,
+                poa_requests[2].accredited_individual.last_name
+              ].join(' ')
+            },
+            'resolution' => {
+              'id' => poa_requests[2].resolution.id,
+              'type' => 'decision',
+              'created_at' => time,
+              'creator_id' => poa_requests[2].resolution.resolving.creator_id,
+              'reason' => 'Didn\'t authorize treatment record disclosure',
+              'decision_type' => 'declination'
+            }
+          },
+          {
+            'id' => poa_requests[3].id,
+            'claimant_id' => poa_requests[3].claimant_id,
+            'created_at' => time,
+            'expires_at' => nil,
+            'power_of_attorney_form' => dependent_claimant_power_of_attorney_form,
+            'power_of_attorney_holder' => {
+              'id' => poa_requests[3].power_of_attorney_holder.id,
+              'type' => 'veteran_service_organization',
+              'name' => poa_requests[3].power_of_attorney_holder.name
+            },
+            'accredited_individual' => {
+              'id' => poa_requests[3].accredited_individual.id,
+              'full_name' => [
+                poa_requests[3].accredited_individual.first_name,
+                poa_requests[3].accredited_individual.last_name
+              ].join(' ')
+            },
+            'resolution' => {
+              'id' => poa_requests[3].resolution.id,
+              'type' => 'expiration',
+              'created_at' => time
+            }
+          }
+        ]
+      )
     end
   end
 
   describe 'GET /accredited_representative_portal/v0/power_of_attorney_requests/:id' do
-    it 'returns the details of a power of attorney request' do
-      get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request_details_id}")
+    it 'returns the details of a specific power of attorney request' do
+      get("/accredited_representative_portal/v0/power_of_attorney_requests/#{poa_request.id}")
+
       expect(response).to have_http_status(:ok)
-      expect(JSON.parse(response.body)).to include(poa_request_details_mock_data)
+      expect(parsed_response).to eq(
+        {
+          'id' => poa_request.id,
+          'claimant_id' => poa_request.claimant_id,
+          'created_at' => time,
+          'expires_at' => nil,
+          'power_of_attorney_form' => veteran_claimant_power_of_attorney_form,
+          'resolution' => {
+            'id' => poa_request.resolution.id,
+            'type' => 'decision',
+            'created_at' => time,
+            'creator_id' => poa_request.resolution.resolving.creator_id,
+            'reason' => 'Didn\'t authorize treatment record disclosure',
+            'decision_type' => 'declination'
+          },
+          'power_of_attorney_holder' => {
+            'id' => poa_request.power_of_attorney_holder.id,
+            'type' => 'veteran_service_organization',
+            'name' => poa_request.power_of_attorney_holder.name
+          },
+          'accredited_individual' => {
+            'id' => poa_request.accredited_individual.id,
+            'full_name' => [
+              poa_request.accredited_individual.first_name,
+              poa_request.accredited_individual.last_name
+            ].join(' ')
+          }
+        }
+      )
     end
   end
 end

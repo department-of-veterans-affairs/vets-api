@@ -18,6 +18,7 @@ module VAProfile
         attribute :transaction_id, String
         attribute :updated_at, Common::ISO8601Time
         attribute :vet360_id, String
+        attribute :va_profile_id, String
 
         # Converts a decoded JSON response from VAProfile to an instance of the Person model
         # @param body [Hash] the decoded response body from VAProfile
@@ -27,7 +28,6 @@ module VAProfile
           addresses = body['addresses']&.map { |a| VAProfile::Models::V3::Address.build_from(a) }
           emails = body['emails']&.map { |e| VAProfile::Models::Email.build_from(e) }
           telephones = body['telephones']&.map { |t| VAProfile::Models::Telephone.build_from(t) }
-          body['permissions']&.map { |t| VAProfile::Models::Permission.build_from(t) }
 
           VAProfile::Models::V3::Person.new(
             created_at: body['create_date'],
@@ -37,7 +37,8 @@ module VAProfile
             addresses: addresses || [],
             emails: emails || [],
             telephones: telephones || [],
-            vet360_id: body['vet360_id']
+            vet360_id: body['vet360_id'] || body['va_profile_id'],
+            va_profile_id: body['vet360_id'] || body['va_profile_id']
           )
         end
       end

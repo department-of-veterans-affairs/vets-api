@@ -18,7 +18,7 @@ module AskVAApi
           @inquiry_details = InquiryDetails.new(inquiry_params).call
           @user = user
           @submitter_profile = SubmitterProfile.new(inquiry_params:, user:, inquiry_details:)
-          @veteran_profile = VeteranProfile.new(inquiry_params:, inquiry_details:)
+          @veteran_profile = VeteranProfile.new(inquiry_params:, user:, inquiry_details:)
           @translator = Translator.new
         end
 
@@ -27,7 +27,7 @@ module AskVAApi
             AreYouTheDependent: dependent_of_veteran?,
             AttachmentPresent: attachment_present?,
             CaregiverZipCode: nil,
-            ContactMethod: @translator.call(:response_type, inquiry_params[:contact_preference]),
+            ContactMethod: @translator.call(:response_type, inquiry_params[:contact_preference] || 'Email'),
             DependentDOB: family_member_field(:date_of_birth),
             DependentFirstName: family_member_field(:first)
           }.merge(additional_payload_fields)

@@ -6,11 +6,11 @@ module Login
   class AfterLoginActions
     include Accountable
 
-    attr_reader :current_user, :client_id
+    attr_reader :current_user, :skip_mhv_account_creation
 
-    def initialize(user, client_id)
+    def initialize(user, skip_mhv_account_creation)
       @current_user = user
-      @client_id = client_id
+      @skip_mhv_account_creation = skip_mhv_account_creation
     end
 
     def perform
@@ -32,7 +32,7 @@ module Login
     private
 
     def create_mhv_account
-      return if client_id.in?(SAML::URLService::SKIP_MHV_ACCOUNT_CREATION_CLIENTS)
+      return if skip_mhv_account_creation
 
       current_user.create_mhv_account_async
     end
@@ -48,7 +48,7 @@ module Login
       check_id_mismatch(current_user.identity.icn, current_user.mpi_icn, 'User Identity & MPI ICN values conflict')
       check_id_mismatch(current_user.identity.edipi, current_user.edipi_mpi,
                         'User Identity & MPI EDIPI values conflict')
-      check_id_mismatch(current_user.identity.mhv_correlation_id, current_user.mpi_mhv_correlation_id,
+      check_id_mismatch(current_user.identity.mhv_credential_uuid, current_user.mpi_mhv_correlation_id,
                         'User Identity & MPI MHV Correlation ID values conflict')
     end
 

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: <ADDRESS_VALIDATION>/services/address-validation/v3/candidate
+    uri: https://<ADDRESS_VALIDATION>/services/address-validation/v3/candidate
     body:
       encoding: UTF-8
       string: '{"address":{"addressLine1":"sdfdsfsdf","cityName":"Sparks Glencoe","zipCode5":"21152","country":{"countryCodeISO3":"USA","countryName":"USA"},"state":{"stateCode":"MD"},"province":{},"addressPOU":"RESIDENCE"}}'
