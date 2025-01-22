@@ -13,6 +13,7 @@ module V0
     rescue_from Net::HTTPError, with: :service_exception_handler
 
     def create
+      log_to_datadog('vets-api - virtual_agent_token_controller', 'test message', 'test stack trace')
       directline_response = fetch_connector_values
       render json: { token: directline_response[:token],
                      conversationId: directline_response[:conversationId],
