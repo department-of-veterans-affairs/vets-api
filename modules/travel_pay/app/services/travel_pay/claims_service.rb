@@ -8,7 +8,13 @@ module TravelPay
 
     def get_claims(params = {})
       @auth_manager.authorize => { veis_token:, btsss_token: }
-      faraday_response = client.get_claims(veis_token, btsss_token)
+
+      begin
+        faraday_response = client.get_claims(veis_token, btsss_token)
+      rescue Faraday::ForbiddenError
+        raise Common::Exceptions::Forbidden, message: 'User is not a veteran'
+      end
+
       raw_claims = faraday_response.body['data'].deep_dup
 
       claims = filter_by_date(params['appt_datetime'], raw_claims)
