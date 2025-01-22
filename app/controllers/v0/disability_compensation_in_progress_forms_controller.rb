@@ -42,15 +42,19 @@ module V0
 
       # for Toxic Exposure 1.1 - add indicator to In Progress Forms
       # moving forward, we don't want to change the version if it is already there
-      if Flipper.enabled?(:disability_526_toxic_exposure_ipf,
-                          @current_user) && parsed_form_data['startedFormVersion'].blank?
-        parsed_form_data['startedFormVersion'] = '2019'
-      end
-
+      parsed_form_data = set_started_form_version(parsed_form_data)
       {
         formData: parsed_form_data,
         metadata:
       }
+    end
+
+    def set_started_form_version(data)
+      if data['startedFormVersion'].blank?
+        log_started_form_version(data, 'existing IPF missing startedFormVersion')
+        data['startedFormVersion'] = '2019'
+      end
+      data
     end
 
     def rated_disabilities_evss

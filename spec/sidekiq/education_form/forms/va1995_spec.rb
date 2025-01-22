@@ -18,7 +18,12 @@ RSpec.describe EducationForm::Forms::VA1995 do
       # For each sample application we have, format it and compare it against a 'known good'
       # copy of that submission. This technically covers all the helper logic found in the
       # `Form` specs, but are a good safety net for tracking how forms change over time.
-      %i[minimal kitchen_sink ch33_post911 ch33_fry ch30 ch1606].each do |application_name|
+      %i[
+        minimal kitchen_sink kitchen_sink_blank_appliedfor kitchen_sink_blank_appliedfor_ch30
+        kitchen_sink_ch35_ch33 kitchen_sink_ch35_ch35 ch33_post911 ch33_fry ch30 ch1606
+        kitchen_sink_ch33_p911_baf ch33_p911_to_fry ch33_fry_baf ch30_mgi_bill ch1606_baf toe
+        toe_baf
+      ].each do |application_name|
         test_spool_file('1995', application_name)
       end
 
@@ -32,7 +37,8 @@ RSpec.describe EducationForm::Forms::VA1995 do
           allow(Settings).to receive(:vsp_environment).and_return('vagov-production')
         end
 
-        %i[minimal kitchen_sink ch33_post911 ch33_fry ch30 ch1606].each do |application_name|
+        %i[minimal kitchen_sink kitchen_sink_blank_appliedfor kitchen_sink_blank_appliedfor_ch30 kitchen_sink_ch35_ch33
+           kitchen_sink_ch35_ch35 ch33_post911 ch33_fry ch30 ch1606].each do |application_name|
           test_spool_file('1995', application_name)
         end
       end

@@ -17,8 +17,8 @@ namespace :mockdata_synchronize do
         method: :post,
         body: Nokogiri::XML(env.body).root.to_xml,
         headers: {
-          'connection': 'close',
-          'date': Time.zone.now.strftime('%a, %d %b %Y %H:%M:%S %Z'),
+          connection: 'close',
+          date: Time.zone.now.strftime('%a, %d %b %Y %H:%M:%S %Z'),
           'content-type' => 'text/xml'
         },
         status: 200

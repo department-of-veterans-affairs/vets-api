@@ -21,6 +21,16 @@ module V0
       render json: OnsiteNotificationSerializer.new(notifications, options)
     end
 
+    def create
+      onsite_notification = OnsiteNotification.new(
+        params.require(:onsite_notification).permit(:va_profile_id, :template_id)
+      )
+
+      raise Common::Exceptions::ValidationErrors, onsite_notification unless onsite_notification.save
+
+      render json: OnsiteNotificationSerializer.new(onsite_notification)
+    end
+
     def update
       onsite_notification = OnsiteNotification.find_by(id: params[:id], va_profile_id: current_user.vet360_id)
       raise Common::Exceptions::RecordNotFound, params[:id] if onsite_notification.nil?
@@ -28,16 +38,6 @@ module V0
       unless onsite_notification.update(params.require(:onsite_notification).permit(:dismissed))
         raise Common::Exceptions::ValidationErrors, onsite_notification
       end
-
-      render json: OnsiteNotificationSerializer.new(onsite_notification)
-    end
-
-    def create
-      onsite_notification = OnsiteNotification.new(
-        params.require(:onsite_notification).permit(:va_profile_id, :template_id)
-      )
-
-      raise Common::Exceptions::ValidationErrors, onsite_notification unless onsite_notification.save
 
       render json: OnsiteNotificationSerializer.new(onsite_notification)
     end
