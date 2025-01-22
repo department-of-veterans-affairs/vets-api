@@ -18,6 +18,7 @@ module PdfInfo
 
     def initialize(path)
       @stdout = []
+      # -l, -1 options force pdfinfo to report all pages dimensions, default is first page only
       Open3.popen2e(Settings.binaries.pdfinfo, '-l', '-1', path) do |_stdin, stdout, wait|
         stdout.each_line do |line|
           @stdout.push(force_utf8_encoding(line))
@@ -55,7 +56,7 @@ module PdfInfo
       }
     end
 
-    def oversized_pages(max_width, max_height)
+    def oversized_pages_inches(max_width, max_height)
       results = []
       (1..pages).each do |page_num|
         page_key = page_num < 10_000 ? format('%4d', page_num) : page_num
@@ -63,7 +64,7 @@ module PdfInfo
         pw_inches = convert_pts_to_inches(pw_pts)
         ph_inches = convert_pts_to_inches(ph_pts)
         if pw_inches > max_width || ph_inches > max_height
-          results << "Page #{page_num}, Width: #{pw_inches}, Height: #{ph_inches}"
+          results << { page_number: page_num, width: pw_inches, height: ph_inches }
         end
       end
       results

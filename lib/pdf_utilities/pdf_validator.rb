@@ -102,7 +102,7 @@ module PDFUtilities
         width_limit = @options[:width_limit_in_inches]
         height_limit = @options[:height_limit_in_inches]
 
-        oversized_pages = @pdf_metadata.oversized_pages(width_limit, height_limit)
+        oversized_pages = @pdf_metadata.oversized_pages_inches(width_limit, height_limit)
 
         if oversized_pages.present?
           @result.add_error("#{PAGE_SIZE_LIMIT_EXCEEDED_MSG} of #{width_limit} in. x #{height_limit} in.")

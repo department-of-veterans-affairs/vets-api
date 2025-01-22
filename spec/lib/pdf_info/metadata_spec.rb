@@ -21,6 +21,7 @@ describe PdfInfo::Metadata do
       Pages:          4
       Encrypted:      no
       Page    1 size: 612 x 792 pts (letter)
+      Page    2 size: 400 x 500 pts (letter)
       Page rot:       0
       File size:      1099807 bytes
       Optimized:      no
@@ -169,6 +170,37 @@ describe PdfInfo::Metadata do
       it 'returns encryption as a boolean' do
         metadata = described_class.read('/tmp/file.pdf')
         expect(metadata.encrypted?).to be true
+      end
+    end
+
+    context 'when the document has an oversized page' do
+      let(:result) do
+        <<~STDOUT
+          Title:
+          Subject:
+          Author:
+          Creator:
+          Producer:
+          CreationDate:
+          Tagged:         no
+          UserProperties: no
+          Suspects:       no
+          Form:           none
+          JavaScript:     no
+          Pages:          2
+          Encrypted:      no
+          Page    1 size: 612 x 792 pts (letter)
+          Page    2 size: 1944 x 2952 pts (letter)
+          Page rot:       0
+          File size:      1099807 bytes
+          Optimized:      no
+          PDF version:    1.3"
+        STDOUT
+      end
+
+      it "returns hash with oversized page and it's dimensions" do
+        metadata = described_class.read('/tmp/file.pdf')
+        expect(metadata.oversized_pages_inches(20, 30)).to eq([{ page_number: 2, width: 27.0, height: 41.0 }])
       end
     end
   end
