@@ -69,10 +69,12 @@ module ClaimsApi
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end
 
-    def steps
-      processes = ClaimsApi::Process.where(processable: self).in_order_of(:step_type,
-                                                                          ClaimsApi::Process::VALID_POA_STEP_TYPES).to_a
+    def processes
+      @processes ||= ClaimsApi::Process.where(processable: self)
+                                       .in_order_of(:step_type, ClaimsApi::Process::VALID_POA_STEP_TYPES).to_a
+    end
 
+    def steps
       ClaimsApi::Process::VALID_POA_STEP_TYPES.each do |step_type|
         unless processes.any? { |p| p.step_type == step_type }
           index = ClaimsApi::Process::VALID_POA_STEP_TYPES.index(step_type)
@@ -91,9 +93,7 @@ module ClaimsApi
     end
 
     def errors
-      processes = ClaimsApi::Process.where(processable: self).in_order_of(:step_type,
-                                                                          ClaimsApi::Process::VALID_POA_STEP_TYPES).to_a
-      errors = processes.map do |p|
+      processes.map do |p|
         error_message = p.error_messages.last
         next unless error_message
 
@@ -102,9 +102,7 @@ module ClaimsApi
           detail: error_message['detail'],
           code: p.step_type
         }
-      end
-
-      errors.compact
+      end.compact
     end
 
     def uploader
