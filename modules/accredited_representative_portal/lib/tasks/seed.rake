@@ -116,7 +116,7 @@ module AccreditedRepresentativePortal
         Records::CLAIMANTS.each do |claimant|
           claimant_id = claimant[:id]
           claimant_poa_forms[claimant_id] =
-            FactoryBot.build(:dynamic_power_of_attorney_form)
+            FactoryBot.build(:power_of_attorney_form)
 
           RESOLUTION_HISTORY_CYCLE.next.each do |resolution_trait|
             accreditation = accreditation_cycle.next
