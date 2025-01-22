@@ -145,7 +145,8 @@ module BBInternal
     # @return JSON [{ dateGenerated, status, patientId }]
     #
     def get_generate_ccd(icn, last_name)
-      response = perform(:get, "bluebutton/healthsummary/#{icn}/#{last_name}/xml", nil, token_headers)
+      escaped_last_name = URI::DEFAULT_PARSER.escape(last_name)
+      response = perform(:get, "bluebutton/healthsummary/#{icn}/#{escaped_last_name}/xml", nil, token_headers)
       response.body
     end
 
@@ -322,10 +323,10 @@ module BBInternal
     end
 
     ##
-    # Overriding MHVSessionBasedClient's method to ensure the thread blocks if patient ID is not yet set.
+    # Overriding MHVSessionBasedClient's method to ensure the thread blocks if ICN or patient ID are not yet set.
     #
     def invalid?(session)
-      super(session) || session.patient_id.blank?
+      super(session) || session.icn.blank? || session.patient_id.blank?
     end
 
     ##

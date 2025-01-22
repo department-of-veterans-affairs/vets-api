@@ -153,13 +153,14 @@ class User < Common::RedisStore
   end
 
   def mhv_correlation_id
+    return unless can_create_mhv_account?
     return mhv_user_account.id if mhv_user_account.present?
 
     mpi_mhv_correlation_id if active_mhv_ids&.one?
   end
 
   def mhv_user_account
-    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:).perform
+    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:, from_cache_only: true).perform
   rescue => e
     log_mhv_user_account_error(e.message)
     nil
@@ -315,6 +316,13 @@ class User < Common::RedisStore
 
   # Other MPI
 
+  def validate_mpi_profile
+    return unless mpi_profile?
+
+    raise MPI::Errors::AccountLockedError, 'Death Flag Detected' if mpi_profile.deceased_date
+    raise MPI::Errors::AccountLockedError, 'Theft Flag Detected' if mpi_profile.id_theft_flag
+  end
+
   def invalidate_mpi_cache
     return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response
 
@@ -404,7 +412,11 @@ class User < Common::RedisStore
   def vet360_contact_info
     return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
 
-    @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
+    @vet360_contact_info ||= if Flipper.enabled?(:remove_pciu, self)
+                               VAProfileRedis::V2::ContactInformation.for_user(self)
+                             else
+                               VAProfileRedis::ContactInformation.for_user(self)
+                             end
   end
 
   def va_profile_email
@@ -430,7 +442,7 @@ class User < Common::RedisStore
       end
 
     [the_va_profile_email, email]
-      .reject(&:blank?)
+      .compact_blank
       .map(&:downcase)
       .uniq
   end
@@ -448,7 +460,7 @@ class User < Common::RedisStore
   # @return [Boolean]
   #
   def served_in_military?
-    edipi.present? && veteran? || military_person?
+    (edipi.present? && veteran?) || military_person?
   end
 
   def power_of_attorney

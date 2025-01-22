@@ -32,7 +32,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       allow(response).to receive(:success?).and_return(true)
 
       expect(job).to receive(:create_form_submission_attempt)
-      expect(job).to receive(:generate_metadata).once
+      expect(job).to receive(:generate_metadata).once.and_call_original
       expect(service).to receive(:upload_doc)
 
       # burials only
@@ -42,9 +42,9 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
 
       job.perform(claim.id)
 
-      expect(response.success?).to eq(true)
-      expect(claim.form_submissions).not_to eq(nil)
-      expect(claim.business_line).not_to eq(nil)
+      expect(response.success?).to be(true)
+      expect(claim.form_submissions).not_to be_nil
+      expect(claim.business_line).not_to be_nil
     end
 
     it 'submits and gets a response error' do
@@ -56,7 +56,7 @@ RSpec.describe Lighthouse::SubmitBenefitsIntakeClaim, :uploader_helpers do
       expect(Rails.logger).to receive(:warn)
       expect(StatsD).to receive(:increment).with('worker.lighthouse.submit_benefits_intake_claim.failure')
       expect { job.perform(claim.id) }.to raise_error(Lighthouse::SubmitBenefitsIntakeClaim::BenefitsIntakeClaimError)
-      expect(response.success?).to eq(false)
+      expect(response.success?).to be(false)
     end
 
     it 'handles an invalid document' do

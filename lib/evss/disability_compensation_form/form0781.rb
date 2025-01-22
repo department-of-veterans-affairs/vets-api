@@ -58,6 +58,7 @@ module EVSS
                                      'reports' => @form_content['reports'],
                                      'reportsDetails' => @form_content['reportsDetails'],
                                      'behaviors' => @form_content['behaviors'],
+                                     'otherBehaviors' => @form_content['otherBehaviors'],
                                      'behaviorsDetails' => @form_content['behaviorsDetails'],
                                      'evidence' => @form_content['evidence'],
                                      'traumaTreatment' => @form_content['traumaTreatment'],
@@ -93,7 +94,7 @@ module EVSS
           location['state'],
           location['country'],
           location['additionalDetails']
-        ].reject(&:blank?).join(', ')
+        ].compact_blank.join(', ')
       end
 
       def full_name

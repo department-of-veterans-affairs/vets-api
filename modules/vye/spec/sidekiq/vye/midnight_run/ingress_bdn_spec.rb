@@ -5,7 +5,7 @@ require Vye::Engine.root / 'spec/rails_helper'
 require 'timecop'
 
 describe Vye::MidnightRun::IngressBdn, type: :worker do
-  let(:bdn_clone) { FactoryBot.create(:vye_bdn_clone_base) }
+  let(:bdn_clone) { create(:vye_bdn_clone_base) }
   let(:chunks) do
     5.times.map do |i|
       offset = i * 1000
@@ -42,20 +42,22 @@ describe Vye::MidnightRun::IngressBdn, type: :worker do
     end
   end
 
-  context 'when it is a holiday' do
+  context 'logging' do
     before do
-      Timecop.freeze(Time.zone.local(2024, 7, 4)) # Independence Day
+      allow(Vye::BdnClone).to receive(:create!).and_return(double('BdnClone', id: 123))
+      allow(Vye::BatchTransfer::BdnChunk).to receive(:build_chunks).and_return([])
+
+      batch_double = instance_double(Sidekiq::Batch, description: nil, on: nil, jobs: nil)
+      allow(Sidekiq::Batch).to receive(:new).and_return(batch_double)
+      allow(batch_double).to receive(:description=).with('Ingress BDN Clone feed as chunked files')
     end
 
-    after do
-      Timecop.return
-    end
+    # See comment in Vye::MidnightRun regarding logging. It applies here too.
+    it 'logs info' do
+      expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: starting')
+      expect(Rails.logger).to receive(:info).with('Vye::MidnightRun::IngressBdn: finished')
 
-    it 'does not process BDNs' do
-      expect(Vye::BdnClone).not_to receive(:create!)
-      expect(Vye::BatchTransfer::BdnChunk).not_to receive(:build_chunks)
-
-      described_class.new.perform
+      Vye::MidnightRun::IngressBdn.new.perform
     end
   end
 end

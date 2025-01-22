@@ -121,7 +121,7 @@ class RepresentationManagement::RswagConfig
             type: {
               type: :string,
               description: 'Specifies the category of Power of Attorney (POA) representation.',
-              enum: %w[veteran_service_representatives veteran_service_organizations]
+              enum: %w[representative organization]
             },
             attributes: power_of_attorney_attributes
           }
@@ -136,9 +136,15 @@ class RepresentationManagement::RswagConfig
       properties: {
         type: {
           type: :string,
-          example: 'organization',
+          example: 'representative',
           description: 'Type of Power of Attorney representation',
           enum: %w[organization representative]
+        },
+        individual_type: {
+          type: :string,
+          description: 'The type of individual appointed',
+          enum: %w[attorney claim_agents veteran_service_officer],
+          example: 'attorney'
         }
       }.merge(power_of_attorney_detailed_attributes),
       required: %w[type name address_line1 city state_code zip_code]
@@ -249,7 +255,7 @@ class RepresentationManagement::RswagConfig
 
   def power_of_attorney_detailed_attributes
     {
-      name: { type: :string, example: 'Veterans Association' },
+      name: { type: :string, example: 'Bob Law' },
       address_line1: { type: :string, example: '1234 Freedom Blvd' },
       address_line2: { type: :string, example: 'Suite 200' },
       address_line3: { type: :string, example: 'Building 3' },

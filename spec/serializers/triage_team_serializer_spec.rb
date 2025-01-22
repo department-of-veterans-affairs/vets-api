@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe TriageTeamSerializer, type: :serializer do
   subject { serialize(triage_team, serializer_class: described_class) }
 
-  let(:triage_team) { build :triage_team }
+  let(:triage_team) { build(:triage_team) }
   let(:data) { JSON.parse(subject)['data'] }
   let(:attributes) { data['attributes'] }
 

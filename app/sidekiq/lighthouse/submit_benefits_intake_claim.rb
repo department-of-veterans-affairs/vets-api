@@ -7,7 +7,7 @@ require 'burials/monitor'
 require 'burials/notification_email'
 require 'pcpg/monitor'
 require 'benefits_intake_service/service'
-require 'simple_forms_api_submission/metadata_validator'
+require 'lighthouse/benefits_intake/metadata'
 require 'pdf_info'
 
 module Lighthouse
@@ -82,7 +82,7 @@ module Lighthouse
       address = form['claimantAddress'] || form['veteranAddress']
 
       # also validates/manipulates the metadata
-      BenefitsIntake::Metadata.generate(
+      ::BenefitsIntake::Metadata.generate(
         veteran_full_name['first'],
         veteran_full_name['last'],
         form['vaFileNumber'] || form['veteranSocialSecurityNumber'],
@@ -156,7 +156,8 @@ module Lighthouse
       details = {
         claim_id: @claim&.id,
         benefits_intake_uuid: @lighthouse_service&.uuid,
-        confirmation_number: @claim&.confirmation_number
+        confirmation_number: @claim&.confirmation_number,
+        form_id: @claim&.form_id
       }
       details['error'] = e.message if e
       details

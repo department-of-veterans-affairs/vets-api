@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
+ActiveRecord::Schema[7.2].define(version: 2025_01_16_192421) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "btree_gin"
   enable_extension "fuzzystrmatch"
@@ -273,12 +273,14 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.uuid "power_of_attorney_request_id", null: false
     t.text "encrypted_kms_key"
     t.text "data_ciphertext", null: false
-    t.string "city_bidx", null: false
-    t.string "state_bidx", null: false
-    t.string "zipcode_bidx", null: false
-    t.index ["city_bidx", "state_bidx", "zipcode_bidx"], name: "idx_on_city_bidx_state_bidx_zipcode_bidx_a85b76f9bc"
+    t.string "claimant_city_ciphertext", null: false
+    t.string "claimant_city_bidx", null: false
+    t.string "claimant_state_code_ciphertext", null: false
+    t.string "claimant_state_code_bidx", null: false
+    t.string "claimant_zip_code_ciphertext", null: false
+    t.string "claimant_zip_code_bidx", null: false
+    t.index ["claimant_city_bidx", "claimant_state_code_bidx", "claimant_zip_code_bidx"], name: "idx_on_claimant_city_bidx_claimant_state_code_bidx__11e9adbe25"
     t.index ["power_of_attorney_request_id"], name: "idx_on_power_of_attorney_request_id_fc59a0dabc", unique: true
-    t.index ["zipcode_bidx"], name: "index_ar_power_of_attorney_forms_on_zipcode_bidx"
   end
 
   create_table "ar_power_of_attorney_request_decisions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -304,7 +306,13 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
   create_table "ar_power_of_attorney_requests", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "claimant_id", null: false
     t.datetime "created_at", null: false
+    t.string "claimant_type", null: false
+    t.string "power_of_attorney_holder_type", null: false
+    t.uuid "power_of_attorney_holder_id", null: false
+    t.uuid "accredited_individual_id", null: false
+    t.index ["accredited_individual_id"], name: "idx_on_accredited_individual_id_a0a1fab1e0"
     t.index ["claimant_id"], name: "index_ar_power_of_attorney_requests_on_claimant_id"
+    t.index ["power_of_attorney_holder_type", "power_of_attorney_holder_id"], name: "index_ar_power_of_attorney_requests_on_power_of_attorney_holder"
   end
 
   create_table "async_transactions", id: :serial, force: :cascade do |t|
@@ -466,6 +474,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["power_of_attorney_id"], name: "idx_on_power_of_attorney_id_9fc9134311"
+    t.index ["proc_id"], name: "index_claims_api_power_of_attorney_requests_on_proc_id"
   end
 
   create_table "claims_api_power_of_attorneys", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -487,6 +496,18 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.text "encrypted_kms_key"
     t.string "cid"
     t.index ["header_md5"], name: "index_claims_api_power_of_attorneys_on_header_md5"
+  end
+
+  create_table "claims_api_processes", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "processable_id", null: false
+    t.string "processable_type", null: false
+    t.string "step_type"
+    t.string "step_status"
+    t.datetime "completed_at"
+    t.jsonb "error_messages", default: []
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["processable_id", "processable_type"], name: "idx_on_processable_id_processable_type_91e46b55a4"
   end
 
   create_table "claims_api_supporting_documents", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -518,42 +539,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.string "service_levels", default: ["ial1", "ial2", "loa1", "loa3", "min"], array: true
     t.string "credential_service_providers", default: ["logingov", "idme", "dslogon", "mhv"], array: true
     t.index ["client_id"], name: "index_client_configs_on_client_id", unique: true
-  end
-
-  create_table "covid_vaccine_expanded_registration_submissions", id: :serial, force: :cascade do |t|
-    t.string "submission_uuid", null: false
-    t.string "vetext_sid"
-    t.boolean "sequestered", default: true, null: false
-    t.string "state"
-    t.string "email_confirmation_id"
-    t.string "enrollment_id"
-    t.string "batch_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.text "raw_form_data_ciphertext"
-    t.text "eligibility_info_ciphertext"
-    t.text "form_data_ciphertext"
-    t.text "encrypted_kms_key"
-    t.index ["batch_id"], name: "index_covid_vaccine_expanded_reg_submissions_on_batch_id"
-    t.index ["state"], name: "index_covid_vaccine_expanded_registration_submissions_on_state"
-    t.index ["submission_uuid"], name: "index_covid_vaccine_expanded_on_submission_id", unique: true
-    t.index ["vetext_sid"], name: "index_covid_vaccine_expanded_on_vetext_sid", unique: true
-  end
-
-  create_table "covid_vaccine_registration_submissions", id: :serial, force: :cascade do |t|
-    t.string "sid"
-    t.uuid "account_id"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "expanded", default: false, null: false
-    t.boolean "sequestered", default: false, null: false
-    t.string "email_confirmation_id"
-    t.string "enrollment_id"
-    t.text "form_data_ciphertext"
-    t.text "raw_form_data_ciphertext"
-    t.text "encrypted_kms_key"
-    t.index ["account_id", "created_at"], name: "index_covid_vaccine_registry_submissions_2"
-    t.index ["sid"], name: "index_covid_vaccine_registry_submissions_on_sid", unique: true
   end
 
   create_table "decision_review_notification_audit_logs", force: :cascade do |t|
@@ -676,6 +661,28 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.index ["education_benefits_claim_id"], name: "index_education_stem_automated_decisions_on_claim_id"
     t.index ["user_account_id"], name: "index_education_stem_automated_decisions_on_user_account_id"
     t.index ["user_uuid"], name: "index_education_stem_automated_decisions_on_user_uuid"
+  end
+
+  create_table "evidence_submissions", force: :cascade do |t|
+    t.string "job_id"
+    t.string "job_class"
+    t.string "request_id"
+    t.string "claim_id"
+    t.uuid "user_account_id", null: false
+    t.json "template_metadata_ciphertext"
+    t.text "encrypted_kms_key"
+    t.string "upload_status"
+    t.string "va_notify_id"
+    t.string "va_notify_status"
+    t.datetime "va_notify_date"
+    t.datetime "delete_date"
+    t.datetime "acknowledgement_date"
+    t.datetime "failed_date"
+    t.string "error_message"
+    t.string "tracked_item_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_account_id"], name: "index_evidence_submissions_on_user_account_id"
   end
 
   create_table "evss_claims", id: :serial, force: :cascade do |t|
@@ -1398,35 +1405,6 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.index ["verified_at"], name: "index_user_verifications_on_verified_at"
   end
 
-  create_table "va_forms_forms", force: :cascade do |t|
-    t.string "form_name"
-    t.string "url"
-    t.string "title"
-    t.date "first_issued_on"
-    t.date "last_revision_on"
-    t.integer "pages"
-    t.string "sha256"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-    t.boolean "valid_pdf", default: false
-    t.text "form_usage"
-    t.text "form_tool_intro"
-    t.string "form_tool_url"
-    t.string "form_type"
-    t.string "language"
-    t.datetime "deleted_at"
-    t.string "related_forms", array: true
-    t.jsonb "benefit_categories"
-    t.string "form_details_url"
-    t.jsonb "va_form_administration"
-    t.integer "row_id"
-    t.float "ranking"
-    t.string "tags"
-    t.date "last_sha256_change"
-    t.jsonb "change_history"
-    t.index ["valid_pdf"], name: "index_va_forms_forms_on_valid_pdf"
-  end
-
   create_table "va_notify_in_progress_reminders_sent", force: :cascade do |t|
     t.string "form_id", null: false
     t.uuid "user_account_id", null: false
@@ -1527,6 +1505,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
     t.string "address_line1"
     t.string "address_line2"
     t.string "address_line3"
+    t.boolean "can_accept_digital_poa_requests", default: false
     t.index ["location"], name: "index_veteran_organizations_on_location", using: :gist
     t.index ["name"], name: "index_veteran_organizations_on_name"
     t.index ["poa"], name: "index_veteran_organizations_on_poa", unique: true
@@ -1769,6 +1748,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
   add_foreign_key "ar_power_of_attorney_forms", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
   add_foreign_key "ar_power_of_attorney_request_decisions", "user_accounts", column: "creator_id"
   add_foreign_key "ar_power_of_attorney_request_resolutions", "ar_power_of_attorney_requests", column: "power_of_attorney_request_id"
+  add_foreign_key "ar_power_of_attorney_requests", "accredited_individuals"
   add_foreign_key "ar_power_of_attorney_requests", "user_accounts", column: "claimant_id"
   add_foreign_key "async_transactions", "user_accounts"
   add_foreign_key "claim_va_notifications", "saved_claims"
@@ -1776,6 +1756,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_12_20_164548) do
   add_foreign_key "deprecated_user_accounts", "user_accounts"
   add_foreign_key "deprecated_user_accounts", "user_verifications"
   add_foreign_key "education_stem_automated_decisions", "user_accounts"
+  add_foreign_key "evidence_submissions", "user_accounts"
   add_foreign_key "evss_claims", "user_accounts"
   add_foreign_key "form526_submission_remediations", "form526_submissions"
   add_foreign_key "form526_submissions", "user_accounts"

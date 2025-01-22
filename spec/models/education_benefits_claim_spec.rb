@@ -13,12 +13,12 @@ RSpec.describe EducationBenefitsClaim, type: :model do
     describe "##{method}" do
       it "returns false when it's not the right type" do
         education_benefits_claim.saved_claim.form_id = 'foo'
-        expect(education_benefits_claim.public_send(method)).to eq(false)
+        expect(education_benefits_claim.public_send(method)).to be(false)
       end
 
       it "returns true when it's the right type" do
         education_benefits_claim.saved_claim.form_id = "22-#{form_type.upcase}"
-        expect(education_benefits_claim.public_send(method)).to eq(true)
+        expect(education_benefits_claim.public_send(method)).to be(true)
       end
     end
   end
@@ -288,7 +288,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
 
       it 'shouldnt copy fields from previous benefits' do
         %w[veteranFullName vaFileNumber veteranSocialSecurityNumber].each do |attr|
-          expect(subject.public_send(attr)).to eq(nil)
+          expect(subject.public_send(attr)).to be_nil
         end
       end
     end
@@ -315,7 +315,7 @@ RSpec.describe EducationBenefitsClaim, type: :model do
       expect do
         education_benefits_claim.reprocess_at('western')
       end.to change(education_benefits_claim, :regional_processing_office).from('eastern').to('western')
-      expect(education_benefits_claim.processed_at).to be nil
+      expect(education_benefits_claim.processed_at).to be_nil
     end
   end
 

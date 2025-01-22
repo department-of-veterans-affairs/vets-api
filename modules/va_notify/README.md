@@ -9,6 +9,7 @@ Depending on which business line you fall under, you may need to have a new Serv
 There are several options for interacting with the `VaNotify` module
 
 ### Using the service class directly (inline/synchronous sending)
+
 Example usage to send an email using the `VaNotify::Service` class (using va.gov's api key and template):
 
 ```ruby
@@ -59,7 +60,6 @@ This class defaults to using the va.gov service's api key but you can provide yo
     )
 ```
 
-
 ### API key details
 
 Api keys need to be structured using the following format:
@@ -70,6 +70,7 @@ Api keys need to be structured using the following format:
 - `API_KEY` - Actual API key
 
 Example for a service with the following attributes:
+
 - Name of Api key: `foo-bar-normal-key`
 - Service id: `aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa`
 - Api key: `bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb`
@@ -79,23 +80,26 @@ Expected format: `foo-bar-normal-key-aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa-bbbbbb
 Please reach out via [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT) if you have any questions.
 
 #### Misc
+
 ICNs are considered PII and therefore should not be logged or stored. https://depo-platform-documentation.scrollhelp.site/developer-docs/personal-identifiable-information-pii-guidelines#PersonalIdentifiableInformation(PII)guidelines-NotesandpoliciesregardingICNs
 
-# Zero Silent Failures Initiative.
-Providing some additional context around using VA Notify in `vets-api` and preventing silent failures for notifications.
+# Zero Silent Failures Initiative
 
-## VA Notify Error Classifications.
-### API Requests - System Availability, Request Authorization, and Data Validation.
+Providing some additional context around using VA Notify in `vets-api` and preventing silent failures for notifications
+
+## VA Notify Error Classifications
+
+### API Requests - System Availability, Request Authorization, and Data Validation
 
 When a client makes an API call to VA Notify, the API first authorizes the request, and then confirms all required fields are present and in the appropriate format. Once this has been validated, the API will return a success code and notification_id, ending the transaction. You should save that notification_id for troubleshooting, and future status updates. From there, the notification proceeds to a delivery workflow.
 
-### Notification Delivery - Contact Lookups and Deliverability.
+### Notification Delivery - Contact Lookups and Deliverability
 
 Our delivery workflow includes retries for errors that may be temporary in nature, like service availability. If your API request includes a recipient_identifier, then VA Notify kicks off our lookup integrations. First, we use MPI to do a deceased check and identify the correlated VA Profile ID. Once we have the VA Profile ID, we use VA Profile to retrieve the email address on file for the Veteran. If there are issues finding the Veteran’s profile or contact information, then VA Notify is unable to deliver the notification. This would indicate that the Veteran needs an alternative communication method or an updated email address. If an email address is successfully retrieved or the API request includes the email address directly, then the notification moves on to delivery via our email provider.
 
 There are a couple of reasons that can cause an email notification to fail such as hard bounces and soft bounces. Hard bounces indicate a permanent failure due to an invalid, unreachable email address. Soft bounces indicate a temporary failure, which could succeed after retry. However, there’s many reasons for soft bounces, some of which require manual effort by the recipient or recipient’s organization if they are utilizing a managed email service (e.g. a work email). Email settings could be blocking these notifications from being delivered. If your notification continues to soft bounce, it’s unlikely to succeed with more send attempts.
 
-## API Requests -  VA system to system communication.
+## API Requests - VA system to system communication.
 
 ### VA Notify provides a Rails module that exposes two ways of integrating.
 
@@ -103,11 +107,13 @@ There are a couple of reasons that can cause an email notification to fail such 
 2. Prebuilt sidekiq jobs eg `VANotify::EmailJob.perform_async(some_args)` basic example [here](https://github.com/department-of-veterans-affairs/vets-api/tree/master/modules/va_notify#using-the-wrapper-sidekiq-class-async-sending).
 
 Using option #1:
+
 - The VA Notify service class operates synchronously and will raise an exception whenever a request to the VA Notify API fails.
-	- If you are using the service class to process the user's request inline (like a form submission) the exception will propagate up through the application (unless you have error handling that catches the failure) and cause the entire request to fail (which will then show the user an error message).
-	- If you are using the service class within your own sidekiq job a VA Notify error will cause your sidekiq job to retry (unless you have error handling that catches the failure). You will need to have your own error handling in place to handle this scenario.
+  - If you are using the service class to process the user's request inline (like a form submission) the exception will propagate up through the application (unless you have error handling that catches the failure) and cause the entire request to fail (which will then show the user an error message).
+  - If you are using the service class within your own sidekiq job a VA Notify error will cause your sidekiq job to retry (unless you have error handling that catches the failure). You will need to have your own error handling in place to handle this scenario.
 
 Using option #2:
+
 - Invoking the sidekiq job via `.perform_async` - because this is an async call it will not fail inline.
 - The sidekiq job could fail when it is picked by a sidekiq worker - if the job fails for any reason it will automatically [retry](https://github.com/department-of-veterans-affairs/vets-api/blob/master/modules/va_notify/app/sidekiq/va_notify/email_job.rb#L7) If the job continues to fail it will eventually go to the dead queue (visible in the [sidekiq dashboard](https://api.va.gov/sidekiq/morgue) and this Datadog [dashboard](https://app.ddog-gov.com/sb/f327ad72-c02a-11ec-a50a-da7ad0900007-260dfe9b82780fef7f07b002e4355281)).
 
@@ -115,7 +121,12 @@ Using option #2:
 
 ### VA Notify Callback Integration Guide for Vets-API
 
-To effectively track the status of individual notifications, VA Notify provides service callbacks. These callbacks enable you to determine whether a notification was successfully delivered or failed, allowing you to take appropriate action. This guide outlines two distinct approaches to integrating callback logic: Custom Callback Handler and Default Callback Class.
+To effectively track the status of individual notifications, VA Notify provides service callbacks. These callbacks enable you to determine whether a notification was successfully delivered or failed, allowing you to take appropriate action.
+
+This guide outlines two distinct approaches to integrating callback logic:
+
+- [Default Callback Class][1]
+- [Custom Callback Handler][2]
 
 #### Why Teams Need to Integrate with Callback Logic
 
@@ -134,6 +145,7 @@ A successful request to the VA Notify API does not guarantee that the recipient 
 #### How Teams Can Integrate with Callbacks
 
 **Option 1: Default Callback Class**
+<a id="default-callback"></a>
 
 The Default Callback Class offers a standard, ready-to-use implementation for handling callbacks.
 
@@ -141,23 +153,40 @@ Example Implementation
 
 Step 1: Set Up the Notification Trigger
 
-```
+```rb
+# VANotify::EmailJob or VANotify::UserAccountJob
+
 VANotify::EmailJob.perform_async(
   user.va_profile_email,
   template_id,
   get_personalization(first_name),
   Settings.vanotify.services.va_gov.api_key,
-  { 
-    callback_metadata: { 
-      notification_type: 'error', 
-      form_number: 'ExampleForm1234', 
+  {
+    callback_metadata: {
+      notification_type: 'error',
+      form_number: 'ExampleForm1234',
       statsd_tags: { service: 'DefaultService', function: 'DefaultFunction' }
-    } 
+    }
   }
 )
+
+# VANotify::Service
+
+callback_options = {
+    callback_metadata: {
+      notification_type: 'error',
+      form_number: 'ExampleForm1234',
+      statsd_tags: { service: 'DefaultService', function: 'DefaultFunction' }
+    }
+}
+
+notify_client = VaNotify::Service.new(api_key, callback_options)
+
+notify_response = notify_client.send_email(....)
 ```
 
 **Option 2: Custom Callback Handler**
+<a id="custom-callback"></a>
 
 The Custom Callback Handler allows teams to create a bespoke solution tailored to their specific requirements. This approach offers complete control over how delivery statuses are processed and logged.
 
@@ -165,7 +194,7 @@ Example Implementation
 
 Step 1: Create a Callback Handler Class: Define a class in your module to handle callbacks, which must implement a class-level method `.call`.
 
-```
+```rb
 module ExampleTeam
   class CustomNotificationCallback
     def self.call(notification)
@@ -197,7 +226,10 @@ end
 Step 2: Integrate Callback Logic in Notification Triggers: Behind a feature flag, choose one of your notification triggers and update the way you are invoking VA Notify to pass in your callback data.
 
 Here is an example:
-```
+
+```rb
+# VANotify::EmailJob or VANotify::UserAccountJob
+
 if Flipper.enabled?(:custom_callback_handler)
   VANotify::EmailJob.perform_async(
     user.va_profile_email,
@@ -210,6 +242,7 @@ else
   # Default logic
 end
 ```
+
 ---
 
 #### Behind the Scenes: How Callbacks Work
@@ -239,3 +272,6 @@ Refer to the [VA Notify Error Status Mapping Table](https://github.com/departmen
 If you need any further clarification or help during the integration process, feel free to reach out:
 
 - Slack Channel: [#va-notify-public](https://dsva.slack.com/archives/C010R6AUPHT)
+
+[1]: #default-callback
+[2]: #custom-callback

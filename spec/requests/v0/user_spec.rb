@@ -162,7 +162,8 @@ RSpec.describe 'V0::User', type: :request do
       end
     end
 
-    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person', :skip_vet360 do
+    context 'with an error from a 503 raised by VAProfile::ContactInformation::Service#get_person',
+            :skip_va_profile_user, :skip_vet360 do
       before do
         exception  = 'the server responded with status 503'
         error_body = { 'status' => 'some service unavailable status' }
@@ -364,7 +365,7 @@ RSpec.describe 'V0::User', type: :request do
             .to trigger_statsd_increment('api.external_http_request.MVI.skipped', times: 1, value: 1)
             .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
             .and not_trigger_statsd_increment('api.external_http_request.MVI.success')
-          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(false)
+          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to be(false)
           Timecop.freeze(now)
 
           # sufficient time has elapsed that new requests are made, resulting in success
@@ -374,7 +375,7 @@ RSpec.describe 'V0::User', type: :request do
             .and not_trigger_statsd_increment('api.external_http_request.MVI.skipped')
             .and not_trigger_statsd_increment('api.external_http_request.MVI.failed')
           expect(response).to have_http_status(:ok)
-          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to eq(true)
+          expect(MPI::Configuration.instance.breakers_service.latest_outage.ended?).to be(true)
           Timecop.return
         end
       end
