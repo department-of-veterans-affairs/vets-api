@@ -2,11 +2,11 @@
 
 require 'logging/monitor'
 
-module VANotify
+module VeteranFacingServices
   # notification callbacks
-  # - individual teams should inherit VANotify::NotificationCallback::Default
-  # - SavedClaim type forms should inherit VANotify::NotificationCallback::SavedClaim
-  # - subclasses in lib/va_notify/notification_callback (these are autoloaded via an initializer)
+  # - individual teams should inherit VeteranFacingServices::NotificationCallback::Default
+  # - SavedClaim type forms should inherit VeteranFacingServices::NotificationCallback::SavedClaim
+  # - subclasses in lib/veteran_facing_services/notification_callback (these are autoloaded via an initializer)
   #
   # @see config/initializers/va_notify_callbacks.rb
   module NotificationCallback
@@ -61,7 +61,7 @@ module VANotify
       # @param notification [VANotify::Notification] model object from vanotify
       def initialize(notification)
         unless klass == notification.callback_klass
-          raise VANotify::NotificationCallback::CallbackClassMismatch.new(notification.callback_klass,
+          raise VeteranFacingServices::NotificationCallback::CallbackClassMismatch.new(notification.callback_klass,
                                                                           klass)
         end
 

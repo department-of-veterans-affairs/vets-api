@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require 'va_notify/notification_callback'
+require 'veteran_facing_services/notification_callback'
 require 'zero_silent_failures/monitor'
 
-module VANotify
+module VeteranFacingServices
   module NotificationCallback
-    # @see ::VANotify::NotificationCallback::SavedClaim
+    # @see ::VeteranFacingServices::NotificationCallback::Default
     #
-    # this parent class is designed to work with VANotify::NotificationEmail::SavedClaim
+    # this parent class is designed to work with VeteranFacingServices::NotificationEmail::SavedClaim
     # and will automatically record `silent_failure**` based on the `email_type` in the metadata
-    class SavedClaim < ::VANotify::NotificationCallback::Default
+    class SavedClaim < ::VeteranFacingServices::NotificationCallback::Default
       # notification was delivered
       def on_delivered
         update_database if email?
@@ -66,7 +66,7 @@ module VANotify
       end
 
       # additional information to be sent with ZSF tracking
-      # @see ::VANotify::NotificationCallback::Default#context
+      # @see ::VeteranFacingServices::NotificationCallback::Default#context
       def zsf_additional_context
         context
       end

@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require 'va_notify/notification_callback/saved_claim'
-require 'va_notify/notification_email'
+require 'veteran_facing_services/notification_callback/saved_claim'
+require 'veteran_facing_services/notification_email'
 
-module VANotify
+module VeteranFacingServices
   module NotificationEmail
     # general SavedClaim email notification function
     #
@@ -37,7 +37,7 @@ module VANotify
       # @see VANotify::EmailJob
       # @see ClaimVANotification
       #
-      # @param email_type [Symbol] one of VANotify::NotificationEmail::Type and defined in Settings
+      # @param email_type [Symbol] one defined in Settings
       # @param at [String|DateTime] valid date string to schedule sending of notification
       #   @see VANotify::EmailJob#perform_at
       #
@@ -51,12 +51,12 @@ module VANotify
 
         db_record = claim.insert_notification(email_template_id)
         tags, context = monitoring
-        VANotify::NotificationEmail.monitor_deliver_success(tags:, context:)
+        VeteranFacingServices::NotificationEmail.monitor_deliver_success(tags:, context:)
 
         db_record
       rescue => e
         tags, context = monitoring
-        VANotify::NotificationEmail.monitor_send_failure(e&.message, tags:, context:)
+        VeteranFacingServices::NotificationEmail.monitor_send_failure(e&.message, tags:, context:)
       end
 
       private
@@ -87,14 +87,14 @@ module VANotify
         raise ArgumentError, "Invalid email_type '#{email_type}'" unless email_config
 
         @email_template_id = email_config.template_id
-        raise VANotify::NotificationEmail::FailureToSend, 'Invalid template' unless email_template_id
-        raise VANotify::NotificationEmail::FailureToSend, 'Missing email' if email.blank?
+        raise VeteranFacingServices::NotificationEmail::FailureToSend, 'Invalid template' unless email_template_id
+        raise VeteranFacingServices::NotificationEmail::FailureToSend, 'Missing email' if email.blank?
 
         is_enabled = flipper_enabled?(email_config.flipper_id)
         already_sent = claim.va_notification?(email_config.template_id)
         if already_sent
           tags, context = monitoring
-          VANotify::NotificationEmail.monitor_duplicate_attempt(tags:, context:)
+          VeteranFacingServices::NotificationEmail.monitor_duplicate_attempt(tags:, context:)
         end
 
         email_template_id if is_enabled && !already_sent
@@ -162,7 +162,7 @@ module VANotify
 
       # assign the callback class to be used for the notification
       def callback_klass
-        VANotify::NotificationCallback::SavedClaim.to_s
+        VeteranFacingServices::NotificationCallback::SavedClaim.to_s
       end
 
       # assemble the metadata to be sent with the notification

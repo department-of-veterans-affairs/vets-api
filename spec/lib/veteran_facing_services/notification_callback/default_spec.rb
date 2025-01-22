@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_notify/notification_callback'
+require 'veteran_facing_services/notification_callback'
 
-RSpec.describe VANotify::NotificationCallback::Default do
-  let(:klass) { VANotify::NotificationCallback::Default }
+RSpec.describe VeteranFacingServices::NotificationCallback::Default do
+  let(:klass) { VeteranFacingServices::NotificationCallback::Default }
   let(:notification) do
     OpenStruct.new(
       notification_id: SecureRandom.uuid,
@@ -20,11 +20,11 @@ RSpec.describe VANotify::NotificationCallback::Default do
   let(:monitor) { double(Logging::Monitor) }
   let(:metric) { klass::STATSD }
 
-  describe 'VANotify::NotificationCallback::Default.call' do
+  describe 'VeteranFacingServices::NotificationCallback::Default.call' do
     it 'raises an error if callback class does not match notification.callback_klass' do
       allow(notification).to receive(:callback_klass).and_return('FOOBAR')
 
-      expected_error = VANotify::NotificationCallback::CallbackClassMismatch
+      expected_error = VeteranFacingServices::NotificationCallback::CallbackClassMismatch
 
       expect { klass.call(notification) }.to raise_exception expected_error
     end
