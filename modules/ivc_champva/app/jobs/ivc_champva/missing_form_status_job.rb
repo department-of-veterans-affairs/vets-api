@@ -72,7 +72,7 @@ module IvcChampva
           {
             callback_klass: 'IvcChampva::ZsfEmailNotificationCallback',
             callback_metadata: {
-              statsd_tag: 'veteran-ivc-champva-forms',
+              statsd_tags: { service: 'veteran-ivc-champva-forms', function: 'IVC CHAMPVA send_failure_email' },
               additional_context:
             }
           }

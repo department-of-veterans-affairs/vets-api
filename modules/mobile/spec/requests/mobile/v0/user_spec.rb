@@ -408,7 +408,7 @@ RSpec.describe 'Mobile::V0::User', type: :request do
         it 'sets fax number to nil' do
           user_request
           expect(response).to have_http_status(:ok)
-          expect(attributes['profile']['faxNumber']).to eq(nil)
+          expect(attributes['profile']['faxNumber']).to be_nil
         end
       end
     end

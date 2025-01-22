@@ -4,7 +4,7 @@ module ClaimsApi
   module V2
     module Blueprints
       class PowerOfAttorneyRequestBlueprint < Blueprinter::Base
-        view :index do
+        view :index_or_show do
           field :id do |request|
             request['id']
           end
@@ -57,6 +57,22 @@ module ClaimsApi
 
           field :attributes do |request|
             request.except('id')
+          end
+
+          transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer
+        end
+
+        view :decide do
+          field :id do |res|
+            res['id']
+          end
+
+          field :type do
+            'power-of-attorney-request-decision'
+          end
+
+          field :attributes do |res|
+            res.except('id')
           end
 
           transform ClaimsApi::V2::Blueprints::Transformers::LowerCamelTransformer

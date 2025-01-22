@@ -15,6 +15,7 @@ RSpec.describe Pensions::NotificationEmail do
         claim.email,
         Settings.vanotify.services['21p_527ez'].email.confirmation.template_id,
         {
+          'date_received' => claim.form_submissions.last&.form_submission_attempts&.last&.lighthouse_updated_at,
           'date_submitted' => claim.submitted_at,
           'confirmation_number' => claim.confirmation_number,
           'first_name' => claim.first_name.titleize

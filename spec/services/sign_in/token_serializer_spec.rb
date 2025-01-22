@@ -126,7 +126,7 @@ RSpec.describe SignIn::TokenSerializer do
 
         it 'does not anti csrf token cookie' do
           subject
-          expect(cookies[anti_csrf_token_cookie_name]).to eq(nil)
+          expect(cookies[anti_csrf_token_cookie_name]).to be_nil
         end
 
         it 'returns an empty hash' do
@@ -270,7 +270,7 @@ RSpec.describe SignIn::TokenSerializer do
 
         it 'does not anti csrf token cookie' do
           subject
-          expect(cookies[anti_csrf_token_cookie_name]).to eq(nil)
+          expect(cookies[anti_csrf_token_cookie_name]).to be_nil
         end
       end
 

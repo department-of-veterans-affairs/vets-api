@@ -105,7 +105,7 @@ RSpec.describe EVSSClaimDocumentUploader do
     end
 
     it 'shouldnt convert if the file isnt tiff' do
-      expect(uploader_with_jpg.converted_exists?).to eq(false)
+      expect(uploader_with_jpg.converted_exists?).to be(false)
     end
 
     [
