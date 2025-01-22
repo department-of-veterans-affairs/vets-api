@@ -410,467 +410,6 @@
         }
       }
     },
-    "/veterans/power-of-attorney-requests": {
-      "post": {
-        "summary": "Search for Power of Attorney requests.",
-        "tags": [
-          "Power of Attorney"
-        ],
-        "operationId": "searchPowerOfAttorneyRequests",
-        "security": [
-          {
-            "productionOauth": [
-              "system/claim.read",
-              "system/claim.write"
-            ]
-          },
-          {
-            "sandboxOauth": [
-              "system/claim.read",
-              "system/claim.write"
-            ]
-          },
-          {
-            "bearer_token": []
-          }
-        ],
-        "description": "Search for Power of Attorney requests",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "Search results",
-            "content": {
-              "application/json": {
-                "example": {
-                  "data": [
-                    {
-                      "id": null,
-                      "type": "power-of-attorney-request",
-                      "attributes": {
-                        "veteran": {
-                          "firstName": "[Vet First Name]",
-                          "lastName": "[Vet Last Name]",
-                          "middleName": null
-                        },
-                        "claimant": {
-                          "city": "Charlottesville",
-                          "country": "USA",
-                          "militaryPo": null,
-                          "militaryPostalCode": null,
-                          "state": null,
-                          "zip": "00123"
-                        },
-                        "representative": {
-                          "poaCode": "083",
-                          "vsoUserEmail": null,
-                          "vsoUserFirstName": "Joe",
-                          "vsoUserLastName": "BestRep"
-                        },
-                        "receivedDate": "2012-11-23T16:49:16-06:00",
-                        "actionedDate": "2024-05-25T13:45:00-05:00",
-                        "status": "New",
-                        "declinedReason": null,
-                        "changeAddressAuthorization": "Y",
-                        "healthInfoAuthorization": "Y"
-                      }
-                    },
-                    {
-                      "id": null,
-                      "type": "power-of-attorney-request",
-                      "attributes": {
-                        "veteran": {
-                          "firstName": "first",
-                          "lastName": "last",
-                          "middleName": null
-                        },
-                        "claimant": {
-                          "city": "USAG J",
-                          "country": "USA",
-                          "militaryPo": "APO",
-                          "militaryPostalCode": "AP",
-                          "state": null,
-                          "zip": "01234"
-                        },
-                        "representative": {
-                          "poaCode": "002",
-                          "vsoUserEmail": null,
-                          "vsoUserFirstName": "VDC USER",
-                          "vsoUserLastName": null
-                        },
-                        "receivedDate": "2013-01-14T08:50:17-06:00",
-                        "actionedDate": "2013-01-14T08:50:17-06:00",
-                        "status": "New",
-                        "declinedReason": null,
-                        "changeAddressAuthorization": "Y",
-                        "healthInfoAuthorization": "Y"
-                      }
-                    },
-                    {
-                      "id": null,
-                      "type": "power-of-attorney-request",
-                      "attributes": {
-                        "veteran": {
-                          "firstName": "first",
-                          "lastName": "last",
-                          "middleName": null
-                        },
-                        "claimant": {
-                          "city": "Bourges",
-                          "country": "France",
-                          "militaryPo": null,
-                          "militaryPostalCode": null,
-                          "state": null,
-                          "zip": "00123"
-                        },
-                        "representative": {
-                          "poaCode": "002",
-                          "vsoUserEmail": null,
-                          "vsoUserFirstName": "VDC USER",
-                          "vsoUserLastName": null
-                        },
-                        "receivedDate": "2013-01-14T08:51:25-06:00",
-                        "actionedDate": "2013-01-14T08:51:25-06:00",
-                        "status": "New",
-                        "declinedReason": null,
-                        "changeAddressAuthorization": "Y",
-                        "healthInfoAuthorization": "Y"
-                      }
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "data"
-                  ],
-                  "properties": {
-                    "data": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "required": [
-                          "type",
-                          "attributes"
-                        ],
-                        "properties": {
-                          "id": {
-                            "type": "string",
-                            "format": "uuid"
-                          },
-                          "type": {
-                            "type": "string",
-                            "enum": [
-                              "power-of-attorney-request"
-                            ]
-                          },
-                          "attributes": {
-                            "type": "object",
-                            "required": [
-                              "veteran",
-                              "claimant",
-                              "representative"
-                            ],
-                            "properties": {
-                              "veteran": {
-                                "type": "object",
-                                "properties": {
-                                  "firstName": {
-                                    "type": "string"
-                                  },
-                                  "lastName": {
-                                    "type": "string"
-                                  },
-                                  "middleName": {
-                                    "type": "string"
-                                  }
-                                }
-                              },
-                              "claimant": {
-                                "type": "object",
-                                "properties": {
-                                  "city": {
-                                    "type": "string"
-                                  },
-                                  "country": {
-                                    "type": "string"
-                                  },
-                                  "militaryPo": {
-                                    "type": "string"
-                                  },
-                                  "militaryPostalCode": {
-                                    "type": "string"
-                                  },
-                                  "state": {
-                                    "type": "string"
-                                  },
-                                  "zip": {
-                                    "type": "string"
-                                  }
-                                }
-                              },
-                              "representative": {
-                                "type": "object",
-                                "properties": {
-                                  "poaCode": {
-                                    "type": "string"
-                                  },
-                                  "vsoUserEmail": {
-                                    "type": "string"
-                                  },
-                                  "vsoUserFirstName": {
-                                    "type": "string"
-                                  },
-                                  "vsoUserLastName": {
-                                    "type": "string"
-                                  }
-                                }
-                              },
-                              "receivedDate": {
-                                "type": "string",
-                                "format": "date-time"
-                              },
-                              "actionedDate": {
-                                "type": "string",
-                                "format": "date-time"
-                              },
-                              "status": {
-                                "type": "string"
-                              },
-                              "declinedReason": {
-                                "type": "string"
-                              },
-                              "changeAddressAuthorization": {
-                                "type": "string",
-                                "enum": [
-                                  "Y",
-                                  "N"
-                                ]
-                              },
-                              "healthInfoAuthorization": {
-                                "type": "string",
-                                "enum": [
-                                  "Y",
-                                  "N"
-                                ]
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Missing parameter",
-                      "detail": "poaCodes is required and cannot be empty",
-                      "code": "108",
-                      "status": "400"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail",
-                          "code",
-                          "status"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string"
-                          },
-                          "detail": {
-                            "type": "string"
-                          },
-                          "code": {
-                            "type": "string"
-                          },
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "400"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/json": {
-                "example": {
-                  "errors": [
-                    {
-                      "title": "Not authorized",
-                      "status": "401",
-                      "detail": "Not authorized"
-                    }
-                  ]
-                },
-                "schema": {
-                  "type": "object",
-                  "required": [
-                    "errors"
-                  ],
-                  "properties": {
-                    "errors": {
-                      "type": "array",
-                      "items": {
-                        "additionalProperties": false,
-                        "required": [
-                          "title",
-                          "detail",
-                          "status"
-                        ],
-                        "properties": {
-                          "title": {
-                            "type": "string",
-                            "enum": [
-                              "Not authorized"
-                            ]
-                          },
-                          "detail": {
-                            "type": "string",
-                            "enum": [
-                              "Not authorized"
-                            ]
-                          },
-                          "status": {
-                            "type": "string",
-                            "enum": [
-                              "401"
-                            ]
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        },
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "required": [
-                  "data"
-                ],
-                "properties": {
-                  "data": {
-                    "type": "object",
-                    "additionalProperties": false,
-                    "required": [
-                      "attributes"
-                    ],
-                    "properties": {
-                      "attributes": {
-                        "type": "object",
-                        "additionalProperties": false,
-                        "required": [
-                          "poaCodes"
-                        ],
-                        "properties": {
-                          "poaCodes": {
-                            "type": "array",
-                            "minItems": 1,
-                            "items": {
-                              "type": "string",
-                              "minLength": 1
-                            }
-                          },
-                          "pageSize": {
-                            "type": "string"
-                          },
-                          "pageIndex": {
-                            "type": "string"
-                          },
-                          "filter": {
-                            "type": "object",
-                            "additionalProperties": false,
-                            "properties": {
-                              "status": {
-                                "type": "array",
-                                "items": {
-                                  "type": "string",
-                                  "enum": [
-                                    "NEW",
-                                    "ACCEPTED",
-                                    "DECLINED"
-                                  ]
-                                }
-                              },
-                              "state": {
-                                "type": "string"
-                              },
-                              "city": {
-                                "type": "string"
-                              },
-                              "country": {
-                                "type": "string"
-                              }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                },
-                "example": {
-                  "data": {
-                    "attributes": {
-                      "poaCodes": [
-                        "002",
-                        "003",
-                        "083"
-                      ],
-                      "pageSize": "3",
-                      "pageIndex": "1",
-                      "filter": {
-                        "status": [
-                          "NEW",
-                          "ACCEPTED",
-                          "DECLINED"
-                        ],
-                        "state": "OR",
-                        "city": "Portland",
-                        "country": "USA"
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "required": true
-        }
-      }
-    },
     "/veterans/{veteranId}/claims/{id}/5103": {
       "post": {
         "summary": "Submit Evidence Waiver 5103",
@@ -1141,7 +680,7 @@
                   "202 without a transactionId": {
                     "value": {
                       "data": {
-                        "id": "a579bf4a-138b-470a-9b3b-5098b4497432",
+                        "id": "3c5b9db3-9660-46be-a5d2-85b944573147",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -1372,7 +911,7 @@
                   "202 with a transactionId": {
                     "value": {
                       "data": {
-                        "id": "7b7ab365-0085-428f-a5cc-1a546c1263a7",
+                        "id": "c8eb1cab-5fc0-408f-b663-74a17a42f502",
                         "type": "forms/526",
                         "attributes": {
                           "claimId": "600442191",
@@ -10234,7 +9773,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "524d6363-5a38-47e7-be6d-3222ad03000d",
+                    "id": "dbabedc5-1740-433d-a32e-420dd00958d9",
                     "type": "power-of-attorney-request",
                     "attributes": {
                       "veteran": {
@@ -11082,6 +10621,467 @@
         }
       }
     },
+    "/veterans/power-of-attorney-requests": {
+      "post": {
+        "summary": "Search for Power of Attorney requests.",
+        "tags": [
+          "Power of Attorney"
+        ],
+        "operationId": "searchPowerOfAttorneyRequests",
+        "security": [
+          {
+            "productionOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "sandboxOauth": [
+              "system/claim.read",
+              "system/claim.write"
+            ]
+          },
+          {
+            "bearer_token": []
+          }
+        ],
+        "description": "Search for Power of Attorney requests",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "content": {
+              "application/json": {
+                "example": {
+                  "data": [
+                    {
+                      "id": null,
+                      "type": "power-of-attorney-request",
+                      "attributes": {
+                        "veteran": {
+                          "firstName": "[Vet First Name]",
+                          "lastName": "[Vet Last Name]",
+                          "middleName": null
+                        },
+                        "claimant": {
+                          "city": "Charlottesville",
+                          "country": "USA",
+                          "militaryPo": null,
+                          "militaryPostalCode": null,
+                          "state": null,
+                          "zip": "00123"
+                        },
+                        "representative": {
+                          "poaCode": "083",
+                          "vsoUserEmail": null,
+                          "vsoUserFirstName": "Joe",
+                          "vsoUserLastName": "BestRep"
+                        },
+                        "receivedDate": "2012-11-23T16:49:16-06:00",
+                        "actionedDate": "2024-05-25T13:45:00-05:00",
+                        "status": "New",
+                        "declinedReason": null,
+                        "changeAddressAuthorization": "Y",
+                        "healthInfoAuthorization": "Y"
+                      }
+                    },
+                    {
+                      "id": null,
+                      "type": "power-of-attorney-request",
+                      "attributes": {
+                        "veteran": {
+                          "firstName": "first",
+                          "lastName": "last",
+                          "middleName": null
+                        },
+                        "claimant": {
+                          "city": "USAG J",
+                          "country": "USA",
+                          "militaryPo": "APO",
+                          "militaryPostalCode": "AP",
+                          "state": null,
+                          "zip": "01234"
+                        },
+                        "representative": {
+                          "poaCode": "002",
+                          "vsoUserEmail": null,
+                          "vsoUserFirstName": "VDC USER",
+                          "vsoUserLastName": null
+                        },
+                        "receivedDate": "2013-01-14T08:50:17-06:00",
+                        "actionedDate": "2013-01-14T08:50:17-06:00",
+                        "status": "New",
+                        "declinedReason": null,
+                        "changeAddressAuthorization": "Y",
+                        "healthInfoAuthorization": "Y"
+                      }
+                    },
+                    {
+                      "id": null,
+                      "type": "power-of-attorney-request",
+                      "attributes": {
+                        "veteran": {
+                          "firstName": "first",
+                          "lastName": "last",
+                          "middleName": null
+                        },
+                        "claimant": {
+                          "city": "Bourges",
+                          "country": "France",
+                          "militaryPo": null,
+                          "militaryPostalCode": null,
+                          "state": null,
+                          "zip": "00123"
+                        },
+                        "representative": {
+                          "poaCode": "002",
+                          "vsoUserEmail": null,
+                          "vsoUserFirstName": "VDC USER",
+                          "vsoUserLastName": null
+                        },
+                        "receivedDate": "2013-01-14T08:51:25-06:00",
+                        "actionedDate": "2013-01-14T08:51:25-06:00",
+                        "status": "New",
+                        "declinedReason": null,
+                        "changeAddressAuthorization": "Y",
+                        "healthInfoAuthorization": "Y"
+                      }
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "data"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "required": [
+                          "type",
+                          "attributes"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "type": {
+                            "type": "string",
+                            "enum": [
+                              "power-of-attorney-request"
+                            ]
+                          },
+                          "attributes": {
+                            "type": "object",
+                            "required": [
+                              "veteran",
+                              "claimant",
+                              "representative"
+                            ],
+                            "properties": {
+                              "veteran": {
+                                "type": "object",
+                                "properties": {
+                                  "firstName": {
+                                    "type": "string"
+                                  },
+                                  "lastName": {
+                                    "type": "string"
+                                  },
+                                  "middleName": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "claimant": {
+                                "type": "object",
+                                "properties": {
+                                  "city": {
+                                    "type": "string"
+                                  },
+                                  "country": {
+                                    "type": "string"
+                                  },
+                                  "militaryPo": {
+                                    "type": "string"
+                                  },
+                                  "militaryPostalCode": {
+                                    "type": "string"
+                                  },
+                                  "state": {
+                                    "type": "string"
+                                  },
+                                  "zip": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "representative": {
+                                "type": "object",
+                                "properties": {
+                                  "poaCode": {
+                                    "type": "string"
+                                  },
+                                  "vsoUserEmail": {
+                                    "type": "string"
+                                  },
+                                  "vsoUserFirstName": {
+                                    "type": "string"
+                                  },
+                                  "vsoUserLastName": {
+                                    "type": "string"
+                                  }
+                                }
+                              },
+                              "receivedDate": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "actionedDate": {
+                                "type": "string",
+                                "format": "date-time"
+                              },
+                              "status": {
+                                "type": "string"
+                              },
+                              "declinedReason": {
+                                "type": "string"
+                              },
+                              "changeAddressAuthorization": {
+                                "type": "string",
+                                "enum": [
+                                  "Y",
+                                  "N"
+                                ]
+                              },
+                              "healthInfoAuthorization": {
+                                "type": "string",
+                                "enum": [
+                                  "Y",
+                                  "N"
+                                ]
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Missing parameter",
+                      "detail": "poaCodes is required and cannot be empty",
+                      "code": "108",
+                      "status": "400"
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "code",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "detail": {
+                            "type": "string"
+                          },
+                          "code": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "400"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/json": {
+                "example": {
+                  "errors": [
+                    {
+                      "title": "Not authorized",
+                      "status": "401",
+                      "detail": "Not authorized"
+                    }
+                  ]
+                },
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "errors"
+                  ],
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "additionalProperties": false,
+                        "required": [
+                          "title",
+                          "detail",
+                          "status"
+                        ],
+                        "properties": {
+                          "title": {
+                            "type": "string",
+                            "enum": [
+                              "Not authorized"
+                            ]
+                          },
+                          "detail": {
+                            "type": "string",
+                            "enum": [
+                              "Not authorized"
+                            ]
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "401"
+                            ]
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "attributes"
+                    ],
+                    "properties": {
+                      "attributes": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "poaCodes"
+                        ],
+                        "properties": {
+                          "poaCodes": {
+                            "type": "array",
+                            "minItems": 1,
+                            "items": {
+                              "type": "string",
+                              "minLength": 1
+                            }
+                          },
+                          "pageSize": {
+                            "type": "string"
+                          },
+                          "pageIndex": {
+                            "type": "string"
+                          },
+                          "filter": {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "properties": {
+                              "status": {
+                                "type": "array",
+                                "items": {
+                                  "type": "string",
+                                  "enum": [
+                                    "NEW",
+                                    "ACCEPTED",
+                                    "DECLINED"
+                                  ]
+                                }
+                              },
+                              "state": {
+                                "type": "string"
+                              },
+                              "city": {
+                                "type": "string"
+                              },
+                              "country": {
+                                "type": "string"
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                "example": {
+                  "data": {
+                    "attributes": {
+                      "poaCodes": [
+                        "002",
+                        "003",
+                        "083"
+                      ],
+                      "pageSize": "3",
+                      "pageIndex": "1",
+                      "filter": {
+                        "status": [
+                          "NEW",
+                          "ACCEPTED",
+                          "DECLINED"
+                        ],
+                        "state": "OR",
+                        "city": "Portland",
+                        "country": "USA"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        }
+      }
+    },
     "/veterans/power-of-attorney-requests/{id}": {
       "get": {
         "summary": "Retrieves a Power of Attorney request",
@@ -11433,7 +11433,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "1f65567e-fcf0-447b-ba46-8e9d98bc72bb",
+                    "id": "8ad91ec7-6f95-46e3-9588-c77715df3ec7",
                     "type": "individual",
                     "attributes": {
                       "code": "067",
@@ -12205,7 +12205,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "f5495fc1-b1dc-4a9a-aa51-efc30fff19c5",
+                    "id": "3703b16b-8cf6-4aba-b43a-07f40b880170",
                     "type": "organization",
                     "attributes": {
                       "code": "083",
@@ -14199,7 +14199,7 @@
               "application/json": {
                 "example": {
                   "data": {
-                    "id": "0a95f4c3-0116-4fb0-ab9d-a7b1778ce010",
+                    "id": "c00bed9d-9e1c-4fcf-9159-8928d77a2359",
                     "type": "claimsApiPowerOfAttorneys",
                     "attributes": {
                       "dateRequestAccepted": "2025-01-22",
