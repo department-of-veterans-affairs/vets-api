@@ -8,13 +8,13 @@ require 'va_notify/service'
 RSpec.describe EVSS::DocumentUpload, type: :job do
   subject { described_class }
 
-  let(:client_stub) { instance_double('EVSS::DocumentsService') }
+  let(:client_stub) { instance_double(EVSS::DocumentsService) }
   let(:notify_client_stub) { instance_double(VaNotify::Service) }
-  let(:uploader_stub) { instance_double('EVSSClaimDocumentUploader') }
+  let(:uploader_stub) { instance_double(EVSSClaimDocumentUploader) }
 
   let(:user_account) { create(:user_account) }
   let(:user_account_uuid) { user_account.id }
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:filename) { 'doctors-note.pdf' }
   let(:document_data) do
     EVSSClaimDocument.new(
@@ -44,7 +44,7 @@ RSpec.describe EVSS::DocumentUpload, type: :job do
   it 'retrieves the file and uploads to EVSS' do
     allow(EVSSClaimDocumentUploader).to receive(:new) { uploader_stub }
     allow(EVSS::DocumentsService).to receive(:new) { client_stub }
-    file = File.read("#{::Rails.root}/spec/fixtures/files/#{filename}")
+    file = File.read(Rails.root.join("spec/fixtures/files/#{filename}").to_s)
     allow(uploader_stub).to receive(:retrieve_from_store!).with(filename) { file }
     allow(uploader_stub).to receive(:read_for_upload) { file }
     expect(uploader_stub).to receive(:remove!).once

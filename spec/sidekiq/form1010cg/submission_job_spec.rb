@@ -24,7 +24,7 @@ RSpec.describe Form1010cg::SubmissionJob do
   end
 
   it 'defines #notify' do
-    expect(described_class.new.respond_to?(:notify)).to eq(true)
+    expect(described_class.new.respond_to?(:notify)).to be(true)
   end
 
   it 'requires a parameter for notify' do
@@ -33,7 +33,7 @@ RSpec.describe Form1010cg::SubmissionJob do
   end
 
   it 'defines retry_limits_for_notification' do
-    expect(described_class.new.respond_to?(:retry_limits_for_notification)).to eq(true)
+    expect(described_class.new.respond_to?(:retry_limits_for_notification)).to be(true)
   end
 
   it 'returns an array of integers from retry_limits_for_notification' do
@@ -226,7 +226,7 @@ RSpec.describe Form1010cg::SubmissionJob do
               :process_claim_v2!
             ).and_raise(CARMA::Client::MuleSoftClient::RecordParseError.new)
 
-            expect(SavedClaim.exists?(id: claim.id)).to eq(true)
+            expect(SavedClaim.exists?(id: claim.id)).to be(true)
 
             expect(VANotify::EmailJob).to receive(:perform_async)
             expect(StatsD).to receive(:increment).with(
@@ -252,7 +252,7 @@ RSpec.describe Form1010cg::SubmissionJob do
             end.to trigger_statsd_increment('api.form1010cg.async.record_parse_error', tags: ["claim_id:#{claim.id}"])
               .and trigger_statsd_increment('silent_failure', tags: zsf_tags)
 
-            expect(SavedClaim.exists?(id: claim.id)).to eq(true)
+            expect(SavedClaim.exists?(id: claim.id)).to be(true)
             expect(VANotify::EmailJob).not_to receive(:perform_async)
           end
         end
@@ -273,7 +273,7 @@ RSpec.describe Form1010cg::SubmissionJob do
           end.to trigger_statsd_increment('api.form1010cg.async.record_parse_error', tags: ["claim_id:#{claim.id}"])
             .and trigger_statsd_increment('silent_failure', tags: zsf_tags)
 
-          expect(SavedClaim.exists?(id: claim.id)).to eq(true)
+          expect(SavedClaim.exists?(id: claim.id)).to be(true)
           expect(VANotify::EmailJob).not_to receive(:perform_async)
         end
       end
@@ -295,7 +295,7 @@ RSpec.describe Form1010cg::SubmissionJob do
 
       job.perform(claim.id)
 
-      expect(SavedClaim::CaregiversAssistanceClaim.exists?(id: claim.id)).to eq(false)
+      expect(SavedClaim::CaregiversAssistanceClaim.exists?(id: claim.id)).to be(false)
     end
   end
 end

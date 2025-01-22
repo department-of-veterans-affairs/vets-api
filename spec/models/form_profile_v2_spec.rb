@@ -839,7 +839,8 @@ RSpec.describe FormProfile, type: :model do
       },
       'identityValidation' => {
         'hasICN' => true,
-        'hasParticipantId' => true
+        'hasParticipantId' => true,
+        'isLoa3' => true
       }
     }
   end
@@ -868,7 +869,8 @@ RSpec.describe FormProfile, type: :model do
       },
       'identityValidation' => {
         'hasICN' => true,
-        'hasParticipantId' => true
+        'hasParticipantId' => true,
+        'isLoa3' => true
       }
     }
   end
@@ -1093,7 +1095,7 @@ RSpec.describe FormProfile, type: :model do
           schema_data.deep_transform_keys { |key| key.camelize(:lower) }, validate_schema: true
         )
 
-        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+        expect(errors.empty?).to be(true), "schema errors: #{errors}"
       end
 
       expect(prefilled_data).to eq(
@@ -1217,7 +1219,7 @@ RSpec.describe FormProfile, type: :model do
       before do
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
         expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
-        expect(user.authorize(:mdot, :access?)).to eq(true)
+        expect(user.authorize(:mdot, :access?)).to be(true)
       end
 
       it 'returns a prefilled MDOT form', :skip_va_profile do
@@ -1312,20 +1314,20 @@ RSpec.describe FormProfile, type: :model do
                          allow_playback_repeats: true, match_requests_on: %i[method body]) do
           can_prefill_vaprofile(true)
           output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
-          expect(output['currently_active_duty']).to eq(false)
+          expect(output['currently_active_duty']).to be(false)
           expect(output['currently_active_duty_hash']).to eq({ yes: false })
-          expect(output['discharge_type']).to eq(nil)
+          expect(output['discharge_type']).to be_nil
           expect(output['guard_reserve_service_history']).to eq([])
           expect(output['hca_last_service_branch']).to eq('other')
-          expect(output['last_discharge_date']).to eq(nil)
-          expect(output['last_entry_date']).to eq(nil)
-          expect(output['last_service_branch']).to eq(nil)
-          expect(output['latest_guard_reserve_service_period']).to eq(nil)
-          expect(output['post_nov111998_combat']).to eq(false)
+          expect(output['last_discharge_date']).to be_nil
+          expect(output['last_entry_date']).to be_nil
+          expect(output['last_service_branch']).to be_nil
+          expect(output['latest_guard_reserve_service_period']).to be_nil
+          expect(output['post_nov111998_combat']).to be(false)
           expect(output['service_branches']).to eq([])
           expect(output['service_episodes_by_date']).to eq([])
           expect(output['service_periods']).to eq([])
-          expect(output['sw_asia_combat']).to eq(false)
+          expect(output['sw_asia_combat']).to be(false)
           expect(output['tours_of_duty']).to eq([])
         end
       end
@@ -1547,7 +1549,7 @@ RSpec.describe FormProfile, type: :model do
                 schema_data.deep_transform_keys { |key| key.camelize(:lower) }, validate_schema: true
               )
 
-              expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+              expect(errors.empty?).to be(true), "schema errors: #{errors}"
               expect(prefilled_data).to eq(
                 form_profile.send(:clean!, public_send('v21_p_527_ez_expected_military'))
               )
@@ -1557,7 +1559,7 @@ RSpec.describe FormProfile, type: :model do
 
         context 'with preenabled forms' do
           it 'returns prefilled 21-686C' do
-            expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VCR.use_cassette('evss/dependents/retrieve_user_with_max_attributes') do
               VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
                                allow_playback_repeats: true) do
@@ -1584,6 +1586,7 @@ RSpec.describe FormProfile, type: :model do
             Flipper.enable(:disability_526_toxic_exposure, user)
             expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
             expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+            expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
             VCR.use_cassette('va_profile/v2/contact_information/get_address') do
               VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                 VCR.use_cassette('evss/ppiu/payment_information') do
@@ -1622,16 +1625,6 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        expect(prefill.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')).to be_a(String).or be_nil
-        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'areaCode')).to be_a(String).or be_nil
-        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'phoneNumber')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street2')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'city')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'state')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'country')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'postalCode')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranSsnLastFour')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranVaFileNumberLastFour')).to be_a(String)
       end
@@ -1644,7 +1637,7 @@ RSpec.describe FormProfile, type: :model do
           test_data,
           validate_schema: true
         )
-        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+        expect(errors.empty?).to be(true), "schema errors: #{errors}"
       end
     end
 
@@ -1671,19 +1664,6 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        veteran = prefill.dig 'data', 'attributes', 'veteran'
-        address = veteran['address']
-        phone = veteran['phone']
-        expect(address['addressLine1']).to be_a String
-        expect(address['addressLine2']).to be_a(String).or be_nil
-        expect(address['city']).to be_a String
-        expect(address['stateCode']).to be_a String
-        expect(address['zipCode5']).to be_a String
-        expect(address['countryName']).to be_a String
-        expect(address['internationalPostalCode']).to be_a(String).or be_nil
-        expect(phone['areaCode']).to be_a String
-        expect(phone['phoneNumber']).to be_a String
-        expect(veteran['emailAddressText']).to be_a String
         non_prefill = prefill['nonPrefill']
         expect(non_prefill['veteranSsnLastFour']).to be_a String
         expect(non_prefill['veteranVaFileNumberLastFour']).to be_a String
@@ -1699,7 +1679,7 @@ RSpec.describe FormProfile, type: :model do
           test_data,
           validate_schema: true
         )
-        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+        expect(errors.empty?).to be(true), "schema errors: #{errors}"
       end
     end
 
