@@ -62,7 +62,7 @@ spec:
             - /bin/sh
             - -c
             - |
-              rails runner '
+              bin/rails runner '
               require "nokogiri"
               # Read the original and new policy files
               policy1 = Nokogiri::XML(File.read("/etc/ImageMagick-6/policy.xml"))

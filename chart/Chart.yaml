@@ -111,7 +111,8 @@ type: application
 # 0.15.7  - adjust common secret to pull from env_vars sub path
 # 0.15.8  - adjust ImageMagick default Policy via volumes/volumeMount approach
 # 0.15.9  - Fix issue with ImageMagick initContainers command
-version: 0.15.9
+# 0.15.10  - Fix issue with ImageMagick initContainers command bin/rails
+version: 0.15.10
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
