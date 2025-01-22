@@ -340,7 +340,7 @@ describe 'PowerOfAttorney',
     end
   end
 
-  path '/veterans/power-of-attorney-requests/{id}' do
+  path '/veterans/power-of-attorney-requests/{id}', production: false do
     get 'Retrieves a Power of Attorney request' do
       tags 'Power of Attorney'
       operationId 'getPowerOfAttorneyRequest'
@@ -367,7 +367,7 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 200 response' do
         response '200', 'Successful response with a current Power of Attorney request' do
-          schema JSON.load_file(File.expand_path('rswag/200.json', __dir__))
+          schema JSON.load_file(File.expand_path('rswag/show/200.json', __dir__))
 
           let(:data) { body_example }
           let(:manage_representative_service) { instance_double(ClaimsApi::ManageRepresentativeService) }
@@ -410,7 +410,7 @@ describe 'PowerOfAttorney',
             }
           end
 
-          it do |example|
+          it 'returns a 200 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -418,7 +418,7 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
-          schema JSON.load_file(File.expand_path('rswag/401.json', __dir__))
+          schema JSON.load_file(File.expand_path('rswag/show/401.json', __dir__))
 
           before do |example|
             submit_request(example.metadata)
@@ -432,7 +432,7 @@ describe 'PowerOfAttorney',
             }
           end
 
-          it do |example|
+          it 'returns a 401 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
@@ -440,7 +440,7 @@ describe 'PowerOfAttorney',
 
       describe 'Getting a 404 response' do
         response '404', 'Resource not found' do
-          schema JSON.load_file(File.expand_path('rswag/404.json', __dir__))
+          schema JSON.load_file(File.expand_path('rswag/show/404.json', __dir__))
 
           before do |example|
             mock_ccg(scopes) do
@@ -456,7 +456,7 @@ describe 'PowerOfAttorney',
             }
           end
 
-          it do |example|
+          it 'returns a 404 response' do |example|
             assert_response_matches_metadata(example.metadata)
           end
         end
