@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'lib/saved_claims_spec_helper'
 
 RSpec.describe SavedClaim::EducationBenefits::VA0994 do
-  let(:instance) { FactoryBot.build(:va0994_full_form) }
+  let(:instance) { build(:va0994_full_form) }
 
   it_behaves_like 'saved_claim'
 

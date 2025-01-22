@@ -6,7 +6,7 @@ require 'claims_api/vbms_uploader'
 
 RSpec.describe SavedClaim::VeteranReadinessEmploymentClaim do
   let(:claim) { create(:veteran_readiness_employment_claim) }
-  let(:user_object) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user_object) { create(:evss_user, :loa3) }
   let(:new_address_hash) do
     {
       newAddress: {

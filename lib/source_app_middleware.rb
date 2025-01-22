@@ -56,7 +56,7 @@ class SourceAppMiddleware
     appeals-testing
     appoint-a-representative
     ask-a-question
-    ask-va-too
+    ask-va
     auth
     avs
     burial-poc-v6
@@ -75,6 +75,7 @@ class SourceAppMiddleware
     dependents-view-dependents
     dhp-consent-flow
     discharge-upgrade-instructions
+    discover-your-benefits
     ds-playground
     ds-v3-playground
     education-letters

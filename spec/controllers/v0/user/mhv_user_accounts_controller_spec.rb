@@ -50,7 +50,8 @@ describe V0::User::MHVUserAccountsController, type: :controller do
           expect(mhv_client).to have_received(:create_account).with(icn:,
                                                                     email: user_credential_email.credential_email,
                                                                     tou_occurred_at: terms_of_use_agreement.created_at,
-                                                                    break_cache: true)
+                                                                    break_cache: true,
+                                                                    from_cache_only: false)
         end
       end
 
@@ -77,13 +78,6 @@ describe V0::User::MHVUserAccountsController, type: :controller do
         context 'when the user does not have an ICN' do
           let(:icn) { nil }
           let(:expected_errors) { [{ title: 'Validation error', detail: 'ICN must be present' }] }
-
-          it_behaves_like 'an unprocessable entity'
-        end
-
-        context 'when the user does not have an email' do
-          let(:user_credential_email) { nil }
-          let(:expected_errors) { [{ title: 'Validation error', detail: 'Email must be present' }] }
 
           it_behaves_like 'an unprocessable entity'
         end

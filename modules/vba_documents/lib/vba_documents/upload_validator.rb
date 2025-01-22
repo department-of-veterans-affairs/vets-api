@@ -169,11 +169,11 @@ module VBADocuments
     end
 
     def log_invalid_parts(model, invalid_parts)
-      message = "VBADocuments Invalid Part Uploaded\t"\
-                "GUID: #{model.guid}\t"\
-                "Uploaded Time: #{model.created_at}\t"\
-                "Consumer Name: #{model.consumer_name}\t"\
-                "Consumer Id: #{model.consumer_id}\t"\
+      message = "VBADocuments Invalid Part Uploaded\t" \
+                "GUID: #{model.guid}\t" \
+                "Uploaded Time: #{model.created_at}\t" \
+                "Consumer Name: #{model.consumer_name}\t" \
+                "Consumer Id: #{model.consumer_id}\t" \
                 "Invalid parts: #{invalid_parts}\t"
       Rails.logger.warn(message)
       model.metadata['invalid_parts'] = invalid_parts

@@ -89,7 +89,7 @@ describe DecisionReviewV1::Service do
 
     let(:user) do
       name = 'x' * 100
-      build :user, first_name: name, middle_name: name, last_name: name
+      build(:user, first_name: name, middle_name: name, last_name: name)
     end
 
     it 'returns a properly formatted 200 response' do
@@ -486,7 +486,7 @@ describe DecisionReviewV1::Service do
     subject { described_class.new.send(:create_supplemental_claims_headers, user) }
 
     let(:user) do
-      build :user, first_name: 'John', middle_name: 'S', last_name: 'Smith', birth_date: '1980-12-12', ssn: '123456789'
+      build(:user, first_name: 'John', middle_name: 'S', last_name: 'Smith', birth_date: '1980-12-12', ssn: '123456789')
     end
 
     it 'returns a properly formatted 200 response' do
