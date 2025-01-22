@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+require 'nokogiri'
+
+# Read the original and new policy files
+policy1 = Nokogiri::XML(File.read('/etc/ImageMagick-6/policy.xml'))
+policy2 = Nokogiri::XML(File.read('/tmp_policy/new-policy.xml'))
+
+# Merge the policies by appending from the new file
+policy2.xpath('//policy').each do |policy|
+  policy1.root.add_child(policy)
+end
+
+# Write the merged policy to the shared volume
+File.write('/tmp_workspace/policy.xml', policy1.to_xml)
