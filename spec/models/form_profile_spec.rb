@@ -947,7 +947,8 @@ RSpec.describe FormProfile, type: :model do
       },
       'identityValidation' => {
         'hasICN' => true,
-        'hasParticipantId' => true
+        'hasParticipantId' => true,
+        'isLoa3' => true
       }
     }
   end
@@ -984,7 +985,8 @@ RSpec.describe FormProfile, type: :model do
       },
       'identityValidation' => {
         'hasICN' => true,
-        'hasParticipantId' => true
+        'hasParticipantId' => true,
+        'isLoa3' => true
       }
     }
   end
