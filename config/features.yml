@@ -1017,6 +1017,10 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
+  mhv_secure_messaging_signature_settings:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
