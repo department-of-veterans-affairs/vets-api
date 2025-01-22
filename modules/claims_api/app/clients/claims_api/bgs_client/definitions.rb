@@ -69,14 +69,6 @@ module ClaimsApi
           )
       end
 
-      module ClaimantService
-        DEFINITION =
-          Service.new(
-            bean: ClaimantServiceBean::DEFINITION,
-            path: 'ClaimantService'
-          )
-      end
-
       ##
       # ContentionServiceBean
       #

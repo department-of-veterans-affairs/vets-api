@@ -1,14 +1,12 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'bgs_service/claimant_web_service'
 require 'claims_api/error/soap_error_handler'
 
 describe ClaimsApi::LocalBGS do
   subject { described_class.new external_uid: 'xUid', external_key: 'xKey' }
 
   let(:soap_error_handler) { ClaimsApi::SoapErrorHandler.new }
-  let(:claimant_web_service) { ClaimsApi::ClaimantWebService.new(external_uid: 'a', external_key: 'b') }
 
   # Testing potential ways the current check could be tricked
   describe '#all' do
