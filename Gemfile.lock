@@ -411,7 +411,7 @@ GEM
       dry-inflector (~> 1.0)
       dry-logic (~> 1.4)
       zeitwerk (~> 2.6)
-    dry-validation (1.11.0)
+    dry-validation (1.11.1)
       concurrent-ruby (~> 1.0)
       dry-core (~> 1.1)
       dry-initializer (~> 3.2)
