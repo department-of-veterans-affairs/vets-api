@@ -19,12 +19,13 @@ module AskVAApi
             return general_inquiry(inquiry_params, inquiry_details)
           end
 
-          if inquiry_params[:who_is_your_question_about] == 'Myself'
-            return handle_self_inquiry(inquiry_params, inquiry_details)
+          if inquiry_params[:who_is_your_question_about] == 'Someone else' || inquiry_params[:your_role]
+            return handle_others_inquiry(inquiry_params, inquiry_details)
           end
 
-          if inquiry_params[:who_is_your_question_about] == 'Someone else'
-            handle_others_inquiry(inquiry_params, inquiry_details)
+          if inquiry_params[:who_is_your_question_about] == 'Myself' ||
+             inquiry_params[:who_is_your_question_about].nil?
+            handle_self_inquiry(inquiry_params, inquiry_details)
           end
         end
 

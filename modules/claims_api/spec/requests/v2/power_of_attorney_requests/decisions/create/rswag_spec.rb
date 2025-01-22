@@ -77,9 +77,6 @@ describe 'PowerOfAttorney', metadata do
         end
 
         before do |example|
-          allow(ClaimsApi::PowerOfAttorneyRequestService::UpdatePowerOfAttorney).to(
-            receive(:perform)
-          )
           allow(ClaimsApi::PowerOfAttorneyRequest).to(
             receive(:find_by).and_return(request_response)
           )
