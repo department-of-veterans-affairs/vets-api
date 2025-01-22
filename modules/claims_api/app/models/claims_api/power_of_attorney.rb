@@ -90,6 +90,23 @@ module ClaimsApi
       end
     end
 
+    def errors
+      processes = ClaimsApi::Process.where(processable: self).in_order_of(:step_type,
+                                                                          ClaimsApi::Process::VALID_POA_STEP_TYPES).to_a
+      errors = processes.map do |p|
+        error_message = p.error_messages.last
+        next unless error_message
+
+        {
+          title: error_message['title'],
+          detail: error_message['detail'],
+          code: p.step_type
+        }
+      end
+
+      errors.compact
+    end
+
     def uploader
       @uploader ||= ClaimsApi::PowerOfAttorneyUploader.new(id)
     end

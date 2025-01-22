@@ -25,6 +25,7 @@ module ClaimsApi
       end
     end
 
+    attribute :errors
     attribute :steps
   end
 end
