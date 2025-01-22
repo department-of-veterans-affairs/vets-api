@@ -19,7 +19,11 @@ module IvcChampva
                             body: File.read(file),
                             metadata:
                           })
-        { success: true }
+
+    if response.status == 200
+      # Successful upload, track the event
+      monitor.track_all_successful_s3_uploads(key)  # Use monitor for Datadog tracking
+      { success: true }
       rescue => e
         { success: false, error_message: "S3 PutObject failure for #{file}: #{e.message}" }
       end
