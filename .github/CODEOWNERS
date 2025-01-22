@@ -786,7 +786,7 @@ config/initializers/staccato.rb @department-of-veterans-affairs/vfs-10-10 @depar
 config/initializers/statsd_instrument_monkeypatch.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/statsd.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/strong_migrations.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
-config/initializers/veteran_facing_services_notification_callbacks.rb.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
+config/initializers/veteran_facing_services_notification_callbacks.rb @department-of-veterans-affairs/pension-and-burials @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/vbms.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/initializers/warden_github.rb @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 config/mpi_schema @department-of-veterans-affairs/octo-identity
