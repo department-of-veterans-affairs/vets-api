@@ -3,14 +3,18 @@
 
 require 'nokogiri'
 
-# Read the original and new policy files
-policy1 = Nokogiri::XML(File.read('/etc/ImageMagick-6/policy.xml'))
-policy2 = Nokogiri::XML(File.read('/tmp_policy/new-policy.xml'))
+# Paths to the original and new policies
+original_policy_path = '/etc/ImageMagick-6/policy.xml'
+new_policy_path = Rails.root.join('config/imagemagick/policies/new-policy.xml')
+
+# Read and merge policies
+policy1 = Nokogiri::XML(File.read(original_policy_path))
+policy2 = Nokogiri::XML(File.read(new_policy_path))
 
 # Merge the policies by appending from the new file
 policy2.xpath('//policy').each do |policy|
   policy1.root.add_child(policy)
 end
 
-# Write the merged policy to the shared volume
-File.write('/tmp_workspace/policy.xml', policy1.to_xml)
+# Write the merged policy back
+File.write(original_policy_path, policy1.to_xml)
