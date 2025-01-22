@@ -119,7 +119,7 @@ module IvcChampva
         end
 
         [statuses, error_message]
-      end
+      end # rubocop:enable Metrics/MethodLength
 
       def should_retry?(error_message_downcase, attempt, max_attempts)
         error_conditions = [
