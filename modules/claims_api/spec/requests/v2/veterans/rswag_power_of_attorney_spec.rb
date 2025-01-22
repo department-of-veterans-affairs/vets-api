@@ -389,7 +389,7 @@ describe 'PowerOfAttorney',
         schema: body_schema, example: body_example
       )
 
-      describe 'Gettnga 200 response' do
+      describe 'Getting a 200 response' do
         response '200', 'Search results' do
           schema JSON.load_file(File.expand_path('rswag/index/200.json', __dir__))
 
@@ -417,7 +417,7 @@ describe 'PowerOfAttorney',
         end
       end
 
-      describe 'Gettnga 400 response' do
+      describe 'Getting a 400 response' do
         response '400', 'Invalid request' do
           schema JSON.load_file(File.expand_path('rswag/index/400.json', __dir__))
 
@@ -445,7 +445,7 @@ describe 'PowerOfAttorney',
         end
       end
 
-      describe 'Gettnga 401 response' do
+      describe 'Getting a 401 response' do
         response '401', 'Unauthorized' do
           schema JSON.load_file(File.expand_path('rswag/index/401.json', __dir__))
 
