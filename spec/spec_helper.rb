@@ -109,7 +109,7 @@ end
 # @see https://medium.com/@petro.yakubiv/testing-time-and-date-in-rspec-98483ce7a138
 RSpec::Matchers.define :be_the_same_time_as do |expected|
   match do |actual|
-    formatted = "%d/%m/%Y %H:%M:%S"
+    formatted = '%d/%m/%Y %H:%M:%S'
     expect(expected.strftime(formatted)).to eq(actual.strftime(formatted))
   end
 end
