@@ -20,7 +20,7 @@ class EVSS::DocumentUpload
     :perform_document_upload_to_evss,
     :clean_up!,
     additional_class_logs: {
-      form: '526ez Document Upload to EVSS API',
+      form: 'Benefits Document Upload to EVSS API',
       upstream: "S3 bucket: #{Settings.evss.s3.bucket}",
       downstream: "EVSS API: #{EVSS::DocumentsService::BASE_URL}"
     }
@@ -115,11 +115,12 @@ class EVSS::DocumentUpload
     first_name = msg['args'][0]['va_eauth_firstName'].titleize unless msg['args'][0]['va_eauth_firstName'].nil?
     document_type = msg['args'][2]['document_type']
     # Obscure the file name here since this will be used to generate a failed email
-    file_name = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][2]['file_name'])
+    # NOTE: the template that we use for va_notify.send_email requires `filename`
+    filename = BenefitsDocuments::Utilities::Helpers.generate_obscured_file_name(msg['args'][2]['file_name'])
     date_submitted = format_issue_instant_for_mailers(msg['created_at'])
     date_failed = format_issue_instant_for_mailers(msg['failed_at'])
 
-    { first_name:, document_type:, file_name:, date_submitted:, date_failed: }
+    { first_name:, document_type:, filename:, date_submitted:, date_failed: }
   end
 
   def self.format_issue_instant_for_mailers(issue_instant)
