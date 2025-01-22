@@ -8,7 +8,8 @@ module VeteranFacingServices
   # - SavedClaim type forms should inherit VeteranFacingServices::NotificationCallback::SavedClaim
   # - subclasses in lib/veteran_facing_services/notification_callback (these are autoloaded via an initializer)
   #
-  # @see config/initializers/va_notify_callbacks.rb
+  # @see config/initializers/veteran_facing_services_notification_callbacks.rb
+  # @see VANotify::StatusUpdate
   module NotificationCallback
     # custom error to catch a notification being submitted to an incorrect handler
     class CallbackClassMismatch < StandardError
@@ -19,7 +20,7 @@ module VeteranFacingServices
 
     # generic parent class for a notification callback
     class Default
-      STATSD = 'api.vanotify.notification.callback'
+      STATSD = 'api.veteran_facing_services.notification.callback'
 
       # static call to handle notification callback
       # creates an instance of _this_ class and will call the status function
