@@ -14,7 +14,7 @@ describe ClaimsApi::CorporateUpdateWebService do
     let(:poa_code) { '074' }
     let(:participant_id) { '600061742' }
 
-    context 'happy path' do
+    context 'when given valid params(poa code, participlant id)' do
       it 'returns an object with the appropriate attributes' do
         VCR.use_cassette('claims_api/bgs/corporate_update_web_service/update_poa_access') do
           res = subject.update_poa_access(participant_id:, poa_code:)
@@ -26,8 +26,8 @@ describe ClaimsApi::CorporateUpdateWebService do
       end
     end
 
-    context 'sad path' do
-      it 'returns the correct error message when incorrect params are provided' do
+    context 'when given invalid params' do
+      it 'returns the correct error message' do
         VCR.use_cassette('claims_api/bgs/corporate_update_web_service/update_poa_access_500') do
           subject.update_poa_access(participant_id: '38429', poa_code: '001')
         rescue => e
