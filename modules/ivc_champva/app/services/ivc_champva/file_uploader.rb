@@ -27,18 +27,12 @@ module IvcChampva
     #
     # The return value reflects whether or not all files were successfully uploaded.
     #
-    # If successful, it will return:
-    # - An array containing a single HTTP status code and an optional error message,
-    #   e.g. [200] | [400, 'No such file']
+    # If successful, it will return an array containing a single HTTP status code and an
+    # optional error message, e.g. [200] | [400, 'No such file']
     #
-    # If any uploads yield non-200 statuses when submitted to S3, it will return:
-    # - An array of arrays of statuses and optional error messages corresponding to the individual
-    #   uploads.
-    #   E.g., for two documents uploaded, one successful and one failed, it returns:
-    #   [[200], [400, 'No such file or directory']]
+    # If any uploads yield non-200 statuses when submitted to S3, it raise a StandardError.
     #
-    # @return [Array<Integer, String>, Array<Array<Integer, String>>] Either an array of arrays, or
-    # an array with a status code and an optional error message string.
+    # @return [Array<Integer, String>] An array with a status code and an optional error message string.
     def handle_uploads
       results = @metadata['attachment_ids'].zip(@file_paths).map do |attachment_id, file_path|
         next if file_path.blank?
@@ -50,11 +44,21 @@ module IvcChampva
         response_status
       end.compact
 
-      all_success = results.all? { |(status, _)| status == 200 }
+      s3_err = nil
+      all_success = results.all? do |(status, err)|
+        s3_err = err if err # Collect last error present for logging purposes
+        status == 200
+      end
 
       if all_success
         generate_and_upload_meta_json
+      elsif Flipper.enabled?(:champva_require_all_s3_success, @current_user)
+        monitor.track_s3_upload_error(@metadata['uuid'], s3_err)
+        # Stop this submission in its tracks - entries will still be added to database
+        # for these files, but user will see error on the FE saying submission failed.
+        raise StandardError, "IVC ChampVa Forms - failed to upload all documents for submission: #{s3_err}"
       else
+        # array of arrays, e.g.: [[200], [400, 'S3 error']]
         results
       end
     end
