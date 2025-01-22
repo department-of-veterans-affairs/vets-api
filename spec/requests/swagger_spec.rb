@@ -735,9 +735,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
     context 'HCA tests' do
       let(:login_required) { HCA::EnrollmentEligibility::Constants::LOGIN_REQUIRED }
       let(:test_veteran) do
-        json_string = File.read(
-          Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json')
-        )
+        json_string = Rails.root.join('spec', 'fixtures', 'hca', 'veteran.json').read
         json = JSON.parse(json_string)
         json.delete('email')
         json.to_json
@@ -880,9 +878,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
 
     context 'Form1010Ezr tests' do
       let(:form) do
-        json_string = File.read(
-          Rails.root.join('spec', 'fixtures', 'form1010_ezr', 'valid_form.json')
-        )
+        json_string = Rails.root.join('spec', 'fixtures', 'form1010_ezr', 'valid_form.json').read
         json = JSON.parse(json_string)
         json.to_json
       end
@@ -1140,9 +1136,7 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
       end
 
       let(:form526v2) do
-        File.read(
-          Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json')
-        )
+        Rails.root.join('spec', 'support', 'disability_compensation_form', 'all_claims_fe_submission.json').read
       end
 
       it 'supports getting rated disabilities' do
@@ -3783,6 +3777,33 @@ RSpec.describe 'the v0 API documentation', order: :defined, type: %i[apivore req
             200,
             headers.merge('id' => claim_id)
           )
+        end
+      end
+    end
+  end
+
+  describe 'banners' do
+    describe 'GET /v0/banners' do
+      it 'requires path parameter' do
+        expect(subject).to validate(:get, '/v0/banners', 422, '_query_string' => 'type=full_width_banner_alert')
+      end
+
+      context 'when the service successfully returns banners' do
+        it 'supports getting banners without type parameter' do
+          VCR.use_cassette('banners/get_banners_success') do
+            expect(subject).to validate(:get, '/v0/banners', 200, '_query_string' => 'path=/some-va-path')
+          end
+        end
+
+        it 'supports getting banners with path and type parameters' do
+          VCR.use_cassette('banners/get_banners_with_type_success') do
+            expect(subject).to validate(
+              :get,
+              '/v0/banners',
+              200,
+              '_query_string' => 'path=full-va-path&type=full_width_banner_alert'
+            )
+          end
         end
       end
     end
