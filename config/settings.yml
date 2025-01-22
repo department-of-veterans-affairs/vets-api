@@ -1260,6 +1260,9 @@ vanotify:
         error:
           template_id: form527ez_error_email_template_id
           flipper_id: pension_error_email_notification
+        submitted:
+          template_id: form527ez_submitted_email_template_id
+          flipper_id: pension_submitted_email_notification
         received:
           template_id: form527ez_received_email_template_id
           flipper_id: pension_received_email_notification
