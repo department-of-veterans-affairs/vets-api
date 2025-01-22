@@ -85,6 +85,7 @@ module IvcChampva
             file_count: fetch_forms_by_uuid(form_uuid).where('file_name LIKE ?', '%supporting_doc%').count,
             pega_status: form.pega_status,
             created_at: form.created_at.strftime('%B %d, %Y'),
+            date_submitted: form.created_at.strftime('%B %d, %Y'),
             form_uuid: form.form_uuid
           }
 
