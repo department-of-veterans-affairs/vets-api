@@ -29,7 +29,9 @@ module TravelPay
     protected
 
     def authorize
-      raise Common::Exceptions::Forbidden, { detail: 'User not identity verified (LOA3/IAL2)' } unless @current_user.loa3?
+      unless @current_user.loa3?
+        raise Common::Exceptions::Forbidden, { detail: 'User not identity verified (LOA3/IAL2)' }
+      end
     end
 
     def before_logger
