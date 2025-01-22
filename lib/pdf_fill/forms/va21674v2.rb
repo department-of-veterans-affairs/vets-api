@@ -905,12 +905,88 @@ module PdfFill
         student_information['address']['country_name'] =
           extract_country(student_information['address'])
 
+        student_expected_earnings = student_information['student_expected_earnings_next_year']
+        student_earnings = student_information['student_earnings_from_school_year']
+        student_networth = student_information['student_networth_information']
+
+        if student_expected_earnings.present?
+          split_earnings(student_expected_earnings)
+        end
+
+        if student_earnings.present?
+          split_earnings(student_earnings)
+        end
+
+        if student_networth.present?
+          split_networth_information(student_networth)
+        end
+
         format_checkboxes(dependents_application)
       end
 
       # override from form_helper
       def select_checkbox(value)
         value ? 'On' : 'Off'
+      end
+
+      def split_earnings(parent_object)
+        return unless parent_object.present?
+        keys_to_process = [
+          'earnings_from_all_employment',
+          'annual_social_security_payments',
+          'other_annuities_income',
+          'all_other_income'
+        ]
+      
+        keys_to_process.each do |key|
+          value = parent_object[key]
+      
+          next unless value.present?
+      
+          cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
+      
+          parent_object[key] = {
+            'first' => (cleaned_value / 1000).to_s,         # Thousands
+            'second' => ((cleaned_value / 100) % 10).to_s,  # Hundreds
+            'third' => '00'                                 # Always zero cents
+          }
+        end
+      
+        parent_object
+      end
+
+      def split_networth_information(parent_object)
+        return unless parent_object.present?
+      
+        keys_to_process = [
+          'savings',
+          'securities',
+          'real_estate',
+          'other_assets',
+          'total_value'
+        ]
+      
+        keys_to_process.each do |key|
+          value = parent_object[key]
+      
+          next unless value.present?
+      
+          cleaned_value = value.to_s.gsub(/[^0-9]/, '').to_i
+      
+          first = (cleaned_value / 100000000).to_s                      # Million
+          second = ((cleaned_value / 100000) % 1000).to_s.rjust(3, '0') # Thousands
+          third = ((cleaned_value / 100) % 1000).to_s.rjust(3, '0')     # Hundreds
+          last = "00"                                                   # Always zero cents
+      
+          parent_object[key] = {
+            'first' => first,
+            'second' => second,
+            'third' => third,
+            'last' => last
+          }
+        end
+      
+        parent_object
       end
 
       # rubocop:disable Metrics/MethodLength
