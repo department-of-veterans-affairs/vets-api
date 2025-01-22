@@ -64,11 +64,8 @@ RUN bundle install \
   && find /usr/local/bundle/gems/ -name ".git" -type d -prune -execdir rm -rf {} +
 COPY --chown=nonroot:nonroot . .
 
-# Make the ImageMagick script executable
-RUN chmod +x bin/merge_imagemagick_policy
-
-# Execute the merge policy script for ImageMagick
-RUN bin/merge_imagemagick_policy
+# Make the ImageMagick script executable + execute
+RUN chmod +x bin/merge_imagemagick_policy && bin/merge_imagemagick_policy
 
 EXPOSE 3000
 
