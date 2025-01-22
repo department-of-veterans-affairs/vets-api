@@ -56,7 +56,7 @@ class SourceAppMiddleware
     appeals-testing
     appoint-a-representative
     ask-a-question
-    ask-va
+    ask-va-too
     auth
     avs
     burial-poc-v6
