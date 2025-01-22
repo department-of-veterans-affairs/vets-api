@@ -89,8 +89,8 @@ describe MPIPolicy do
       end
     end
 
-    context 'with a user who is missing EDIPI' do
-      let(:user) { build(:unauthorized_evss_user, :loa3) }
+    context 'with a user who is missing ICN' do
+      let(:user) { build(:user, icn: nil) }
 
       it 'denies access' do
         expect(subject).not_to permit(user, :mvi)
