@@ -119,7 +119,8 @@ RSpec.describe 'V0::Form1010Ezrs', type: :request do
           'cohabitedLastYear' => true,
           'spouseDateOfBirth' => '1970-02-21',
           'spouseSocialSecurityNumber' => '666740192',
-          'spouseIncomeYear' => '2024'}
+          'spouseIncomeYear' => '2024'
+        }
       end
       let(:current_user) { build(:evss_user, :loa3, icn: '1012830022V956566') }
 
