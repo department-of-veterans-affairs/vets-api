@@ -55,33 +55,7 @@ module AccreditedRepresentativePortal
 
           accreditations = []
 
-          insert_all(
-            Records::REPRESENTATIVES,
-            factory: %i[
-              accredited_individual
-              representative
-            ]
-          ) do |representative|
-            representative
-              .delete(:organization_ids)
-              .each do |organization_id|
-                accreditations.push(
-                  accredited_individual_id: representative[:id],
-                  accredited_organization_id: organization_id
-                )
-              end
-          end
-
-          insert_all(
-            accreditations,
-            factory: [
-              :accreditation
-            ],
-            unique_by: %i[
-              accredited_organization_id
-              accredited_individual_id
-            ]
-          )
+          #FIXME: add back accredited individuals when we're ready to populate
 
           insert_all(
             Records::CLAIMANTS,
