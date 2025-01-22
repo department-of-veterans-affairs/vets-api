@@ -177,6 +177,9 @@ features:
   champva_vanotify_custom_callback:
     actor_type: user
     description: Enables the custom callback_klass when sending IVC CHAMPVA failure emails with VA Notify
+  champva_vanotify_custom_confirmation_callback:
+    actor_type: user
+    description: Enables the custom callback_klass when sending IVC CHAMPVA confirmation emails with VA Notify
   champva_multiple_stamp_retry:
     actor_type: user
     description: Enables retry of file creation for some errors in CHAMPVA PDF stamping
@@ -192,6 +195,9 @@ features:
   champva_pdf_decrypt:
     actor_type: user
     description: Enables unlocking password protected file submissions in IVC CHAMPVA forms.
+  champva_require_all_s3_success:
+    actor_type: user
+    description: Enables raising a StandardError if any supporting documents fail to upload to S3 in IVC CHAMPVA forms.
   check_in_experience_enabled:
     actor_type: user
     description: Enables the health care check-in experiences
@@ -581,6 +587,10 @@ features:
   dispute_debt:
     actor_type: user
     description: Enables the Dispute Debt feature
+    enable_in_development: true
+  facilities_autosuggest_vamc_services_enabled:
+    actor_type: user
+    description: Allow use of the VA health facilities auto-suggest feature (versus static dropdown)
     enable_in_development: true
   facilities_ppms_suppress_all:
     actor_type: user
@@ -1003,6 +1013,10 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
+  mhv_secure_messaging_signature_settings:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings
+    enable_in_development: true
   mhv_medical_records_allow_txt_downloads:
     actor_type: user
     description: Allows users to download Medical Records data in TXT format
@@ -1114,6 +1128,9 @@ features:
   pension_error_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Action Needed email notification
+  pension_submitted_email_notification:
+    actor_type: cookie_id
+    description: Toggle sending of the Submission in Progress email notification
   pension_received_email_notification:
     actor_type: cookie_id
     description: Toggle sending of the Received email notification
@@ -1404,6 +1421,9 @@ features:
   va_notify_custom_errors:
     actor_type: user
     description: Custom error classes instead of the generic Common::Exceptions::BackendServiceException
+  va_notify_metadata_statsd_tags:
+    actor_type: user
+    description: Allow statsd tags in callback metadata to be a hash or array
   va_online_scheduling:
     actor_type: user
     description: Allows veterans to view their VA and Community Care appointments

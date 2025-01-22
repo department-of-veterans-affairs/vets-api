@@ -60,7 +60,7 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
           processor = class_double(VBADocuments::UploadProcessor).as_stubbed_const
           expect(processor).to receive(:perform_async).with(upload.guid, caller: described_class.name)
 
-          Timecop.travel(Time.zone.now + 25.minutes) do
+          Timecop.travel(25.minutes.from_now) do
             described_class.new.perform
 
             expect(upload.reload.status).to eq('uploaded')
@@ -91,7 +91,7 @@ RSpec.describe VBADocuments::UploadScanner, type: :job do
           processor = class_double(VBADocuments::UploadProcessor).as_stubbed_const
           expect(processor).not_to receive(:perform_async).with(upload.guid)
 
-          Timecop.travel(Time.zone.now + 25.minutes) do
+          Timecop.travel(25.minutes.from_now) do
             described_class.new.perform
 
             expect(upload.reload.status).to eq('expired')
