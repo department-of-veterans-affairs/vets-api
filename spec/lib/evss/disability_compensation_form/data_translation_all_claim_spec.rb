@@ -16,7 +16,6 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
     frozen_time = Time.zone.parse '2020-11-05 13:19:50 -0500'
     Timecop.freeze(frozen_time)
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
-    Flipper.disable('disability_526_toxic_exposure')
   end
 
   after { Timecop.return }
@@ -24,7 +23,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
   describe '#redacted' do
     context 'when the banking numbers include a *' do
       it 'returns true' do
-        expect(subject.send('redacted', '**234', '1212')).to eq(
+        expect(subject.send('redacted', '**234', '1212')).to be(
           true
         )
       end
@@ -32,7 +31,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
 
     context 'when the banking numbers dont include a *' do
       it 'returns false' do
-        expect(subject.send('redacted', '234', '1212')).to eq(
+        expect(subject.send('redacted', '234', '1212')).to be(
           false
         )
       end
@@ -619,7 +618,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'does not translate separation pay' do
-        expect(subject.send(:separation_pay)).to eq nil
+        expect(subject.send(:separation_pay)).to be_nil
       end
     end
 
@@ -634,7 +633,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'does not translate separation pay' do
-        expect(subject.send(:separation_pay)).to eq nil
+        expect(subject.send(:separation_pay)).to be_nil
       end
     end
 
@@ -1128,7 +1127,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'returns nil' do
-        expect(subject.send(:translate_homelessness)).to eq nil
+        expect(subject.send(:translate_homelessness)).to be_nil
       end
     end
 
@@ -1460,7 +1459,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
     end
 
-    context 'when there is an  `NONE` action type disability but it has a new secondary disability' do
+    context 'when there is an `NONE` action type disability but it has a new secondary disability' do
       let(:form_content) do
         {
           'form526' => {
@@ -1531,24 +1530,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'name' => 'new condition',
             'classificationCode' => 'Test Code',
             'specialIssues' => ['POW'],
-            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
-          }
-        ]
-      end
-
-      it 'adds the cause field if the TE flag is ON' do
-        Flipper.enable('disability_526_toxic_exposure')
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'new condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
             'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description",
             'cause' => 'NEW'
           }
         ]
-        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1578,25 +1563,10 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'classificationCode' => 'Test Code',
             'specialIssues' => ['POW'],
             'serviceRelevance' =>
-              "Worsened because of military service\nworsened condition description: worsened effects"
-          }
-        ]
-      end
-
-      it 'adds the cause field if the TE flag is ON' do
-        Flipper.enable('disability_526_toxic_exposure')
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'worsened condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
-            'serviceRelevance' =>
               "Worsened because of military service\nworsened condition description: worsened effects",
             'cause' => 'WORSENED'
           }
         ]
-        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1627,27 +1597,11 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
             'classificationCode' => 'Test Code',
             'specialIssues' => ['POW'],
             'serviceRelevance' =>
-              "Caused by VA care\nEvent: va condition description\n"\
-              "Location: va location\nTimeFrame: the third of october"
-          }
-        ]
-      end
-
-      it 'adds the cause field if the TE flag is ON' do
-        Flipper.enable('disability_526_toxic_exposure')
-        expect(subject.send(:translate_new_primary_disabilities, [])).to eq [
-          {
-            'disabilityActionType' => 'NEW',
-            'name' => 'va condition',
-            'classificationCode' => 'Test Code',
-            'specialIssues' => ['POW'],
-            'serviceRelevance' =>
-              "Caused by VA care\nEvent: va condition description\n"\
+              "Caused by VA care\nEvent: va condition description\n" \
               "Location: va location\nTimeFrame: the third of october",
             'cause' => 'VA'
           }
         ]
-        Flipper.disable('disability_526_toxic_exposure')
       end
     end
 
@@ -1763,7 +1717,8 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
           {
             'disabilityActionType' => 'NEW',
             'name' => 'brand new disability to be rated',
-            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description"
+            'serviceRelevance' => "Caused by an in-service event, injury, or exposure\nnew condition description",
+            'cause' => 'NEW'
           }
         ]
       end
@@ -1825,7 +1780,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         let(:date) { '' }
 
         it 'returns the year' do
-          expect(subject.send(:approximate_date, date)).to eq nil
+          expect(subject.send(:approximate_date, date)).to be_nil
         end
       end
     end
@@ -1966,7 +1921,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'bdd_qualified is true' do
-        expect(subject.send(:bdd_qualified?)).to eq true
+        expect(subject.send(:bdd_qualified?)).to be true
       end
 
       context 'when only gurard/reserves' do
@@ -1989,7 +1944,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
 
         it 'bdd_qualified is true' do
-          expect(subject.send(:bdd_qualified?)).to eq false
+          expect(subject.send(:bdd_qualified?)).to be false
         end
       end
 
@@ -2019,7 +1974,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
         end
 
         it 'bdd_qualified is true' do
-          expect(subject.send(:bdd_qualified?)).to eq true
+          expect(subject.send(:bdd_qualified?)).to be true
         end
       end
     end
@@ -2044,7 +1999,7 @@ describe EVSS::DisabilityCompensationForm::DataTranslationAllClaim do
       end
 
       it 'bdd_qualified is false' do
-        expect(subject.send(:bdd_qualified?)).to eq false
+        expect(subject.send(:bdd_qualified?)).to be false
       end
     end
   end

@@ -102,7 +102,7 @@ RSpec.describe Mobile::ApplicationController, type: :controller do
       end
 
       context 'with a user with id theft flag set' do
-        before { FactoryBot.create(:iam_user, :id_theft_flag) }
+        before { create(:iam_user, :id_theft_flag) }
 
         it 'returns unauthorized' do
           VCR.use_cassette('iam_ssoe_oauth/introspect_active') do
