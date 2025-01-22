@@ -834,13 +834,15 @@ module PdfFill
       # rubocop:disable Metrics/MethodLength
       def merge_dates
         dependents_application = @form_data['dependents_application']
-        current_term_dates = dependents_application['current_term_dates']
+        student_information = dependents_application['student_information']
+        school_information = student_information['school_information']
+        # current_term_dates = dependents_application['current_term_dates']
+        current_term_dates = school_information['current_term_dates']
         child_stopped_attending_school = dependents_application['child_stopped_attending_school']
         # last_term_school_information = dependents_application['last_term_school_information']
-        school_information = dependents_application['school_information']
-        last_term_school_information = school_information['last_term_school_information'] if school_information
-        student_address_marriage_tuition = dependents_application['student_address_marriage_tuition']
-        agency_or_program = dependents_application['agency_or_program']
+        last_term_school_information = school_information['last_term_school_information']
+        child_marriage = dependents_application['child_marriage']
+        # agency_or_program = dependents_application['agency_or_program']
 
         dependents_application['student_information']['birth_date'] =
           split_date(dependents_application['student_information']['birth_date'])
@@ -864,21 +866,21 @@ module PdfFill
           last_term_school_information['date_term_ended'] = split_date(last_term_school_information['date_term_ended'])
         end
 
-        if student_address_marriage_tuition.present?
-          student_address_marriage_tuition['marriage_date'] =
-            split_date(student_address_marriage_tuition['marriage_date'])
-
-          # handle old format of fields before merging in front end, remove once merged
-          if student_address_marriage_tuition['date_payments_began'].present?
-            date_payments_began = student_address_marriage_tuition['date_payments_began']
-            student_address_marriage_tuition['date_payments_began'] = split_date(date_payments_began)
-          end
+        if child_marriage.present?
+          child_marriage['date_married'] =
+            split_date(child_marriage['date_married'])
         end
 
-        if agency_or_program.present?
-          agency_or_program['date_payments_began'] =
-            split_date(agency_or_program['date_payments_began'])
+        # handle old format of fields before merging in front end, remove once merged
+        if student_information['benefit_payment_date'].present?
+          benefit_payment_date = student_information['benefit_payment_date']
+          student_information['benefit_payment_date'] = split_date(benefit_payment_date)
         end
+
+        # if agency_or_program.present?
+        #   agency_or_program['date_payments_began'] =
+        #     split_date(agency_or_program['date_payments_began'])
+        # end
       end
       # rubocop:enable Metrics/MethodLength
 
@@ -898,10 +900,10 @@ module PdfFill
         student_information['ssn'] =
           split_ssn(student_information['ssn'])
 
-        dependents_application['student_address_marriage_tuition']['address']['zip_code'] =
-          split_postal_code(dependents_application['student_address_marriage_tuition']['address'])
-        dependents_application['student_address_marriage_tuition']['address']['country_name'] =
-          extract_country(dependents_application['student_address_marriage_tuition']['address'])
+        student_information['address']['postal_code'] =
+          split_postal_code(student_information['address'])
+        student_information['address']['country_name'] =
+          extract_country(student_information['address'])
 
         format_checkboxes(dependents_application)
       end
@@ -913,32 +915,33 @@ module PdfFill
 
       # rubocop:disable Metrics/MethodLength
       def format_checkboxes(dependents_application)
-        was_married = dependents_application['student_address_marriage_tuition']['was_married']
-        dependents_application['student_address_marriage_tuition']['was_married'] = {
+        student_information = dependents_application['student_information']
+        was_married = student_information['was_married']
+        student_information['was_married'] = {
           'was_married_yes' => select_checkbox(was_married),
           'was_married_no' => select_checkbox(!was_married)
         }
 
-        is_paid = dependents_application['student_address_marriage_tuition']['tuition_is_paid_by_gov_agency']
-        dependents_application['student_address_marriage_tuition']['tuition_is_paid_by_gov_agency'] = {
+        is_paid = student_information['tuition_is_paid_by_gov_agency']
+        student_information['tuition_is_paid_by_gov_agency'] = {
           'is_paid_yes' => select_checkbox(is_paid),
           'is_paid_no' => select_checkbox(!is_paid)
         }
 
-        is_full_time = dependents_application['program_information']['student_is_enrolled_full_time']
-        dependents_application['program_information']['student_is_enrolled_full_time'] = {
+        is_full_time = student_information['school_information']['student_is_enrolled_full_time']
+        student_information['school_information']['student_is_enrolled_full_time'] = {
           'full_time_yes' => select_checkbox(is_full_time),
           'full_time_no' => select_checkbox(!is_full_time)
         }
 
-        did_attend = dependents_application['student_did_attend_school_last_term']
-        dependents_application['student_did_attend_school_last_term'] = {
+        did_attend = student_information['school_information']['student_did_attend_school_last_term']
+        student_information['school_information']['student_did_attend_school_last_term'] = {
           'did_attend_yes' => select_checkbox(did_attend),
           'did_attend_no' => select_checkbox(!did_attend)
         }
 
-        is_school_accredited = dependents_application['current_term_dates']['is_school_accredited']
-        dependents_application['current_term_dates']['is_school_accredited'] = {
+        is_school_accredited = student_information['school_information']['is_school_accredited']
+        student_information['school_information']['is_school_accredited'] = {
           'is_school_accredited_yes' => select_radio_button(is_school_accredited),
           'is_school_accredited_no' => select_radio_button(!is_school_accredited)
         }
