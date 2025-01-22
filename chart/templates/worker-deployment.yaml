@@ -58,11 +58,10 @@ spec:
         - name: merge-imagemagick-policy
            # need Imagemagick policy file from Vets API
           image: "{{ $root.Values.image.value }}:{{ $root.Values.image.tag }}"
-          command:
-            - /bin/sh
-            - -c
+          command: ["bin/rails"]
+          args:
+            - runner
             - |
-              bin/rails runner '
               require "nokogiri"
               # Read the original and new policy files
               policy1 = Nokogiri::XML(File.read("/etc/ImageMagick-6/policy.xml"))
@@ -73,7 +72,6 @@ spec:
               end
               # Write the merged policy to shared volume
               File.write("/tmp_workspace/policy.xml", policy1.to_xml)
-              '
           volumeMounts:
             - name: imagemagick-policy-volume
               mountPath: /tmp_policy/new-policy.xml
