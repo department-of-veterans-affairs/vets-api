@@ -41,7 +41,7 @@ RSpec.describe BenefitsClaims::Service do
       end
 
       describe 'when requesting a list of benefits claims' do
-        context 'when certain evidence requests are not suppressed' do
+        context 'when :cst_suppress_evidence_requests is disabled' do
           before do
             allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(false)
           end
@@ -82,7 +82,7 @@ RSpec.describe BenefitsClaims::Service do
           end
         end
 
-        context 'when certain evidence requests are suppressed' do
+        context 'when :cst_suppress_evidence_requests is enabled' do
           before do
             allow(Flipper).to receive(:enabled?).with(:cst_suppress_evidence_requests).and_return(true)
           end
