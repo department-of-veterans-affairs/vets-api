@@ -215,7 +215,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_code' => {
+                'state_province' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
@@ -256,7 +256,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_code' => {
+                'state_province' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
@@ -288,7 +288,7 @@ RSpec.describe Organizations::Update do
           ]
         }
       end
-      let(:api_response2) do
+      let(:api_response2_v2) do
         {
           'candidate_addresses' => [
             {
@@ -297,7 +297,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_code' => {
+                'state_province' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
@@ -329,7 +329,7 @@ RSpec.describe Organizations::Update do
           ]
         }
       end
-      let(:api_response3) do
+      let(:api_response3_v2) do
         {
           'candidate_addresses' => [
             {
@@ -338,7 +338,7 @@ RSpec.describe Organizations::Update do
                   'name' => 'Kings',
                   'county_fips_code' => '36047'
                 },
-                'state_code' => {
+                'state_province' => {
                   'name' => 'New York',
                   'code' => 'NY'
                 },
@@ -375,7 +375,8 @@ RSpec.describe Organizations::Update do
         before do
           Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response1_v2)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
+                                                                   api_response1_v2)
         end
 
         it 'does not update the organization address' do
@@ -396,8 +397,9 @@ RSpec.describe Organizations::Update do
         before do
           Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
-                                                                   api_response2)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
+                                                                   api_response_with_zero_v2,
+                                                                   api_response2_v2)
         end
 
         it 'does not update the organization address' do
@@ -418,8 +420,10 @@ RSpec.describe Organizations::Update do
         before do
           Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
-                                                                   api_response_with_zero_v2, api_response3)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
+                                                                   api_response_with_zero_v2,
+                                                                   api_response_with_zero_v2,
+                                                                   api_response3_v2)
         end
 
         it 'updates the organization address' do
@@ -440,8 +444,10 @@ RSpec.describe Organizations::Update do
         before do
           Flipper.disable(:va_v3_contact_information_service)
           allow(VAProfile::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
-                                                                   api_response_with_zero_v2, api_response_with_zero_v2)
+          allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
+                                                                   api_response_with_zero_v2,
+                                                                   api_response_with_zero_v2,
+                                                                   api_response_with_zero_v2)
         end
 
         it 'does not update the organization address' do
@@ -544,7 +550,8 @@ RSpec.describe Organizations::Update do
 
       before do
         Flipper.enable(:va_v3_contact_information_service)
-        allow_any_instance_of(VAProfile::V3::AddressValidation::Service).to receive(:candidate).and_return(api_response_v3)
+        address_validation_service = VAProfile::V3::AddressValidation::Service
+        allow_any_instance_of(address_validation_service).to receive(:candidate).and_return(api_response_v3)
         # expect_any_instance_of(SlackNotify::Client).to receive(:notify)
       end
 
@@ -647,7 +654,7 @@ RSpec.describe Organizations::Update do
             ]
           }
         end
-        let(:api_response1) do
+        let(:api_response1_v3) do
           {
             'candidate_addresses' => [
               {
@@ -682,7 +689,7 @@ RSpec.describe Organizations::Update do
             ]
           }
         end
-        let(:api_response2) do
+        let(:api_response2_v3) do
           {
             'candidate_addresses' => [
               {
@@ -717,7 +724,7 @@ RSpec.describe Organizations::Update do
             ]
           }
         end
-        let(:api_response3) do
+        let(:api_response3_v3) do
           {
             'candidate_addresses' => [
               {
@@ -756,7 +763,7 @@ RSpec.describe Organizations::Update do
         context 'when the first retry has non-zero coordinates' do
           before do
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response1)
+            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response1_v3)
           end
 
           it 'does not update the organization address' do
@@ -776,8 +783,9 @@ RSpec.describe Organizations::Update do
         context 'when the second retry has non-zero coordinates' do
           before do
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
-                                                                     api_response2)
+            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
+                                                                     api_response_with_zero_v2,
+                                                                     api_response2_v3)
           end
 
           it 'does not update the organization address' do
@@ -797,8 +805,10 @@ RSpec.describe Organizations::Update do
         context 'when the third retry has non-zero coordinates' do
           before do
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
-                                                                     api_response_with_zero_v2, api_response3)
+            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
+                                                                     api_response_with_zero_v2,
+                                                                     api_response_with_zero_v2,
+                                                                     api_response3_v3)
           end
 
           it 'updates the organization address' do
@@ -818,8 +828,10 @@ RSpec.describe Organizations::Update do
         context 'when the retry coordinates are all zero' do
           before do
             allow(VAProfile::V3::AddressValidation::Service).to receive(:new).and_return(validation_stub)
-            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2, api_response_with_zero_v2,
-                                                                     api_response_with_zero_v2, api_response_with_zero_v2)
+            allow(validation_stub).to receive(:candidate).and_return(api_response_with_zero_v2,
+                                                                     api_response_with_zero_v2,
+                                                                     api_response_with_zero_v2,
+                                                                     api_response_with_zero_v2)
           end
 
           it 'does not update the organization address' do
