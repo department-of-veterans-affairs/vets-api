@@ -121,7 +121,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
         updated = pending.reload
         expect(updated.aasm_state).to eq 'failure'
-        expect(updated.lighthouse_updated_at).to eq updated_at
+        expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
         expect(updated.error_message).to eq 'expired'
       end
 
@@ -137,7 +137,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
         updated = pending.reload
         expect(updated.aasm_state).to eq 'failure'
-        expect(updated.lighthouse_updated_at).to eq updated_at
+        expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
         expect(updated.error_message).to eq 'CODE###: TEST ERROR'
       end
 
@@ -153,7 +153,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
         updated = pending.reload
         expect(updated.aasm_state).to eq 'vbms'
-        expect(updated.lighthouse_updated_at).to eq updated_at
+        expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
         expect(updated.error_message).to be_nil
       end
 
@@ -169,7 +169,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
         updated = pending.reload
         expect(updated.aasm_state).to eq 'pending'
-        expect(updated.lighthouse_updated_at).to eq updated_at
+        expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
         expect(updated.error_message).to be_nil
       end
 
@@ -186,7 +186,7 @@ Rspec.describe BenefitsIntake::SubmissionStatusJob, type: :job do
 
         updated = pending.reload
         expect(updated.aasm_state).to eq 'pending'
-        expect(updated.lighthouse_updated_at).to eq updated_at
+        expect(updated.lighthouse_updated_at).to be_the_same_time_as updated_at
         expect(updated.error_message).to be_nil
       end
     end
