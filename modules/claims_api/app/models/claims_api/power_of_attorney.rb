@@ -69,6 +69,27 @@ module ClaimsApi
       self.md5 = Digest::MD5.hexdigest form_data.merge(headers).to_json
     end
 
+    def steps
+      processes = ClaimsApi::Process.where(processable: self).in_order_of(:step_type,
+                                                                          ClaimsApi::Process::VALID_POA_STEP_TYPES).to_a
+
+      ClaimsApi::Process::VALID_POA_STEP_TYPES.each do |step_type|
+        unless processes.any? { |p| p.step_type == step_type }
+          index = ClaimsApi::Process::VALID_POA_STEP_TYPES.index(step_type)
+          processes.insert(index, ClaimsApi::Process.new(step_type:, step_status: 'NOT_STARTED', processable: self))
+        end
+      end
+
+      processes.map do |p|
+        {
+          type: p.step_type,
+          status: p.step_status,
+          completed_at: p.completed_at,
+          next_step: p.next_step
+        }
+      end
+    end
+
     def uploader
       @uploader ||= ClaimsApi::PowerOfAttorneyUploader.new(id)
     end

@@ -24,5 +24,7 @@ module ClaimsApi
         object[:status]
       end
     end
+
+    attribute :steps
   end
 end
