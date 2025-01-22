@@ -17,7 +17,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
     Flipper.disable(:disability_compensation_lighthouse_claims_service_provider)
     Flipper.disable(:disability_compensation_production_tester)
     Flipper.disable(:disability_compensation_fail_submission)
-
   end
 
   let(:user) { create(:user, :loa3) }
@@ -64,11 +63,8 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           cassettes.each { |cassette| VCR.insert_cassette(cassette) }
           Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_BACKGROUND)
           Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
-          #Flipper.disable(:disability_526_migrate_contention_classification)
-          user = OpenStruct.new({flipper_id: submission.user_uuid})
-          allow(Flipper).to receive(:enabled?).and_call_original
           allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
-                                                    user).and_return(false)
+                                                    anything).and_return(false)
         end
 
         after do
@@ -338,6 +334,9 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
                 before do
                   Flipper.enable(:disability_526_ep_merge_api, user)
                   allow(Flipper).to receive(:enabled?).and_call_original
+                  # had to mock this feature flag again to ensure that the feature flag is disabled
+                  allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
+                                                            anything).and_return(false)
                 end
 
                 it 'records the eligible claim ID and adds the EP400 special issue to the submission' do
@@ -886,6 +885,30 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               described_class.drain
               expect(Form526JobStatus.last.status).to eq Form526JobStatus::STATUS[:non_retryable_error]
             end
+          end
+        end
+
+        context 'when migrated endpoint feature flag is enabled' do
+          let(:submission) do
+            create(:form526_submission,
+                   :with_mixed_action_disabilities_and_free_text,
+                   user_uuid: user.uuid,
+                   auth_headers_json: auth_headers.to_json,
+                   saved_claim_id: saved_claim.id)
+          end
+
+          before do
+            allow(Flipper).to receive(:enabled?).with(:disability_526_migrate_contention_classification,
+                                                      anything).and_return(true)
+            allow(Rails.logger).to receive(:info)
+          end
+
+          it 'logs a message to alert that the endpoint is not established' do
+            subject.perform_async(submission.id)
+            described_class.drain
+            expect(Rails.logger).to have_received(:info).with(
+              'Migrated endpoint called but is not available'
+            )
           end
         end
       end

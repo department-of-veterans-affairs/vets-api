@@ -172,7 +172,7 @@ module Form526ClaimFastTrackingConcern
     vro_client = VirtualRegionalOffice::Client.new
 
     response = if Flipper.enabled?(:disability_526_migrate_contention_classification, user)
-                 Rails.logger.info('Migrated endpoint for classification service called but not yet active')
+                 Rails.logger.info('Migrated endpoint called but is not available')
                else
                  vro_client.classify_vagov_contentions_expanded(params)
                end
