@@ -38,7 +38,6 @@ module MPI
     UPDATE_PROFILE_TYPE = 'update_profile'
     FIND_PROFILE_TYPE = 'find_profile'
     FIND_PROFILE_BY_IDENTIFIER_TYPE = 'find_profile_by_identifier'
-    FIND_PROFILE_BY_IDENTIFIER_ORCH_SEARCH_TYPE = 'find_profile_by_identifier_orch_search'
     FIND_PROFILE_BY_EDIPI_TYPE = 'find_profile_by_edipi'
     FIND_PROFILE_BY_ATTRIBUTES_TYPE = 'find_profile_by_attributes'
     FIND_PROFILE_BY_FACILITY_TYPE = 'find_profile_by_facility'

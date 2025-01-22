@@ -7,19 +7,16 @@ require 'mpi/constants'
 module MPI
   module Messages
     class FindProfileByIdentifier
-      attr_reader :identifier, :identifier_type, :edipi, :orch_search, :search_type
+      attr_reader :identifier, :identifier_type, :search_type
 
-      def initialize(identifier:, identifier_type:, edipi: nil, orch_search: false,
-                     search_type: Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
+      def initialize(identifier:, identifier_type:, search_type: Constants::CORRELATION_WITH_RELATIONSHIP_DATA)
         @identifier = identifier
         @identifier_type = identifier_type
-        @orch_search = orch_search
-        @edipi = edipi
         @search_type = search_type
       end
 
       def perform
-        validate_required_fields
+        validate_types
         Messages::RequestBuilder.new(extension: Constants::FIND_PROFILE, body: build_body).perform
       rescue => e
         Rails.logger.error "[FindProfileByIdentifier] Failed to build request: #{e.message}"
@@ -28,11 +25,10 @@ module MPI
 
       private
 
-      def validate_required_fields
+      def validate_types
         unless Constants::QUERY_IDENTIFIERS.include?(identifier_type)
           raise Errors::ArgumentError, "Identifier type is not supported, identifier_type=#{identifier_type}"
         end
-        raise Errors::ArgumentError, 'EDIPI is required for orch_search' if edipi.blank? && orch_search
       end
 
       def correlation_identifier
@@ -51,7 +47,6 @@ module MPI
       def build_body
         body = RequestHelper.build_control_act_process_element
         body << RequestHelper.build_code(code: Constants::FIND_PROFILE_CONTROL_ACT_PROCESS)
-        body << build_data_enterer if orch_search
         body << query_by_parameter
         body
       end
@@ -64,19 +59,6 @@ module MPI
       def build_parameter_list
         el = RequestHelper.build_parameter_list_element
         el << RequestHelper.build_identifier(identifier: correlation_identifier, root:)
-        el << RequestHelper.build_vba_orchestration if orch_search
-        el
-      end
-
-      def build_data_enterer
-        element = RequestHelper.build_data_enterer_element
-        element << build_assigned_person
-      end
-
-      def build_assigned_person
-        element = RequestHelper.build_assigned_person_element
-        element << RequestHelper.build_represented_organization(edipi:)
-        element
       end
 
       def root

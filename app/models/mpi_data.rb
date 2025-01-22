@@ -172,12 +172,10 @@ class MPIData < Common::RedisStore
     cached?(key: user_key)
   end
 
-  # The status of the MPI Add Person Proxy Add call. An Orchestrated MVI Search needs to be made before an
-  # MPI add person proxy add call is made.
+  # The status of the MPI Add Person Proxy Add call. An MPI search needs to be made first to obtain a search token.
   def add_person_proxy
-    search_response = mpi_service.find_profile_by_identifier_with_orch_search(identifier: user_icn,
-                                                                              identifier_type: MPI::Constants::ICN,
-                                                                              edipi: user_edipi)
+    search_response = mpi_service.find_profile_by_identifier(identifier: user_icn,
+                                                             identifier_type: MPI::Constants::ICN)
     if search_response.ok?
       @mvi_response = search_response
       add_response = mpi_service.add_person_proxy(last_name: search_response.profile.family_name,

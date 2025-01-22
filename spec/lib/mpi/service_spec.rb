@@ -840,40 +840,6 @@ describe MPI::Service do
     end
   end
 
-  describe '#find_profile_by_identifier_with_orch_search' do
-    subject do
-      mpi_service.find_profile_by_identifier_with_orch_search(identifier:,
-                                                              identifier_type:,
-                                                              edipi:,
-                                                              search_type:)
-    end
-
-    let(:statsd_caller) { 'find_profile_by_identifier_with_orch_search' }
-    let(:identifier) { 'some-icn' }
-    let(:identifier_type) { MPI::Constants::ICN }
-    let(:edipi) { 'some-edipi' }
-    let(:search_type) { 'some-search-type' }
-
-    context 'malformed request' do
-      let(:edipi) { nil }
-      let(:missing_keys) { [:edipi] }
-      let(:expected_error) { MPI::Errors::ArgumentError }
-      let(:expected_error_message) { 'EDIPI is required for orch_search' }
-
-      it 'raises a required values missing error' do
-        expect { subject }.to raise_error(expected_error, expected_error_message)
-      end
-    end
-
-    context 'valid request' do
-      it_behaves_like 'find profile success response'
-    end
-
-    context 'invalid requests' do
-      it_behaves_like 'find profile invalid requests'
-    end
-  end
-
   describe '#find_profile_by_attributes' do
     subject do
       mpi_service.find_profile_by_attributes(first_name:,
