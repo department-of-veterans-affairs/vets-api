@@ -49,7 +49,7 @@ module AccreditedRepresentativePortal
           insert_all(
             Records::ORGANIZATIONS,
             factory: [
-              :accredited_organization
+              :organization
             ]
           )
 

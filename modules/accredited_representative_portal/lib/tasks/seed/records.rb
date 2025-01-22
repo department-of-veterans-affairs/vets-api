@@ -84,27 +84,27 @@ module AccreditedRepresentativePortal
         {
           name: 'Trustworthy Organization',
           id: '23563963-e31c-4797-a259-e26b727072e1',
-          poa_code: 'YHZ'
+          poa: 'YHZ'
         },
         {
           name: 'Good Representatives R Us',
           id: '41d36596-67d1-4b23-ab58-927447e88d07',
-          poa_code: 'SVS'
+          poa: 'SVS'
         },
         {
           name: 'We Help Vets',
           id: '83b7de4d-a2cd-4b15-9e32-af48804c3e31',
-          poa_code: 'FIX'
+          poa: 'FIX'
         },
         {
           name: 'The Swift Reps',
           id: '31f61e0f-8993-4c57-86f2-7f22e9ca9e68',
-          poa_code: 'MIM'
+          poa: 'MIM'
         },
         {
           name: 'Department of Veterans Fake Data',
           id: '4e21e4b2-02e5-4a96-ace3-8b56b97a275c',
-          poa_code: 'GWI'
+          poa: 'GWI'
         }
       ].freeze
 

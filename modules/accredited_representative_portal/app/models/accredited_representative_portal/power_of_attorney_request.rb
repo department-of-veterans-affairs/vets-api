@@ -25,6 +25,10 @@ module AccreditedRepresentativePortal
                inverse_of: :power_of_attorney_requests,
                polymorphic: true
 
+    belongs_to :organization, class_name: 'Veteran::Service::Organization', foreign_key: :ogc_poa_code, primary_key: :poa
+
+    default_scope { includes(:organization) }
+    
     before_validation :set_claimant_type
 
     validates :claimant_type, inclusion: { in: ClaimantTypes::ALL }

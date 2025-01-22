@@ -6,10 +6,8 @@ module AccreditedRepresentativePortal
       attribute :type do
         'veteran_service_organization'
       end
-
-      attribute :name do
-        "TODO: implement"
-      end
+ 
+      attribute :name 
     end
   end
 end
