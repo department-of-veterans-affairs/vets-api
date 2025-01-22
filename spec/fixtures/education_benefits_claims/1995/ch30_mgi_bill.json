@@ -1,0 +1,27 @@
+{
+  "veteranFullName": {
+    "first": "Joe",
+    "last": "Tester"
+  },
+  "veteranSocialSecurityNumber": "223334444",
+  "veteranAddress": {
+    "city": "Austin",
+    "country": "USA",
+    "postalCode": "73301",
+    "state": "TX",
+    "street": "123 Test St"
+  },
+  "applicantServed": "No",
+  "sponsorSocialSecurityNumber": "444433322",
+  "applicantGender": "F",
+  "dateOfBirth": "1970-01-01",
+  "email": "test@test.com",
+  "benefit": "chapter33Post911",
+  "benefitUpdate": "chapter33Post911",
+  "rudisillReview": "Yes",
+  "changeAnotherBenefit": "Yes",
+  "benefitAppliedFor": "chapter30",
+  "remarks": "remarks",
+  "programName": "program name",
+  "privacyAgreementAccepted": true
+}
