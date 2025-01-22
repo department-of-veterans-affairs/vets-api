@@ -67,6 +67,9 @@ COPY --chown=nonroot:nonroot . .
 # Make the ImageMagick script executable
 RUN chmod +x bin/merge_imagemagick_policy
 
+# Execute the merge policy script for ImageMagick
+RUN bin/merge_imagemagick_policy
+
 EXPOSE 3000
 
 USER nonroot
