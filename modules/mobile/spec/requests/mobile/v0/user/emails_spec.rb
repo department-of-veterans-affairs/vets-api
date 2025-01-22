@@ -10,9 +10,9 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
   describe 'POST /mobile/v0/user/emails' do
     context 'with a valid email that takes two tries to complete' do
       before do
-        VCR.use_cassette('mobile/profile/get_email_status_complete') do
-          VCR.use_cassette('mobile/profile/get_email_status_incomplete') do
-            VCR.use_cassette('mobile/profile/post_email_initial') do
+        VCR.use_cassette('mobile/profile/v2/get_email_status_complete') do
+          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete') do
+            VCR.use_cassette('mobile/profile/v2/post_email_initial') do
               post '/mobile/v0/user/emails',
                    params: { id: 42, email_address: 'person42@example.com' }.to_json,
                    headers: sis_headers(json: true)
@@ -69,9 +69,9 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
   describe 'PUT /mobile/v0/user/emails' do
     context 'with a valid email that takes two tries to complete' do
       before do
-        VCR.use_cassette('mobile/profile/get_email_status_complete') do
-          VCR.use_cassette('mobile/profile/get_email_status_incomplete') do
-            VCR.use_cassette('mobile/profile/put_email_initial') do
+        VCR.use_cassette('mobile/profile/v2/get_email_status_complete') do
+          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete') do
+            VCR.use_cassette('mobile/profile/v2/put_email_initial') do
               put '/mobile/v0/user/emails',
                   params: { id: 42, email_address: 'person42@example.com' }.to_json,
                   headers: sis_headers(json: true)
@@ -137,9 +137,9 @@ RSpec.describe 'Mobile::V0::User::Email', type: :request do
         allow_any_instance_of(User).to receive(:icn).and_return('64762895576664260')
         email.id = id_in_cassette
 
-        VCR.use_cassette('mobile/profile/get_email_status_complete') do
-          VCR.use_cassette('mobile/profile/get_email_status_incomplete') do
-            VCR.use_cassette('mobile/profile/delete_email_initial') do
+        VCR.use_cassette('mobile/profile/v2/get_email_status_complete') do
+          VCR.use_cassette('mobile/profile/v2/get_email_status_incomplete') do
+            VCR.use_cassette('mobile/profile/v2/delete_email_initial') do
               delete '/mobile/v0/user/emails',
                      params: { id: 42, email_address: 'person42@example.com' }.to_json,
                      headers: sis_headers(json: true)

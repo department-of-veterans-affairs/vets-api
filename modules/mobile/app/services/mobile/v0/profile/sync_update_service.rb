@@ -129,7 +129,7 @@ module Mobile
         end
 
         def contact_information_service
-          VAProfile::ContactInformation::Service.new @user
+          VAProfile::V2::ContactInformation::Service.new @user
         end
 
         def raise_timeout_error(_elapsed, _try)
