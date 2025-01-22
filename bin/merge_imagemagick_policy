@@ -17,4 +17,4 @@ policy2.xpath('//policy').each do |policy|
 end
 
 # Write the merged policy back
-File.write(original_policy_path, policy1.to_xml)
+File.write(original_policy_path, policy1.to_xml(indent: 2))
