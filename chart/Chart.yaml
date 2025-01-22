@@ -110,7 +110,8 @@ type: application
 # 0.15.6  - move socat proxy definition to parent helm chart
 # 0.15.7  - adjust common secret to pull from env_vars sub path
 # 0.15.8  - adjust ImageMagick default Policy via volumes/volumeMount approach
-version: 0.15.8
+# 0.15.9  - Fix issue with ImageMagick initContainers command
+version: 0.15.9
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
