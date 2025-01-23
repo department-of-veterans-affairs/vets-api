@@ -38,8 +38,8 @@ module MyHealth
       def show
         id = params[:id].try(:to_i)
         resource = if Flipper.enabled?(:mhv_medications_display_grouping)
-                     # TODO: remove remove_pf_pd when PF and PD are allowed on va.gov
-                     get_single_rx_from_grouped_list(remove_pf_pd(collection_resource.data), id)
+                     # TODO: remove remove_pf when PF and PD are allowed on va.gov
+                     get_single_rx_from_grouped_list(remove_pf(collection_resource.data), id)
                    else
                      client.get_rx_details(id)
                    end
@@ -173,7 +173,7 @@ module MyHealth
       end
 
       def resource_data_modifications(resource)
-        resource.data = remove_pf_pd(resource.data) # TODO: remove this line when PF and PD are allowed on va.gov
+        resource.data = remove_pf(resource.data) # TODO: remove this line when PF is allowed on va.gov
         resource.data = group_prescriptions(resource.data) if Flipper.enabled?(:mhv_medications_display_grouping)
         resource.data = filter_non_va_meds(resource.data)
       end
@@ -208,10 +208,9 @@ module MyHealth
         list.select { |rx| non_active_statuses.include?(rx.disp_status) }.length
       end
 
-      # TODO: remove once pf and pd are allowed on va.gov
-      def remove_pf_pd(data)
-        sources_to_remove_from_data = %w[PF PD]
-        data.reject { |item| sources_to_remove_from_data.include?(item.prescription_source) }
+      # TODO: remove once pf is allowed on va.gov
+      def remove_pf(data)
+        data.reject { |item| item.prescription_source.equal? 'PF' }
       end
     end
   end
