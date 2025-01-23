@@ -427,3 +427,12 @@ links:
     provider: Datadog
     url: https://vagov.ddog-gov.com/dashboard/szu-xny-9fu/public-websites-dashboard
 integrations: {}
+---
+schema-version: v2.2
+dd-service: va_decision_letters_bot
+team: chatbot
+application: Chatbot
+tags:
+  - va_decision_letters_bot
+languages:
+  - javascript
