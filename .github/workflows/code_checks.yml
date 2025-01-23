@@ -192,7 +192,7 @@ jobs:
     if: always()
     needs: tests
     permissions: write-all
-    runs-on: ubuntu-16-cores-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/download-artifact@v4
