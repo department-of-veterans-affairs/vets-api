@@ -213,7 +213,7 @@ RSpec.describe BenefitsIntakeStatusJob, type: :job do
 
     describe 'updating the Burial form submission status' do
       before do
-        Flipper.enable(:burial_received_email_notification)
+        allow(Flipper).to receive(:enabled?).with(:burial_received_email_notification).and_return(true)
       end
 
       it 'updates the burial status with vbms from the bulk status report endpoint' do
