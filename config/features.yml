@@ -1609,9 +1609,6 @@ features:
   dhp_connected_devices_fitbit:
     actor_type: user
     description: Enables linking between VA.gov account and fitbit account
-  show_expandable_vamc_alert:
-    actor_type: user
-    description: Allows expandable alerts to be visible in vamc
   payment_history:
     actor_type: user
     description: Allows manual enabling/disabling payment history when BGS is acting up (5 min response times)
