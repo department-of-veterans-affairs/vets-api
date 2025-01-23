@@ -83,11 +83,11 @@ module ClaimsApi
           )
       end
 
-      module ClaimantService
+      module ClaimantWebService
         DEFINITION =
           Service.new(
             bean: ClaimantServiceBean::DEFINITION,
-            path: 'ClaimantService'
+            path: 'ClaimantWebService'
           )
       end
 
