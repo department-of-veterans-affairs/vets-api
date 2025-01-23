@@ -13,7 +13,7 @@ module Pensions
 
     private
 
-    # @see VANotify::NotificationEmail::SavedClaim#claim_class
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#claim_class
     def claim_class
       Pensions::SavedClaim
     end
@@ -31,7 +31,7 @@ module Pensions
       default.merge(pensions)
     end
 
-    # @see VANotify::NotificationEmail::SavedClaim#callback_class
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_class
     def callback_klass
       Pensions::NotificationCallback.to_s
     end
