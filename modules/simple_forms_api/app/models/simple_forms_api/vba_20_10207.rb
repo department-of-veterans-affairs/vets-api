@@ -63,6 +63,16 @@ module SimpleFormsApi
       }
     end
 
+    def first_name
+      if @data['preparer_type'] == 'veteran'
+        @data.dig('veteran_full_name', 'first')
+      elsif @data['preparer_type'] == 'non-veteran'
+        @data.dig('non_veteran_full_name', 'first')
+      else
+        @data.dig('third_party_full_name', 'first')
+      end
+    end
+
     def zip_code_is_us_based
       @data.dig('veteran_mailing_address', 'country') == 'USA' ||
         @data.dig('non_veteran_mailing_address', 'country') == 'USA'

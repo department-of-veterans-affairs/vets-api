@@ -7,15 +7,15 @@ shared_examples 'an error notification email' do
   it 'increments StatsD' do
     allow(StatsD).to receive(:increment)
 
-    expect { described_class.new(config, notification_type: :error) }.to raise_error(ArgumentError)
+    expect { described_class.new(config, notification_type: 'error') }.to raise_error(ArgumentError)
     expect(StatsD).to have_received(:increment).with('silent_failure', tags: anything)
   end
 end
 
-describe SimpleFormsApi::NotificationEmail do
+describe SimpleFormsApi::NotificationEmail::NotificationEmail do
   let(:lighthouse_updated_at) { Time.current }
 
-  %i[confirmation error received].each do |notification_type|
+  %w[confirmation error received].each do |notification_type|
     describe '#initialize' do
       context 'when all required arguments are passed in' do
         let(:config) do
@@ -34,7 +34,7 @@ describe SimpleFormsApi::NotificationEmail do
         end
 
         context 'notification_type is duplicate' do
-          let(:notification_type) { :duplicate }
+          let(:notification_type) { 'duplicate' }
 
           it 'does not require the confirmation_number' do
             expect { described_class.new(config, notification_type:) }.not_to raise_error(ArgumentError)
@@ -42,7 +42,7 @@ describe SimpleFormsApi::NotificationEmail do
         end
 
         context 'notification_type is rejeceted' do
-          let(:notification_type) { :rejected }
+          let(:notification_type) { 'rejected' }
 
           it 'does not require the confirmation_number' do
             expect { described_class.new(config, notification_type:) }.not_to raise_error(ArgumentError)
@@ -60,7 +60,7 @@ describe SimpleFormsApi::NotificationEmail do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
 
-        it_behaves_like 'an error notification email' if notification_type == :error
+        it_behaves_like 'an error notification email' if notification_type == 'error'
       end
 
       context 'missing form_number' do
@@ -73,7 +73,7 @@ describe SimpleFormsApi::NotificationEmail do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
 
-        it_behaves_like 'an error notification email' if notification_type == :error
+        it_behaves_like 'an error notification email' if notification_type == 'error'
       end
 
       context 'missing confirmation_number' do
@@ -85,7 +85,7 @@ describe SimpleFormsApi::NotificationEmail do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
 
-        it_behaves_like 'an error notification email' if notification_type == :error
+        it_behaves_like 'an error notification email' if notification_type == 'error'
       end
 
       context 'missing date_submitted' do
@@ -97,7 +97,7 @@ describe SimpleFormsApi::NotificationEmail do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
 
-        it_behaves_like 'an error notification email' if notification_type == :error
+        it_behaves_like 'an error notification email' if notification_type == 'error'
       end
 
       context 'form not supported' do
@@ -110,7 +110,7 @@ describe SimpleFormsApi::NotificationEmail do
           expect { described_class.new(config, notification_type:) }.to raise_error(ArgumentError)
         end
 
-        it_behaves_like 'an error notification email' if notification_type == :error
+        it_behaves_like 'an error notification email' if notification_type == 'error'
       end
     end
 
@@ -144,7 +144,7 @@ describe SimpleFormsApi::NotificationEmail do
           expect(VANotify::EmailJob).to have_received(:perform_async)
         end
 
-        context 'did not send to VA Notify because of no first name', if: notification_type == :error do
+        context 'did not send to VA Notify because of no first name', if: notification_type == 'error' do
           let(:profile) { double(given_names: []) }
           let(:mpi_profile) { double(profile:, error: nil) }
 
@@ -451,7 +451,7 @@ describe SimpleFormsApi::NotificationEmail do
           confirmation_number: 'confirmation_number', date_submitted:, lighthouse_updated_at: }
       end
 
-      context 'template_id is provided', if: notification_type == :confirmation do
+      context 'template_id is provided', if: notification_type == 'confirmation' do
         context 'when email is entered' do
           let(:data) do
             fixture_path = Rails.root.join(
@@ -518,7 +518,7 @@ describe SimpleFormsApi::NotificationEmail do
         end
       end
 
-      context 'template_id is missing', if: notification_type == :received do
+      context 'template_id is missing', if: notification_type == 'received' do
         let(:data) do
           fixture_path = Rails.root.join(
             'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_0247.json'
@@ -545,7 +545,7 @@ describe SimpleFormsApi::NotificationEmail do
           confirmation_number: 'confirmation_number', date_submitted: }
       end
 
-      context 'template_id is provided', if: notification_type == :error do
+      context 'template_id is provided', if: notification_type == 'error' do
         context 'when email is entered' do
           let(:data) do
             fixture_path = Rails.root.join(
@@ -593,7 +593,7 @@ describe SimpleFormsApi::NotificationEmail do
         end
       end
 
-      context 'template_id is missing', if: notification_type != :error do
+      context 'template_id is missing', if: notification_type != 'error' do
         let(:data) do
           fixture_path = Rails.root.join(
             'modules', 'simple_forms_api', 'spec', 'fixtures', 'form_json', 'vba_40_10007.json'
@@ -878,7 +878,7 @@ describe SimpleFormsApi::NotificationEmail do
       end
     end
 
-    describe '21_0966 through Intent to File API', if: notification_type == :received do
+    describe '21_0966 through Intent to File API', if: notification_type == 'received' do
       let(:date_submitted) { Time.zone.today.strftime('%B %d, %Y') }
       let(:expiration_date) { 1.year.from_now.strftime('%B %d, %Y') }
       let(:data) do
@@ -960,7 +960,7 @@ describe SimpleFormsApi::NotificationEmail do
         end
       end
 
-      context 'template_id is missing', unless: notification_type == :received do
+      context 'template_id is missing', unless: notification_type == 'received' do
         let(:config) do
           { form_data: data, form_number: 'vba_21_0966_intent_api',
             confirmation_number: 'confirmation_number', date_submitted:, expiration_date: }
