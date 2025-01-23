@@ -1001,6 +1001,10 @@ features:
   mhv_secure_messaging_recipient_combobox:
     actor_type: user
     description: Disables/Enables Secure Messaging combobox in recipient dropdown on Start a new message page
+  mhv_secure_messaging_remove_landing_page:
+    actor_type: user
+    description: Disables/Enables Secure Messaging Messages landing page and its components from view on VA.gov
+    enable_in_development: true
   mhv_secure_messaging_signature_settings:
     actor_type: user
     description: Disables/Enables Secure Messaging Signature Settings in the VA Personal Information Settings

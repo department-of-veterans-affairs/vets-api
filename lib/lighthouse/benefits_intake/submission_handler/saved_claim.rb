@@ -50,7 +50,7 @@ module BenefitsIntake
       end
 
       # the email handler to be used
-      # @see VANotify::NotificationEmail
+      # @see VeteranFacingServices::NotificationEmail
       def notification_email
         nil
       end
