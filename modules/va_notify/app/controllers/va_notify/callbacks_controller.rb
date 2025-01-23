@@ -6,6 +6,8 @@ module VANotify
   class CallbacksController < VANotify::ApplicationController
     include ActionController::HttpAuthentication::Token::ControllerMethods
 
+    CUSTOM_BEARER_TOKENS = Settings.vanotify.status_callback
+
     service_tag 'va-notify'
 
     skip_before_action :verify_authenticity_token, only: [:create]
