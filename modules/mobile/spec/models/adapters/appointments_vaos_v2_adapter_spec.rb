@@ -135,7 +135,10 @@ describe Mobile::V0::Adapters::VAOSV2Appointments, :aggregate_failures do
 
   describe 'appointment_type' do
     context 'with appointment_type_consolidation flag on' do
-      before { Flipper.enable(:va_online_scheduling_appointment_type_consolidation) }
+      before do
+        allow(Flipper).to receive(:enabled?).with(:va_online_scheduling_appointment_type_consolidation,
+                                                  instance_of(User)).and_return(true)
+      end
 
       it 'sets va requests to VA' do
         appt = appointment_by_id(proposed_va_id)
