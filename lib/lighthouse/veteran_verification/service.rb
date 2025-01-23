@@ -85,7 +85,8 @@ module VeteranVerification
     end
 
     def log_not_confirmed(reason)
-      ::Rails.logger.info('Vet Verification Status Success: not confirmed', { not_confirmed: true, not_confirmed_reason: reason })
+      ::Rails.logger.info('Vet Verification Status Success: not confirmed',
+                          { not_confirmed: true, not_confirmed_reason: reason })
     end
 
     def log_confirmed

@@ -59,7 +59,8 @@ RSpec.describe VeteranVerification::Service do
             expect(StatsD).to receive(:increment).with(
               VeteranVerification::Constants::STATSD_VET_VERIFICATION_TOTAL_KEY
             )
-            expect(Rails.logger).to receive(:info).with('Vet Verification Status Success: confirmed', { confirmed: true })
+            expect(Rails.logger).to receive(:info).with('Vet Verification Status Success: confirmed',
+                                                        { confirmed: true })
 
             response = @service.get_vet_verification_status(icn, '', '')
 
