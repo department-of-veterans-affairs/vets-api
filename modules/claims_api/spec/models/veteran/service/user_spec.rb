@@ -15,7 +15,6 @@ describe Veteran::User do
       )
     end
 
-    let(:ows) { ClaimsApi::LocalBGS }
     let(:org_web_service) { ClaimsApi::OrgWebService }
 
     it 'initializes from a user' do

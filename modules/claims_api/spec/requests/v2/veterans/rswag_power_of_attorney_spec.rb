@@ -5,13 +5,13 @@ require Rails.root.join('spec', 'rswag_override.rb').to_s
 require 'rails_helper'
 require_relative '../../../rails_helper'
 require_relative '../../../support/swagger_shared_components/v2'
-require 'bgs_service/local_bgs'
+require 'bgs_service/claimant_web_service'
 require 'bgs_service/org_web_service'
 
 describe 'PowerOfAttorney',
          openapi_spec: Rswag::TextHelpers.new.claims_api_docs do
-  let(:local_bgs) { ClaimsApi::LocalBGS }
   let(:org_web_service) { ClaimsApi::OrgWebService }
+  let(:claimant_web_service) { ClaimsApi::ClaimantWebService }
 
   claimant_data = {
     'claimantId' => '1013093331V548481',
@@ -62,7 +62,7 @@ describe 'PowerOfAttorney',
                                             'get.json').read)
 
           before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             create(:veteran_representative, representative_id: '12345',
@@ -120,7 +120,7 @@ describe 'PowerOfAttorney',
                                             'power_of_attorney', 'default.json').read)
 
           before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
 
@@ -154,7 +154,7 @@ describe 'PowerOfAttorney',
                                             'power_of_attorney', 'default.json').read)
 
           before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             create(:veteran_representative, representative_id: '12345',
@@ -340,6 +340,139 @@ describe 'PowerOfAttorney',
     end
   end
 
+  path '/veterans/power-of-attorney-requests', production: false do
+    post 'Search for Power of Attorney requests.' do
+      tags 'Power of Attorney'
+      operationId 'searchPowerOfAttorneyRequests'
+      security [
+        { productionOauth: ['system/claim.read', 'system/claim.write'] },
+        { sandboxOauth: ['system/claim.read', 'system/claim.write'] },
+        { bearer_token: [] }
+      ]
+      produces 'application/json'
+      consumes 'application/json'
+      description 'Search for Power of Attorney requests'
+
+      let(:Authorization) { 'Bearer token' }
+      let(:scopes) { %w[system/claim.read system/claim.write] }
+
+      body_schema =
+        JSON.load_file(
+          ClaimsApi::Engine.root.join(
+            Settings.claims_api.schema_dir,
+            'v2/power_of_attorney_requests/post.json'
+          )
+        )
+
+      body_example = {
+        'data' => {
+          'attributes' => {
+            'poaCodes' => %w[002 003 083],
+            'pageSize' => '3',
+            'pageIndex' => '1',
+            'filter' => {
+              'status' => %w[NEW ACCEPTED DECLINED],
+              'state' => 'OR',
+              'city' => 'Portland',
+              'country' => 'USA'
+            }
+          }
+        }
+      }
+
+      # No idea why string keys don't work here.
+      body_schema.deep_transform_keys!(&:to_sym)
+      body_schema[:example] = body_example
+
+      parameter(
+        name: 'data', in: :body, required: true,
+        schema: body_schema, example: body_example
+      )
+
+      describe 'Getting a 200 response' do
+        response '200', 'Search results' do
+          schema JSON.load_file(File.expand_path('rswag/index/200.json', __dir__))
+
+          let(:data) { body_example }
+
+          before do |example|
+            mock_ccg(scopes) do
+              VCR.use_cassette('claims_api/bgs/manage_representative_service/read_poa_request_valid') do
+                submit_request(example.metadata)
+              end
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 200 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 400 response' do
+        response '400', 'Invalid request' do
+          schema JSON.load_file(File.expand_path('rswag/index/400.json', __dir__))
+
+          let(:data) do
+            {}
+          end
+
+          before do |example|
+            mock_ccg(scopes) do
+              submit_request(example.metadata)
+            end
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 400 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+
+      describe 'Getting a 401 response' do
+        response '401', 'Unauthorized' do
+          schema JSON.load_file(File.expand_path('rswag/index/401.json', __dir__))
+
+          let(:data) do
+            { 'data' => { 'attributes' => { 'poaCodes' => %w[083] } } }
+          end
+
+          before do |example|
+            submit_request(example.metadata)
+          end
+
+          after do |example|
+            example.metadata[:response][:content] = {
+              'application/json' => {
+                example: JSON.parse(response.body, symbolize_names: true)
+              }
+            }
+          end
+
+          it 'returns a 401 response' do |example|
+            assert_response_matches_metadata(example.metadata)
+          end
+        end
+      end
+    end
+  end
+
   path '/veterans/{veteranId}/2122a' do
     post 'Appoint an individual Power of Attorney for a Veteran.' do
       tags 'Power of Attorney'
@@ -415,7 +548,7 @@ describe 'PowerOfAttorney',
           end
 
           before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             create(:veteran_representative, representative_id: '999999999999',
@@ -612,7 +745,7 @@ describe 'PowerOfAttorney',
                                             'power_of_attorney', '2122', 'submit.json').read)
 
           before do |example|
-            expect_any_instance_of(local_bgs).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
+            expect_any_instance_of(claimant_web_service).to receive(:find_poa_by_participant_id).and_return(bgs_poa)
             allow_any_instance_of(org_web_service).to receive(:find_poa_history_by_ptcpnt_id)
               .and_return({ person_poa_history: nil })
             create(:veteran_organization, poa: organization_poa_code,
