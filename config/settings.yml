@@ -263,6 +263,12 @@ bip:
     mock: false
 
 # Settings for VAProfile
+va_profile:
+  address_validation:
+    url: "https://sandbox-api.va.gov"
+    hostname: "sandbox-api.va.gov"
+    api_key: "<AV_KEY>"
+
 vet360:
   url: "https://int.vet360.va.gov"
   contact_information:
