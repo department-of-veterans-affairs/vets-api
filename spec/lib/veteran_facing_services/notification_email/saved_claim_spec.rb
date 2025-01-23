@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'va_notify/notification_email/saved_claim'
+require 'veteran_facing_services/notification_email/saved_claim'
 
-RSpec.describe VANotify::NotificationEmail::SavedClaim do
+RSpec.describe VeteranFacingServices::NotificationEmail::SavedClaim do
   let(:confirmation_email_template_id) { 'form9999ez_confirmation_email_template_id' }
   let(:error_email_template_id) { 'form9999ez_error_email_template_id' }
   let(:error_email_flipper_id) { 'form9999ez_error_email_flipper_id' }
@@ -48,11 +48,14 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           fake_email,
           confirmation_email_template_id,
-          { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number }
+          { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number },
+          vanotify_services_settings.form23_42fake.api_key,
+          { callback_klass: VeteranFacingServices::NotificationCallback::SavedClaim.to_s,
+            callback_metadata: anything }
         )
         expect(fake_claim).to receive(:insert_notification).with(confirmation_email_template_id)
 
-        metric = "#{VANotify::NotificationEmail::STATSD}.deliver_success"
+        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.deliver_success"
         # monitor_deliver_success
         expect(StatsD).to receive(:increment).with(metric, tags: anything)
         expect(Rails.logger).to receive(:info)
@@ -68,11 +71,14 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
           at,
           fake_email,
           confirmation_email_template_id,
-          { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number }
+          { 'date_submitted' => fake_claim.submitted_at, 'confirmation_number' => fake_claim.confirmation_number },
+          vanotify_services_settings.form23_42fake.api_key,
+          { callback_klass: VeteranFacingServices::NotificationCallback::SavedClaim.to_s,
+            callback_metadata: anything }
         )
         expect(fake_claim).to receive(:insert_notification).with(confirmation_email_template_id)
 
-        metric = "#{VANotify::NotificationEmail::STATSD}.deliver_success"
+        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.deliver_success"
         # monitor_deliver_success
         expect(StatsD).to receive(:increment).with(metric, tags: anything)
         expect(Rails.logger).to receive(:info)
@@ -106,7 +112,7 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
 
     context 'with invalid email type' do
       it 'records a failure to send' do
-        metric = "#{VANotify::NotificationEmail::STATSD}.send_failure"
+        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.send_failure"
         # monitor_send_failure
         expect(StatsD).to receive(:increment).with(metric, tags: anything)
         expect(Rails.logger).to receive(:error)
@@ -120,7 +126,7 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
 
     context 'with missing email config' do
       it 'records a failure to send' do
-        metric = "#{VANotify::NotificationEmail::STATSD}.send_failure"
+        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.send_failure"
         # monitor_send_failure
         expect(StatsD).to receive(:increment).with(metric, tags: anything)
         expect(Rails.logger).to receive(:error)
@@ -134,7 +140,7 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
 
     context 'with missing email template' do
       it 'records a failure to send' do
-        metric = "#{VANotify::NotificationEmail::STATSD}.send_failure"
+        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.send_failure"
         # monitor_send_failure
         expect(StatsD).to receive(:increment).with(metric, tags: anything)
         expect(Rails.logger).to receive(:error)
@@ -150,7 +156,7 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
       it 'records a failure to send' do
         allow(fake_claim).to receive(:email).and_return nil
 
-        metric = "#{VANotify::NotificationEmail::STATSD}.send_failure"
+        metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.send_failure"
         # monitor_send_failure
         expect(StatsD).to receive(:increment).with(metric, tags: anything)
         expect(Rails.logger).to receive(:error)
@@ -165,7 +171,7 @@ RSpec.describe VANotify::NotificationEmail::SavedClaim do
     it 'records a duplicate attempt' do
       allow(fake_claim).to receive(:va_notification?).and_return true
 
-      metric = "#{VANotify::NotificationEmail::STATSD}.duplicate_attempt"
+      metric = "#{VeteranFacingServices::NotificationEmail::STATSD}.duplicate_attempt"
       # monitor_duplicate_attempt
       expect(StatsD).to receive(:increment).with(metric, tags: anything)
       expect(Rails.logger).to receive(:warn)
