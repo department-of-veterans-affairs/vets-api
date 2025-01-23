@@ -119,7 +119,7 @@ class SourceAppMiddleware
     proxy-rewrite
     public-outreach-materials
     rated-disabilities
-    representatives
+    representative
     request-debt-help-form-5655
     resources-and-support
     sahg
