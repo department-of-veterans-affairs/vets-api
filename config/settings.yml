@@ -1501,7 +1501,7 @@ virtual_regional_office:
   vagov_classification_path: contention-classification/va-gov-claim-classifier
   expanded_classification_path: contention-classification/expanded-contention-classification
   max_cfi_path: employee-experience/max-ratings
-  ep_merge_path: employee-experience-ep-merge-app/merge
+  ep_merge_path: employee-experience-ep-merge-app/merge # TODO: Remove?
 
 # Settings for Test User Dashboard modules
 test_user_dashboard:

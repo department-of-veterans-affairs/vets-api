@@ -227,7 +227,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
           subject.perform_async(submission.id)
 
           expect do
-            VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
+            VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do # TODO: Remove?
               described_class.drain
               submission.reload
 
@@ -247,7 +247,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
 
           after { Timecop.return }
 
-          it 'logs the expected data for EP 400 merge eligibility' do
+          it 'logs the expected data for EP 400 merge eligibility' do # TODO: Remove?
             subject.perform_async(submission.id)
             VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
               described_class.drain
@@ -291,7 +291,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               'lighthouse/benefits_claims/index/claims_with_single_open_disability_claim'
             end
 
-            it 'logs the expected data for EP 400 merge eligibility' do
+            it 'logs the expected data for EP 400 merge eligibility' do # TODO: Remove?
               subject.perform_async(submission.id)
               VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
                 described_class.drain
@@ -323,41 +323,10 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             end
           end
 
-          context 'when EP400 merge API call is enabled' do
-            before do
-              Flipper.enable(:disability_526_ep_merge_api, user)
-              allow(Flipper).to receive(:enabled?).and_call_original
-            end
-
-            it 'records the eligible claim ID and adds the EP400 special issue to the submission' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
-              end
-              submission.reload
-              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to eq('600114692') # from claims.yml
-              expect(submission.disabilities.first).to include('specialIssues' => ['EMP'])
-              actor = OpenStruct.new({ flipper_id: submission.user_uuid })
-              expect(Flipper).to have_received(:enabled?).with(:disability_526_ep_merge_api, actor).once
-            end
-
-            context 'when the claim is not fully classified' do
-              it 'does not record an eligible claim id' do
-                subject.perform_async(submission.id)
-                VCR.use_cassette('virtual_regional_office/multi_contention_classification') do
-                  described_class.drain
-                end
-                submission.reload
-                expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
-                expect(submission.disabilities.first['specialIssues']).to be_nil
-              end
-            end
-          end
-
-          context 'when pending claim has lifecycle status not considered open for EP400 merge' do
+          context 'when pending claim has lifecycle status not considered open for EP400 merge' do # TODO: Remove?
             let(:open_claims_cassette) { 'evss/claims/claims_pending_decision_approval' }
 
-            it 'does not save any claim ID for EP400 merge' do
+            it 'does not save any claim ID for EP400 merge' do # TODO: Remove?
               subject.perform_async(submission.id)
               VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
                 described_class.drain
@@ -367,7 +336,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             end
           end
 
-          context 'when an EP 030 or 040 is included in the list of open claims' do
+          context 'when an EP 030 or 040 is included in the list of open claims' do # TODO: Remove?
             let(:open_claims_cassette) { 'evss/claims/claims_with_open_040' }
 
             it 'does not save any claim ID for EP400 merge' do
@@ -380,7 +349,7 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             end
           end
 
-          context 'when Caseflow appeals status API returns an open claim review' do
+          context 'when Caseflow appeals status API returns an open claim review' do # TODO: Remove?
             let(:caseflow_cassette) { 'caseflow/appeals_with_hlr_only' }
 
             it 'does not save any claim ID for EP400 merge' do
@@ -390,20 +359,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
               end
               submission.reload
               expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
-            end
-          end
-
-          context 'when EP400 merge API call is disabled' do
-            before { Flipper.disable(:disability_526_ep_merge_api) }
-
-            it 'does not record any eligible claim ID or add an EP400 special issue to the submission' do
-              subject.perform_async(submission.id)
-              VCR.use_cassette('virtual_regional_office/fully_classified_contention_classification') do
-                described_class.drain
-              end
-              submission.reload
-              expect(submission.read_metadata(:ep_merge_pending_claim_id)).to be_nil
-              expect(submission.disabilities.first['specialIssues']).to be_nil
             end
           end
         end
@@ -718,8 +673,6 @@ RSpec.describe EVSS::DisabilityCompensationForm::SubmitForm526AllClaim, type: :j
             allow_any_instance_of(EVSS::DisabilityCompensationForm::SubmitForm526)
               .to(receive(:fail_submission_feature_enabled?))
               .and_return(false)
-            allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:prepare_for_ep_merge!)
-              .and_return(nil)
             allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:pending_eps?)
               .and_return(false)
             allow_any_instance_of(Form526ClaimFastTrackingConcern).to receive(:classify_vagov_contentions)
