@@ -612,10 +612,6 @@ features:
     actor_type: user
     description: Use rails engine routes for all Facility Locator API calls
     enable_in_development: true
-  facility_locator_restore_community_care_pagination:
-    actor_type: user
-    description: Restores pagination for community care providers, emergency care, and pharmacies. (urgent care is excluded)
-    enable_in_development: true
   facility_locator_show_community_cares:
     actor_type: user
     description: >
