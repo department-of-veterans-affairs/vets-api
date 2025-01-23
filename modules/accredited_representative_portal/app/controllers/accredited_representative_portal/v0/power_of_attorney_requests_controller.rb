@@ -3,29 +3,65 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
+      module Statuses
+        ALL = [
+          PENDING = 'pending',
+          COMPLETED = 'completed'
+        ].freeze
+      end
+
+      include PowerOfAttorneyRequests
+
+      before_action do
+        authorize PowerOfAttorneyRequest
+      end
+
+      with_options only: :show do
+        before_action do
+          id = params[:id]
+          find_poa_request(id)
+        end
+      end
+
       def index
-        poa_requests = poa_requests_rel.limit(100)
+        rel = poa_request_scope
+        status = params[:status].presence
+
+        rel =
+          case status
+          when Statuses::PENDING
+            rel.unresolved
+          when Statuses::COMPLETED
+            rel.resolved
+          when NilClass
+            rel
+          else
+            # Throw 400 for unexpected, non-blank statuses
+            raise ActionController::BadRequest, <<~MSG.squish
+              Invalid status parameter.
+              Must be one of (#{Statuses::ALL.join(', ')})
+            MSG
+          end
+
+        poa_requests = rel.includes(scope_includes).limit(100)
         serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
         render json: serializer.serializable_hash, status: :ok
       end
 
       def show
-        poa_request = poa_requests_rel.find(params[:id])
-        serializer = PowerOfAttorneyRequestSerializer.new(poa_request)
+        serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
         render json: serializer.serializable_hash, status: :ok
-      rescue ActiveRecord::RecordNotFound
-        render json: { error: 'Record not found' }, status: :not_found
       end
 
       private
 
-      def poa_requests_rel
-        PowerOfAttorneyRequest.includes(
+      def scope_includes
+        [
           :power_of_attorney_form,
           :power_of_attorney_holder,
           :accredited_individual,
-          resolution: :resolving
-        )
+          { resolution: :resolving }
+        ]
       end
     end
   end

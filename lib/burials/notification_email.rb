@@ -1,25 +1,25 @@
 # frozen_string_literal: true
 
 require 'burials/notification_callback'
-require 'va_notify/notification_email/saved_claim'
+require 'veteran_facing_services/notification_email/saved_claim'
 
 # Form 21P-530EZ
 module Burials
-  # @see VANotify::NotificationEmail::SavedClaim
-  class NotificationEmail < ::VANotify::NotificationEmail::SavedClaim
-    # @see VANotify::NotificationEmail::SavedClaim#new
+  # @see VeteranFacingServices::NotificationEmail::SavedClaim
+  class NotificationEmail < ::VeteranFacingServices::NotificationEmail::SavedClaim
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#new
     def initialize(saved_claim_id)
       super(saved_claim_id, service_name: 'burials')
     end
 
     private
 
-    # @see VANotify::NotificationEmail::SavedClaim#claim_class
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#claim_class
     def claim_class
       SavedClaim::Burial
     end
 
-    # @see VANotify::NotificationEmail::SavedClaim#personalization
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#personalization
     def personalization
       default = super
 
@@ -36,13 +36,15 @@ module Burials
         'street_address' => street_address,
         'city_state_zip' => city_state_zip,
         # confirmation, error
-        'first_name' => claim.claimaint_first_name&.upcase
+        'first_name' => claim.claimaint_first_name&.upcase,
+        # received
+        'date_received' => claim.form_submissions&.last&.form_submission_attempts&.last&.lighthouse_updated_at
       }
 
       default.merge(burials)
     end
 
-    # @see VANotify::NotificationEmail::SavedClaim#callback_class
+    # @see VeteranFacingServices::NotificationEmail::SavedClaim#callback_class
     def callback_klass
       Burials::NotificationCallback.to_s
     end

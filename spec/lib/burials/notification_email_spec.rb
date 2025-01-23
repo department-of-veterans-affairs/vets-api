@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 # lib
+require 'burials/notification_callback'
 require 'burials/notification_email'
 
 # spec
