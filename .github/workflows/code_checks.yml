@@ -1,18 +1,34 @@
 name: Code Checks
-on: [push]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    types: [opened, reopened, synchronize]
 permissions:
   contents: read
   checks: write
 jobs:
+  compare_sha:
+    runs-on: ubuntu-latest
+    name: Compare sha
+    steps:
+      - name: Compare commit ids
+        run: |
+          echo "github.sha: ${{ github.sha }}"
+          echo "github.event.push.head_commit.id: ${{ github.event.push.head_commit.id }}"
+          echo "github.event.pull_request.merge_commit_sha: ${{ github.event.pull_request.merge_commit_sha }}"
+          echo "github.event.head_commit.id: ${{ github.event.head_commit.id }}"
+
   linting_and_security:
     name: Linting and Security
     env:
       BUNDLE_ENTERPRISE__CONTRIBSYS__COM: ${{ secrets.BUNDLE_ENTERPRISE__CONTRIBSYS__COM }}
-    runs-on: ubuntu-16-cores-latest
+    permissions: write-all
+    runs-on: ubuntu-32-cores-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: ruby/setup-ruby@1d0e911f615a112e322369596f10ee0b95b010ae # v1.183.0
+      - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
 
@@ -25,6 +41,19 @@ jobs:
       - name: Run Brakeman
         run: bundle exec brakeman --ensure-latest --confidence-level=2 --format github
 
+      - name: Add Lint Failure label
+        if: failure() && github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'lint-failure')
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: lint-failure
+
+      - name: Remove Lint Failure label
+        if: success() && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'lint-failure')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: lint-failure
   tests:
     name: Test
     env:
@@ -34,7 +63,10 @@ jobs:
       TERM: xterm-256color
       DOCKER_BUILDKIT: 1
       COMPOSE_DOCKER_CLI_BUILD: 1
-    runs-on: ubuntu-16-cores-latest
+    permissions: write-all
+    runs-on: ubuntu-32-cores-latest
+    outputs:
+      status: ${{ steps.test-status.outputs.status }}
     steps:
       - uses: actions/checkout@v4
 
@@ -79,15 +111,30 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Setup Database
-        run: |
-          docker compose -f docker-compose.test.yml run web bash \
-          -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 13 -e 'bin/rails db:reset'"
+        uses: nick-fields/retry@7152eba30c6575329ac0576536151aca5a72780e # v3.0.0
+        with:
+          timeout_minutes: 10
+          retry_wait_seconds: 3 # Seconds
+          max_attempts: 3
+          command: |
+            docker compose -f docker-compose.test.yml run web bash \
+              -c "CI=true RAILS_ENV=test DISABLE_BOOTSNAP=true bundle exec parallel_test -n 24  -e 'bin/rails db:reset'"
 
       - name: Run Specs
-        timeout-minutes: 20
+        timeout-minutes: 15
         run: |
           docker compose -f docker-compose.test.yml run web bash \
-          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 13 -o '--color --tty'"
+          -c "CI=true DISABLE_BOOTSNAP=true bundle exec parallel_rspec spec/ modules/ -n 24 -o '--color --tty'"
+
+      - name: Set Test Status
+        id: test-status
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "status=success" >> $GITHUB_OUTPUT
+          else
+            echo "status=failure" >> $GITHUB_OUTPUT
+          fi
 
       - name: Upload Coverage Report
         uses: actions/upload-artifact@v4
@@ -95,6 +142,7 @@ jobs:
         with:
           name: Coverage Report
           path: coverage
+          include-hidden-files: true
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4
@@ -104,10 +152,46 @@ jobs:
           path: log/*.xml
           if-no-files-found: ignore
 
+  update_labels:
+    name: Update Test Status Labels
+    needs: tests
+    if: always() && github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: Remove Test Failure label
+        if: needs.tests.outputs.status == 'success' && contains(github.event.pull_request.labels.*.name, 'test-failure')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-failure
+
+      - name: Add Test Failure label
+        if: needs.tests.outputs.status == 'failure'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-failure
+
+      - name: Remove Test Passing label
+        if: needs.tests.outputs.status == 'failure' && contains(github.event.pull_request.labels.*.name, 'test-passing')
+        uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-passing
+
+      - name: Add Test Passing label
+        if: needs.tests.outputs.status == 'success'
+        uses: actions-ecosystem/action-add-labels@v1
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: test-passing
+
   publish_results:
     name: Publish Test Results and Coverage
     if: always()
-    needs: [tests]
+    needs: tests
+    permissions: write-all
     runs-on: ubuntu-16-cores-latest
 
     steps:

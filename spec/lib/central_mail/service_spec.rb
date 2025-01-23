@@ -4,6 +4,11 @@ require 'rails_helper'
 require 'central_mail/service'
 require 'securerandom'
 
+# Re-recording VCR Cassettes
+# 1. Replace "<CENTRAL_MAIL_TOKEN>" with Settings.central_mail.upload.token from Staging
+# 2. Delete exsiting cassette file
+# 3. Re-run spec
+
 RSpec.describe CentralMail::Service do
   let(:service) { described_class.new }
 

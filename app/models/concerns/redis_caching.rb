@@ -30,5 +30,12 @@ module RedisCaching
     def clear_cache(key)
       @redis.del(key)
     end
+
+    def time_until_5am_utc
+      now = Time.now.utc
+      five_am_utc = Time.utc(now.year, now.month, now.day, 5)
+      five_am_utc += 1.day if now >= five_am_utc
+      five_am_utc - now
+    end
   end
 end

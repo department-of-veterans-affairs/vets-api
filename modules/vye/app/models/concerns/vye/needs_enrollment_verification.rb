@@ -338,7 +338,7 @@ module Vye
     def eval_case9
       return if dlc_before_ldpm? || date_last_certified.blank?
       return unless aed_before_today?
-      return if are_dates_the_same(@award.award_begin_date, @award.award_end_date)
+      return unless are_dates_the_same(@award.award_begin_date, @award.award_end_date)
 
       push_enrollment(
         award_id: @award.id,

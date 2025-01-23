@@ -11,9 +11,12 @@ RSpec.describe FormProfile, type: :model do
   let(:user) { build(:user, :loa3, suffix: 'Jr.', address: build(:mpi_profile_address)) }
 
   before do
+    Flipper.disable(:remove_pciu)
     stub_evss_pciu(user)
     described_class.instance_variable_set(:@mappings, nil)
-    Flipper.disable(:disability_526_toxic_exposure)
+    Flipper.disable(:va_v3_contact_information_service)
+    Flipper.disable(:remove_pciu)
+    Flipper.disable('remove_pciu_2')
     Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_PPIU_DIRECT_DEPOSIT)
   end
 
@@ -100,7 +103,7 @@ RSpec.describe FormProfile, type: :model do
           'address' => address,
           'dateOfBirth' => user.birth_date,
           'name' => full_name,
-          'ssn' => FormIdentityInformation.new(ssn: user.ssn).hyphenated_ssn,
+          'ssn' => user.ssn,
           'email' => user.pciu_email,
           'phoneNumber' => us_phone
         }
@@ -679,12 +682,24 @@ RSpec.describe FormProfile, type: :model do
         'country' => user.address[:country],
         'postal_code' => user.address[:postal_code][0..4]
       },
+      'email' => 'test2@test1.net',
+      'phone' => '4445551212',
+      'internationalPhone' => '14445551212',
       'veteranSocialSecurityNumber' => user.ssn,
-      'veteranDateOfBirth' => user.birth_date
+      'veteranDateOfBirth' => user.birth_date,
+      'activeServiceDateRange' => {
+        'from' => '1984-08-01',
+        'to' => '2014-08-31'
+      },
+      'serviceBranch' => {
+        'army' => true,
+        'airForce' => true
+      },
+      'serviceNumber' => '796111863'
     }
   end
 
-  let(:v21_p_530_expected) do
+  let(:v21_p_530_ez_expected) do
     {
       'claimantFullName' => {
         'first' => user.first_name&.capitalize,
@@ -697,7 +712,7 @@ RSpec.describe FormProfile, type: :model do
         'street2' => street_check[:street2],
         'city' => user.address[:city],
         'state' => user.address[:state],
-        'country' => 'US',
+        'country' => 'USA',
         'postal_code' => user.address[:postal_code][0..4]
       },
       'claimantPhone' => us_phone,
@@ -770,7 +785,8 @@ RSpec.describe FormProfile, type: :model do
       'bankAccountType' => 'Checking',
       'bankName' => 'Comerica',
       'bankRoutingNumber' => '*****2115',
-      'startedFormVersion' => '2022'
+      'startedFormVersion' => '2022',
+      'syncModern0781Flow' => true
     }
   end
 
@@ -842,6 +858,39 @@ RSpec.describe FormProfile, type: :model do
     }
   end
 
+  let(:vform_mock_ae_design_patterns_expected) do
+    {
+      'data' => {
+        'attributes' => {
+          'veteran' => {
+            'firstName' => user.first_name&.capitalize,
+            'middleName' => user.middle_name&.capitalize,
+            'lastName' => user.last_name&.capitalize,
+            'suffix' => user.suffix,
+            'dateOfBirth' => user.birth_date,
+            'ssn' => user.ssn.last(4),
+            'gender' => user.gender,
+            'address' => {
+              'addressLine1' => street_check[:street],
+              'addressLine2' => street_check[:street2],
+              'city' => user.address[:city],
+              'stateCode' => user.address[:state],
+              'countryName' => user.address[:country],
+              'zipCode5' => user.address[:postal_code][0..4]
+            },
+            'phone' => {
+              'areaCode' => us_phone[0..2],
+              'phoneNumber' => us_phone[3..9]
+            },
+            'homePhone' => '14445551212',
+            'emailAddressText' => user.pciu_email,
+            'lastServiceBranch' => 'Army'
+          }
+        }
+      }
+    }
+  end
+
   let(:v28_1900_expected) do
     {
       'veteranInformation' => {
@@ -863,6 +912,82 @@ RSpec.describe FormProfile, type: :model do
       },
       'mainPhone' => us_phone,
       'email' => user.pciu_email
+    }
+  end
+
+  let(:v21_22_expected) do
+    {
+      'personalInformation' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12'
+      },
+      'contactInformation' => {
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        },
+        'primaryPhone' => '4445551212'
+      },
+      'militaryInformation' => {
+        'serviceBranch' => 'Army',
+        'serviceDateRange' => {
+          'from' => '2002-07-02',
+          'to' => '2014-08-31'
+        }
+      },
+      'identityValidation' => {
+        'hasICN' => true,
+        'hasParticipantId' => true,
+        'isLoa3' => true
+      }
+    }
+  end
+
+  let(:v21_22_a_expected) do
+    {
+      'personalInformation' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '796111863',
+        'dateOfBirth' => '1809-02-12'
+      },
+      'contactInformation' => {
+        'email' => user.pciu_email,
+        'address' => {
+          'street' => street_check[:street],
+          'street2' => street_check[:street2],
+          'city' => user.address[:city],
+          'state' => user.address[:state],
+          'country' => user.address[:country],
+          'postal_code' => user.address[:postal_code][0..4]
+        },
+        'primaryPhone' => '4445551212'
+      },
+      'militaryInformation' => {
+        'serviceBranch' => 'Army',
+        'serviceDateRange' => {
+          'from' => '2002-07-02',
+          'to' => '2014-08-31'
+        }
+      },
+      'identityValidation' => {
+        'hasICN' => true,
+        'hasParticipantId' => true,
+        'isLoa3' => true
+      }
     }
   end
 
@@ -910,6 +1035,23 @@ RSpec.describe FormProfile, type: :model do
           'country' => user.address[:country],
           'postal_code' => user.address[:postal_code][0..4]
         }
+      }
+    }
+  end
+
+  let(:vdispute_debt_expected) do
+    {
+      'veteran' => {
+        'fullName' => {
+          'first' => user.first_name&.capitalize,
+          'last' => user.last_name&.capitalize,
+          'suffix' => user.suffix
+        },
+        'ssn' => '1863',
+        'dateOfBirth' => '1809-02-12',
+        'homePhone' => '14445551212',
+        'email' => user.pciu_email,
+        'fileNumber' => '3735'
       }
     }
   end
@@ -1121,7 +1263,7 @@ RSpec.describe FormProfile, type: :model do
       prefilled_data = Oj.load(described_class.for(form_id:, user:).prefill.to_json)['form_data']
 
       case form_id
-      when '1010ez'
+      when '1010ez', 'FORM-MOCK-AE-DESIGN-PATTERNS'
         '10-10EZ'
       when '21-526EZ'
         '21-526EZ-ALLCLAIMS'
@@ -1135,7 +1277,7 @@ RSpec.describe FormProfile, type: :model do
           schema_data.deep_transform_keys { |key| key.camelize(:lower) }, validate_schema: true
         )
 
-        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+        expect(errors.empty?).to be(true), "schema errors: #{errors}"
       end
 
       expect(prefilled_data).to eq(
@@ -1280,13 +1422,25 @@ RSpec.describe FormProfile, type: :model do
       before do
         expect(user).to receive(:authorize).with(:mdot, :access?).and_return(true).at_least(:once)
         expect(user).to receive(:authorize).with(:va_profile, :access?).and_return(true).at_least(:once)
-        expect(user.authorize(:mdot, :access?)).to eq(true)
+        expect(user.authorize(:mdot, :access?)).to be(true)
       end
 
       it 'returns a prefilled MDOT form', :skip_va_profile do
         VCR.use_cassette('mdot/get_supplies_200') do
           expect_prefilled('MDOT')
         end
+      end
+    end
+
+    context 'with a user that can prefill DisputeDebt' do
+      before do
+        allow_any_instance_of(BGS::People::Service).to(
+          receive(:find_person_by_participant_id).and_return(BGS::People::Response.new({ file_nbr: '796043735' }))
+        )
+      end
+
+      it 'returns a prefilled DisputeDebt form' do
+        expect_prefilled('DISPUTE-DEBT')
       end
     end
 
@@ -1375,20 +1529,20 @@ RSpec.describe FormProfile, type: :model do
                          allow_playback_repeats: true, match_requests_on: %i[method body]) do
           can_prefill_vaprofile(true)
           output = form_profile.send(:initialize_military_information).attributes.transform_keys(&:to_s)
-          expect(output['currently_active_duty']).to eq(false)
+          expect(output['currently_active_duty']).to be(false)
           expect(output['currently_active_duty_hash']).to eq({ yes: false })
-          expect(output['discharge_type']).to eq(nil)
+          expect(output['discharge_type']).to be_nil
           expect(output['guard_reserve_service_history']).to eq([])
           expect(output['hca_last_service_branch']).to eq('other')
-          expect(output['last_discharge_date']).to eq(nil)
-          expect(output['last_entry_date']).to eq(nil)
-          expect(output['last_service_branch']).to eq(nil)
-          expect(output['latest_guard_reserve_service_period']).to eq(nil)
-          expect(output['post_nov111998_combat']).to eq(false)
+          expect(output['last_discharge_date']).to be_nil
+          expect(output['last_entry_date']).to be_nil
+          expect(output['last_service_branch']).to be_nil
+          expect(output['latest_guard_reserve_service_period']).to be_nil
+          expect(output['post_nov111998_combat']).to be(false)
           expect(output['service_branches']).to eq([])
           expect(output['service_episodes_by_date']).to eq([])
           expect(output['service_periods']).to eq([])
-          expect(output['sw_asia_combat']).to eq(false)
+          expect(output['sw_asia_combat']).to be(false)
           expect(output['tours_of_duty']).to eq([])
         end
       end
@@ -1522,11 +1676,56 @@ RSpec.describe FormProfile, type: :model do
           allow_any_instance_of(GI::Client).to receive(:get_institution_details_v0).and_return(gids_response)
         end
 
-        it 'prefills 0873' do
-          VCR.use_cassette('va_profile/demographics/demographics', VCR::MATCH_EVERYTHING) do
-            VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
-                             allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
-              expect_prefilled('0873')
+        context 'when CRM profile is working' do
+          it 'prefills 0873' do
+            VCR.use_cassette('va_profile/demographics/demographics', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                               allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+                expect_prefilled('0873')
+              end
+            end
+          end
+        end
+
+        context 'when school facility code is nil' do
+          let(:info) do
+            {
+              SchoolFacilityCode: nil,
+              BusinessPhone: '1234567890',
+              BusinessEmail: 'fake@company.com',
+              ServiceNumber: '123455678'
+            }
+          end
+          let(:v0873_expected) do
+            {
+              'personalInformation' => {
+                'first' => user.first_name&.capitalize,
+                'last' => user.last_name&.capitalize,
+                'suffix' => user.suffix,
+                'preferredName' => 'SAM',
+                'dateOfBirth' => user.birth_date,
+                'socialSecurityNumber' => user.ssn,
+                'serviceNumber' => '123455678'
+              },
+              'contactInformation' => {
+                'email' => user.pciu_email,
+                'phone' => us_phone,
+                'address' => address
+              },
+              'avaProfile' => {
+                'businessPhone' => '1234567890',
+                'businessEmail' => 'fake@company.com'
+              },
+              'veteranServiceInformation' => veteran_service_information
+            }
+          end
+
+          it 'does not show in ava profile' do
+            VCR.use_cassette('va_profile/demographics/demographics', VCR::MATCH_EVERYTHING) do
+              VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200',
+                               allow_playback_repeats: true, match_requests_on: %i[uri method body]) do
+                expect_prefilled('0873')
+              end
             end
           end
         end
@@ -1603,6 +1802,7 @@ RSpec.describe FormProfile, type: :model do
         end
 
         %w[
+          21P-527EZ
           22-1990
           22-1990N
           22-1990E
@@ -1618,6 +1818,9 @@ RSpec.describe FormProfile, type: :model do
           28-1900
           26-1880
           26-4555
+          21-22
+          21-22A
+          FORM-MOCK-AE-DESIGN-PATTERNS
         ].each do |form_id|
           it "returns prefilled #{form_id}" do
             VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes',
@@ -1642,7 +1845,6 @@ RSpec.describe FormProfile, type: :model do
             it 'returns prefilled 21-526EZ' do
               Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
               Flipper.disable(:disability_compensation_remove_pciu)
-              Flipper.enable(:disability_526_toxic_exposure, user)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do
@@ -1675,9 +1877,9 @@ RSpec.describe FormProfile, type: :model do
 
             it 'returns prefilled 21-526EZ' do
               Flipper.disable(ApiProviderFactory::FEATURE_TOGGLE_RATED_DISABILITIES_FOREGROUND)
-              Flipper.enable(:disability_526_toxic_exposure, user)
               expect(user).to receive(:authorize).with(:ppiu, :access?).and_return(true).at_least(:once)
               expect(user).to receive(:authorize).with(:evss, :access?).and_return(true).at_least(:once)
+              expect(user).to receive(:authorize).with(:va_profile, :access_to_v2?).and_return(true).at_least(:once)
               VCR.use_cassette('evss/pciu_address/address_domestic') do
                 VCR.use_cassette('evss/disability_compensation_form/rated_disabilities') do
                   VCR.use_cassette('evss/ppiu/payment_information') do
@@ -1708,11 +1910,11 @@ RSpec.describe FormProfile, type: :model do
 
     context 'with a burial application form' do
       it 'returns the va profile mapped to the burial form' do
-        expect_prefilled('21P-530')
+        expect_prefilled('21P-530EZ')
       end
 
       context 'without address' do
-        let(:v21_p_530_expected) do
+        let(:v21_p_530_ez_expected) do
           {
             'claimantFullName' => {
               'first' => user.first_name&.capitalize,
@@ -1724,12 +1926,12 @@ RSpec.describe FormProfile, type: :model do
         end
 
         before do
-          allow_any_instance_of(FormProfiles::VA21p530)
+          allow_any_instance_of(FormProfiles::VA21p530ez)
             .to receive(:initialize_contact_information).and_return(FormContactInformation.new)
         end
 
         it "doesn't throw an exception" do
-          expect_prefilled('21P-530')
+          expect_prefilled('21P-530EZ')
         end
       end
     end
@@ -1755,16 +1957,6 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        expect(prefill.dig('data', 'attributes', 'veteran', 'address', 'zipCode5')).to be_a(String).or be_nil
-        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'areaCode')).to be_a(String).or be_nil
-        expect(prefill.dig('data', 'attributes', 'veteran', 'phone', 'phoneNumber')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street2')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'street3')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'city')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'state')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'country')).to be_a(String).or be_nil
-        expect(prefill.dig('nonPrefill', 'veteranAddress', 'postalCode')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranSsnLastFour')).to be_a(String).or be_nil
         expect(prefill.dig('nonPrefill', 'veteranVaFileNumberLastFour')).to be_a(String)
       end
@@ -1777,7 +1969,7 @@ RSpec.describe FormProfile, type: :model do
           test_data,
           validate_schema: true
         )
-        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
+        expect(errors.empty?).to be(true), "schema errors: #{errors}"
       end
     end
 
@@ -1804,28 +1996,14 @@ RSpec.describe FormProfile, type: :model do
       end
 
       it 'prefills' do
-        veteran = prefill.dig 'data', 'attributes', 'veteran'
-        address = veteran['address']
-        phone = veteran['phone']
-        expect(address['addressLine1']).to be_a String
-        expect(address['addressLine2']).to be_a(String).or be_nil
-        expect(address['addressLine3']).to be_a(String).or be_nil
-        expect(address['city']).to be_a String
-        expect(address['stateCode']).to be_a String
-        expect(address['zipCode5']).to be_a String
-        expect(address['countryName']).to be_a String
-        expect(address['internationalPostalCode']).to be_a(String).or be_nil
-        expect(phone['areaCode']).to be_a String
-        expect(phone['phoneNumber']).to be_a String
-        expect(veteran['emailAddressText']).to be_a String
         non_prefill = prefill['nonPrefill']
         expect(non_prefill['veteranSsnLastFour']).to be_a String
         expect(non_prefill['veteranVaFileNumberLastFour']).to be_a String
       end
 
       it 'prefills an object that passes the schema' do
-        full_example = JSON.parse File.read Rails.root.join 'spec', 'fixtures', 'notice_of_disagreements',
-                                                            'valid_NOD_create_request.json'
+        full_example = JSON.parse Rails.root.join('spec', 'fixtures', 'notice_of_disagreements',
+                                                  'valid_NOD_create_request.json').read
 
         test_data = full_example.deep_merge prefill.except('nonPrefill')
         errors = JSON::Validator.fully_validate(
@@ -1833,13 +2011,7 @@ RSpec.describe FormProfile, type: :model do
           test_data,
           validate_schema: true
         )
-        expect(errors.empty?).to eq(true), "schema errors: #{errors}"
-      end
-    end
-
-    context 'with a pension application form' do
-      it 'returns the va profile mapped to the pension form' do
-        expect_prefilled('21P-527EZ')
+        expect(errors.empty?).to be(true), "schema errors: #{errors}"
       end
     end
 
@@ -1873,22 +2045,6 @@ RSpec.describe FormProfile, type: :model do
         )
         instance1.prefill
         instance2.prefill
-      end
-    end
-
-    context '10-7959F-1 form profile instances' do
-      let(:instance) { FormProfile.new(form_id: '10-7959F-1', user:) }
-
-      it 'loads the yaml file only once' do
-        expect(YAML).to receive(:load_file).once.and_return(
-          'veteranFullName' => %w[identity_information full_name],
-          'veteranAddress' => %w[contact_information address],
-          'veteranSocialSecurityNumber' => %w[identity_information ssn],
-          'veteranPhoneNumber' => %w[contact_information us_phone],
-          'veteranEmailAddress' => %w[contact_information email],
-          'veteranPhysicalAddress' => %w[residential_address]
-        )
-        instance.prefill
       end
     end
   end

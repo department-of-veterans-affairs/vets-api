@@ -430,6 +430,20 @@ RSpec.describe V0::SignInController, type: :controller do
 
           it_behaves_like 'an idme service interface with appropriate operation'
         end
+
+        context 'and the operation param is interstitial_verify' do
+          let(:operation_value) { SignIn::Constants::Auth::INTERSTITIAL_VERIFY }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
+
+        context 'and the operation param is interstitial_signup' do
+          let(:operation_value) { SignIn::Constants::Auth::INTERSTITIAL_SIGNUP }
+          let(:expected_op_value) { '' }
+
+          it_behaves_like 'an idme service interface with appropriate operation'
+        end
       end
 
       shared_context 'an idme service interface with appropriate operation' do
@@ -742,6 +756,10 @@ RSpec.describe V0::SignInController, type: :controller do
         let(:client_state) { SecureRandom.alphanumeric(SignIn::Constants::Auth::CLIENT_STATE_MINIMUM_LENGTH) }
 
         context 'and code in state payload matches an existing state code' do
+          before { Timecop.freeze }
+
+          after { Timecop.return }
+
           context 'when type in state JWT is logingov' do
             let(:type) { SignIn::Constants::Auth::LOGINGOV }
             let(:response) { OpenStruct.new(access_token: token) }
@@ -823,7 +841,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    uuid: logingov_uuid,
+                    user_uuid: logingov_uuid,
                     authentication_time:
                   }
                 end
@@ -995,7 +1013,7 @@ RSpec.describe V0::SignInController, type: :controller do
                     ial:,
                     acr:,
                     icn: mpi_profile.icn,
-                    uuid: idme_uuid,
+                    user_uuid: idme_uuid,
                     authentication_time:
                   }
                 end
@@ -1129,7 +1147,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  uuid: backing_idme_uuid,
+                  user_uuid: backing_idme_uuid,
                   authentication_time:
                 }
               end
@@ -1278,7 +1296,7 @@ RSpec.describe V0::SignInController, type: :controller do
                   ial:,
                   acr:,
                   icn: expected_icn,
-                  uuid: backing_idme_uuid,
+                  user_uuid: backing_idme_uuid,
                   authentication_time:
                 }
               end
@@ -3018,7 +3036,8 @@ RSpec.describe V0::SignInController, type: :controller do
     context 'when successfully authenticated' do
       let(:access_token) { SignIn::AccessTokenJwtEncoder.new(access_token: access_token_object).perform }
       let(:authorization) { "Bearer #{access_token}" }
-      let!(:user_account) { Login::UserVerifier.new(user.identity).perform.user_account }
+      let(:user_verification) { create(:idme_user_verification, idme_uuid: user.idme_uuid) }
+      let(:user_account) { user_verification.user_account }
       let(:user) { create(:user, :loa3) }
       let(:user_uuid) { user.uuid }
       let(:oauth_session) { create(:oauth_session, user_account:) }

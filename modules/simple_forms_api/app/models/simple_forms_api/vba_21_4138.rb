@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA214138
-    include Virtus.model(nullify_blank: true)
+  class VBA214138 < BaseForm
     STATS_KEY = 'api.simple_forms_api.21_4138'
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
 
     def desired_stamps
       [{
@@ -19,7 +12,7 @@ module SimpleFormsApi
       }]
     end
 
-    def submission_date_stamps
+    def submission_date_stamps(timestamp = Time.current)
       [
         {
           coords: [460, 710],
@@ -29,7 +22,7 @@ module SimpleFormsApi
         },
         {
           coords: [460, 690],
-          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          text: timestamp.in_time_zone('UTC').strftime('%H:%M %Z %D'),
           page: 0,
           font_size: 12
         }

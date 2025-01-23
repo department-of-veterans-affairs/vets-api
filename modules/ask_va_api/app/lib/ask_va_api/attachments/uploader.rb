@@ -48,7 +48,7 @@ module AskVAApi
         return response[:Data] if response.is_a?(Hash)
 
         error = JSON.parse(response.body, symbolize_names: true)
-        raise(AttachmentsUploaderError, error.fetch(:Message, 'Unknown error occurred'))
+        raise(AttachmentsUploaderError, error)
       end
     end
   end

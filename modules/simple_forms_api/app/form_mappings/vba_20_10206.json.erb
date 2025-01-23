@@ -60,7 +60,7 @@
   "form1[0].#subform[8].LastFourNumbers[5]": "<%= %>",
   "form1[0].#subform[8].Alien_Registration_Number_If_applicable[1]": "<%= %>",
   "form1[0].#subform[8].VA_File_Number_If_Applicable[1]": "<%= %>",
-  
+
   "form1[0].#subform[8].Claims_File_C_File[0]": "<%= form.data.dig('record_selections', 'c_file') ? 1 : 0 %>",
   "form1[0].#subform[8].Service_Treatment_Records_Military_Treatment_Records[0]": "<%= form.data.dig('record_selections', 'treatment') ? 1 : 0 %>",
   "form1[0].#subform[8].DD_FORM_214[0]": "<%= form.data.dig('record_selections', 'dd214') ? 1 : 0 %>",
@@ -92,9 +92,9 @@
   "form1[0].#subform[9].LastFourNumbers[7]": "<%= form.data.dig('citizen_id', 'ssn')&.[](5..8) %>",
 
   "form1[0].#subform[9].Signature[0]": "<%= form.data['statement_of_truth_signature'] %>",
-  "form1[0].#subform[9].Month[1]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%m') %>",
-  "form1[0].#subform[9].Day[1]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%d') %>",
-  "form1[0].#subform[9].Year[1]": "<%= Time.current.in_time_zone('America/Chicago').strftime('%Y') %>",
+  "form1[0].#subform[9].Month[1]": "<%= form&.signature_date&.strftime('%m') %>",
+  "form1[0].#subform[9].Day[1]": "<%= form&.signature_date&.strftime('%d') %>",
+  "form1[0].#subform[9].Year[1]": "<%= form&.signature_date&.strftime('%Y') %>",
 
   "form1[0].#subform[9].Month[2]": "<%= %>",
   "form1[0].#subform[9].Day[2]": "<%= %>",

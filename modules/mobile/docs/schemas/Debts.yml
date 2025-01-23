@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
   - meta
@@ -20,6 +21,7 @@ properties:
           example: 'debts'
         attributes:
           type: object
+          additionalProperties: false
           required:
             - fileNumber
             - payeeNumber
@@ -71,6 +73,7 @@ properties:
               type: array
               items:
                 type: object
+                additionalProperties: false
                 properties:
                   date:
                     type: string
@@ -83,6 +86,7 @@ properties:
                     example: 'Third Demand Letter - Potential Treasury Referral'
   meta:
     type: object
+    additionalProperties: false
     required:
       - hasDependentDebts
     properties:

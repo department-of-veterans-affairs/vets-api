@@ -12,13 +12,36 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     stub_claims_api_auth_token
   end
 
-  let(:user) { FactoryBot.create(:user, :loa3) }
+  let(:user) { create(:user, :loa3) }
   let(:auth_headers) do
     EVSS::DisabilityCompensationAuthHeaders.new(user)
                                            .add_headers(EVSS::AuthHeaders.new(user).to_h)
   end
   let(:claim) do
     claim = create(:auto_established_claim)
+    claim.auth_headers = auth_headers
+    claim.save
+    claim
+  end
+
+  let(:treatments) do
+    [
+      {
+        center: {
+          name: 'Some Treatment Center',
+          country: 'United States of America'
+        },
+        treatedDisabilityNames: [
+          'PTSD (post traumatic stress disorder)'
+        ],
+        startDate: '1999-01-01'
+      }
+    ]
+  end
+
+  let(:claim_with_treatments) do
+    claim = create(:auto_established_claim)
+    claim.form_data['treatments'] = treatments
     claim.auth_headers = auth_headers
     claim.save
     claim
@@ -41,7 +64,7 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     end
 
     it 'clears original data upon success' do
-      evss_service_stub = instance_double('ClaimsApi::EVSSService::Base')
+      evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
       allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
       allow(evss_service_stub).to receive(:submit) { OpenStruct.new(claimId: 1337) }
 
@@ -59,12 +82,9 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
     end
 
     it 'sets the status of the claim to an error if it raises an Common::Exceptions::BackendServiceException error' do
-      evss_service_stub = instance_double('ClaimsApi::EVSSService::Base')
+      evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
       allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
       allow(evss_service_stub).to receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
-                                                               'EVSS400',
-                                                               'source',
-                                                               '400',
                                                                errors
                                                              ))
       subject.new.perform(claim.id)
@@ -72,6 +92,32 @@ RSpec.describe ClaimsApi::ClaimEstablisher, type: :job do
       expect(claim.evss_id).to be_nil
       expect(claim.evss_response).to eq(errors)
       expect(claim.status).to eq(ClaimsApi::AutoEstablishedClaim::ERRORED)
+    end
+
+    it 'preserves the original form data throughout the job' do
+      orig_form_data = claim_with_treatments.form_data
+      evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
+      allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
+
+      expect(claim_with_treatments.form_data['treatments']).to eq(orig_form_data['treatments'])
+
+      allow(evss_service_stub).to receive(:submit).and_raise(Common::Exceptions::BackendServiceException.new(
+                                                               errors
+                                                             ))
+      subject.new.perform(claim_with_treatments.id)
+      claim_with_treatments.reload
+
+      expect(claim_with_treatments.form_data['treatments']).to eq(orig_form_data['treatments'])
+    end
+
+    it 'rescues a Lighthouse::BackendServiceException and does not raise an error' do
+      evss_service_stub = instance_double(ClaimsApi::EVSSService::Base)
+      allow(ClaimsApi::EVSSService::Base).to receive(:new) { evss_service_stub }
+      allow(evss_service_stub).to receive(:submit).and_raise(
+        ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException.new(errors)
+      )
+
+      expect { subject.new.perform(claim.id) }.not_to raise_error
     end
   end
 

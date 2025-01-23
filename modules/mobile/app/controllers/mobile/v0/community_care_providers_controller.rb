@@ -52,8 +52,7 @@ module Mobile
       end
 
       def facility_coordinates
-        v1_facilities_flag = Flipper.enabled?(:mobile_v1_lighthouse_facilities, @current_user)
-        facility = Mobile::FacilitiesHelper.get_facilities(Array(params[:facilityId]), v1_facilities_flag).first
+        facility = Mobile::FacilitiesHelper.get_facilities(Array(params[:facilityId])).first
         raise Common::Exceptions::RecordNotFound, params[:facilityId] unless facility
 
         [facility.lat, facility.long]

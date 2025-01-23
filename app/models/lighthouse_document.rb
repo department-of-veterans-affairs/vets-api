@@ -8,6 +8,7 @@ class LighthouseDocument < Common::Base
   include ActiveModel::Validations::Callbacks
   include SentryLogging
 
+  attribute :first_name, String
   attribute :claim_id, Integer
   attribute :document_type, String
   attribute :file_name, String
@@ -29,13 +30,17 @@ class LighthouseDocument < Common::Base
   # rubocop:disable Layout/LineLength
   DOCUMENT_TYPES = {
     '1489' => 'Hypertension Rapid Ready For Decision Summary PDF',
+    'L014' => 'Birth Certificate',
     'L015' => 'Buddy/Lay Statement',
     'L018' => 'Civilian Police Reports',
     'L023' => 'Other Correspondence',
     'L029' => 'Copy of a DD214',
+    'L033' => 'Death Certificate',
     'L034' => 'Military Personnel Record',
+    'L037' => 'Divorce Decree',
     'L048' => 'Medical Treatment Record - Government Facility',
     'L049' => 'Medical Treatment Record - Non-Government Facility',
+    'L051' => 'Marriage Certificate',
     'L070' => 'Photographs',
     'L102' => 'VA Form 21-2680 - Examination for Housebound Status or Permanent Need for Regular Aid & Attendance',
     'L107' => 'VA Form 21-4142 - Authorization To Disclose Information',
@@ -48,6 +53,7 @@ class LighthouseDocument < Common::Base
     'L222' => 'VA Form 21-0779 - Request for Nursing Home Information in Connection with Claim for Aid & Attendance',
     'L228' => 'VA Form 21-0781 - Statement in Support of Claim for PTSD',
     'L229' => 'VA Form 21-0781a - Statement in Support of Claim for PTSD Secondary to Personal Assault',
+    'L418' => 'Court papers / documents',
     'L450' => 'STR - Dental - Photocopy',
     'L451' => 'STR - Medical - Photocopy',
     'L478' => 'Medical Treatment Records - Furnished by SSA',

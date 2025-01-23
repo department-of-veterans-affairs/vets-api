@@ -4,9 +4,9 @@ require 'rails_helper'
 require AppealsApi::Engine.root.join('spec', 'support', 'shared_examples_for_monitored_worker.rb')
 
 describe AppealsApi::NoticeOfDisagreementUploadStatusUpdater, type: :job do
-  let(:client_stub) { instance_double('CentralMail::Service') }
+  let(:client_stub) { instance_double(CentralMail::Service) }
   let(:upload) { create(:notice_of_disagreement, status: 'submitted') }
-  let(:faraday_response) { instance_double('Faraday::Response') }
+  let(:faraday_response) { instance_double(Faraday::Response) }
   let(:in_process_element) do
     [{ uuid: 'ignored',
        status: 'In Process',
@@ -24,11 +24,9 @@ describe AppealsApi::NoticeOfDisagreementUploadStatusUpdater, type: :job do
       in_process_element[0]['uuid'] = upload.id
       expect(faraday_response).to receive(:body).at_least(:once).and_return([in_process_element].to_json)
 
-      with_settings(Settings.modules_appeals_api, notice_of_disagreement_updater_enabled: true) do
-        AppealsApi::NoticeOfDisagreementUploadStatusUpdater.new.perform([upload])
-        upload.reload
-        expect(upload.status).to eq('processing')
-      end
+      AppealsApi::NoticeOfDisagreementUploadStatusUpdater.new.perform([upload])
+      upload.reload
+      expect(upload.status).to eq('processing')
     end
   end
 end

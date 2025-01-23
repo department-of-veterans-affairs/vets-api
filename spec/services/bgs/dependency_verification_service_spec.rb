@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 RSpec.describe BGS::DependencyVerificationService do
-  let(:user) { FactoryBot.create(:evss_user, :loa3) }
+  let(:user) { create(:evss_user, :loa3) }
 
   describe '#read_diaries' do
     it 'returns dependency decisions that all contain :award_effective_date key' do
@@ -19,6 +19,16 @@ RSpec.describe BGS::DependencyVerificationService do
         expected = true
 
         expect(result).to eq expected
+      end
+    end
+
+    it 'retuns an empty response if participant id is nil' do
+      VCR.use_cassette('bgs/diaries_service/read_diaries') do
+        allow(user).to receive(:participant_id).and_return(nil)
+        service = BGS::DependencyVerificationService.new(user)
+        diaries = service.read_diaries
+
+        expect(diaries).to eq({ dependency_decs: nil, diaries: [] })
       end
     end
 

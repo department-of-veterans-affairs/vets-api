@@ -2,6 +2,7 @@
 
 require 'common/exceptions'
 require 'brd/brd'
+require 'bgs_service/standard_data_service'
 
 module ClaimsApi
   module DisabilityCompensationValidations # rubocop:disable Metrics/ModuleLength
@@ -21,6 +22,8 @@ module ClaimsApi
       validate_form_526_service_information_confinements!
       # ensure conflicting homelessness values are not provided
       validate_form_526_veteran_homelessness!
+      # ensure that the active duty start date is not prior to the claimants 13th birthday
+      validate_service_after_13th_birthday!
       # ensure 'militaryRetiredPay.receiving' and 'militaryRetiredPay.willReceiveInFuture' are not same non-null values
       validate_form_526_service_pay!
       # ensure 'title10ActivationDate' if provided, is after the earliest servicePeriod.activeDutyBeginDate and on or before the current date # rubocop:disable Layout/LineLength
@@ -44,6 +47,7 @@ module ClaimsApi
       # ensure the 'treatment.endDate' is after the 'treatment.startDate'
       # ensure any provided 'treatment.treatedDisabilityNames' match a provided 'disabilities.name'
       validate_form_526_treatments!
+      validate_form_526_direct_depost!
     end
 
     def validate_form_526_current_mailing_address!
@@ -63,12 +67,14 @@ module ClaimsApi
     end
 
     def validate_form_526_change_of_address!
-      validate_form_526_change_of_address_beginning_date!
-      validate_form_526_change_of_address_country!
+      change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+
+      validate_form_526_change_of_address_beginning_date!(change_of_address)
+      validate_form_526_change_of_address_ending_date!(change_of_address)
+      validate_form_526_change_of_address_country!(change_of_address)
     end
 
-    def validate_form_526_change_of_address_beginning_date!
-      change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+    def validate_form_526_change_of_address_beginning_date!(change_of_address)
       return if change_of_address.blank?
       return unless 'TEMPORARY'.casecmp?(change_of_address['addressChangeType'])
       return if Date.parse(change_of_address['beginningDate']) > Time.zone.now
@@ -76,8 +82,26 @@ module ClaimsApi
       raise ::Common::Exceptions::InvalidFieldValue.new('beginningDate', change_of_address['beginningDate'])
     end
 
-    def validate_form_526_change_of_address_country!
-      change_of_address = form_attributes.dig('veteran', 'changeOfAddress')
+    def validate_form_526_change_of_address_ending_date!(change_of_address)
+      return if change_of_address.blank?
+
+      change_type = change_of_address['addressChangeType']
+      ending_date = change_of_address['endingDate']
+
+      case change_type&.upcase
+      when 'PERMANENT'
+        raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date) if ending_date.present?
+      when 'TEMPORARY'
+        raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date) if ending_date.blank?
+
+        beginning_date = change_of_address['beginningDate']
+        if Date.parse(beginning_date) >= Date.parse(ending_date)
+          raise ::Common::Exceptions::InvalidFieldValue.new('endingDate', ending_date)
+        end
+      end
+    end
+
+    def validate_form_526_change_of_address_country!(change_of_address)
       return if change_of_address.blank?
       return if valid_countries.include?(change_of_address['country'])
 
@@ -149,11 +173,11 @@ module ClaimsApi
       form_attributes['serviceInformation']['servicePeriods'].each do |service_period|
         next if Date.parse(service_period['activeDutyEndDate']) <= Time.zone.today
         next if separation_locations.any? do |location|
-                  location[:id] == service_period['separationLocationCode']
+                  location[:id]&.to_s == service_period['separationLocationCode']
                 end
 
         raise ::Common::Exceptions::InvalidFieldValue.new('separationLocationCode',
-                                                          form_attributes['separationLocationCode'])
+                                                          service_period['separationLocationCode'])
       end
     end
 
@@ -212,22 +236,39 @@ module ClaimsApi
     def validate_form_526_veteran_homelessness!
       if too_many_homelessness_attributes_provided?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "Must define only one of 'veteran.homelessness.currentlyHomeless' or "\
+          detail: "Must define only one of 'veteran.homelessness.currentlyHomeless' or " \
                   "'veteran.homelessness.homelessnessRisk'"
         )
       end
 
       if unnecessary_homelessness_point_of_contact_provided?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "If 'veteran.homelessness.pointOfContact' is defined, then one of "\
+          detail: "If 'veteran.homelessness.pointOfContact' is defined, then one of " \
                   "'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is required"
         )
       end
 
       if missing_point_of_contact?
         raise ::Common::Exceptions::UnprocessableEntity.new(
-          detail: "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is "\
+          detail: "If one of 'veteran.homelessness.currentlyHomeless' or 'veteran.homelessness.homelessnessRisk' is " \
                   "defined, then 'veteran.homelessness.pointOfContact' is required"
+        )
+      end
+    end
+
+    def validate_service_after_13th_birthday!
+      service_periods = form_attributes&.dig('serviceInformation', 'servicePeriods')
+      age_thirteen = auth_headers['va_eauth_birthdate'].to_datetime.next_year(13).to_date
+
+      return if age_thirteen.nil? || service_periods.nil?
+
+      started_before_age_thirteen = service_periods.any? do |period|
+        Date.parse(period['activeDutyBeginDate']) < age_thirteen
+      end
+      if started_before_age_thirteen
+        raise ::Common::Exceptions::UnprocessableEntity.new(
+          detail: "If any 'serviceInformation.servicePeriods.activeDutyBeginDate' is " \
+                  "before the Veteran's 13th birthdate: #{age_thirteen}, the claim can not be processed."
         )
       end
     end
@@ -370,22 +411,44 @@ module ClaimsApi
     end
 
     def validate_form_526_disability_classification_code!
-      return if (form_attributes['disabilities'].pluck('classificationCode') - [nil]).blank?
+      form_attributes['disabilities'].each_with_index do |disability, index|
+        classification_code = disability['classificationCode']
+        next if classification_code.nil? || classification_code.blank?
 
-      form_attributes['disabilities'].each do |disability|
-        next if disability['classificationCode'].blank?
-        next if bgs_classification_ids.include?(disability['classificationCode'])
-
-        raise ::Common::Exceptions::InvalidFieldValue.new('disabilities.classificationCode',
-                                                          disability['classificationCode'])
+        if bgs_classification_ids.include?(classification_code)
+          validate_form_526_disability_classification_code_end_date!(classification_code, index)
+        else
+          raise ::Common::Exceptions::InvalidFieldValue.new("disabilities.#{index}.classificationCode",
+                                                            classification_code)
+        end
       end
     end
 
-    def bgs_classification_ids
-      return @bgs_classification_ids if @bgs_classification_ids.present?
+    def validate_form_526_disability_classification_code_end_date!(classification_code, index)
+      bgs_disability = contention_classification_type_code_list.find { |d| d[:clsfcn_id] == classification_code }
+      end_date = bgs_disability[:end_dt] if bgs_disability
 
-      contention_classification_type_codes = bgs_service.data.get_contention_classification_type_code_list
-      @bgs_classification_ids = contention_classification_type_codes.pluck(:clsfcn_id)
+      return if end_date.nil?
+
+      return if Date.parse(end_date) >= Time.zone.today
+
+      raise ::Common::Exceptions::InvalidFieldValue.new("disabilities.#{index}.classificationCode", classification_code)
+    end
+
+    def contention_classification_type_code_list
+      @contention_classification_type_code_list ||= if Flipper.enabled?(:claims_api_526_validations_v1_local_bgs)
+                                                      service = ClaimsApi::StandardDataService.new(
+                                                        external_uid: Settings.bgs.external_uid,
+                                                        external_key: Settings.bgs.external_key
+                                                      )
+                                                      service.get_contention_classification_type_code_list
+                                                    else
+                                                      bgs_service.data.get_contention_classification_type_code_list
+                                                    end
+    end
+
+    def bgs_classification_ids
+      contention_classification_type_code_list.pluck(:clsfcn_id)
     end
 
     def validate_form_526_disability_approximate_begin_date!
@@ -509,6 +572,19 @@ module ClaimsApi
         treatment['center']['name'] = name
 
         treatment
+      end
+    end
+
+    def validate_form_526_direct_depost!
+      direct_deposit = form_attributes['directDeposit']
+      return if direct_deposit.blank?
+
+      bank_name = direct_deposit['bankName']
+      if bank_name.blank?
+        raise ::Common::Exceptions::InvalidFieldValue.new(
+          'directDeposit.bankName',
+          direct_deposit['bankName']
+        )
       end
     end
   end

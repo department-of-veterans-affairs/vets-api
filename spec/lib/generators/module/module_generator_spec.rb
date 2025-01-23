@@ -8,7 +8,7 @@ describe ModuleGenerator do
 
   after do
     # remove generated files
-    FileUtils.rm_rf(Dir[Rails.root.join('modules', module_name)])
+    FileUtils.rm_rf(Rails.root.glob("modules/#{module_name}"))
   end
 
   describe 'create_directory_structure' do
@@ -113,7 +113,7 @@ MESSAGES
       expect(simplecov_updater).to eq('stub insertion')
     end
 
-    it 'inserts to the  spec helper' do
+    it 'inserts to the spec helper' do
       options = {
         insert_matcher: "add_group 'Foo', 'modules/foo/'",
         new_entry: "    add_group 'Foo', 'modules/foo/'\n",

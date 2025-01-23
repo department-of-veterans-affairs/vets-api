@@ -12,7 +12,10 @@ module Okta
 
       scopes_url = "#{base_url}/#{category}/scopes"
 
-      headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
+      headers = {
+        apiKey: Settings.connected_apps_api.connected_apps.api_key,
+        accesskey: Settings.connected_apps_api.connected_apps.auth_access_key
+      }
 
       response = Faraday.get(scopes_url, {}, headers)
 

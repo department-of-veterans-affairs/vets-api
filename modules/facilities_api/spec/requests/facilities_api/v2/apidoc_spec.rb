@@ -32,8 +32,7 @@ RSpec.describe 'FacilitiesApi::V2::Apidocs', type: :request do
 
     vcr_options = {
       match_requests_on: %i[path query],
-      allow_playback_repeats: true,
-      record: :new_episodes
+      allow_playback_repeats: true
     }
 
     describe 'facilities_api/v2/va', team: :facilities,

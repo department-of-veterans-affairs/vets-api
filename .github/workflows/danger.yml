@@ -24,4 +24,12 @@ jobs:
           bundler-cache: true
 
       - name: Run Danger
-        run: bundle exec danger --head=${{ github.sha }} --base=${{ github.event.pull_request.base.sha }} --verbose
+        run: bundle exec danger --verbose
+
+      - name: Add Danger Label
+        uses: actions-ecosystem/action-remove-labels@v1
+        if: ${{ failure() && !contains(github.event.pull_request.labels.*.name, 'danger-alert') }}
+        with:
+          number: ${{ github.event.pull_request.number }}
+          labels: |
+            danger-alert

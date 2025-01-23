@@ -135,7 +135,7 @@ module DebtsApi
       form_submission.submitted!
       { status: vbs_response.status }
     rescue => e
-      form_submission.register_failure(e.message)
+      form_submission.register_failure("FinancialStatusReportService#submit_vha_fsr: #{e.message}")
       raise e
     end
 
@@ -232,11 +232,14 @@ module DebtsApi
       schema_path = Rails.root.join('lib', 'debt_management_center', 'schemas', 'fsr.json').to_s
       errors = JSON::Validator.fully_validate(schema_path, form)
 
-      raise FSRInvalidRequest if errors.any?
+      if errors.any?
+        Rails.logger.error("DebtsApi::V0::FinancialStatusReportService validation failed: #{errors}")
+        raise FSRInvalidRequest
+      end
     end
 
     def send_confirmation_email(template_id)
-      return unless Flipper.enabled?(:fsr_confirmation_email)
+      return unless Settings.vsp_environment == 'production'
 
       email = @user.email&.downcase
       return if email.blank?

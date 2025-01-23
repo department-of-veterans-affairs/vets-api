@@ -16,10 +16,6 @@ module BGS
     # (I = Input, U = Update, D = Delete)
     JOURNAL_STATUS_TYPE_CODE = 'U'
 
-    # It appears that a find_ch33_dd_eft that returns empty bank account information
-    # will set the routing number field to '0' instead of 'nil', at least in certain cases
-    EMPTY_ROUTING_NUMBER = '0'
-
     def initialize(user)
       @user = user
     end
@@ -185,61 +181,6 @@ module BGS
       { ssn: @user.ssn }
     end
 
-    def get_ch33_dd_eft_info
-      find_ch33_dd_eft_res = find_ch33_dd_eft.body[:find_ch33_dd_eft_response][:return]
-      routing_number = find_ch33_dd_eft_res[:routng_trnsit_nbr]
-
-      find_ch33_dd_eft_res.slice(
-        :dposit_acnt_nbr,
-        :dposit_acnt_type_nm,
-        :routng_trnsit_nbr
-      ).merge(
-        financial_institution_name: lambda do
-          BankName.get_bank_name(@user, routing_number)
-        rescue => e
-          log_exception_to_sentry(e, { routing_number: }, { error: 'ch33_dd' })
-          nil
-        end.call
-      )
-    end
-
-    def find_bank_name_by_routng_trnsit_nbr(routing_number)
-      return if routing_number.blank? || routing_number == EMPTY_ROUTING_NUMBER
-
-      with_monitoring do
-        res = StatsD.measure("#{self.class::STATSD_KEY_PREFIX}.find_bank_name_by_routng_trnsit_nbr.duration") do
-          service.ddeft.find_bank_name_by_routng_trnsit_nbr(routing_number)
-        end
-        res[:find_bank_name_by_routng_trnsit_nbr_response][:return][:bank_name]
-      end
-    end
-
-    def find_ch33_dd_eft
-      with_monitoring do
-        StatsD.measure("#{self.class::STATSD_KEY_PREFIX}.find_ch33_dd_eft.duration") do
-          service.claims.send(:request, :find_ch33_dd_eft, fileNumber: @user.ssn)
-        end
-      end
-    end
-
-    def update_ch33_dd_eft(routing_number, acct_number, checking_acct)
-      with_monitoring do
-        StatsD.measure("#{self.class::STATSD_KEY_PREFIX}.update_ch33_dd_eft.duration") do
-          service.claims.send(
-            :request,
-            :update_ch33_dd_eft,
-            ch33DdEftInput: {
-              dpositAcntNbr: acct_number,
-              dpositAcntTypeNm: checking_acct ? 'C' : 'S',
-              fileNumber: @user.ssn,
-              routngTrnsitNbr: routing_number,
-              tranCode: '2'
-            }
-          )
-        end
-      end
-    end
-
     def get_regional_office_by_zip_code(zip_code, country, province, lob, ssn)
       regional_office_response = service.routing.get_regional_office_by_zip_code(
         zip_code, country, province, lob, ssn
@@ -266,14 +207,7 @@ module BGS
         txt: note_text
       }.merge!(bgs_auth).except!(:jrn_status_type_cd)
 
-      response = service.notes.create_note(option_hash)
-      message = if response[:note]
-                  response[:note].slice(:clm_id, :txt)
-                else
-                  response
-                end
-      log_message_to_sentry(message, :info, {}, { team: 'vfs-ebenefits' })
-      response
+      service.notes.create_note(option_hash)
     rescue => e
       notify_of_service_exception(e, __method__, 1, :warn)
     end

@@ -478,8 +478,8 @@ describe MPI::Service do
     let(:first_name) { 'some-first-name' }
 
     context 'malformed request' do
-      let(:first_name) { nil }
-      let(:missing_keys) { [:first_name] }
+      let(:last_name) { nil }
+      let(:missing_keys) { [:last_name] }
       let(:expected_error) { MPI::Errors::ArgumentError }
       let(:expected_error_message) { "Required values missing: #{missing_keys}" }
 

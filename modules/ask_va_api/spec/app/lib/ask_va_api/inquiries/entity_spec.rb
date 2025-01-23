@@ -7,18 +7,23 @@ RSpec.describe AskVAApi::Inquiries::Entity do
 
   let(:info) do
     {
-      Icn: I18n.t('ask_va_api.test_users.test_user_228_icn'),
-      Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
-      InquiryNumber: 'A-123456',
-      InquiryStatus: 'In Progress',
-      SubmitterQuestion: 'My question is... ',
-      LastUpdate: '1/1/1900',
-      InquiryHasAttachments: true,
-      InquiryHasBeenSplit: true,
-      VeteranRelationship: 'self',
-      SchoolFacilityCode: '0123',
-      InquiryTopic: 'topic',
+      AllowAttachments: true,
+      AllowReplies: true,
+      InquiryHasAttachments: false,
+      InquiryHasBeenSplit: false,
+      CategoryId: '75524deb-d864-eb11-bb24-000d3a579c45',
+      CreatedOn: '1/24/2024 11:48:56 PM',
+      Id: '9de0b522-13bb-ee11-a81c-001dd804e04a',
       InquiryLevelOfAuthentication: 'Personal',
+      InquiryNumber: 'A-20240124-306903',
+      InquiryStatus: 'Reopened',
+      InquiryTopic: 'Post-9/11 GI Bill (Chapter 33)',
+      LastUpdate: '2/29/2024 12:00:00 AM',
+      QueueId: '487de9d5-1b6b-eb11-b0b0-001dd8309f34',
+      QueueName: 'Buffalo CSR',
+      SchoolFacilityCode: '01234',
+      SubmitterQuestion: 'test',
+      VeteranRelationship: 'GIBillBeneficiary',
       AttachmentNames: [
         {
           Id: '012345',
@@ -31,19 +36,25 @@ RSpec.describe AskVAApi::Inquiries::Entity do
 
   it 'creates an inquiry' do
     expect(inquiry).to have_attributes({
-                                         id: info[:Id],
-                                         inquiry_number: info[:InquiryNumber],
-                                         attachments: info[:AttachmentNames],
-                                         correspondences: nil,
-                                         has_attachments: info[:InquiryHasAttachments],
+                                         allow_attachments: info[:AllowAttachments],
+                                         allow_replies: info[:AllowReplies],
                                          has_been_split: info[:InquiryHasBeenSplit],
+                                         category_name: info[:CategoryName],
+                                         created_on: info[:CreatedOn],
+                                         has_attachments: info[:InquiryHasAttachments],
+                                         id: info[:Id],
                                          level_of_authentication: info[:InquiryLevelOfAuthentication],
-                                         last_update: info[:LastUpdate],
+                                         inquiry_number: info[:InquiryNumber],
                                          status: info[:InquiryStatus],
-                                         submitter_question: info[:SubmitterQuestion],
+                                         inquiry_topic: info[:InquiryTopic],
+                                         last_update: info[:LastUpdate],
+                                         queue_id: info[:QueueId],
+                                         queue_name: info[:QueueName],
                                          school_facility_code: info[:SchoolFacilityCode],
-                                         topic: info[:InquiryTopic],
-                                         veteran_relationship: info[:VeteranRelationship]
+                                         correspondences: nil,
+                                         submitter_question: info[:SubmitterQuestion],
+                                         veteran_relationship: info[:VeteranRelationship],
+                                         attachments: info[:AttachmentNames]
                                        })
   end
 end

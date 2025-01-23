@@ -37,7 +37,6 @@ ClaimsApi::Engine.routes.draw do
   namespace :v2, defaults: { format: 'json' } do
     mount OkComputer::Engine, at: '/healthcheck'
 
-    post '/veteran-id:find', to: 'veteran_identifier#find', constraints: { find: /:find/ }
     namespace :veterans do
       get '/:veteranId/claims', to: 'claims#index'
       get '/:veteranId/claims/:id', to: 'claims#show'
@@ -50,24 +49,20 @@ ClaimsApi::Engine.routes.draw do
         post '/:veteranId/2122a/validate', to: 'individual#validate'
         post '/:veteranId/2122a', to: 'individual#submit'
         get '/:veteranId/power-of-attorney/:id', to: 'base#status'
-        post '/:veteranId/power-of-attorney-request', to: 'request#request_representative'
+        # Power of Attorney Requests
+        post '/:veteranId/power-of-attorney-request', to: 'request#create'
+        post '/power-of-attorney-requests', to: 'request#index'
+        get '/power-of-attorney-requests/:id', to: 'request#show'
+        post '/power-of-attorney-requests/:id/decide', to: 'request#decide'
       end
       ## 0966 Forms
       get '/:veteranId/intent-to-file/:type', to: 'intent_to_file#type'
       post '/:veteranId/intent-to-file', to: 'intent_to_file#submit'
       post '/:veteranId/intent-to-file/validate', to: 'intent_to_file#validate'
       ## 526 Forms
-      post '/:veteranId/526', to: 'disability_compensation#submit'
       post '/:veteranId/526/validate', to: 'disability_compensation#validate'
-      post '/:veteranId/526/:id/attachments', to: 'disability_compensation#attachments'
       post '/:veteranId/526/generatePDF/minimum-validations', to: 'disability_compensation#generate_pdf'
       post '/:veteranId/526/synchronous', to: 'disability_compensation#synchronous'
-    end
-
-    resources :power_of_attorney_requests, path: 'power-of-attorney-requests', only: [:index] do
-      scope module: :power_of_attorney_requests do
-        resource :decision, only: [:create]
-      end
     end
   end
 

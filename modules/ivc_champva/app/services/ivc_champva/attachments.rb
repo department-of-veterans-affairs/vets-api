@@ -4,25 +4,60 @@ module IvcChampva
   module Attachments
     attr_accessor :form_id, :uuid, :data
 
-    def handle_attachments(file_path)
-      file_path_uuid = file_path.gsub("#{form_id}-tmp", "#{uuid}_#{form_id}-tmp")
-      File.rename(file_path, file_path_uuid)
+    def handle_attachments(file_path) # rubocop:disable Metrics/MethodLength
+      file_paths = [file_path]
+      file_processing_errors = []
+
+      Rails.logger.info('IVC ChampVA Forms - Getting attachments')
       attachments = get_attachments
-      file_paths = [file_path_uuid]
 
-      if attachments.count.positive?
-        attachments.each_with_index do |attachment, index|
-          new_file_name =
-            if attachment.include?('_additional_')
-              "#{uuid}_#{File.basename(attachment, '.*')}.pdf"
-            else
-              "#{uuid}_#{form_id}_supporting_doc-#{index + 1}.pdf"
-            end
+      Rails.logger.info("IVC ChampVA Forms - Processing #{attachments.size} attachments for form #{form_id} #{uuid}")
+      attachments.each_with_index do |attachment, index|
+        new_file_name = if attachment.include?('_additional_')
+                          Rails.logger.info("IVC ChampVA Forms - Attachment #{index} is additional")
+                          "#{uuid}_#{File.basename(attachment,
+                                                   '.*')}.pdf"
+                        else
+                          Rails.logger.info("IVC ChampVA Forms - Attachment #{index} is supporting")
+                          "#{uuid}_#{form_id}_supporting_doc-#{index}.pdf"
+                        end
 
-          new_file_path = File.join(File.dirname(attachment), new_file_name)
+        new_file_path = if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
+                          Rails.logger.info("IVC ChampVA Forms - Attachment #{index} is using decrypt path")
+                          File.join('tmp', new_file_name)
+                        else
+                          Rails.logger.info("IVC ChampVA Forms - Attachment #{index} is using original path")
+                          File.join(File.dirname(attachment), new_file_name)
+                        end
+
+        if Flipper.enabled?(:champva_pdf_decrypt, @current_user)
+          # Use FileUtils.mv to handle `Errno::EXDEV` error since encrypted PDFs
+          # get stashed in the clamav_tmp dir which is a different device on staging, apparently
+          Rails.logger.info("IVC ChampVA Forms - Handling attachment #{index} via mv")
+          FileUtils.mv(attachment, new_file_path) # Performs a copy automatically if mv fails
+        else
+          Rails.logger.info("IVC ChampVA Forms - Handling attachment #{index} via rename")
           File.rename(attachment, new_file_path)
-          file_paths << new_file_path
         end
+
+        file_paths << new_file_path
+      rescue Errno::ENOENT # File.rename and FileUtils.mv throw this error when a file is not found
+        # e.message contains a filename which could include PII, so only pass on a hard coded message
+        file_processing_errors << "Error processing attachment at index #{index}: ENOENT No such file or directory"
+      rescue SystemCallError => e # Base class for any filesystem related errors
+        # e.message could contain a filename and PII, so only pass on the decoded error number when available
+        error_name = Errno.constants.find(proc {
+          "Unknown #{e.errno}"
+        }) { |c| Errno.const_get(c).new.errno == e.errno }.to_s
+        file_processing_errors << "Error processing attachment at index #{index}: SystemCallError #{error_name}"
+      rescue => e
+        file_processing_errors << "Error processing attachment at index #{index}: #{e.message}"
+      end
+
+      unless file_processing_errors.empty?
+        error_message = "Unable to process all attachments: #{file_processing_errors.join(', ')}"
+        Rails.logger.error("IVC ChampVA Forms - #{error_message}")
+        raise StandardError, error_message
       end
 
       file_paths
@@ -47,7 +82,10 @@ module IvcChampva
       if supporting_documents
         confirmation_codes = []
         supporting_documents&.map { |doc| confirmation_codes << doc['confirmation_code'] }
-        PersistentAttachment.where(guid: confirmation_codes).map { |attachment| attachments << attachment.to_pdf }
+        # Ensure we create the PDFs in the same order the attachments were uploaded
+        PersistentAttachment.where(guid: confirmation_codes)
+                            &.sort_by { |pa| pa[:created_at] }
+                            &.map { |attachment| attachments << attachment.to_pdf }
       end
 
       attachments

@@ -27,7 +27,6 @@ module VAProfile
       def init_vet360_id(icn = nil)
         with_monitoring do
           raw_response = perform(:post, encode_url!(icn), empty_body)
-
           VAProfile::ContactInformation::PersonTransactionResponse.from(raw_response, @user)
         end
       rescue => e

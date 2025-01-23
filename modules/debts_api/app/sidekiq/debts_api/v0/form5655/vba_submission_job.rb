@@ -8,13 +8,25 @@ module DebtsApi
     include SentryLogging
     STATS_KEY = 'api.vba_submission'
 
-    sidekiq_options retry: false
+    sidekiq_options retry: 5
+    sidekiq_retry_in { 1.hour.to_i }
 
     class MissingUserAttributesError < StandardError; end
 
-    sidekiq_retries_exhausted do |job, _ex|
+    sidekiq_retries_exhausted do |job, ex|
+      StatsD.increment("#{STATS_KEY}.retries_exhausted")
+      submission_id = job['args'][0]
       user_uuid = job['args'][1]
-      UserProfileAttributes.find(user_uuid)&.destroy
+
+      submission = DebtsApi::V0::Form5655Submission.find_by(id: submission_id)
+      submission&.register_failure("VBASubmissionJob#perform: #{ex.message}")
+
+      Rails.logger.error <<~LOG
+        V0::Form5655::VBASubmissionJob retries exhausted:
+        submission_id: #{submission_id} | user_id: #{user_uuid}
+        Exception: #{ex.class} - #{ex.message}
+        Backtrace: #{ex.backtrace.join("\n")}
+      LOG
     end
 
     def perform(submission_id, user_uuid)
@@ -27,8 +39,8 @@ module DebtsApi
       StatsD.increment("#{STATS_KEY}.success")
       submission.register_success
     rescue => e
-      submission.register_failure(e.message)
       StatsD.increment("#{STATS_KEY}.failure")
+      Rails.logger.error("V0::Form5655::VBASubmissionJob failed, retrying: #{e.message}")
       raise e
     end
   end

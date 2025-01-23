@@ -3,7 +3,9 @@
 module VANotify
   class Veteran
     class UnsupportedForm < StandardError; end
+
     class MPIError < StandardError; end
+
     class MPINameError < StandardError; end
 
     def initialize(in_progress_form)
@@ -36,7 +38,7 @@ module VANotify
     end
 
     def user_uuid
-      @user_uuid ||= in_progress_form.user_uuid
+      @user_uuid ||= format_uuid(in_progress_form.user_uuid)
     end
     alias uuid user_uuid
 
@@ -57,6 +59,10 @@ module VANotify
       raise MPINameError unless first_name
 
       first_name
+    end
+
+    def format_uuid(uuid)
+      "#{uuid[0..7]}-#{uuid[8..11]}-#{uuid[12..15]}-#{uuid[16..19]}-#{uuid[20..31]}"
     end
   end
 end

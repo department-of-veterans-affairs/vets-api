@@ -7,8 +7,8 @@ require 'hca/overrides_parser'
 module VA1010Forms
   module Utils
     include ActionView::Helpers::NumberHelper
-    def es_submit(parsed_form, user, form_id)
-      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, user, form_id)
+    def es_submit(parsed_form, user_identifier, form_id)
+      formatted = HCA::EnrollmentSystem.veteran_to_save_submit_form(parsed_form, user_identifier, form_id)
       submission_body = submission_body(formatted)
       response = perform(:post, '', submission_body)
 
@@ -34,10 +34,6 @@ module VA1010Forms
         },
         namespace: 'http://va.gov/schema/esr/voa/v1'
       )
-    end
-
-    def override_parsed_form(parsed_form)
-      HCA::OverridesParser.new(parsed_form).override
     end
 
     private

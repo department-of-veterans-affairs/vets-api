@@ -5,13 +5,15 @@ RSpec.shared_examples 'Flipper debts_cache_dmc_empty_response behavior' do |flip
     allow(Flipper).to receive(:enabled?).with(:debts_cache_dmc_empty_response).and_return(flipper_enabled)
   end
 
-  describe '#get_letters' do
+  describe '#get_debts' do
     context 'with a valid file number' do
       it 'fetches the veterans debt data' do
         VCR.use_cassette('bgs/people_service/person_data') do
           VCR.use_cassette('debts/get_letters', VCR::MATCH_EVERYTHING) do
             res = described_class.new(user).get_debts
-            expect(JSON.parse(res.to_json)['debts'][0]['fileNumber']).to eq('796043735')
+            parsed_response = JSON.parse(res.to_json)['debts'][0]
+            expect(parsed_response['fileNumber']).to eq('796043735')
+            expect(parsed_response['compositeDebtId']).to eq('301177')
           end
         end
       end
@@ -21,6 +23,8 @@ RSpec.shared_examples 'Flipper debts_cache_dmc_empty_response behavior' do |flip
       it 'returns a bad request error' do
         VCR.use_cassette('bgs/people_service/no_person_data') do
           VCR.use_cassette('debts/get_letters_empty_ssn', VCR::MATCH_EVERYTHING) do
+            expect(StatsD).to receive(:increment).once.with('api.dmc.init_cached_debts.fired') if flipper_enabled
+
             expect(StatsD).to receive(:increment).once.with(
               flipper_enabled ? cached_error_metric : non_cached_error_metric, tags: [
                 'error:CommonClientErrorsClientError', 'status:400'
@@ -50,8 +54,20 @@ RSpec.shared_examples 'Flipper debts_cache_dmc_empty_response behavior' do |flip
       it 'handles an empty payload' do
         VCR.use_cassette('bgs/people_service/person_data') do
           VCR.use_cassette('debts/get_letters_empty_response', VCR::MATCH_EVERYTHING) do
-            res = described_class.new(user).get_debts
-            expect(JSON.parse(res.to_json)['debts']).to eq([])
+            Timecop.freeze(Time.utc(2024, 8, 4, 3, 0, 0)) do
+              expected_expires_in = 2.hours
+
+              if flipper_enabled
+                expect(Rails.cache).to receive(:write).once.with(
+                  "debts_data_#{user.uuid}",
+                  [],
+                  hash_including(expires_in: be_within(1.second).of(expected_expires_in))
+                )
+              end
+
+              res = described_class.new(user).get_debts
+              expect(JSON.parse(res.to_json)['debts']).to eq([])
+            end
           end
         end
       end

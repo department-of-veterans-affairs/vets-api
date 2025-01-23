@@ -6,8 +6,8 @@ require_relative 'formatter'
 module Forms
   module SubmissionStatuses
     class Report
-      def initialize(user_account)
-        @gateway = Gateway.new(user_account)
+      def initialize(user_account:, allowed_forms:)
+        @gateway = Gateway.new(user_account:, allowed_forms:)
         @formatter = Formatter.new
       end
 
@@ -21,7 +21,12 @@ module Forms
       end
 
       def format_data
-        @formatter.format_data(@dataset)
+        results = @formatter.format_data(@dataset)
+
+        OpenStruct.new(
+          submission_statuses: results,
+          errors: @dataset.errors
+        )
       end
     end
   end

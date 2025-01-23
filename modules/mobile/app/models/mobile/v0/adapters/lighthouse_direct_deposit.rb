@@ -4,12 +4,12 @@ module Mobile
   module V0
     module Adapters
       class LighthouseDirectDeposit
-        def parse(direct_deposit_info)
-          JSON.parse({
-            control_information: parse_control_information(direct_deposit_info.control_information),
+        def parse(direct_deposit_info, user_uuid)
+          {
+            id: user_uuid,
+            account_control: parse_control_information(direct_deposit_info.control_information),
             payment_account: parse_payment_account(direct_deposit_info.payment_account)
-          }.to_json,
-                     object_class: OpenStruct)
+          }
         end
 
         private
@@ -33,7 +33,7 @@ module Mobile
           {
             account_type: payment_account_info[:account_type],
             financial_institution_name: payment_account_info[:name],
-            account_number: payment_account_info[:account_number],
+            account_number: StringHelpers.mask_sensitive(payment_account_info[:account_number]),
             financial_institution_routing_number: payment_account_info[:routing_number]
           }
         end

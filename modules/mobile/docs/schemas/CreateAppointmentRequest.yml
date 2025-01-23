@@ -1,5 +1,6 @@
 description: A request to create a new appointment.
 type: object
+additionalProperties: false
 required:
   - kind
   - status
@@ -53,6 +54,7 @@ properties:
     example: 'optometry'
   reasonCode:
     type: object
+    additionalProperties: false
     "$ref": ./ReasonCode.yml
   locationId:
     description: The sta6aid for the VAfacility where the appointment is registered.

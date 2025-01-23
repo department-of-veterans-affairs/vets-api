@@ -11,7 +11,7 @@ module DependentsHelper
   end
 
   def in_future(decision)
-    Time.zone.parse(decision[:award_effective_date]) > Time.zone.now
+    Time.zone.parse(decision[:award_effective_date].to_s) > Time.zone.now
   end
 
   def still_pending(decision, award_event_id)
@@ -60,7 +60,12 @@ module DependentsHelper
   end
 
   def dependency_decisions(diaries)
-    decisions = diaries && diaries[:dependency_decs]
+    decisions = if diaries.is_a?(Hash)
+                  diaries[:dependency_decs]
+                else
+                  Rails.logger.warn('Diaries is not a hash! Diaries value: ', diaries)
+                  nil
+                end
     return if decisions.nil?
 
     decisions.is_a?(Hash) ? [decisions] : decisions

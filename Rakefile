@@ -4,7 +4,7 @@
 # for example lib/tasks/capistrano.rake, and they will automatically be available to Rake.
 
 require 'rake'
-require 'ddtrace'
+require 'datadog'
 require_relative 'config/application'
 
 Datadog.configure do |c|
@@ -12,7 +12,7 @@ Datadog.configure do |c|
 end
 
 # Load rake support files
-Dir[Rails.root.join('lib', 'tasks', 'support', '**', '*.rb')].each { |f| require f }
+Rails.root.glob('lib/tasks/support/**/*.rb').each { |f| require f }
 Rake.add_rakelib 'rakelib/prod'
 Rails.application.load_tasks
 

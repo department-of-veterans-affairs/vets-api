@@ -13,7 +13,6 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
   let(:service) { instance_double(Crm::Service) }
   let(:icn) { nil }
-  let(:error_message) { 'Some error occurred' }
   let(:user_mock_data) { false }
 
   before do
@@ -42,6 +41,31 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
     end
 
     context 'when successful' do
+      let(:cache_data) do
+        {
+          Topics: [
+            {
+              Name: 'Veteran Affairs  - Debt',
+              Id: '5c524deb-d864-eb11-bb24-000d3a579c45',
+              ParentId: nil,
+              Description: nil,
+              RequiresAuthentication: true,
+              AllowAttachments: true,
+              RankOrder: 4,
+              DisplayName: 'Veteran Affairs  - Debt',
+              TopicType: 'Category',
+              ContactPreferences: []
+            }
+          ]
+        }
+      end
+
+      before do
+        allow_any_instance_of(AskVAApi::RedisClient).to receive(:fetch)
+          .with('categories_topics_subtopics')
+          .and_return(cache_data)
+      end
+
       context 'with user_mock_data' do
         context 'when an ID is given' do
           let(:user_mock_data) { true }
@@ -65,29 +89,91 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
       context 'with Crm::Service' do
         context 'when an ID is given' do
           let(:id) { '123' }
-          let(:response) do
-            { Data: [{ Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
-                       InquiryNumber: 'A-20230305-306178',
-                       InquiryStatus: 'Reopened',
-                       SubmitterQuestion: 'test',
-                       LastUpdate: '4/1/2024 12:00:00 AM',
-                       InquiryHasAttachments: true,
-                       InquiryHasBeenSplit: true,
-                       VeteranRelationship: 'GIBillBeneficiary',
-                       SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
-                       InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
-                       InquiryLevelOfAuthentication: 'Unauthenticated',
-                       AttachmentNames: [{ Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
-                                           Name: 'Test.txt' }] }] }
+          let(:inquiry_data) do
+            {
+              InquiryHasBeenSplit: true,
+              CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
+              CreatedOn: '8/5/2024 4:51:52 PM',
+              Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
+              InquiryLevelOfAuthentication: 'Personal',
+              InquiryNumber: 'A-123456',
+              InquiryStatus: 'In Progress',
+              InquiryTopic: 'Cemetery Debt',
+              LastUpdate: '1/1/1900',
+              QueueId: '9876t54',
+              QueueName: 'Debt Management Center',
+              SchoolFacilityCode: '0123',
+              SubmitterQuestion: 'My question is... ',
+              VeteranRelationship: 'self',
+              AttachmentNames: [{ Id: '012345', Name: 'File A.pdf' }]
+            }
           end
+          let(:response) { { Data: [inquiry_data] } }
+          let(:correspondence_data) do
+            {
+              Id: 'f4b12ee3-93bb-ed11-9886-001dd806a6a7',
+              ModifiedOn: '3/5/2023 8:25:49 PM',
+              StatusReason: 'Sent',
+              Description: 'Dear aminul, Thank you for submitting your ' \
+                           'Inquiry with the U.S. Department of Veteran Affairs.',
+              MessageType: 'Notification',
+              EnableReply: true,
+              AttachmentNames: nil
+            }
+          end
+          let(:correspondence) { AskVAApi::Correspondences::Entity.new(correspondence_data) }
 
           before do
             allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
             allow(service).to receive(:call).and_return(response)
+            allow_any_instance_of(AskVAApi::Correspondences::Retriever).to receive(:call)
+              .and_return([correspondence])
           end
 
-          it 'returns an array object with correct data' do
-            expect(retriever.fetch_by_id(id:)).to be_a(AskVAApi::Inquiries::Entity)
+          it 'returns an inquiry entity with expected attributes' do
+            result = retriever.fetch_by_id(id: id)
+
+            # Inquiry-level expectations
+            expect(result).to be_a(AskVAApi::Inquiries::Entity)
+            expect(result.id).to eq(inquiry_data[:Id])
+            expect(result.inquiry_number).to eq(inquiry_data[:InquiryNumber])
+            expect(result.status).to eq(inquiry_data[:InquiryStatus])
+            expect(result.category_name).to eq('Veteran Affairs  - Debt')
+            expect(result.inquiry_topic).to eq(inquiry_data[:InquiryTopic])
+            expect(result.created_on).to eq(inquiry_data[:CreatedOn])
+            expect(result.last_update).to eq(inquiry_data[:LastUpdate])
+            expect(result.submitter_question).to eq(inquiry_data[:SubmitterQuestion])
+            expect(result.attachments).to eq(inquiry_data[:AttachmentNames])
+
+            # Correspondence-level expectations using correspondence_data
+            correspondence_result = result.correspondences.first
+            expect(correspondence_result).to be_a(AskVAApi::Correspondences::Entity)
+            expect(correspondence_result.id).to eq(correspondence_data[:Id])
+            expect(correspondence_result.description).to eq(correspondence_data[:Description])
+            expect(correspondence_result.status_reason).to eq(correspondence_data[:StatusReason])
+            expect(correspondence_result.enable_reply).to eq(correspondence_data[:EnableReply])
+            expect(correspondence_result.message_type).to eq(correspondence_data[:MessageType])
+            expect(correspondence_result.modified_on).to eq(correspondence_data[:ModifiedOn])
+
+            # Queue expectations
+            expect(result.queue_id).to eq(inquiry_data[:QueueId])
+            expect(result.queue_name).to eq(inquiry_data[:QueueName])
+            expect(result.veteran_relationship).to eq(inquiry_data[:VeteranRelationship])
+          end
+
+          context 'when Correspondence::Retriever returns an error' do
+            before do
+              allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
+              allow(service).to receive(:call).and_return(response)
+              allow_any_instance_of(AskVAApi::Correspondences::Retriever).to receive(:call)
+                .and_return('Data Validation: No Inquiry Found')
+            end
+
+            it 'returns correspondences as an empty array' do
+              inquiry = retriever.fetch_by_id(id:)
+
+              expect(inquiry.correspondences).to eq([])
+            end
           end
         end
 
@@ -97,51 +183,70 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
             {
               Data: [
                 {
-                  Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
-                  InquiryNumber: 'A-20230305-306178',
-                  InquiryStatus: 'Reopened',
-                  SubmitterQuestion: 'test',
-                  LastUpdate: '4/1/2024 12:00:00 AM',
-                  InquiryHasAttachments: true,
                   InquiryHasBeenSplit: true,
-                  VeteranRelationship: 'GIBillBeneficiary',
-                  SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
-                  InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
-                  InquiryLevelOfAuthentication: 'Unauthenticated',
+                  CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
+                  CreatedOn: '8/5/2024 4:51:52 PM',
+                  Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
+                  InquiryLevelOfAuthentication: 'Personal',
+                  InquiryNumber: 'A-123456',
+                  InquiryStatus: 'In Progress',
+                  InquiryTopic: 'Cemetery Debt',
+                  LastUpdate: '1/1/1900',
+                  QueueId: '9876t54',
+                  QueueName: 'Debt Management Center',
+                  SchoolFacilityCode: '0123',
+                  SubmitterQuestion: 'My question is... ',
+                  VeteranRelationship: 'self',
                   AttachmentNames: [
                     {
-                      Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
-                      Name: 'Test.txt'
+                      Id: '012345',
+                      Name: 'File A.pdf'
                     }
                   ]
                 },
                 {
-                  Id: 'b24e8113-92d1-ed11-9ac4-00155da17a6f',
-                  InquiryNumber: 'A-20230402-306218',
-                  InquiryStatus: 'New',
-                  SubmitterQuestion: 'test',
-                  LastUpdate: '1/1/0001 12:00:00 AM',
-                  InquiryHasAttachments: false,
-                  InquiryHasBeenSplit: false,
-                  VeteranRelationship: nil,
-                  SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
-                  InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
+                  InquiryHasBeenSplit: true,
+                  CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
+                  CreatedOn: '8/5/2024 4:51:52 PM',
+                  Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
                   InquiryLevelOfAuthentication: 'Personal',
-                  AttachmentNames: nil
+                  InquiryNumber: 'A-123456',
+                  InquiryStatus: 'In Progress',
+                  InquiryTopic: 'Cemetery Debt',
+                  LastUpdate: '1/1/1900',
+                  QueueId: '9876t54',
+                  QueueName: 'Debt Management Center',
+                  SchoolFacilityCode: '0123',
+                  SubmitterQuestion: 'My question is... ',
+                  VeteranRelationship: 'self',
+                  AttachmentNames: [
+                    {
+                      Id: '012345',
+                      Name: 'File A.pdf'
+                    }
+                  ]
                 },
                 {
-                  Id: 'e1ce6ae6-40ec-ee11-904d-001dd8306a72',
-                  InquiryNumber: 'A-20240327-307060',
-                  InquiryStatus: 'New',
-                  SubmitterQuestion: 'test',
-                  LastUpdate: '3/27/2024 12:00:00 AM',
-                  InquiryHasAttachments: true,
                   InquiryHasBeenSplit: true,
-                  VeteranRelationship: nil,
-                  SchoolFacilityCode: nil,
-                  InquiryTopic: 'Filing for compensation benefits',
+                  CategoryId: '5c524deb-d864-eb11-bb24-000d3a579c45',
+                  CreatedOn: '8/5/2024 4:51:52 PM',
+                  Id: 'a6c3af1b-ec8c-ee11-8178-001dd804e106',
                   InquiryLevelOfAuthentication: 'Personal',
-                  AttachmentNames: nil
+                  InquiryNumber: 'A-123456',
+                  InquiryStatus: 'In Progress',
+                  InquiryTopic: 'Cemetery Debt',
+                  LastUpdate: '1/1/1900',
+                  QueueId: '9876t54',
+                  QueueName: 'Debt Management Center',
+                  SchoolFacilityCode: '0123',
+                  SubmitterQuestion: 'My question is... ',
+                  VeteranRelationship: 'self',
+                  AttachmentNames: [
+                    {
+                      Id: '012345',
+                      Name: 'File A.pdf'
+                    }
+                  ]
                 }
               ],
               Message: nil,
@@ -158,70 +263,6 @@ RSpec.describe AskVAApi::Inquiries::Retriever do
 
           it 'returns an array object with correct data' do
             expect(retriever.call.first).to be_a(AskVAApi::Inquiries::Entity)
-          end
-        end
-      end
-
-      context 'with Correspondences' do
-        let(:id) { '123' }
-        let(:response) do
-          { Data: [{ Id: '154163f2-8fbb-ed11-9ac4-00155da17a6f',
-                     InquiryNumber: 'A-20230305-306178',
-                     InquiryStatus: 'Reopened',
-                     SubmitterQuestion: 'test',
-                     LastUpdate: '4/1/2024 12:00:00 AM',
-                     InquiryHasAttachments: true,
-                     InquiryHasBeenSplit: true,
-                     VeteranRelationship: 'GIBillBeneficiary',
-                     SchoolFacilityCode: '77a51029-6816-e611-9436-0050568d743d',
-                     InquiryTopic: 'Medical Care Concerns at a VA Medical Facility',
-                     InquiryLevelOfAuthentication: 'Unauthenticated',
-                     AttachmentNames: [{ Id: '367e8d31-6c82-1d3c-81b8-dd2cabed7555',
-                                         Name: 'Test.txt' }] }] }
-        end
-
-        context 'when Correspondence::Retriever returns an error' do
-          before do
-            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
-            allow(service).to receive(:call).and_return(response)
-            allow_any_instance_of(AskVAApi::Correspondences::Retriever).to receive(:call)
-              .and_return('Data Validation: No Inquiry Found')
-          end
-
-          it 'returns correspondences as an empty array' do
-            inquiry = retriever.fetch_by_id(id:)
-
-            expect(inquiry.correspondences).to eq([])
-          end
-        end
-
-        context 'when Correspondence::Retriever returns a success' do
-          let(:cor_info) do
-            {
-              Id: 'f4b12ee3-93bb-ed11-9886-001dd806a6a7',
-              ModifiedOn: '3/5/2023 8:25:49 PM',
-              StatusReason: 'Sent',
-              Description: 'Dear aminul, Thank you for submitting your ' \
-                           'Inquiry with the U.S. Department of Veteran Affairs.',
-              MessageType: 'Notification',
-              EnableReply: true,
-              AttachmentNames: nil
-            }
-          end
-
-          let(:correspondence) { AskVAApi::Correspondences::Entity.new(cor_info) }
-
-          before do
-            allow_any_instance_of(Crm::CrmToken).to receive(:call).and_return('Token')
-            allow(service).to receive(:call).and_return(response)
-            allow_any_instance_of(AskVAApi::Correspondences::Retriever).to receive(:call)
-              .and_return([correspondence])
-          end
-
-          it 'returns correspondences as an empty array' do
-            inquiry = retriever.fetch_by_id(id:)
-
-            expect(inquiry.correspondences).to eq([correspondence])
           end
         end
       end

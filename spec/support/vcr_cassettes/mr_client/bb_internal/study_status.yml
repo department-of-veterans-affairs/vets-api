@@ -1,0 +1,38 @@
+---
+http_interactions:
+- request:
+    method: get
+    uri: "<MHV_MR_HOST>/mhvapi/v1/bluebutton/studyjob/11382904"
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - application/json
+      Content-Type:
+      - application/json
+      User-Agent:
+      - Vets.gov Agent
+      Token: "<SESSION_TOKEN>"
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 200
+      message: ''
+    headers:
+      Date:
+      - Thu, 24 Oct 2024 17:07:48 GMT
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '[{"status":"COMPLETE","statusText":"100","studyIdUrn":"453-2487450","percentComplete":100,"fileSize":"7.67
+        MB","fileSizeNumber":8041789,"startDate":1729777818853,"endDate":1729777843328},{"status":"COMPLETE","statusText":"100","studyIdUrn":"453-2487448","percentComplete":100,"fileSize":"253.91
+        KB","fileSizeNumber":260001,"startDate":1729777819179,"endDate":1729777826103},{"status":"ERROR","statusText":"100","studyIdUrn":"451-72913365","percentComplete":100,"fileSize":"","fileSizeNumber":null,"startDate":1729777819016,"endDate":1729778734008}]'
+  recorded_at: Thu, 24 Oct 2024 17:07:48 GMT
+recorded_with: VCR 6.3.1

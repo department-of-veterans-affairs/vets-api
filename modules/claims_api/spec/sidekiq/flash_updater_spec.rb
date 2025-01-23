@@ -10,13 +10,13 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
   end
 
   let(:user) do
-    user_mock = FactoryBot.create(:evss_user, :loa3)
+    user_mock = create(:evss_user, :loa3)
     {
       'ssn' => user_mock.ssn
     }
   end
   let(:flashes) { %w[Hardship Homeless] }
-  let(:claim) { create(:auto_established_claim_with_auth_headers) }
+  let(:claim) { create(:auto_established_claim, :with_full_headers) }
   let(:assigned_flashes) do
     { flashes: flashes.map do |flash|
                  { assigned_indicator: claim.auth_headers['va_eauth_pnid'], flash_name: "#{flash}    ",
@@ -38,10 +38,10 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
 
   it 'submits flashes to bgs successfully' do
     flashes.each do |flash_name|
-      expect_any_instance_of(BGS::ClaimantWebService)
-        .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
+      allow_any_instance_of(ClaimsApi::ClaimantWebService)
+        .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash: { flash_name: })
     end
-    expect_any_instance_of(BGS::ClaimantWebService)
+    expect_any_instance_of(ClaimsApi::ClaimantWebService)
       .to receive(:find_assigned_flashes).with(claim.auth_headers['va_eauth_pnid']).and_return(assigned_flashes)
 
     subject.new.perform(flashes, claim.id)
@@ -50,15 +50,15 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
   it 'continues submitting flashes on exception' do
     flashes.each_with_index do |flash_name, index|
       if index.zero?
-        expect_any_instance_of(BGS::ClaimantWebService).to receive(:add_flash)
-          .with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
+        allow_any_instance_of(ClaimsApi::ClaimantWebService).to receive(:add_flash)
+          .with(file_number: claim.auth_headers['va_eauth_pnid'], flash: { flash_name: })
           .and_raise(BGS::ShareError.new('failed', 500))
       else
-        expect_any_instance_of(BGS::ClaimantWebService)
-          .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
+        allow_any_instance_of(ClaimsApi::ClaimantWebService)
+          .to receive(:add_flash).with(file_number: claim.auth_headers['va_eauth_pnid'], flash: { flash_name: })
       end
     end
-    expect_any_instance_of(BGS::ClaimantWebService)
+    expect_any_instance_of(ClaimsApi::ClaimantWebService)
       .to receive(:find_assigned_flashes).with(claim.auth_headers['va_eauth_pnid']).and_return(assigned_flashes)
 
     subject.new.perform(flashes, claim.id)
@@ -66,11 +66,11 @@ RSpec.describe ClaimsApi::FlashUpdater, type: :job do
 
   it 'stores multiple bgs exceptions correctly' do
     flashes.each do |flash_name|
-      expect_any_instance_of(BGS::ClaimantWebService).to receive(:add_flash)
-        .with(file_number: claim.auth_headers['va_eauth_pnid'], flash_name:)
+      allow_any_instance_of(ClaimsApi::ClaimantWebService).to receive(:add_flash)
+        .with(file_number: claim.auth_headers['va_eauth_pnid'], flash: { flash_name: })
         .and_raise(BGS::ShareError.new('failed', 500))
     end
-    expect_any_instance_of(BGS::ClaimantWebService)
+    expect_any_instance_of(ClaimsApi::ClaimantWebService)
       .to receive(:find_assigned_flashes).with(claim.auth_headers['va_eauth_pnid']).and_return({ flashes: [] })
 
     subject.new.perform(flashes, claim.id)

@@ -1,9 +1,11 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
   data:
     type: object
+    additionalProperties: false
     required:
       - type
       - id
@@ -16,6 +18,7 @@ properties:
         description: Upstream identifier. Same as provided id.
       attributes:
         type: object
+        additionalProperties: false
         required:
           - appealIds
           - active
@@ -34,7 +37,7 @@ properties:
           - type
           - updated
         properties:
-          appealsIds:
+          appealIds:
             type: array
             items:
               type: string
@@ -56,7 +59,8 @@ properties:
           description:
             type: string
           docket:
-            type: object, null
+            type: object
+            nullable: true
           events:
             type: array
             items:
@@ -88,13 +92,43 @@ properties:
               - medical
               - burial
               - bva
+              - fiduciary
               - other
               - multiple
+              - vha
+              - voc_rehub
+              - voc_rehab
           status:
             type: object
+            additionalProperties: false
             properties:
               details:
                 type: object
+                additionalProperties: false
+                properties:
+                  lastSocDate:
+                    type: string
+                  certificationTimeliness:
+                    items:
+                      type: Integer
+                  ssocTimeliness:
+                    items:
+                      type: Integer
+                  decisionTimeliness:
+                    items:
+                      type: Integer
+                  remandTimeliness:
+                    items:
+                      type: Integer
+                  socTimeliness:
+                    items:
+                      type: Integer
+                  remandSsocTimeliness:
+                    items:
+                      type: Integer
+                  returnTimeliness:
+                    items:
+                      type: Integer
               type:
                 type: string
                 enum:
@@ -120,7 +154,26 @@ properties:
                   - remand_ssoc
                   - remand
                   - merged
+                  - evidentiary_period
+                  - ama_remand
+                  - post_bva_dta_decision
+                  - bva_decision_effectuation
+                  - sc_received
+                  - sc_decision
+                  - sc_closed
+                  - hlr_received
+                  - hlr_dta_error
+                  - hlr_decision
+                  - hlr_closed
+                  - statutory_opt_in
+                  - motion
+                  - pre_docketed
           type:
             type: string
+            enum:
+              - legacyAppeal
+              - appeal
+              - supplementalClaim
+              - higherLevelReview
           updated:
             type: string

@@ -2,13 +2,17 @@
 
 require 'rails_helper'
 
-RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :education_benefits do
+RSpec.describe EducationForm::CreateDailySpoolFiles, form: :education_benefits, type: :model do
   subject { described_class.new }
 
   let!(:application_1606) do
     create(:va1990).education_benefits_claim
   end
   let(:line_break) { EducationForm::CreateDailySpoolFiles::WINDOWS_NOTEPAD_LINEBREAK }
+
+  before do
+    allow(Flipper).to receive(:enabled?).and_call_original
+  end
 
   after(:all) do
     FileUtils.rm_rf('tmp/spool_files')
@@ -108,9 +112,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
         allow(Rails.env).to receive('development?').and_return(true)
         application_1606.saved_claim.form = {}.to_json
         application_1606.saved_claim.save!(validate: false) # Make this claim super malformed
-        FactoryBot.create(:va1990_western_region)
-        FactoryBot.create(:va1995_full_form)
-        FactoryBot.create(:va0994_full_form)
+        create(:va1990_western_region)
+        create(:va1995_full_form)
+        create(:va0994_full_form)
         # clear out old test files
         FileUtils.rm_rf(Dir.glob(spool_files))
         # ensure our test data is spread across 2 regions..
@@ -126,22 +130,19 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
     context 'with records in staging', run_at: '2016-09-16 03:00:00 EDT' do
       before do
-        ENV['HOSTNAME'] = 'staging-api.va.gov'
         application_1606.saved_claim.form = {}.to_json
-        FactoryBot.create(:va1990_western_region)
-        FactoryBot.create(:va1995_full_form)
-        FactoryBot.create(:va0994_full_form)
+        create(:va1990_western_region)
+        create(:va1995_full_form)
+        create(:va0994_full_form)
         ActionMailer::Base.deliveries.clear
       end
 
-      after do
-        ENV['HOSTNAME'] = nil
-      end
-
       it 'processes the valid messages' do
-        expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
-        expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(0)
-        expect(ActionMailer::Base.deliveries.count).to be > 0
+        with_settings(Settings, hostname: 'staging-api.va.gov') do
+          expect(Flipper).to receive(:enabled?).with(any_args).and_return(false).at_least(:once)
+          expect { subject.perform }.to change { EducationBenefitsClaim.unprocessed.count }.from(4).to(0)
+          expect(ActionMailer::Base.deliveries.count).to be > 0
+        end
       end
     end
 
@@ -149,9 +150,9 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       before do
         ENV['HOSTNAME'] = 'api.va.gov' # Mock how this is set in production
         application_1606.saved_claim.form = {}.to_json
-        FactoryBot.create(:va1990_western_region)
-        FactoryBot.create(:va1995_full_form)
-        FactoryBot.create(:va0994_full_form)
+        create(:va1990_western_region)
+        create(:va1995_full_form)
+        create(:va0994_full_form)
         ActionMailer::Base.deliveries.clear
       end
 
@@ -232,7 +233,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
 
   context 'write_files', run_at: '2016-09-17 03:00:00 EDT' do
     let(:filename) { '307_09172016_070000_vetsgov.spl' }
-    let!(:second_record) { FactoryBot.create(:va1995) }
+    let!(:second_record) { create(:va1995) }
 
     context 'in the development env' do
       let(:file_path) { "tmp/spool_files/#{filename}" }
@@ -294,7 +295,7 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       end
 
       it 'logs exception to sentry' do
-        local_mock = instance_double('SFTPWriter::Local')
+        local_mock = instance_double(SFTPWriter::Local)
 
         expect(EducationBenefitsClaim.unprocessed).not_to be_empty
         expect(SFTPWriter::Local).to receive(:new).exactly(6).and_return(local_mock)
@@ -317,8 +318,8 @@ RSpec.describe EducationForm::CreateDailySpoolFiles, type: :model, form: :educat
       # any readable file will work for this spec
       key_path = ::Rails.root.join(*'/spec/fixtures/files/idme_cert.crt'.split('/')).to_s
       with_settings(Settings.edu.sftp, host: 'localhost', key_path:) do
-        sftp_session_mock = instance_double('Net::SSH::Connection::Session')
-        sftp_mock = instance_double('Net::SFTP::Session', session: sftp_session_mock)
+        sftp_session_mock = instance_double(Net::SSH::Connection::Session)
+        sftp_mock = instance_double(Net::SFTP::Session, session: sftp_session_mock)
 
         expect(Net::SFTP).to receive(:start).once.and_return(sftp_mock)
         expect(sftp_mock).to receive(:open?).once.and_return(true)

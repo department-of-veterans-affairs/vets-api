@@ -38,9 +38,9 @@ http_interactions:
       message: OK
     headers:
       Date:
-      - Fri, 05 May 2023 10:04:13 GMT
+      - Tue, 20 Aug 2024 16:32:37 GMT
       Server:
-      - Apache/2.4.6 (Red Hat Enterprise Linux) OpenSSL/1.0.2k-fips
+      - Apache
       X-Frame-Options:
       - SAMEORIGIN
       Content-Security-Policy:
@@ -48,7 +48,7 @@ http_interactions:
       X-Oracle-Dms-Rid:
       - '0'
       X-Oracle-Dms-Ecid:
-      - 97229115-c37f-4358-a471-cac337a42422-0006f97b
+      - c2c62aca-191c-42ad-bad8-dbbd9c5271ad-0015d52a
       X-Oneagent-Js-Injection:
       - 'true'
       Ssl-Env:
@@ -60,7 +60,7 @@ http_interactions:
       Cache-Control:
       - max-age=0, no-store
       Server-Timing:
-      - dtSInfo;desc="0", dtRpid;desc="798267362"
+      - dtSInfo;desc="0", dtRpid;desc="191729469"
       Transfer-Encoding:
       - chunked
       Content-Type:
@@ -70,7 +70,7 @@ http_interactions:
     body:
       encoding: UTF-8
       string: <?xml version='1.0' encoding='UTF-8'?><S:Envelope xmlns:S="http://schemas.xmlsoap.org/soap/envelope/"><S:Body><submitFormResponse
-        xmlns="http://va.gov/schema/esr/voa/v1" xmlns:ns0="http://jaxws.webservices.esr.med.va.gov/schemas"><status>100</status><formSubmissionId>429878806</formSubmissionId><message><type>Form
-        successfully received for EE processing</type></message><timeStamp>2023-05-05T05:04:13.823-05:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
+        xmlns="http://va.gov/schema/esr/voa/v1" xmlns:ns0="http://jaxws.webservices.esr.med.va.gov/schemas"><status>100</status><formSubmissionId>436425356</formSubmissionId><message><type>Form
+        successfully received for EE processing</type></message><timeStamp>2024-08-20T11:32:37.391-05:00</timeStamp></submitFormResponse></S:Body></S:Envelope>
   recorded_at: Fri, 05 May 2023 10:04:13 GMT
-recorded_with: VCR 6.1.0
+recorded_with: VCR 6.2.0

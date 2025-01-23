@@ -30,6 +30,7 @@ module Lighthouse
       attribute :unique_id, String
       attribute :visn, String
       attribute :website, String
+      attribute :parent, Object
 
       def initialize(fac)
         super(fac)

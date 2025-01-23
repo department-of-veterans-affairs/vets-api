@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 require 'claims_api/vbms_uploader'
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
+
 class SavedClaim::DependencyClaim < CentralMailClaim
   FORM = '686C-674'
   STUDENT_ATTENDING_COLLEGE_KEYS = %w[
@@ -41,10 +42,14 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     upload_to_vbms(path: process_pdf(to_pdf(form_id:), created_at, form_id), doc_type:)
     uploaded_forms << form_id
     save
+  rescue => e
+    Rails.logger.debug('DependencyClaim: Issue Uploading to VBMS in upload_pdf method',
+                       { saved_claim_id: id, form_id:, error: e })
+    raise e
   end
 
   def process_pdf(pdf_path, timestamp = nil, form_id = nil)
-    processed_pdf = CentralMail::DatestampPdf.new(pdf_path).run(
+    processed_pdf = PDFUtilities::DatestampPdf.new(pdf_path).run(
       text: 'Application Submitted on va.gov',
       x: form_id == '686C-674' ? 400 : 300,
       y: form_id == '686C-674' ? 675 : 775,
@@ -108,7 +113,7 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     # add the two arrays together but also account for nil arrays
     supporting_documents = [child_documents, spouse_documents].compact.reduce([], :|)
     if supporting_documents.present?
-      files = PersistentAttachment.where(guid: supporting_documents.map { |doc| doc['confirmation_code'] })
+      files = PersistentAttachment.where(guid: supporting_documents.pluck('confirmation_code'))
       files.find_each { |f| f.update(saved_claim_id: id) }
     end
   end
@@ -127,6 +132,38 @@ class SavedClaim::DependencyClaim < CentralMailClaim
     self.form_id = form_id
 
     PdfFill::Filler.fill_form(self, nil, { created_at: })
+  end
+
+  # this failure email is not the ideal way to handle the Notification Emails as
+  # part of the ZSF work, but with the initial timeline it handles the email as intended.
+  # Future work will be integrating into the Va Notify common lib:
+  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
+
+  def send_failure_email(email) # rubocop:disable Metrics/MethodLength
+    # if the claim is both a 686c and a 674, send a combination email.
+    # otherwise, check to see which individual type it is and send the corresponding email.
+    template_id = if submittable_686? && submittable_674?
+                    Settings.vanotify.services.va_gov.template_id.form21_686c_674_action_needed_email
+                  elsif submittable_686?
+                    Settings.vanotify.services.va_gov.template_id.form21_686c_action_needed_email
+                  elsif submittable_674?
+                    Settings.vanotify.services.va_gov.template_id.form21_674_action_needed_email
+                  else
+                    Rails.logger.error('Email template cannot be assigned for SavedClaim', saved_claim_id: id)
+                    nil
+                  end
+
+    if email.present? && template_id.present?
+      VANotify::EmailJob.perform_async(
+        email,
+        template_id,
+        {
+          'first_name' => parsed_form.dig('veteran_information', 'full_name', 'first')&.upcase.presence,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => confirmation_number
+        }
+      )
+    end
   end
 
   private

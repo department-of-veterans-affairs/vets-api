@@ -11,13 +11,15 @@ module BGS
 
     attr_reader :claim, :user, :user_uuid, :saved_claim_id, :vet_info, :icn
 
-    sidekiq_options retry: 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 16
 
-    sidekiq_retries_exhausted do |msg, error|
+    sidekiq_retries_exhausted do |msg, _error|
       user_uuid, icn, saved_claim_id, encrypted_vet_info = msg['args']
       vet_info = JSON.parse(KmsEncrypted::Box.new.decrypt(encrypted_vet_info))
-      Rails.logger.error('BGS::SubmitForm686cJob failed, retries exhausted!',
-                         { user_uuid:, saved_claim_id:, icn:, error: })
+      Rails.logger.error("BGS::SubmitForm686cJob failed, retries exhausted! Last error: #{msg['error_message']}",
+                         { user_uuid:, saved_claim_id:, icn: })
 
       BGS::SubmitForm686cJob.send_backup_submission(vet_info, saved_claim_id, user_uuid)
     end
@@ -36,7 +38,6 @@ module BGS
 
       Rails.logger.warn('BGS::SubmitForm686cJob received error, retrying...',
                         { user_uuid:, saved_claim_id:, icn:, error: e.message, nested_error: e.cause&.message })
-      log_message_to_sentry(e, :warning, {}, { team: 'vfs-ebenefits' })
       raise
     end
 
@@ -80,9 +81,11 @@ module BGS
 
     def self.send_backup_submission(vet_info, saved_claim_id, user_uuid)
       user = generate_user_struct(vet_info)
-      CentralMail::SubmitCentralForm686cJob.perform_async(saved_claim_id,
-                                                          KmsEncrypted::Box.new.encrypt(vet_info.to_json),
-                                                          KmsEncrypted::Box.new.encrypt(user.to_h.to_json))
+      Lighthouse::BenefitsIntake::SubmitCentralForm686cJob.perform_async(
+        saved_claim_id,
+        KmsEncrypted::Box.new.encrypt(vet_info.to_json),
+        KmsEncrypted::Box.new.encrypt(user.to_h.to_json)
+      )
       InProgressForm.destroy_by(form_id: FORM_ID, user_uuid:)
     rescue => e
       Rails.logger.warn('BGS::SubmitForm686cJob backup submission failed...',

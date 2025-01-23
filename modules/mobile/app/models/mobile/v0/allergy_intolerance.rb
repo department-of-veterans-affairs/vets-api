@@ -8,13 +8,62 @@ module Mobile
       attribute :id, Types::String
       attribute :resourceType, Types::String
       attribute :type, Types::String
-      attribute :clinicalStatus, Types::Hash
-      attribute :code, Types::Hash
+
+      attribute :clinicalStatus do
+        attribute :coding, Types::Array do
+          attribute :system, Types::String
+          attribute :code, Types::String
+        end
+      end
+
+      attribute :code do
+        attribute :text, Types::String
+        attribute :coding, Types::Array do
+          attribute :system, Types::String
+          attribute :code, Types::String
+          attribute :display, Types::String
+        end
+      end
+
       attribute :recordedDate, Types::DateTime
-      attribute :patient, Types::Hash
-      attribute :recorder, Types::Hash
-      attribute :notes, Types::Array
-      attribute :reactions, Types::Array
+      attribute :patient do
+        attribute :reference, Types::String
+        attribute :display, Types::String
+      end
+
+      attribute :recorder do
+        attribute :reference, Types::String
+        attribute :display, Types::String
+      end
+
+      attribute :notes, Types::Array do
+        attribute :time, Types::DateTime
+        attribute :text, Types::String
+        attribute :author_reference do
+          attribute :reference, Types::String
+          attribute :display, Types::String
+        end
+      end
+
+      attribute :reactions, Types::Array do
+        attribute :substance do
+          attribute :text, Types::String
+          attribute :coding, Types::Array do
+            attribute :system, Types::String
+            attribute :code, Types::String
+            attribute :display, Types::String
+          end
+        end
+
+        attribute :manifestation, Types::Array do
+          attribute :text, Types::String
+          attribute :coding, Types::Array do
+            attribute :system, Types::String
+            attribute :code, Types::String
+            attribute :display, Types::String
+          end
+        end
+      end
     end
   end
 end

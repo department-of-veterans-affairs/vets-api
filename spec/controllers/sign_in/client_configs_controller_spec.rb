@@ -6,6 +6,8 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
   let(:valid_attributes) { attributes_for(:client_config) }
   let(:invalid_attributes) { { client_id: nil } }
   let(:client_config) { create(:client_config) }
+  let(:client_id) { client_config.client_id }
+  let(:response_body) { JSON.parse(response.body) }
 
   before do
     allow_any_instance_of(SignIn::ClientConfigsController).to receive(:authenticate_service_account).and_return(true)
@@ -23,28 +25,28 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
 
       it 'filters by client_ids if provided' do
         get :index, params: { client_ids: [client_config.client_id, client_config2.client_id] }
-        body = JSON.parse(response.body)
 
-        expect(body.length).to eq(2)
-        expect(body.pluck('client_id')).to include(client_config.client_id, client_config2.client_id)
+        expect(response_body.length).to eq(2)
+        expect(response_body.pluck('client_id')).to include(client_config.client_id, client_config2.client_id)
       end
     end
   end
 
   describe 'GET #show' do
     context 'when the client config does not exist' do
+      let(:client_id) { 'non_existent_client_id' }
+
       it 'returns a not found response' do
-        get :show, params: { id: 'non_existent_client_id' }
+        get :show, params: { client_id: }
         expect(response).to have_http_status(:not_found)
       end
     end
 
     context 'when the client config exists' do
       it 'returns a success response' do
-        get :show, params: { id: client_config.id }
-        body = JSON.parse(response.body)
+        get :show, params: { client_id: }
 
-        expect(body['client_id']).to eq(client_config.client_id)
+        expect(response_body['client_id']).to eq(client_config.client_id)
       end
     end
   end
@@ -55,8 +57,7 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
         post :create, params: { client_config: valid_attributes }, as: :json
 
         expect(response).to have_http_status(:created)
-        body = JSON.parse(response.body)
-        expect(body['client_id']).to eq(valid_attributes[:client_id])
+        expect(response_body['client_id']).to eq(valid_attributes[:client_id])
       end
     end
 
@@ -67,7 +68,7 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
         end.not_to change(SignIn::ClientConfig, :count)
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['client_id']).to include("can't be blank")
+        expect(response_body.dig('errors', 'client_id')).to include("can't be blank")
       end
     end
   end
@@ -77,7 +78,7 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
       let(:new_attributes) { { client_id: 'new_client_id' } }
 
       it 'updates the requested SignIn::ClientConfig' do
-        put :update, params: { id: client_config.id, client_config: new_attributes }, as: :json
+        put :update, params: { client_id:, client_config: new_attributes }, as: :json
         client_config.reload
         expect(client_config.client_id).to eq('new_client_id')
       end
@@ -85,18 +86,21 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
 
     context 'with invalid params' do
       it 'does not update the SignIn::ClientConfig and returns an error' do
-        put :update, params: { id: client_config.id, client_config: invalid_attributes }, as: :json
+        put :update, params: { client_id:, client_config: invalid_attributes }, as: :json
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(JSON.parse(response.body)['client_id']).to include("can't be blank")
+        expect(response_body.dig('errors', 'client_id')).to include("can't be blank")
       end
     end
   end
 
   describe 'DELETE #destroy' do
     context 'when the client config does not exist' do
+      let(:client_id) { 'non_existent_client_id' }
+
       it 'returns a not found response' do
-        delete :destroy, params: { id: 'non_existent_client_id' }
+        delete :destroy, params: { client_id: }
         expect(response).to have_http_status(:not_found)
+        expect(response_body.dig('errors', 'client_config')).to include('not found')
       end
     end
 
@@ -104,9 +108,25 @@ RSpec.describe SignIn::ClientConfigsController, type: :controller do
       it 'destroys the requested SignIn::ClientConfig' do
         client_config
         expect do
-          delete :destroy, params: { id: client_config.id }
+          delete :destroy, params: { client_id:  }
         end.to change(SignIn::ClientConfig, :count).by(-1)
       end
+    end
+  end
+
+  describe 'permitted params' do
+    let(:client_config) { build(:client_config) }
+    let(:attributes) { client_config.attributes.symbolize_keys }
+
+    let(:expected_permitted_params) do
+      array_params, params = attributes.excluding(:id, :created_at, :updated_at)
+                                       .partition { |_, v| v.is_a?(Array) }
+      params.to_h.keys << array_params.to_h.transform_values { [] }
+    end
+
+    it 'returns the expected permitted params' do
+      expect(subject).to permit(*expected_permitted_params)
+        .for(:create, params: { client_config: attributes })
     end
   end
 end

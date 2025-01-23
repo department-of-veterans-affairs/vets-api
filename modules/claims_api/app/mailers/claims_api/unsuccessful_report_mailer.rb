@@ -4,7 +4,6 @@ module ClaimsApi
   class UnsuccessfulReportMailer < ApplicationMailer
     RECIPIENTS = %w[
       alex.wilson@oddball.io
-      austin.covrig@oddball.io
       david.mazik@va.gov
       emily.goodrich@oddball.io
       janet.coutinho@va.gov
@@ -24,6 +23,7 @@ module ClaimsApi
       @date_to = date_to.in_time_zone('Eastern Time (US & Canada)').strftime('%a %D %I:%M %p')
       @consumer_claims_totals = data[:consumer_claims_totals]
       @unsuccessful_claims_submissions = data[:unsuccessful_claims_submissions]
+      @unsuccessful_va_gov_claims_submissions = data[:unsuccessful_va_gov_claims_submissions]
       @poa_totals = data[:poa_totals]
       @unsuccessful_poa_submissions = data[:unsuccessful_poa_submissions]
       @itf_totals = data[:itf_totals]

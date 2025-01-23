@@ -1,0 +1,60 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri: https://staging-api.va.gov/services/benefits-documents/v1/documents
+    body:
+     ''
+    headers:
+      Authorization:
+      - Bearer some-value-here
+      User-Agent:
+      - Faraday v0.17.6
+      Content-Type:
+      - multipart/form-data; boundary=-----------RubyMultipartPost-7874874c1f2f8f9e985f6fb970b21dfd
+      Content-Length:
+      - '1975394'
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      Date:
+      - Tue, 25 Jul 2023 15:41:14 GMT
+      Content-Type:
+      - application/json
+      Connection:
+      - keep-alive
+      X-Ratelimit-Remaining-Minute:
+      - '59'
+      X-Ratelimit-Limit-Minute:
+      - '60'
+      Ratelimit-Reset:
+      - '54'
+      Ratelimit-Remaining:
+      - '59'
+      Ratelimit-Limit:
+      - '60'
+      Pragma:
+      - no-cache
+      - no-cache
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+      - max-age=31536000; includeSubDomains; preload
+      Access-Control-Allow-Origin:
+      - "*"
+      X-Frame-Options:
+      - SAMEORIGIN
+      Cache-Control:
+      - no-cache, no-store
+      Transfer-Encoding:
+      - chunked
+    body:
+      encoding: ASCII-8BIT
+      string: '{"data":{"success":true,"requestId":407}}'
+  recorded_at: Tue, 25 Jul 2023 15:41:14 GMT
+recorded_with: VCR 6.2.0

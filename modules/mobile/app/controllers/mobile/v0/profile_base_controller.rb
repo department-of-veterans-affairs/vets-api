@@ -2,6 +2,7 @@
 
 require 'va_profile/address_validation/service'
 require_relative '../concerns/sso_logging'
+require 'va_profile/v3/address_validation/service'
 
 module Mobile
   module V0
@@ -11,8 +12,6 @@ module Mobile
 
       before_action { authorize :vet360, :access? }
       after_action :invalidate_cache
-
-      skip_after_action :invalidate_cache, only: [:validation]
 
       private
 

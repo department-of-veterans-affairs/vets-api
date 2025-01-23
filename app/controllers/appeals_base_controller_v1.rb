@@ -4,11 +4,18 @@ require 'caseflow/service'
 require 'decision_review_v1/service'
 
 class AppealsBaseControllerV1 < ApplicationController
-  include ActionController::Serialization
   include FailedRequestLoggable
   before_action { authorize :appeals, :access? }
 
   private
+
+  def log_non_module_controller(action:, form_id:)
+    Rails.logger.warn({
+                        message: 'Calling decision reviews controller outside module',
+                        action:,
+                        form_id:
+                      })
+  end
 
   def decision_review_service
     DecisionReviewV1::Service.new

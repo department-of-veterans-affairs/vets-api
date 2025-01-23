@@ -10,6 +10,7 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
   include AppealsApi::MPIVeteran
   include AppealsApi::Schemas
   include AppealsApi::PdfDownloads
+  include AppealsApi::GatewayOriginCheck
 
   skip_before_action :authenticate
   before_action :validate_icn_header, only: %i[index download]
@@ -31,6 +32,11 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
                                                 .where(veteran_icn: request_headers['X-VA-ICN'])
                                                 .order(created_at: :desc)
     render json: AppealsApi::HigherLevelReviewSerializer.new(veteran_hlrs).serializable_hash
+  end
+
+  def show
+    @higher_level_review = with_status_simulation(@higher_level_review) if status_requested_and_allowed?
+    render_higher_level_review
   end
 
   def create
@@ -57,11 +63,6 @@ class AppealsApi::V2::DecisionReviews::HigherLevelReviewsController < AppealsApi
 
   def schema
     render json: AppealsApi::JsonSchemaToSwaggerConverter.remove_comments(form_schema)
-  end
-
-  def show
-    @higher_level_review = with_status_simulation(@higher_level_review) if status_requested_and_allowed?
-    render_higher_level_review
   end
 
   def download

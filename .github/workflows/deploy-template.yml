@@ -12,7 +12,7 @@ on:
       auto_deploy_envs:
         required: true
         type: string
-      commit_sha:  # #${{ github.sha }}
+      commit_sha:  # #${{ github.event.workflow_run.head_commit.id }}
         required: true
         type: string
     secrets:
@@ -88,6 +88,9 @@ jobs:
             yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
             yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
             yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_VERSION").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.envSecrets[] | select(.name=="DD_GIT_COMMIT_SHA").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".web.dbMigrate.envSecrets[] | select(.name=="DD_GIT_COMMIT_SHA").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
+            yq e -i '(."vets-api".worker.envSecrets[] | select(.name=="DD_GIT_COMMIT_SHA").value) |= "${{ inputs.commit_sha }}"' $env/values.yaml
           done
           git diff
 
@@ -98,5 +101,5 @@ jobs:
           add: "*"
           cwd: vsp-infra-application-manifests/apps
           author_name: va-vsp-bot
-          author_email: devops@va.gov
+          author_email: 70344339+va-vsp-bot@users.noreply.github.com
           message: "Release ${{ needs.prepare-values.outputs.environments }} for ${{inputs.ecr_repository}} : ${{ inputs.commit_sha }}."

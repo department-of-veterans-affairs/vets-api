@@ -37,7 +37,7 @@ module VAOS
 
       def find_practitioner_id(practitioner)
         practitioner[:identifier]&.each do |i|
-          return i[:value] if i[:system].include? 'us-npi'
+          return i[:value]&.tr('^0-9', '') if i[:system].include? 'us-npi'
         end
         nil
       end
@@ -47,6 +47,8 @@ module VAOS
         provider_data&.name&.strip&.presence
       rescue Common::Exceptions::BackendServiceException
         NPI_NOT_FOUND_MSG
+      rescue URI::InvalidURIError
+        nil
       end
 
       def mobile_ppms_service

@@ -3,7 +3,7 @@
 require 'rails_helper'
 
 describe Veteran::Service::Representative, type: :model do
-  let(:identity) { FactoryBot.create(:user_identity) }
+  let(:identity) { create(:user_identity) }
 
   describe 'individual record' do
     it 'is valid with valid attributes' do
@@ -26,8 +26,8 @@ describe Veteran::Service::Representative, type: :model do
 
   describe 'finding by identity' do
     let(:representative) do
-      FactoryBot.create(:representative,
-                        basic_attributes)
+      create(:representative,
+             basic_attributes)
     end
 
     before do
@@ -47,13 +47,13 @@ describe Veteran::Service::Representative, type: :model do
         expect(Veteran::Service::Representative.for_user(
                  first_name: identity.first_name,
                  last_name: nil
-               )).to eq(nil)
+               )).to be_nil
       end
     end
 
     it 'finds right user when 2 with the same name exist' do
-      FactoryBot.create(:representative,
-                        basic_attributes)
+      create(:representative,
+             basic_attributes)
       expect(Veteran::Service::Representative.for_user(
         first_name: identity.first_name,
         last_name: identity.last_name
@@ -113,6 +113,25 @@ describe Veteran::Service::Representative, type: :model do
     end
   end
 
+  describe '#organizations' do
+    let(:representative) { create(:representative, poa_codes: %w[ABC 123]) }
+
+    context 'when there are no organizations with the representative poa_codes' do
+      it 'returns an empty array' do
+        expect(representative.organizations).to eq([])
+      end
+    end
+
+    context 'when there are organizations with the representative poa_codes' do
+      it 'a list of those organizations' do
+        organization1 = create(:organization, poa: 'ABC')
+        organization2 = create(:organization, poa: '123')
+
+        expect(representative.organizations).to contain_exactly(organization1, organization2)
+      end
+    end
+  end
+
   describe 'callbacks' do
     describe '#set_full_name' do
       context 'creating a new representative' do
@@ -139,17 +158,63 @@ describe Veteran::Service::Representative, type: :model do
           expect(representative.reload.full_name).to eq('Bob Smith')
         end
       end
+
+      context 'blank values' do
+        context 'when first and last name are blank' do
+          it 'sets full_name to empty string' do
+            representative = described_class.new(representative_id: 'abc', poa_codes: ['123'], first_name: ' ',
+                                                 last_name: ' ')
+
+            representative.save!
+
+            expect(representative.reload.full_name).to eq('')
+          end
+        end
+
+        context 'when first name is blank' do
+          it 'sets full_name to last_name' do
+            representative = described_class.new(representative_id: 'abc', poa_codes: ['123'], first_name: ' ',
+                                                 last_name: 'Smith')
+
+            representative.save!
+
+            expect(representative.reload.full_name).to eq('Smith')
+          end
+        end
+
+        context 'when last name is blank' do
+          it 'sets full_name to first_name' do
+            representative = described_class.new(representative_id: 'abc', poa_codes: ['123'], first_name: 'Bob',
+                                                 last_name: ' ')
+
+            representative.save!
+
+            expect(representative.reload.full_name).to eq('Bob')
+          end
+        end
+
+        context 'when first and last name are present' do
+          it 'sets full_name to first_name + last_name' do
+            representative = described_class.new(representative_id: 'abc', poa_codes: ['123'], first_name: 'Bob',
+                                                 last_name: 'Smith')
+
+            representative.save!
+
+            expect(representative.reload.full_name).to eq('Bob Smith')
+          end
+        end
+      end
     end
   end
 
   describe '#diff' do
     context 'when there are changes in address' do
       let(:representative) do
-        FactoryBot.create(:representative,
-                          address_line1: '123 Main St',
-                          city: 'Anytown',
-                          zip_code: '12345',
-                          state_code: 'ST')
+        create(:representative,
+               address_line1: '123 Main St',
+               city: 'Anytown',
+               zip_code: '12345',
+               state_code: 'ST')
       end
       let(:new_data) do
         {
@@ -176,8 +241,8 @@ describe Veteran::Service::Representative, type: :model do
 
     context 'when there are changes in email' do
       let(:representative) do
-        FactoryBot.create(:representative,
-                          email: 'old@example.com')
+        create(:representative,
+               email: 'old@example.com')
       end
       let(:new_data) do
         {
@@ -204,8 +269,8 @@ describe Veteran::Service::Representative, type: :model do
 
     context 'when there are changes in phone' do
       let(:representative) do
-        FactoryBot.create(:representative,
-                          phone_number: '1234567890')
+        create(:representative,
+               phone_number: '1234567890')
       end
       let(:new_data) do
         {
@@ -232,11 +297,11 @@ describe Veteran::Service::Representative, type: :model do
 
     context 'when there are no changes to address, email or phone' do
       let(:representative) do
-        FactoryBot.create(:representative,
-                          address_line1: '123 Main St',
-                          city: 'Anytown',
-                          zip_code: '12345',
-                          state_code: 'ST')
+        create(:representative,
+               address_line1: '123 Main St',
+               city: 'Anytown',
+               zip_code: '12345',
+               state_code: 'ST')
       end
       let(:new_data) do
         {

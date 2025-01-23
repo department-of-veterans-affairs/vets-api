@@ -7,7 +7,7 @@
       "check_name": "SQL",
       "message": "Possible SQL injection",
       "file": "modules/check_in/app/services/v2/chip/client.rb",
-      "line": 163,
+      "line": 196,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "connection.delete(\"/#{base_path}/actions/deleteFromLorota/#{check_in_session.uuid}\")",
       "render_path": null,
@@ -22,6 +22,75 @@
         89
       ],
       "note": "Injecting SQL instead of UUID will not cause any data loss as downstream API deletes based on condition"
+    },
+    {
+      "warning_type": "Command Injection",
+      "warning_code": 14,
+      "fingerprint": "a090fbb8d8dd67ab658c4925b90b248118c9df7d9faf9f8f7a1a7a12e984929f",
+      "check_name": "Execute",
+      "message": "Possible command injection",
+      "file": "bin/lib/vets-api/commands/test.rb",
+      "line": 33,
+      "link": "https://brakemanscanner.org/docs/warning_types/command_injection/",
+      "code": "system(\"docker compose run --rm --service-ports web bash -c \\\"#{command}\\\"\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "VetsApi::Commands::Test",
+        "method": "execute_command"
+      },
+      "user_input": "command",
+      "confidence": "Medium",
+      "cwe_id": [
+        77
+      ],
+      "note": "User input is sanitized in the parent class bin/lib/vets-api/commands/command.rb"
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "a2a6a79fee3f3e114953b1622f01008143e0cd194d7249a7d88c694848456cd1",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
+      "line": 53,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.read((SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false) or PdfFill::Filler.fill_form(SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission), SecureRandom.uuid, :sign => false)))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "V0::CaregiversAssistanceClaimsController",
+        "method": "download_pdf"
+      },
+      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
+      "confidence": "Medium",
+      "cwe_id": [
+        22
+      ],
+      "note": "Using SecureRandom.uuid to generate file name."
+    },
+    {
+      "warning_type": "File Access",
+      "warning_code": 16,
+      "fingerprint": "bd1dcae69af104817261af3cf80157547d705f02403a6f357b6517d3da09f483",
+      "check_name": "FileAccess",
+      "message": "Model attribute used in file name",
+      "file": "app/controllers/v0/caregivers_assistance_claims_controller.rb",
+      "line": 57,
+      "link": "https://brakemanscanner.org/docs/warning_types/file_access/",
+      "code": "File.delete((SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false) or PdfFill::Filler.fill_form(SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission), SecureRandom.uuid, :sign => false)))",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "V0::CaregiversAssistanceClaimsController",
+        "method": "download_pdf"
+      },
+      "user_input": "SavedClaim::CaregiversAssistanceClaim.new(:form => form_submission).to_pdf(SecureRandom.uuid, :sign => false)",
+      "confidence": "Medium",
+      "cwe_id": [
+        22
+      ],
+      "note": "Using SecureRandom.uuid to generate file name."
     },
     {
       "warning_type": "Remote Code Execution",
@@ -86,6 +155,6 @@
       "note": "Explicitly configured years ago in https://github.com/department-of-veterans-affairs/vets-api/commit/c73c8fc5cc23262e8f708fad0f7c1052f9c88a7b"
     }
   ],
-  "updated": "2023-02-23 16:58:06 -0600",
-  "brakeman_version": "5.4.1"
+  "updated": "2024-11-01 09:35:40 -0400",
+  "brakeman_version": "6.2.2"
 }

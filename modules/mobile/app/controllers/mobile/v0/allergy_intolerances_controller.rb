@@ -7,7 +7,11 @@ module Mobile
     class AllergyIntolerancesController < ApplicationController
       def index
         response = client.list_allergy_intolerances
-        allergy_intolerances = Mobile::V0::Adapters::AllergyIntolerance.new.parse(response.body['entry'])
+        allergy_intolerances = if Flipper.enabled?(:mobile_allergy_intolerance_model, @current_user)
+                                 Mobile::V0::Adapters::AllergyIntolerance.new.parse(response.body['entry'])
+                               else
+                                 Mobile::V0::Adapters::LegacyAllergyIntolerance.new.parse(response.body['entry'])
+                               end
 
         render json: AllergyIntoleranceSerializer.new(allergy_intolerances)
       end

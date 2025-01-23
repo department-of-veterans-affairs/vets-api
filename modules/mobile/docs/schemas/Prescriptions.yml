@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
   - meta
@@ -7,14 +8,17 @@ properties:
     type: array
     items:
       type: object
+      additionalProperties: false
       $ref: "./PrescriptionRecord.yml"
   meta:
     type: object
+    additionalProperties: false
     required:
       - prescriptionStatusCount
     properties:
       prescriptionStatusCount:
         type: object
+        additionalProperties: false
         description: |
           Count of different types of prescriptions. "active" contains prescriptions that have a `refillStatus` of active,
           submitted, providerHold, activeParked, refillinprocess, and/or prescriptions that have a tracking number 

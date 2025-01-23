@@ -26,10 +26,6 @@ module V1
       # by the order they first appear in the swaggered_classes below, so
       # declare all tags here in desired order.
       tag do
-        key :name, 'facilities'
-        key :description, 'VA facilities, locations, hours of operation, available services'
-      end
-      tag do
         key :name, 'ivc_champva_forms'
         key :description, 'Creating and submitting IVC Champva applications'
       end
@@ -79,8 +75,6 @@ module V1
 
     # A list of all classes that have swagger_* declarations.
     SWAGGERED_CLASSES = [
-      Swagger::V1::Requests::Facilities,
-      Swagger::V1::Schemas::Facilities,
       Swagger::V1::Requests::IncomeLimits,
       Swagger::V1::Schemas::IncomeLimits,
       Swagger::V1::Schemas::Errors,
@@ -89,6 +83,7 @@ module V1
       Swagger::V1::Schemas::Appeals::HigherLevelReview,
       Swagger::V1::Schemas::Appeals::NoticeOfDisagreement,
       Swagger::V1::Schemas::Appeals::SupplementalClaims,
+      Swagger::V1::Schemas::Appeals::DecisionReviewEvidence,
       Swagger::V1::Requests::Post911GIBillStatuses,
       Swagger::V1::Requests::IvcChampvaForms,
       self

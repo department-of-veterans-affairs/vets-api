@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 
 module AppealsApi
   module PdfConstruction
@@ -11,13 +11,16 @@ module AppealsApi
       end
 
       def call
-        CentralMail::DatestampPdf.new(nil).stamp(date_and_consumer_stamp_path, veteran_stamp_path)
+        stamped_pdf = "#{Common::FileHelpers.random_file_path}.pdf"
+        PDFUtilities::PDFTK.stamp(date_and_consumer_stamp_path, veteran_stamp_path, stamped_pdf)
+
+        stamped_pdf
       end
 
       private
 
       def date_stamp_path
-        CentralMail::DatestampPdf.new(@pdf_path).run(
+        PDFUtilities::DatestampPdf.new(@pdf_path).run(
           text: "API.VA.GOV #{@appeal.created_at.utc.strftime('%Y-%m-%d %H:%M%Z')}",
           x: 5,
           y: 782,
@@ -28,7 +31,7 @@ module AppealsApi
 
       def date_and_consumer_stamp_path
         text = generate_text(10, @appeal.consumer_name || '')
-        CentralMail::DatestampPdf.new(date_stamp_path).run(
+        PDFUtilities::DatestampPdf.new(date_stamp_path).run(
           text:,
           x: 445,
           y: 782,

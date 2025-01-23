@@ -19,11 +19,7 @@ module V0
           return
         end
 
-        revocation_url = Settings.connected_apps_api.connected_apps.revoke_url
-
-        payload = { icn:, clientId: client_id }
-        url_with_params = "#{revocation_url}?#{URI.encode_www_form(payload)}"
-        headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
+        url_with_params, headers = build_revocation_request(icn, client_id)
 
         begin
           response = Faraday.delete(url_with_params, nil, headers)
@@ -38,17 +34,12 @@ module V0
         end
       end
 
-      private
-
       def apps_from_grants
         data = []
         icn = @current_user.icn
 
-        grant_url = Settings.connected_apps_api.connected_apps.url
+        url_with_params, headers = build_grant_request(icn)
 
-        payload = { icn: }
-        url_with_params = "#{grant_url}?#{URI.encode_www_form(payload)}"
-        headers = { apiKey: Settings.connected_apps_api.connected_apps.api_key }
         response = Faraday.get(url_with_params, {}, headers)
 
         if response.status == 200
@@ -64,6 +55,34 @@ module V0
         end
       rescue
         { data: [] }
+      end
+
+      private
+
+      def build_revocation_request(icn, client_id)
+        revocation_url = Settings.connected_apps_api.connected_apps.revoke_url
+        payload = { icn:, clientId: client_id }
+        url_with_params = "#{revocation_url}?#{URI.encode_www_form(payload)}"
+
+        headers = {
+          apiKey: Settings.connected_apps_api.connected_apps.api_key,
+          accesskey: Settings.connected_apps_api.connected_apps.auth_access_key
+        }
+
+        [url_with_params, headers]
+      end
+
+      def build_grant_request(icn)
+        grant_url = Settings.connected_apps_api.connected_apps.url
+        payload = { icn: }
+        url_with_params = "#{grant_url}?#{URI.encode_www_form(payload)}"
+
+        headers = {
+          apiKey: Settings.connected_apps_api.connected_apps.api_key,
+          accesskey: Settings.connected_apps_api.connected_apps.auth_access_key
+        }
+
+        [url_with_params, headers]
       end
 
       def build_apps_from_data(lh_app)

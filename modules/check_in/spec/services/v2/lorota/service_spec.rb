@@ -644,7 +644,7 @@ describe V2::Lorota::Service do
         end
       end
 
-      context 'when status code is 400 with internal service exception from downstream ' do
+      context 'when status code is 400 with internal service exception from downstream' do
         let(:internal_service_exception) do
           { status: 400, detail: 'Internal Error', code: 'VA900' }
         end

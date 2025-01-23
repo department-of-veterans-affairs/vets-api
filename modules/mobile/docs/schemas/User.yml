@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - id
   - type
@@ -13,6 +14,7 @@ properties:
     example: "user"
   attributes:
     type: object
+    additionalProperties: false
     required:
       - profile
       - authorizedServices
@@ -20,6 +22,7 @@ properties:
     properties:
       profile:
         type: object
+        additionalProperties: false
         required:
           - firstName
           - middleName
@@ -75,6 +78,7 @@ properties:
           - scheduleAppointments
       health:
         type: object
+        additionalProperties: false
         required:
           - isCernerPatient
           - facilities
@@ -86,6 +90,7 @@ properties:
             type: array
             items:
               type: object
+              additionalProperties: false
               properties:
                 facilityId:
                   type: string

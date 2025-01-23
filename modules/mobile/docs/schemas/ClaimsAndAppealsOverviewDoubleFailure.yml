@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
   - meta
@@ -7,12 +8,14 @@ properties:
     type: array
   meta:
     type: object
+    additionalProperties: false
     properties:
       errors:
         type: array
         description: Array of objects of failing upstream services. Used for debugging only.
         items:
           type: object
+          additionalProperties: false
           properties:
             service:
               type: string
@@ -22,6 +25,7 @@ properties:
               description: Error details object from failing upstream service. Used for debugging only.
               items:
                 type: object
+        additionalProperties: false
         example:
           - service: "claims"
             errorDetails:
@@ -37,6 +41,7 @@ properties:
                 status: "502"
       pagination:
         type: object
+        additionalProperties: false
         required:
           - currentPage
           - perPage

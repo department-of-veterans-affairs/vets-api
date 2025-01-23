@@ -9,7 +9,7 @@ RSpec.describe SavedClaim::CoeClaim do
       coe_claim = create(:coe_claim)
       allow(coe_claim).to receive(:prepare_form_data).and_return({})
       allow_any_instance_of(LGY::Service).to receive(:put_application).and_return({})
-      expect(coe_claim).to receive(:log_message_to_sentry).twice
+      expect(Rails.logger).to receive(:error).with(/COE application cannot be submitted without an edipi!/)
       coe_claim.send_to_lgy(edipi: nil, icn: nil)
     end
 
@@ -17,7 +17,7 @@ RSpec.describe SavedClaim::CoeClaim do
       coe_claim = create(:coe_claim)
       allow(coe_claim).to receive(:prepare_form_data).and_return({})
       allow_any_instance_of(LGY::Service).to receive(:put_application).and_return({})
-      expect(coe_claim).to receive(:log_message_to_sentry).twice
+      expect(Rails.logger).to receive(:error).with(/COE application cannot be submitted without an edipi!/)
       coe_claim.send_to_lgy(edipi: '', icn: nil)
     end
 

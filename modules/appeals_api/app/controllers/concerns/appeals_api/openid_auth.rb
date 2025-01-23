@@ -64,7 +64,7 @@ module AppealsApi
     private
 
     def unsafe_mode?
-      Rails.env.development? && Settings.dig(:modules_appeals_api, :enable_unsafe_mode)
+      Rails.env.development? && Settings.modules_appeals_api.enable_unsafe_mode
     end
 
     # Override this in individual controllers

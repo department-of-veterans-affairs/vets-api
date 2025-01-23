@@ -5,6 +5,7 @@ require 'rails_helper'
 RSpec.describe Form526ConfirmationEmailJob, type: :worker do
   before do
     Sidekiq::Job.clear_all
+    allow(Flipper).to receive(:enabled?).with(:va_notify_notification_creation).and_return(false)
   end
 
   describe '#perform' do
@@ -35,6 +36,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
           'email' => email_address,
           'submitted_claim_id' => '600191990',
           'date_submitted' => 'July 12, 2020',
+          'date_received' => 'July 15, 2020',
           'first_name' => 'firstname'
         }
       end
@@ -44,7 +46,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
         with_settings(
           Settings.vanotify.services.va_gov, { api_key: test_service_api_key }
         ) do
-          mocked_notification_service = instance_double('VaNotify::Service')
+          mocked_notification_service = instance_double(VaNotify::Service)
           allow(VaNotify::Service).to receive(:new).and_return(mocked_notification_service)
           allow(mocked_notification_service).to receive(:send_email).and_return(email_response)
           subject.perform('')
@@ -63,6 +65,7 @@ RSpec.describe Form526ConfirmationEmailJob, type: :worker do
           personalisation: {
             'claim_id' => '600191990',
             'date_submitted' => 'July 12, 2020',
+            'date_received' => 'July 15, 2020',
             'first_name' => 'firstname'
           }
         }

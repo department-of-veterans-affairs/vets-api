@@ -33,7 +33,7 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
-    context 'with an unkwown DLC service error' do
+    context 'with an unknown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/get_supplies_502') do
           expect(StatsD).to receive(:increment).once.with(
@@ -200,12 +200,46 @@ describe MDOT::Client, type: :mdot_helpers do
       end
     end
 
-    context 'with an unkwown DLC service error' do
+    context 'with an unknown DLC service error' do
       it 'raises a BackendServiceException' do
         VCR.use_cassette('mdot/submit_order_502') do
           expect(StatsD).to receive(:increment).once.with(
             'api.mdot.submit_order.fail', tags: [
               'error:CommonClientErrorsClientError', 'status:502'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.submit_order.total'
+          )
+          set_mdot_token_for(user)
+          expect { subject.submit_order(valid_order) }.to raise_error(MDOT::Exceptions::ServiceException)
+        end
+      end
+    end
+
+    context 'with an unknown DLC client error' do
+      it 'raises a BackendServiceException' do
+        VCR.use_cassette('mdot/submit_order_400') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.submit_order.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:400'
+            ]
+          )
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.submit_order.total'
+          )
+          set_mdot_token_for(user)
+          expect { subject.submit_order(valid_order) }.to raise_error(MDOT::Exceptions::ServiceException)
+        end
+      end
+    end
+
+    context 'with an unknown DLC client error with missing body' do
+      it 'raises a BackendServiceException' do
+        VCR.use_cassette('mdot/submit_order_missing_body_400') do
+          expect(StatsD).to receive(:increment).once.with(
+            'api.mdot.submit_order.fail', tags: [
+              'error:CommonClientErrorsClientError', 'status:400'
             ]
           )
           expect(StatsD).to receive(:increment).once.with(

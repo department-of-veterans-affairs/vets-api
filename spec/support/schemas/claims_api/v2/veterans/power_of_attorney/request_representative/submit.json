@@ -6,8 +6,17 @@
     "data": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["attributes"],
+      "required": ["id", "type", "attributes"],
       "properties": {
+        "id": {
+          "type": ["string"],
+          "description": "The unique identifier for the power of attorney request"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["power-of-attorney-request"],
+          "description": "The type of the resource"
+        },
         "attributes": {
           "type": "object",
           "additionalProperties": false,

@@ -14,7 +14,7 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
         end
       end
     end
-    let(:user) { FactoryBot.create(:user, :loa3) }
+    let(:user) { create(:user, :loa3) }
     let(:service) { MebApi::DGI::Forms::Submission::Service.new(user) }
     let(:claimant_params) do
       { form: {
@@ -108,8 +108,23 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
         it 'Lighthouse returns a status of 200' do
           VCR.use_cassette('dgi/forms/submit_toe_claim') do
             response = service.submit_claim(ActionController::Parameters.new(claimant_params),
-                                            ActionController::Parameters.new(dd_params_lighthouse),
-                                            'toe')
+                                            ActionController::Parameters.new(dd_params_lighthouse))
+
+            expect(response.status).to eq(200)
+          end
+        end
+      end
+
+      context 'Feature CH35 toe_light_house_dgi_direct_deposit=true' do
+        before do
+          Flipper.enable(:toe_light_house_dgi_direct_deposit)
+          claimant_params[:form]['@type'] = 'Chapter35'
+        end
+
+        it 'Lighthouse returns a status of 200' do
+          VCR.use_cassette('dgi/forms/submit_toe_claim') do
+            response = service.submit_claim(ActionController::Parameters.new(claimant_params),
+                                            ActionController::Parameters.new(dd_params_lighthouse))
 
             expect(response.status).to eq(200)
           end
@@ -124,8 +139,7 @@ RSpec.describe MebApi::DGI::Forms::Submission::Service do
         it 'EVSS returns a status of 200' do
           VCR.use_cassette('dgi/forms/submit_toe_claim') do
             response = service.submit_claim(ActionController::Parameters.new(claimant_params),
-                                            ActionController::Parameters.new(dd_params),
-                                            'toe')
+                                            ActionController::Parameters.new(dd_params))
 
             expect(response.status).to eq(200)
           end

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://int.vet360.va.gov/contact-information-hub/cuf/contact-information/v1/2.16.840.1.113883.4.349/1000123456V123456%5ENI%5E200M%5EUSVHA
+    uri: <VETS360_URL>/contact-information-hub/cuf/contact-information/v1/2.16.840.1.113883.4.349/1000123456V123456%5ENI%5E200M%5EUSVHA
     body:
       encoding: UTF-8
       string: '{"bio":{"sourceDate":"2018-04-09T17:52:03Z"}}'
@@ -48,6 +48,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"txAuditId":"d8951c96-5b8c-42ea-9fbe-e656941b7236","status":"RECEIVED"}'
-    http_version: 
+    http_version:
   recorded_at: Mon, 09 Apr 2018 17:52:03 GMT
 recorded_with: VCR 5.0.0

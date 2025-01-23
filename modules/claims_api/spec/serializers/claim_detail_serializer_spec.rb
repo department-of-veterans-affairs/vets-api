@@ -5,7 +5,7 @@ require 'rails_helper'
 describe ClaimsApi::ClaimDetailSerializer, type: :serializer do
   subject { serialize(claim, serializer_class: described_class) }
 
-  let(:claim) { create(:auto_established_claim_with_supporting_documents, :status_established) }
+  let(:claim) { create(:auto_established_claim_with_supporting_documents, :established) }
   let(:uuid) { '90770019-ae82-4e5a-b961-4272256ff080' }
   let(:rendered_documents) do
     [

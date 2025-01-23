@@ -38,6 +38,7 @@ end
 FactoryBot.define do
   factory :mpi_profile, class: 'MPI::Models::MviProfile' do
     given_names { Array.new(1) { Faker::Name.first_name } }
+    preferred_names { Array.new(1) { Faker::Name.first_name } }
     family_name { Faker::Name.last_name }
     suffix { Faker::Name.suffix }
     gender { %w[M F].sample }
@@ -77,10 +78,12 @@ FactoryBot.define do
     birls_ids { birls }
     vet360_id { '123456789' }
     sec_id { '0001234567' }
+    sec_ids { [sec_id] }
     search_token { 'WSDOC2002071538432741110027956' }
 
     factory :mpi_profile_response do
       given_names { %w[John William] }
+      preferred_names { [] }
       family_name { 'Smith' }
       suffix { 'Sr' }
       gender { 'M' }
@@ -127,6 +130,7 @@ FactoryBot.define do
       birls_ids { birls }
       vet360_id { '123456789' }
       sec_id { '0001234567' }
+      sec_ids { [sec_id] }
       search_token { 'WSDOC2002071538432741110027956' }
       person_types { ['PAT'] }
 
@@ -166,6 +170,7 @@ FactoryBot.define do
         home_phone { '1112223333 p1' }
         icn { '12345678901234567' }
         sec_id { '0001234567' }
+        sec_ids { [sec_id] }
         mhv_ids { %w[12345678901 12345678902] }
         active_mhv_ids { %w[12345678901] }
         vha_facility_ids { %w[200MH 200MH] }

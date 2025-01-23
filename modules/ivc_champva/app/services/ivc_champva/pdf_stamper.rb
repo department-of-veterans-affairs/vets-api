@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'central_mail/datestamp_pdf'
+require 'pdf_utilities/datestamp_pdf'
 
 module IvcChampva
   class PdfStamper
-    FORM_REQUIRES_STAMP = %w[10-10D 10-7959F-1].freeze
+    FORM_REQUIRES_STAMP = %w[10-10D 10-7959F-1 10-7959A].freeze
     SUBMISSION_TEXT = 'Signed electronically and submitted via VA.gov at '
     SUBMISSION_DATE_TITLE = 'Application Submitted:'
 
@@ -80,7 +80,7 @@ module IvcChampva
         page_configuration = get_page_configuration(page, coords)
         verified_multistamp(stamped_template_path, text, page_configuration, font_size)
       else
-        datestamp_instance = CentralMail::DatestampPdf.new(current_file_path, append_to_stamp:)
+        datestamp_instance = PDFUtilities::DatestampPdf.new(current_file_path, append_to_stamp:)
         current_file_path = datestamp_instance.run(text:, x:, y:, text_only:, size: 9)
         File.rename(current_file_path, stamped_template_path)
       end

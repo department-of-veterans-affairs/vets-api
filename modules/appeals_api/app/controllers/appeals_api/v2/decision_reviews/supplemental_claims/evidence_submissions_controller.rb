@@ -8,6 +8,7 @@ module AppealsApi::V2
         include SentryLogging
         include AppealsApi::CharacterUtilities
         include AppealsApi::Schemas
+        include AppealsApi::GatewayOriginCheck
 
         class EvidenceSubmissionRequestValidatorError < StandardError; end
 
@@ -16,6 +17,17 @@ module AppealsApi::V2
 
         skip_before_action :authenticate
         before_action :supplemental_claim_uuid?, only: :create
+
+        def show
+          submission = AppealsApi::EvidenceSubmission.find_by(guid: params[:id])
+          raise Common::Exceptions::RecordNotFound, params[:id] unless submission
+
+          submission = with_status_simulation(submission) if status_requested_and_allowed?
+
+          render json: AppealsApi::EvidenceSubmissionSerializer.new(
+            submission, { params: { render_location: false } }
+          ).serializable_hash
+        end
 
         def create
           status, error = AppealsApi::EvidenceSubmissionRequestValidator.new(params[:sc_uuid],
@@ -34,17 +46,6 @@ module AppealsApi::V2
             log_error(error)
             render json: { errors: [error] }, status: error[:title].to_sym
           end
-        end
-
-        def show
-          submission = AppealsApi::EvidenceSubmission.find_by(guid: params[:id])
-          raise Common::Exceptions::RecordNotFound, params[:id] unless submission
-
-          submission = with_status_simulation(submission) if status_requested_and_allowed?
-
-          render json: AppealsApi::EvidenceSubmissionSerializer.new(
-            submission, { params: { render_location: false } }
-          ).serializable_hash
         end
 
         private

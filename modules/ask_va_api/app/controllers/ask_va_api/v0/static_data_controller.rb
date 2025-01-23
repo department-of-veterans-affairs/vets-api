@@ -6,7 +6,12 @@ module AskVAApi
   module V0
     class StaticDataController < ApplicationController
       skip_before_action :authenticate
-      around_action :handle_exceptions, except: %i[index]
+      around_action :handle_exceptions, except: %i[test_endpoint]
+
+      def test_endpoint
+        data = Crm::Service.new(icn: nil).call(endpoint: params[:endpoint], payload: params[:payload] || {})
+        render json: data.to_json, status: :ok
+      end
 
       def announcements
         get_resource('announcements', user_mock_data: params[:user_mock_data])
@@ -18,29 +23,18 @@ module AskVAApi
         render_result(@branch_of_service)
       end
 
-      def categories
-        get_resource('categories', user_mock_data: params[:user_mock_data])
-        render_result(@categories)
-      end
+      def contents
+        get_resource('contents',
+                     user_mock_data: params[:user_mock_data],
+                     type: params[:type],
+                     parent_id: params[:parent_id])
 
-      def optionset
-        get_resource('optionset', user_mock_data: params[:user_mock_data], name: params[:name])
-        render_result(@optionset)
+        render_result(@contents)
       end
 
       def states
         get_resource('states', service: mock_service)
         render_result(@states)
-      end
-
-      def subtopics
-        get_resource('sub_topics', topic_id: params[:topic_id], user_mock_data: params[:user_mock_data])
-        render_result(@sub_topics)
-      end
-
-      def topics
-        get_resource('topics', category_id: params[:category_id], user_mock_data: params[:user_mock_data])
-        render_result(@topics)
       end
 
       def zipcodes
@@ -69,7 +63,7 @@ module AskVAApi
       end
 
       def mock_service
-        DynamicsMockService.new(icn: nil, logger: nil) if params[:mock]
+        DynamicsMockService.new(icn: nil, logger: nil) if params[:user_mock_data]
       end
 
       def render_result(resource)

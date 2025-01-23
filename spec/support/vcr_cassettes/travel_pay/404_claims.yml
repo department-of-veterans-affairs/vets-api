@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: post
-    uri: https://auth.veis.gov/tenant_id/oauth2/token
+    uri: "<VEIS_AUTH_URL>/tenant_id/oauth2/token"
     body:
       encoding: US-ASCII
       string: 'client_id=client_id&client_secret=client_secret&client_info=1&grant_type=client_credentials&resource=resource_id'
@@ -89,7 +89,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: get
-    uri: https://btsss.gov/api/v1/claims
+    uri: https://btsss.gov/api/v1.2/claims
     body:
       encoding: US-ASCII
       string: ''
@@ -257,7 +257,7 @@ http_interactions:
   recorded_at: Tue, 28 Feb 2023 21:02:39 GMT
 - request:
     method: post
-    uri:  https://btsss.gov/api/v1/Auth/access-token
+    uri:  https://btsss.gov/api/v1.2/Auth/access-token
     body:
       encoding: US-ASCII
       string: ''

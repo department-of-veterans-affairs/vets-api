@@ -153,6 +153,20 @@ describe AppealsApi::PdfConstruction::Generator do
       #     }
       #   }
       # end
+
+      # These specs need to be skipped until we can determine why they fail in the k8s branch but not master:
+      context 'with PDF v4' do
+        include_examples 'shared HLR v2 and v3 generator examples', {
+          api_name: 'decision_reviews',
+          api_version: 'v2',
+          pdf_version: 'v4',
+          form_data: {
+            veteran_international_phone: '+WWW-WWWWWWWWWWWWWWW',
+            claimant_international_phone: '+WWW-WWWWWWWWWWWWWWW',
+            rep_international_phone: '+WWW-WWWWWWWWWWWWWWW'
+          }
+        }
+      end
     end
 
     # These specs need to be skipped until we can determine why they fail in the k8s branch but not master:

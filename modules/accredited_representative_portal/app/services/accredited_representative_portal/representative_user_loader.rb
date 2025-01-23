@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 module AccreditedRepresentativePortal
+  # NOTE: This class currently only supports 21a Unaccredited Representatives.
+  # For 2122, Accredited Representative User Progress, see the below WIP ARP Auth epic:
+  # https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/75746
   class RepresentativeUserLoader
     attr_reader :access_token, :request_ip
 
@@ -9,10 +12,6 @@ module AccreditedRepresentativePortal
     def initialize(access_token:, request_ip:)
       @access_token = access_token
       @request_ip = request_ip
-      # NOTE: a change will be necessary to support alternate emails
-      # The below currently only supports the primary session email
-      # See discussion: https://github.com/department-of-veterans-affairs/vets-api/pull/16493#discussion_r1579783276
-      @pilot_representative = PilotRepresentative.find_by(email: session&.credential_email) # NOTE: primary email
     end
 
     def perform
@@ -61,23 +60,12 @@ module AccreditedRepresentativePortal
       @user_verification ||= session.user_verification
     end
 
-    # NOTE: given there will be RepresentativeUsers who are not PilotRepresentatives,
-    # it's okay for this to return nil
-    def get_ogc_registration_number
-      @pilot_representative&.ogc_registration_number
-    end
-
-    # NOTE: given there will be RepresentativeUsers who are not PilotRepresentatives,
-    # it's okay for this to return nil
-    def get_poa_codes
-      @pilot_representative&.poa_codes
-    end
-
     def current_user
       return @current_user if @current_user.present?
 
       user = RepresentativeUser.new
       user.uuid = access_token.user_uuid
+      user.user_account_uuid = session.user_account.id
       user.icn = session.user_account.icn
       user.email = session.credential_email
       user.first_name = session.user_attributes_hash['first_name']
@@ -86,8 +74,6 @@ module AccreditedRepresentativePortal
       user.authn_context = authn_context
       user.loa = loa
       user.logingov_uuid = user_verification.logingov_uuid
-      user.ogc_registration_number = get_ogc_registration_number
-      user.poa_codes = get_poa_codes
       user.idme_uuid = user_verification.idme_uuid
       user.last_signed_in = session.created_at
       user.sign_in = sign_in

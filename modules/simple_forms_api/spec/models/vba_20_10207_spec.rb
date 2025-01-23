@@ -1,51 +1,10 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
+require_relative '../support/shared_examples_for_base_form'
 
 RSpec.describe SimpleFormsApi::VBA2010207 do
-  describe 'zip_code_is_us_based' do
-    subject(:zip_code_is_us_based) { described_class.new(data).zip_code_is_us_based }
-
-    context 'veteran address is present and in US' do
-      let(:data) { { 'veteran_mailing_address' => { 'country' => 'USA' } } }
-
-      it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
-      end
-    end
-
-    context 'veteran address is present and not in US' do
-      let(:data) { { 'veteran_mailing_address' => { 'country' => 'Canada' } } }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
-      end
-    end
-
-    context 'non-veteran address is present and in US' do
-      let(:data) { { 'non_veteran_mailing_address' => { 'country' => 'USA' } } }
-
-      it 'returns true' do
-        expect(zip_code_is_us_based).to eq(true)
-      end
-    end
-
-    context 'non-veteran address is present and not in US' do
-      let(:data) { { 'non_veteran_mailing_address' => { 'country' => 'Canada' } } }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
-      end
-    end
-
-    context 'no valid address is given' do
-      let(:data) { {} }
-
-      it 'returns false' do
-        expect(zip_code_is_us_based).to eq(false)
-      end
-    end
-  end
+  it_behaves_like 'zip_code_is_us_based', %w[veteran_mailing_address non_veteran_mailing_address]
 
   describe 'requester_signature' do
     statement_of_truth_signature = 'John Veteran'
@@ -129,31 +88,6 @@ RSpec.describe SimpleFormsApi::VBA2010207 do
 
         expect(form.power_of_attorney_signature).to eq(expected)
       end
-    end
-  end
-
-  describe 'handle_attachments' do
-    it 'saves the combined pdf' do
-      combined_pdf = double
-      original_file_path = 'original-file-path'
-      attachment = double(to_pdf: double)
-      allow(PersistentAttachment).to receive(:where).and_return([attachment])
-      form = SimpleFormsApi::VBA2010207.new(
-        {
-          'financial_hardship_documents' => [{ confirmation_code: double }],
-          'als_documents' => [{ confirmation_code: double }]
-        }
-      )
-      allow(CombinePDF).to receive(:new).and_return(combined_pdf)
-      allow(combined_pdf).to receive(:<<)
-      allow(CombinePDF).to receive(:load)
-      allow(CombinePDF).to receive(:load).with(original_file_path)
-      allow(CombinePDF).to receive(:load).with(attachment).twice
-      allow(combined_pdf).to receive(:save).with(original_file_path)
-
-      form.handle_attachments(original_file_path)
-
-      expect(combined_pdf).to have_received(:save).with(original_file_path)
     end
   end
 end

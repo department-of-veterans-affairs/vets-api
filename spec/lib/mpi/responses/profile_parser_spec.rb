@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'mpi/responses/profile_parser'
 
 describe MPI::Responses::ProfileParser do
-  let(:faraday_response) { instance_double('Faraday::Env') }
+  let(:faraday_response) { instance_double(Faraday::Env) }
   let(:parser) { MPI::Responses::ProfileParser.new(faraday_response) }
   let(:ack_detail_code) { 'AE' }
   let(:error_details) do
@@ -43,6 +43,7 @@ describe MPI::Responses::ProfileParser do
           mhv_ien: nil,
           mhv_iens: [],
           sec_id: nil,
+          sec_ids: [],
           search_token: 'WSDOC1609131753362231779394902',
           id_theft_flag: false,
           transaction_id:
@@ -70,6 +71,7 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: nil,
             mhv_iens: [],
             sec_id: nil,
+            sec_ids: [],
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
             transaction_id:
@@ -104,6 +106,7 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: nil,
             mhv_iens: [],
             sec_id: nil,
+            sec_ids: [],
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
             transaction_id:
@@ -123,6 +126,7 @@ describe MPI::Responses::ProfileParser do
             :address_austin,
             family_name: 'Smith',
             given_names: %w[John William],
+            preferred_names: %w[General],
             suffix: 'Sr',
             birls_id: nil,
             birls_ids: [],
@@ -131,6 +135,7 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: nil,
             mhv_iens: [],
             sec_id: nil,
+            sec_ids: [],
             search_token: 'WSDOC1609131753362231779394902',
             id_theft_flag: false,
             transaction_id:
@@ -153,6 +158,7 @@ describe MPI::Responses::ProfileParser do
             cerner_id: nil,
             cerner_facility_ids: [],
             sec_id: nil,
+            sec_ids: [],
             vet360_id: nil,
             edipi: nil,
             edipis: [],
@@ -196,6 +202,7 @@ describe MPI::Responses::ProfileParser do
             mhv_ien: '1100792239',
             mhv_iens: ['1100792239'],
             sec_id: '1008714701',
+            sec_ids: ['1008714701'],
             edipi: nil,
             edipis: [],
             mhv_ids: ['1100792239'],
@@ -242,6 +249,7 @@ describe MPI::Responses::ProfileParser do
           icn_with_aaid: nil,
           full_mvi_ids: [],
           sec_id: nil,
+          sec_ids: [],
           vet360_id: nil,
           mhv_ids: [],
           active_mhv_ids: [],
@@ -268,15 +276,15 @@ describe MPI::Responses::ProfileParser do
       let(:mpi_profile_relationship_component) do
         build(
           :mpi_profile_relationship,
-          person_types: [],
+          person_types: %w[DEL],
           given_names: %w[Mark],
           family_name: 'Webb',
-          suffix: 'Jr',
-          gender: 'M',
-          birth_date: '19501004',
-          ssn: '796104437',
+          suffix: nil,
+          gender: nil,
+          birth_date: nil,
+          ssn: nil,
           address: nil,
-          home_phone: 'mailto:Daniel.Rocha@va.gov',
+          home_phone: nil,
           full_mvi_ids: [
             '1008709396V637156^NI^200M^USVHA^P',
             '1013590059^NI^200DOD^USDOD^A',
@@ -303,6 +311,7 @@ describe MPI::Responses::ProfileParser do
           birls_id: '796104437',
           birls_ids: ['796104437'],
           sec_id: '0001740097',
+          sec_ids: %w[0001740097 0000027647 0000027648],
           vet360_id: '7909',
           mhv_ien: nil,
           mhv_iens: [],
@@ -433,6 +442,7 @@ describe MPI::Responses::ProfileParser do
         :mpi_profile_response,
         :address_austin,
         sec_id: nil,
+        sec_ids: [],
         birls_id: nil,
         birls_ids: [],
         cerner_id: nil,

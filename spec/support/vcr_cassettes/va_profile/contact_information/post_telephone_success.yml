@@ -48,6 +48,6 @@ http_interactions:
     body:
       encoding: UTF-8
       string: '{"txAuditId":"e0c79288-ce0b-43b5-adb0-94c8ff667da5","status":"RECEIVED"}'
-    http_version: 
+    http_version:
   recorded_at: Fri, 10 Jan 2020 20:54:24 GMT
 recorded_with: VCR 5.0.0

@@ -36,7 +36,7 @@ RSpec.describe IvcChampva::VHA107959a do
         'source' => 'VA Platform Digital Forms',
         'docType' => '10-7959A',
         'ssn_or_tin' => '123456789',
-        'member_number' => '123456789',
+        'fileNumber' => '123456789',
         'businessLine' => 'CMP',
         'primaryContactInfo' => {
           'name' => {
@@ -46,6 +46,30 @@ RSpec.describe IvcChampva::VHA107959a do
           'email' => false
         }
       )
+    end
+  end
+
+  describe '#track_email_usage' do
+    let(:statsd_key) { 'api.ivc_champva_form.10_7959a' }
+
+    context 'when email is used' do
+      let(:data) { { 'primary_contact_info' => { 'email' => 'test@example.com' } } }
+
+      it 'increments the StatsD for email used and logs the info' do
+        expect(StatsD).to receive(:increment).with("#{statsd_key}.yes")
+        expect(Rails.logger).to receive(:info).with('IVC ChampVA Forms - 10-7959A Email Used', email_used: 'yes')
+        vha_10_7959a.track_email_usage
+      end
+    end
+
+    context 'when email is not used' do
+      let(:data) { { 'primary_contact_info' => {} } }
+
+      it 'increments the StatsD for email not used and logs the info' do
+        expect(StatsD).to receive(:increment).with("#{statsd_key}.no")
+        expect(Rails.logger).to receive(:info).with('IVC ChampVA Forms - 10-7959A Email Used', email_used: 'no')
+        vha_10_7959a.track_email_usage
+      end
     end
   end
 end

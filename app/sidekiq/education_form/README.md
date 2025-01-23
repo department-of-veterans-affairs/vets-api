@@ -17,6 +17,8 @@ If you want to generate spool files locally, you have two options:
 
 The files will be written into `tmp/spool_files`, with each regional file starting with the current date.
 
+Important!!! in config/environments/development.rb set config.eager_load = true or the job will NOT run correctly.
+
 ## Reprocessing an application
 
 If an application needs to go to a different processing center, we can take the ID and queue it up to be sent over the next time the spool file job runs:

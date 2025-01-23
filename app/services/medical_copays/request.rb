@@ -44,11 +44,30 @@ module MedicalCopays
     # @return [Faraday::Response]
     #
     def post(path, params)
-      with_monitoring do
-        connection.post(path) do |req|
-          req.body = Oj.dump(params)
+      if Flipper.enabled?(:debts_copay_logging) && !Rails.env.development?
+        with_monitoring_and_error_handling do
+          connection.post(path) do |req|
+            req.body = Oj.dump(params)
+          end
+        end
+      else
+        with_monitoring do
+          connection.post(path) do |req|
+            req.body = Oj.dump(params)
+          end
         end
       end
+    end
+
+    def with_monitoring_and_error_handling(&)
+      with_monitoring(2, &)
+    rescue => e
+      handle_error(e)
+    end
+
+    def handle_error(error)
+      Rails.logger.error("MedicalCopays::Request error: #{error.message}")
+      raise error
     end
 
     ##
@@ -71,7 +90,7 @@ module MedicalCopays
     # @return [Faraday::Connection]
     #
     def connection
-      Faraday.new(url:, headers:) do |conn|
+      Faraday.new(url:, headers:, request: request_options) do |conn|
         conn.request :json
         conn.use :breakers
         conn.use Faraday::Response::RaiseError
@@ -80,6 +99,22 @@ module MedicalCopays
         conn.response :betamocks if mock_enabled?
         conn.adapter Faraday.default_adapter
       end
+    end
+
+    ##
+    # Request options can be passed to the connection constructor
+    # and will be applied to all requests. This is the Common::Client config
+    # see: lib/common/client/configuration/base.rb
+    #
+    # open_timeout: The max number of seconds to wait for the connection to be established.
+    # time_out: The max number of seconds to wait for the request to complete.
+    #
+    # @return [Hash]
+    def request_options
+      {
+        open_timeout: 15,
+        timeout: 50
+      }
     end
 
     ##

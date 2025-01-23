@@ -17,6 +17,7 @@ RSpec.configure do |config|
   # describe '...', openapi_spec: 'modules/claims_api/app/swagger/claims_api/v2/swagger.json'
 
   config.openapi_specs = [
+    RepresentationManagement,
     ClaimsApi,
     AppealsApi
   ].inject({}) do |acc, module_name|

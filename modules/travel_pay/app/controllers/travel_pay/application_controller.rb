@@ -3,10 +3,7 @@
 module TravelPay
   class ApplicationController < ::ApplicationController
     include ActionController::Cookies
-    include ActionController::RequestForgeryProtection
     service_tag 'travel-pay'
-
-    protect_from_forgery with: :exception
 
     before_action :authenticate
 

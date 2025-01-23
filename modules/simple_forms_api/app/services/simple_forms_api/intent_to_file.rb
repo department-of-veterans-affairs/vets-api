@@ -13,9 +13,7 @@ module SimpleFormsApi
     end
 
     def use_intent_api?
-      if params[:form_number] == '21-0966' && participant_id && icn && params[:preparer_identification] == 'VETERAN'
-        true
-      end
+      params[:form_number] == '21-0966' && participant_id && icn && params[:preparer_identification] == 'VETERAN'
     end
 
     def submit
@@ -28,9 +26,7 @@ module SimpleFormsApi
         type = benefit_type.downcase
         next if existing_intents[type]
 
-        response = benefits_claims_lighthouse_service.create_intent_to_file(type, ssn)
-        confirmation_number = response.dig('data', 'id')
-        expiration_date = response.dig('data', 'attributes', 'expirationDate')
+        confirmation_number, expiration_date = create_intent_to_file(type, ssn)
       end
 
       user_account_uuid = user.user_account_uuid
@@ -61,6 +57,21 @@ module SimpleFormsApi
 
     def benefits_claims_lighthouse_service
       @benefits_claims_lighthouse_service ||= BenefitsClaims::Service.new(icn)
+    end
+
+    def create_intent_to_file(type, ssn)
+      response = benefits_claims_lighthouse_service.create_intent_to_file(type, ssn)
+      [response.dig('data', 'id'), response.dig('data', 'attributes', 'expirationDate')]
+    rescue Common::Exceptions::ResourceNotFound => e
+      Rails.logger.error(
+        'Simple forms api - Benefits Claims API, intent to file endpoint is down',
+        {
+          intent_type: type,
+          form_number: params[:form_number],
+          error: e
+        }
+      )
+      raise Exceptions::BenefitsClaimsApiDownError
     end
 
     def existing_compensation_intent

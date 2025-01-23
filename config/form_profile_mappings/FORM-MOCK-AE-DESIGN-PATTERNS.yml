@@ -1,0 +1,25 @@
+data:
+  attributes:
+    veteran:
+      address:
+        addressLine1: [contact_information, address, street]
+        addressLine2: [contact_information, address, street2]
+        addressLine3: [street3]
+        city: [contact_information, address, city]
+        stateCode: [contact_information, address, state]
+        zipCode5: [contact_information, address, postal_code]
+        countryName: [contact_information, address, country]
+      firstName: [identity_information, full_name, first]
+      lastName: [identity_information, full_name, last]
+      middleName: [identity_information, full_name, middle]
+      suffix: [identity_information, full_name, suffix]
+      dateOfBirth: [identity_information, date_of_birth]
+      ssn: [identity_information, ssn_last_four]
+      gender: [identity_information, gender]
+      phone:
+        areaCode: [phone_object, area_code]
+        phoneNumber: [phone_object, phone_number]
+      homePhone: [contact_information, home_phone]
+      emailAddressText: [contact_information, email]
+      mobilePhone: [contact_information, mobile_phone]
+      lastServiceBranch: [military_information, last_service_branch]

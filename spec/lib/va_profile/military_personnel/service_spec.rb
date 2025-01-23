@@ -19,49 +19,36 @@ describe VAProfile::MilitaryPersonnel::Service do
 
   describe '#get_service_history' do
     context 'when successful' do
-      it 'returns a status of 200' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+      it 'contains eligibility information' do
+        VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
           response = subject.get_service_history
 
           expect(response).to be_ok
-          expect(response.episodes).to be_a(Array)
+          expect(response.vet_status_eligibility).to be_a(Object)
         end
       end
 
-      it 'returns a single service history episode' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_history_200') do
+      it 'eligibility information contains confirmed and message attributes' do
+        VCR.use_cassette('va_profile/military_personnel/service_history_200_many_episodes') do
           response = subject.get_service_history
-          episode = response.episodes.first
 
-          expect(episode.branch_of_service).to eq('Army')
+          expect(response.vet_status_eligibility[:confirmed]).to be(true)
+          expect(response.vet_status_eligibility[:message]).to eq([])
         end
       end
 
-      it 'returns multiple service history episodes' do
+      it 'returns not eligible if character_of_discharge_codes are missing' do
         VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
           response = subject.get_service_history
-          episodes = response.episodes
+          message = [
+            'Our records show that you’re not eligible for a Veteran status card. To get a Veteran status card, you ' \
+            'must have received an honorable discharge for at least one period of service.',
+            'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 ' \
+            '(TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
+          ]
 
-          expect(episodes.count).to eq(5)
-          episodes.each do |e|
-            expect(e.branch_of_service).not_to be_nil
-            expect(e.begin_date).not_to be_nil
-            expect(e.end_date).not_to be_nil
-          end
-        end
-      end
-
-      it 'sorts service history episodes' do
-        VCR.use_cassette('va_profile/military_personnel/post_read_service_histories_200') do
-          response = subject.get_service_history
-          episodes = response.episodes
-
-          expect(episodes.count).to eq(5)
-          expect(episodes[0].begin_date).to eq('1999-06-23')
-          expect(episodes[1].begin_date).to eq('2000-06-30')
-          expect(episodes[2].begin_date).to eq('2002-02-02')
-          expect(episodes[3].begin_date).to eq('2009-03-01')
-          expect(episodes[4].begin_date).to eq('2012-03-02')
+          expect(response.vet_status_eligibility[:confirmed]).to be(false)
+          expect(response.vet_status_eligibility[:message]).to eq(message)
         end
       end
     end
@@ -73,6 +60,7 @@ describe VAProfile::MilitaryPersonnel::Service do
 
           expect(response).not_to be_ok
           expect(response.episodes.count).to eq(0)
+          expect(response.vet_status_eligibility).to be_nil
         end
       end
 

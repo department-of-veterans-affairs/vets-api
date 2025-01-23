@@ -9,7 +9,7 @@ module SignIn
                 :all_credential_emails,
                 :verified_icn,
                 :edipi,
-                :mhv_correlation_id,
+                :mhv_credential_uuid,
                 :request_ip,
                 :first_name,
                 :last_name
@@ -21,7 +21,7 @@ module SignIn
       @credential_email = user_attributes[:csp_email]
       @all_credential_emails = user_attributes[:all_csp_emails]
       @edipi = user_attributes[:edipi]
-      @mhv_correlation_id = user_attributes[:mhv_correlation_id]
+      @mhv_credential_uuid = user_attributes[:mhv_credential_uuid]
       @verified_icn = verified_icn
       @request_ip = request_ip
       @first_name = user_attributes[:first_name]
@@ -33,6 +33,7 @@ module SignIn
       create_user_acceptable_verified_credential
       create_terms_code_container if needs_accepted_terms_of_use?
       create_code_container
+
       user_code_map
     end
 
@@ -65,15 +66,6 @@ module SignIn
       state_payload.scope == Constants::Auth::DEVICE_SSO
     end
 
-    def user_verifier_object
-      @user_verifier_object ||= OpenStruct.new({ idme_uuid:,
-                                                 logingov_uuid:,
-                                                 sign_in:,
-                                                 edipi:,
-                                                 mhv_correlation_id:,
-                                                 icn: verified_icn })
-    end
-
     def user_code_map
       @user_code_map ||= UserCodeMap.new(login_code:,
                                          type: state_payload.type,
@@ -83,7 +75,13 @@ module SignIn
     end
 
     def user_verification
-      @user_verification ||= Login::UserVerifier.new(user_verifier_object).perform
+      @user_verification ||= Login::UserVerifier.new(login_type: sign_in[:service_name],
+                                                     auth_broker: sign_in[:auth_broker],
+                                                     mhv_uuid: mhv_credential_uuid,
+                                                     idme_uuid:,
+                                                     dslogon_uuid: edipi,
+                                                     logingov_uuid:,
+                                                     icn: verified_icn).perform
     end
 
     def user_account

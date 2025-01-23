@@ -11,7 +11,7 @@ module BenefitsDocuments
   # sets the base path, the base request headers, and a service name for breakers and metrics.
   #
   class Configuration < Common::Client::Configuration::REST
-    self.read_timeout = Settings.lighthouse.benefits_documents.timeout || 20
+    self.read_timeout = Settings.lighthouse.benefits_documents.timeout || 65
 
     SYSTEM_NAME = 'VA.gov'
     API_SCOPES = %w[documents.read documents.write].freeze
@@ -19,7 +19,7 @@ module BenefitsDocuments
     DOCUMENTS_PATH = "#{BASE_PATH}/documents".freeze
     DOCUMENTS_STATUS_PATH = "#{BASE_PATH}/uploads/status".freeze
     TOKEN_PATH = 'oauth2/benefits-documents/system/v1/token'
-    QA_TESTING_DOMAIN = 'https://dev-api.va.gov'
+    QA_TESTING_DOMAIN = Settings.lighthouse.benefits_documents.host
 
     ##
     # @return [Config::Options] Settings for benefits_claims API.

@@ -1,0 +1,5 @@
+errors:
+  - title: 'Forbidden'
+    detail: 'You do not have access to online scheduling'
+    code: '403'
+    status: '403'

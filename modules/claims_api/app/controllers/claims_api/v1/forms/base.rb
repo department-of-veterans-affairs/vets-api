@@ -5,6 +5,7 @@ require 'claims_api/form_schemas'
 require 'evss/disability_compensation_auth_headers'
 require 'evss/auth_headers'
 require 'claims_api/special_issue_mappers/bgs'
+require 'claims_api/pre_json_validations'
 
 module ClaimsApi
   module V1
@@ -14,6 +15,7 @@ module ClaimsApi
         skip_before_action :authenticate, only: %i[schema]
         skip_before_action :validate_veteran_identifiers, only: %i[schema]
         include ClaimsApi::EndpointDeprecation
+        include ClaimsApi::PreJsonValidations
 
         def schema
           add_deprecation_headers_to_response(response:, link: ClaimsApi::EndpointDeprecation::V1_DEV_DOCS)
@@ -28,6 +30,8 @@ module ClaimsApi
         end
 
         def form_attributes
+          pre_json_verification_of_email_for_poa # must be done before returning attributes
+
           @json_body.dig('data', 'attributes') || {}
         end
 
@@ -82,23 +86,6 @@ module ClaimsApi
           file_extension = File.extname(original_filename)
           base_filename = File.basename(original_filename, file_extension)
           "#{base_filename}_#{SecureRandom.urlsafe_base64(8)}#{file_extension}"
-        end
-
-        def bgs_service
-          bgs = BGS::Services.new(
-            external_uid: target_veteran.participant_id,
-            external_key: target_veteran.participant_id
-          )
-          ClaimsApi::Logger.log('poa', detail: 'bgs-ext service built')
-          bgs
-        end
-
-        def local_bgs_service
-          external_key = target_veteran.participant_id.to_s
-          @local_bgs_service ||= ClaimsApi::LocalBGS.new(
-            external_uid: external_key,
-            external_key:
-          )
         end
 
         def received_date

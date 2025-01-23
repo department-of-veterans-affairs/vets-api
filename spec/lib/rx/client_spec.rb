@@ -3,11 +3,19 @@
 require 'rails_helper'
 require 'rx/client'
 
+# Mock upstream request to return source app for Rx client
+class UpstreamRequest
+  def self.env
+    { 'SOURCE_APP' => 'myapp' }
+  end
+end
+
 describe Rx::Client do
   before(:all) do
-    VCR.use_cassette 'rx_client/session', record: :new_episodes do
+    VCR.use_cassette 'rx_client/session' do
       @client ||= begin
-        client = Rx::Client.new(session: { user_id: '12210827' })
+        client = Rx::Client.new(session: { user_id: '12210827' },
+                                upstream_request: UpstreamRequest)
         client.authenticate
         client
       end
@@ -21,7 +29,7 @@ describe Rx::Client do
       VCR.use_cassette('rx_client/preferences/gets_rx_preferences') do
         client_response = client.get_preferences
         expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
-        expect(client_response.rx_flag).to eq(true)
+        expect(client_response.rx_flag).to be(true)
       end
     end
 
@@ -29,11 +37,11 @@ describe Rx::Client do
       VCR.use_cassette('rx_client/preferences/sets_rx_preferences') do
         client_response = client.post_preferences(email_address: 'kamyar.karshenas@va.gov', rx_flag: false)
         expect(client_response.email_address).to eq('kamyar.karshenas@va.gov')
-        expect(client_response.rx_flag).to eq(false)
+        expect(client_response.rx_flag).to be(false)
         # Change it back to what it was to make this test idempotent
         client_response = client.post_preferences(email_address: 'Praneeth.Gaganapally@va.gov', rx_flag: true)
         expect(client_response.email_address).to eq('Praneeth.Gaganapally@va.gov')
-        expect(client_response.rx_flag).to eq(true)
+        expect(client_response.rx_flag).to be(true)
       end
     end
 
@@ -49,6 +57,7 @@ describe Rx::Client do
   shared_examples 'prescriptions' do |caching_enabled|
     before do
       allow(Settings.mhv.rx).to receive(:collection_caching_enabled).and_return(caching_enabled)
+      allow(StatsD).to receive(:increment)
     end
 
     let(:cache_keys) { ["#{client.session.user_id}:getactiverx", "#{client.session.user_id}:gethistoryrx"] }
@@ -63,7 +72,7 @@ describe Rx::Client do
         if caching_enabled
           expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:getactiverx")
         else
-          expect(cache_key_for(client_response)).to eq(nil)
+          expect(cache_key_for(client_response)).to be_nil
         end
       end
     end
@@ -78,7 +87,7 @@ describe Rx::Client do
         if caching_enabled
           expect(cache_key_for(client_response)).to eq("#{client.session.user_id}:gethistoryrx")
         else
-          expect(cache_key_for(client_response)).to eq(nil)
+          expect(cache_key_for(client_response)).to be_nil
         end
       end
     end
@@ -101,6 +110,22 @@ describe Rx::Client do
         expect(client_response.status).to equal 200
         # This is what MHV returns, even though we don't care
         expect(client_response.body).to eq(status: 'success')
+        expect(StatsD).to have_received(:increment).with(
+          "#{described_class::STATSD_KEY_PREFIX}.refills.requested", 1, tags: ['source_app:myapp']
+        ).exactly(:once)
+      end
+    end
+
+    it 'refills multiple prescriptions' do
+      VCR.use_cassette('rx_client/prescriptions/refills_multiple_prescriptions') do
+        ids = [13_650_545, 13_650_546]
+        client_response = client.post_refill_rxs(ids)
+        expect(client_response.status).to equal 200
+        # This is what MHV returns, even though we don't care
+        expect(client_response.body).to eq(status: 'success')
+        expect(StatsD).to have_received(:increment).with(
+          "#{described_class::STATSD_KEY_PREFIX}.refills.requested", ids.size, tags: ['source_app:myapp']
+        ).exactly(:once)
       end
     end
 
@@ -119,8 +144,8 @@ describe Rx::Client do
           client_response = client.get_tracking_history_rx(13_650_541)
           expect(client_response).to be_a(Common::Collection)
           expect(client_response.members.first.prescription_id).to eq(13_650_541)
-          expect(client_response.cached?).to eq(false)
-          expect(cache_key_for(client_response)).to eq(nil)
+          expect(client_response.cached?).to be(false)
+          expect(cache_key_for(client_response)).to be_nil
         end
       end
     end

@@ -2,6 +2,7 @@
 
 require 'common/exceptions/validation_errors'
 require 'va_profile/contact_information/service'
+require 'va_profile/v2/contact_information/service'
 
 module Vet360
   module Writeable
@@ -26,16 +27,27 @@ module Vet360
     end
 
     def invalidate_cache
-      VAProfileRedis::Cache.invalidate(@current_user)
+      if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+        VAProfileRedis::V2::Cache.invalidate(@current_user)
+      else
+        VAProfileRedis::Cache.invalidate(@current_user)
+      end
     end
 
     private
 
     def build_record(type, params)
-      "VAProfile::Models::#{type.capitalize}"
-        .constantize
-        .new(params)
-        .set_defaults(@current_user)
+      # This needs to be refactored after V2 upgrade is complete
+      if type == 'address' && Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+        model = 'VAProfile::Models::V3::Address'
+        # Ensures the address_pou is valid
+        params[:address_pou] = 'RESIDENCE' if params[:address_pou] == 'RESIDENCE/CHOICE'
+      else
+        model = "VAProfile::Models::#{type.capitalize}"
+      end
+      model.constantize
+           .new(params)
+           .set_defaults(@current_user)
     end
 
     def validate!(record)
@@ -49,10 +61,16 @@ module Vet360
     end
 
     def service
-      VAProfile::ContactInformation::Service.new @current_user
+      if Flipper.enabled?(:va_v3_contact_information_service, @current_user)
+        VAProfile::V2::ContactInformation::Service.new @current_user
+      else
+        VAProfile::ContactInformation::Service.new @current_user
+      end
     end
 
     def write_valid_record!(http_verb, type, record)
+      # This will be removed after the upgrade. Permission was removed in the upgraded service.
+      # Permissions are not used in ContactInformationV1 either.
       service.send("#{http_verb}_#{type.downcase}", record)
     end
 

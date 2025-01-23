@@ -48,4 +48,18 @@ describe PHRMgr::Client do
       end
     end
   end
+
+  describe '#get_military_service' do
+    let(:icn) { '1000000000V000000' }
+    let(:client) { PHRMgr::Client.new(icn) }
+
+    it "retrieves the user's military service" do
+      VCR.use_cassette 'phr_mgr_client/get_military_service' do
+        military_service = client.get_military_service('1234567890')
+
+        expect(military_service).to be_a(String)
+        expect(military_service).to include('Military Service Information')
+      end
+    end
+  end
 end

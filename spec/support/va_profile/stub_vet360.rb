@@ -8,6 +8,10 @@ require 'va_profile/models/permission'
 
 # rubocop:disable Metrics/MethodLength
 def stub_vet360(person = nil)
+  Flipper.disable(:va_v3_contact_information_service)
+  service = VAProfile::ContactInformation::Service
+  person_response = VAProfile::ContactInformation::PersonResponse
+
   person ||= build(
     :person,
     addresses: [
@@ -30,8 +34,8 @@ def stub_vet360(person = nil)
     ]
   )
 
-  allow_any_instance_of(VAProfile::ContactInformation::Service).to receive(:get_person).and_return(
-    VAProfile::ContactInformation::PersonResponse.new(200, person:)
+  allow_any_instance_of(service).to receive(:get_person).and_return(
+    person_response.new(200, person:)
   )
 end
 # rubocop:enable Metrics/MethodLength

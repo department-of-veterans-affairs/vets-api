@@ -1,0 +1,63 @@
+---
+http_interactions:
+- request:
+    method: post
+    uri:  <VETS360_URL>/contact-information-hub/contact-information/v2/2.16.840.1.113883.4.349/123498767V234859%5ENI%5E200M%5EUSVHA/emails
+    body:
+      encoding: UTF-8
+      string: '{"bio":{"emailAddressText":"person42@example.com","emailId":42,"originatingSourceSystem":"VETSGOV","sourceSystemUser":"123498767V234859","sourceDate":"2024-05-21T05:03:23Z","effectiveStartDate":null,"effectiveEndDate":null}}'
+    headers:
+      User-Agent:
+      - Vets.gov Agent
+      Content-Type:
+      - application/json
+      Cufsystemname:
+      - VETSGOV
+      Accept:
+      - application/json
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+  response:
+    status:
+      code: 400
+      message: ''
+    headers:
+      X-Oneagent-Js-Injection:
+      - 'true'
+      - 'true'
+      Server-Timing:
+      - dtRpid;desc="-7966182", dtSInfo;desc="0"
+      - dtRpid;desc="1445182561", dtSInfo;desc="0"
+      Vaprofiletxauditid:
+      - 6e500ac2-2467-4312-b85e-8274a91db027
+      X-Content-Type-Options:
+      - nosniff
+      X-Xss-Protection:
+      - '0'
+      Cache-Control:
+      - no-cache, no-store, max-age=0, must-revalidate
+      Pragma:
+      - no-cache
+      Expires:
+      - '0'
+      X-Frame-Options:
+      - DENY
+      Content-Security-Policy:
+      - 'default-src ''self'' ''unsafe-eval'' ''unsafe-inline'' data: filesystem:
+        about: blob: ws: wss:'
+      Date:
+      - Tue, 27 Aug 2024 18:03:51 GMT
+      Referrer-Policy:
+      - no-referrer
+      Content-Type:
+      - application/json
+      Transfer-Encoding:
+      - chunked
+      Strict-Transport-Security:
+      - max-age=16000000; includeSubDomains; preload;
+    body:
+      encoding: UTF-8
+      string: '{"messages":[{"code":"EMAIL200","key":"emailId.Null","text":"must be
+        null","severity":"ERROR"}],"txAuditId":"3a06771a-94ee-4303-acd8-48695811372e","status":"REJECTED"}'
+  recorded_at: Tue, 27 Aug 2024 18:03:52 GMT
+recorded_with: VCR 6.3.1

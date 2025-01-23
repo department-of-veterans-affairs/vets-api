@@ -6,6 +6,10 @@ class ServiceHistorySerializer
   set_id { '' }
 
   attributes :service_history do |object|
-    object
+    object[:episodes]
+  end
+
+  attributes :vet_status_eligibility do |object|
+    object[:vet_status_eligibility]
   end
 end

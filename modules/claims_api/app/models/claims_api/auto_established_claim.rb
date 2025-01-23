@@ -8,7 +8,7 @@ require 'claims_api/service_branch_mapper'
 require 'claims_api/claim_logger'
 
 module ClaimsApi
-  class AutoEstablishedClaim < ApplicationRecord
+  class AutoEstablishedClaim < ApplicationRecord # rubocop:disable Metrics/ClassLength
     include FileData
     serialize :auth_headers, coder: JsonMarshal::Marshaller
     serialize :bgs_flash_responses, coder: JsonMarshal::Marshaller
@@ -52,10 +52,10 @@ module ClaimsApi
     end
 
     # EVSS Claims attributes with defaults
-    attribute :data, default: {}
+    attribute :data, default: -> { {} }
     attribute :claim_type, default: 'Compensation'
-    attribute :contention_list, default: []
-    attribute :events_timeline, default: []
+    attribute :contention_list, default: -> { [] }
+    attribute :events_timeline, default: -> { [] }
     attribute :validation_method
 
     alias token id
@@ -68,9 +68,10 @@ module ClaimsApi
       form_data['servicePay']['separationPay']['receivedDate'] = transform_separation_pay_received_date if separation_pay_received_date? # rubocop:disable Layout/LineLength
       form_data['veteran']['changeOfAddress'] = transform_change_of_address_type_case if change_of_address_provided?
       form_data['veteran']['changeOfAddress'] = transform_change_of_address_ending_date if invalid_change_of_address_ending_date? # rubocop:disable Layout/LineLength
-      form_data['disabilites'] = transform_disability_approximate_begin_dates
-      form_data['disabilites'] = massage_invalid_disability_names
-      form_data['disabilites'] = remove_special_issues_from_secondary_disabilities
+      form_data['disabilities'] = transform_disability_approximate_begin_dates
+      form_data['disabilities'] = massage_invalid_disability_names
+      form_data['disabilities'] = remove_special_issues_from_secondary_disabilities
+      form_data['disabilities'] = remove_empty_disability_elements
       form_data['treatments'] = transform_treatment_dates if treatments?
       form_data['treatments'] = transform_treatment_center_names if treatments?
       form_data['serviceInformation'] = transform_service_branch
@@ -79,7 +80,10 @@ module ClaimsApi
       resolve_special_issue_mappings!
       resolve_homelessness_situation_type_mappings!
       resolve_homelessness_risk_situation_type_mappings!
+      transform_homelessness_point_of_contact_primary_phone!
       transform_address_lines_length!
+      transform_empty_unit_name!
+      transform_empty_zip_last_four!
 
       {
         form526: form_data
@@ -165,6 +169,7 @@ module ClaimsApi
 
         disability
       end
+      disabilities
     end
 
     def resolve_special_issue_mappings!
@@ -205,11 +210,40 @@ module ClaimsApi
       form_data['veteran']['homelessness']['homelessnessRisk']['homelessnessRiskSituationType'] =
         mapper.code_from_name(name)
 
-      if mapper.code_from_name(name) == 'OTHER' &&
-         form_data['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'].blank?
-        # Transform to meet EVSS requirements of minLength 1
-        form_data['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'] = ' '
+      if form_data['veteran']['homelessness']['homelessnessRisk']['otherLivingSituation'].blank?
+        # Remove to avoid EVSS requirements of minLength 1 when present
+        form_data['veteran']['homelessness']['homelessnessRisk'].delete('otherLivingSituation')
       end
+    end
+
+    def clean_phone_number!(phone_number)
+      phone_number.gsub!(/\D/, '') if phone_number.present?
+    end
+
+    def add_overflow_text(text)
+      form_data['overflowText'] = (form_data['overflowText'] || '').dup
+      form_data['overflowText'] << text
+    end
+
+    def phone_number_valid?(phone_number)
+      phone_number['areaCode'].present? && phone_number['phoneNumber'].present? &&
+        phone_number['areaCode'].length == 3 && phone_number['phoneNumber'].length == 7
+    end
+
+    def transform_homelessness_point_of_contact_primary_phone!
+      primary_phone = form_data.dig('veteran', 'homelessness', 'pointOfContact', 'primaryPhone')
+
+      return if primary_phone.blank?
+
+      original_area_code = primary_phone['areaCode'].dup
+      original_phone_number = primary_phone['phoneNumber'].dup
+      clean_phone_number!(primary_phone['areaCode'])
+      clean_phone_number!(primary_phone['phoneNumber'])
+
+      return if phone_number_valid?(primary_phone)
+
+      add_overflow_text("14F. pointOfContact.primaryPhone - #{original_area_code}#{original_phone_number}\n")
+      form_data.dig('veteran', 'homelessness', 'pointOfContact').delete('primaryPhone')
     end
 
     def cast_claim_date!
@@ -316,9 +350,9 @@ module ClaimsApi
       temp = Date.parse(date)
 
       {
-        'year': temp.year.to_s,
-        'month': temp.month.to_s,
-        'day': temp.day.to_s
+        year: temp.year.to_s,
+        month: temp.month.to_s,
+        day: temp.day.to_s
       }
     end
 
@@ -341,6 +375,7 @@ module ClaimsApi
 
         disability
       end
+      disabilities
     end
 
     def truncate_disability_name(name:)
@@ -421,7 +456,24 @@ module ClaimsApi
       end
 
       form_data['serviceInformation']['servicePeriods'] = transformed_service_periods
+
+      unit_phone = form_data.dig('serviceInformation', 'reservesNationalGuardService', 'unitPhone')
+      transform_reserves_national_guard_service_phone!(unit_phone) if unit_phone.present?
+
       form_data['serviceInformation']
+    end
+
+    def transform_reserves_national_guard_service_phone!(unit_phone)
+      original_area_code = unit_phone['areaCode'].dup
+      original_phone_number = unit_phone['phoneNumber'].dup
+
+      clean_phone_number!(unit_phone['areaCode'])
+      clean_phone_number!(unit_phone['phoneNumber'])
+
+      return if phone_number_valid?(unit_phone)
+
+      add_overflow_text("21E. unitPhone - #{original_area_code}#{original_phone_number}\n")
+      form_data.dig('serviceInformation', 'reservesNationalGuardService').delete('unitPhone')
     end
 
     # Legacy claimsApi code previously allowed servicePay-related service branch
@@ -447,7 +499,7 @@ module ClaimsApi
     # Rather than break the API by removing 'specialIssues' from the 'secondaryDisabilities' schema,
     # just detect the invalid case and remove the 'specialIssues' before sending to EVSS.
     def remove_special_issues_from_secondary_disabilities
-      disabilities = form_data['disabilites']
+      disabilities = form_data['disabilities']
 
       disabilities.map do |disability|
         next if disability['secondaryDisabilities'].blank?
@@ -458,6 +510,29 @@ module ClaimsApi
           secondary
         end
       end
+      disabilities
+    end
+
+    # remove any empty disability objects to prevent further processing errors
+    def remove_empty_disability_elements
+      disabilities = form_data['disabilities']
+      return if disabilities.blank?
+
+      disabilities.each_with_index do |disability, index|
+        if disability['specialIssues'].presence ||
+           disability['ratedDisabilityId'].presence ||
+           disability['diagnosticCode'].presence ||
+           disability['classificationCode'].presence ||
+           disability['approximateBeginDate'].presence ||
+           disability['serviceRelevance'].presence ||
+           disability['secondaryDisabilities'].presence
+          next
+        end
+
+        disability_name = disability['name']
+        disabilities.delete_at(index) if disability_name == '' && disability['disabilityActionType'].presence
+      end
+      disabilities
     end
 
     def change_of_address_provided?
@@ -489,6 +564,21 @@ module ClaimsApi
       addr['addressLine2'] = overflow
 
       form_data['veteran']['currentMailingAddress'] = addr
+    end
+
+    def transform_empty_unit_name!
+      reserves = form_data&.dig('serviceInformation', 'reservesNationalGuardService')
+      return if reserves.nil?
+
+      unit_name = reserves['unitName']
+      unit_name = unit_name.presence || ' '
+      reserves['unitName'] = unit_name
+    end
+
+    def transform_empty_zip_last_four!
+      change_of_address = form_data.dig('veteran', 'changeOfAddress')
+
+      change_of_address.delete('zipLastFour') if change_of_address.present? && change_of_address['zipLastFour'].blank?
     end
   end
 end

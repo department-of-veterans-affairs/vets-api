@@ -9,6 +9,8 @@ class Form526SubmissionRemediation < ApplicationRecord
 
   before_create :initialize_lifecycle
 
+  enum :remediation_type, { manual: 0, ignored_as_duplicate: 1, email_notified: 2 }
+
   STATSD_KEY_PREFIX = 'form526_submission_remediation'
 
   def mark_as_unsuccessful(context)
@@ -30,7 +32,7 @@ class Form526SubmissionRemediation < ApplicationRecord
   end
 
   def ensure_success_if_ignored_as_duplicate
-    errors.add(:success, 'must be true if ignored as duplicate') if ignored_as_duplicate && !success
+    errors.add(:success, 'must be true if ignored as duplicate') if ignored_as_duplicate? && !success
   end
 
   def log_to_datadog(context)

@@ -63,6 +63,16 @@ namespace :rswag do
       run_tasks_in_parallel(%w[rswag:appeals_api:prod rswag:appeals_api:dev])
     end
   end
+
+  namespace :representation_management do
+    desc 'Generate rswag docs for representation_management'
+    task build: :environment do
+      ENV['PATTERN'] = 'modules/representation_management/spec/requests/**/*_spec.rb'
+      ENV['RAILS_MODULE'] = 'representation_management'
+      ENV['SWAGGER_DRY_RUN'] = '0'
+      Rake::Task['rswag:specs:swaggerize'].invoke
+    end
+  end
 end
 
 def generate_appeals_docs(dev: false)

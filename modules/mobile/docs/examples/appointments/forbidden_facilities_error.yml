@@ -1,0 +1,5 @@
+errors:
+  - title: 'Forbidden'
+    detail: 'No facility associated with user'
+    code: '403'
+    status: '403'

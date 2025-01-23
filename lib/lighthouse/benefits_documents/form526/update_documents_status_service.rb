@@ -39,6 +39,7 @@ module BenefitsDocuments
 
       # @param lighthouse526_document_uploads [Lighthouse526DocumentUpload] a collection of
       # Lighthouse526DocumentUpload records polled for status updates on Lighthouse's '/uploads/status' endpoint
+      # @param lighthouse_status_response [Hash] the parsed JSON response body from the endpoint
       def initialize(lighthouse526_document_uploads, lighthouse_status_response)
         @lighthouse526_document_uploads = lighthouse526_document_uploads
         @lighthouse_status_response = lighthouse_status_response
@@ -66,34 +67,29 @@ module BenefitsDocuments
         document_upload = @lighthouse526_document_uploads.find_by!(lighthouse_document_request_id: status['requestId'])
         statsd_document_base_key(STATSD_DOCUMENT_TYPE_KEY_MAP[document_upload.document_type])
 
-        status_updater(status, document_upload)
-        @status_updater.update_status
+        status_updater = BenefitsDocuments::Form526::UploadStatusUpdater.new(status, document_upload)
+        status_updater.update_status
 
         if document_upload.completed?
           # ex. 'api.form526.lighthouse_document_upload_processing_status.bdd_instructions.complete'
           StatsD.increment("#{@statsd_document_base_key}.#{STATSD_DOCUMENT_COMPLETE_KEY}")
         elsif document_upload.failed?
-          log_failure(document_upload)
-        elsif @status_updater.processing_timeout?
+          log_failure(status_updater, document_upload)
+        elsif status_updater.processing_timeout?
           # Triggered when a document is still pending more than 24 hours after processing began
           # ex. 'api.form526.lighthouse_document_upload_processing_status.bdd_instructions.processing_timeout'
           StatsD.increment("#{@statsd_document_base_key}.#{STATSD_PROCESSING_TIMEOUT_KEY}")
         end
       end
 
-      def status_updater(status, document_upload)
-        # UploadStatusUpdater encapsulates all parsing of a status response from Lighthouse
-        @status_updater ||= BenefitsDocuments::Form526::UploadStatusUpdater.new(status, document_upload)
-      end
-
       def statsd_document_base_key(statsd_document_type_key)
         @statsd_document_base_key ||= "#{STATSD_BASE_KEY}.#{statsd_document_type_key}"
       end
 
-      def log_failure(document_upload)
+      def log_failure(status_updater, document_upload)
         # Because Lighthouse's processing steps are subject to change, these metrics must be dynamic.
         # Currently, this should return either CLAIMS_EVIDENCE or BENEFITS_GATEWAY_SERVICE
-        failure_step = @status_updater.get_failure_step
+        failure_step = status_updater.get_failure_step
 
         # ex. 'api.form526.lighthouse_document_upload_processing_status.bdd_instructions.failed.claims_evidence'
         StatsD.increment("#{@statsd_document_base_key}.#{STATSD_DOCUMENT_FAILED_KEY}.#{failure_step.downcase}")

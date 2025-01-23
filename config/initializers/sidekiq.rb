@@ -8,6 +8,7 @@ require 'sidekiq/semantic_logging'
 require 'sidekiq/set_request_id'
 require 'sidekiq/set_request_attributes'
 require 'datadog/statsd' # gem 'dogstatsd-ruby'
+require 'admin/redis_health_checker'
 
 Rails.application.reloader.to_prepare do
   Sidekiq::Enterprise.unique! if Rails.env.production?
@@ -64,4 +65,5 @@ Rails.application.reloader.to_prepare do
   end
 
   Sidekiq.strict_args!(false)
+  RedisHealthChecker.sidekiq_redis_up if Settings.vsp_environment != 'production'
 end

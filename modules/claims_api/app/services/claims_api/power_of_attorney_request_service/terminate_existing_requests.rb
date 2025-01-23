@@ -38,9 +38,14 @@ module ClaimsApi
       end
 
       def set_to_obsolete(request)
-        ClaimsApi::ManageRepresentativeService
-          .new(external_uid: @veteran_participant_id, external_key: @veteran_participant_id)
-          .update_poa_request(representative: request[:representative], proc_id: request[:proc_id])
+        manage_representative_service.update_poa_request(representative: request[:representative],
+                                                         proc_id: request[:proc_id])
+      end
+
+      def manage_representative_service
+        @manage_representative_service ||= ClaimsApi::ManageRepresentativeService
+                                           .new(external_uid: @veteran_participant_id,
+                                                external_key: @veteran_participant_id)
       end
     end
   end

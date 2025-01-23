@@ -13,7 +13,7 @@ module TravelClaim
     end
 
     def initialize
-      @settings = Settings.check_in.travel_reimbursement_api
+      @settings = Settings.check_in.travel_reimbursement_api_v2
     end
 
     def token

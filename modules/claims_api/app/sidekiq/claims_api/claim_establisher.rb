@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'claims_api/common/exceptions/lighthouse/backend_service_exception'
 require 'evss/disability_compensation_form/service_exception'
 require 'evss/disability_compensation_form/service'
 require 'evss_service/base'
@@ -9,7 +10,7 @@ module ClaimsApi
     def perform(auto_claim_id) # rubocop:disable Metrics/MethodLength
       auto_claim = ClaimsApi::AutoEstablishedClaim.find(auto_claim_id)
 
-      orig_form_data = auto_claim.form_data
+      orig_form_data = preserve_original_form_data(auto_claim.form_data)
       form_data = auto_claim.to_internal
       auth_headers = auto_claim.auth_headers
 
@@ -42,20 +43,22 @@ module ClaimsApi
 
       queue_flash_updater(auto_claim.flashes, auto_claim_id)
       queue_special_issues_updater(auto_claim.special_issues, auto_claim)
-    rescue ::Common::Exceptions::BackendServiceException => e
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = get_error_message(e)
-      auto_claim.form_data = orig_form_data
-      auto_claim.save
+    rescue ::ClaimsApi::Common::Exceptions::Lighthouse::BackendServiceException,
+           ::Common::Exceptions::BackendServiceException => e
+      handle_exception(auto_claim:, orig_form_data:, e:)
     rescue => e
-      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
-      auto_claim.evss_response = get_error_message(e)
-      auto_claim.form_data = orig_form_data
-      auto_claim.save
+      handle_exception(auto_claim:, orig_form_data:, e:)
       raise e
     end
 
     private
+
+    def handle_exception(auto_claim:, orig_form_data:, e:)
+      auto_claim.status = ClaimsApi::AutoEstablishedClaim::ERRORED
+      auto_claim.evss_response = get_errors(e)
+      auto_claim.form_data = orig_form_data
+      auto_claim.save
+    end
 
     def veteran_from_headers(auth_headers)
       vet = ClaimsApi::Veteran.new(
@@ -103,6 +106,10 @@ module ClaimsApi
       else
         EVSS::DisabilityCompensationForm::Service.new(auth_headers)
       end
+    end
+
+    def get_errors(error)
+      error&.errors if error.methods.include?(:errors)
     end
   end
 end

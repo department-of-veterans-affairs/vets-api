@@ -4,7 +4,7 @@ require 'rails_helper'
 
 RSpec.describe AccreditedOrganization, type: :model do
   describe 'validations' do
-    subject { build(:accredited_organization) }
+    subject { build(:accredited_organization, poa_code: 'A12') }
 
     it { is_expected.to have_many(:accredited_individuals).through(:accreditations) }
 

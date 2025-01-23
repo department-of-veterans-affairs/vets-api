@@ -98,7 +98,13 @@ http_interactions:
                           "endProductCode":"020",
                           "evidenceWaiverSubmitted5103":false,
                           "lighthouseId":null,
-                          "status":"EVIDENCE_GATHERING_REVIEW_DECISION"
+                          "status":"EVIDENCE_GATHERING_REVIEW_DECISION",
+                          "trackedItems":[
+                            {
+                              "displayName": "PMR Pending",
+                              "status": "NEEDED_FROM_YOU"
+                            }
+                          ]
                        }
                     },
                     {

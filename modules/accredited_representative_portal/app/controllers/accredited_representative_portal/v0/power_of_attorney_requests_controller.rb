@@ -3,80 +3,65 @@
 module AccreditedRepresentativePortal
   module V0
     class PowerOfAttorneyRequestsController < ApplicationController
-      before_action :verify_pilot_enabled_for_user
-
-      def accept
-        id = params[:id]
-        result = update_poa_request(id, 'Accepted')
-
-        if result[:success]
-          render json: { message: 'Accepted' }, status: :ok
-        else
-          render json: { error: result[:error] }, status: :unprocessable_entity
-        end
+      module Statuses
+        ALL = [
+          PENDING = 'pending',
+          COMPLETED = 'completed'
+        ].freeze
       end
 
-      def decline
-        id = params[:id]
-        result = update_poa_request(id, 'Declined')
+      include PowerOfAttorneyRequests
 
-        if result[:success]
-          render json: { message: 'Declined' }, status: :ok
-        else
-          render json: { error: result[:error] }, status: :unprocessable_entity
+      before_action do
+        authorize PowerOfAttorneyRequest
+      end
+
+      with_options only: :show do
+        before_action do
+          id = params[:id]
+          find_poa_request(id)
         end
       end
 
       def index
-        poa_codes = permitted_params[:poa_codes]&.split(',') || []
+        rel = poa_request_scope
+        status = params[:status].presence
 
-        return render json: { error: 'POA codes are required' }, status: :bad_request if poa_codes.blank?
+        rel =
+          case status
+          when Statuses::PENDING
+            rel.unresolved
+          when Statuses::COMPLETED
+            rel.resolved
+          when NilClass
+            rel
+          else
+            # Throw 400 for unexpected, non-blank statuses
+            raise ActionController::BadRequest, <<~MSG.squish
+              Invalid status parameter.
+              Must be one of (#{Statuses::ALL.join(', ')})
+            MSG
+          end
 
-        poa_requests = AccreditedRepresentativePortal::Services::FetchPoaRequests.new(poa_codes).call
+        poa_requests = rel.includes(scope_includes).limit(100)
+        serializer = PowerOfAttorneyRequestSerializer.new(poa_requests)
+        render json: serializer.serializable_hash, status: :ok
+      end
 
-        render json: { records: poa_requests['records'], records_count: poa_requests['meta']['totalRecords'].to_i },
-               status: :ok
+      def show
+        serializer = PowerOfAttorneyRequestSerializer.new(@poa_request)
+        render json: serializer.serializable_hash, status: :ok
       end
 
       private
 
-      def permitted_params
-        params.permit(:poa_codes)
-      end
-
-      # TODO: This class is slated for update to use the Lighthouse API once the appropriate endpoint
-      # is available. For more information on the transition plan, refer to:
-      # https://app.zenhub.com/workspaces/accredited-representative-facing-team-65453a97a9cc36069a2ad1d6/issues/gh/department-of-veterans-affairs/va.gov-team/80195
-      def update_poa_request(id, action)
-        # TODO: Update the below to use the RepresentativeUser's profile data
-        # representative = {
-        #   first_name: 'John',
-        #   last_name: 'Doe'
-        # }
-
-        # Simulating the interaction with an external service to update POA.
-        # In real implementation, this method will make an actual API call.
-        # service_response = ClaimsApi::ManageRepresentativeService.new.update_poa_request(
-        #   representative:,
-        #   id:
-        # )
-
-        if %w[Accepted Declined].include?(action)
-          {
-            success: true,
-            response: {
-              id:,
-              action:,
-              responseStatus: 'updated',
-              acceptedOrDeclinedAt: Time.current.iso8601,
-              status: action == 'Accepted' ? 'obsolete' : 'cancelled'
-            }
-          }
-        else
-          { success: false, error: 'Invalid action' }
-        end
-      rescue => e
-        { success: false, error: e.message }
+      def scope_includes
+        [
+          :power_of_attorney_form,
+          :power_of_attorney_holder,
+          :accredited_individual,
+          { resolution: :resolving }
+        ]
       end
     end
   end

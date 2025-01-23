@@ -33,6 +33,7 @@ class SourceAppMiddleware
     10206-pa
     10207-pp
     10210-lay-witness-statement
+    10-7959f-1-FMP
     1990-edu-benefits
     1990e-edu-benefits
     1990ez-edu-benefits
@@ -50,10 +51,12 @@ class SourceAppMiddleware
     5490-edu-benefits
     5495-edu-benefits
     686C-674
+    686C-674-v2
     995-supplemental-claim
     appeals-testing
+    appoint-a-representative
     ask-a-question
-    ask-va-too
+    ask-va
     auth
     avs
     burial-poc-v6
@@ -72,6 +75,7 @@ class SourceAppMiddleware
     dependents-view-dependents
     dhp-consent-flow
     discharge-upgrade-instructions
+    discover-your-benefits
     ds-playground
     ds-v3-playground
     education-letters
@@ -80,6 +84,7 @@ class SourceAppMiddleware
     facilities
     feedback-tool
     find-a-representative
+    fmp-cover-sheet
     fry-dea
     gi
     hca
@@ -122,6 +127,8 @@ class SourceAppMiddleware
     search-representative
     secure-messaging
     secure-messaging-pilot
+    sign-in-changes
+    survivor-dependent-education-benefit-22-5490
     static-pages
     submitted-appeal
     terms-of-use

@@ -53,7 +53,7 @@ class EVSSClaimService
   # upload file to s3 and enqueue job to upload to EVSS, used by Claim Status Tool
   # EVSS::DocumentsService is where the uploading of documents actually happens
   def upload_document(evss_claim_document)
-    uploader = EVSSClaimDocumentUploader.new(@user.uuid, evss_claim_document.uploader_ids)
+    uploader = EVSSClaimDocumentUploader.new(@user.user_account_uuid, evss_claim_document.uploader_ids)
     uploader.store!(evss_claim_document.file_obj)
 
     # the uploader sanitizes the filename before storing, so set our doc to match
@@ -63,7 +63,8 @@ class EVSSClaimService
     headers = auth_headers.clone
     headers_supplemented = supplement_auth_headers(evss_claim_document.evss_claim_id, headers)
 
-    job_id = EVSS::DocumentUpload.perform_async(headers, @user.uuid, evss_claim_document.to_serializable_hash)
+    job_id = EVSS::DocumentUpload.perform_async(headers, @user.user_account_uuid,
+                                                evss_claim_document.to_serializable_hash)
 
     record_workaround('document_upload', evss_claim_document.evss_claim_id, job_id) if headers_supplemented
 

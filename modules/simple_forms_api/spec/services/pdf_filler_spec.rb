@@ -5,8 +5,21 @@ require SimpleFormsApi::Engine.root.join('spec', 'spec_helper.rb')
 
 describe SimpleFormsApi::PdfFiller do
   forms = %w[
-    vba_26_4555 vba_26_4555-min vba_21_4138 vba_21_4138-min vba_21_4142 vba_21_4142-min vba_21_10210 vba_21_10210-min
-    vba_21p_0847 vba_21p_0847-min vba_21_0972 vba_21_0972-min vba_21_0966 vba_21_0966-min vba_40_0247 vba_40_0247
+    vba_21_0966
+    vba_21_0966-min
+    vba_21_0972
+    vba_21_0972-min
+    vba_21_10210
+    vba_21_10210-min
+    vba_21_4138
+    vba_21_4138-min
+    vba_21_4142
+    vba_21_4142-min
+    vba_21p_0847
+    vba_21p_0847-min
+    vba_26_4555
+    vba_26_4555-min
+    vba_40_0247
     vba_40_0247-min
   ]
 
@@ -36,12 +49,14 @@ describe SimpleFormsApi::PdfFiller do
     forms.each do |file_name|
       context "when mapping the pdf data given JSON file: #{file_name}" do
         let(:form_number) { file_name.gsub('-min', '') }
-        let(:expected_pdf_path) { Rails.root.join("tmp/#{name}-tmp.pdf") }
-        let(:expected_stamped_path) { Rails.root.join("tmp/#{name}-stamped.pdf") }
+        let(:pseudorandom_value) { 'abc123' }
+        let(:expected_pdf_path) { Rails.root.join("tmp/#{name}-#{pseudorandom_value}-tmp.pdf") }
+        let(:expected_stamped_path) { Rails.root.join("tmp/#{name}-#{pseudorandom_value}-stamped.pdf") }
         let(:data) { JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{file_name}.json")) }
         let(:form) { "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data) }
         let(:name) { SecureRandom.hex }
 
+        before { allow(SecureRandom).to receive(:hex).and_return(pseudorandom_value) }
         after { FileUtils.rm_f(expected_pdf_path) }
 
         context 'when a legitimate JSON payload is provided' do
@@ -74,8 +89,12 @@ describe SimpleFormsApi::PdfFiller do
     end
 
     def read_form_mapping(form_number)
-      test_file = File.read("modules/simple_forms_api/app/form_mappings/#{form_number}.json.erb")
-      JSON.parse(test_file)
+      form_name = form_number.gsub('-min', '')
+      data = JSON.parse(File.read("modules/simple_forms_api/spec/fixtures/form_json/#{form_name}.json"))
+      form = "SimpleFormsApi::#{form_number.titleize.gsub(' ', '')}".constantize.new(data) # Used in ERB binding
+      erb_content = File.read("modules/simple_forms_api/app/form_mappings/#{form_number}.json.erb")
+      rendered_erb = ERB.new(erb_content).result(binding) # Rendering as ERB strips out comments
+      JSON.parse(rendered_erb)
     end
   end
 end

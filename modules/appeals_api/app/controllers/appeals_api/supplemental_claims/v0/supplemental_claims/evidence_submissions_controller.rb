@@ -77,7 +77,7 @@ module AppealsApi::SupplementalClaims::V0::SupplementalClaims
     end
 
     def token_validation_api_key
-      Settings.dig(:modules_appeals_api, :token_validation, :supplemental_claims, :api_key)
+      Settings.modules_appeals_api.token_validation.supplemental_claims.api_key
     end
   end
 end

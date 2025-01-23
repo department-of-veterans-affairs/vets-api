@@ -2,7 +2,7 @@
 http_interactions:
   - request:
       method: get
-      uri: "<MHV_MR_HOST>/mhvapi/v1/bluebutton/radiology/phrList/15176498"
+      uri: "<MHV_MR_HOST>/mhvapi/v1/bluebutton/radiology/phrList/11382904"
       body:
         encoding: US-ASCII
         string: ""

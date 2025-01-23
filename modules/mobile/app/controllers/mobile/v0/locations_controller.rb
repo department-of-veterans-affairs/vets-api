@@ -10,8 +10,7 @@ module Mobile
         end
 
         id = lh_location[:identifier].first[:value].split('_').second
-        v1_facilities_flag = Flipper.enabled?(:mobile_v1_lighthouse_facilities, @current_user)
-        facility = Mobile::FacilitiesHelper.get_facilities([id], v1_facilities_flag)
+        facility = Mobile::FacilitiesHelper.get_facilities([id])
         raise Common::Exceptions::BackendServiceException, 'LIGHTHOUSE_FACILITIES404' if facility.first.nil?
 
         parsed_result = locations_adapter.parse(facility.first, params[:id])

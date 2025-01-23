@@ -33,4 +33,22 @@ class SavedClaim::EducationCareerCounselingClaim < CentralMailClaim
   def business_line
     'EDU'
   end
+
+  # this failure email is not the ideal way to handle the Notification Emails as
+  # part of the ZSF work, but with the initial timeline it handles the email as intended.
+  # Future work will be integrating into the Va Notify common lib:
+  # https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/veteran_facing_services/notification_email.rb
+  def send_failure_email(email)
+    if email.present?
+      VANotify::EmailJob.perform_async(
+        email,
+        Settings.vanotify.services.va_gov.template_id.form27_8832_action_needed_email,
+        {
+          'first_name' => parsed_form.dig('claimantInformation', 'fullName', 'first')&.upcase.presence,
+          'date_submitted' => Time.zone.today.strftime('%B %d, %Y'),
+          'confirmation_number' => confirmation_number
+        }
+      )
+    end
+  end
 end

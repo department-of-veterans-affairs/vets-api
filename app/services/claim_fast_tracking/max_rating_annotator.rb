@@ -4,21 +4,20 @@ require 'virtual_regional_office/client'
 
 module ClaimFastTracking
   class MaxRatingAnnotator
-    SELECT_DISABILITIES = [ClaimFastTracking::DiagnosticCodes::TINNITUS].freeze
+    EXCLUDED_DIGESTIVE_CODES = [7318, 7319, 7327, 7336, 7346].freeze
 
-    def self.annotate_disabilities(rated_disabilities_response)
+    def self.annotate_disabilities(rated_disabilities_response, user)
       return if rated_disabilities_response.rated_disabilities.blank?
 
       log_hyphenated_diagnostic_codes(rated_disabilities_response.rated_disabilities)
 
       diagnostic_codes = rated_disabilities_response.rated_disabilities
                                                     .compact # filter out nil entries in rated_disabilities
+                                                    .select { |rd| eligible_for_request?(rd) } # select only eligible
                                                     .map(&:diagnostic_code) # map to diagnostic_code field in rating
-                                                    .select { |dc| dc.is_a?(Integer) } # select only integer values
-                                                    .select { |dc| eligible_for_request?(dc) } # select only eligible
       return rated_disabilities_response if diagnostic_codes.empty?
 
-      ratings = get_ratings(diagnostic_codes)
+      ratings = get_ratings(diagnostic_codes, user)
       return rated_disabilities_response unless ratings
 
       ratings_hash = ratings.to_h { |rating| [rating['diagnostic_code'], rating['max_rating']] }
@@ -31,10 +30,12 @@ module ClaimFastTracking
 
     def self.log_hyphenated_diagnostic_codes(rated_disabilities)
       rated_disabilities.each do |dis|
-        Rails.logger.info('Max CFI rated disability',
-                          diagnostic_code: dis&.diagnostic_code,
-                          diagnostic_code_type: diagnostic_code_type(dis),
-                          hyphenated_diagnostic_code: dis&.hyphenated_diagnostic_code)
+        StatsD.increment('api.max_cfi.rated_disability',
+                         tags: [
+                           "diagnostic_code:#{dis&.diagnostic_code}",
+                           "diagnostic_code_type:#{diagnostic_code_type(dis)}",
+                           "hyphenated_diagnostic_code:#{dis&.hyphenated_diagnostic_code}"
+                         ])
       end
     end
 
@@ -55,19 +56,25 @@ module ClaimFastTracking
       end
     end
 
-    def self.get_ratings(diagnostic_codes)
-      vro_client = VirtualRegionalOffice::Client.new
-      response = vro_client.get_max_rating_for_diagnostic_codes(diagnostic_codes)
-      response.body['ratings']
+    def self.get_ratings(diagnostic_codes, user)
+      if Flipper.enabled?(:disability_526_max_cfi_service_switch, user)
+        Rails.logger.info('New Max Ratings service triggered by feature flag, but implementation is pending')
+        # TODO: Handle the new logic for max ratings when switching to the new service
+      else
+        vro_client = VirtualRegionalOffice::Client.new
+        response = vro_client.get_max_rating_for_diagnostic_codes(diagnostic_codes)
+        response.body['ratings']
+      end
     rescue Common::Client::Errors::ClientError => e
       Rails.logger.error "Get Max Ratings Failed  #{e.message}.", backtrace: e.backtrace
       nil
     end
 
-    def self.eligible_for_request?(dc)
-      Flipper.enabled?(:disability_526_maximum_rating_api_all_conditions) || SELECT_DISABILITIES.include?(dc)
+    def self.eligible_for_request?(rated_disability)
+      %i[infectious_disease missing_diagnostic_code].exclude?(diagnostic_code_type(rated_disability)) &&
+        EXCLUDED_DIGESTIVE_CODES.exclude?(rated_disability.diagnostic_code)
     end
 
-    private_class_method :get_ratings, :eligible_for_request?
+    private_class_method :get_ratings
   end
 end

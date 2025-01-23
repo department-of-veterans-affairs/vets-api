@@ -3,6 +3,13 @@
 require 'rails_helper'
 require 'search_typeahead/service'
 
+# Re-recording VCR Cassettes
+# 1. Replace TEST_KEY (`before` block) with Settings.search_typeahead.api_key from Staging
+# 2. Delete exsiting cassette file
+# 3. Re-run spec
+# 4. **IMPORTANT** Replace the API Key with `TEST_KEY` in newly recorded cassettes
+#    and `before` block. DON'T PUSH API KEY - (You shouldn't see a diff in either place)
+
 describe SearchTypeahead::Service do
   subject { described_class.new(query) }
 

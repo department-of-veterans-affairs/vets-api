@@ -64,7 +64,7 @@ module AskVAApi
 
           context 'CRM response with a 400' do
             it 'raise an error' do
-              expect { subject }.to raise_error(AttachmentsUploaderError, 'Data Validation: No Inquiries found')
+              expect { subject }.to raise_error(AttachmentsUploaderError)
             end
           end
 

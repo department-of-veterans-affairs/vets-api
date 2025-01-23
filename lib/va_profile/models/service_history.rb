@@ -8,9 +8,9 @@ module VAProfile
     class ServiceHistory < Base
       include VAProfile::Concerns::Defaultable
 
-      MILITARY_SERVICE           = 'Military Service'
-      MILITARY_SERVICE_EPISODE   = 'military_service_episodes'
-      ACADEMY_ATTENDANCE         = 'Academy Attendance'
+      MILITARY_SERVICE = 'Military Service'
+      MILITARY_SERVICE_EPISODE = 'military_service_episodes'
+      ACADEMY_ATTENDANCE = 'Academy Attendance'
       ACADEMY_ATTENDANCE_EPISODE = 'service_academy_episodes'
 
       attribute :service_type, String
@@ -79,6 +79,30 @@ module VAProfile
           begin_date: episode['academy_begin_date'],
           end_date: episode['academy_end_date']
         )
+      end
+
+      def self.determine_eligibility(episodes)
+        problem_message = [
+          'We’re sorry. There’s a problem with your discharge status records. We can’t provide a Veteran status ' \
+          'card for you right now.',
+          'To fix the problem with your records, call the Defense Manpower Data Center at 800-538-9552 (TTY: 711).' \
+          ' They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
+        ]
+        not_eligible_message = [
+          'Our records show that you’re not eligible for a Veteran status card. To get a Veteran status card, you ' \
+          'must have received an honorable discharge for at least one period of service.',
+          'If you think your discharge status is incorrect, call the Defense Manpower Data Center at 800-538-9552 ' \
+          '(TTY: 711). They’re open Monday through Friday, 8:00 a.m. to 8:00 p.m. ET.'
+        ]
+
+        return { confirmed: false, message: problem_message } if episodes.empty?
+
+        codes = episodes.map(&:character_of_discharge_code).uniq.compact
+        return { confirmed: true, message: [] } if codes.intersect?(%w[A B H J]) # Honorable discharge
+        # Not honorable discharge
+        return { confirmed: false, message: not_eligible_message } if codes.intersect?(%w[D E F K]) || codes.empty?
+
+        { confirmed: false, message: problem_message } # No service history OR unknown (Z) discharge
       end
     end
   end

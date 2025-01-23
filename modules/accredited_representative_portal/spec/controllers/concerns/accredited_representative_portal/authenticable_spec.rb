@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
-require 'rails_helper'
-require_relative '../../../support/authentication'
+require_relative '../../../rails_helper'
 
 RSpec.describe AccreditedRepresentativePortal::Authenticable do
   controller(AccreditedRepresentativePortal::ApplicationController) do
+    skip_after_action :verify_pundit_authorization
+
     def index
       head :ok
     end

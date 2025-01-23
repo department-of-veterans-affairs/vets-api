@@ -15,6 +15,13 @@ RSpec.describe Form526SubmissionRemediation, type: :model do
   end
 
   describe 'validations' do
+    context 'remediation_type validation' do
+      it 'defines an enum for remediation type' do
+        enum_values = %i[manual ignored_as_duplicate email_notified]
+        expect(define_enum_for(:remediation_type).with_values(enum_values)).to be_truthy
+      end
+    end
+
     context 'lifecycle validation' do
       it 'is invalid without context on create' do
         expect(subject).not_to be_valid
@@ -32,14 +39,14 @@ RSpec.describe Form526SubmissionRemediation, type: :model do
         subject.mark_as_unsuccessful(remediate_context)
       end
 
-      it 'is invalid if ignored_as_duplicate is true and success is false' do
-        subject.ignored_as_duplicate = true
+      it 'is invalid if remediation_type is ignored_as_duplicate and success is false' do
+        subject.remediation_type = :ignored_as_duplicate
         subject.success = false
         expect(subject).not_to be_valid
       end
 
       it 'is valid if ignored_as_duplicate is true and success is true' do
-        subject.ignored_as_duplicate = true
+        subject.remediation_type = :ignored_as_duplicate
         subject.success = true
         expect(subject).to be_valid
       end

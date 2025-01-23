@@ -2,8 +2,9 @@
 
 class EVSS::RequestDecision
   include Sidekiq::Job
-
-  sidekiq_options retry: 14
+  # retry for  2d 1h 47m 12s
+  # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+  sidekiq_options retry: 16
 
   def perform(auth_headers, evss_id)
     client = EVSS::ClaimsService.new(auth_headers)

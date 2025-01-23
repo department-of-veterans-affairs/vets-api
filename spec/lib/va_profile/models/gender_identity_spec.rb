@@ -3,7 +3,9 @@
 require 'rails_helper'
 require 'va_profile/models/gender_identity'
 
-describe VAProfile::Models::GenderIdentity do
+describe VAProfile::Models::GenderIdentity, feature: :personal_info,
+                                            team_owner: :vfs_authenticated_experience_backend,
+                                            type: :model do
   let(:model) { VAProfile::Models::GenderIdentity.new(code: 'F', name: 'Woman') }
 
   context 'is valid' do

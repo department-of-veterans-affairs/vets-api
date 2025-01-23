@@ -1,3 +1,4 @@
+# NOTE: This table was dropped in the migration `DropAccreditedRepresentativePortalPilotRepresentatives`
 class CreateAccreditedRepresentativePortalPilotRepresentatives < ActiveRecord::Migration[7.1]
   def change
     create_table :accredited_representative_portal_pilot_representatives do |t|

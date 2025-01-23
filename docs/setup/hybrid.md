@@ -1,8 +1,10 @@
 # Developer Setup
 
-In hybrid mode, you will run vets-api natively, but run Postgres and Redis in Docker. By doing so you avoid any challenges of installing these two software packages and keeping them upgraded to the appropriate version.
+In hybrid mode, you'll run vets-api natively, but run Postgres and Redis in Docker. By doing so, you avoid the challenges of installing these two software packages and having to keep them upgraded to the appropriate version.
 
 ## Base Setup
+
+Follow these steps, or alternatively use [binstubs](binstubs.md).
 
 1. Install Docker as referenced in the [Docker setup instructions](docker.md).
 
@@ -28,13 +30,13 @@ redis:
 ## Running Deps
 
 1. To start Postgres and Redis: run `docker-compose -f docker-compose-deps.yml up` in one terminal window.
-2. In another terminal window, start `vets-api` as per the [native running instructions](running_natively.md). 
+2. In another terminal window, start `vets-api` as per the [native running instructions](running_natively.md).
   * Run `bin/setup` first to create the needed database tables.
 3. Confirm the API is successfully running by seeing if you can visit [the local Flipper page.](http://localhost:3000/flipper/features)
 
 ### Mock ClamAV
 
-If you wish to mock ClamAV, please set the clamav mock setting to true in settings.local.yml. This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/common/virus_scan.rb#L14-L23). 
+If you wish to mock ClamAV, please set the clamav mock setting to true in settings.local.yml. This will mock the clamav response in the [virus_scan code](https://github.com/department-of-veterans-affairs/vets-api/blob/master/lib/common/virus_scan.rb#L14-L23).
 
 ```
 clamav:

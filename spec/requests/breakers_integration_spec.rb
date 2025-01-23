@@ -4,7 +4,7 @@ require 'rails_helper'
 require 'support/rx_client_helpers'
 
 # TODO: possibly refactor this spec to be generic, not dependent on PrescriptionsController
-RSpec.describe 'breakers', type: :request do
+RSpec.describe 'Breakers Integration', type: :request do
   include Rx::ClientHelpers
 
   let(:active_rxs) { File.read('spec/fixtures/json/get_active_rxs.json') }

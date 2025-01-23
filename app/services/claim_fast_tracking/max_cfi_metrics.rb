@@ -54,13 +54,6 @@ module ClaimFastTracking
       log_exception_to_sentry(e)
     end
 
-    def flipper_enabled_state
-      @flipper_enabled_state ||= begin
-        user = User.find(form.user_uuid)
-        Flipper.enabled?(:disability_526_maximum_rating, user) ? 'on' : 'off'
-      end
-    end
-
     def claiming_increase?
       form_data&.dig('view:claim_type', 'view:claiming_increase') ||
         form_data&.dig('view:claimType', 'view:claimingIncrease')
@@ -82,22 +75,21 @@ module ClaimFastTracking
       max_rated_disabilities.map { |dis| dis['diagnosticCode'] || dis['diagnostic_code'] }
     end
 
-    def diagnostic_codes_for_logging_metrics
-      ClaimFastTracking::DiagnosticCodesForMetrics::DC.intersection(max_rated_disabilities_diagnostic_codes)
-    end
-
     private
 
     def log_init_metric
-      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{flipper_enabled_state}.526_started")
-      diagnostic_codes_for_logging_metrics.each do |dc|
-        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{flipper_enabled_state}.526_started.#{dc}")
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.on_526_started",
+                       tags: ["has_max_rated:#{max_rated_disabilities.any?}"])
+      max_rated_disabilities_diagnostic_codes.each do |dc|
+        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.526_started", tags: ["diagnostic_code:#{dc}"])
       end
     end
 
     def log_cfi_metric
-      diagnostic_codes_for_logging_metrics.each do |dc|
-        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.#{flipper_enabled_state}.rated_disabilities.#{dc}")
+      StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.on_rated_disabilities",
+                       tags: ["has_max_rated:#{max_rated_disabilities.any?}"])
+      max_rated_disabilities_diagnostic_codes.each do |dc|
+        StatsD.increment("#{MAX_CFI_STATSD_KEY_PREFIX}.rated_disabilities", tags: ["diagnostic_code:#{dc}"])
       end
     end
   end

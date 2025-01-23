@@ -3,6 +3,11 @@
 class LogService
   attr_reader :elapsed_time, :result, :span
 
+  def initialize(tracer: Datadog::Tracing, logger: Rails.logger)
+    @tracer = tracer
+    @logger = logger
+  end
+
   def call(action, tags: {}, &block)
     return if Rails.env.production?
 
@@ -16,7 +21,7 @@ class LogService
   private
 
   def trace_and_annotate_action(action, tags)
-    Datadog::Tracing.trace(action) do |s|
+    @tracer.trace(action) do |s|
       @span = s
       yield
       set_tags_and_metrics(action, tags)
@@ -33,12 +38,11 @@ class LogService
   end
 
   def log_timing_metric(action)
-    Rails.logger.info("Timing for #{action}: #{(elapsed_time * 1000).to_i}ms")
+    @logger.info("Timing for #{action}: #{(elapsed_time * 1000).to_i}ms")
   end
 
   def handle_logging_error(action, error)
-    Sentry.capture_exception(error, extra: { action: })
-    Rails.logger.error("Error logging action #{action}: #{error.message}")
+    @logger.error("Error logging action #{action}: #{error.message}")
     span&.set_tag('error', true)
     span&.set_tag('error.msg', error.message)
     nil

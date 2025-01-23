@@ -192,6 +192,7 @@ module DebtsApi
           :'view:streamlined_waiver',
           :'view:streamlined_waiver_asset_update',
           :'view:review_page_navigation_toggle',
+          :'view:show_updated_expense_pages',
           questions: %i[
             has_repayments has_credit_card_bills has_recreational_vehicle
             has_vehicle has_real_estate spouse_has_benefits is_married
@@ -262,6 +263,22 @@ module DebtsApi
           personal_identification: %i[ssn file_number],
           selected_debts_and_copays: [
             :id,
+            :resolution_waiver_check,
+            :resolution_option,
+            :resolution_comment,
+            :payee_number,
+            :person_entitled,
+            :deduction_code,
+            :benefit_type,
+            :diary_code,
+            :diary_code_description,
+            :amount_overpaid,
+            :amount_withheld,
+            :original_ar,
+            :current_ar,
+            :composite_debt_id,
+            :selected_debt_id,
+            :debt_type,
             :p_s_seq_num,
             :p_s_tot_seq_num,
             :p_s_facility_num,
@@ -303,7 +320,6 @@ module DebtsApi
             :p_h_icn_number,
             :p_h_account_number,
             :p_h_large_font_indcator,
-            :debt_type,
             { details: [] },
             { station: {} }
           ],
@@ -314,11 +330,12 @@ module DebtsApi
             ]
           ],
           expenses: [
-            expense_records: %i[name amount],
-            credit_card_bills: %i[
-              purpose creditor_name original_amount unpaid_balance
-              amount_due_monthly date_started amount_past_due
-            ]
+            :monthly_housing_expenses,
+            { expense_records: %i[name amount],
+              credit_card_bills: %i[
+                purpose creditor_name original_amount unpaid_balance
+                amount_due_monthly date_started amount_past_due
+              ] }
           ],
           utility_records: %i[name amount],
           other_expenses: %i[name amount],
@@ -345,7 +362,20 @@ module DebtsApi
       end
 
       def full_transform_service
+        StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.full_transform.run")
+        Rails.logger.info(full_transform_logging('info'))
         DebtsApi::V0::FsrFormTransform::FullTransformService.new(full_transform_form)
+      rescue => e
+        StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.full_transform.error")
+        Rails.logger.error(full_transform_logging('error'))
+        Rails.logger.error(e.backtrace&.join('\n'))
+
+        raise e
+      end
+
+      def full_transform_logging(type)
+        "DebtsApi::V0::FsrFormTransform::FullTransformService #{type}: " \
+          "form ID #{params[:submission_id]} - UUID #{current_user.uuid}"
       end
     end
   end

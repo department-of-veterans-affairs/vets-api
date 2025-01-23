@@ -1,3 +1,4 @@
+```mermaid
 graph
     direction RL
 
@@ -127,3 +128,4 @@ graph
             DownloadTimsRetry -->|Retries Exhausted| IngressTimsFail
         end
     end
+```

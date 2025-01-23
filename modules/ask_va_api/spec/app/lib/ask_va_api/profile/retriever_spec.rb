@@ -5,7 +5,7 @@ require 'rails_helper'
 RSpec.describe AskVAApi::Profile::Retriever do
   subject(:retriever) { described_class.new(icn:, user_mock_data: true) }
 
-  let(:icn) { I18n.t('ask_va_api.test_users.test_user_228_icn') }
+  let(:icn) { I18n.t('ask_va_api.test_users.test_user_229_icn') }
   let(:service) { instance_double(Crm::Service) }
   let(:endpoint) { AskVAApi::Profile::ENDPOINT }
   let(:valid_response) do

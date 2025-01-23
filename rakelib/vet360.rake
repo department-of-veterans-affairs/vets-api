@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'va_profile/contact_information/service'
+require 'va_profile/v2/contact_information/service'
 require 'va_profile/exceptions/builder'
 require 'va_profile/models/email'
 require 'va_profile/models/telephone'
@@ -19,9 +20,7 @@ namespace :vet360 do
   task :get_person, [:vet360_id] => [:environment] do |_, args|
     ensure_arg(:vet360_id, args)
     trx = VAProfile::ContactInformation::Service.new(user_struct(args[:vet360_id])).get_person
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 email transaction status'
@@ -31,9 +30,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_email_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 address transaction status'
@@ -43,9 +40,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_address_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 telephone transaction status'
@@ -55,9 +50,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_telephone_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc 'GET Vet360 permission transaction status'
@@ -67,9 +60,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(args[:vet360_id]))
           .get_permission_transaction_status(args[:tx_audit_id])
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   ## PUTs
@@ -96,9 +87,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_email(email)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Update Vet360 telephone (from #{ENV_VAR_NAME})"
@@ -122,9 +111,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_telephone(telephone)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Update Vet360 address (from #{ENV_VAR_NAME})"
@@ -150,9 +137,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_address(address)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Update Vet360 permission (from #{ENV_VAR_NAME})"
@@ -175,9 +160,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .put_permission(permission)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   ## POSTs
@@ -203,9 +186,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_email(email)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Create Vet360 telephone (from #{ENV_VAR_NAME})"
@@ -231,9 +212,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_telephone(telephone)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Create Vet360 address (from #{ENV_VAR_NAME})"
@@ -257,9 +236,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_address(address)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc "Create Vet360 permission (from #{ENV_VAR_NAME})"
@@ -282,9 +259,7 @@ namespace :vet360 do
     trx = VAProfile::ContactInformation::Service
           .new(user_struct(vet360_id))
           .post_permission(permission)
-    # rubocop:disable Lint/Debugger
     pp trx.to_h
-    # rubocop:enable Lint/Debugger
   end
 
   desc <<~DESCRIPTION

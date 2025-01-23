@@ -19,6 +19,8 @@
 	"applicantGender": "F",
   	"dateOfBirth": "1970-01-01",
 	"changeAnotherBenefit": "Yes",
-	"benefitAppliedFor": "chapter30",
+	"benefitUpdate": "chapter30",
+	"benefitAppliedFor": "chapter35",
+	"rudisillReview": "No",
 	"email": "test@sample.com",
 	"bankAccount": {}}

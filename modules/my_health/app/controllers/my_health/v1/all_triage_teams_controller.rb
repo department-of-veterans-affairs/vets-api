@@ -4,7 +4,8 @@ module MyHealth
   module V1
     class AllTriageTeamsController < SMController
       def index
-        resource = client.get_all_triage_teams(@current_user.uuid, use_cache?)
+        requires_oh = params[:requires_oh].try(:to_s)
+        resource = client.get_all_triage_teams(@current_user.uuid, use_cache?, requires_oh)
         if resource.blank?
           raise Common::Exceptions::RecordNotFound,
                 "Triage teams for user ID #{@current_user.uuid} not found"

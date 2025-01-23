@@ -9,7 +9,7 @@ module Common
     end
 
     def run
-      in_file = Common::FileHelpers.generate_temp_file(@file.read)
+      in_file = Common::FileHelpers.generate_clamav_temp_file(@file.read)
       return in_file if @file.content_type == Mime[:pdf].to_s
 
       unless @file.content_type.starts_with?('image/')

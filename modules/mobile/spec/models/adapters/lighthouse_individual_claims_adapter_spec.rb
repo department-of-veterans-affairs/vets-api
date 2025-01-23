@@ -20,12 +20,13 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
   end
 
   it 'returns nil when provided nil' do
-    expect(subject.parse(nil)).to eq(nil)
+    expect(subject.parse(nil)).to be_nil
   end
 
   it 'returns expected other documents in events_timeline field' do
     other_documents_list = under_review_claim[:events_timeline].select { |event| event[:type] == :other_documents_list }
     expect(other_documents_list.size).to eq(13)
+    expect(other_documents_list.map(&:document_id)).to include('{7AF4C5E0-EBCE-49B2-9544-999ECA2904FD}')
   end
 
   it 'returns expected filed event in events_timeline field' do
@@ -68,12 +69,14 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
                                                    file_type: 'Civilian Police Reports',
                                                    document_type: nil,
                                                    filename: '7B434B58-477C-4379-816F-05E6D3A10487.pdf',
-                                                   upload_date: '2023-03-01' }],
+                                                   upload_date: '2023-03-01',
+                                                   document_id: '{883B6CC8-D726-4911-9C65-2EB360E12F52}' }],
                                      upload_date: '2023-03-01',
                                      date: Date.new(2023, 3, 1),
                                      file_type: nil,
                                      document_type: nil,
-                                     filename: nil })
+                                     filename: nil,
+                                     document_id: nil })
   end
 
   context 'with claim in phase CLAIM_RECEIVED' do
@@ -83,14 +86,14 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
 
     it 'returns expected fields' do
       expect(claim_received_claim[:phase]).to eq(1)
-      expect(claim_received_claim[:open]).to eq(true)
+      expect(claim_received_claim[:open]).to be(true)
     end
   end
 
   context 'with claim in phase UNDER_REVIEW' do
     it 'returns expected fields' do
       expect(under_review_claim[:phase]).to eq(2)
-      expect(under_review_claim[:open]).to eq(true)
+      expect(under_review_claim[:open]).to be(true)
       expect(under_review_claim[:contention_list]).to eq(['Post Traumatic Stress Disorder (PTSD) ' \
                                                           'Combat - Mental Disorders (New)'])
     end
@@ -99,7 +102,7 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
   context 'with claim in phase GATHERING_OF_EVIDENCE' do
     it 'returns expected fields' do
       expect(gathering_of_evidence_claim[:phase]).to eq(3)
-      expect(gathering_of_evidence_claim[:open]).to eq(true)
+      expect(gathering_of_evidence_claim[:open]).to be(true)
     end
   end
 
@@ -110,7 +113,7 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
 
     it 'returns expected fields' do
       expect(review_of_evidence_claim[:phase]).to eq(4)
-      expect(review_of_evidence_claim[:open]).to eq(true)
+      expect(review_of_evidence_claim[:open]).to be(true)
     end
   end
 
@@ -121,7 +124,7 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
 
     it 'returns expected fields' do
       expect(preparation_for_decision_claim[:phase]).to eq(5)
-      expect(preparation_for_decision_claim[:open]).to eq(true)
+      expect(preparation_for_decision_claim[:open]).to be(true)
     end
   end
 
@@ -132,7 +135,7 @@ describe Mobile::V0::Adapters::LighthouseIndividualClaims, :aggregate_failures d
 
     it 'returns expected fields' do
       expect(complete_claim[:phase]).to eq(8)
-      expect(complete_claim[:open]).to eq(false)
+      expect(complete_claim[:open]).to be(false)
       expect(complete_claim[:contention_list]).to eq(['Abdominal pain, etiology unknown (New)',
                                                       'Post Traumatic Stress Disorder (PTSD) ' \
                                                       'Combat - Mental Disorders (New)'])

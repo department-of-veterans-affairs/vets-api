@@ -1,15 +1,7 @@
 # frozen_string_literal: true
 
 module SimpleFormsApi
-  class VBA400247
-    include Virtus.model(nullify_blank: true)
-
-    attribute :data
-
-    def initialize(data)
-      @data = data
-    end
-
+  class VBA400247 < BaseForm
     def metadata
       {
         'veteranFirstName' => @data.dig('veteran_full_name', 'first'),
@@ -55,22 +47,34 @@ module SimpleFormsApi
 
     def handle_attachments(file_path)
       attachments = get_attachments
-      if attachments.count.positive?
-        combined_pdf = CombinePDF.new
-        combined_pdf << CombinePDF.load(file_path)
-        attachments.each do |attachment|
-          combined_pdf << CombinePDF.load(attachment)
-        end
+      merged_pdf = HexaPDF::Document.open(file_path)
 
-        combined_pdf.save file_path
+      if attachments.count.positive?
+        attachments.each do |attachment|
+          attachment_pdf = HexaPDF::Document.open(attachment)
+          attachment_pdf.pages.each do |page|
+            merged_pdf.pages << merged_pdf.import(page)
+          end
+        rescue => e
+          Rails.logger.error(
+            'Simple forms api - failed to load attachment for 40-0247',
+            { message: e.message, attachment: attachment.inspect }
+          )
+          raise
+        end
       end
+      merged_pdf.write(file_path, optimize: true)
     end
 
     def words_to_remove
       veteran_ssn_and_file_number + veteran_dates_of_birth_and_death + applicant_zip + applicant_phone
     end
 
-    def submission_date_stamps
+    def desired_stamps
+      []
+    end
+
+    def submission_date_stamps(_timestamp)
       []
     end
 

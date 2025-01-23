@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
 properties:
@@ -6,6 +7,7 @@ properties:
     type: array
     items:
       type: object
+      additionalProperties: false
       required:
         - type
         - id
@@ -20,6 +22,7 @@ properties:
           description: Randomly generated UUID
         attributes:
           type: object
+          additionalProperties: false
           required:
             - awardIndicator
             - dateOfBirth
@@ -34,35 +37,46 @@ properties:
             - veteranIndicator
           properties:
             awardIndicator:
-              type: [string, null]
+              type: string
               example: 'N'
+              nullable: true
             dateOfBirth:
-              type: [string, null]
+              type: string
               example: '01/02/1960'
+              nullable: true
             emailAddress:
-              type: [string, null]
+              type: string
               example: 'emailAddress'
+              nullable: true
             firstName:
-              type: [string, null]
+              type: string
               example: 'JANE'
+              nullable: true
             lastName:
-              type: [string, null]
+              type: string
               example: 'WEBB'
+              nullable: true
             middleName:
-              type: [string, null]
+              type: string
               example: 'M'
+              nullable: true
             proofOfDependency:
-              type: [string, null]
+              type: string
               example: 'N'
+              nullable: true
             ptcpntId:
-              type: [string, null]
+              type: string
               example: '600280661'
+              nullable: true
             relatedToVet:
-              type: [string, null]
+              type: string
               example: 'Y'
+              nullable: true
             relationship:
-              type: [string, null]
+              type: string
               example: 'Spouse'
+              nullable: true
             veteranIndicator:
-              type: [string, null]
+              type: string
               example: 'N'
+              nullable: true

@@ -14,6 +14,9 @@ module Lighthouse
 
     POLLED_BATCH_DOCUMENT_COUNT = 100
     STATSD_KEY_PREFIX = 'worker.lighthouse.poll_form526_document_uploads'
+    STATSD_PENDING_DOCUMENTS_POLLED_KEY = 'pending_documents_polled'
+    STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY = 'pending_documents_marked_completed'
+    STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY = 'pending_documents_marked_failed'
 
     sidekiq_retries_exhausted do |msg, _ex|
       job_id = msg['jid']
@@ -41,31 +44,48 @@ module Lighthouse
     end
 
     def perform
-      Lighthouse526DocumentUpload.pending.status_update_required.in_batches(
+      successful_documents_before_polling = Lighthouse526DocumentUpload.completed.count
+      failed_documents_before_polling = Lighthouse526DocumentUpload.failed.count
+
+      documents_to_poll = Lighthouse526DocumentUpload.pending.status_update_required
+      StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_POLLED_KEY}", documents_to_poll.count)
+
+      documents_to_poll.in_batches(
         of: POLLED_BATCH_DOCUMENT_COUNT
       ) do |document_batch|
         lighthouse_document_request_ids = document_batch.pluck(:lighthouse_document_request_id)
-        response = BenefitsDocuments::Form526::DocumentsStatusPollingService.call(lighthouse_document_request_ids)
 
-        if response.status == 200
-          result = BenefitsDocuments::Form526::UpdateDocumentsStatusService.call(document_batch, response.body)
-
-          if result && !result[:success]
-            response_struct = OpenStruct.new(result[:response])
-
-            handle_error(response_struct, response_struct.unknown_ids.map(&:to_s))
-          end
-        else
-          handle_error(response, lighthouse_document_request_ids)
-        end
+        update_document_batch(document_batch, lighthouse_document_request_ids)
       rescue Faraday::ResourceNotFound => e
         response_struct = OpenStruct.new(e.response)
 
         handle_error(response_struct, lighthouse_document_request_ids)
       end
+
+      documents_marked_success = Lighthouse526DocumentUpload.completed.count - successful_documents_before_polling
+      StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_SUCCESS_KEY}", documents_marked_success)
+
+      documents_marked_failed = Lighthouse526DocumentUpload.failed.count - failed_documents_before_polling
+      StatsD.gauge("#{STATSD_KEY_PREFIX}.#{STATSD_PENDING_DOCUMENTS_MARKED_FAILED_KEY}", documents_marked_failed)
     end
 
     private
+
+    def update_document_batch(document_batch, lighthouse_document_request_ids)
+      response = BenefitsDocuments::Form526::DocumentsStatusPollingService.call(lighthouse_document_request_ids)
+
+      if response.status == 200
+        result = BenefitsDocuments::Form526::UpdateDocumentsStatusService.call(document_batch, response.body)
+
+        if result && !result[:success]
+          response_struct = OpenStruct.new(result[:response])
+
+          handle_error(response_struct, response_struct.unknown_ids.map(&:to_s))
+        end
+      else
+        handle_error(response, lighthouse_document_request_ids)
+      end
+    end
 
     def handle_error(response, lighthouse_document_request_ids)
       StatsD.increment("#{STATSD_KEY_PREFIX}.polling_error")

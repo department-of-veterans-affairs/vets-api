@@ -11,7 +11,6 @@ describe VAProfile::ContactInformation::Service, :skip_vet360 do
 
   before do
     allow(user).to receive_messages(vet360_id:, icn: '1234')
-    Flipper.enable(:contact_info_change_email)
   end
 
   describe '#get_person' do
@@ -36,7 +35,7 @@ describe VAProfile::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
           response = subject.get_person
 
-          expect(response.person.addresses[0].bad_address).to eq(true)
+          expect(response.person.addresses[0].bad_address).to be(true)
         end
       end
     end
@@ -115,7 +114,7 @@ describe VAProfile::ContactInformation::Service, :skip_vet360 do
         VCR.use_cassette('va_profile/contact_information/person_full', VCR::MATCH_EVERYTHING) do
           response = described_class.get_person(vet360_id)
 
-          expect(response.person.addresses[0].bad_address).to eq(true)
+          expect(response.person.addresses[0].bad_address).to be(true)
         end
       end
     end
@@ -452,7 +451,7 @@ describe VAProfile::ContactInformation::Service, :skip_vet360 do
 
             subject.get_email_transaction_status(transaction_id)
 
-            expect(OldEmail.find(transaction_id)).to eq(nil)
+            expect(OldEmail.find(transaction_id)).to be_nil
           end
         end
       end
@@ -599,7 +598,7 @@ describe VAProfile::ContactInformation::Service, :skip_vet360 do
 
               subject.send(:send_contact_change_notification, transaction_status, :email)
 
-              expect(TransactionNotification.find(transaction_id).present?).to eq(true)
+              expect(TransactionNotification.find(transaction_id).present?).to be(true)
             end
           end
         end

@@ -19,7 +19,7 @@ module BGS
       @previous_poa_code ||= @veteran.previous_power_of_attorney.try(:code)
     end
 
-    def verify(user) # rubocop:disable Metrics/MethodLength
+    def verify(user)
       reps = Veteran::Service::Representative.all_for_user(first_name: user.first_name,
                                                            last_name: user.last_name)
       raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?
@@ -28,17 +28,7 @@ module BGS
         if user.middle_name.blank?
           raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results'
         else
-          middle_initial = user.middle_name[0]
-          reps = Veteran::Service::Representative.all_for_user(first_name: user.first_name,
-                                                               last_name: user.last_name,
-                                                               middle_initial:)
-
-          if reps.blank? || reps.count > 1
-            reps = Veteran::Service::Representative.all_for_user(first_name: user.first_name,
-                                                                 last_name: user.last_name,
-                                                                 poa_code: current_poa_code)
-          end
-
+          reps = representatives_with_middle_names_for_user(user)
           raise ::Common::Exceptions::Unauthorized, detail: 'VSO Representative Not Found' if reps.blank?
           raise ::Common::Exceptions::Unauthorized, detail: 'Ambiguous VSO Representative Results' if reps.count > 1
         end
@@ -54,6 +44,22 @@ module BGS
 
     def matches(veteran_poa_code, representative)
       representative.poa_codes.include?(veteran_poa_code)
+    end
+
+    private
+
+    def representatives_with_middle_names_for_user(user)
+      middle_initial = user.middle_name[0]
+      reps = Veteran::Service::Representative.all_for_user(first_name: user.first_name,
+                                                           last_name: user.last_name,
+                                                           middle_initial:)
+
+      if reps.blank? || reps.count > 1
+        reps = Veteran::Service::Representative.all_for_user(first_name: user.first_name,
+                                                             last_name: user.last_name,
+                                                             poa_code: current_poa_code)
+      end
+      reps
     end
   end
 end

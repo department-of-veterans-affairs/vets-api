@@ -86,7 +86,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
         firstName: 'Lillian',
         middleInitial: 'A',
         lastName: 'Disney',
-        email: 'lillian@disney.com',
+        email: 'LILLian@disney.com',
         relationship: 'Spouse',
         address: {
           addressLine1: '2688 S Camino Real',
@@ -134,6 +134,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
           'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
         },
+        'appointmentDate' => power_of_attorney.created_at,
         'text_signatures' => {
           'page2' => [
             {
@@ -172,6 +173,7 @@ describe ClaimsApi::V2::PoaPdfConstructor::Individual do
           'ssn' => power_of_attorney.auth_headers['va_eauth_pnid'],
           'birthdate' => power_of_attorney.auth_headers['va_eauth_birthdate']
         },
+        'appointmentDate' => power_of_attorney.created_at,
         'text_signatures' => {
           'page2' => [
             {

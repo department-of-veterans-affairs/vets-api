@@ -16,7 +16,7 @@ module ClaimsApi
           submit: 'The claim could not be established',
           disabled: 'this claim has been disabled',
           submit_save_draftForm_MaxEPCode: 'The Maximum number of EP codes have been reached for this benefit type claim code', # rubocop:disable Layout/LineLength
-          submit_noRetryError: 'This job is no longer able to be re-tried',
+          submit_noRetryError: 'Claim could not be established. Retries will fail.',
           header_va_eauth_birlsfilenumber_Invalid: 'There is a problem with your birls file number. Please submit an issue at ask.va.gov or call 1-800-MyVA411 (800-698-2411) for assistance.' # rubocop:disable Layout/LineLength
         }.freeze
 

@@ -126,6 +126,10 @@ module AppealsApi
       signing_appellant.zip_code_5 || '00000'
     end
 
+    def veteran_zip_code
+      veteran.zip_code_5 || '00000'
+    end
+
     def consumer_name
       auth_headers['X-Consumer-Username']
     end

@@ -17,7 +17,7 @@ module VANotify
       user_account = UserAccount.find(user_account_id)
 
       InProgressRemindersSent.create!(user_account_id:, form_id: form_name)
-      VANotify::IcnJob.perform_async(user_account.icn, template_id, personalisation)
+      VANotify::UserAccountJob.perform_async(user_account.id, template_id, personalisation)
     end
 
     private

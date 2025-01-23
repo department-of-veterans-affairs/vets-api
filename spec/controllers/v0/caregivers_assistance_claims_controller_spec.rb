@@ -2,6 +2,7 @@
 
 require 'rails_helper'
 require 'saved_claim/caregivers_assistance_claim'
+require 'lighthouse/facilities/v1/client'
 
 RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
   describe '::auditor' do
@@ -94,24 +95,27 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       expect(response.status).to eq(422)
 
       expect(res_body['errors']).to be_present
-      expect(res_body['errors'].size).to eq(2)
+      expect(res_body['errors'].size).to eq(4)
       expect(res_body['errors'][0]['title']).to include(
         "did not contain a required property of 'veteran'"
       )
       expect(res_body['errors'][0]['code']).to eq('100')
       expect(res_body['errors'][0]['status']).to eq('422')
-      expect(res_body['errors'][1]['title'].split("\n")).to eq(
-        [
-          "Form The property '#/' of type object did not match one or more of the required schemas. The schema specific errors were:", # rubocop:disable Layout/LineLength
-          '',
-          '- anyOf #0:',
-          "    - The property '#/' did not contain a required property of 'primaryCaregiver'",
-          '- anyOf #1:',
-          "    - The property '#/' did not contain a required property of 'secondaryCaregiverOne'"
-        ]
+      expect(res_body['errors'][1]['title']).to include(
+        "#/ The property '#/' of type object did not match one or more of the required schemas in schema"
       )
       expect(res_body['errors'][1]['code']).to eq('100')
       expect(res_body['errors'][1]['status']).to eq('422')
+      expect(res_body['errors'][2]['title']).to include(
+        "#/ The property '#/' did not contain a required property of 'primaryCaregiver'"
+      )
+      expect(res_body['errors'][2]['code']).to eq('100')
+      expect(res_body['errors'][2]['status']).to eq('422')
+      expect(res_body['errors'][3]['title']).to include(
+        "#/ The property '#/' did not contain a required property of 'secondaryCaregiverOne'"
+      )
+      expect(res_body['errors'][3]['code']).to eq('100')
+      expect(res_body['errors'][3]['status']).to eq('422')
     end
   end
 
@@ -205,7 +209,7 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
     let(:expected_pdf) { Rails.root.join 'spec', 'fixtures', 'pdf_fill', '10-10CG', 'unsigned', 'simple.pdf' }
 
     after do
-      File.delete(response_pdf) if File.exist?(response_pdf)
+      FileUtils.rm_f(response_pdf)
     end
 
     it_behaves_like '10-10CG request with missing param: caregivers_assistance_claim', :download_pdf
@@ -236,12 +240,12 @@ RSpec.describe V0::CaregiversAssistanceClaimsController, type: :controller do
       # compare it with the pdf fixture
       expect(
         pdfs_fields_match?(response_pdf, expected_pdf)
-      ).to eq(true)
+      ).to be(true)
 
       # ensure that the tmp file was deleted
       expect(
         File.exist?('tmp/pdfs/10-10CG_file-name-uuid.pdf')
-      ).to eq(false)
+      ).to be(false)
     end
   end
 end

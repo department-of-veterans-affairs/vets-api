@@ -16,6 +16,7 @@ describe Identity::Parsers::GCIds do
         {
           icn: nil,
           sec_id: nil,
+          sec_ids: nil,
           mhv_ids: nil,
           mhv_ien: nil,
           mhv_iens: nil,
@@ -47,7 +48,7 @@ describe Identity::Parsers::GCIds do
       let(:ids) { 'banana' }
 
       it 'returns nil' do
-        expect(subject).to eq nil
+        expect(subject).to be_nil
       end
     end
 
@@ -106,6 +107,22 @@ describe Identity::Parsers::GCIds do
         it 'returns a parsed sec id from the input xml object' do
           expect(subject[:sec_id]).to eq id
         end
+
+        context 'and the ids include one or multiple sec id regex matches' do
+          let(:id_object_one) { "#{id}^PN^200PROV^USDVA^A" }
+          let(:id_object_two) { '9988776655^PN^200PROV^USDVA^A' }
+          let(:ids) do
+            [
+              double(attributes: { extension: id_object_one, root: root_oid }),
+              double(attributes: { extension: id_object_two, root: root_oid })
+            ]
+          end
+          let(:expected_sec_ids) { %w[123454321 9988776655] }
+
+          it 'returns parsed sec_ids from the input xml object' do
+            expect(subject[:sec_ids]).to eq(expected_sec_ids)
+          end
+        end
       end
 
       context 'and the format of the ids matches the mhv ids regex' do
@@ -149,7 +166,7 @@ describe Identity::Parsers::GCIds do
 
         context 'and the root input is not equal to the DOD_ROOT_OID constant' do
           it 'returns nil' do
-            expect(subject[:edipi]).to eq nil
+            expect(subject[:edipi]).to be_nil
           end
         end
       end
@@ -240,7 +257,7 @@ describe Identity::Parsers::GCIds do
           let(:status) { 'BANANA' }
 
           it 'returns nil' do
-            expect(subject[:icn_with_aaid]).to eq nil
+            expect(subject[:icn_with_aaid]).to be_nil
           end
         end
       end
@@ -255,7 +272,7 @@ describe Identity::Parsers::GCIds do
       let(:root_oid) { nil }
 
       it 'returns nil' do
-        expect(subject).to eq nil
+        expect(subject).to be_nil
       end
     end
 
@@ -309,7 +326,7 @@ describe Identity::Parsers::GCIds do
 
         context 'and the root input is not equal to the DOD_ROOT_OID constant' do
           it 'returns nil' do
-            expect(subject[:edipi]).to eq nil
+            expect(subject[:edipi]).to be_nil
           end
         end
       end
@@ -392,7 +409,7 @@ describe Identity::Parsers::GCIds do
           let(:status) { 'BANANA' }
 
           it 'returns nil' do
-            expect(subject[:icn_with_aaid]).to eq nil
+            expect(subject[:icn_with_aaid]).to be_nil
           end
         end
       end

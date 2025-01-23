@@ -1,55 +1,109 @@
 {
   "form_number": "10-7959A",
-  "veteran": {
-    "full_name": {
-      "first": "Veteran",
-      "middle": "B",
-      "last": "Surname"
-    },
-    "ssn_or_tin": "222554444",
-    "address": {
-      "country": "USA",
-      "street": "1 First Ln",
-      "city": "Place",
-      "state": "AL",
-      "zip_code": "12345"
-    },
-    "phone_number": "5555555555",
-    "dob": "1980-01-01",
-    "checkifnew": true
+  "certifier_role": "applicant",
+  "primary_contact_info": {
+    "name": { "first": "Beneficiary", "last": "Jones" },
+    "email": false,
+    "phone": "1231231234"
   },
-  "sponsor": {
-    "full_name": {
-      "first": "Sponsor",
-      "middle": "B",
-      "last": "Surname"
+  "applicant_dob": "10-25-2000",
+  "applicant_phone": "215-355-5555",
+  "applicant_address": {
+    "country": "USA",
+    "street": "123 Beneficiary Street",
+    "city": "Citytown",
+    "state": "MD",
+    "postal_code": "12345",
+    "street_combined": "123 Beneficiary Street  "
+  },
+  "applicant_new_address": "",
+  "applicant_member_number": "12345678",
+  "applicant_name": {
+    "first": "GI",
+    "last": "Joe"
+  },
+  "sponsor_name": {
+    "first": "Sponsor",
+    "middle": "Quincy",
+    "last": "Jones",
+    "suffix": "Jr."
+  },
+  "policies": [
+    {
+      "type": "group",
+      "name": "BCBS",
+      "policy_num": "123",
+      "provider_phone": "1231231234"
+    },
+    {
+      "type": "nonGroup",
+      "name": "Cigna",
+      "policy_num": "321",
+      "provider_phone": "1231231235"
     }
-  },
-  "insurance_1": "Insurance 1",
-  "insurance_2": "Insurance 2",
-  "insurance_1_policy": "123456789",
-  "insurance_2_policy": "987654321",
-  "insurance_1_phone": "5555555555",
-  "insurance_2_phone": "5555555555",
-  "WorkRelatedTreat": true,
-  "OutsdWrkAccdnt": true,
-  "RadioButtonList": false,
-  "SpecifyOtherPrimaryHealthInsurance": "Other Primary Health Insurance",
-  "PtntCverage": true,
-  "signatureperson": {
-    "full_name": {
-      "first": "Veteran",
-      "last": "Surname",
-      "middle": "B"
+  ],
+  "claim_is_auto_related": true,
+  "claim_is_work_related": true,
+  "claim_type": "medical",
+  "has_ohi": false,
+  "claims": [
+    {
+      "medical_upload": {
+        "confirmation_code": "e955735c-d433-4c0f-9060-1499a7b8353d",
+        "is_encrypted": false,
+        "name": "file.png",
+        "size": 3530,
+        "claim_id": 0
+      },
+      "claim_is_auto_related": true,
+      "claim_is_work_related": true,
+      "claim_type": "medical",
+      "claim_id": 0
     },
-    "relationshipToApplicant": "Self",
-    "address": {
+    {
+      "medical_upload": {
+        "confirmation_code": "1b39d28c-5d38-4467-808b-9da252b6e95f",
+        "is_encrypted": false,
+        "name": "caia_widget_copy.png",
+        "size": 224266,
+        "claim_id": 1
+      },
+      "claim_is_auto_related": true,
+      "claim_is_work_related": false,
+      "claim_type": "medical",
+      "claim_id": 1
+    }
+  ],
+  "supporting_docs": [
+    {
+      "confirmation_code": "e955735c-d433-4c0f-9060-1499a7b8353d",
+      "is_encrypted": false,
+      "name": "file.png",
+      "size": 3530,
+      "claim_id": 0
+    },
+    {
+      "confirmation_code": "1b39d28c-5d38-4467-808b-9da252b6e95f",
+      "is_encrypted": false,
+      "name": "caia_widget_copy.png",
+      "size": 224266,
+      "claim_id": 1
+    }
+  ],
+  "certifier_relationship": "other",
+  "certifier_name": {
+    "first": "Veteran",
+    "last": "Surname",
+    "middle": "B"
+    },
+    "certifier_address": {
       "country": "USA",
       "street": "1 First Ln",
       "city": "Place",
       "state": "AL",
       "zip_code": "12345"
     },
-    "phone_number": "5555555555"
-  }
+    "certifier_phone": "5555555555",
+    "certification_date": "08-14-2024",
+  "statement_of_truth_signature": "GI Joe"
 }

@@ -3,26 +3,25 @@
 require 'rails_helper'
 
 RSpec.describe AskVAApi::Attachments::Retriever do
-  subject(:retriever) { described_class.new(id: '1') }
+  subject(:retriever) { described_class.new(id: '1', entity_class: entity, user_mock_data: false) }
 
   describe '#call' do
+    let(:entity) { AskVAApi::Attachments::Entity }
     let(:service) { instance_double(Crm::Service) }
-    let(:entity) { instance_double(AskVAApi::Attachments::Entity) }
-
-    before do
-      allow(AskVAApi::Attachments::Entity).to receive(:new).and_return(entity)
-    end
 
     context 'when successful' do
       before do
         allow(Crm::Service).to receive(:new).and_return(service)
         allow(service).to receive(:call)
           .with(endpoint: 'attachment', payload: { id: '1' })
-          .and_return({ Data: double })
+          .and_return({ Data: {
+                        FileContent: 'VUVzFBBQUFBQUFB',
+                        FileName: 'AttachmenttoVA1.docx'
+                      } })
       end
 
       it 'returns an attachment object' do
-        expect(retriever.call).to eq(entity)
+        expect(retriever.call).to be_an(entity)
       end
     end
 

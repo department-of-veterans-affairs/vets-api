@@ -3,14 +3,16 @@
 require 'date'
 require 'concurrent'
 require 'lighthouse/benefits_claims/service'
+require 'datadog_logging'
 
 module V0
   module VirtualAgent
     class VirtualAgentClaimStatusController < ApplicationController
+      include DatadogLogging
       include IgnoreNotFound
       service_tag 'virtual-agent'
       rescue_from 'EVSS::ErrorMiddleware::EVSSError', with: :service_exception_handler
-      unless Settings.vsp_environment.downcase == 'localhost' || Settings.vsp_environment.downcase == 'development'
+      unless %w[localhost development].include?(Settings.vsp_environment.downcase)
         before_action { authorize :lighthouse, :access? }
       end
 
@@ -34,6 +36,14 @@ module V0
         raw_claim_list = lighthouse_service.get_claims['data']
         cxdw_reporting_service = V0::VirtualAgent::ReportToCxdw.new
         conversation_id = params[:conversation_id]
+        if conversation_id.blank?
+          Rails.logger.error(
+            'V0::VirtualAgent::VirtualAgentClaimStatusController#poll_claims_from_lighthouse ' \
+            'conversation_id is missing in parameters'
+          )
+          raise ActionController::ParameterMissing, 'conversation_id'
+        end
+
         begin
           claims = order_claims_lighthouse(raw_claim_list)
           report_or_error(cxdw_reporting_service, conversation_id)
@@ -71,12 +81,14 @@ module V0
       def service_exception_handler(exception)
         context = 'An error occurred while attempting to retrieve the claim(s).'
         log_exception_to_sentry(exception, 'context' => context)
+        log_to_datadog(context, exception.message, exception.backtrace)
         render nothing: true, status: :service_unavailable
       end
 
       def report_exception_handler(exception)
         context = 'An error occurred while attempting to report the claim(s).'
         log_exception_to_sentry(exception, 'context' => context)
+        log_to_datadog(context, exception.message, exception.backtrace)
       end
 
       class ServiceException < RuntimeError; end

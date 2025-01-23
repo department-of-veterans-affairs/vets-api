@@ -37,7 +37,7 @@ RSpec.describe SignIn::SessionRefresher do
                user_verification:,
                client_id:)
       end
-      let(:session_expiration) { (Time.zone.now + 5.minutes).round(3) }
+      let(:session_expiration) { 5.minutes.from_now.round(3) }
       let(:client_id) { client_config.client_id }
       let(:client_config) do
         create(:client_config, anti_csrf:, refresh_token_duration:, access_token_attributes:, enforced_terms:)
@@ -247,6 +247,7 @@ RSpec.describe SignIn::SessionRefresher do
                   expect(container.access_token.parent_refresh_token_hash).to eq(expected_parent_refresh_token_hash)
                   expect(container.access_token.refresh_token_hash).to eq(expected_refresh_token_hash)
                   expect(container.access_token.last_regeneration_time).to eq(expected_last_regeneration_time)
+                  expect(container.access_token.device_secret_hash).to eq(session.hashed_device_secret)
                 end
               end
             end
@@ -269,7 +270,7 @@ RSpec.describe SignIn::SessionRefresher do
         end
 
         context 'and session is expired' do
-          let(:session_expiration) { Time.zone.now - 30.minutes }
+          let(:session_expiration) { 30.minutes.ago }
           let(:expected_error) { SignIn::Errors::SessionNotAuthorizedError }
           let(:expected_error_message) { 'No valid Session found' }
 

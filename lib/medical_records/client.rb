@@ -82,6 +82,11 @@ module MedicalRecords
                                     search: { parameters: { identifier: } },
                                     headers: { 'Cache-Control': 'no-cache' }
                                   })
+
+      # MHV will return a 202 if and only if the patient does not exist. It will not return 202 for
+      # multiple patients found.
+      raise MedicalRecords::PatientNotFound if result.response[:code] == 202
+
       resource = result.resource
       handle_api_errors(result) if resource.nil?
       resource
@@ -108,7 +113,8 @@ module MedicalRecords
       fhir_read(FHIR::Immunization, vaccine_id)
     end
 
-    def list_vitals
+    # Function args are accepted and ignored for compatibility with MedicalRecords::LighthouseClient
+    def list_vitals(*)
       # loinc_codes =
       #   "#{BLOOD_PRESSURE},#{BREATHING_RATE},#{HEART_RATE},#{HEIGHT},#{TEMPERATURE},#{WEIGHT},#{PULSE_OXIMETRY}"
       bundle = fhir_search(FHIR::Observation,

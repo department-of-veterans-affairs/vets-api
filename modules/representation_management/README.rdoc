@@ -8,3 +8,7 @@ Ensure the following line is in the root project's Gemfile:
 
 == License
 This module is open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
+
+== Generate Swagger documentation
+After updating the +rswag+ specs run the following to update the swagger file served by our apidocs controller.
+  RAILS_ENV=test bundle exec rake rswag:representation_management:build

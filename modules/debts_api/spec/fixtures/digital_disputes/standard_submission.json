@@ -1,0 +1,21 @@
+{
+  "contact_information": {
+    "email": "example@place.com",
+    "phone_number": "555-555-5555",
+    "address_line1": "123 Main St",
+    "address_line2": "Apt 1",
+    "city": "Anytown"
+  },
+  "debt_information": [
+    {
+      "debt": "$227.42 Overpayment for Post-9/11 GI Bill debt for housing",
+      "dispute_reason": "I don't think I owe this debt to VA",
+      "support_statement": "I never had a Post-9/11 GI Bill. I'd like to have it canceled"
+    },
+    {
+      "debt": "$300.00 for Disability Compensation and Pension debt",
+      "dispute_reason": "The amount of this debt",
+      "support_statement": "This is the incorrect amount, it should only be $250"
+    }
+  ]
+}

@@ -20,7 +20,6 @@ module MPI
                      idme_uuid: nil,
                      logingov_uuid: nil,
                      edipi: nil)
-
         @first_name = first_name
         @last_name = last_name
         @ssn = ssn
@@ -46,9 +45,7 @@ module MPI
 
       def validate_required_fields
         missing_values = []
-        missing_values << :first_name if first_name.blank?
         missing_values << :last_name if last_name.blank?
-        missing_values << :ssn if ssn.blank?
         missing_values << :email if email.blank?
         missing_values << :birth_date if birth_date.blank?
         missing_values << :icn if icn.blank?
@@ -105,7 +102,9 @@ module MPI
         end
         element << RequestHelper.build_identifier(identifier:, root: identifier_root)
         element << RequestHelper.build_telecom(type: email_type, value: email)
-        element << RequestHelper.build_patient_identifier(identifier: ssn, root: ssn_root, class_code: ssn_class_code)
+        if ssn.present?
+          element << RequestHelper.build_patient_identifier(identifier: ssn, root: ssn_root, class_code: ssn_class_code)
+        end
         element << RequestHelper.build_patient_identifier(identifier:,
                                                           root: identifier_root,
                                                           class_code: identifier_class_code)

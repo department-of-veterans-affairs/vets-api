@@ -77,7 +77,7 @@ module AppealsApi::NoticeOfDisagreements::V0::NoticeOfDisagreements
     end
 
     def token_validation_api_key
-      Settings.dig(:modules_appeals_api, :token_validation, :notice_of_disagreements, :api_key)
+      Settings.modules_appeals_api.token_validation.notice_of_disagreements.api_key
     end
   end
 end

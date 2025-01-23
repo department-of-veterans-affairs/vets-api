@@ -9,18 +9,18 @@ FactoryBot.define do
     marital_status { 'Married' }
     military_service_number { '123456789' }
     place_of_birth { 'Brooklyn, NY' }
-    ssn { '123-45-6789' }
+    ssn { '123456789' }
     va_claim_number { '23456789' }
     military_status { 'A' }
     race { attributes_for(:race) }
 
-    current_name { attributes_for :full_name }
-    service_name { attributes_for :full_name }
-    address { attributes_for :address }
+    current_name { attributes_for(:full_name) }
+    service_name { attributes_for(:full_name) }
+    address { attributes_for(:address) }
     service_records { [attributes_for(:service_record)] }
   end
 
   factory :veteran_foreign_address, parent: :veteran do
-    address { attributes_for :foreign_address }
+    address { attributes_for(:foreign_address) }
   end
 end

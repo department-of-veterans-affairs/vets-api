@@ -103,6 +103,120 @@ RSpec.describe Lighthouse526DocumentUpload do
             upload = create(:lighthouse526_document_upload, error_message: nil)
             expect { upload.fail! }.to raise_error(AASM::InvalidTransition)
           end
+
+          context 'when disability_compensation_email_veteran_on_polled_lighthouse_doc_failure flipper is enabled' do
+            before do
+              Flipper.enable(:disability_compensation_email_veteran_on_polled_lighthouse_doc_failure)
+            end
+
+            context 'when the upload was a piece of veteran-supplied evidence' do
+              let(:lighthouse526_document_upload) do
+                create(
+                  :lighthouse526_document_upload,
+                  document_type: Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE,
+                  lighthouse_processing_ended_at: DateTime.now,
+                  error_message: { status: 'Something broke' }.to_json
+                )
+              end
+
+              it 'enqueues a Form526DocumentUploadFailureEmail' do
+                expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail).to receive(:perform_async)
+                lighthouse526_document_upload.fail!
+              end
+            end
+
+            context 'when the upload was a Form 0781' do
+              let(:lighthouse526_document_upload) do
+                create(
+                  :lighthouse526_document_upload,
+                  document_type: Lighthouse526DocumentUpload::FORM_0781_DOCUMENT_TYPE,
+                  lighthouse_processing_ended_at: DateTime.now,
+                  error_message: { status: 'Something broke' }.to_json
+                )
+              end
+
+              it 'enqueues a Form0781DocumentUploadFailureEmail' do
+                expect(EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail).to receive(:perform_async)
+                lighthouse526_document_upload.fail!
+              end
+            end
+
+            context 'when the upload was a Form 0781a' do
+              let(:lighthouse526_document_upload) do
+                create(
+                  :lighthouse526_document_upload,
+                  document_type: Lighthouse526DocumentUpload::FORM_0781A_DOCUMENT_TYPE,
+                  lighthouse_processing_ended_at: DateTime.now,
+                  error_message: { status: 'Something broke' }.to_json
+                )
+              end
+
+              it 'enqueues a Form0781DocumentUploadFailureEmail' do
+                expect(EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail).to receive(:perform_async)
+                lighthouse526_document_upload.fail!
+              end
+            end
+          end
+
+          context 'when disability_compensation_email_veteran_on_polled_lighthouse_doc_failure flipper is disabled' do
+            before do
+              Flipper.disable(:disability_compensation_email_veteran_on_polled_lighthouse_doc_failure)
+            end
+
+            context 'when the upload was a piece of veteran-supplied evidence' do
+              let(:lighthouse526_document_upload) do
+                create(
+                  :lighthouse526_document_upload,
+                  document_type: Lighthouse526DocumentUpload::VETERAN_UPLOAD_DOCUMENT_TYPE,
+                  lighthouse_processing_ended_at: DateTime.now,
+                  error_message: { status: 'Something broke' }.to_json
+                )
+              end
+
+              it 'enqueues a Form526DocumentUploadFailureEmail' do
+                expect(EVSS::DisabilityCompensationForm::Form526DocumentUploadFailureEmail)
+                  .not_to receive(:perform_async)
+
+                lighthouse526_document_upload.fail!
+              end
+            end
+
+            context 'when the upload was a Form 0781' do
+              let(:lighthouse526_document_upload) do
+                create(
+                  :lighthouse526_document_upload,
+                  document_type: Lighthouse526DocumentUpload::FORM_0781_DOCUMENT_TYPE,
+                  lighthouse_processing_ended_at: DateTime.now,
+                  error_message: { status: 'Something broke' }.to_json
+                )
+              end
+
+              it 'enqueues a Form0781DocumentUploadFailureEmail' do
+                expect(EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail)
+                  .not_to receive(:perform_async)
+
+                lighthouse526_document_upload.fail!
+              end
+            end
+
+            context 'when the upload was a Form 0781a' do
+              let(:lighthouse526_document_upload) do
+                create(
+                  :lighthouse526_document_upload,
+                  document_type: Lighthouse526DocumentUpload::FORM_0781A_DOCUMENT_TYPE,
+                  lighthouse_processing_ended_at: DateTime.now,
+                  error_message: { status: 'Something broke' }.to_json
+                )
+              end
+
+              it 'enqueues a Form0781DocumentUploadFailureEmail' do
+                expect(EVSS::DisabilityCompensationForm::Form0781DocumentUploadFailureEmail)
+                  .not_to receive(:perform_async)
+
+                lighthouse526_document_upload.fail!
+              end
+            end
+          end
         end
       end
     end

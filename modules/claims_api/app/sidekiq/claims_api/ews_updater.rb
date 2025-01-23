@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'bgs'
-require 'bgs_service/benefit_claim_service'
+require 'bgs_service/benefit_claim_web_service'
 
 module ClaimsApi
   class EwsUpdater < ClaimsApi::ServiceBase
@@ -11,7 +11,7 @@ module ClaimsApi
 
     def perform(ews_id)
       ews = ClaimsApi::EvidenceWaiverSubmission.find(ews_id)
-      bgs_claim = benefit_claim_service(ews).find_bnft_claim(claim_id: ews.claim_id)
+      bgs_claim = benefit_claim_web_service(ews).find_bnft_claim(claim_id: ews.claim_id)
 
       if bgs_claim&.dig(:bnft_claim_dto).blank?
         ews.status = ClaimsApi::EvidenceWaiverSubmission::ERRORED
@@ -28,13 +28,13 @@ module ClaimsApi
 
     private
 
-    def benefit_claim_service(ews)
-      @bms ||= ClaimsApi::BenefitClaimService.new(external_uid: ews.auth_headers['va_eauth_pnid'],
-                                                  external_key: ews.auth_headers['va_eauth_pnid'])
+    def benefit_claim_web_service(ews)
+      @bms ||= ClaimsApi::BenefitClaimWebService.new(external_uid: ews.auth_headers['va_eauth_pnid'],
+                                                     external_key: ews.auth_headers['va_eauth_pnid'])
     end
 
     def update_bgs_claim(ews, bgs_claim)
-      response = bgs_service(ews).benefit_claims.update_bnft_claim(claim: bgs_claim)
+      response = get_response(ews, bgs_claim)
       if response[:bnft_claim_dto].nil?
         ews.status = ClaimsApi::EvidenceWaiverSubmission::ERRORED
         ews.bgs_error_message = "BGS Error: update_record failed with code #{response[:return_code]}"
@@ -46,6 +46,14 @@ module ClaimsApi
         ClaimsApi::Logger.log('ews_updater', ews_id: ews.id, claim_id: ews.claim_id,
                                              detail: 'Waiver update Success')
         ews.status = ClaimsApi::EvidenceWaiverSubmission::UPDATED
+      end
+    end
+
+    def get_response(ews, bgs_claim)
+      if Flipper.enabled? :claims_api_ews_updater_enables_local_bgs
+        benefit_claim_web_service(ews).update_bnft_claim(claim: bgs_claim)
+      else
+        bgs_service(ews).benefit_claims.update_bnft_claim(claim: bgs_claim)
       end
     end
 

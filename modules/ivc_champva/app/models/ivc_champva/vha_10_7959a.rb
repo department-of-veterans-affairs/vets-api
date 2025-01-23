@@ -2,6 +2,8 @@
 
 module IvcChampva
   class VHA107959a
+    ADDITIONAL_PDF_KEY = 'claims'
+    ADDITIONAL_PDF_COUNT = 1
     STATS_KEY = 'api.ivc_champva_form.10_7959a'
 
     include Virtus.model(nullify_blank: true)
@@ -26,10 +28,26 @@ module IvcChampva
         'businessLine' => 'CMP',
         'ssn_or_tin' => @data['applicant_member_number'],
         'member_number' => @data['applicant_member_number'],
+        'fileNumber' => @data['applicant_member_number'],
         'country' => @data.dig('applicant_address', 'country') || 'USA',
         'uuid' => @uuid,
         'primaryContactInfo' => @data['primary_contact_info']
       }
+    end
+
+    def desired_stamps
+      [{ coords: [250, 105], text: data['statement_of_truth_signature'], page: 0 }]
+    end
+
+    def submission_date_stamps
+      [
+        {
+          coords: [300, 105],
+          text: Time.current.in_time_zone('UTC').strftime('%H:%M %Z %D'),
+          page: 1,
+          font_size: 12
+        }
+      ]
     end
 
     def track_user_identity
@@ -44,12 +62,12 @@ module IvcChampva
       Rails.logger.info('IVC ChampVA Forms - 10-7959A Email Used', email_used:)
     end
 
-    # rubocop:disable Naming/BlockForwarding,Style/HashSyntax
+    # rubocop:disable Naming/BlockForwarding
     def method_missing(method_name, *args, &block)
       super unless respond_to_missing?(method_name)
       { method: method_name, args: args }
     end
-    # rubocop:enable Naming/BlockForwarding,Style/HashSyntax
+    # rubocop:enable Naming/BlockForwarding
 
     def respond_to_missing?(_method_name, _include_private = false)
       true

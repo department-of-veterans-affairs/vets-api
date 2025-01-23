@@ -34,6 +34,7 @@ class User < Common::RedisStore
   attribute :fingerprint, String
   attribute :needs_accepted_terms_of_use, Boolean
   attribute :credential_lock, Boolean
+  attribute :session_handle, String
 
   def account
     @account ||= Identity::AccountCreator.new(self).call
@@ -45,6 +46,10 @@ class User < Common::RedisStore
 
   def account_id
     @account_id ||= account&.id
+  end
+
+  def initial_sign_in
+    user_account.created_at
   end
 
   def credential_lock
@@ -60,7 +65,7 @@ class User < Common::RedisStore
   end
 
   def user_verification
-    @user_verification ||= get_user_verification
+    @user_verification ||= UserVerification.find_by(id: user_verification_id)
   end
 
   def user_account
@@ -68,7 +73,7 @@ class User < Common::RedisStore
   end
 
   def user_verification_id
-    @user_verification_id ||= user_verification&.id
+    @user_verification_id ||= get_user_verification&.id
   end
 
   def user_account_uuid
@@ -93,6 +98,7 @@ class User < Common::RedisStore
   delegate :idme_uuid, to: :identity, allow_nil: true
   delegate :loa3?, to: :identity, allow_nil: true
   delegate :logingov_uuid, to: :identity, allow_nil: true
+  delegate :mhv_credential_uuid, to: :identity, allow_nil: true
   delegate :mhv_icn, to: :identity, allow_nil: true
   delegate :multifactor, to: :identity, allow_nil: true
   delegate :sign_in, to: :identity, allow_nil: true, prefix: true
@@ -126,6 +132,10 @@ class User < Common::RedisStore
     }
   end
 
+  def preferred_name
+    preferred_name_mpi
+  end
+
   def gender
     identity.gender.presence || gender_mpi
   end
@@ -143,7 +153,17 @@ class User < Common::RedisStore
   end
 
   def mhv_correlation_id
-    identity.mhv_correlation_id || mpi_mhv_correlation_id
+    return unless can_create_mhv_account?
+    return mhv_user_account.id if mhv_user_account.present?
+
+    mpi_mhv_correlation_id if active_mhv_ids&.one?
+  end
+
+  def mhv_user_account
+    @mhv_user_account ||= MHV::UserAccount::Creator.new(user_verification:, from_cache_only: true).perform
+  rescue => e
+    log_mhv_user_account_error(e.message)
+    nil
   end
 
   def middle_name
@@ -216,6 +236,10 @@ class User < Common::RedisStore
 
   def first_name_mpi
     given_names&.first
+  end
+
+  def preferred_name_mpi
+    mpi_profile&.preferred_names&.first
   end
 
   def middle_name_mpi
@@ -292,8 +316,15 @@ class User < Common::RedisStore
 
   # Other MPI
 
+  def validate_mpi_profile
+    return unless mpi_profile?
+
+    raise MPI::Errors::AccountLockedError, 'Death Flag Detected' if mpi_profile.deceased_date
+    raise MPI::Errors::AccountLockedError, 'Theft Flag Detected' if mpi_profile.id_theft_flag
+  end
+
   def invalidate_mpi_cache
-    return unless mpi.mpi_response_is_cached?
+    return unless loa3? && mpi.mpi_response_is_cached? && mpi.mvi_response
 
     mpi.destroy
     @mpi = nil
@@ -315,7 +346,7 @@ class User < Common::RedisStore
 
   # True if the user has 1 or more treatment facilities, false otherwise
   def va_patient?
-    va_treatment_facility_ids.length.positive?
+    va_treatment_facility_ids.any?
   end
 
   # User's profile contains a list of VHA facility-specific identifiers.
@@ -381,11 +412,25 @@ class User < Common::RedisStore
   def vet360_contact_info
     return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && vet360_id.present?
 
-    @vet360_contact_info ||= VAProfileRedis::ContactInformation.for_user(self)
+    @vet360_contact_info ||= if Flipper.enabled?(:remove_pciu, self)
+                               VAProfileRedis::V2::ContactInformation.for_user(self)
+                             else
+                               VAProfileRedis::ContactInformation.for_user(self)
+                             end
   end
 
   def va_profile_email
     vet360_contact_info&.email&.email_address
+  end
+
+  def vaprofile_contact_info
+    return nil unless VAProfile::Configuration::SETTINGS.contact_information.enabled && icn.present?
+
+    @vaprofile_contact_info ||= VAProfileRedis::V2::ContactInformation.for_user(self)
+  end
+
+  def va_profile_v2_email
+    vaprofile_contact_info&.email&.email_address
   end
 
   def all_emails
@@ -397,7 +442,7 @@ class User < Common::RedisStore
       end
 
     [the_va_profile_email, email]
-      .reject(&:blank?)
+      .compact_blank
       .map(&:downcase)
       .uniq
   end
@@ -415,7 +460,7 @@ class User < Common::RedisStore
   # @return [Boolean]
   #
   def served_in_military?
-    edipi.present? && veteran? || military_person?
+    (edipi.present? && veteran?) || military_person?
   end
 
   def power_of_attorney
@@ -428,6 +473,16 @@ class User < Common::RedisStore
 
   def relationships
     @relationships ||= get_relationships_array
+  end
+
+  def create_mhv_account_async
+    return unless can_create_mhv_account?
+
+    MHV::AccountCreatorJob.perform_async(user_verification_id)
+  end
+
+  def can_create_mhv_account?
+    loa3? && !needs_accepted_terms_of_use
   end
 
   private
@@ -448,7 +503,7 @@ class User < Common::RedisStore
   def get_user_verification
     case identity_sign_in&.dig(:service_name)
     when SAML::User::MHV_ORIGINAL_CSID
-      return UserVerification.find_by(mhv_uuid: mhv_correlation_id) if mhv_correlation_id
+      return UserVerification.find_by(mhv_uuid: mhv_credential_uuid) if mhv_credential_uuid
     when SAML::User::DSLOGON_CSID
       return UserVerification.find_by(dslogon_uuid: identity.edipi) if identity.edipi
     when SAML::User::LOGINGOV_CSID
@@ -480,5 +535,9 @@ class User < Common::RedisStore
 
   def pciu
     @pciu ||= EVSS::PCIU::Service.new self if loa3? && edipi.present?
+  end
+
+  def log_mhv_user_account_error(error_message)
+    Rails.logger.info('[User] mhv_user_account error', error_message:, icn:)
   end
 end

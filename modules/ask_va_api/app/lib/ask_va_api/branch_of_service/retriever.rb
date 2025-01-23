@@ -5,10 +5,10 @@ require 'brd/brd'
 module AskVAApi
   module BranchOfService
     class Retriever < BaseRetriever
-      attr_reader :brd, :entity_class
+      attr_reader :brd
 
-      def initialize(user_mock_data:, entity_class:)
-        super(user_mock_data:, entity_class:)
+      def initialize(**args)
+        super(**args)
         @brd = ClaimsApi::BRD.new
       end
 

@@ -58,10 +58,17 @@ module Mobile
         end
 
         def build_record(type, params)
-          "VAProfile::Models::#{type.capitalize}"
-            .constantize
-            .new(params)
-            .set_defaults(@user)
+          if type == :address && Flipper.enabled?(:mobile_v2_contact_info, @user)
+            'VAProfile::Models::V3::Address'
+              .constantize
+              .new(params)
+              .set_defaults(@user)
+          else
+            "VAProfile::Models::#{type.capitalize}"
+              .constantize
+              .new(params)
+              .set_defaults(@user)
+          end
         end
 
         def poll_with_backoff

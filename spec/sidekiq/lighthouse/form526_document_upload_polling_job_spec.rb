@@ -16,6 +16,7 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
     # To generate the above credentials refer to this tutorial:
     # https://developer.va.gov/explore/api/benefits-documents/client-credentials
     allow_any_instance_of(BenefitsDocuments::Configuration).to receive(:access_token).and_return('abcd1234')
+    allow(Flipper).to receive(:enabled?).and_call_original
   end
 
   describe '#perform' do
@@ -118,7 +119,8 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
       let(:error_response) { Faraday::Response.new(response_body: error_body, status: 400) }
 
       before do
-        allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(error_response)
+        allow(BenefitsDocuments::Form526::DocumentsStatusPollingService)
+          .to receive(:call).and_return(error_response)
       end
 
       it 'increments a StatsD counter and logs error' do
@@ -169,7 +171,8 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
 
       before do
         # Verifies correct info is being passed to both services
-        allow(BenefitsDocuments::Form526::DocumentsStatusPollingService).to receive(:call).and_return(faraday_response)
+        allow(BenefitsDocuments::Form526::DocumentsStatusPollingService)
+          .to receive(:call).and_return(faraday_response)
         allow(BenefitsDocuments::Form526::UpdateDocumentsStatusService)
           .to receive(:call).and_return(success: true, response: { status: 200 })
       end
@@ -191,7 +194,8 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
         it 'does not poll for recently polled documents' do
           recently_polled_document = create(:lighthouse526_document_upload,
                                             status_last_polled_at: polling_time - 42.minutes)
-          expect(polling_service).not_to receive(:call).with([recently_polled_document.lighthouse_document_request_id])
+          expect(polling_service).not_to receive(:call)
+            .with([recently_polled_document.lighthouse_document_request_id])
           described_class.new.perform
         end
       end
@@ -201,7 +205,8 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
           [
             create(:lighthouse526_document_upload, aasm_state: 'completed',
                                                    status_last_polled_at: polling_time - 2.hours),
-            create(:lighthouse526_document_upload, aasm_state: 'failed', status_last_polled_at: polling_time - 2.hours)
+            create(:lighthouse526_document_upload, aasm_state: 'failed',
+                                                   status_last_polled_at: polling_time - 2.hours)
           ]
         end
 
@@ -210,6 +215,96 @@ RSpec.describe Lighthouse::Form526DocumentUploadPollingJob, type: :job do
             expect(polling_service).not_to receive(:call).with([doc.lighthouse_document_request_id])
           end
           described_class.new.perform
+        end
+      end
+    end
+
+    describe 'Document Polling Logging' do
+      context 'for pending documents' do
+        let!(:pending_polling_documents) { create_list(:lighthouse526_document_upload, 2, aasm_state: 'pending') }
+        let!(:pending_recently_polled_document) do
+          create(
+            :lighthouse526_document_upload,
+            aasm_state: 'pending',
+            status_last_polled_at: polling_time - 45.minutes
+          )
+        end
+
+        let(:polling_time) { DateTime.new(1985, 10, 26).utc }
+        let(:faraday_response) do
+          instance_double(
+            Faraday::Response,
+            body: {
+              'data' => {
+                'statuses' => [
+                  {
+                    'requestId' => pending_polling_documents.first.lighthouse_document_request_id,
+                    'time' => {
+                      'startTime' => 1_502_199_000,
+                      'endTime' => 1_502_199_000
+                    },
+                    'status' => 'SUCCESS'
+                  }, {
+                    'requestId' => pending_polling_documents[1].lighthouse_document_request_id,
+                    'time' => {
+                      'startTime' => 1_502_199_000,
+                      'endTime' => 1_502_199_000
+                    },
+                    'status' => 'FAILED',
+                    'error' => {
+                      'detail' => 'Something went wrong',
+                      'step' => 'BENEFITS_GATEWAY_SERVICE'
+                    }
+                  }
+                ],
+                'requestIdsNotFound' => [
+                  0
+                ]
+              }
+            },
+            status: 200
+          )
+        end
+
+        around { |example| Timecop.freeze(polling_time) { example.run } }
+
+        before do
+          allow(BenefitsDocuments::Form526::DocumentsStatusPollingService)
+            .to receive(:call).and_return(faraday_response)
+
+          # StatsD will receive multiple gauge calls in this code flow
+          allow(StatsD).to receive(:gauge)
+        end
+
+        describe 'polled documents metric' do
+          it 'increments a StatsD gauge metric with total documents polled, discluding recently polled documents' do
+            expect(StatsD).to receive(:gauge)
+              .with('worker.lighthouse.poll_form526_document_uploads.pending_documents_polled', 2)
+
+            described_class.new.perform
+          end
+        end
+
+        describe 'completed and failed documents' do
+          let!(:existing_completed_documents) do
+            create_list(:lighthouse526_document_upload, 2, aasm_state: 'completed')
+          end
+
+          let!(:existing_failed_documents) { create_list(:lighthouse526_document_upload, 2, aasm_state: 'failed') }
+
+          it 'increments a StatsD gauge metric with the total number of documents marked complete' do
+            # Should only count documents newly counted success
+            expect(StatsD).to receive(:gauge)
+              .with('worker.lighthouse.poll_form526_document_uploads.pending_documents_marked_completed', 1)
+            described_class.new.perform
+          end
+
+          it 'increments a StatsD gauge metric with the total number of documents marked failed' do
+            # Should only count documents newly counted failed
+            expect(StatsD).to receive(:gauge)
+              .with('worker.lighthouse.poll_form526_document_uploads.pending_documents_marked_failed', 1)
+            described_class.new.perform
+          end
         end
       end
     end

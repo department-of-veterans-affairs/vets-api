@@ -11,12 +11,13 @@
   "veteran": {
     "date_of_birth": "1987-02-02",
     "date_of_marriage": "2005-04-06",
-    "is_deceased": true,
+    "sponsor_is_deceased": true,
     "date_of_death": "2021-01-08",
     "is_active_service_death": true,
     "address": {
       "country": "USA",
       "street": "1 First Ln",
+      "street_combined": "1 First Ln",
       "city": "Place",
       "state": "AL",
       "postal_code": "12345"
@@ -32,114 +33,135 @@
   },
   "applicants": [
     {
-      "address": {
+      "applicant_address": {
         "country": "USA",
         "street": "2 Second St",
+        "street_combined": "2 Second St",
         "city": "Town",
         "state": "LA",
         "postal_code": "16542"
       },
-      "full_name": {
+      "applicant_name": {
         "first": "Applicant",
         "middle": "C",
         "last": "Onceler"
       },
       "ssn_or_tin": "123456644",
-      "gender": "F",
-      "email": "email@address.com",
-      "phone_number": "6543219877",
-      "date_of_birth": "1978-03-04",
-      "is_enrolled_in_medicare": true,
-      "has_other_health_insurance": true,
+      "applicant_gender": { "gender": "F" },
+      "applicant_email_address": "email@address.com",
+      "applicant_phone": "6543219877",
+      "applicant_dob": "1978-03-04",
+      "applicant_medicare_status": { "eligibility": "enrolled" },
+      "applicant_has_ohi": { "has_ohi": "no" },
       "vet_relationship": "Relative - Other"
     },
     {
-      "address": {
+      "applicant_address": {
         "country": "USA",
         "street": "3 Third Ave",
+        "street_combined": "3 Third Ave",
         "city": "Ville",
         "state": "AR",
         "postal_code": "65478"
       },
-      "full_name": {
+      "applicant_name": {
         "first": "Appy",
         "middle": "D",
         "last": "Twos"
       },
       "ssn_or_tin": "123664444",
-      "gender": "M",
-      "email": "mailme@domain.com",
-      "phone_number": "2345698777",
-      "date_of_birth": "1985-03-10",
-      "is_enrolled_in_medicare": true,
-      "has_other_health_insurance": true,
+      "applicant_gender": { "gender": "M" },
+      "applicant_email_address": "mailme@domain.com",
+      "applicant_phone": "2345698777",
+      "applicant_dob": "1985-03-10",
+      "applicant_medicare_status": { "eligibility": "enrolled" },
+      "applicant_has_ohi": { "has_ohi": "yes" },
       "vet_relationship": "Relative - Other"
     },
     {
-      "address": {
+      "applicant_address": {
         "country": "USA",
         "street": "4 Third Ave",
+        "street_combined": "4 Third Ave",
         "city": "Mark",
         "state": "AR",
         "postal_code": "65478"
       },
-      "full_name": {
+      "applicant_name": {
         "first": "Homer",
         "middle": "D",
         "last": "Simpson"
       },
       "ssn_or_tin": "123664444",
-      "gender": "M",
-      "email": "mailme@homer.com",
-      "phone_number": "2345698777",
-      "date_of_birth": "1985-03-10",
-      "is_enrolled_in_medicare": true,
-      "has_other_health_insurance": true,
+      "applicant_gender": { "gender": "M" },
+      "applicant_email_address": "mailme@homer.com",
+      "applicant_phone": "2345698777",
+      "applicant_dob": "1985-03-10",
+      "applicant_medicare_status": { "eligibility": "enrolled" },
+      "applicant_has_ohi": { "has_ohi": "yes" },
       "vet_relationship": "Relative - Other"
     },
     {
-      "address": {
+      "applicant_address": {
         "country": "USA",
         "street": "426 Ave C",
+        "street_combined": "426 Ave C",
         "city": "Philadelphia",
         "state": "PA",
         "postal_code": "65478"
       },
-      "full_name": {
+      "applicant_name": {
         "first": "Logan",
         "middle": "W",
         "last": "Wolf"
       },
       "ssn_or_tin": "123664444",
-      "gender": "M",
-      "email": "mailme@logan.com",
-      "phone_number": "2345698777",
-      "date_of_birth": "1999-03-10",
+      "applicant_gender": { "gender": "M" },
+      "applicant_email_address": "mailme@logan.com",
+      "applicant_phone": "2345698777",
+      "applicant_dob": "1999-03-10",
+      "applicant_medicare_status": { "eligibility": "enrolled" },
+      "applicant_has_ohi": { "has_ohi": "yes" },
       "is_enrolled_in_medicare": true,
       "has_other_health_insurance": true,
       "vet_relationship": "Relative - Other"
     },
     {
-      "address": {
+      "applicant_address": {
         "country": "USA",
         "street": "12345 Play Place",
+        "street_combined": "12345 Play Place",
         "city": "Camden",
         "state": "NJ",
         "postal_code": "65478"
       },
-      "full_name": {
+      "applicant_name": {
         "first": "Maria",
         "middle": "W",
         "last": "Storm"
       },
       "ssn_or_tin": "123664444",
-      "gender": "M",
-      "email": "mailme@Maria.com",
-      "phone_number": "2345698777",
-      "date_of_birth": "1959-03-10",
+      "applicant_gender": { "gender": "F" },
+      "applicant_email_address": "mailme@Maria.com",
+      "applicant_phone": "2345698777",
+      "applicant_dob": "1959-03-10",
+      "applicant_medicare_status": { "eligibility": "enrolled" },
+      "applicant_has_ohi": { "has_ohi": "yes" },
       "is_enrolled_in_medicare": true,
       "has_other_health_insurance": true,
       "vet_relationship": "Relative - Other"
+    }
+  ],
+  "supporting_docs": [
+      {
+        "name": "file.png",
+        "confirmation_code": "c1f25ef2-e5e3-48b6-927b-a0049a6dcbce",
+        "attachment_id": "Birth certificate",
+        "is_encrypted": false,
+        "applicant_name": {
+            "first": "Applicant",
+            "last": "Jones"
+        }
     }
   ],
   "certification": {

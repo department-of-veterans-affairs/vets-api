@@ -63,9 +63,10 @@ module MAP
           request: request_options
         ) do |conn|
           conn.use :breakers
-          conn.response :betamocks if Settings.map_services.sign_up_service.mock
           conn.use Faraday::Response::RaiseError
           conn.adapter Faraday.default_adapter
+          conn.response :json, content_type: /\bjson/
+          conn.response :betamocks if Settings.map_services.sign_up_service.mock
         end
       end
     end

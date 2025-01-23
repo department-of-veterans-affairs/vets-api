@@ -11,10 +11,12 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
   before do
     allow(Pensions::Monitor).to receive(:new).and_return(monitor)
     allow(monitor).to receive_messages(track_show404: nil, track_show_error: nil, track_create_attempt: nil,
-                                       track_create_error: nil, track_create_success: nil)
+                                       track_create_error: nil, track_create_success: nil,
+                                       track_create_validation_error: nil, track_process_attachment_error: nil)
   end
 
-  it_behaves_like 'a controller that deletes an InProgressForm', 'pension_claim', 'pension_claim', '21P-527EZ'
+  it_behaves_like 'a controller that deletes an InProgressForm', 'pension_claim', 'pensions_module_pension_claim',
+                  '21P-527EZ'
 
   describe '#create' do
     let(:claim) { build(:pensions_module_pension_claim) }
@@ -27,8 +29,9 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       allow(claim).to receive_messages(save: false, errors: 'mock error')
 
       expect(monitor).to receive(:track_create_attempt).once
+      expect(monitor).to receive(:track_create_validation_error).once
       expect(monitor).to receive(:track_create_error).once
-      expect(claim).not_to receive(:upload_to_lighthouse)
+      expect(Pensions::PensionBenefitIntakeJob).not_to receive(:perform_async)
 
       response = post(:create, params: { param_name => { form: claim.form } })
 
@@ -77,6 +80,27 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
     end
   end
 
+  describe '#process_and_upload_to_lighthouse' do
+    let(:claim) { build(:pensions_module_pension_claim) }
+    let(:in_progress_form) { build(:in_progress_form) }
+
+    it 'returns a success' do
+      expect(claim).to receive(:process_attachments!)
+
+      subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+    end
+
+    it 'raises an error' do
+      allow(claim).to receive(:process_attachments!).and_raise(StandardError, 'mock error')
+      expect(monitor).to receive(:track_process_attachment_error).once
+      expect(Pensions::PensionBenefitIntakeJob).not_to receive(:perform_async)
+
+      expect do
+        subject.send(:process_and_upload_to_lighthouse, in_progress_form, claim)
+      end.to raise_error(StandardError, 'mock error')
+    end
+  end
+
   describe '#log_validation_error_to_metadata' do
     let(:claim) { build(:pensions_module_pension_claim) }
     let(:in_progress_form) { build(:in_progress_form) }
@@ -85,7 +109,7 @@ RSpec.describe Pensions::V0::ClaimsController, type: :controller do
       ['', [], {}, nil].each do |blank|
         expect(in_progress_form).not_to receive(:update)
         result = subject.send(:log_validation_error_to_metadata, blank, claim)
-        expect(result).to eq(nil)
+        expect(result).to be_nil
       end
     end
 

@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - data
   - meta
@@ -9,12 +10,14 @@ properties:
       $ref: "./SecureMessageSummary.yml"
   meta:
     type: object
+    additionalProperties: false
     required:
       - sort
       - pagination
     properties:
       sort:
         type: object
+        additionalProperties: false
         required: sentDate
         properties:
           sentDate:
@@ -22,6 +25,7 @@ properties:
             enum: [ DESC, ASC ]
       pagination:
         type: object
+        additionalProperties: false
         required:
           - currentPage
           - perPage
@@ -42,6 +46,7 @@ properties:
             example: 15
       messageCounts:
         type: object
+        additionalProperties: false
         description: |
           Count of read and unread messages. `readReceipt` field containing "READ" count towards "read" count 
           while a null value will count towards "unread". If either read or unread is 0, the key will not be included.

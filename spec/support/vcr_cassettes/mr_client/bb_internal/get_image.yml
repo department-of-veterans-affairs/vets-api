@@ -1,0 +1,43 @@
+---
+http_interactions:
+  - request:
+      method: get
+      uri: "<MHV_MR_HOST>/mhvapi/v1/bluebutton/external/studyjob/image/studyidUrn/453-2487450/series/01/image/01"
+      body:
+        encoding: US-ASCII
+        string: ""
+      headers:
+        Accept-Encoding:
+          - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+        Accept:
+          - application/json
+        User-Agent:
+          - Vets.gov Agent
+        Host:
+          - localhost:2003
+        Content-Type:
+          - application/json
+        Token: "<SESSION_TOKEN>"
+    response:
+      status:
+        code: 200
+        message: ""
+      headers:
+        Date:
+          - Mon, 21 Oct 2024 15:05:25 GMT
+        Content-Type:
+          - application/json
+        Transfer-Encoding:
+          - chunked
+        Expires:
+          - "-1"
+        Cache-Control:
+          - no-cache
+        Strict-Transport-Security:
+          - max-age=16000000; includeSubDomains; preload;
+      body:
+        encoding: ASCII-8BIT
+        string: !binary |-
+          QmluYXJ5IGRhdGEgcGxhY2Vob2xkZXI=
+    recorded_at: Mon, 21 Oct 2024 15:05:25 GMT
+recorded_with: VCR 6.3.1

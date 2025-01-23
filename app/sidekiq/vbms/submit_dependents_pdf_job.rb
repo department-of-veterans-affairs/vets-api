@@ -6,7 +6,9 @@ module VBMS
     include Sidekiq::Job
     include SentryLogging
 
-    sidekiq_options retry: 14
+    # retry for  2d 1h 47m 12s
+    # https://github.com/sidekiq/sidekiq/wiki/Error-Handling
+    sidekiq_options retry: 16
     attr_reader :claim
 
     sidekiq_retries_exhausted do |msg, error|
@@ -41,7 +43,7 @@ module VBMS
 
         file_extension = File.extname(URI.parse(attachment.file.url).path)
         if %w[.jpg .jpeg .png .pdf].include? file_extension.downcase
-          file_path = Common::FileHelpers.generate_temp_file(attachment.file.read)
+          file_path = Common::FileHelpers.generate_clamav_temp_file(attachment.file.read)
 
           File.rename(file_path, "#{file_path}#{file_extension}")
           file_path = "#{file_path}#{file_extension}"

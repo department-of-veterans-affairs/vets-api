@@ -8,12 +8,7 @@ module V0
 
     skip_before_action :verify_authenticity_token, only: [:update_provisioning]
     skip_before_action :authenticate
-    before_action :terms_authenticate, except: [:current_status]
-
-    def current_status
-      agreement_status = find_terms_of_use_agreement_by_icn(params[:icn])
-      render_success(action: 'current_status', body: { agreement_status: }, icn: params[:icn])
-    end
+    before_action :terms_authenticate
 
     def latest
       terms_of_use_agreement = find_latest_agreement_by_version(params[:version])
@@ -22,7 +17,11 @@ module V0
 
     def accept
       terms_of_use_agreement = acceptor.perform!
-      recache_user unless terms_code_temporary_auth?
+      unless terms_code_temporary_auth?
+        recache_user
+        current_user.create_mhv_account_async unless skip_mhv_account_creation?
+      end
+
       render_success(action: 'accept', body: { terms_of_use_agreement: }, status: :created)
     rescue TermsOfUse::Errors::AcceptorError => e
       render_error(action: 'accept', message: e.message)
@@ -33,7 +32,13 @@ module V0
       if terms_of_use_agreement.accepted?
         provisioner.perform
         create_cerner_cookie
-        recache_user unless terms_code_temporary_auth?
+
+        unless terms_code_temporary_auth?
+          recache_user
+          current_user.create_mhv_account_async unless skip_mhv_account_creation?
+
+        end
+
         render_success(action: 'accept_and_provision', body: { terms_of_use_agreement:, provisioned: true },
                        status: :created)
       else
@@ -87,14 +92,6 @@ module V0
       }
     end
 
-    def find_terms_of_use_agreement_by_icn(icn)
-      user_account = UserAccount.find_by(icn:)
-      return unless user_account
-
-      latest_terms_of_use_agreement = user_account.terms_of_use_agreements.current.last
-      latest_terms_of_use_agreement&.response
-    end
-
     def find_latest_agreement_by_version(version)
       @user_account.terms_of_use_agreements.where(agreement_version: version).last
     end
@@ -128,6 +125,10 @@ module V0
     def mpi_profile
       @mpi_profile ||= MPI::Service.new.find_profile_by_identifier(identifier: @user_account.icn,
                                                                    identifier_type: MPI::Constants::ICN)&.profile
+    end
+
+    def skip_mhv_account_creation?
+      ActiveModel::Type::Boolean.new.cast(params[:skip_mhv_account_creation])
     end
 
     def render_success(action:, body:, status: :ok, icn: @user_account.icn)

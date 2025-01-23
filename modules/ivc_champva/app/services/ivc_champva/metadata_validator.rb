@@ -28,6 +28,8 @@ module IvcChampva
     end
 
     def self.validate_file_number(metadata)
+      return metadata if metadata['fileNumber'].blank?
+
       validate_presence_and_stringiness(metadata['fileNumber'], 'file number')
       unless metadata['fileNumber'].match?(/^\d{8,9}$/)
         raise ArgumentError, 'file number is invalid. It must be 8 or 9 digits'

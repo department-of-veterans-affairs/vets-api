@@ -4,6 +4,8 @@ require 'caseflow/service'
 require 'common/exceptions'
 
 class AppealsApi::V1::DecisionReviews::BaseContestableIssuesController < AppealsApi::ApplicationController
+  include AppealsApi::GatewayOriginCheck
+
   skip_before_action(:authenticate)
   before_action :validate_headers, only: %i[index]
 

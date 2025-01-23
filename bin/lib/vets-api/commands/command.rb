@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require './rakelib/support/shell_command'
+require 'shellwords'
 
 module VetsApi
   module Commands
@@ -10,7 +11,7 @@ module VetsApi
       def initialize(args)
         @options = args.select { |a| a.start_with?('--', '-') }
         input_values = args.reject { |a| a.start_with?('--', '-') }
-        @inputs = input_values.empty? ? default_inputs : input_values.join(' ')
+        @inputs = input_values.empty? ? default_inputs : sanitized_inputs(input_values)
 
         unless setup_preference_exists? || is_a?(Setup)
           puts 'You must run `bin/setup` before running other binstubs'
@@ -55,6 +56,10 @@ module VetsApi
 
       def execute_docker
         raise NotImplementedError, 'This method should be overridden in a subclass'
+      end
+
+      def sanitized_inputs(input_values)
+        input_values.map { |value| Shellwords.escape(value) }.join(' ')
       end
     end
   end

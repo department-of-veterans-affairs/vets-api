@@ -4,11 +4,13 @@ require 'rails_helper'
 
 describe IvcChampva::FileUploader do
   let(:form_id) { '123' }
-  let(:metadata) { { 'uuid' => '4171e61a-03b5-49f3-8717-dbf340310473' } }
+  let(:metadata) do
+    { 'uuid' => '4171e61a-03b5-49f3-8717-dbf340310473',
+      'attachment_ids' => ['Social Security card', 'Birth certificate'] }
+  end
   let(:file_paths) { ['tmp/file1.pdf', 'tmp/file2.png'] }
-  let(:attachment_ids) { ['Social Security card', 'Birth certificate'] }
   let(:insert_db_row) { false }
-  let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, attachment_ids, insert_db_row) }
+  let(:uploader) { IvcChampva::FileUploader.new(form_id, metadata, file_paths, insert_db_row) }
 
   describe '#handle_uploads' do
     context 'when all PDF uploads succeed' do
@@ -22,9 +24,24 @@ describe IvcChampva::FileUploader do
       end
     end
 
-    context 'when at least one PDF upload fails' do
+    context 'when at least one PDF upload fails and champva_require_all_s3_success flipper is enabled:' do
       before do
         allow(uploader).to receive(:upload).and_return([400, 'Upload failed'])
+        allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(true)
+      end
+
+      it 'raises an error' do
+        # Updated this test to account for new error being raised. This is so submissions are blocked
+        # from completing if any files fail to make it to S3. Formerly, the expectation was:
+        # `expect(uploader.handle_uploads).to eq([[400, 'Upload failed'], [400, 'Upload failed']])`
+        expect { uploader.handle_uploads }.to raise_error(StandardError, /Upload failed/)
+      end
+    end
+
+    context 'when at least one PDF upload fails and champva_require_all_s3_success flipper is disabled:' do
+      before do
+        allow(uploader).to receive(:upload).and_return([400, 'Upload failed'])
+        allow(Flipper).to receive(:enabled?).with(:champva_require_all_s3_success, @current_user).and_return(false)
       end
 
       it 'returns an array of upload results' do
@@ -46,8 +63,7 @@ describe IvcChampva::FileUploader do
       expect(File).to receive(:write).with(meta_file_path, metadata.to_json)
       expect(uploader).to receive(:upload).with(
         "#{metadata['uuid']}_#{form_id}_metadata.json",
-        meta_file_path,
-        attachment_ids:
+        meta_file_path
       ).and_return([200, nil])
       uploader.send(:generate_and_upload_meta_json)
     end
@@ -79,7 +95,7 @@ describe IvcChampva::FileUploader do
 
     it 'uploads the file to S3 and returns the upload status' do
       expect(s3_client).to receive(:put_object).and_return({ success: true })
-      expect(uploader.send(:upload, 'file_name', 'file_path', attachment_ids: 'attachment_ids')).to eq([200])
+      expect(uploader.send(:upload, 'file_name', 'file_path', 'attachment_id')).to eq([200])
     end
 
     context 'when upload fails' do
@@ -88,7 +104,7 @@ describe IvcChampva::FileUploader do
         expect(uploader.send(:upload,
                              'file_name',
                              'file_path',
-                             attachment_ids: 'attachment_ids')).to eq([400, 'Upload failed'])
+                             'attachment_id')).to eq([400, 'Upload failed'])
       end
     end
 

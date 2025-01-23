@@ -58,7 +58,12 @@ describe CARMA::Client::MuleSoftClient do
 
         context 'successfully gets token' do
           let(:bearer_token) { 'my-bearer-token' }
-          let(:headers) { { Authorization: "Bearer #{bearer_token}" } }
+          let(:headers) do
+            {
+              'Authorization' => "Bearer #{bearer_token}",
+              'Content-Type' => 'application/json'
+            }
+          end
 
           before do
             allow(mulesoft_auth_token_client).to receive(:new_bearer_token).and_return(bearer_token)
@@ -165,7 +170,7 @@ describe CARMA::Client::MuleSoftClient do
         subject { client.send(:raise_error_unless_success, 'my/url', status_code) }
 
         it 'returns nil' do
-          expect(subject).to eq(nil)
+          expect(subject).to be_nil
         end
 
         it 'logs submission and response code' do

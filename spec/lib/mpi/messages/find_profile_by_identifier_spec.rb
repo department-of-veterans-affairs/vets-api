@@ -72,6 +72,13 @@ describe MPI::Messages::FindProfileByIdentifier do
       it_behaves_like 'successfully built request'
     end
 
+    context 'when identifier type is MHV_UUID' do
+      let(:identifier_type) { MPI::Constants::MHV_UUID }
+      let(:expected_identifier) { "#{identifier}^#{MPI::Constants::MHV_FULL_IDENTIFIER}" }
+
+      it_behaves_like 'successfully built request'
+    end
+
     context 'when identifier type is an arbitrary value' do
       let(:identifier_type) { 'some-identifier-type' }
       let(:expected_error_message) { "Identifier type is not supported, identifier_type=#{identifier_type}" }

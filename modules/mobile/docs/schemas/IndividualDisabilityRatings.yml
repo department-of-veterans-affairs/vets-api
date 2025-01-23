@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 required:
   - decision
   - effectiveDate
@@ -11,9 +12,11 @@ properties:
   effectiveDate:
     type: string
     example: "2005-01-01T00:00:00.000+00:00"
+    nullable: true
   ratingPercentage:
     type: number
     example: 10
+    nullable: true
   diagnosticText:
     type: string
     example: "Hearing Loss"

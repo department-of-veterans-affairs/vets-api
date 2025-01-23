@@ -26,97 +26,92 @@ module Mobile
 
         def clinical_status(attributes)
           values = Array.wrap(attributes['coding'])
-          coding_hash = values.map do |code|
+          coding = values.map do |code|
             {
-              'system' => code['system'],
-              'code' => code['code']
+              system: code['system'], code: code['code']
             }
           end
 
-          { 'coding' => coding_hash }
+          { coding: }
         end
 
         def code(attributes)
           values = Array.wrap(attributes['coding'])
-          coding_hash = values.map do |code|
+          coding = values.map do |code|
             {
-              'system' => code['system'],
-              'code' => code['code'],
-              'display' => code['display']
+              system: code['system'],
+              code: code['code'],
+              display: code['display']
             }
           end
 
-          {
-            'coding' => coding_hash,
-            'text' => attributes['text']
-          }
+          { coding:, text: attributes['text'] }
         end
 
         def patient(attributes)
           {
-            'reference' => attributes['reference'],
-            'display' => attributes['display']
+            reference: attributes['reference'],
+            display: attributes['display']
           }
         end
 
         def recorder(attributes)
           {
-            'reference' => attributes['reference'],
-            'display' => attributes['display']
+            reference: attributes['reference'],
+            display: attributes['display']
           }
         end
 
         def notes(attributes)
           Array.wrap(attributes).map do |note|
             {
-              'authorReference' => {
-                'reference' => note.dig('authorReference', 'reference'),
-                'display' => note.dig('authorReference', 'display')
+              author_reference: {
+                reference: note.dig('authorReference', 'reference'),
+                display: note.dig('authorReference', 'display')
               },
-              'time' => note['time'],
-              'text' => note['text']
+              time: note['time'],
+              text: note['text']
             }
           end
         end
 
         def reactions(attributes)
           Array.wrap(attributes).map do |reaction|
-            substance = Array.wrap(reaction.dig('substance', 'coding'))
+            substance_list = Array.wrap(reaction.dig('substance', 'coding'))
 
-            substance_hash = substance.map do |code|
+            substance_coding = substance_list.map do |code|
               {
-                'system' => code['system'],
-                'code' => code['code'],
-                'display' => code['display']
+                system: code['system'],
+                code: code['code'],
+                display: code['display']
               }
             end
 
             {
-              'substance' => {
-                'coding' => substance_hash,
-                'text' => reaction.dig('substance', 'text')
+              substance: {
+                text: reaction.dig('substance', 'text'),
+                coding: substance_coding
               },
-              'manifestation' => manifestation_hash(reaction['manifestation'])
+              manifestation: manifestations(reaction)
             }
           end
         end
 
-        def manifestation_hash(manifestation_info)
-          Array.wrap(manifestation_info).map do |manifestation|
-            coding = Array.wrap(manifestation['coding'])
+        def manifestations(reaction)
+          manifestation_list = Array.wrap(reaction['manifestation'])
 
-            coding_hash = coding.map do |code|
+          manifestation_list.map do |manifestation_hash|
+            coding_list = Array.wrap(manifestation_hash['coding'])
+
+            coding = coding_list.map do |code|
               {
-                'system' => code['system'],
-                'code' => code['code'],
-                'display' => code['display']
+                system: code['system'],
+                code: code['code'],
+                display: code['display']
               }
             end
 
-            {
-              'coding' => coding_hash,
-              'text' => manifestation['text']
-            }
+            { coding:, text: manifestation_hash['text'] }
           end
         end
       end

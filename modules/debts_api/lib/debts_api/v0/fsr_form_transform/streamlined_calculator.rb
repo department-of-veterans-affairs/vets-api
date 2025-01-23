@@ -4,11 +4,13 @@ require 'debts_api/v0/fsr_form_transform/gmt_calculator'
 require 'debts_api/v0/fsr_form_transform/income_calculator'
 require 'debts_api/v0/fsr_form_transform/asset_calculator'
 require 'debts_api/v0/fsr_form_transform/enhanced_expense_calculator'
+require 'debts_api/v0/fsr_form_transform/utils'
 
 module DebtsApi
   module V0
     module FsrFormTransform
       class StreamlinedCalculator
+        include ::FsrFormTransform::Utils
         VHA_LIMIT = 5000
 
         def initialize(form)
@@ -16,11 +18,14 @@ module DebtsApi
           @gmt_data = @form['gmt_data']
           @income_data = DebtsApi::V0::FsrFormTransform::IncomeCalculator.new(form).get_monthly_income
           @asset_data = DebtsApi::V0::FsrFormTransform::AssetCalculator.new(form).transform_assets
-          @enhanced_expense_calculator =
-            DebtsApi::V0::FsrFormTransform::EnhancedExpenseCalculator.new(form).transform_expenses
+          @enhanced_expense_calculator = DebtsApi::V0::FsrFormTransform::EnhancedExpenseCalculator.new(
+            re_camel(form)
+          ).transform_expenses
         end
 
         def get_streamlined_data
+          update_streamlined_tracking_metrics
+
           {
             'value' => streamlined_short_form? || streamlined_long_form?,
             'type' => if streamlined_short_form?
@@ -62,23 +67,28 @@ module DebtsApi
         def streamlined_short_form?
           return false unless eligible_for_streamlined? && income_below_gmt_threshold?
 
-          asset_waiver_low_liquid_assets = streamlined_waiver_asset_update? && are_liquid_assets_below_gmt_threshold?
-          cash_below_gmt_threshold? || asset_waiver_low_liquid_assets
+          if streamlined_waiver_asset_update?
+            are_liquid_assets_below_gmt_threshold?
+          else
+            cash_below_gmt_threshold?
+          end
         end
 
         def streamlined_long_form?
           return false unless eligible_for_streamlined? && are_liquid_assets_below_gmt_threshold?
 
-          meets_streamlined_long_form_common_conditions =
-            !income_below_gmt_threshold? && income_below_upper_threshold? && income_below_discretionary_threshold?
-
-          meets_streamlined_long_form_common_conditions || streamlined_waiver_asset_update?
+          !income_below_gmt_threshold? && income_below_upper_threshold? && income_below_discretionary_threshold?
         end
 
         def eligible_for_streamlined?
           return false if @form['selected_debts_and_copays'].empty?
 
           debt_below_vha_limit? && total_waiver_and_copay_debts
+        end
+
+        def update_streamlined_tracking_metrics
+          tracking_label = "full_transform.#{streamlined? ? 'has' : 'no'}_streamlined_data"
+          StatsD.increment("#{DebtsApi::V0::Form5655Submission::STATS_KEY}.#{tracking_label}")
         end
 
         def are_liquid_assets_below_gmt_threshold?
@@ -114,6 +124,10 @@ module DebtsApi
 
         def debt_below_vha_limit?
           total_debt < VHA_LIMIT
+        end
+
+        def streamlined?
+          streamlined_short_form? || streamlined_long_form?
         end
       end
     end

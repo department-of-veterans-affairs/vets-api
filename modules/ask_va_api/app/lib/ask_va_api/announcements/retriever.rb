@@ -2,15 +2,11 @@
 
 module AskVAApi
   module Announcements
+    class AnnouncementsRetrieverError < StandardError; end
+
     ENDPOINT = 'announcements'
 
     class Retriever < BaseRetriever
-      attr_reader :name
-
-      def initialize(user_mock_data:, entity_class:)
-        super(user_mock_data:, entity_class:)
-      end
-
       private
 
       def fetch_data
@@ -18,7 +14,7 @@ module AskVAApi
           data = File.read('modules/ask_va_api/config/locales/get_announcements_mock_data.json')
           JSON.parse(data, symbolize_names: true)[:Data]
         else
-          fetch_service_data[:Data]
+          fetch_service_data
         end
       end
 
@@ -27,7 +23,8 @@ module AskVAApi
       end
 
       def fetch_service_data
-        default_service.call(endpoint: ENDPOINT)
+        response = default_service.call(endpoint: ENDPOINT)
+        handle_response_data(response:, error_class: AnnouncementsRetrieverError)
       end
     end
   end

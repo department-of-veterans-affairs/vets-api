@@ -13,7 +13,7 @@ http_interactions:
         by a service-connected disability\\nLengthy description"}]}],"standardClaim":false,"autoCestPDFGenerationDisabled":true,"claimDate":"1990-01-03T00:00:00+00:00","applicationExpirationDate":"2055-08-28T19:53:45+00:00","serviceInformation":{"servicePeriods":[{"activeDutyEndDate":"1990-01-02","serviceBranch":"Air
         Force","activeDutyBeginDate":"1980-02-05"},{"activeDutyEndDate":"1999-01-01","serviceBranch":"Air
         Force","activeDutyBeginDate":"1990-04-05"}],"reservesNationalGuardService":{"obligationTermOfServiceFromDate":"2000-01-01","obligationTermOfServiceToDate":"2000-01-02","unitName":"A
-        name, with commas, and  double  spaces"}},"claimSubmissionSource":"LH-B","disabilites":[[{"name":"PTSD
+        name, with commas, and  double  spaces"}},"claimSubmissionSource":"LH-B","disabilities":[[{"name":"PTSD
         personal trauma","disabilityActionType":"SECONDARY","serviceRelevance":"Caused
         by a service-connected disability\\nLengthy description"}]]}}'
     headers:

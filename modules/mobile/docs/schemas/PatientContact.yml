@@ -1,5 +1,6 @@
 description: Patient contact information
 type: object
+additionalProperties: false
 required:
   - telecom
 properties:

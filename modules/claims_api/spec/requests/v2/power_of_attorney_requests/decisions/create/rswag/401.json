@@ -24,6 +24,12 @@
             "enum": [
               "Not authorized"
             ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "401"
+            ]
           }
         }
       }

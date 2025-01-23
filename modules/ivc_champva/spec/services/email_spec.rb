@@ -31,18 +31,10 @@ RSpec.describe IvcChampva::Email, type: :service do
       it 'enqueues VANotify::EmailJob with correct parameters' do
         expect(VANotify::EmailJob).to receive(:perform_async).with(
           data[:email],
-          Settings.vanotify.services.ivc_champva.template_id.pega_status_update_email_template_id,
-          {
-            'form_number' => data[:form_number],
-            'form_name' => 'Application for CHAMPVA Benefits',
-            'phone_number' => '800-733-8387',
-            'first_name' => data[:first_name],
-            'last_name' => data[:last_name],
-            'file_count' => data[:file_count],
-            'pega_status' => data[:pega_status],
-            'date_submitted' => data[:created_at]
-          },
-          Settings.vanotify.services.ivc_champva.api_key
+          Settings.vanotify.services.ivc_champva.template_id.form_10_10d_email,
+          data.slice(:first_name, :last_name, :file_count, :pega_status, :date_submitted, :form_uuid),
+          Settings.vanotify.services.ivc_champva.api_key,
+          { callback_klass: nil, callback_metadata: nil }
         )
         subject.send_email
       end

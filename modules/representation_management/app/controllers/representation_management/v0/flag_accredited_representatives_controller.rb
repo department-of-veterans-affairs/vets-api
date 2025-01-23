@@ -3,7 +3,7 @@
 module RepresentationManagement
   module V0
     class FlagAccreditedRepresentativesController < ApplicationController
-      service_tag 'lighthouse-veteran'
+      service_tag 'representation-management'
       before_action :feature_enabled
       skip_before_action :authenticate
 
