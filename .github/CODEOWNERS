@@ -2202,3 +2202,6 @@ spec/models/user_action_spec.rb @department-of-veterans-affairs/octo-identity
 spec/uploaders/validate_pdf_spec.rb @department-of-veterans-affairs/Disability-Experience @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 spec/uploaders/simple_forms_api/ @department-of-veterans-affairs/platform-va-product-forms @department-of-veterans-affairs/va-api-engineers @department-of-veterans-affairs/backend-review-group
 # Place your entry above this comment in alphabetical order.
+
+spec/factories/user_action_events.rb @department-of-veterans-affairs/octo-identity
+spec/factories/user_actions.rb @department-of-veterans-affairs/octo-identity
