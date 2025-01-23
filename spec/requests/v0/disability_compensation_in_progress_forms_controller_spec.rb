@@ -116,12 +116,12 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
         end
 
         context 'prefills formData when user does not have an InProgressForm pending submission' do
+          let(:user) { loa1_user }
+          let!(:form_id) { '21-526EZ' }
+
           before do
             sign_in_as(user)
           end
-
-          let(:user) { loa1_user }
-          let!(:form_id) { '21-526EZ' }
 
           it 'adds default startedFormVersion for new InProgressForm' do
             get v0_disability_compensation_in_progress_form_url(form_id), params: nil
@@ -280,7 +280,6 @@ RSpec.describe V0::DisabilityCompensationInProgressFormsController do
               metadata: new_form.metadata
             }.to_json, headers: { 'CONTENT_TYPE' => 'application/json' }
           end.to change(InProgressForm, :count).by(1)
-
           expect(response).to have_http_status(:ok)
         end
       end
