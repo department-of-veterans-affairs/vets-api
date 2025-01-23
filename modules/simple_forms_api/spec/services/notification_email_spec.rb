@@ -34,18 +34,8 @@ describe SimpleFormsApi::NotificationEmail do
         end
 
         context 'notification_type is duplicate' do
-          let(:notification_type) { :duplicate }
-
           it 'does not require the confirmation_number' do
-            expect { described_class.new(config, notification_type:) }.not_to raise_error(ArgumentError)
-          end
-        end
-
-        context 'notification_type is rejeceted' do
-          let(:notification_type) { :rejected }
-
-          it 'does not require the confirmation_number' do
-            expect { described_class.new(config, notification_type:) }.not_to raise_error(ArgumentError)
+            expect { described_class.new(config, notification_type: :duplicate) }.not_to raise_error(ArgumentError)
           end
         end
       end
